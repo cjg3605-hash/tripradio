@@ -3,7 +3,10 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/next"
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "out"
+      }
     }
   ],
   "build": {
@@ -15,22 +18,22 @@
   "env": {
     "NODE_ENV": "production"
   },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/_next/static/(.*)",
-      "destination": "/_next/static/$1"
+      "src": "/_next/static/(.*)",
+      "dest": "/_next/static/$1"
     },
     {
-      "source": "/static/(.*)",
-      "destination": "/static/$1"
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
     },
     {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
     },
     {
-      "source": "/(.*)",
-      "destination": "/"
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ]
 }
