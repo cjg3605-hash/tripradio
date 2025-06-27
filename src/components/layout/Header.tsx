@@ -70,7 +70,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
             <div className="flex-shrink-0">
               <Link href="/" className="flex items-center gap-0" onClick={() => setIsMenuOpen(false)}>
                 <Image
-                  src="/NAVI.png"
+                  src="/navi.png"
                   alt="NAVI 로고"
                   width={50}
                   height={50}

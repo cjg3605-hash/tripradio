@@ -9,6 +9,9 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
     optimizePackageImports: ['lucide-react'],
+    outputFileTracingIncludes: {
+      '/*': ['public/navi.png'],
+    },
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
