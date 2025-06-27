@@ -1,0 +1,224 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth.js Models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// User Models
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?   // For email/password auth
+  provider      String?   // Auth provider (google, credentials, email)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // NextAuth Relations
+  accounts Account[]
+  sessions Session[]
+  
+  // App Relations
+  profile      UserProfile?
+  subscription Subscription?
+  tours        Tour[]
+  ttsUsage     TTSUsage[]
+  behaviors    UserBehavior[]
+  guideHistory GuideHistory[]
+  
+  @@map("users")
+}
+
+// Guide History Model
+model GuideHistory {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  locationName String
+  guideData    Json     // Generated guide content
+  userProfile  Json?    // User profile used for generation
+  
+  viewCount    Int      @default(1)
+  lastViewedAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime // Cache expiration (30 days)
+  
+  @@map("guide_history")
+}
+
+model UserProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  ageGroup        String   @default("30s")
+  interests       String[] @default([])
+  knowledgeLevel  String   @default("intermediate") 
+  companions      String   @default("solo")
+  language        String   @default("ko")
+  preferredStyle  String   @default("friendly")
+  tourDuration    Int      @default(90)
+  walkingSpeed    String   @default("normal")
+  audioPreference String   @default("basic")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("user_profiles")
+}
+
+model Location {
+  id          String @id @default(cuid())
+  name        String
+  nameEn      String?
+  description String
+  address     String
+  coordinates Json
+  region      String
+  category    String
+  
+  images      LocationImage[]
+  tours       Tour[]
+  
+  popularityScore Float @default(0)
+  createdAt      DateTime @default(now())
+  
+  @@map("locations")
+}
+
+model LocationImage {
+  id         String   @id @default(cuid())
+  locationId String
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  url        String
+  alt        String?
+  type       String
+  order      Int      @default(0)
+  
+  @@map("location_images")
+}
+
+model Tour {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  locationId String
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  
+  status              String
+  currentStop         Int      @default(1)
+  totalStops          Int
+  aiGeneratedContent  Json
+  userProfile         Json
+  
+  startedAt     DateTime?
+  completedAt   DateTime?
+  totalDuration Int?
+  rating        Int?
+  
+  createdAt DateTime @default(now())
+  behaviors UserBehavior[]
+  
+  @@map("tours")
+}
+
+model UserBehavior {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tourId   String?
+  tour     Tour?  @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  
+  stopId           String
+  dwellTime        Float
+  scrollDepth      Float
+  interactionCount Int
+  audioUsed        Boolean @default(false)
+  
+  engagementScore Float?
+  interestLevel   String?
+  
+  timestamp DateTime @default(now())
+  
+  @@map("user_behaviors")
+}
+
+model Subscription {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  plan   String
+  status String
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  
+  createdAt DateTime @default(now())
+  
+  @@map("subscriptions")
+}
+
+model TTSUsage {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  textLength Int
+  premium    Boolean  @default(false)
+  audioUrl   String?
+  duration   Float?
+  
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  
+  @@map("tts_usage")
+} 

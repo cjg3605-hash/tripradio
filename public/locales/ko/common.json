@@ -1,0 +1,38 @@
+{
+  "header": {
+    "title": "AI 가이드",
+    "language": "언어",
+    "login": "로그인",
+    "logout": "로그아웃",
+    "history": "검색 기록"
+  },
+  "home": {
+    "title": "세계 어디든, AI가 안내하는 특별한 여행",
+    "subtitle": "역사와 문화가 살아 숨쉬는 명소를 AI 가이드와 함께 탐험해보세요",
+    "searchPlaceholder": "어디로 떠나고 싶으신가요?",
+    "searchButton": "가이드 생성",
+    "popularDestinations": "인기 여행지",
+    "description": "AI가 실시간으로 생성하는 독특한 여행 가이드를 만나보세요"
+  },
+  "guide": {
+    "overview": "투어 개요",
+    "route": "추천 관람순서", 
+    "realTimeGuide": "실시간 오디오 가이드",
+    "play": "재생",
+    "pause": "일시정지",
+    "startingLocation": "시작 위치",
+    "viewOnGoogleMaps": "구글맵에서 보기",
+    "keyFacts": "핵심 정보",
+    "duration": "소요시간",
+    "difficulty": "난이도",
+    "season": "추천 계절",
+    "nextMove": "다음으로 이동"
+  },
+  "languages": {
+    "ko": "한국어",
+    "en": "English", 
+    "ja": "日本語",
+    "zh": "中文",
+    "es": "Español"
+  }
+} 

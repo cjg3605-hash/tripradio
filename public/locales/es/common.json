@@ -1,0 +1,38 @@
+{
+  "header": {
+    "title": "Guía AI",
+    "language": "Idioma",
+    "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión",
+    "history": "Historial de Búsqueda"
+  },
+  "home": {
+    "title": "Viajes extraordinarios guiados por IA",
+    "subtitle": "La IA genera guías de viaje personalizadas en tiempo real para ti",
+    "searchPlaceholder": "¿Dónde te gustaría explorar?",
+    "searchButton": "Generar Guía",
+    "popularDestinations": "Destinos Populares",
+    "description": "Descubre guías de viaje únicas generadas por IA en tiempo real"
+  },
+  "guide": {
+    "overview": "Resumen del Tour",
+    "route": "Ruta Recomendada",
+    "realTimeGuide": "Guía de Audio en Tiempo Real",
+    "play": "Reproducir",
+    "pause": "Pausar",
+    "startingLocation": "Ubicación de Inicio",
+    "viewOnGoogleMaps": "Ver en Google Maps",
+    "keyFacts": "Datos Clave",
+    "duration": "Duración",
+    "difficulty": "Dificultad",
+    "season": "Mejor Temporada",
+    "nextMove": "Siguiente: Ir a"
+  },
+  "languages": {
+    "ko": "한국어",
+    "en": "English",
+    "ja": "日本語",
+    "zh": "中文",
+    "es": "Español"
+  }
+}

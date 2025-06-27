@@ -1,0 +1,74 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+export async function POST(request: NextRequest) {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'GEMINI_API_KEY가 설정되지 않았습니다.' },
+        { status: 500 }
+      );
+    }
+
+    const body = await request.json();
+    const { location, userPreferences } = body;
+
+    if (!location) {
+      return NextResponse.json(
+        { error: 'location이 필요합니다.' },
+        { status: 400 }
+      );
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const prompt = `다음 관광지에 대한 상세한 가이드를 작성해주세요:
+    
+위치: ${location}
+사용자 선호사항: ${JSON.stringify(userPreferences)}
+
+다음 형식으로 응답해주세요:
+{
+  "location": "${location}",
+  "overview": "관광지 개요",
+  "history": "역사적 배경",
+  "highlights": ["주요 볼거리1", "주요 볼거리2", "주요 볼거리3"],
+  "tips": ["팁1", "팁2", "팁3"],
+  "estimatedTime": "예상 소요시간",
+  "bestTime": "방문하기 좋은 시간"
+}
+
+JSON 형식으로만 응답해주세요.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    try {
+      const guideData = JSON.parse(text);
+      return NextResponse.json({
+        success: true,
+        data: guideData
+      });
+    } catch (parseError) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          location,
+          content: text,
+          raw: true
+        }
+      });
+    }
+
+  } catch (error: any) {
+    console.error('AI 가이드 생성 오류:', error);
+    return NextResponse.json(
+      { error: '가이드 생성 중 오류가 발생했습니다.', details: error.message },
+      { status: 500 }
+    );
+  }
+} 

@@ -3,7 +3,11 @@ const nextConfig = {
   output: 'standalone',
   reactStrictMode: false,
   swcMinify: true,
+  // 정적 에셋 최적화
+  optimizeFonts: true,
+  // 정적 파일 캐싱
   experimental: {
+    optimizeCss: true,
     optimizePackageImports: ['lucide-react'],
   },
   compiler: {
@@ -24,7 +28,7 @@ const nextConfig = {
       'lh5.googleusercontent.com',
       'lh6.googleusercontent.com',
       'avatars.githubusercontent.com',
-      'navi-guide-l9rqk44ip-jg-chois-projects.vercel.app'
+      'navi-guide-22r545qh3-jg-chois-projects.vercel.app'
     ],
     remotePatterns: [
       {
@@ -61,6 +65,10 @@ const nextConfig = {
     config.module.rules.push({
       test: /\.(woff|woff2|eot|ttf|otf)$/i,
       type: 'asset/resource',
+      generator: {
+        filename: 'static/media/[name].[hash][ext]',
+        publicPath: '/_next/'
+      }
     });
     
     return config;

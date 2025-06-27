@@ -1,0 +1,38 @@
+{
+  "header": {
+    "title": "AI导览",
+    "language": "语言",
+    "login": "登录",
+    "logout": "退出",
+    "history": "搜索历史"
+  },
+  "home": {
+    "title": "AI陪伴的精彩导览之旅",
+    "subtitle": "让AI实时为您生成个性化旅行指南",
+    "searchPlaceholder": "您想去哪里探索？",
+    "searchButton": "生成导览",
+    "popularDestinations": "热门目的地",
+    "description": "遇见AI实时生成的独特旅行指南"
+  },
+  "guide": {
+    "overview": "导览概览",
+    "route": "推荐参观路线",
+    "realTimeGuide": "实时语音导览",
+    "play": "播放",
+    "pause": "暂停",
+    "startingLocation": "起始位置",
+    "viewOnGoogleMaps": "在Google地图中查看",
+    "keyFacts": "关键信息",
+    "duration": "所需时间",
+    "difficulty": "难度",
+    "season": "推荐季节",
+    "nextMove": "下一步：前往"
+  },
+  "languages": {
+    "ko": "한국어",
+    "en": "English",
+    "ja": "日本語",
+    "zh": "中文",
+    "es": "Español"
+  }
+}

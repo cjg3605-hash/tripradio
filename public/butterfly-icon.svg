@@ -1,0 +1,14 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- 첨부된 이미지의 나비 모양을 SVG로 재현 -->
+  <defs>
+    <style>
+      .butterfly-wing { fill: #8B5CF6; }
+    </style>
+  </defs>
+  
+  <!-- 왼쪽 날개 -->
+  <path class="butterfly-wing" d="M25 35 C15 25, 5 35, 10 50 C15 65, 25 70, 35 65 C40 60, 45 50, 40 40 C35 30, 30 25, 25 35 Z"/>
+  
+  <!-- 오른쪽 날개 -->
+  <path class="butterfly-wing" d="M75 35 C85 25, 95 35, 90 50 C85 65, 75 70, 65 65 C60 60, 55 50, 60 40 C65 30, 70 25, 75 35 Z"/>
+</svg>
