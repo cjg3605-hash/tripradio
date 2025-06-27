@@ -5,8 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
-// Import logo image
-import logoImage from '@/public/navi.png';
+// Public 폴더의 이미지는 직접 경로로 접근
+const logoImage = '/navi.png';
 import { 
   LogIn, 
   LogOut, 
@@ -77,6 +77,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                   width={50}
                   height={50}
                   className="object-contain -mr-1"
+                  priority
                   onError={(e) => {
                     console.error('이미지 로드 실패:', e);
                     console.log('이미지 경로:', e.currentTarget.src);
