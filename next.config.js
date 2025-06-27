@@ -7,7 +7,11 @@ const nextConfig = {
   optimizeFonts: true,
   // 정적 파일 캐싱
   experimental: {
-    optimizePackageImports: ['lucide-react']
+    optimizePackageImports: ['lucide-react'],
+    // 정적 파일 제공을 위한 설정
+    outputFileTracingIncludes: {
+      '/': ['public/**/*'],
+    },
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
@@ -19,6 +23,9 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    // 정적 이미지 파일 제공을 위한 설정
+    loader: 'custom',
+    loaderFile: './src/utils/imageLoader.js',
     domains: [
       'images.unsplash.com',
       'res.cloudinary.com',

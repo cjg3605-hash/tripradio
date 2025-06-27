@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
+import logoImage from '@/public/navi.png';
 import { 
   LogIn, 
   LogOut, 
@@ -69,16 +70,13 @@ export function Header({ onSidebarToggle }: HeaderProps) {
             {/* 로고 */}
             <div className="flex-shrink-0">
               <Link href="/" className="flex items-center gap-0" onClick={() => setIsMenuOpen(false)}>
-                <img
-                  src="/navi.png"
+                <Image
+                  src={logoImage}
                   alt="NAVI 로고"
                   width={50}
                   height={50}
                   className="object-contain -mr-1"
-                  onError={(e) => {
-                    console.error('이미지 로드 실패:', e);
-                    console.log('이미지 경로:', e.currentTarget.src);
-                  }}
+                  priority
                 />
                 <span className="text-2xl font-bold">
                   <span className="text-indigo-600">N</span>

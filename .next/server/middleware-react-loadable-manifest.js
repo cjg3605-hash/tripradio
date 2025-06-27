@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST='{"app\\\\guide\\\\[location]\\\\tour\\\\page.tsx -> ./components/TourContent":{"id":5238,"files":["static/chunks/238.974a9ebc49551389.js"]}}';
+self.__REACT_LOADABLE_MANIFEST="{}"
