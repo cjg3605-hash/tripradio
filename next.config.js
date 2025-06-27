@@ -43,7 +43,9 @@ const nextConfig = {
     ]
   },
   
-  // CORS 헤더 설정
+  // 정적 내보내기에서는 headers 설정이 지원되지 않음
+  // API 라우트를 사용하지 않는 경우 제거 가능
+  /*
   async headers() {
     return [
       {
@@ -56,6 +58,7 @@ const nextConfig = {
       },
     ];
   },
+  */
   
   webpack: (config, { dev, isServer }) => {
     // Production 빌드에서 hydration 오류 방지
