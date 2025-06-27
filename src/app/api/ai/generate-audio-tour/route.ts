@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createAutonomousGuidePrompt } from '@/lib/ai/prompts';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+function getGeminiClient() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY 환경 변수가 설정되지 않았습니다.');
+  }
+  return new GoogleGenerativeAI(apiKey);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,6 +21,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const genAI = getGeminiClient();
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = createAutonomousGuidePrompt(locationName, 'ko', userProfile);
