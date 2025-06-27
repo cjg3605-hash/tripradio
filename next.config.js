@@ -7,57 +7,36 @@ const vercelUrl = process.env.VERCEL_URL
   : process.env.NEXT_PUBLIC_VERCEL_URL || 'http://localhost:3000';
 
 const nextConfig = {
-  reactStrictMode: false,
+  reactStrictMode: true,
   swcMinify: true,
   
-  // 정적 에셋 최적화
-  optimizeFonts: true,
-  
-  // 이미지 설정
+  // 이미지 최적화 설정
   images: {
-    unoptimized: true, // 정적 내보내기 호환을 위해 비활성화
-    domains: [], // 외부 이미지가 아닌 경우 비워둡니다
-    path: '/_next/image',
-    loader: 'default',
+    domains: [], // 외부 이미지 도메인 추가
+    formats: ['image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    // 정적 파일 경로 설정
-    formats: ['image/webp'],
-    minimumCacheTTL: 60,
-    disableStaticImages: false,
-    dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;"
   },
   
-  // 정적 파일 캐시 설정
-  async headers() {
+  // 환경 변수 설정 (빌드 타임에만 사용)
+  env: {
+    NEXTAUTH_URL: vercelUrl,
+    NEXT_PUBLIC_VERCEL_URL: vercelUrl,
+  },
+  
+  // API 라우트 리라이트 설정 (필요시 사용)
+  async rewrites() {
     return [
-      {
-        source: '/(.*).(jpg|jpeg|png|gif|ico|svg|webp|avif|woff|woff2|ttf|eot)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
+      // API 경로 프록시 예시
+      // {
+      //   source: '/api/:path*',
+      //   destination: `${process.env.API_BASE_URL || 'http://localhost:3000'}/api/:path*`,
+      // },
     ];
   },
   
-  // 빌드 타임 환경 변수
-  env: {
-    NEXTAUTH_URL: vercelUrl,
-    NEXT_PUBLIC_VERCEL_URL: vercelUrl
-  },
-  
-  // 정적 내보내기 설정
-  output: 'export',
-  
-  // 정적 페이지 생성 시 동적 경로 무시
-  output: 'standalone',
-  
   // 웹팩 설정
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config, { isServer }) => {
     // 정적 자원 로더 설정
     config.module.rules.push({
       test: /\.(woff|woff2|eot|ttf|otf|png|jpg|gif|svg)$/i,
@@ -68,13 +47,20 @@ const nextConfig = {
       }
     });
     
-    // 환경 변수 처리
+    // 클라이언트에서 접근 가능한 환경 변수만 노출
     config.plugins.push(
-      new webpack.EnvironmentPlugin({
-        // 클라이언트에서 접근 가능한 환경 변수만 명시적으로 추가
-        NEXTAUTH_URL: vercelUrl,
-        NEXT_PUBLIC_VERCEL_URL: vercelUrl,
-        NODE_ENV: process.env.NODE_ENV
+      new webpack.DefinePlugin({
+        'process.env': {
+          // NEXT_PUBLIC_ 접두사가 있는 변수만 클라이언트에 노출
+          ...Object.fromEntries(
+            Object.entries(process.env).filter(([key]) => 
+              key.startsWith('NEXT_PUBLIC_') || 
+              key === 'NODE_ENV'
+            )
+          ),
+          NEXTAUTH_URL: JSON.stringify(vercelUrl),
+          NEXT_PUBLIC_VERCEL_URL: JSON.stringify(vercelUrl)
+        }
       })
     );
     

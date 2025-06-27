@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+// 환경 변수 확인
+const geminiApiKey = process.env.GEMINI_API_KEY;
+if (!geminiApiKey) {
+  console.error('GEMINI_API_KEY is not set');
+}
 
-// 서버 측 메모리 캐시
+const genAI = geminiApiKey ? new GoogleGenerativeAI(geminiApiKey) : null;
+
+// 서버 측 메모리 캐시 (Note: In serverless functions, this will be per-instance)
 const searchCache = new Map<string, { suggestions: any[], timestamp: number }>();
 const CACHE_DURATION = 30 * 60 * 1000; // 30분
 
@@ -71,69 +77,111 @@ Escribe todas las respuestas en español.`
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const query = searchParams.get('q');
-    const language = searchParams.get('lang') || 'ko'; // 언어 파라미터 추가
-
-    if (!query || query.length < 2) {
-      return NextResponse.json({
-        success: true,
-        suggestions: []
-      });
+    // API 키 확인
+    if (!genAI) {
+      console.error('Gemini API key is not configured');
+      return NextResponse.json(
+        { success: false, error: 'Server configuration error' },
+        { status: 500 }
+      );
     }
 
-    // 언어별 캐시 키 생성
+    const { searchParams } = new URL(request.url);
+    const query = searchParams.get('q');
+    const language = searchParams.get('lang') || 'ko';
+
+    // 쿼리 유효성 검사
+    if (!query || query.length < 2) {
+      return NextResponse.json(
+        { success: true, suggestions: [] },
+        { status: 200 }
+      );
+    }
+
+    // 언어별 캐시 키 생성 (서버리스 환경에서는 인스턴스당 별도로 동작함을 유의)
     const cacheKey = `${query.toLowerCase()}-${language}`;
     const cached = searchCache.get(cacheKey);
 
     // 캐시 확인 및 반환
     if (cached && (Date.now() - cached.timestamp < CACHE_DURATION)) {
-      return NextResponse.json({ success: true, suggestions: cached.suggestions });
+      return NextResponse.json(
+        { success: true, suggestions: cached.suggestions },
+        { status: 200 }
+      );
     }
 
-    // 빠른 자동완성용 모델 설정
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
-      generationConfig: {
-        temperature: 0.3,
-        topK: 10,
-        topP: 0.7,
-        maxOutputTokens: 512,
-        candidateCount: 1,
-      }
-    });
-
-    // 언어별 프롬프트 생성
-    const prompt = createSearchPrompt(query, language);
-
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
-    
-    // JSON 추출
-    const jsonMatch = responseText.match(/\[[\s\S]*?\]/);
-    if (!jsonMatch) {
-      return NextResponse.json({
-        success: true,
-        suggestions: []
+    try {
+      // Gemini 모델 설정
+      const model = genAI.getGenerativeModel({ 
+        model: 'gemini-1.5-flash',
+        generationConfig: {
+          temperature: 0.3,
+          topK: 10,
+          topP: 0.7,
+          maxOutputTokens: 512,
+          candidateCount: 1,
+        }
       });
+
+      // 언어별 프롬프트 생성 및 API 호출
+      const prompt = createSearchPrompt(query, language);
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
+      
+      // 응답에서 JSON 추출
+      const jsonMatch = responseText.match(/\[[\s\S]*?\]/);
+      if (!jsonMatch) {
+        return NextResponse.json(
+          { success: true, suggestions: [] },
+          { status: 200 }
+        );
+      }
+
+      // 응답 파싱 및 유효성 검사
+      let suggestions = [];
+      try {
+        const parsed = JSON.parse(jsonMatch[0]);
+        suggestions = Array.isArray(parsed) ? parsed.slice(0, 5) : [];
+      } catch (parseError) {
+        console.error('Failed to parse Gemini response:', parseError);
+        suggestions = [];
+      }
+
+      // 캐시에 저장 (서버리스 환경에서는 인스턴스당 별도로 유지됨)
+      searchCache.set(cacheKey, { suggestions, timestamp: Date.now() });
+      
+      return NextResponse.json(
+        { success: true, suggestions },
+        { status: 200, 
+          headers: {
+            'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
+          }
+        }
+      );
+
+    } catch (apiError: unknown) {
+      console.error('Gemini API Error:', apiError);
+      const errorMessage = apiError instanceof Error ? apiError.message : 'Unknown error';
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Failed to process your request',
+          ...(process.env.NODE_ENV === 'development' && { details: errorMessage })
+        },
+        { status: 500 }
+      );
     }
 
-    const suggestions = JSON.parse(jsonMatch[0]);
-    const finalSuggestions = Array.isArray(suggestions) ? suggestions.slice(0, 5) : [];
-
-    // 언어별 캐시에 저장
-    searchCache.set(cacheKey, { suggestions: finalSuggestions, timestamp: Date.now() });
-    
-    return NextResponse.json({
-      success: true,
-      suggestions: finalSuggestions
-    });
-
-  } catch (error) {
-    console.error('자동완성 오류:', error);
-    return NextResponse.json({
-      success: true,
-      suggestions: [] // 오류 시 빈 배열 반환
-    });
+  } catch (error: unknown) {
+    console.error('Search API Error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Internal server error',
+        ...(process.env.NODE_ENV === 'development' && { details: errorMessage })
+      },
+      { status: 500 }
+    );
   }
-} 
+}
