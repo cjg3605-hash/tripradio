@@ -7,11 +7,7 @@ const nextConfig = {
   optimizeFonts: true,
   // 정적 파일 캐싱
   experimental: {
-    optimizeCss: true,
-    optimizePackageImports: ['lucide-react'],
-    outputFileTracingIncludes: {
-      '/*': ['public/navi.png'],
-    },
+    optimizePackageImports: ['lucide-react']
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
