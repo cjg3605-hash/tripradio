@@ -1,14 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 정적 내보내기 설정 (Next.js 14에서는 output: 'export' 사용 권장)
-  output: 'export',
   reactStrictMode: false,
   swcMinify: true,
   
   // 정적 에셋 최적화
   optimizeFonts: true,
   
-  // 정적 파일 캐싱
+  // 실험적 기능
   experimental: {
     optimizePackageImports: ['lucide-react'],
   },
@@ -17,7 +15,7 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   
-  // 정적 내보내기 시 경로에 슬래시 추가
+  // Vercel에서 정적 파일 제공을 위한 설정
   trailingSlash: true,
   
   // 환경 변수
