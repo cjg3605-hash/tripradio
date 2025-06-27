@@ -6,20 +6,6 @@
       "use": "@vercel/next"
     }
   ],
-  "routes": [
-    {
-      "src": "/_next/static/(.*)",
-      "dest": "/_next/static/$1"
-    },
-    {
-      "src": "/static/(.*)",
-      "dest": "/static/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/"
-    }
-  ],
   "build": {
     "env": {
       "NODE_VERSION": "18.x",
@@ -30,6 +16,14 @@
     "NODE_ENV": "production"
   },
   "rewrites": [
+    {
+      "source": "/_next/static/(.*)",
+      "destination": "/_next/static/$1"
+    },
+    {
+      "source": "/static/(.*)",
+      "destination": "/static/$1"
+    },
     {
       "source": "/api/:path*",
       "destination": "/api/:path*"
