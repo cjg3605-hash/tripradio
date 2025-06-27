@@ -13,6 +13,9 @@
     "db:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
     "type-check": "tsc --noEmit"
   },
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "dependencies": {
     "@auth/pg-adapter": "^1.9.1",
     "@auth/supabase-adapter": "^1.9.1",

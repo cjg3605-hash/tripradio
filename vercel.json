@@ -22,7 +22,21 @@
   ],
   "build": {
     "env": {
-      "NODE_VERSION": "18.x"
+      "NODE_VERSION": "18.x",
+      "NODE_ENV": "production"
     }
-  }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ]
 }
