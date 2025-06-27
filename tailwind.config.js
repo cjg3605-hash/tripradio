@@ -30,8 +30,8 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'var(--font-pretendard)', 'system-ui', 'sans-serif'],
-        pretendard: ['var(--font-pretendard)', 'sans-serif'],
+        sans: ['var(--font-inter)', 'var(--font-noto-sans-kr)', 'system-ui', 'sans-serif'],
+        noto: ['var(--font-noto-sans-kr)', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
