@@ -6,27 +6,8 @@
       "use": "@vercel/next"
     }
   ],
-  "build": {
-    "env": {
-      "NODE_VERSION": "18.x",
-      "NODE_ENV": "production"
-    }
-  },
-  "env": {
-    "NODE_ENV": "production"
-  },
   "routes": [
-    {
-      "src": "/_next/static/(.*)",
-      "dest": "/_next/static/$1"
-    },
-    {
-      "src": "/static/(.*)",
-      "dest": "/static/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/"
-    }
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "/" }
   ]
 }
