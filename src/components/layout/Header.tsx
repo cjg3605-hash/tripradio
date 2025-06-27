@@ -5,8 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
-// Using absolute path for the logo image
-const logoImage = '/navi.png';
+// Import logo image
+import logoImage from '@/public/navi.png';
 import { 
   LogIn, 
   LogOut, 
@@ -71,7 +71,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
             {/* 로고 */}
             <div className="flex-shrink-0">
               <Link href="/" className="flex items-center gap-0" onClick={() => setIsMenuOpen(false)}>
-                <img
+                <Image
                   src={logoImage}
                   alt="NAVI 로고"
                   width={50}

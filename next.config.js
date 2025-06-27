@@ -16,6 +16,14 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
+  // 이미지 도메인 설정
+  images: {
+    domains: ['vercel.com'],
+    unoptimized: true, // Vercel에서 최적화 사용
+  },
+  // 정적 내보내기 설정
+  trailingSlash: true,
+  // 환경 변수
   env: {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,

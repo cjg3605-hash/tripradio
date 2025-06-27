@@ -70,12 +70,8 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 // 번역 데이터 로드 함수
 async function loadTranslations(language: SupportedLanguage): Promise<Translations> {
   try {
-    // Vercel 배포 환경에서는 절대 경로를 사용
-    const basePath = process.env.NODE_ENV === 'production' 
-      ? 'https://navi-guide-ai.vercel.app' 
-      : '';
-      
-    const response = await fetch(`${basePath}/locales/${language}/common.json`);
+    // 상대 경로 사용 (Vercel에서 자동으로 public 폴더를 서빙함)
+    const response = await fetch(`/locales/${language}/common.json`);
     if (!response.ok) {
       throw new Error(`Failed to load translations for ${language}`);
     }
