@@ -125,8 +125,8 @@ export default function SignInPage() {
           <Link href="/" className="inline-block">
             <div className="flex items-center justify-center gap-0 mb-6">
               <img 
-                src="/NAVI.png" 
-                alt="NAVI 로고" 
+                src="/navi.png" 
+                alt="Guide AI" 
                 width="56" 
                 height="56" 
                 className="object-contain -mr-1"

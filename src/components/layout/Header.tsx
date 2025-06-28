@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
 // Public 폴더의 이미지 경로 (대소문자 주의)
-const logoImage = '/Navi.png';
+const logoImage = '/navi.png';
 import { 
   LogIn, 
   LogOut, 
