@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
+import { useRouter } from 'next/navigation';
 // Public 폴더의 이미지 경로 (대소문자 주의)
 const logoImage = '/navi.png';
 import { 
@@ -28,6 +29,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
+  const router = useRouter();
 
   // 현재 언어 정보 가져오기
   const getCurrentLanguageInfo = () => {
@@ -42,7 +44,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
   };
 
   const handleSignIn = () => {
-    signIn('google', { callbackUrl: '/' });
+    router.push('/auth/signin');
   };
   
   const handleSignOut = () => {
