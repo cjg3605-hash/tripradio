@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Clock, MapPin, Play, Pause, Volume2 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 
 // 🔥 강력한 디버깅: 컴포넌트 로드 확인
 console.log('🚀 TourContent 컴포넌트 파일 로드됨!');
@@ -17,6 +18,14 @@ interface Chapter {
     sensoryBehindTheScenes: string;
   };
   nextDirection?: string;
+  lat?: number;
+  lng?: number;
+  latitude?: number;
+  longitude?: number;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 interface TourData {
@@ -43,6 +52,8 @@ interface TourContentProps {
   offlineData?: any;
 }
 
+const MapWithRoute = dynamic(() => import('@/components/guide/MapWithRoute'), { ssr: false });
+
 export default function TourContent({ locationName, userProfile, offlineData }: TourContentProps) {
   // 🔥 강력한 디버깅: 컴포넌트 시작
   console.log('🎬 TourContent 컴포넌트 렌더링 시작!', { locationName, userProfile });
@@ -56,21 +67,33 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
   
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const loadTourData = async () => {
+  const getCacheKey = () => {
+    // locationName + userProfile(문자열화) 조합으로 고유 키 생성
+    const profileStr = userProfile ? JSON.stringify(userProfile) : '';
+    return `guide-cache:${locationName}:${profileStr}`;
+  };
+
+  const loadTourData = async (forceRegenerate = false) => {
     console.log('🚀 loadTourData 함수 시작!', { locationName });
     setIsLoading(true);
     setError(null);
-    
+    const cacheKey = getCacheKey();
+    if (!forceRegenerate) {
+      // 1. localStorage 캐시 우선 조회
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          setTourData(parsed);
+          setIsLoading(false);
+          console.log('✅ localStorage 캐시 사용');
+          return;
+        }
+      } catch (e) {
+        console.warn('❌ localStorage 캐시 파싱 실패', e);
+      }
+    }
     try {
-      // 🔄 캐시 강제 정리
-      const cacheKeys = Object.keys(localStorage).filter(key => 
-        key.includes(locationName) || key.includes('guide-data')
-      );
-      cacheKeys.forEach(key => {
-        localStorage.removeItem(key);
-        console.log('🗑️ 캐시 삭제:', key);
-      });
-
       const defaultProfile = {
         interests: ['문화', '역사'],
         knowledgeLevel: '중급',
@@ -78,33 +101,28 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
         preferredStyle: '친근함',
         ...userProfile
       };
-
       const response = await fetch('/api/ai/generate-guide', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           locationName,
           userProfile: defaultProfile,
-          forceRegenerate: true  // 강제 재생성 플래그
+          forceRegenerate
         })
       });
-
       const result = await response.json();
-      
-      console.log('🔍 API 응답 결과:', result);
-      console.log('📊 챕터 개수:', result.data?.content?.realTimeGuide?.chapters?.length);
-      console.log('📝 첫 번째 챕터 데이터:', result.data?.content?.realTimeGuide?.chapters?.[0]);
-      
       if (result.success && result.data?.content?.realTimeGuide?.chapters?.length > 0) {
-        console.log('✅ 투어 데이터 설정 성공');
-        console.log('🎭 narrativeLayers 확인:', result.data.content.realTimeGuide.chapters[0]?.narrativeLayers);
         setTourData(result.data);
+        // 2. localStorage에 캐시 저장
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify(result.data));
+        } catch (e) {
+          console.warn('❌ localStorage 캐시 저장 실패', e);
+        }
       } else {
-        console.error('❌ 투어 데이터 설정 실패:', result.error);
         setError(result.error || '실시간 가이드 생성에 실패했습니다.');
       }
     } catch (error) {
-      console.error('투어 데이터 로드 실패:', error);
       setError('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
     } finally {
       setIsLoading(false);
@@ -118,7 +136,7 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
       return;
     }
     if (locationName) {
-      loadTourData();
+      loadTourData(false); // 기본은 캐시 우선
     }
   }, [locationName, offlineData]);
 
@@ -144,7 +162,7 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
 
   const handleRetry = async () => {
     setIsRetrying(true);
-    await loadTourData();
+    await loadTourData(true); // 강제 재생성
     setIsRetrying(false);
   };
 
@@ -311,8 +329,19 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
         </div>
       </header>
 
-      {/* 메인 콘텐츠 - 전체 챕터 스크롤 */}
+      {/* 지도/동선 표시 (최상단) */}
       <main className="px-4 py-6 max-w-4xl mx-auto">
+        <MapWithRoute
+          chapters={chapters.map((c, i) => ({
+            id: c.id,
+            title: c.title,
+            lat: c.lat || c.latitude || c.coordinates?.lat || c.coordinates?.latitude,
+            lng: c.lng || c.longitude || c.coordinates?.lng || c.coordinates?.longitude
+          }))}
+          activeChapter={activeChapter}
+          onMarkerClick={scrollToChapter}
+        />
+
         {/* 오디오 컨트롤 (고정) */}
         <div className="bg-white rounded-xl shadow-sm border p-4 mb-8 sticky top-24 z-40">
           <div className="flex items-center justify-between">
@@ -479,7 +508,7 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
         {tourData.content.personalizedNote && (
           <div className="mt-12 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-8 border border-indigo-200">
             <h4 className="font-semibold text-indigo-900 mb-4 text-lg">💝 특별한 메시지</h4>
-            <p className="text-indigo-800 leading-relaxed text-lg">
+            <p className="text-indigo-800 leading-relaxed text-lg whitespace-pre-line">
               {tourData.content.personalizedNote}
             </p>
           </div>

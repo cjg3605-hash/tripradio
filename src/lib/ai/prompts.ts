@@ -92,6 +92,8 @@ ${currentLang.role} 당신은 필요한 모든 정보를 스스로 웹에서 검
 **생성 언어**: ${langConfig.name} (${langConfig.code})
 **대상 언어**: 모든 출력은 반드시 ${langConfig.name}로 작성해야 합니다.
 
+**⚠️ 각 챕터(명소)별로 반드시 정확한 위도(lat), 경도(lng) 좌표를 포함해야 하며, 구글맵에서 검색 가능한 주소와 Google Maps URL도 함께 반환해야 합니다. (좌표 누락 시 불합격!)**
+
 ${userContext}
 
 # 설명 분량 및 심화 해설 규칙 (유연 적용)
