@@ -52,6 +52,7 @@ export default function MyPage() {
   const [activeTab, setActiveTab] = useState<'profile' | 'history' | 'settings'>('profile');
   const [storageInfo, setStorageInfo] = useState<any>(null);
   const [useFileStorage, setUseFileStorage] = useState(true); // 파일 저장소 우선 사용
+  const [offlineGuides, setOfflineGuides] = useState<any[]>([]);
 
   // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
   useEffect(() => {
@@ -68,6 +69,12 @@ export default function MyPage() {
     if (session?.user) {
       loadHistory();
     }
+  }, [session]);
+
+  useEffect(() => {
+    // 오프라인 가이드함 불러오기
+    const guides = JSON.parse(localStorage.getItem('myGuides') || '[]');
+    setOfflineGuides(guides);
   }, [session]);
 
   const loadHistory = async () => {
@@ -438,6 +445,32 @@ export default function MyPage() {
                     ))}
                   </div>
                 )}
+
+                {/* 오프라인 가이드함 */}
+                <div className="mt-10">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">오프라인 가이드함</h3>
+                  {offlineGuides.length === 0 ? (
+                    <div className="text-gray-500 text-center py-8">아직 오프라인에 저장한 가이드가 없습니다.</div>
+                  ) : (
+                    <div className="space-y-4">
+                      {offlineGuides.map((guide) => (
+                        <div key={guide.metadata?.originalLocationName} className="border border-yellow-200 rounded-xl p-4 bg-yellow-50 flex items-center justify-between">
+                          <div>
+                            <div className="font-semibold text-yellow-900">{guide.metadata?.originalLocationName}</div>
+                            <div className="text-xs text-gray-500">저장일: {guide.savedAt ? new Date(guide.savedAt).toLocaleString('ko-KR') : '-'}</div>
+                          </div>
+                          <button
+                            onClick={() => router.push(`/my-guide/${encodeURIComponent(guide.metadata?.originalLocationName)}`)}
+                            className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 text-sm font-medium"
+                            aria-label="오프라인 가이드 보기"
+                          >
+                            오프라인 가이드 보기
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

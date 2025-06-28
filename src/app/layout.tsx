@@ -50,6 +50,17 @@ export default async function RootLayout({
   
   return (
     <html lang="ko" className={`${inter.variable} ${notoSansKR.variable}`}>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/navi.png" />
+        <meta name="theme-color" content="#2563eb" />
+        <meta name="application-name" content="NAVI" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="NAVI" />
+        <meta name="msapplication-TileColor" content="#2563eb" />
+        <meta name="msapplication-config" content="/browserconfig.xml" />
+      </head>
       <body className={`${fontClassName} font-sans`}>
         <SessionProvider session={session as Session | null}>
           <LanguageProvider>

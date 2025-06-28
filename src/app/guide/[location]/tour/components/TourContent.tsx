@@ -40,13 +40,14 @@ interface TourData {
 interface TourContentProps {
   locationName: string;
   userProfile?: any;
+  offlineData?: any;
 }
 
-export default function TourContent({ locationName, userProfile }: TourContentProps) {
+export default function TourContent({ locationName, userProfile, offlineData }: TourContentProps) {
   // 🔥 강력한 디버깅: 컴포넌트 시작
   console.log('🎬 TourContent 컴포넌트 렌더링 시작!', { locationName, userProfile });
   
-  const [tourData, setTourData] = useState<TourData | null>(null);
+  const [tourData, setTourData] = useState<TourData | null>(offlineData || null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -111,10 +112,15 @@ export default function TourContent({ locationName, userProfile }: TourContentPr
   };
 
   useEffect(() => {
+    if (offlineData) {
+      setTourData(offlineData);
+      setIsLoading(false);
+      return;
+    }
     if (locationName) {
       loadTourData();
     }
-  }, [locationName]);
+  }, [locationName, offlineData]);
 
   // 스크롤 위치에 따라 활성 챕터 업데이트
   useEffect(() => {
@@ -499,6 +505,28 @@ export default function TourContent({ locationName, userProfile }: TourContentPr
               이 가이드가 도움이 되셨나요? 다른 명소도 함께 탐험해보세요!
             </div>
           </div>
+        </div>
+
+        {/* 다운로드 버튼 섹션 */}
+        <div className="mt-8 flex flex-col items-center gap-4">
+          <button
+            onClick={() => {
+              if (!tourData) return;
+              const guides = JSON.parse(localStorage.getItem('myGuides') || '[]');
+              const exists = guides.some((g: any) => g.metadata?.originalLocationName === tourData.metadata.originalLocationName);
+              if (exists) {
+                alert('이미 오프라인에 저장된 가이드입니다.');
+                return;
+              }
+              guides.push({ ...tourData, savedAt: new Date().toISOString() });
+              localStorage.setItem('myGuides', JSON.stringify(guides));
+              alert('오프라인 가이드함에 저장되었습니다!\n마이페이지 > 가이드함에서 언제든 열람할 수 있습니다.');
+            }}
+            className="px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors font-medium"
+            aria-label="오프라인 저장"
+          >
+            💾 오프라인 저장
+          </button>
         </div>
       </main>
 

@@ -1,0 +1,22 @@
+{
+  "name": "NAVI",
+  "short_name": "NAVI",
+  "description": "AI 기반 맞춤형 여행/오디오 가이드",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48 64x64 96x96 128x128 256x256",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/navi.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
