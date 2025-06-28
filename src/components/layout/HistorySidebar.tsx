@@ -11,6 +11,7 @@ import {
   Search,
   History
 } from 'lucide-react';
+import { guideHistory } from '@/lib/cache/localStorage';
 
 interface HistoryEntry {
   fileName: string;
@@ -31,22 +32,13 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
   const router = useRouter();
 
   // 히스토리 로드
-  const loadHistory = async () => {
+  const loadHistory = () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/node/guide-history');
-      const data = await response.json();
-      if (data.success && data.guides && data.guides.length > 0) {
-        setHistory(data.guides || []);
-      } else {
-        // 서버 데이터가 없으면 로컬스토리지에서 불러오기
-        const localHistory = guideHistory.getHistory();
-        setHistory(localHistory);
-      }
-    } catch (error) {
-      // 서버 에러 시 로컬스토리지에서 불러오기
       const localHistory = guideHistory.getHistory();
       setHistory(localHistory);
+    } catch (error) {
+      setHistory([]);
       console.error('히스토리 로드 실패:', error);
     } finally {
       setIsLoading(false);
@@ -54,17 +46,12 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
   };
 
   // 히스토리 삭제
-  const deleteHistoryItem = async (historyId: string) => {
+  const deleteHistoryItem = (historyId: string) => {
     try {
-      const response = await fetch('/api/node/guide-history', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: historyId }),
-      });
-      
-      if (response.ok) {
-        setHistory(prev => prev.filter(item => item.fileName !== historyId));
-      }
+      // localStorage에서 삭제
+      const localHistory = guideHistory.getHistory().filter(item => item.id !== historyId);
+      localStorage.setItem('navi_guide_history', JSON.stringify(localHistory));
+      setHistory(localHistory);
     } catch (error) {
       console.error('히스토리 삭제 실패:', error);
     }

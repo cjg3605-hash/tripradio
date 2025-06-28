@@ -250,6 +250,8 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
     chaptersLength: chapters?.length,
     locationName
   });
+  // 지도 마커 디버깅: 각 챕터의 좌표값 확인
+  console.log('지도 마커 디버깅:', chapters.map(c => ({ title: c.title, lat: c.lat, lng: c.lng, latitude: c.latitude, longitude: c.longitude, coordinates: c.coordinates })));
 
   // 시작 위치 정보를 파싱하는 함수
   const parseStartDirection = (direction: string) => {

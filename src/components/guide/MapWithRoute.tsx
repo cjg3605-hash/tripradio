@@ -35,8 +35,15 @@ function MapFlyTo({ lat, lng }: { lat: number; lng: number }) {
 }
 
 export default function MapWithRoute({ chapters, activeChapter, onMarkerClick }: MapWithRouteProps) {
-  // 좌표만 추출
-  const points = chapters.filter(c => c.lat && c.lng).map(c => [c.lat!, c.lng!] as [number, number]);
+  // 좌표만 추출 (0도 허용, 모든 필드 지원)
+  const getLatLng = (c: any) => [
+    c.lat ?? c.latitude ?? c.coordinates?.lat ?? c.coordinates?.latitude,
+    c.lng ?? c.longitude ?? c.coordinates?.lng ?? c.coordinates?.longitude
+  ];
+  const points = chapters
+    .map(getLatLng)
+    .filter(([lat, lng]) => lat !== undefined && lng !== undefined && lat !== null && lng !== null)
+    .map(([lat, lng]) => [Number(lat), Number(lng)] as [number, number]);
   const center = points[activeChapter] || points[0] || [37.3861, -5.9926]; // fallback: 세비야대성당
 
   return (
