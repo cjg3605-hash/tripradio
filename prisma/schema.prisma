@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
 }
 
 // NextAuth.js Models
@@ -21,8 +21,7 @@ model Account {
   scope             String?
   id_token          String? @db.Text
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -51,7 +50,7 @@ model VerificationToken {
 model User {
   id            String    @id @default(cuid())
   name          String?
-  email         String    @unique
+  email         String?   @unique
   emailVerified DateTime?
   image         String?
   password      String?   // For email/password auth
@@ -60,8 +59,8 @@ model User {
   updatedAt     DateTime  @updatedAt
   
   // NextAuth Relations
-  accounts Account[]
-  sessions Session[]
+  accounts      Account[]
+  sessions      Session[]
   
   // App Relations
   profile      UserProfile?
@@ -76,19 +75,15 @@ model User {
 
 // Guide History Model
 model GuideHistory {
-  id           String   @id @default(cuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  locationName String
-  guideData    Json     // Generated guide content
-  userProfile  Json?    // User profile used for generation
-  
-  viewCount    Int      @default(1)
-  lastViewedAt DateTime @default(now())
-  createdAt    DateTime @default(now())
-  expiresAt    DateTime // Cache expiration (30 days)
-  
+  id                   String    @id @default(cuid())
+  originalLocationName String
+  language             String
+  generatedAt          DateTime  @default(now())
+  guideData            Json
+  userId               String?   // 사용자가 로그인했을 경우 연결
+  user                 User?     @relation(fields: [userId], references: [id])
+
+  @@index([originalLocationName, language])
   @@map("guide_history")
 }
 

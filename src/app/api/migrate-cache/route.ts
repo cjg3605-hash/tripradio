@@ -95,7 +95,14 @@ export async function POST(request: NextRequest) {
     
     await fs.mkdir(HISTORY_DIR, { recursive: true });
     
-    const migrationResults = [];
+    interface MigrationResult {
+      originalLocation: string;
+      fileName: string | null;
+      success: boolean;
+      error?: string;
+    }
+    
+    const migrationResults: MigrationResult[] = [];
     
     for (const entry of localStorageData) {
       try {

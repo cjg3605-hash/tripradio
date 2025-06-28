@@ -14,7 +14,8 @@ interface Suggestion {
 export function SearchBox() {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSuggesting, setIsSuggesting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -99,80 +100,87 @@ export function SearchBox() {
       return;
     }
 
+    // 다른 작업이 진행 중일 때는 추천 검색을 하지 않음
+    if (isSubmitting) return;
+
     const timer = setTimeout(() => {
       const fetchData = async () => {
-        setIsLoading(true);
+        setIsSuggesting(true);
+        setError(null);
         try {
           const response = await fetch(`/api/locations/search?q=${encodeURIComponent(query)}&lang=${currentLanguage}`);
           const data = await response.json();
           
-          if (data.success && Array.isArray(data.suggestions)) {
-            setSuggestions(data.suggestions);
-            setShowSuggestions(data.suggestions.length > 0);
+          if (data.success && Array.isArray(data.data)) {
+            setSuggestions(data.data);
+            setShowSuggestions(data.data.length > 0);
           } else {
             setSuggestions([]);
             setShowSuggestions(false);
           }
         } catch (error) {
           console.error('Error fetching suggestions:', error);
+          setError(getMessages().searchError);
           setSuggestions([]);
           setShowSuggestions(false);
         } finally {
-          setIsLoading(false);
+          setIsSuggesting(false);
         }
       };
 
       fetchData();
-    }, 500); // 500ms 지연
+    }, 300); // 300ms 지연으로 반응성 개선
 
     return () => clearTimeout(timer);
-  }, [query]);
+  }, [query, currentLanguage, isSubmitting]);
 
   // 가이드 페이지로 이동 - 에러 처리 강화
-  const navigateToGuide = async (locationName: string) => {
+  const navigateToGuide = (locationName: string) => {
     try {
-      setError(null);
       const encodedName = encodeURIComponent(locationName);
-      await router.push(`/guide/${encodedName}`);
+      router.push(`/guide/${encodedName}`);
     } catch (error) {
       console.error('네비게이션 오류:', error);
       setError(getMessages().navigationError);
+      setIsSubmitting(false); // 네비게이션 실패 시 상태 초기화
     }
   };
 
-  // 엔터키 처리
+  // 엔터키 처리 - handleSearch 호출로 통일
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (query.trim()) {
-        navigateToGuide(query.trim());
-      }
+      handleSearch();
     }
   };
 
   // 검색 버튼 클릭 - 개선된 에러 처리
-  const handleSearch = async () => {
-    const trimmedQuery = query.trim();
-    if (!trimmedQuery || isLoading) return;
+  const handleSearch = () => {
+    // 여러 작업 동시 진행 방지
+    if (isSubmitting || isSuggesting || !query.trim()) return;
     
-    setIsLoading(true);
+    setIsSubmitting(true);
     setError(null);
-    
-    try {
-      await navigateToGuide(trimmedQuery);
-    } catch (error) {
-      console.error('검색 중 오류 발생:', error);
-      setError(getMessages().searchError);
-    } finally {
-      setIsLoading(false);
-    }
+    setShowSuggestions(false); // 제출 시 제안 숨기기
+
+    // 페이지 이동 직전에 상태를 초기화하여 '뒤로가기' 시 UI가 깨지지 않도록 함
+    setTimeout(() => {
+        navigateToGuide(query.trim());
+    }, 100); // 100ms 지연으로 로딩 상태를 보여줄 시간 확보
   };
 
   // 제안 클릭
   const handleSuggestionClick = (suggestion: Suggestion) => {
+    const newQuery = suggestion.name;
+    setQuery(newQuery);
     setShowSuggestions(false);
-    const encodedQuery = encodeURIComponent(suggestion.name);
-    navigateToGuide(suggestion.name);
+    
+    // 상태 업데이트 후 다음 틱에서 제출 실행
+    setTimeout(() => {
+        setIsSubmitting(true);
+        setError(null);
+        navigateToGuide(newQuery);
+    }, 0);
   };
 
   // 입력창 외부 클릭 시 제안 숨기기
@@ -205,19 +213,19 @@ export function SearchBox() {
           type="button"
           onClick={handleSearch}
           onMouseDown={(e) => e.preventDefault()} // 포커스 유지
-          disabled={!query.trim() || isLoading}
+          disabled={!query.trim() || isSubmitting || isSuggesting}
           className="absolute right-2 top-2 bottom-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-sm transition-colors duration-200 z-20 cursor-pointer"
           style={{ pointerEvents: 'auto' }} // 명시적으로 클릭 가능하도록
         >
           <SearchIcon className="w-4 h-4" />
           <span className="ml-1 hidden sm:inline">
-            {isLoading ? buttonText.loading : buttonText.search.replace('🔍 ', '')}
+            {isSubmitting ? buttonText.loading : buttonText.search.replace('🔍 ', '')}
           </span>
         </button>
       </div>
 
       {/* 로딩 표시 */}
-      {isLoading && (
+      {isSuggesting && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50">
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600 mr-2"></div>
@@ -227,7 +235,7 @@ export function SearchBox() {
       )}
 
       {/* 제안 목록 */}
-      {showSuggestions && suggestions.length > 0 && !isLoading && (
+      {showSuggestions && suggestions.length > 0 && !isSuggesting && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-y-auto z-50">
           {suggestions.map((suggestion, index) => (
             <div
@@ -251,7 +259,7 @@ export function SearchBox() {
       )}
       
       {/* 검색 결과 없음 */}
-      {query.length >= 2 && !isLoading && suggestions.length === 0 && (
+      {query.length >= 2 && !isSuggesting && suggestions.length === 0 && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50">
           <div className="text-center text-gray-500">
             <p className="mb-2">"{query}" {messages.noResults}</p>

@@ -30,7 +30,13 @@ export async function POST(request: NextRequest) {
     }
 
     const genAI = getGeminiClient();
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-pro',
+      generationConfig: {
+        temperature: 0.3,
+        maxOutputTokens: 2048,
+      }
+    });
 
     const prompt = createAutonomousGuidePrompt(locationName, 'ko', userProfile);
 
@@ -38,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    let responseText = response.text();
+    const responseText = await response.text();
 
     // JSON 추출
     const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/) || 

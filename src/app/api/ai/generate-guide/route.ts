@@ -1,8 +1,9 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
 import { createAutonomousGuidePrompt } from '@/lib/ai/prompts';
-import fs from 'fs/promises';
-import path from 'path';
+import { prisma } from '@/lib/prisma';
+import authOptions from '@/lib/auth';
 
 // Initialize Gemini AI with direct environment variable access
 function getGeminiClient() {
@@ -23,8 +24,54 @@ function getGeminiClient() {
 
 const genAI = getGeminiClient();
 
-// --- 영구 캐시 관련 설정 ---
-const PERMANENT_CACHE_DIR = path.join(process.cwd(), 'saved-guides', 'history');
+// --- 데이터베이스 기반 캐시 관련 함수 ---
+
+// DB에서 가이드 읽기 (언어별 가장 최근 가이드)
+const readGuideFromDatabase = async (locationName: string, language: string = 'ko'): Promise<any | null> => {
+  try {
+    const guide = await prisma.guideHistory.findFirst({
+      where: {
+        originalLocationName: locationName,
+        language: language,
+      },
+      orderBy: {
+        generatedAt: 'desc',
+      },
+    });
+
+    if (guide) {
+      console.log(`✅ 데이터베이스 캐시에서 로드 (${language}): ${locationName}`);
+      return guide.guideData;
+    }
+
+    return null;
+  } catch (error) {
+    console.error(`DB 캐시 읽기 실패 (${language}): ${locationName}`, error);
+    return null;
+  }
+};
+
+// DB에 가이드 저장 (언어별)
+const saveGuideToDatabase = async (
+  locationName: string, 
+  language: string, 
+  guideData: any,
+  userId?: string
+): Promise<void> => {
+  try {
+    await prisma.guideHistory.create({
+      data: {
+        originalLocationName: locationName,
+        language: language,
+        guideData: guideData,
+        userId: userId, // 로그인한 사용자의 ID 연결
+      },
+    });
+    console.log(`💾 데이터베이스 캐시에 저장 (${language}): ${locationName}`);
+  } catch (error) {
+    console.error('데이터베이스 캐시 저장 실패:', error);
+  }
+};
 
 // 명소명을 영문 파일명으로 변환하는 함수 (언어 지원 추가)
 const convertToEnglishFileName = (locationName: string, language: string = 'ko'): string => {
@@ -116,148 +163,72 @@ const getLocationCacheFileName = (locationName: string, language: string = 'ko')
   return `${englishName}-${language}-${timestamp}.json`;
 };
 
-// 영구 캐시에서 가이드 읽기 (언어별 가장 최근 파일)
-const readGuideFromCache = async (locationName: string, language: string = 'ko'): Promise<any | null> => {
-  try {
-    const englishName = convertToEnglishFileName(locationName, language);
-    
-    // history 폴더의 모든 파일 검색 (언어별 필터링)
-    const files = await fs.readdir(PERMANENT_CACHE_DIR);
-    const matchingFiles = files
-      .filter(file => 
-        file.startsWith(englishName) && 
-        file.includes(`-${language}-`) && 
-        file.endsWith('.json')
-      )
-      .sort((a, b) => {
-        // 타임스탬프로 정렬 (최신순)
-        const timestampA = parseInt(a.split('-').pop()?.replace('.json', '') || '0');
-        const timestampB = parseInt(b.split('-').pop()?.replace('.json', '') || '0');
-        return timestampB - timestampA;
-      });
-    
-    if (matchingFiles.length > 0) {
-      const latestFile = matchingFiles[0];
-      const filePath = path.join(PERMANENT_CACHE_DIR, latestFile);
-      const fileContent = await fs.readFile(filePath, 'utf-8');
-      console.log(`✅ 파일 캐시에서 로드 (${language}): ${latestFile}`);
-      return JSON.parse(fileContent);
-    }
-    
-    return null;
-  } catch (error) {
-    console.log(`📂 캐시 파일 없음 (${language}): ${locationName}`);
-    return null;
-  }
-};
-
-// 영구 캐시에 가이드 저장 (언어별)
-const saveGuideToFile = async (locationName: string, language: string, guideData: any): Promise<void> => {
-  try {
-    await fs.mkdir(PERMANENT_CACHE_DIR, { recursive: true });
-    const fileName = getLocationCacheFileName(locationName, language);
-    const filePath = path.join(PERMANENT_CACHE_DIR, fileName);
-    
-    // 메타데이터 추가
-    const dataToSave = {
-      ...guideData,
-      metadata: {
-        originalLocationName: locationName,
-        language: language,
-        englishFileName: fileName,
-        generatedAt: new Date().toISOString(),
-        version: '2.0-multilingual'
-      }
-    };
-    
-    await fs.writeFile(filePath, JSON.stringify(dataToSave, null, 2), 'utf-8');
-    console.log(`💾 파일 캐시에 저장 (${language}): ${fileName}`);
-  } catch (error) {
-    console.error('파일 캐시 저장 실패:', error);
-  }
-};
-
-// JSON 응답 파싱 (더 안정적인 파싱을 위한 함수)
+/**
+ * Gemini AI 응답에서 JSON을 추출하고 파싱하는 함수
+ * - 코드 블록에서 JSON 추출 시도
+ * - 중괄호 밸런스에 따라 유효한 JSON 추출
+ * - 여러 가지 방법으로 파싱을 시도하여 성공 확률 향상
+ */
 function parseJsonResponse(jsonString: string) {
     console.log(`🔍 원본 응답 길이: ${jsonString.length}자`);
     console.log(`🔍 원본 시작 100자: ${JSON.stringify(jsonString.substring(0, 100))}`);
     
-    // 1. 코드 블록 제거 및 기본 정리
-    let cleanedString = jsonString.replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/g, '$1').trim();
+    // 1. 코드 블록에서 JSON 추출 시도
+    const codeBlockMatch = jsonString.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    let cleanedString = codeBlockMatch ? codeBlockMatch[1] : jsonString;
     
-    // 2. JSON 시작점 찾기
+    // 2. JSON 시작/끝 찾기
     const jsonStart = cleanedString.indexOf('{');
     if (jsonStart === -1) {
         throw new Error('응답에서 JSON 시작(`{`)을 찾을 수 없습니다.');
     }
-    cleanedString = cleanedString.substring(jsonStart);
     
-    // 3. JSON 끝 찾기 (마지막 '}'부터 거꾸로 검색)
-    const jsonEnd = cleanedString.lastIndexOf('}');
-    if (jsonEnd === -1) {
-        throw new Error('응답에서 JSON 끝(`}`)을 찾을 수 없습니다.');
-    }
-    cleanedString = cleanedString.substring(0, jsonEnd + 1);
-    
-    // 4. JSON 문자열 내부의 이스케이프된 따옴표 보호
-    cleanedString = cleanedString.replace(/\\(["\\\/bfnrtu])/g, (match, p1) => {
-        return `__ESCAPED_${p1.charCodeAt(0)}__`;
-    });
-    
-    // 5. 문자열 외부의 공백 정리 (문자열 내부는 보존)
+    // 3. 중괄호 밸런스를 맞추며 JSON 추출
+    let balance = 0;
     let inString = false;
-    let result: string[] = [];
-    let currentString = '';
+    let escapeNext = false;
+    let result = '';
     
-    for (let i = 0; i < cleanedString.length; i++) {
+    for (let i = jsonStart; i < cleanedString.length; i++) {
         const char = cleanedString[i];
         
-        if (char === '"' && (i === 0 || cleanedString[i-1] !== '\\')) {
+        // 이스케이프 문자 처리
+        if (escapeNext) {
+            result += char;
+            escapeNext = false;
+            continue;
+        }
+        
+        // 문자열 내부/외부 처리
+        if (char === '"') {
             inString = !inString;
-            currentString += char;
-            if (!inString) {
-                result.push(currentString);
-                currentString = '';
-            }
-        } else if (inString) {
-            currentString += char;
-        } else {
-            // 문자열 외부에서만 공백 정리
-            if (char === ' ' || char === '\n' || char === '\r' || char === '\t') {
-                if (result.length > 0 && result[result.length - 1] !== ' ') {
-                    result.push(' ');
-                }
-            } else {
-                result.push(char);
-            }
+        } else if (char === '\\' && inString) {
+            escapeNext = true;
+        } 
+        
+        // 중괄호 카운팅 (문자열 외부에서만)
+        if (!inString) {
+            if (char === '{') balance++;
+            if (char === '}') balance--;
+        }
+        
+        result += char;
+        
+        // 모든 중괄호가 닫히면 종료
+        if (balance === 0 && result.startsWith('{')) {
+            break;
         }
     }
     
-    // 마지막 문자열이 닫히지 않은 경우 추가
-    if (currentString) {
-        result.push(currentString);
-    }
-    
-    cleanedString = result.join('')
-        // JSON 구조 정리
-        .replace(/\s*([\{\}\[\],:])\s*/g, '$1')
-        // 마지막 쉼표 제거
-        .replace(/,(\s*[\}\]])(?=([^"]*"[^"]*")*[^"]*$)/g, '$1');
-    
-    // 이스케이프된 문자 복원
-    cleanedString = cleanedString.replace(/__ESCAPED_(\d+)__/g, (match, p1) => {
-        return `\\${String.fromCharCode(parseInt(p1))}`;
-    });
-    
-    console.log(`🔍 정리 후 200자: ${cleanedString.substring(0, 200)}`);
-    
+    // 4. JSON 파싱 시도
     try {
-        const parsed = JSON.parse(cleanedString);
+        console.log(`🔍 추출된 JSON 길이: ${result.length}자`);
+        const parsed = JSON.parse(result);
         console.log('✅ JSON 파싱 성공!');
         return parsed;
     } catch (error) {
         console.error('🚨 JSON 파싱 실패:', error);
-        console.error('💣 실패 문자열 (첫 300자):', cleanedString.substring(0, 300));
+        console.error('💣 실패한 JSON 문자열 (첫 300자):', result.substring(0, 300));
         throw new Error(`JSON 파싱에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
 }
@@ -281,6 +252,7 @@ function getErrorContext(jsonString: string, error: any): string {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
     const { locationName, language = 'ko', userProfile } = await req.json();
 
     if (!locationName) {
@@ -289,13 +261,13 @@ export async function POST(req: NextRequest) {
     
     console.log(`🌍 다국어 가이드 생성 요청 - 장소: ${locationName}, 언어: ${language}`);
     
-    // 언어별 캐시된 가이드 확인
-    const cachedGuide = await readGuideFromCache(locationName, language);
+    // 데이터베이스에서 캐시된 가이드 확인
+    const cachedGuide = await readGuideFromDatabase(locationName, language);
     if (cachedGuide) {
       return NextResponse.json({ 
         success: true, 
         data: cachedGuide, 
-        cached: 'file',
+        cached: 'database',
         language: language 
       });
     }
@@ -304,9 +276,7 @@ export async function POST(req: NextRequest) {
       model: 'gemini-1.5-pro',
       generationConfig: {
         temperature: 0.3,  // 더 일관성 있는 출력을 위해 낮춤
-        topK: 20,          // 더 집중된 선택을 위해 낮춤  
-        topP: 0.6,         // 더 예측 가능한 출력을 위해 낮춤
-        maxOutputTokens: 8192,
+        maxOutputTokens: 8192
       }
     });
 
@@ -314,37 +284,73 @@ export async function POST(req: NextRequest) {
     console.log(`🚀 다국어 자율 리서치 기반 가이드 생성 시작 - ${locationName} (${language})`);
     const autonomousPrompt = createAutonomousGuidePrompt(locationName, language, userProfile);
     
-    const result = await model.generateContent(autonomousPrompt);
-    const responseText = result.response.text();
+    console.log(`📝 프롬프트 전송 완료, 응답 대기 중...`);
     
-    console.log(`📝 AI 응답 미리보기 (첫 500자):`);
-    console.log(responseText.substring(0, 500));
+    let responseText: string;
+    try {
+      const result = await model.generateContent(autonomousPrompt);
+      const response = await result.response;
+      responseText = await response.text();
+      
+      console.log(`📝 AI 응답 수신 (${responseText.length}자)`);
+      console.log(`📝 응답 미리보기 (첫 500자):`);
+      console.log(responseText.substring(0, 500));
+      
+      // 응답이 비어있는지 확인
+      if (!responseText || responseText.trim().length === 0) {
+        throw new Error('AI로부터 빈 응답을 받았습니다.');
+      }
+    } catch (error) {
+      console.error('❌ AI 응답 생성 중 오류 발생:', error);
+      throw new Error(`AI 응답 생성 실패: ${error instanceof Error ? error.message : String(error)}`);
+    }
     
-    const guideData = parseJsonResponse(responseText);
+    // 응답 파싱 시도
+    let guideData;
+    try {
+      guideData = parseJsonResponse(responseText);
+      console.log('✅ JSON 파싱 성공');
+    } catch (parseError) {
+      console.error('❌ JSON 파싱 실패:', parseError);
+      console.error('파싱 실패한 응답 내용:', responseText);
+      throw new Error(`가이드 데이터 파싱 실패: ${parseError instanceof Error ? parseError.message : '알 수 없는 오류'}`);
+    }
 
+    // 가이드 데이터 유효성 검사
     if (!guideData || !guideData.content) {
-      throw new Error('AI 가이드 생성 또는 파싱에 실패했습니다.');
+      console.error('❌ 유효하지 않은 가이드 데이터:', guideData);
+      throw new Error('AI가 생성한 가이드 형식이 올바르지 않습니다.');
     }
     
     console.log(`✅ 다국어 자율 리서치 기반 가이드 생성 완료 (${language})`);
 
-    // 언어별 파일 캐시에 저장
-    await saveGuideToFile(locationName, language, guideData);
+    // 데이터베이스에 캐시 저장
+    await saveGuideToDatabase(locationName, language, guideData, session?.user?.id);
 
     return NextResponse.json({ 
       success: true, 
       data: guideData, 
       cached: 'new',
       language: language,
-      version: '2.0-multilingual'
+      version: '2.0-multilingual-db'
     });
 
   } catch (error) {
     console.error('❌ API Error:', error);
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    
+    // 에러 상세 정보 로깅
+    if (error instanceof Error) {
+      console.error('❌ Error stack:', error.stack);
+      if ('response' in error) {
+        console.error('❌ Error response:', JSON.stringify(error.response, null, 2));
+      }
+    }
+    
     return NextResponse.json({ 
       success: false, 
-      error: errorMessage, 
+      error: errorMessage,
+      timestamp: new Date().toISOString(),
       cached: 'error' 
     }, { status: 500 });
   }

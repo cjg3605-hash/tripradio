@@ -31,7 +31,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-1.5-pro',
+      generationConfig: {
+        temperature: 0.3,
+        maxOutputTokens: 2048
+      }
+    });
 
     const prompt = `다음 관광지에 대한 상세한 가이드를 작성해주세요:
     
@@ -53,7 +59,7 @@ JSON 형식으로만 응답해주세요.`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text();
+    const text = await response.text();
 
     try {
       const guideData = JSON.parse(text);

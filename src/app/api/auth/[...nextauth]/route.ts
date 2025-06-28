@@ -1,6 +1,6 @@
-import NextAuth from '@/lib/auth'
+import NextAuth from 'next-auth';
+import authOptions from '@/lib/auth';
 
-// NextAuth v4 방식: 직접 인스턴스 사용
-const handler = NextAuth
+const handler = NextAuth(authOptions);
 
-export { handler as GET, handler as POST } 
+export { handler as GET, handler as POST }; 

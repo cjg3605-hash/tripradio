@@ -1,0 +1,543 @@
+import { NextRequest } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+// Types
+interface Suggestion {
+  name: string;
+  location: string;
+}
+
+interface CacheItem {
+  suggestions: Suggestion[];
+  timestamp: number;
+}
+
+// Valid languages
+const VALID_LANGUAGES = ['ko', 'en', 'ja', 'zh', 'es'] as const;
+type Language = typeof VALID_LANGUAGES[number];
+
+// Simple in-memory cache implementation
+const cache = new Map<string, any>();
+const kv = {
+  get: async <T>(key: string): Promise<T | null> => {
+    return cache.get(key) || null;
+  },
+  set: async (key: string, value: any): Promise<'OK'> => {
+    cache.set(key, value);
+    return 'OK';
+  },
+  setex: async (key: string, seconds: number, value: any): Promise<'OK'> => {
+    cache.set(key, value);
+    setTimeout(() => cache.delete(key), seconds * 1000);
+    return 'OK';
+  }
+} as const;
+
+// Rate limiting implementation
+class RateLimiter {
+  private requests: Map<string, {count: number, resetAt: number}>;
+  private readonly windowMs: number;
+  private readonly max: number;
+
+  constructor(max: number, windowMs: number) {
+    this.requests = new Map();
+    this.max = max;
+    this.windowMs = windowMs;
+  }
+
+  async limit(identifier: string) {
+    if (process.env.NODE_ENV === 'development') {
+      return { 
+        success: true,
+        limit: this.max,
+        remaining: this.max,
+        reset: 10
+      };
+    }
+
+    const now = Date.now();
+    const record = this.requests.get(identifier) || { count: 0, resetAt: now + this.windowMs };
+
+    // Reset if window has passed
+    if (now > record.resetAt) {
+      record.count = 0;
+      record.resetAt = now + this.windowMs;
+    }
+
+    // Increment request count
+    record.count++;
+    this.requests.set(identifier, record);
+
+    // Calculate remaining time and requests
+    const remaining = Math.max(0, this.max - record.count);
+    const reset = Math.ceil((record.resetAt - now) / 1000);
+
+    return {
+      success: record.count <= this.max,
+      limit: this.max,
+      remaining,
+      reset
+    };
+  }
+}
+
+// Rate limiter instance (10 requests per 10 seconds)
+const rateLimiter = new RateLimiter(10, 10 * 1000);
+
+// CORS headers
+function setCorsHeaders(headers: Headers) {
+  headers.set('Access-Control-Allow-Origin', '*');
+  headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  return headers;
+}
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+// Use Node.js runtime for better compatibility
+export const runtime = 'nodejs';
+
+// Cache configuration (30 minutes in seconds)
+const CACHE_DURATION = 30 * 60;
+
+// Type guard for Suggestion
+function isSuggestion(obj: unknown): obj is Suggestion {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'name' in obj &&
+    'location' in obj &&
+    typeof (obj as Suggestion).name === 'string' &&
+    typeof (obj as Suggestion).location === 'string'
+  );
+}
+
+// Initialize Gemini AI with environment variable
+function getGeminiClient() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.error('GEMINI_API_KEY is not configured');
+    throw new Error('Server configuration error');
+  }
+  
+  try {
+    return new GoogleGenerativeAI(apiKey);
+  } catch (error) {
+    console.error('Failed to initialize Gemini AI:', error instanceof Error ? error.message : 'Unknown error');
+    throw new Error('Failed to initialize AI service');
+  }
+}
+
+// Generate cache key
+function generateCacheKey(query: string, language: string): string {
+  return `search:${query.toLowerCase()}:${language}`;
+}
+
+// Sanitize input to prevent prompt injection
+function sanitizeInput(input: string): string {
+  return input.replace(/[^a-zA-Z0-9가-힣\s,.-]/g, '').trim().slice(0, 100);
+}
+
+// Create search prompt with language support
+function createSearchPrompt(query: string, language: Language): string {
+  const prompts = {
+    ko: `"${query}"와 관련된 유명한 관광명소 5개를 JSON 배열로만 답하세요.
+
+중요 지시사항:
+1. 검색어 자체가 명소명이라면 반드시 첫 번째로 포함하세요
+2. 같은 도시/지역의 다른 주요 명소들을 포함하세요
+3. 유사한 유형의 명소들을 포함하세요
+
+형식: [{"name":"명소명","location":"국가, 도시"}]
+예: [{"name":"세비야 대성당","location":"스페인, 세비야"}]
+모든 답변을 한국어로 작성하세요.`,
+
+    en: `Suggest 5 famous tourist attractions related to "${query}" in JSON array format only.
+
+Important instructions:
+1. If the search term is already an attraction name, include it as the first result
+2. Include other major attractions in the same city/region
+3. Include similar types of attractions
+
+Format: [{"name":"attraction name","location":"country, city"}]
+Example: [{"name":"Seville Cathedral","location":"Spain, Seville"}]
+Write all responses in English.`,
+
+    ja: `"${query}"に関連する有名な観光地5つをJSON配列形式のみで答えてください。
+
+重要な指示:
+1. 検索語が既に観光地名の場合、最初の結果として含めてください
+2. 同じ都市/地域の他の主要な観光地を含めてください
+3. 似たタイプの観光地を含めてください
+
+形式: [{"name":"観光地名","location":"国、都市"}]
+例: [{"name":"セビリア大聖堂","location":"スペイン、セビリア"}]
+すべての回答を日本語で書いてください。`,
+
+    zh: `请提供5个与"${query}"相关的著名旅游景点，仅用JSON数组格式回答。
+
+重要指示:
+1. 如果搜索词本身就是景点名称，请将其作为第一个结果
+2. 包含同一城市/地区的其他主要景点
+3. 包含类似类型的景点
+
+格式: [{"name":"景点名称","location":"国家, 城市"}]
+例如: [{"name":"塞维利亚大教堂","location":"西班牙, 塞维利亚"}]
+请用中文回答所有内容。`,
+
+    es: `Sugiere 5 atracciones turísticas famosas relacionadas con "${query}" solo en formato de array JSON.
+
+Instrucciones importantes:
+1. Si el término de búsqueda ya es un nombre de atracción, inclúyelo como primer resultado
+2. Incluye otras atracciones principales en la misma ciudad/región
+3. Incluye atracciones de tipo similar
+
+Formato: [{"name":"nombre de la atracción","location":"país, ciudad"}]
+Ejemplo: [{"name":"Catedral de Sevilla","location":"España, Sevilla"}]
+Escribe todas las respuestas en español.`
+  };
+
+  return prompts[language as keyof typeof prompts] || prompts.ko;
+}
+
+// OPTIONS 요청 처리 (CORS 프리플라이트)
+export async function OPTIONS() {
+  const headers = new Headers();
+  setCorsHeaders(headers);
+  headers.set('Allow', 'GET, OPTIONS');
+  
+  return new Response(null, {
+    status: 204,
+    headers,
+  });
+}
+
+export async function GET(request: NextRequest) {
+  // CORS 헤더 설정
+  const headers = new Headers();
+  setCorsHeaders(headers);
+  
+  // OPTIONS 요청 처리
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers });
+  }
+  
+  try {
+
+    // Rate limiting 적용
+    if (process.env.NODE_ENV !== 'development') {
+      const ip = request.headers.get('x-forwarded-for') || 'anonymous';
+      const limitResult = await rateLimiter.limit(ip);
+      
+      if (!limitResult.success) {
+        headers.set('Content-Type', 'application/json');
+        headers.set('Retry-After', limitResult.reset?.toString() || '10');
+        headers.set('X-RateLimit-Limit', limitResult.limit?.toString() || '10');
+        headers.set('X-RateLimit-Remaining', limitResult.remaining?.toString() || '0');
+        headers.set('X-RateLimit-Reset', limitResult.reset?.toString() || '10');
+        return new Response(
+          JSON.stringify({ 
+            success: false,
+            error: '너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.',
+            ...(process.env.NODE_ENV === 'development' && {
+              limit: limitResult.limit,
+              remaining: limitResult.remaining,
+              reset: limitResult.reset
+            })
+          }),
+          { 
+            status: 429, 
+            headers,
+            statusText: 'Too Many Requests'
+          }
+        );
+      }
+    }
+
+    const { searchParams } = new URL(request.url);
+    let query = searchParams.get('q');
+    const language = (searchParams.get('lang') || 'ko') as Language;
+
+    // 언어 유효성 검사
+    if (!VALID_LANGUAGES.includes(language)) {
+      headers.set('Content-Type', 'application/json');
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: '지원하지 않는 언어입니다.'
+        }),
+        { status: 400, headers }
+      );
+    }
+
+    // 쿼리 유효성 검사
+    if (!query) {
+      headers.set('Content-Type', 'application/json');
+      headers.set('Cache-Control', 'public, max-age=300');
+      return new Response(
+        JSON.stringify({ success: true, suggestions: [] }),
+        { status: 200, headers }
+      );
+    }
+
+    query = sanitizeInput(query);
+
+    // Validate query
+    if (!query || query.length < 2) {
+      return NextResponse.json(
+        { success: true, suggestions: [] },
+        { 
+          status: 200,
+          headers: {
+            'Cache-Control': 'public, max-age=300',
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+    }
+
+    // 캐시에서 먼저 확인
+    const cacheKey = generateCacheKey(query, language);
+    let cached: CacheItem | null = null;
+    
+    try {
+      // Vercel KV 또는 메모리 캐시에서 데이터 가져오기
+      const cachedData = await kv.get<string>(cacheKey);
+      if (cachedData) {
+        if (typeof cachedData === 'string') {
+          cached = JSON.parse(cachedData);
+        } else {
+          // 이미 파싱된 객체인 경우
+          cached = cachedData as unknown as CacheItem;
+        }
+      }
+    } catch (error) {
+      console.error('캐시 읽기 오류:', error instanceof Error ? error.message : '알 수 없는 오류');
+      // 캐시 오류는 무시하고 계속 진행
+    }
+
+    const now = Math.floor(Date.now() / 1000); // Current time in seconds
+    
+    if (cached && (now - cached.timestamp < CACHE_DURATION)) {
+      console.log('Returning cached results for:', query);
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          suggestions: cached.suggestions,
+          cached: true
+        }),
+        { 
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': `public, max-age=${CACHE_DURATION - (now - cached.timestamp)}`,
+            'X-Cache': 'HIT',
+            'X-Cache-Age': `${now - cached.timestamp}`,
+            ...corsHeaders
+          }
+        }
+      );
+    }
+
+    // Gemini 클라이언트 초기화 (타임아웃 포함)
+    let text: string;
+    try {
+      const genAI = getGeminiClient();
+      const model = genAI.getGenerativeModel({ 
+        model: 'gemini-pro',
+        generationConfig: {
+          maxOutputTokens: 1000,
+          temperature: 0.7,
+        },
+      });
+
+      const prompt = createSearchPrompt(query, language);
+      console.log('검색 중:', query, '언어:', language);
+
+      // 타임아웃 설정 (15초)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      try {
+        const result = await model.generateContent(prompt, {
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        
+        const response = await result.response;
+        text = await response.text();
+      } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Gemini API 오류:', error instanceof Error ? error.message : '알 수 없는 오류');
+      
+      // 사용자 친화적인 오류 메시지
+      const errorMessage = error instanceof Error && error.name === 'AbortError'
+        ? '요청 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.'
+        : 'AI 서비스에서 응답을 가져오는 중 오류가 발생했습니다.';
+      
+      headers.set('Content-Type', 'application/json');
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: errorMessage,
+          ...(process.env.NODE_ENV === 'development' && {
+            details: error instanceof Error ? error.message : '알 수 없는 오류',
+          })
+        }),
+        { 
+          status: error instanceof Error && error.name === 'AbortError' ? 504 : 500,
+          headers
+        }
+      );
+    }
+
+    // AI 응답 파싱
+    let suggestions: Suggestion[] = [];
+    
+    try {
+      // JSON 배열로 파싱 시도
+      const jsonMatch = text.match(/\[([\s\S]*?)\]/s);
+      
+      if (jsonMatch && jsonMatch[0]) {
+        try {
+          // JSON 파싱 시도
+          const parsedData = JSON.parse(jsonMatch[0]);
+          
+          // 파싱된 데이터가 배열이고, 각 항목이 Suggestion 타입인지 확인
+          if (Array.isArray(parsedData)) {
+            suggestions = parsedData
+              .filter((item): item is Suggestion => 
+                item && 
+                typeof item === 'object' &&
+                'name' in item && 
+                'location' in item &&
+                typeof item.name === 'string' &&
+                typeof item.location === 'string'
+              )
+              .slice(0, 10); // 최대 10개 항목으로 제한
+          } else {
+            throw new Error('응답이 배열 형식이 아닙니다.');
+          }
+        } catch (parseError) {
+          console.warn('JSON 파싱 실패, 대체 파싱 시도:', parseError);
+          // JSON 파싱 실패 시 대체 파싱 로직
+          suggestions = parseFallbackText(text);
+        }
+      } else {
+        // JSON 형식이 아닌 경우 대체 파싱
+        console.warn('JSON 형식이 아닌 응답, 대체 파싱 시도:', text.substring(0, 200));
+        suggestions = parseFallbackText(text);
+      }
+      
+      // 결과가 비어있는 경우 기본값 설정
+      if (suggestions.length === 0) {
+        console.warn('파싱된 추천 장소가 없습니다. 텍스트:', text.substring(0, 200));
+        suggestions = [
+          { name: '검색 결과가 없습니다', location: '다른 키워드로 시도해보세요' }
+        ];
+      }
+
+      // Validate suggestions
+      if (!Array.isArray(suggestions) || suggestions.length === 0) {
+        throw new Error('No valid suggestions found in response');
+      }
+
+      // Limit number of suggestions and validate each
+      suggestions = suggestions
+        .slice(0, 10)
+        .map((s: Suggestion) => ({
+          name: s.name.trim().slice(0, 200), // Limit length
+          location: s.location.trim().slice(0, 200)
+        }))
+        .filter(isSuggestion);
+
+      // 결과 캐싱
+      try {
+        const cacheItem: CacheItem = {
+          suggestions,
+          timestamp: now
+        };
+        
+        // Vercel KV 또는 메모리 캐시에 저장
+        await kv.setex(cacheKey, CACHE_DURATION, JSON.stringify(cacheItem));
+      } catch (cacheError) {
+        console.error('결과 캐싱 실패:', cacheError instanceof Error ? cacheError.message : '알 수 없는 오류');
+        // 캐싱 실패해도 계속 진행
+      }
+
+      // 성공 응답 반환
+      headers.set('Content-Type', 'application/json');
+      headers.set('Cache-Control', `public, max-age=${CACHE_DURATION}, stale-while-revalidate=3600`);
+      headers.set('X-Cache', 'MISS');
+      headers.set('X-Cache-TTL', `${CACHE_DURATION}`);
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          suggestions,
+          cached: false
+        }), 
+        { 
+          status: 200,
+          headers
+        }
+      );
+
+    } catch (parseError) {
+      console.error('Gemini 응답 파싱 오류:', parseError);
+      
+      headers.set('Content-Type', 'application/json');
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: '검색 결과를 처리하는 중 오류가 발생했습니다.',
+          ...(process.env.NODE_ENV === 'development' && { 
+            details: parseError instanceof Error ? parseError.message : '알 수 없는 오류',
+            rawText: text?.substring(0, 500) // 디버깅을 위해 원본 텍스트 일부 포함
+          })
+        }),
+        { 
+          status: 422,
+          headers
+        }
+      );
+    }
+
+  } catch (error) {
+    console.error('검색 API 오류:', error);
+    
+    const isTimeout = error instanceof Error && 
+      (error.message.includes('timeout') || 
+       error.message.includes('timed out') ||
+       error.name === 'AbortError');
+       
+    const statusCode = isTimeout ? 504 : 500;
+    const errorMessage = isTimeout 
+      ? '요청 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.' 
+      : '검색 요청을 처리하는 중 오류가 발생했습니다.';
+    
+    // 응답 헤더 설정
+    const errorHeaders = new Headers(headers);
+    errorHeaders.set('Content-Type', 'application/json');
+    errorHeaders.set('Cache-Control', 'no-store, max-age=0');
+    errorHeaders.set('X-Error-Type', isTimeout ? 'timeout' : 'server_error');
+    
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        error: errorMessage,
+        ...(process.env.NODE_ENV === 'development' && { 
+          details: error instanceof Error ? error.message : '알 수 없는 오류',
+          stack: error instanceof Error ? error.stack : undefined
+        })
+      }),
+      { 
+        status: statusCode,
+        headers: errorHeaders
+      }
+    );
+  }
+}

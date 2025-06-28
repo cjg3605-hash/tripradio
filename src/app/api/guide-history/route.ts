@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { promises as fs } from 'fs';
@@ -256,94 +256,72 @@ async function getStorageInfo() {
 }
 
 // GET: 히스토리 조회
-export async function GET(request: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const location = searchParams.get('location');
-    
-    await fs.mkdir(HISTORY_DIR, { recursive: true });
-    const files = await fs.readdir(HISTORY_DIR);
-    
-    if (location) {
-      // 특정 위치의 가이드들만 반환
-      const englishName = convertToEnglishFileName(location);
-      const matchingFiles = files
-        .filter(file => file.startsWith(englishName) && file.endsWith('.json'))
-        .sort((a, b) => {
-          const timestampA = parseInt(a.split('-').pop()?.replace('.json', '') || '0');
-          const timestampB = parseInt(b.split('-').pop()?.replace('.json', '') || '0');
-          return timestampB - timestampA; // 최신순
-        });
-      
-      const guides = await Promise.all(
-        matchingFiles.map(async (file) => {
-          const filePath = path.join(HISTORY_DIR, file);
-          const content = await fs.readFile(filePath, 'utf-8');
-          const data = JSON.parse(content);
-          return {
-            fileName: file,
-            locationName: data.metadata?.originalLocationName || location,
-            generatedAt: data.metadata?.generatedAt,
-            preview: data.content?.overview?.title || 'No title'
-          };
-        })
-      );
-      
-      return NextResponse.json({ success: true, guides });
-    } else {
-      // 모든 가이드 목록 반환
-      const allGuides = await Promise.all(
-        files.filter(file => file.endsWith('.json')).map(async (file) => {
-          const filePath = path.join(HISTORY_DIR, file);
-          const content = await fs.readFile(filePath, 'utf-8');
-          const data = JSON.parse(content);
-          return {
-            fileName: file,
-            locationName: data.metadata?.originalLocationName || 'Unknown',
-            generatedAt: data.metadata?.generatedAt,
-            preview: data.content?.overview?.title || 'No title'
-          };
-        })
-      );
-      
-      // 최신순 정렬
-      allGuides.sort((a, b) => new Date(b.generatedAt || 0).getTime() - new Date(a.generatedAt || 0).getTime());
-      
-      return NextResponse.json({ success: true, guides: allGuides });
-    }
+    const session = await getServerSession(authOptions);
+
+    // 여기서는 모든 사용자의 최근 50개 히스토리를 가져옵니다.
+    // 만약 로그인한 사용자의 히스토리만 보여주려면 where 조건에 userId를 추가합니다.
+    const guides = await prisma.guideHistory.findMany({
+      orderBy: {
+        generatedAt: 'desc',
+      },
+      take: 50,
+      select: {
+        id: true,
+        originalLocationName: true,
+        language: true,
+        generatedAt: true,
+        // 필요하다면 guideData의 일부를 가져와 preivew를 만들 수 있습니다.
+        // 여기서는 예시로 간단한 정보를 반환합니다.
+      }
+    });
+
+    const formattedGuides = guides.map(guide => ({
+        fileName: guide.id, // 고유 식별자로 fileName을 대체
+        locationName: guide.originalLocationName,
+        generatedAt: guide.generatedAt.toISOString(),
+        preview: `A tour guide for ${guide.originalLocationName} in ${guide.language}.`, // 간단한 미리보기
+        language: guide.language
+    }));
+
+    return NextResponse.json({ success: true, guides: formattedGuides });
   } catch (error) {
-    console.error('가이드 히스토리 조회 실패:', error);
-    return NextResponse.json(
-      { success: false, error: '히스토리 조회에 실패했습니다.' },
-      { status: 500 }
-    );
+    console.error('Failed to fetch guide history:', error);
+    return NextResponse.json({ success: false, error: 'Failed to fetch guide history' }, { status: 500 });
   }
 }
 
 // DELETE: 가이드 삭제
-export async function DELETE(request: NextRequest) {
-  try {
-    const { fileName } = await request.json();
-    
-    if (!fileName) {
-      return NextResponse.json(
-        { success: false, error: '파일명이 필요합니다.' },
-        { status: 400 }
-      );
+export async function DELETE(req: NextRequest) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const { id } = await req.json(); // 이제 fileName 대신 id를 받음
+
+        if (!id) {
+            return NextResponse.json({ success: false, error: 'Guide ID is required' }, { status: 400 });
+        }
+        
+        // 사용자가 자신의 히스토리만 삭제할 수 있도록 검증 (선택적이지만 권장)
+        const guideToDelete = await prisma.guideHistory.findUnique({
+            where: { id },
+        });
+
+        if (!guideToDelete || guideToDelete.userId !== session.user.id) {
+            return NextResponse.json({ success: false, error: 'Not found or not authorized' }, { status: 404 });
+        }
+
+        await prisma.guideHistory.delete({
+            where: { id },
+        });
+
+        return NextResponse.json({ success: true, message: 'History item deleted' });
+    } catch (error) {
+        console.error('Failed to delete guide history:', error);
+        return NextResponse.json({ success: false, error: 'Failed to delete guide history' }, { status: 500 });
     }
-    
-    const filePath = path.join(HISTORY_DIR, fileName);
-    await fs.unlink(filePath);
-    
-    return NextResponse.json({ 
-      success: true, 
-      message: `${fileName} 파일이 삭제되었습니다.` 
-    });
-  } catch (error) {
-    console.error('가이드 파일 삭제 실패:', error);
-    return NextResponse.json(
-      { success: false, error: '파일 삭제에 실패했습니다.' },
-      { status: 500 }
-    );
-  }
 } 

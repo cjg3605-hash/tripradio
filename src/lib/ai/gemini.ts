@@ -108,14 +108,16 @@ export async function generatePersonalizedGuide(
     }
 
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 4096,
-      }
+      model: "gemini-1.5-flash"
     });
+    
+    const generationConfig = {
+      temperature: 0.7,
+      topP: 0.95,
+      maxOutputTokens: 4096,
+      // @ts-ignore - topK is supported by the API but not in types
+      topK: 40
+    };
 
     const prompt = `${GEMINI_PROMPTS.GUIDE_GENERATION.system}
 
@@ -123,27 +125,23 @@ ${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, safeProfile)}`;
 
     console.log('🤖 Gemini 라이브러리에서 프롬프트 전송 중...');
 
-    const result = await model.generateContent({
-      contents: [
-        { role: 'user', parts: [{ text: prompt }] }
-      ],
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 4096,
-      }
-    });
+    // Generate content by passing the prompt string directly
+    const result = await model.generateContent(prompt);
+    
+    // Get the response and extract text
     const response = await result.response;
-    const text = response.text();
-
-    // 개선된 JSON 파싱 로직
+    const responseText = await response.text();
+    
     try {
-      console.log('원본 AI 응답 길이:', text.length);
-      console.log('응답 미리보기:', text.substring(0, 200) + '...');
+      // 디버깅을 위한 로그
+      if (process.env.NODE_ENV === 'development') {
+        const textLength = responseText.length;
+        const textPreview = responseText.substring(0, 200);
+        console.log('원본 AI 응답 길이:', textLength);
+        console.log('응답 미리보기:', textPreview + '...');
+      }
       
-      // 응답에서 JSON 부분만 추출
-      let cleanedText = text.trim();
+      let cleanedText = responseText.trim();
       
       // 마크다운 코드 블록 제거
       cleanedText = cleanedText.replace(/```json\s*/, '').replace(/```\s*$/, '');
@@ -187,8 +185,8 @@ ${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, safeProfile)}`;
       
     } catch (parseError) {
       console.error('JSON 파싱 실패:', parseError);
-      console.log('실패한 응답 (처음 500자):', text.substring(0, 500));
-      console.log('실패한 응답 (마지막 500자):', text.substring(Math.max(0, text.length - 500)));
+      console.log('실패한 응답 (처음 500자):', responseText.substring(0, 500));
+      console.log('실패한 응답 (마지막 500자):', responseText.substring(Math.max(0, responseText.length - 500)));
       throw new Error(`AI 응답을 파싱할 수 없습니다: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
     }
 

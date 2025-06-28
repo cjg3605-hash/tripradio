@@ -1,10 +1,10 @@
-import NextAuth, { NextAuthOptions } from 'next-auth'
+import { PrismaAdapter } from '@next-auth/prisma-adapter'
+import { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
-// import { PrismaAdapter } from '@next-auth/prisma-adapter'
-// import { prisma } from './prisma'
+import { prisma } from '@/lib/prisma'
 
 export const authOptions: NextAuthOptions = {
-  // adapter: PrismaAdapter(prisma), // 일시적으로 비활성화
+  adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -18,17 +18,15 @@ export const authOptions: NextAuthOptions = {
     signIn: '/auth/signin',
   },
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.provider = account?.provider;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.provider = token.provider as string;
       }
       return session;
     },
@@ -42,4 +40,4 @@ export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === 'development',
 }
 
-export default NextAuth(authOptions) 
+export default authOptions 
