@@ -4,7 +4,24 @@ import { createAutonomousGuidePrompt } from '@/lib/ai/prompts';
 import fs from 'fs/promises';
 import path from 'path';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+// Initialize Gemini AI with direct environment variable access
+function getGeminiClient() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  
+  if (!apiKey) {
+    console.error('GEMINI_API_KEY is not configured');
+    throw new Error('Server configuration error: Missing API key');
+  }
+  
+  try {
+    return new GoogleGenerativeAI(apiKey);
+  } catch (error) {
+    console.error('Failed to initialize Gemini AI:', error);
+    throw new Error('Failed to initialize AI service');
+  }
+}
+
+const genAI = getGeminiClient();
 
 // --- 영구 캐시 관련 설정 ---
 const PERMANENT_CACHE_DIR = path.join(process.cwd(), 'saved-guides', 'history');

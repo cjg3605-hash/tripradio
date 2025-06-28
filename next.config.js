@@ -1,11 +1,4 @@
 /** @type {import('next').NextConfig} */
-const webpack = require('webpack');
-
-// Vercel URL 설정
-const vercelUrl = process.env.VERCEL_URL 
-  ? `https://${process.env.VERCEL_URL}`
-  : process.env.NEXT_PUBLIC_VERCEL_URL || 'http://localhost:3000';
-
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
@@ -18,21 +11,9 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   
-  // 환경 변수 설정 (빌드 타임에만 사용)
-  env: {
-    NEXTAUTH_URL: vercelUrl,
-    NEXT_PUBLIC_VERCEL_URL: vercelUrl,
-  },
-  
   // API 라우트 리라이트 설정 (필요시 사용)
   async rewrites() {
-    return [
-      // API 경로 프록시 예시
-      // {
-      //   source: '/api/:path*',
-      //   destination: `${process.env.API_BASE_URL || 'http://localhost:3000'}/api/:path*`,
-      // },
-    ];
+    return [];
   },
   
   // 웹팩 설정
@@ -46,26 +27,9 @@ const nextConfig = {
         publicPath: '/_next/'
       }
     });
-    
-    // 클라이언트에서 접근 가능한 환경 변수만 노출
-    config.plugins.push(
-      new webpack.DefinePlugin({
-        'process.env': {
-          // NEXT_PUBLIC_ 접두사가 있는 변수만 클라이언트에 노출
-          ...Object.fromEntries(
-            Object.entries(process.env).filter(([key]) => 
-              key.startsWith('NEXT_PUBLIC_') || 
-              key === 'NODE_ENV'
-            )
-          ),
-          NEXTAUTH_URL: JSON.stringify(vercelUrl),
-          NEXT_PUBLIC_VERCEL_URL: JSON.stringify(vercelUrl)
-        }
-      })
-    );
-    
+
     return config;
-  }
+  },
 };
 
 module.exports = nextConfig;

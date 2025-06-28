@@ -1,17 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+// Initialize Gemini AI with direct environment variable access
+function getGeminiClient() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  
+  if (!apiKey) {
+    console.error('GEMINI_API_KEY is not configured');
+    throw new Error('Server configuration error: Missing API key');
+  }
+  
+  try {
+    return new GoogleGenerativeAI(apiKey);
+  } catch (error) {
+    console.error('Failed to initialize Gemini AI:', error);
+    throw new Error('Failed to initialize AI service');
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: 'GEMINI_API_KEY가 설정되지 않았습니다.' },
-        { status: 500 }
-      );
-    }
-
+    const genAI = getGeminiClient();
     const body = await request.json();
     const { location, userPreferences } = body;
 
@@ -22,7 +31,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `다음 관광지에 대한 상세한 가이드를 작성해주세요:

@@ -4,10 +4,18 @@ import { createAutonomousGuidePrompt } from '@/lib/ai/prompts';
 
 function getGeminiClient() {
   const apiKey = process.env.GEMINI_API_KEY;
+  
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY 환경 변수가 설정되지 않았습니다.');
+    console.error('GEMINI_API_KEY is not configured');
+    throw new Error('Server configuration error: Missing API key');
   }
-  return new GoogleGenerativeAI(apiKey);
+  
+  try {
+    return new GoogleGenerativeAI(apiKey);
+  } catch (error) {
+    console.error('Failed to initialize Gemini AI:', error);
+    throw new Error('Failed to initialize AI service');
+  }
 }
 
 export async function POST(request: NextRequest) {

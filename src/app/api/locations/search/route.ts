@@ -1,17 +1,48 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// 환경 변수 확인
-const geminiApiKey = process.env.GEMINI_API_KEY;
-if (!geminiApiKey) {
-  console.error('GEMINI_API_KEY is not set');
+// Types
+type Suggestion = {
+  name: string;
+  location: string;
+};
+
+type CacheItem = {
+  suggestions: Suggestion[];
+  timestamp: number;
+};
+
+// Constants
+const CACHE_DURATION = 30 * 60 * 1000; // 30분
+
+import getConfig from 'next/config';
+
+// Initialize Gemini AI with safe config access
+function getGeminiClient() {
+  // Get server-side config
+  const { serverRuntimeConfig } = getConfig();
+  
+  if (!serverRuntimeConfig) {
+    console.error('Server runtime config not available');
+    throw new Error('Server configuration error');
+  }
+  
+  const apiKey = serverRuntimeConfig.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.error('GEMINI_API_KEY is not configured in server runtime config');
+    throw new Error('Server configuration error: Missing API key');
+  }
+  
+  try {
+    return new GoogleGenerativeAI(apiKey);
+  } catch (error) {
+    console.error('Failed to initialize Gemini AI:', error);
+    throw new Error('Failed to initialize AI service');
+  }
 }
 
-const genAI = geminiApiKey ? new GoogleGenerativeAI(geminiApiKey) : null;
-
-// 서버 측 메모리 캐시 (Note: In serverless functions, this will be per-instance)
-const searchCache = new Map<string, { suggestions: any[], timestamp: number }>();
-const CACHE_DURATION = 30 * 60 * 1000; // 30분
+// Server-side memory cache (Note: In serverless, this is per-instance)
+const searchCache = new Map<string, CacheItem>();
 
 // 언어별 검색 프롬프트 생성
 function createSearchPrompt(query: string, language: string): string {
@@ -77,111 +108,153 @@ Escribe todas las respuestas en español.`
 
 export async function GET(request: NextRequest) {
   try {
-    // API 키 확인
-    if (!genAI) {
-      console.error('Gemini API key is not configured');
-      return NextResponse.json(
-        { success: false, error: 'Server configuration error' },
-        { status: 500 }
-      );
-    }
-
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');
     const language = searchParams.get('lang') || 'ko';
 
-    // 쿼리 유효성 검사
+    // Validate query
     if (!query || query.length < 2) {
       return NextResponse.json(
         { success: true, suggestions: [] },
-        { status: 200 }
+        { 
+          status: 200,
+          headers: {
+            'Cache-Control': 'public, max-age=300',
+            'Content-Type': 'application/json'
+          }
+        }
       );
     }
 
-    // 언어별 캐시 키 생성 (서버리스 환경에서는 인스턴스당 별도로 동작함을 유의)
-    const cacheKey = `${query.toLowerCase()}-${language}`;
+    // Check cache first
+    const cacheKey = `${query}:${language}`;
     const cached = searchCache.get(cacheKey);
+    const now = Date.now();
 
-    // 캐시 확인 및 반환
-    if (cached && (Date.now() - cached.timestamp < CACHE_DURATION)) {
+    if (cached && (now - cached.timestamp < CACHE_DURATION)) {
+      console.log('Returning cached results for:', query);
       return NextResponse.json(
         { success: true, suggestions: cached.suggestions },
-        { status: 200 }
+        { 
+          status: 200,
+          headers: {
+            'Cache-Control': `public, max-age=${Math.floor((CACHE_DURATION - (now - cached.timestamp)) / 1000)}`,
+            'Content-Type': 'application/json',
+            'X-Cache': 'HIT',
+            'X-Cache-Age': `${Math.floor((now - cached.timestamp) / 1000)}s`
+          }
+        }
       );
     }
 
+    // Initialize Gemini client
+    const genAI = getGeminiClient();
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-pro',
+      generationConfig: {
+        maxOutputTokens: 1000,
+        temperature: 0.7,
+      },
+    });
+
+    const prompt = createSearchPrompt(query, language);
+    console.log('Searching for:', query, 'in', language);
+
+    // Generate content with timeout
+    const result = await Promise.race([
+      model.generateContent(prompt),
+      new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 10000)
+      )
+    ]);
+
+    const response = await result.response;
+    const text = response.text();
+
+    // Parse the response
+    let suggestions: Suggestion[] = [];
     try {
-      // Gemini 모델 설정
-      const model = genAI.getGenerativeModel({ 
-        model: 'gemini-1.5-flash',
-        generationConfig: {
-          temperature: 0.3,
-          topK: 10,
-          topP: 0.7,
-          maxOutputTokens: 512,
-          candidateCount: 1,
-        }
+      // Try to parse as JSON array
+      const jsonMatch = text.match(/\[([\s\S]*?)\]/);
+      if (jsonMatch) {
+        suggestions = JSON.parse(jsonMatch[0]);
+      } else {
+        // Fallback to simple parsing
+        const lines = text.split('\n').filter(line => line.trim());
+        suggestions = lines
+          .map(line => {
+            const match = line.match(/"([^"]+)"\s*,\s*"([^"]+)"/);
+            return match ? { name: match[1], location: match[2] } : null;
+          })
+          .filter((s): s is Suggestion => s !== null);
+      }
+
+      // Validate suggestions
+      if (!Array.isArray(suggestions) || !suggestions.every(s => 
+        typeof s?.name === 'string' && typeof s?.location === 'string'
+      )) {
+        throw new Error('Invalid suggestion format');
+      }
+
+      // Cache the results
+      searchCache.set(cacheKey, {
+        suggestions,
+        timestamp: now
       });
 
-      // 언어별 프롬프트 생성 및 API 호출
-      const prompt = createSearchPrompt(query, language);
-      const result = await model.generateContent(prompt);
-      const responseText = result.response.text();
-      
-      // 응답에서 JSON 추출
-      const jsonMatch = responseText.match(/\[[\s\S]*?\]/);
-      if (!jsonMatch) {
-        return NextResponse.json(
-          { success: true, suggestions: [] },
-          { status: 200 }
-        );
-      }
-
-      // 응답 파싱 및 유효성 검사
-      let suggestions = [];
-      try {
-        const parsed = JSON.parse(jsonMatch[0]);
-        suggestions = Array.isArray(parsed) ? parsed.slice(0, 5) : [];
-      } catch (parseError) {
-        console.error('Failed to parse Gemini response:', parseError);
-        suggestions = [];
-      }
-
-      // 캐시에 저장 (서버리스 환경에서는 인스턴스당 별도로 유지됨)
-      searchCache.set(cacheKey, { suggestions, timestamp: Date.now() });
-      
       return NextResponse.json(
         { success: true, suggestions },
-        { status: 200, 
+        { 
+          status: 200,
           headers: {
-            'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
+            'Cache-Control': `public, max-age=${CACHE_DURATION / 1000}, stale-while-revalidate=3600`,
+            'Content-Type': 'application/json',
+            'X-Cache': 'MISS',
+            'X-Cache-TTL': `${CACHE_DURATION / 1000}`
           }
         }
       );
 
-    } catch (apiError: unknown) {
-      console.error('Gemini API Error:', apiError);
-      const errorMessage = apiError instanceof Error ? apiError.message : 'Unknown error';
+    } catch (parseError) {
+      console.error('Error parsing Gemini response:', parseError);
       return NextResponse.json(
         { 
           success: false, 
-          error: 'Failed to process your request',
-          ...(process.env.NODE_ENV === 'development' && { details: errorMessage })
+          error: 'Failed to parse search results',
+          ...(process.env.NODE_ENV === 'development' && { 
+            details: parseError instanceof Error ? parseError.message : 'Unknown error',
+            rawResponse: text
+          })
         },
-        { status: 500 }
+        { status: 422 }
       );
     }
 
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('Search API Error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const isTimeout = error instanceof Error && error.message.includes('timeout');
+    const statusCode = isTimeout ? 504 : 500;
+    const errorMessage = isTimeout 
+      ? 'Request timeout' 
+      : 'Failed to process search request';
+    
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Internal server error',
-        ...(process.env.NODE_ENV === 'development' && { details: errorMessage })
+        error: errorMessage,
+        ...(process.env.NODE_ENV === 'development' && { 
+          details: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined
+        })
       },
-      { status: 500 }
+      { 
+        status: statusCode,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, max-age=0',
+          'X-Error-Type': isTimeout ? 'timeout' : 'server_error'
+        }
+      }
     );
   }
 }
