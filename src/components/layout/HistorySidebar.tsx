@@ -34,7 +34,7 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
   const loadHistory = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/guide-history');
+      const response = await fetch('/api/node/guide-history');
       const data = await response.json();
       if (data.success) {
         setHistory(data.guides || []);
@@ -47,16 +47,16 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
   };
 
   // 히스토리 삭제
-  const deleteHistoryItem = async (fileName: string) => {
+  const deleteHistoryItem = async (historyId: string) => {
     try {
-      const response = await fetch('/api/guide-history', {
+      const response = await fetch('/api/node/guide-history', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fileName }),
+        body: JSON.stringify({ id: historyId }),
       });
       
       if (response.ok) {
-        setHistory(prev => prev.filter(item => item.fileName !== fileName));
+        setHistory(prev => prev.filter(item => item.fileName !== historyId));
       }
     } catch (error) {
       console.error('히스토리 삭제 실패:', error);

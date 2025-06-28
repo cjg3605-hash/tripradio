@@ -130,7 +130,7 @@ export default function GuidePage() {
     try {
       console.log(`🌍 가이드 로드 시작 - 장소: ${locationName}, 언어: ${currentLanguage}`);
       
-      const response = await fetch('/api/ai/generate-guide', {
+      const response = await fetch('/api/node/ai/generate-guide', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
