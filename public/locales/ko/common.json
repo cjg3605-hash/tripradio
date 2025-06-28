@@ -12,7 +12,7 @@
     "searchPlaceholder": "어디로 떠나고 싶으신가요?",
     "searchButton": "가이드 생성",
     "popularDestinations": "인기 여행지",
-    "description": "AI가 실시간으로 생성하는 독특한 여행 가이드를 만나보세요"
+    "description": "간단 사용법: 1. 명소 검색  2. AI가이드 생성  3. 오디오/텍스트 감상"
   },
   "guide": {
     "overview": "투어 개요",

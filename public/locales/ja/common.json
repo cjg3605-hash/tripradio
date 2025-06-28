@@ -12,7 +12,7 @@
     "searchPlaceholder": "どちらへお出かけになりたいですか？",
     "searchButton": "ガイド生成",
     "popularDestinations": "人気の旅行先",
-    "description": "AIがリアルタイムで生成するユニークな旅行ガイドをお楽しみください"
+    "description": "使い方: 1. 名所を検索  2. AIガイド生成  3. 音声/テキストで体験"
   },
   "guide": {
     "overview": "ツアー概要",
