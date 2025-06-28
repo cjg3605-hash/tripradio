@@ -26,6 +26,8 @@ const STORAGE_CONFIG = {
 
 const HISTORY_DIR = path.join(process.cwd(), 'saved-guides', 'history');
 
+export const runtime = 'nodejs'; // 런타임을 Node.js로 명시
+
 // 디렉토리 확인 및 생성
 async function ensureDirectories() {
   if (!existsSync(STORAGE_CONFIG.baseDir)) {

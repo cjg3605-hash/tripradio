@@ -5,6 +5,8 @@ import { createAutonomousGuidePrompt } from '@/lib/ai/prompts';
 import { prisma } from '@/lib/prisma';
 import authOptions from '@/lib/auth';
 
+export const runtime = 'nodejs';
+
 // Initialize Gemini AI with direct environment variable access
 function getGeminiClient() {
   const apiKey = process.env.GEMINI_API_KEY;
