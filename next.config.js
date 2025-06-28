@@ -4,6 +4,18 @@ const withPWA = require('next-pwa')({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development',
+  runtimeCaching: [
+    {
+      urlPattern: /^\/api\/auth\//,
+      handler: 'NetworkOnly',
+      method: 'GET',
+    },
+    {
+      urlPattern: /^\/api\/auth\//,
+      handler: 'NetworkOnly',
+      method: 'POST',
+    },
+  ],
 });
 
 /** @type {import('next').NextConfig} */
