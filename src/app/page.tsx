@@ -16,7 +16,7 @@ export default function HomePage() {
       <HistorySidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       
       <main>
-        <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4 text-center pt-20">
+        <div className="flex min-h-screen flex-col items-center justify-start bg-gray-50 p-4 text-center pt-8">
           <h1 className="mb-4 text-4xl font-bold md:text-5xl">
             {isLoading ? 'AI와 함께하는 가이드 투어' : t.home.title}
           </h1>
