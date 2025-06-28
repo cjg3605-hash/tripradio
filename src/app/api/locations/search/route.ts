@@ -342,6 +342,19 @@ export async function GET(request: NextRequest) {
         // 프롬프트가 배열을 반환하도록 지시했으므로, 배열인지 확인
         if (Array.isArray(parsed)) {
           suggestions = parsed.filter(item => item.name && item.location);
+
+          // 입력값이 name에 포함된 항목이 없으면, 직접 추가
+          const normalizedQuery = sanitizeInput(query).replace(/\s+/g, '').toLowerCase();
+          const hasDirectMatch = suggestions.some(item =>
+            item.name.replace(/\s+/g, '').toLowerCase().includes(normalizedQuery)
+          );
+
+          if (!hasDirectMatch) {
+            suggestions.unshift({
+              name: query,
+              location: ''
+            });
+          }
         } else {
           console.warn('⚠️ AI 응답이 배열이 아닙니다. 응답:', parsed);
           suggestions = [];
