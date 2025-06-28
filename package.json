@@ -26,6 +26,8 @@
   },
   "dependencies": {
     "@auth/core": "^0.34.2",
+    "@google-cloud/storage": "^7.16.0",
+    "@google-cloud/text-to-speech": "^6.1.0",
     "@google/generative-ai": "^0.2.1",
     "@hookform/resolvers": "^3.3.2",
     "@radix-ui/react-dialog": "^1.0.5",

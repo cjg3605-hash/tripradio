@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { createAutonomousGuidePrompt } from '@/lib/ai/prompts';
 import authOptions from '@/lib/auth';
+import { getOrCreateTTSAndUrl } from '@/lib/tts-gcs';
 
 export const runtime = 'nodejs';
 
@@ -223,6 +224,20 @@ export async function POST(req: NextRequest) {
     if (!guideData || !guideData.content) {
       console.error('❌ 유효하지 않은 가이드 데이터:', guideData);
       throw new Error('AI가 생성한 가이드 형식이 올바르지 않습니다.');
+    }
+    
+    // 오디오 생성 및 업로드 (시작 챕터만 예시)
+    let audioUrl = null;
+    try {
+      const script = guideData.content?.realTimeGuide?.chapters?.[0]?.realTimeScript;
+      if (script) {
+        // 언어코드 변환 (ko, en 등 -> ko-KR, en-US 등)
+        const ttsLang = language === 'ko' ? 'ko-KR' : language === 'en' ? 'en-US' : language;
+        audioUrl = await getOrCreateTTSAndUrl(script, locationName, ttsLang);
+        guideData.content.realTimeGuide.chapters[0].audioUrl = audioUrl;
+      }
+    } catch (ttsError) {
+      console.error('TTS/GCS 업로드 실패:', ttsError);
     }
     
     console.log(`✅ AI 가이드 생성 완료 (${language})`);
