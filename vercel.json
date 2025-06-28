@@ -1,6 +1,12 @@
 {
   "functions": {
-    "src/app/api/node/**/*.ts": {
+    "app/api/node/ai/generate-guide/route.js": {
+      "runtime": "nodejs18.x"
+    },
+    "app/api/node/guide-history/route.js": {
+      "runtime": "nodejs18.x"
+    },
+    "app/api/node/auth/[...nextauth]/route.js": {
       "runtime": "nodejs18.x"
     }
   },
