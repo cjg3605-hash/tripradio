@@ -36,10 +36,17 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
     try {
       const response = await fetch('/api/node/guide-history');
       const data = await response.json();
-      if (data.success) {
+      if (data.success && data.guides && data.guides.length > 0) {
         setHistory(data.guides || []);
+      } else {
+        // 서버 데이터가 없으면 로컬스토리지에서 불러오기
+        const localHistory = guideHistory.getHistory();
+        setHistory(localHistory);
       }
     } catch (error) {
+      // 서버 에러 시 로컬스토리지에서 불러오기
+      const localHistory = guideHistory.getHistory();
+      setHistory(localHistory);
       console.error('히스토리 로드 실패:', error);
     } finally {
       setIsLoading(false);

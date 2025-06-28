@@ -31,7 +31,6 @@ export async function getOrCreateTTSAndUrl(text: string, locationName: string, l
   if (!response.audioContent) throw new Error('TTS 생성 실패');
   await file.save(response.audioContent as Buffer, {
     contentType: 'audio/mpeg',
-    public: true,
     resumable: false,
   });
   return `https://storage.googleapis.com/${bucket.name}/${fileName}`;
@@ -49,7 +48,6 @@ export async function generateTTSAndUpload(text: string, fileName: string, lang 
   const file = bucket.file(fileName);
   await file.save(response.audioContent as Buffer, {
     contentType: 'audio/mpeg',
-    public: true,
     resumable: false,
   });
   return `https://storage.googleapis.com/${bucket.name}/${fileName}`;
