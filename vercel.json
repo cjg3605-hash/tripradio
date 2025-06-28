@@ -1,5 +1,9 @@
 {
-  "version": 2,
+  "functions": {
+    "src/app/api/node/**/*.ts": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "builds": [
     {
       "src": "package.json",
