@@ -64,7 +64,7 @@ export default function MyPage() {
     }
   }, [session, status, router]);
 
-  // 가이드 히스토리 조회 (파일 시스템 우선)
+  // 가이드 히스토리 조회 (localStorage 기반)
   useEffect(() => {
     if (session?.user) {
       loadHistory();
@@ -77,80 +77,37 @@ export default function MyPage() {
     setOfflineGuides(guides);
   }, [session]);
 
-  const loadHistory = async () => {
+  const loadHistory = () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      
-      // 서버 파일 시스템에서 히스토리 로드
-      const response = await fetch('/api/guide-history');
-        
-      if (response.ok) {
-        const data = await response.json();
-          
-        if (data.success && data.guides) {
-          setFileHistoryEntries(data.guides);
-          console.log(`📁 파일 히스토리 로드: ${data.guides.length}개 항목`);
-        } else {
-          console.warn('가이드 데이터가 없습니다.');
-          setFileHistoryEntries([]);
-        }
-      } else {
-        throw new Error(`API 호출 실패: ${response.status}`);
-      }
-        
+      const history = guideHistory.getHistory();
+      const sortedHistory = history.sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      setHistoryEntries(sortedHistory);
     } catch (error) {
-      console.error('히스토리 로드 실패:', error);
-      
-      // 오류 시 localStorage 폴백
-      console.log('📋 서버 오류로 localStorage로 폴백');
-        const history = guideHistory.getHistory();
-        const sortedHistory = history.sort((a, b) => {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        });
-        setHistoryEntries(sortedHistory);
+      setHistoryEntries([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDeleteHistory = async (fileName: string) => {
-    if (!confirm('이 가이드 파일을 삭제하시겠습니까?')) return;
-
+  const handleDeleteHistory = (id: string) => {
+    if (!confirm('이 가이드 기록을 삭제하시겠습니까?')) return;
     try {
-        const response = await fetch('/api/guide-history', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        body: JSON.stringify({ fileName }),
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-        // 현재 목록에서 제거
-        const filteredHistory = fileHistoryEntries.filter(h => h.id !== fileName);
-        setFileHistoryEntries(filteredHistory);
-        console.log(`🗑️ 파일 삭제 완료: ${fileName}`);
-      } else {
-        alert(result.error || '파일 삭제에 실패했습니다.');
-      }
-      
+      guideHistory.deleteHistory(id);
+      setHistoryEntries(prev => prev.filter(h => h.id !== id));
     } catch (error) {
-      console.error('파일 삭제 실패:', error);
       alert('삭제 중 오류가 발생했습니다.');
     }
   };
 
   const handleClearAllHistory = () => {
     if (!confirm('모든 가이드 히스토리를 삭제하시겠습니까?')) return;
-
     try {
       guideHistory.clearHistory();
       setHistoryEntries([]);
-      console.log('🧹 전체 히스토리 삭제 완료');
     } catch (error) {
-      console.error('전체 히스토리 삭제 실패:', error);
       alert('삭제 중 오류가 발생했습니다.');
     }
   };
