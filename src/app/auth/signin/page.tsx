@@ -7,11 +7,12 @@ import Link from 'next/link';
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup' | 'magic'>('signin');
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    name: ''
   });
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const router = useRouter();
@@ -50,21 +51,9 @@ export default function SignInPage() {
     setIsLoading(true);
 
     try {
-      if (authMode === 'magic') {
-        // 매직링크 이메일 전송
-        const result = await signIn('email', {
-          email: formData.email,
-          redirect: false,
-        });
-
-        if (result?.ok) {
-          setErrors({ success: `${formData.email}로 로그인 링크를 전송했습니다. 이메일을 확인해주세요.` });
-        } else {
-          setErrors({ email: '이메일 전송에 실패했습니다.' });
-        }
-      } else {
-        // 이메일/비밀번호 인증
-        if (authMode === 'signup' && formData.password !== formData.confirmPassword) {
+      if (authMode === 'signup') {
+        // 회원가입 처리
+        if (formData.password !== formData.confirmPassword) {
           setErrors({ confirmPassword: '비밀번호가 일치하지 않습니다.' });
           return;
         }
@@ -74,10 +63,51 @@ export default function SignInPage() {
           return;
         }
 
+        if (!formData.name.trim()) {
+          setErrors({ name: '이름을 입력해주세요.' });
+          return;
+        }
+
+        // 회원가입 API 호출
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            name: formData.name,
+            password: formData.password,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // 회원가입 성공 후 자동 로그인
+          const result = await signIn('credentials', {
+            email: formData.email,
+            password: formData.password,
+            redirect: false,
+          });
+
+          if (result?.ok) {
+            const session = await getSession();
+            if (session) {
+              router.push(callbackUrl);
+            }
+          } else {
+            setErrors({ general: '회원가입은 완료되었지만 로그인에 실패했습니다. 다시 로그인해주세요.' });
+            setAuthMode('signin');
+          }
+        } else {
+          setErrors({ general: data.error || '회원가입에 실패했습니다.' });
+        }
+      } else {
+        // 로그인 처리
         const result = await signIn('credentials', {
           email: formData.email,
           password: formData.password,
-          action: authMode,
           redirect: false,
         });
 
@@ -87,11 +117,11 @@ export default function SignInPage() {
             router.push(callbackUrl);
           }
         } else {
-          setErrors({ general: result?.error || '인증에 실패했습니다.' });
+          setErrors({ general: result?.error || '로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.' });
         }
       }
     } catch (error) {
-      console.error('이메일 인증 오류:', error);
+      console.error('인증 처리 오류:', error);
       setErrors({ general: '인증 처리 중 오류가 발생했습니다.' });
     } finally {
       setIsLoading(false);
@@ -112,6 +142,8 @@ export default function SignInPage() {
         return '로그인 처리 중 오류가 발생했습니다.';
       case 'AccessDenied':
         return '로그인이 거부되었습니다. 다시 시도해주세요.';
+      case 'CredentialsSignin':
+        return '이메일 또는 비밀번호가 올바르지 않습니다.';
       default:
         return '알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
     }
@@ -214,17 +246,6 @@ export default function SignInPage() {
             >
               회원가입
             </button>
-            <button
-              type="button"
-              onClick={() => setAuthMode('magic')}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                authMode === 'magic' 
-                  ? 'bg-white text-indigo-600 shadow-sm' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              매직링크
-            </button>
           </div>
 
           {/* 구글 로그인 버튼 */}
@@ -260,6 +281,26 @@ export default function SignInPage() {
 
           {/* 이메일 인증 폼 */}
           <form onSubmit={handleEmailAuth} className="space-y-4">
+            {authMode === 'signup' && (
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                  이름
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                    errors.name ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                  placeholder="이름을 입력하세요"
+                  required
+                />
+                {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+              </div>
+            )}
+            
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 이메일
@@ -278,25 +319,23 @@ export default function SignInPage() {
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
             </div>
 
-            {authMode !== 'magic' && (
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                  비밀번호
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                    errors.password ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                  placeholder="비밀번호를 입력하세요"
-                  required
-                />
-                {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
-              </div>
-            )}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                비밀번호
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                  errors.password ? 'border-red-300' : 'border-gray-300'
+                }`}
+                placeholder="비밀번호를 입력하세요"
+                required
+              />
+              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
+            </div>
 
             {authMode === 'signup' && (
               <div>
@@ -330,8 +369,7 @@ export default function SignInPage() {
                 </div>
               ) : (
                 <>
-                  {authMode === 'magic' ? '로그인 링크 전송' : 
-                   authMode === 'signup' ? '회원가입' : '로그인'}
+                  {authMode === 'signup' ? '회원가입' : '로그인'}
                 </>
               )}
             </button>
@@ -340,34 +378,28 @@ export default function SignInPage() {
           {/* 안내 메시지 */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <h4 className="text-sm font-medium text-gray-900 mb-2">
-              {authMode === 'magic' ? '매직링크란?' : '로그인하면 이용할 수 있는 기능:'}
+              로그인하면 이용할 수 있는 기능:
             </h4>
-            {authMode === 'magic' ? (
-              <p className="text-sm text-gray-600">
-                이메일로 로그인 링크를 전송해드립니다. 비밀번호 없이 안전하게 로그인할 수 있어요.
-              </p>
-            ) : (
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li className="flex items-center">
-                  <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  개인 맞춤 가이드 생성
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  가이드 히스토리 저장 (30일)
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  선호도 기반 추천
-                </li>
-              </ul>
-            )}
+            <ul className="text-sm text-gray-600 space-y-1">
+              <li className="flex items-center">
+                <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                개인 맞춤 가이드 생성
+              </li>
+              <li className="flex items-center">
+                <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                가이드 히스토리 저장 (30일)
+              </li>
+              <li className="flex items-center">
+                <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                선호도 기반 추천
+              </li>
+            </ul>
           </div>
 
           <div className="mt-6 text-center">
