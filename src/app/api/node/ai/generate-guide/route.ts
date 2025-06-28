@@ -7,24 +7,15 @@ import authOptions from '@/lib/auth';
 
 export const runtime = 'nodejs';
 
-// Initialize Gemini AI with direct environment variable access
+// Gemini AI 클라이언트를 요청 시점에 초기화하도록 변경
 function getGeminiClient() {
   const apiKey = process.env.GEMINI_API_KEY;
-  
   if (!apiKey) {
     console.error('GEMINI_API_KEY is not configured');
     throw new Error('Server configuration error: Missing API key');
   }
-  
-  try {
-    return new GoogleGenerativeAI(apiKey);
-  } catch (error) {
-    console.error('Failed to initialize Gemini AI:', error);
-    throw new Error('Failed to initialize AI service');
-  }
+  return new GoogleGenerativeAI(apiKey);
 }
-
-const genAI = getGeminiClient();
 
 // --- 데이터베이스 기반 캐시 관련 함수 ---
 
@@ -251,9 +242,9 @@ function getErrorContext(jsonString: string, error: any): string {
     return '컨텍스트 추출 실패';
 }
 
-
 export async function POST(req: NextRequest) {
   try {
+    const genAI = getGeminiClient(); // POST 요청 시점에 클라이언트 생성
     const session = await getServerSession(authOptions);
     const { locationName, language = 'ko', userProfile } = await req.json();
 
