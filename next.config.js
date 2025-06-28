@@ -1,5 +1,8 @@
+const { i18n } = require('./next-i18next.config');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  i18n,
   reactStrictMode: true,
   swcMinify: true,
   
@@ -20,6 +23,12 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+    ],
   },
   
   // API 라우트 리라이트 설정 (필요시 사용)
@@ -100,6 +109,10 @@ const nextConfig = {
         ],
       },
     ];
+  },
+  
+  experimental: {
+    runtime: 'nodejs',
   },
 };
 
