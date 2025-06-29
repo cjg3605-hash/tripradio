@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Clock, MapPin, Play, Pause, Volume2, StopCircle } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { getBestOfficialPlace } from '@/lib/ai/officialData';
+import { useTranslation } from 'next-i18next';
 
 // 🔥 강력한 디버깅: 컴포넌트 로드 확인
 console.log('🚀 TourContent 컴포넌트 파일 로드됨!');
@@ -77,6 +78,7 @@ const ICONS = {
 };
 
 export default function TourContent({ locationName, userProfile, offlineData }: TourContentProps) {
+  const { t } = useTranslation('guide');
   // 🔥 강력한 디버깅: 컴포넌트 시작
   console.log('🎬 TourContent 컴포넌트 렌더링 시작!', { locationName, userProfile });
   
@@ -92,6 +94,8 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
   
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
   const ttsRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [patchedChapters, setPatchedChapters] = useState<Chapter[]>([]);
+  const [patchedSteps, setPatchedSteps] = useState<Step[]>([]);
 
   const getCacheKey = () => {
     // locationName + userProfile(문자열화) 조합으로 고유 키 생성
@@ -195,6 +199,33 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, [tourData]);
+
+  useEffect(() => {
+    async function fetchAndPatchChaptersAndSteps() {
+      if (!tourData?.content) return;
+      // 챕터 보정
+      const chapters = tourData.content.realTimeGuide.chapters;
+      const patchedCh = await Promise.all(chapters.map(async (ch) => {
+        const poi = await getBestOfficialPlace(ch.title) || await getBestOfficialPlace(ch.location);
+        if (poi?.geometry?.location) {
+          return { ...ch, coordinates: { lat: poi.geometry.location.lat, lng: poi.geometry.location.lng } };
+        }
+        return ch;
+      }));
+      setPatchedChapters(patchedCh);
+      // 스텝 보정
+      const steps = tourData.content.route.steps;
+      const patchedSt = await Promise.all(steps.map(async (st) => {
+        const poi = await getBestOfficialPlace(st.title) || await getBestOfficialPlace(st.location);
+        if (poi?.geometry?.location) {
+          return { ...st, coordinates: { lat: poi.geometry.location.lat, lng: poi.geometry.location.lng } };
+        }
+        return st;
+      }));
+      setPatchedSteps(patchedSt);
+    }
+    fetchAndPatchChaptersAndSteps();
   }, [tourData]);
 
   const handleRetry = async () => {
@@ -358,12 +389,12 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
         </header>
 
         {/* 추천 동선 */}
-        {tourData.content.route?.steps?.length > 0 && (
+        {patchedSteps?.length > 0 && (
           <section className="mb-8">
             <div className="bg-white rounded-xl shadow p-5 mb-4 border border-gray-200">
-              <h2 className="text-2xl font-bold text-slate-900 mb-3">추천 동선</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-3">{t('route')}</h2>
               <ol className="list-decimal ml-6 space-y-1">
-                {tourData.content.route.steps.map((step, idx) => (
+                {patchedSteps.map((step, idx) => (
                   <li key={idx} className="pl-2">
                     <span className="font-bold">{step.title}</span>
                     {step.location && <span className="text-slate-500"> - {step.location}</span>}
@@ -375,18 +406,18 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
         )}
 
         {/* 지도/동선 */}
-        {tourData.content.realTimeGuide?.chapters?.length > 0 && (
+        {patchedChapters?.length > 0 && (
           <section className="mb-8">
-            <MapWithRoute chapters={tourData.content.realTimeGuide.chapters} />
+            <MapWithRoute chapters={patchedChapters} />
           </section>
         )}
 
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left: 실시간 오디오 가이드 */}
           <div className="lg:col-span-2 space-y-6">
-            <h2 className="text-2xl font-bold text-slate-900 border-b pb-2">실시간 오디오 가이드</h2>
+            <h2 className="text-2xl font-bold text-slate-900 border-b pb-2">{t('realTimeGuide')}</h2>
             <div className="space-y-6">
-              {tourData.content.realTimeGuide?.chapters?.map((chapter, idx) => (
+              {patchedChapters.map((chapter, idx) => (
                 <div key={chapter.id} className="bg-white rounded-xl shadow card border border-gray-200">
                   <div className="p-5">
                     <div className="flex items-center justify-between">
@@ -397,7 +428,7 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
                       <button
                         ref={el => ttsRefs.current[idx] = el}
                         className={`tts-button text-slate-400 hover:text-sky-500 transition-colors ml-2`}
-                        aria-label={`Play chapter ${chapter.id}`}
+                        aria-label={t('play_chapter', { id: chapter.id })}
                         onClick={() => handlePlayStop(chapter.id, chapter.realTimeScript, idx)}
                       >
                         {currentlyPlayingId === chapter.id ? ICONS.STOP : ICONS.PLAY}
@@ -408,7 +439,7 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
                     {chapter.realTimeScript.split('\n').map((p, i) => <p key={i}>{p}</p>)}
                   </div>
                   {chapter.coordinates && (
-                    <div className="px-5 pb-3 text-xs text-slate-400">위치: {chapter.coordinates.lat}, {chapter.coordinates.lng}</div>
+                    <div className="px-5 pb-3 text-xs text-slate-400">{t('location', '위치')}: {chapter.coordinates.lat}, {chapter.coordinates.lng}</div>
                   )}
                 </div>
               ))}
@@ -419,27 +450,27 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
           <aside className="lg:col-span-1 space-y-6">
             <div className="bg-white rounded-xl shadow card border border-gray-200">
               <div className="p-5">
-                <h3 className="text-xl font-bold text-slate-900">투어 개요</h3>
+                <h3 className="text-xl font-bold text-slate-900">{t('overview')}</h3>
               </div>
               <div className="px-5 pb-5 border-b border-gray-200">
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 text-gray-600">
-                    <span>예상 소요 시간:</span>
-                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.duration ? `${tourData.content.overview.visitInfo.duration}분` : '정보 없음'}</strong>
+                    <span>{t('duration')}:</span>
+                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.duration ? `${tourData.content.overview.visitInfo.duration}${t('minutes', '분')}` : t('no_info', '정보 없음')}</strong>
                   </div>
                   <div className="flex items-center gap-2 text-gray-600">
-                    <span>난이도:</span>
-                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.difficulty || '정보 없음'}</strong>
+                    <span>{t('difficulty')}:</span>
+                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.difficulty || t('no_info', '정보 없음')}</strong>
                   </div>
                   <div className="flex items-center gap-2 text-gray-600">
-                    <span>추천 시즌:</span>
-                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.season || '정보 없음'}</strong>
+                    <span>{t('season')}:</span>
+                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.season || t('no_info', '정보 없음')}</strong>
                   </div>
                 </div>
               </div>
               {tourData.content.overview.keyFacts && tourData.content.overview.keyFacts.length > 0 && (
                 <div className="p-5">
-                  <h4 className="font-semibold text-slate-800 mb-3">핵심 정보</h4>
+                  <h4 className="font-semibold text-slate-800 mb-3">{t('keyFacts')}</h4>
                   <ul className="space-y-2 list-none">
                     {tourData.content.overview.keyFacts.map((fact, i) => (
                       <li key={i} className="flex items-start">

@@ -20,6 +20,8 @@ const extractGuideData = (raw: any) => {
   return null;
 };
 
+const normalizeString = (s: string) => decodeURIComponent(s || '').trim().toLowerCase();
+
 export default function GuideClient({ locationName, initialGuide }: { locationName: string, initialGuide: any }) {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
@@ -29,6 +31,8 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
   const [loadingMessage, setLoadingMessage] = useState('로딩 중...');
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
   const [currentlyPlayingButton, setCurrentlyPlayingButton] = useState<string | null>(null);
+  const normLocation = normalizeString(locationName);
+  const normLang = normalizeString(currentLanguage);
 
   // 언어별 로딩 메시지
   const getLoadingMessages = () => {
@@ -91,7 +95,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     fetch('/api/node/ai/generate-guide', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ locationName, language: currentLanguage }),
+      body: JSON.stringify({ locationName: normLocation, language: normLang }),
     })
       .then(res => res.json())
       .then(result => {

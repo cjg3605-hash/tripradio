@@ -134,6 +134,10 @@ function normalizeGuideData(raw: any) {
   return result;
 }
 
+function normalizeString(s: string) {
+  return decodeURIComponent(s || '').trim().toLowerCase();
+}
+
 export async function POST(req: NextRequest) {
   try {
     // 환경변수 확인
@@ -157,13 +161,16 @@ export async function POST(req: NextRequest) {
     if (!locationName) {
       return NextResponse.json({ success: false, error: 'Location is required' }, { status: 400 });
     }
+    // === 정규화 적용 ===
+    const normLocation = normalizeString(locationName);
+    const normLang = normalizeString(language);
     console.log(`🌍 가이드 생성 요청 - 장소: ${locationName}, 언어: ${language}`);
-    // === Supabase guides 테이블에서 조회 ===
+    // === Supabase guides 테이블에서 조회 (lower(trim()) 비교) ===
     const { data: cachedGuide } = await supabase
       .from('guides')
       .select('*')
-      .eq('locationname', locationName)
-      .eq('language', language)
+      .filter('lower(trim(locationname))', 'eq', normLocation)
+      .filter('lower(trim(language))', 'eq', normLang)
       .single();
     
     console.log('🔍 Supabase 캐시 조회 결과:', cachedGuide);
