@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { HistorySidebar } from '@/components/layout/HistorySidebar';
 import { SearchBox } from '@/components/home/SearchBox';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -8,6 +8,20 @@ import { useLanguage } from '@/contexts/LanguageContext';
 export default function HomePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { t, isLoading } = useLanguage();
+  const [splashVisible, setSplashVisible] = useState(true);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setSplashVisible(false), 1500);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  if (splashVisible) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-sky-200 to-indigo-200">
+        <img src="/navi.png" alt="Navi Logo" className="w-32 h-32 mb-8 animate-bounce" />
+      </div>
+    );
+  }
 
   return (
     <>

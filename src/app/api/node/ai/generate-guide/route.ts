@@ -4,17 +4,9 @@ import { getServerSession } from 'next-auth/next';
 import { createAutonomousGuidePrompt } from '@/lib/ai/prompts';
 import authOptions from '@/lib/auth';
 import { getOrCreateTTSAndUrl } from '@/lib/tts-gcs';
+import { supabase } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
-
-// Vercel KV 캐시 (선택적 import)
-let kv: any = null;
-try {
-  kv = require('@vercel/kv').kv;
-  console.log('✅ Vercel KV 사용 가능');
-} catch (error) {
-  // Vercel KV 사용 불가, 파일 캐시로 대체
-}
 
 // Gemini AI 클라이언트를 요청 시점에 초기화
 function getGeminiClient() {
@@ -25,50 +17,6 @@ function getGeminiClient() {
   }
     return new GoogleGenerativeAI(apiKey);
 }
-
-// --- 간소화된 캐시 관리 함수 ---
-
-// 캐시에서 가이드 읽기 (우선순위: Vercel KV)
-const readGuideFromCache = async (locationName: string, language: string = 'ko'): Promise<any | null> => {
-  const cacheKey = `guide:${locationName}:${language}`;
-  
-  try {
-    if (kv) {
-      const cached = await kv.get(cacheKey);
-      if (cached) {
-        console.log(`✅ Vercel KV 캐시에서 로드 (${language}): ${locationName}`);
-        return cached;
-      }
-    }
-  } catch (error) {
-    console.log('⚠️ Vercel KV 캐시 읽기 실패:', error);
-  }
-
-  // ❌ 인메모리 캐시 읽기 로직 제거
-  return null;
-};
-
-// 캐시에 가이드 저장 (Vercel KV에만 저장)
-const saveGuideToCache = async (
-  locationName: string, 
-  language: string, 
-  guideData: any,
-  userId?: string
-): Promise<void> => {
-  const cacheKey = `guide:${locationName}:${language}`;
-  
-  // 1. Vercel KV 저장 시도
-  try {
-    if (kv) {
-      await kv.set(cacheKey, guideData, { ex: 86400 }); // 24시간 TTL
-      console.log(`💾 Vercel KV 캐시에 저장 (${language}): ${locationName}`);
-    }
-  } catch (error) {
-    console.log('⚠️ Vercel KV 캐시 저장 실패:', error);
-  }
-
-  // ❌ 인메모리 캐시 저장 로직 제거
-};
 
 /**
  * Gemini AI 응답에서 JSON을 추출하고 파싱하는 함수
@@ -139,25 +87,24 @@ function parseJsonResponse(jsonString: string) {
 export async function POST(req: NextRequest) {
   try {
     const genAI = getGeminiClient();
-    
-    // 세션 획득 (JWT 기반이므로 안전)
     let session = null;
     try {
       session = await getServerSession(authOptions);
     } catch (error) {
       console.log('⚠️ 세션 획득 실패, 익명 사용자로 처리:', error);
     }
-    
     const { locationName, language = 'ko', userProfile } = await req.json();
-
     if (!locationName) {
       return NextResponse.json({ success: false, error: 'Location is required' }, { status: 400 });
     }
-    
     console.log(`🌍 가이드 생성 요청 - 장소: ${locationName}, 언어: ${language}`);
-    
-    // 캐시에서 가이드 확인
-    const cachedGuide = await readGuideFromCache(locationName, language);
+    // === Supabase guides 테이블에서 조회 ===
+    const { data: cachedGuide } = await supabase
+      .from('guides')
+      .select('*')
+      .eq('locationName', locationName)
+      .eq('language', language)
+      .single();
     if (cachedGuide) {
       return NextResponse.json({ 
         success: true, 
@@ -231,9 +178,8 @@ export async function POST(req: NextRequest) {
     
     console.log(`✅ AI 가이드 생성 완료 (${language})`);
 
-    // 캐시에 저장
-    await saveGuideToCache(locationName, language, guideData, session?.user?.id);
-
+    // === Supabase guides 테이블에 저장 ===
+    await supabase.from('guides').insert([{ ...guideData, locationName, language, user_id: session?.user?.id || null, created_at: new Date().toISOString() }]);
     return NextResponse.json({ 
       success: true, 
       data: guideData, 

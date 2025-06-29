@@ -126,8 +126,16 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
 
   const content = guideData?.content;
 
-  if (showSplash) {
-    return <SplashScreen message={loadingMessage} locationName={locationName} show={showSplash} />;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold text-slate-900 mb-2">{locationName}</h2>
+          <p className="text-slate-600">{loadingMessage}</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
