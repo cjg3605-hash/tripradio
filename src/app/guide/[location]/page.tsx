@@ -6,6 +6,7 @@ import { ArrowLeft, Play, Pause, MapPin, Clock, Star, Calendar, Volume2 } from '
 import { GuideData } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTTSLanguage } from '@/lib/ai/prompts';
+import MapWithRoute from '@/components/guide/MapWithRoute';
 
 export default function GuidePage() {
   const params = useParams();
@@ -122,29 +123,31 @@ export default function GuidePage() {
     return () => clearInterval(interval);
   }, [isLoading, currentLanguage]);
 
+  // === localStorage 저장 함수 ===
+  const saveGuideToLocalCache = (locationName: string, language: string, data: any) => {
+    try {
+      const cacheKey = `guide-cache:${locationName}:${language}`;
+      localStorage.setItem(cacheKey, JSON.stringify({ ...data, savedAt: new Date().toISOString() }));
+    } catch (e) {
+      // ignore
+    }
+  };
+
   // 가이드 데이터 로드 함수 (언어별)
   const loadGuideData = async () => {
     setIsLoading(true);
     setError(null);
-    
     try {
       console.log(`🌍 가이드 로드 시작 - 장소: ${locationName}, 언어: ${currentLanguage}`);
-      
       const response = await fetch('/api/node/ai/generate-guide', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          locationName: locationName,
-          language: currentLanguage 
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ locationName: locationName, language: currentLanguage }),
       });
-
       const result = await response.json();
-
       if (result.success) {
         setGuideData(result.data);
+        saveGuideToLocalCache(locationName, currentLanguage, result.data); // === localStorage 저장 ===
         console.log(`✅ 가이드 로드 완료 (${currentLanguage}):`, result.cached === 'file' ? '캐시됨' : '새로 생성됨');
       } else {
         throw new Error(result.error || '가이드 생성에 실패했습니다.');
@@ -300,33 +303,20 @@ export default function GuidePage() {
             <div className="p-4 sm:p-5 border-b border-slate-100">
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900">{t.guide.realTimeGuide}</h2>
             </div>
-            
-            {/* 📍 시작 위치 정보 */}
-            {content?.realTimeGuide?.startingLocation && (
-              <div className="p-4 sm:p-5 bg-blue-50 border-b border-slate-100">
-                <div className="flex items-start">
-                  <MapPin className="w-5 h-5 text-blue-500 mr-3 mt-1 flex-shrink-0" />
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                      📍 {content.realTimeGuide.startingLocation.name}
-                    </h3>
-                    <p className="text-sm text-slate-600 mb-3">
-                      {content.realTimeGuide.startingLocation.address}
-                    </p>
-                                         <a
-                       href={content.realTimeGuide.startingLocation.googleMapsUrl}
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       className="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
-                     >
-                       <MapPin className="w-4 h-4 mr-2" />
-                       {t.guide.viewOnGoogleMaps}
-                     </a>
-                  </div>
-                </div>
+            {/* === 지도/동선/마커 표시 === */}
+            {content?.realTimeGuide?.chapters && content.realTimeGuide.chapters.length > 0 && (
+              <div className="px-4 pt-6">
+                <MapWithRoute
+                  chapters={content.realTimeGuide.chapters.map((c: any, i: number) => ({
+                    id: c.id,
+                    title: c.title,
+                    lat: c.lat || c.latitude || c.coordinates?.lat || c.coordinates?.latitude,
+                    lng: c.lng || c.longitude || c.coordinates?.lng || c.coordinates?.longitude
+                  }))}
+                  activeChapter={0}
+                />
               </div>
             )}
-            
             <div className="divide-y divide-slate-100">
               {content?.realTimeGuide?.chapters?.map((chapter, index) => (
                 <div key={chapter.id} className="p-4 sm:p-5">
