@@ -82,6 +82,8 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     })
       .then(res => res.json())
       .then(result => {
+        console.log('API result:', result);
+        console.log('API result.data:', result.data);
         if (result.success) setGuideData(result.data);
         else setError(result.error || '가이드 생성에 실패했습니다.');
       })

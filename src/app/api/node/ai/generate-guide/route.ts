@@ -106,8 +106,8 @@ export async function POST(req: NextRequest) {
       .eq('language', language)
       .single();
     if (cachedGuide) {
-      // GuideData 타입 구조 보장: content, metadata 필드가 없으면 감싸서 반환
-      if (cachedGuide.content) {
+      // GuideData 타입 구조 보장: data, metadata 필드가 없으면 감싸서 반환
+      if (cachedGuide.data) {
         return NextResponse.json({ 
           success: true, 
           data: cachedGuide, 
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
       } else {
         return NextResponse.json({
           success: true,
-          data: { content: cachedGuide },
+          data: { data: cachedGuide },
           cached: 'hit',
           language: language
         });
@@ -190,7 +190,7 @@ export async function POST(req: NextRequest) {
 
     // === Supabase guides 테이블에 저장 ===
     const { error: insertError } = await supabase.from('guides').insert([{
-      content: guideData.content,
+      data: guideData.content,
       metadata: guideData.metadata,
       locationname: locationName,
       language,
@@ -203,7 +203,7 @@ export async function POST(req: NextRequest) {
     }
     return NextResponse.json({ 
       success: true, 
-      data: guideData, 
+      data: { data: guideData.content, metadata: guideData.metadata }, 
       cached: 'new',
       language: language,
       version: '4.0-database-free'
