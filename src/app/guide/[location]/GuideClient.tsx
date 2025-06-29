@@ -7,10 +7,22 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { getTTSLanguage } from '@/lib/ai/prompts';
 import MapWithRoute from '@/components/guide/MapWithRoute';
 
+// GuideData 구조 보정 유틸
+const extractGuideData = (raw: any) => {
+  if (!raw) return null;
+  if (raw.content && raw.content.overview && raw.content.route && raw.content.realTimeGuide) return raw.content;
+  if (raw.content && raw.content.content) return raw.content.content;
+  if (raw.data && raw.data.content && raw.data.content.overview) return raw.data.content;
+  if (raw.data && raw.data.content && raw.data.content.content) return raw.data.content.content;
+  if (raw.data && raw.data.overview) return raw.data;
+  if (raw.overview && raw.route && raw.realTimeGuide) return raw;
+  return null;
+};
+
 export default function GuideClient({ locationName, initialGuide }: { locationName: string, initialGuide: any }) {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
-  const [guideData, setGuideData] = useState<GuideData | null>(initialGuide || null);
+  const [guideData, setGuideData] = useState<GuideData | null>(extractGuideData(initialGuide) || null);
   const [isLoading, setIsLoading] = useState(!initialGuide);
   const [error, setError] = useState<string | null>(null);
   const [loadingMessage, setLoadingMessage] = useState('로딩 중...');
@@ -83,11 +95,10 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
       .then(res => res.json())
       .then(result => {
         console.log('API result:', result);
-        console.log('API result.data:', result.data);
-        console.log('API result.data.content:', result.data?.content);
-        if (result.success) {
-          setGuideData(result.data);
-          console.log('setGuideData 완료:', result.data);
+        const extracted = extractGuideData(result.data);
+        if (result.success && extracted) {
+          setGuideData(extracted);
+          console.log('setGuideData 완료:', extracted);
         } else {
           setError(result.error || '가이드 생성에 실패했습니다.');
         }
@@ -110,7 +121,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
   }, [isLoading, currentLanguage]);
 
   // 데이터 접근 경로를 유연하게 처리 - API 응답 구조에 맞게 개선
-  const content = guideData?.content || guideData?.data?.content || guideData?.data || guideData;
+  const content = guideData;
 
   // 필수 필드 체크
   const isContentValid = content && content.overview && content.route && content.realTimeGuide;
