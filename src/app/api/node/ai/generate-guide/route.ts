@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { createAutonomousGuidePrompt } from '@/lib/ai/prompts';
+import { createAutonomousGuidePrompt, createSimpleTestPrompt } from '@/lib/ai/prompts';
 import authOptions from '@/lib/auth';
 import { getOrCreateTTSAndUrl } from '@/lib/tts-gcs';
 import { supabase } from '@/lib/supabaseClient';
@@ -200,14 +200,16 @@ export async function POST(req: NextRequest) {
     });
 
     console.log(`🚀 AI 가이드 생성 시작 - ${locationName} (${language})`);
-    const autonomousPrompt = createAutonomousGuidePrompt(locationName, language, userProfile);
+    // 테스트용 간단한 프롬프트 사용
+    const testPrompt = createSimpleTestPrompt(locationName, language);
+    console.log('🧪 테스트 프롬프트 사용 - 간단한 JSON 구조 확인');
     
     console.log(`📝 프롬프트 전송 완료, 응답 대기 중...`);
     
     let responseText: string;
     try {
       console.log('🤖 Gemini API 호출 시작');
-      const result = await model.generateContent(autonomousPrompt);
+      const result = await model.generateContent(testPrompt);
       const response = await result.response;
       responseText = await response.text();
       
