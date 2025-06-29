@@ -207,39 +207,44 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto p-3 sm:p-4 lg:p-6">
-        {/* 📱 모바일 최적화 Title Section */}
-        <header className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight mb-2 leading-tight">
-            {content?.overview?.title || locationName}
-          </h1>
-          <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
-            {content?.overview?.narrativeTheme || '맞춤형 AI 가이드를 준비하고 있습니다...'}
-          </p>
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        {/* Header */}
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold">{content?.overview?.title || locationName}</h1>
+          <p className="mt-2 text-lg text-slate-600">{content?.overview?.narrativeTheme}</p>
         </header>
 
-        {/* 추천 관람 순서 (route.steps) */}
+        {/* 추천 동선 */}
         {content?.route?.steps?.length > 0 && (
           <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-2">추천 관람 순서</h2>
-            <ol className="list-decimal ml-6 space-y-1">
-              {content.route.steps.map((step, idx) => (
-                <li key={idx}>
-                  <span className="font-bold">{step.title}</span>
-                  {step.location && <> - <span className="text-slate-500">{step.location}</span></>}
-                </li>
-              ))}
-            </ol>
+            <div className="card bg-white rounded-xl shadow p-5 mb-4">
+              <h2 className="text-2xl font-bold text-slate-900 mb-3">추천 동선</h2>
+              <ol className="list-decimal ml-6 space-y-1">
+                {content.route.steps.map((step, idx) => (
+                  <li key={idx}>
+                    <span className="font-bold">{step.title}</span>
+                    {step.location && <> - <span className="text-slate-500">{step.location}</span></>}
+                  </li>
+                ))}
+              </ol>
+            </div>
           </section>
         )}
 
-        {/* 실시간 오디오 가이드 (realTimeGuide.chapters) */}
+        {/* 🗺️ 지도/동선: 추천 동선과 실시간 오디오 가이드 사이 */}
+        {content?.realTimeGuide?.chapters?.length > 0 && (
+          <section className="mb-8">
+            <MapWithRoute chapters={content.realTimeGuide.chapters} />
+          </section>
+        )}
+
+        {/* 실시간 오디오 가이드 */}
         {content?.realTimeGuide?.chapters?.length > 0 && (
           <section>
-            <h2 className="text-xl font-semibold mb-2">실시간 오디오 가이드</h2>
+            <h2 className="text-2xl font-bold mb-2">실시간 오디오 가이드</h2>
             <ol className="space-y-4">
               {content.realTimeGuide.chapters.map((ch, idx) => (
-                <li key={idx} className="border-b pb-4">
+                <li key={idx} className="card bg-white rounded-xl shadow p-5 mb-4">
                   <div className="font-bold">{ch.title}</div>
                   <div className="text-slate-600 whitespace-pre-line">{ch.realTimeScript}</div>
                   {ch.coordinates && (
