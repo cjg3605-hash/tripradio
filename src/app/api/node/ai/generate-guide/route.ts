@@ -106,12 +106,22 @@ export async function POST(req: NextRequest) {
       .eq('language', language)
       .single();
     if (cachedGuide) {
-      return NextResponse.json({ 
-        success: true, 
-        data: cachedGuide, 
-        cached: 'hit',
-        language: language 
-      });
+      // GuideData 타입 구조 보장: content, metadata 필드가 없으면 감싸서 반환
+      if (cachedGuide.content) {
+        return NextResponse.json({ 
+          success: true, 
+          data: cachedGuide, 
+          cached: 'hit',
+          language: language 
+        });
+      } else {
+        return NextResponse.json({
+          success: true,
+          data: { content: cachedGuide },
+          cached: 'hit',
+          language: language
+        });
+      }
     }
     
     const model = genAI.getGenerativeModel({ 
@@ -179,7 +189,14 @@ export async function POST(req: NextRequest) {
     console.log(`✅ AI 가이드 생성 완료 (${language})`);
 
     // === Supabase guides 테이블에 저장 ===
-    await supabase.from('guides').insert([{ ...guideData, locationName, language, user_id: session?.user?.id || null, created_at: new Date().toISOString() }]);
+    await supabase.from('guides').insert([{
+      content: guideData.content,
+      metadata: guideData.metadata,
+      locationName,
+      language,
+      user_id: session?.user?.id || null,
+      created_at: new Date().toISOString()
+    }]);
     return NextResponse.json({ 
       success: true, 
       data: guideData, 

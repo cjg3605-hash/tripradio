@@ -17,7 +17,7 @@ export default function HomePage() {
 
   if (splashVisible) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-sky-200 to-indigo-200">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
         <img src="/navi.png" alt="Navi Logo" className="w-32 h-32 mb-8 animate-bounce" />
       </div>
     );
