@@ -63,7 +63,7 @@ interface TourData {
 interface TourContentProps {
   locationName: string;
   userProfile?: any;
-  guideId?: string;
+  initialGuide?: any;
   offlineData?: {
     overview: Overview;
     route: { steps: Step[] };
@@ -78,7 +78,7 @@ const ICONS = {
   STOP: <StopCircle className="w-7 h-7" />,
 };
 
-export default function TourContent({ locationName, userProfile, guideId, offlineData }: TourContentProps) {
+export default function TourContent({ locationName, userProfile, initialGuide, offlineData }: TourContentProps) {
   const { t } = useTranslation('guide');
   // 🔥 강력한 디버깅: 컴포넌트 시작
   console.log('🎬 TourContent 컴포넌트 렌더링 시작!', { locationName, userProfile });
@@ -97,6 +97,8 @@ export default function TourContent({ locationName, userProfile, guideId, offlin
   const ttsRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [patchedChapters, setPatchedChapters] = useState<Chapter[]>([]);
   const [patchedSteps, setPatchedSteps] = useState<Step[]>([]);
+
+  const guideId = initialGuide?.id;
 
   const getCacheKey = () => {
     // locationName + userProfile(문자열화) 조합으로 고유 키 생성
