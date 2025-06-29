@@ -4,6 +4,23 @@ import stringSimilarity from 'string-similarity';
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
+// 공식명 리스트 (서비스에 맞게 확장)
+const OFFICIAL_NAMES = [
+  'cathedral of seville',
+  'giralda tower',
+  'patio de los naranjos',
+  'main altar',
+  'tomb of christopher columbus',
+  'royal chapel',
+  'interior of the cathedral',
+  // ... 필요시 추가 ...
+];
+
+function getBestMatchName(input) {
+  const { bestMatch } = stringSimilarity.findBestMatch(input, OFFICIAL_NAMES);
+  return bestMatch.rating > 0.7 ? bestMatch.target : input;
+}
+
 // 1. Google Places API
 export async function getGooglePlace(locationName: string) {
   const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json`;
@@ -89,7 +106,7 @@ async function validateCoordinates(coords, originalName) {
   return sim > 0.7;
 }
 
-async function saveGoldenRecord(locationName, language, coords, placeId, source) {
+async function saveGoldenRecord(locationName, language, coords, placeId, source, validation, validation_score) {
   await supabase.from('places').upsert([
     {
       location_name: locationName,
@@ -97,6 +114,8 @@ async function saveGoldenRecord(locationName, language, coords, placeId, source)
       coordinates: coords,
       place_id: placeId,
       source,
+      validation,
+      validation_score,
     }
   ]);
 }
@@ -104,7 +123,7 @@ async function saveGoldenRecord(locationName, language, coords, placeId, source)
 export async function getOrCreateGoldenCoordinates(locationName, language) {
   const normLocation = locationName.trim().toLowerCase();
   const normLang = language.trim().toLowerCase();
-  // 1. 캐시/DB 조회
+  // 1. DB 캐시 조회
   const { data: cached } = await supabase
     .from('places')
     .select('*')
@@ -112,27 +131,29 @@ export async function getOrCreateGoldenCoordinates(locationName, language) {
     .eq('language', normLang)
     .single();
   if (cached && cached.coordinates) return cached.coordinates;
-  // 2. 공식 API 순차 호출 (구글 → OSM → Wikidata)
-  let coords = null;
-  let placeId = null;
-  let source = null;
-  const google = await getGooglePlace(normLocation);
+  // 2. 공식명 유사어 매칭
+  const bestMatchName = getBestMatchName(normLocation);
+  // 3. 공식 API 호출 (구글 등)
+  const google = await getGooglePlace(bestMatchName);
+  let coords = null, placeId = null, source = null;
   if (google && google.geometry && google.geometry.location) {
     coords = { lat: google.geometry.location.lat, lng: google.geometry.location.lng };
     placeId = google.place_id;
     source = 'google';
   }
-  // OSM, Wikidata 등 추가 폴백 가능
-  if (!coords) {
-    const osm = await getOSMPlace(normLocation);
-    if (osm && osm.lat && osm.lon) {
-      coords = { lat: parseFloat(osm.lat), lng: parseFloat(osm.lon) };
-      source = 'osm';
+  // ... OSM, Wikidata 등 폴백 추가 가능
+  // 4. 좌표 검증 (역지오코딩 + 유사도)
+  let validation = 'ok', validation_score = 1;
+  if (coords) {
+    const address = await reverseGeocode(coords.lat, coords.lng);
+    const sim = stringSimilarity.compareTwoStrings(address.trim().toLowerCase(), normLocation);
+    validation = sim > 0.7 ? 'ok' : 'review';
+    validation_score = sim;
+    if (validation === 'review') {
+      console.warn(`[좌표 검증 실패] ${locationName} (${language}) → ${address} (score: ${sim})`);
     }
   }
-  // 3. 검증 (구글/OSM 등 공식 데이터는 생략 가능, AI 등은 반드시 검증)
   if (!coords) throw new Error('좌표를 찾을 수 없습니다.');
-  // 4. 골든레코드 저장
-  await saveGoldenRecord(normLocation, normLang, coords, placeId, source);
+  await saveGoldenRecord(normLocation, normLang, coords, placeId, source, validation, validation_score);
   return coords;
 } 
