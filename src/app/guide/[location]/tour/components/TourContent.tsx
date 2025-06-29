@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Clock, MapPin, Play, Pause, Volume2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { getBestOfficialPlace } from '@/lib/ai/officialData';
 
 // 🔥 강력한 디버깅: 컴포넌트 로드 확인
 console.log('🚀 TourContent 컴포넌트 파일 로드됨!');
@@ -64,6 +65,7 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
   const [isRetrying, setIsRetrying] = useState(false);
   const [activeChapter, setActiveChapter] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [officialPlace, setOfficialPlace] = useState<any>(null);
   
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -139,6 +141,11 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
       loadTourData(false); // 기본은 캐시 우선
     }
   }, [locationName, offlineData]);
+
+  useEffect(() => {
+    // 공식 데이터셋에서 명소 좌표/POI 조회
+    getBestOfficialPlace(locationName).then(setOfficialPlace).catch(() => setOfficialPlace(null));
+  }, [locationName]);
 
   // 스크롤 위치에 따라 활성 챕터 업데이트
   useEffect(() => {
@@ -298,8 +305,8 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
           chapters={chapters.map((c, i) => ({
             id: c.id,
             title: c.title,
-            lat: c.lat || c.latitude || c.coordinates?.lat || c.coordinates?.latitude,
-            lng: c.lng || c.longitude || c.coordinates?.lng || c.coordinates?.longitude
+            lat: i === 0 && officialPlace?.geometry?.location?.lat ? officialPlace.geometry.location.lat : (c.lat || c.latitude || c.coordinates?.lat || c.coordinates?.latitude),
+            lng: i === 0 && officialPlace?.geometry?.location?.lng ? officialPlace.geometry.location.lng : (c.lng || c.longitude || c.coordinates?.lng || c.coordinates?.longitude)
           }))}
           activeChapter={activeChapter}
           onMarkerClick={scrollToChapter}

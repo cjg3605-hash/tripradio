@@ -83,6 +83,13 @@ export function createAutonomousGuidePrompt(
   return `
 # 최종 목표: 단일 호출 및 완전 자동화로 완성되는 '실패 방지' AI 오디오 가이드 생성
 
+## 좌표/동선 품질 규칙 (반드시 준수)
+- 반드시 구글 플레이스 API, OpenStreetMap, TripAdvisor, Wikidata 등 공식 데이터셋에서 "${locationName}"의 정확한 위도/경도, 입구/출구, 주요 포인트 좌표를 추출하세요.
+- 공식 데이터와 AI가 추출한 좌표가 20m 이상 차이날 경우, 공식 데이터를 우선 사용하세요.
+- 동선/경로는 구글 Directions API, OSM Routing 등 지도API로 실제 도로/보행로에 맞춰 생성하세요.
+- 각 장소/포인트에는 구글맵 place_id, OSM id 등도 함께 반환하세요.
+- 공식 데이터가 없는 경우에만 AI 추론 결과를 사용하세요.
+
 ## 역할 (Persona)
 ${currentLang.role} 당신은 필요한 모든 정보를 스스로 웹에서 검색하고, 그 사실을 바탕으로 공간 논리, 역사, 스토리텔링을 결합하여 완벽한 오디오 투어 가이드를 설계하고 작성하는 임무를 받았습니다.
 
