@@ -104,8 +104,11 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     return () => clearInterval(interval);
   }, [isLoading, currentLanguage]);
 
-  // 데이터 접근 경로를 유연하게 처리 (content가 없으면 guideData 자체를 content로 간주)
-  const content = guideData?.content || guideData;
+  // 데이터 접근 경로를 유연하게 처리 (data, content, 또는 guideData 자체)
+  const content = guideData?.data || guideData?.content || guideData;
+
+  // 필수 필드 체크
+  const isContentValid = content && content.overview && content.route && content.realTimeGuide;
 
   if (isLoading) {
     return (
@@ -126,6 +129,24 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
           <div className="text-red-500 text-6xl mb-4">⚠️</div>
           <h2 className="text-xl font-semibold text-slate-900 mb-2">오류가 발생했습니다</h2>
           <p className="text-slate-600 mb-4">{error}</p>
+          <button
+            onClick={() => router.push('/')}
+            className="px-6 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-colors"
+          >
+            홈으로 돌아가기
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isLoading && !error && !isContentValid) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-slate-900 mb-2">가이드 데이터가 올바르지 않습니다</h2>
+          <p className="text-slate-600 mb-4">가이드 데이터 구조가 잘못되었거나, 필수 정보가 누락되었습니다.<br/>관리자에게 문의해 주세요.</p>
           <button
             onClick={() => router.push('/')}
             className="px-6 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-colors"

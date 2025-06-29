@@ -113,7 +113,13 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
         })
       });
       const result = await response.json();
-      if (result.success && result.data?.content?.realTimeGuide?.chapters?.length > 0) {
+      if (
+        result.success &&
+        (
+          result.data?.content?.realTimeGuide?.chapters?.length > 0 ||
+          result.data?.data?.realTimeGuide?.chapters?.length > 0
+        )
+      ) {
         setTourData(result.data);
         // 2. localStorage에 캐시 저장
         try {
@@ -296,6 +302,9 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
       .replace(/([.!?])$/g, '$1')
       .trim();
   };
+
+  // 데이터 접근 경로를 유연하게 처리 (content, data, tourData 자체)
+  const content = tourData?.content || tourData?.data || tourData;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
