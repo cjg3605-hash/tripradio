@@ -13,12 +13,8 @@ try {
   kv = require('@vercel/kv').kv;
   console.log('✅ Vercel KV 사용 가능');
 } catch (error) {
-  console.log('⚠️ Vercel KV 사용 불가, 인메모리 캐시만 사용');
+  // Vercel KV 사용 불가, 파일 캐시로 대체
 }
-
-// 인메모리 캐시 (항상 사용 가능)
-const memoryCache = new Map<string, { data: any; timestamp: number; userId?: string }>();
-const CACHE_TTL = 24 * 60 * 60 * 1000; // 24시간
 
 // Gemini AI 클라이언트를 요청 시점에 초기화
 function getGeminiClient() {
@@ -32,12 +28,11 @@ function getGeminiClient() {
 
 // --- 간소화된 캐시 관리 함수 ---
 
-// 캐시에서 가이드 읽기 (우선순위: Vercel KV > Memory)
+// 캐시에서 가이드 읽기 (우선순위: Vercel KV)
 const readGuideFromCache = async (locationName: string, language: string = 'ko'): Promise<any | null> => {
   const cacheKey = `guide:${locationName}:${language}`;
   
   try {
-    // 1. Vercel KV 캐시 시도
     if (kv) {
       const cached = await kv.get(cacheKey);
       if (cached) {
@@ -49,17 +44,11 @@ const readGuideFromCache = async (locationName: string, language: string = 'ko')
     console.log('⚠️ Vercel KV 캐시 읽기 실패:', error);
   }
 
-  // 2. 인메모리 캐시 시도
-  const memoryCached = memoryCache.get(cacheKey);
-  if (memoryCached && (Date.now() - memoryCached.timestamp) < CACHE_TTL) {
-    console.log(`✅ 메모리 캐시에서 로드 (${language}): ${locationName}`);
-    return memoryCached.data;
-    }
-
-    return null;
+  // ❌ 인메모리 캐시 읽기 로직 제거
+  return null;
 };
 
-// 캐시에 가이드 저장 (모든 가능한 캐시에 저장)
+// 캐시에 가이드 저장 (Vercel KV에만 저장)
 const saveGuideToCache = async (
   locationName: string, 
   language: string, 
@@ -78,13 +67,7 @@ const saveGuideToCache = async (
     console.log('⚠️ Vercel KV 캐시 저장 실패:', error);
   }
 
-  // 2. 인메모리 캐시 저장 (항상 성공)
-  memoryCache.set(cacheKey, { 
-    data: guideData, 
-    timestamp: Date.now(),
-    userId: userId 
-  });
-  console.log(`💾 메모리 캐시에 저장 (${language}): ${locationName}`);
+  // ❌ 인메모리 캐시 저장 로직 제거
 };
 
 /**

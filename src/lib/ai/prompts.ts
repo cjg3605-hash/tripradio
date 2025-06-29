@@ -92,7 +92,7 @@ ${currentLang.role} 당신은 필요한 모든 정보를 스스로 웹에서 검
 **생성 언어**: ${langConfig.name} (${langConfig.code})
 **대상 언어**: 모든 출력은 반드시 ${langConfig.name}로 작성해야 합니다.
 
-**⚠️ 각 챕터(명소)별로 반드시 정확한 위도(lat), 경도(lng) 좌표를 포함해야 하며, 구글맵에서 검색 가능한 주소와 Google Maps URL도 함께 반환해야 합니다. (좌표 누락 시 불합격!)**
+**⚠️ 각 챕터(chapter) 객체 안에는 반드시 "정확한 위도와 경도를 가진 `coordinates` 객체" (`coordinates: { "lat": 41.3874, "lng": 2.1686 }`)를 포함해야 합니다. 좌표 누락 시 불합격 처리됩니다.**
 
 ${userContext}
 
@@ -349,66 +349,48 @@ ${currentLang.outputInstructions}
       "title": "세비야대성당",
       "narrativeTheme": "고딕양식의정수와이슬람문화의흔적이어우러진역사적건축물",
       "keyFacts": ["세계최대규모의고딕대성당", "콜럼버스의묘소재지"]
-    }
-  }
-}
-\`\`\`
-
-{
-  "content": {
-    "overview": {
-      "title": "${locationName}",
-      "narrativeTheme": "[2단계에서 분석한 핵심 주제를 바탕으로 ${langConfig.name}로 서술]",
-      "keyFacts": [
-        "[2단계에서 식별한 핵심 사실 1 - ${langConfig.name}]",
-        "[2단계에서 식별한 핵심 사실 2 - ${langConfig.name}]",
-        "[2단계에서 식별한 핵심 사실 3 - ${langConfig.name}]"
-      ],
-      "visitInfo": {
-        "duration": "[자동 계산된 소요시간 (분)]",
-        "difficulty": "[난이도 - ${langConfig.name}]",
-        "season": "[AI가 추천하는 최적 방문 계절 - ${langConfig.name}]"
-      }
     },
     "route": {
       "steps": [
         {
           "step": 0,
-          "location": "[시작 지점 - ${langConfig.name}]",
-          "title": "[시작챕터: 웰컴 및 전체 소개 - ${langConfig.name}]"
+          "location": "카사 바트요 입구 (Passeig de Gràcia, 43)",
+          "title": "시작챕터: 가우디의 상상 속으로, 카사 바트요",
+          "coordinates": { "lat": 41.391632, "lng": 2.164998 }
         },
         {
           "step": 1,
-          "location": "[2단계 설계 장소명 - ${langConfig.name}]",
-          "title": "[2단계 설계 부제 - ${langConfig.name}]"
+          "location": "1층: 노블 플로어, 바트요 가족의 공간",
+          "title": "1층: 노블 플로어, 바트요 가족의 공간",
+          "coordinates": { "lat": 41.3917, "lng": 2.165 }
         }
       ]
     },
     "realTimeGuide": {
       "startingLocation": {
-        "name": "[시작 지점 명칭 - ${langConfig.name}]",
-        "address": "[구글맵에서 검색 가능한 정확한 주소 - ${langConfig.name}]",
-        "googleMapsUrl": "[구글맵 직접 링크 URL]",
-        "coordinates": {
-          "latitude": "[위도]",
-          "longitude": "[경도]"
-        }
+        "name": "카사 바트요 입구 (Passeig de Gràcia, 43)",
+        "address": "Passeig de Gràcia, 43, 08007 Barcelona, 스페인",
+        "googleMapsUrl": "https://www.google.com/maps/place/Casa+Batll%C3%B3/@41.391632,2.164998,17z/",
+        "coordinates": { "lat": 41.391632, "lng": 2.164998 }
       },
       "chapters": [
         {
           "id": 0,
-          "title": "[시작챕터: 웰컴 인사 - ${langConfig.name}]",
-          "realTimeScript": "[시작챕터 전용 웰컴 스크립트 - ${langConfig.name}]"
+          "title": "시작챕터: 가우디의 상상 속으로, 카사 바트요",
+          "coordinates": { "lat": 41.391632, "lng": 2.164998 },
+          "realTimeScript": "안녕하세요! 바르셀로나의 보석, 카사 바트요에 오신 것을 환영합니다..."
         },
         {
           "id": 1,
-          "title": "[2단계 설계 부제 - ${langConfig.name}]",
-          "realTimeScript": "[스크립트 작성 5대 원칙을 모두 통합하여 생성한 최종 오디오 스크립트 - ${langConfig.name}]"
+          "title": "1층: 노블 플로어, 바트요 가족의 공간",
+          "coordinates": { "lat": 41.3917, "lng": 2.165 },
+          "realTimeScript": "계단을 따라 올라오신 이곳은 과거 바트요 가족이 살았던 '노블 플로어'입니다..."
         }
       ]
     }
   }
 }
+\`\`\`
 `;
 }
 
