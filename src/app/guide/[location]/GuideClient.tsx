@@ -104,7 +104,8 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     return () => clearInterval(interval);
   }, [isLoading, currentLanguage]);
 
-  const content = guideData?.content;
+  // 데이터 접근 경로를 유연하게 처리 (content가 없으면 guideData 자체를 content로 간주)
+  const content = guideData?.content || guideData;
 
   if (isLoading) {
     return (
