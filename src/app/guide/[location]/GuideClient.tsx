@@ -84,8 +84,13 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
       .then(result => {
         console.log('API result:', result);
         console.log('API result.data:', result.data);
-        if (result.success) setGuideData(result.data);
-        else setError(result.error || '가이드 생성에 실패했습니다.');
+        console.log('API result.data.content:', result.data?.content);
+        if (result.success) {
+          setGuideData(result.data);
+          console.log('setGuideData 완료:', result.data);
+        } else {
+          setError(result.error || '가이드 생성에 실패했습니다.');
+        }
       })
       .catch(e => setError(e.message))
       .finally(() => setIsLoading(false));
@@ -104,8 +109,8 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     return () => clearInterval(interval);
   }, [isLoading, currentLanguage]);
 
-  // 데이터 접근 경로를 유연하게 처리 (data, content, 또는 guideData 자체)
-  const content = guideData?.data || guideData?.content || guideData;
+  // 데이터 접근 경로를 유연하게 처리 - API 응답 구조에 맞게 개선
+  const content = guideData?.content || guideData?.data?.content || guideData?.data || guideData;
 
   // 필수 필드 체크
   const isContentValid = content && content.overview && content.route && content.realTimeGuide;

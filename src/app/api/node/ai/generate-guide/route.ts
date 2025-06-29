@@ -125,22 +125,13 @@ export async function POST(req: NextRequest) {
       .eq('language', language)
       .single();
     if (cachedGuide) {
-      // GuideData 타입 구조 보장: data, metadata 필드가 없으면 감싸서 반환
-      if (cachedGuide.data) {
-        return NextResponse.json({ 
-          success: true, 
-          data: cachedGuide, 
-          cached: 'hit',
-          language: language 
-        });
-      } else {
-        return NextResponse.json({
-          success: true,
-          data: { data: cachedGuide },
-          cached: 'hit',
-          language: language
-        });
-      }
+      // 캐시 hit 시 일관된 구조로 반환 (캐시 miss와 동일한 구조)
+      return NextResponse.json({ 
+        success: true, 
+        data: { content: cachedGuide.content }, // cachedGuide.content에 실제 가이드 데이터가 있음
+        cached: 'hit',
+        language: language 
+      });
     }
     
     const model = genAI.getGenerativeModel({ 
