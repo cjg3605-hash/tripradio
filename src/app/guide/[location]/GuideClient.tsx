@@ -6,6 +6,7 @@ import { GuideData } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTTSLanguage } from '@/lib/ai/prompts';
 import MapWithRoute from '@/components/guide/MapWithRoute';
+import TourContent from './tour/components/TourContent';
 
 // GuideData 구조 보정 유틸
 const extractGuideData = (raw: any) => {
@@ -171,6 +172,16 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
           </button>
         </div>
       </div>
+    );
+  }
+
+  if (!isLoading && !error && isContentValid) {
+    return (
+      <TourContent
+        locationName={locationName}
+        userProfile={null}
+        offlineData={content}
+      />
     );
   }
 
