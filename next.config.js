@@ -20,7 +20,6 @@ const withPWA = require('next-pwa')({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  i18n,
   reactStrictMode: true,
   swcMinify: true,
   
@@ -127,10 +126,6 @@ const nextConfig = {
         ],
       },
     ];
-  },
-  
-  experimental: {
-    runtime: 'nodejs',
   },
 };
 

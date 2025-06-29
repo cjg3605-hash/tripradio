@@ -92,7 +92,7 @@ ${currentLang.role} 당신은 필요한 모든 정보를 스스로 웹에서 검
 **생성 언어**: ${langConfig.name} (${langConfig.code})
 **대상 언어**: 모든 출력은 반드시 ${langConfig.name}로 작성해야 합니다.
 
-**⚠️ 각 챕터(chapter) 객체 안에는 반드시 "정확한 위도와 경도를 가진 `coordinates` 객체" (`coordinates: { "lat": 41.3874, "lng": 2.1686 }`)를 포함해야 합니다. 좌표 누락 시 불합격 처리됩니다.**
+**⚠️ 각 챕터(chapter) 객체 안에는 반드시 "정확한 위도와 경도를 가진 \`coordinates\` 객체" (\`coordinates: \\{ "lat": 41.3874, "lng": 2.1686 \\}\`)를 포함해야 합니다. 좌표 누락 시 불합격 처리됩니다.**
 
 ${userContext}
 
