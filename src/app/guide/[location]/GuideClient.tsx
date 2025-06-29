@@ -203,8 +203,41 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
             {content?.overview?.narrativeTheme || '맞춤형 AI 가이드를 준비하고 있습니다...'}
           </p>
         </header>
-        {/* ...이하 기존 렌더링 코드 동일 ... */}
-        {/* 📱 모바일 최적화 투어 개요, 추천 관람순서, 실시간 오디오 가이드 등 기존 코드 복사 */}
+
+        {/* 추천 관람 순서 (route.steps) */}
+        {content?.route?.steps?.length > 0 && (
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold mb-2">추천 관람 순서</h2>
+            <ol className="list-decimal ml-6 space-y-1">
+              {content.route.steps.map((step, idx) => (
+                <li key={idx}>
+                  <span className="font-bold">{step.title}</span>
+                  {step.location && <> - <span className="text-slate-500">{step.location}</span></>}
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+
+        {/* 실시간 오디오 가이드 (realTimeGuide.chapters) */}
+        {content?.realTimeGuide?.chapters?.length > 0 && (
+          <section>
+            <h2 className="text-xl font-semibold mb-2">실시간 오디오 가이드</h2>
+            <ol className="space-y-4">
+              {content.realTimeGuide.chapters.map((ch, idx) => (
+                <li key={idx} className="border-b pb-4">
+                  <div className="font-bold">{ch.title}</div>
+                  <div className="text-slate-600 whitespace-pre-line">{ch.realTimeScript}</div>
+                  {ch.coordinates && (
+                    <div className="text-xs text-slate-400 mt-1">
+                      위치: {ch.coordinates.lat}, {ch.coordinates.lng}
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
       </div>
     </div>
   );
