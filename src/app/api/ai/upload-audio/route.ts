@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
   // 2. audio_files 테이블에 메타데이터 저장
   const { error: dbError } = await supabase.from('audio_files').insert([
-    { guide_id: guideId, file_path: filePath }
+    { guide_id: guideId, file_path: filePath, created_at: new Date().toISOString() }
   ]);
   if (dbError) return new Response(dbError.message, { status: 500 });
 
