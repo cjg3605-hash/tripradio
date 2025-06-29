@@ -4,7 +4,7 @@ import { getServerSession } from 'next-auth/next';
 import { createAutonomousGuidePrompt } from '@/lib/ai/prompts';
 import authOptions from '@/lib/auth';
 import { getOrCreateTTSAndUrl } from '@/lib/tts-gcs';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabaseClient';
 
 export const runtime = 'nodejs';
 
