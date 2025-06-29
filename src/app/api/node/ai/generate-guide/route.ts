@@ -27,7 +27,7 @@ function getGeminiClient() {
     console.error('GEMINI_API_KEY is not configured');
     throw new Error('Server configuration error: Missing API key');
   }
-  return new GoogleGenerativeAI(apiKey);
+    return new GoogleGenerativeAI(apiKey);
 }
 
 // --- 간소화된 캐시 관리 함수 ---
@@ -54,9 +54,9 @@ const readGuideFromCache = async (locationName: string, language: string = 'ko')
   if (memoryCached && (Date.now() - memoryCached.timestamp) < CACHE_TTL) {
     console.log(`✅ 메모리 캐시에서 로드 (${language}): ${locationName}`);
     return memoryCached.data;
-  }
+    }
 
-  return null;
+    return null;
 };
 
 // 캐시에 가이드 저장 (모든 가능한 캐시에 저장)
