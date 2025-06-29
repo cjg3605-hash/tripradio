@@ -6,7 +6,19 @@ const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
 // 공식명 리스트 (서비스에 맞게 확장)
 const OFFICIAL_NAMES = [
+  'royal alcázar of seville',
+  'real alcázar de sevilla',
+  'alcazar of seville',
+  'alcázar of seville',
+  'alcazar de sevilla',
+  'palacio gótico',
+  'patio de banderas',
+  'patio del león',
+  'salón de embajadores',
+  'patio de las doncellas',
+  'gardens',
   'cathedral of seville',
+  'catedral de sevilla',
   'giralda tower',
   'patio de los naranjos',
   'main altar',
@@ -18,7 +30,7 @@ const OFFICIAL_NAMES = [
 
 function getBestMatchName(input) {
   const { bestMatch } = stringSimilarity.findBestMatch(input, OFFICIAL_NAMES);
-  return bestMatch.rating > 0.7 ? bestMatch.target : input;
+  return bestMatch.rating > 0.5 ? bestMatch.target : input;
 }
 
 // 1. Google Places API
@@ -133,6 +145,7 @@ export async function getOrCreateGoldenCoordinates(locationName, language) {
   if (cached && cached.coordinates) return cached.coordinates;
   // 2. 공식명 유사어 매칭
   const bestMatchName = getBestMatchName(normLocation);
+  console.log('[좌표 fetch] input:', normLocation, 'bestMatch:', bestMatchName, 'language:', normLang);
   // 3. 공식 API 호출 (구글 등)
   const google = await getGooglePlace(bestMatchName);
   let coords = null, placeId = null, source = null;
@@ -153,7 +166,13 @@ export async function getOrCreateGoldenCoordinates(locationName, language) {
       console.warn(`[좌표 검증 실패] ${locationName} (${language}) → ${address} (score: ${sim})`);
     }
   }
-  if (!coords) throw new Error('좌표를 찾을 수 없습니다.');
+  if (!coords) {
+    validation = 'fail';
+    validation_score = 0;
+    await saveGoldenRecord(normLocation, normLang, null, null, null, validation, validation_score);
+    console.error(`[좌표 fetch 완전 실패] ${locationName} (${language})`);
+    throw new Error('좌표를 찾을 수 없습니다.');
+  }
   await saveGoldenRecord(normLocation, normLang, coords, placeId, source, validation, validation_score);
   return coords;
 } 

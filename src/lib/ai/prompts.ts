@@ -80,6 +80,9 @@ export function createAutonomousGuidePrompt(
 
   const currentLang = languageHeaders[language as keyof typeof languageHeaders] || languageHeaders.ko;
 
+  // 최종 산출물 형식 (Final Output Format)
+  const realTimeGuideKey = language === 'en' ? 'RealTimeGuide' : 'realTimeGuide';
+
   return `
 # 최종 목표: 단일 호출 및 완전 자동화로 완성되는 '실패 방지' AI 오디오 가이드 생성
 
@@ -373,7 +376,7 @@ ${currentLang.outputInstructions}
         }
       ]
     },
-    "realTimeGuide": {
+    "${realTimeGuideKey}": {
       "startingLocation": {
         "name": "카사 바트요 입구 (Passeig de Gràcia, 43)",
         "address": "Passeig de Gràcia, 43, 08007 Barcelona, 스페인",
