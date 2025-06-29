@@ -184,6 +184,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
       <TourContent
         locationName={locationName}
         userProfile={null}
+        guideId={initialGuide?.id}
         offlineData={{
           content: content,
           metadata: { originalLocationName: locationName }
