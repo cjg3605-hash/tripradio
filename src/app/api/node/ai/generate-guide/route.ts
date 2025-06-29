@@ -172,7 +172,7 @@ export async function POST(req: NextRequest) {
       .filter('lower(trim(language))', 'eq', normLang)
       .single();
     if (existing && existing.content) {
-      // 이미 있으면 새로 생성하지 않고 기존 데이터 반환
+      // 항상 동일한 구조(data: { content: ... })로 반환
       return NextResponse.json({
         success: true,
         data: { content: existing.content },
