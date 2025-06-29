@@ -84,6 +84,25 @@ function parseJsonResponse(jsonString: string) {
     }
 }
 
+// GuideData 구조 normalize 함수 추가
+function normalizeGuideData(raw: any) {
+  // overview
+  const overview = raw.overview || raw.Overview || null;
+  // route
+  const route = raw.route || raw.Route || { steps: raw.steps || [] };
+  // realTimeGuide
+  let realTimeGuide = raw.realTimeGuide || raw.RealTimeGuide || raw.realtimeGuide || null;
+  // chapters 보정
+  if (realTimeGuide && !realTimeGuide.chapters && Array.isArray(raw.chapters)) {
+    realTimeGuide.chapters = raw.chapters;
+  }
+  return {
+    overview,
+    route,
+    realTimeGuide
+  };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const genAI = getGeminiClient();
@@ -160,27 +179,28 @@ export async function POST(req: NextRequest) {
         throw new Error('AI 응답이 비어있거나 undefined/null입니다.');
       }
       guideData = parseJsonResponse(responseText);
-      console.log('✅ JSON 파싱 성공');
+      guideData = normalizeGuideData(guideData); // 구조 보정
+      console.log('✅ JSON 파싱 및 구조 보정 성공');
     } catch (parseError) {
       console.error('❌ JSON 파싱 실패:', parseError);
-      throw new Error(`가이드 데이터 파싱 실패: ${parseError instanceof Error ? parseError.message : '알 수 없는 오류'}`);
+      return NextResponse.json({ success: false, error: 'AI 응답 파싱 실패: ' + (parseError instanceof Error ? parseError.message : '알 수 없는 오류') }, { status: 500 });
     }
 
-    // 가이드 데이터 유효성 검사
-    if (!guideData || !guideData.content) {
-      console.error('❌ 유효하지 않은 가이드 데이터:', guideData);
-      throw new Error('AI가 생성한 가이드 형식이 올바르지 않습니다.');
+    // GuideData 구조 검증
+    if (!guideData || !guideData.overview || !guideData.route || !guideData.realTimeGuide) {
+      console.error('❌ GuideData 구조 오류:', guideData);
+      return NextResponse.json({ success: false, error: 'AI 응답 구조 오류: 필수 정보 누락' }, { status: 500 });
     }
-    
+
     // 오디오 생성 및 업로드 (시작 챕터만 예시)
     let audioUrl = null;
     try {
-      const script = guideData.content?.realTimeGuide?.chapters?.[0]?.realTimeScript;
+      const script = guideData.realTimeGuide?.chapters?.[0]?.realTimeScript;
       if (script) {
         // 언어코드 변환 (ko, en 등 -> ko-KR, en-US 등)
         const ttsLang = language === 'ko' ? 'ko-KR' : language === 'en' ? 'en-US' : language;
         audioUrl = await getOrCreateTTSAndUrl(script, locationName, ttsLang);
-        guideData.content.realTimeGuide.chapters[0].audioUrl = audioUrl;
+        guideData.realTimeGuide.chapters[0].audioUrl = audioUrl;
       }
     } catch (ttsError) {
       console.error('TTS/GCS 업로드 실패:', ttsError);
@@ -190,8 +210,8 @@ export async function POST(req: NextRequest) {
 
     // === Supabase guides 테이블에 저장 ===
     const { error: insertError } = await supabase.from('guides').insert([{
-      data: guideData.content,
-      metadata: guideData.metadata,
+      content: guideData, // 구조 검증된 데이터만 저장
+      metadata: null,
       locationname: locationName,
       language,
       user_id: session?.user?.id || null,
@@ -203,7 +223,7 @@ export async function POST(req: NextRequest) {
     }
     return NextResponse.json({ 
       success: true, 
-      data: { data: guideData.content, metadata: guideData.metadata }, 
+      data: { content: guideData }, 
       cached: 'new',
       language: language,
       version: '4.0-database-free'

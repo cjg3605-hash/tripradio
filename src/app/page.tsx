@@ -26,19 +26,6 @@ export default function HomePage() {
   return (
     <>
       <HistorySidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      <header className="w-full flex items-center justify-between px-4 py-3 bg-white shadow-sm border-b border-gray-200">
-        <div className="flex items-center gap-2">
-          <img src="/navi.png" alt="Navi Logo" className="w-8 h-8 mr-2" />
-          <span className="text-xl font-bold text-indigo-700 tracking-tight">NAVI-GUIDE</span>
-        </div>
-        <button
-          onClick={() => setIsSidebarOpen((open) => !open)}
-          className="ml-2 p-2 rounded-full hover:bg-gray-100 transition-colors border border-gray-200 shadow"
-          aria-label="히스토리 열기"
-        >
-          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-history w-6 h-6 text-indigo-600"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
-        </button>
-      </header>
       <main>
         <div className="flex min-h-screen flex-col items-center justify-start bg-gray-50 p-4 text-center pt-8">
           <h1 className="mb-4 text-4xl font-bold md:text-5xl">
