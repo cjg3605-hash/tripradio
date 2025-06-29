@@ -8,6 +8,10 @@ import authOptions from '@/lib/auth'
 import { Session } from 'next-auth'
 import Head from 'next/head'
 import ClientLayout from '@/components/layout/ClientLayout'
+import { I18nextProvider } from 'react-i18next'
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next'
+import nextI18NextConfig from '../../next-i18next.config.js'
 
 // 구글 폰트 로드 (영문용)
 const inter = Inter({ 
@@ -32,6 +36,17 @@ const notoSansKR = Noto_Sans_KR({
 
 // 기본 폰트 클래스
 const fontClassName = `${inter.className} ${notoSansKR.className}`;
+
+if (!i18n.isInitialized) {
+  i18n
+    .use(initReactI18next)
+    .init({
+      ...nextI18NextConfig.i18n,
+      fallbackLng: nextI18NextConfig.i18n.defaultLocale,
+      interpolation: { escapeValue: false },
+      resources: {}, // 실제 리소스는 클라이언트에서 동적으로 로드됨
+    });
+}
 
 export const metadata: Metadata = {
   title: 'NAVI-GUIDE - AI 개인 맞춤 관광 가이드',
@@ -63,13 +78,15 @@ export default async function RootLayout({
         <meta name="msapplication-config" content="/browserconfig.xml" />
       </head>
       <body className={`${fontClassName} font-sans`}>
-        <SessionProvider session={session as Session | null}>
-          <LanguageProvider>
-            <ClientLayout>
-              {children}
-            </ClientLayout>
-          </LanguageProvider>
-        </SessionProvider>
+        <I18nextProvider i18n={i18n}>
+          <SessionProvider session={session as Session | null}>
+            <LanguageProvider>
+              <ClientLayout>
+                {children}
+              </ClientLayout>
+            </LanguageProvider>
+          </SessionProvider>
+        </I18nextProvider>
       </body>
     </html>
   )

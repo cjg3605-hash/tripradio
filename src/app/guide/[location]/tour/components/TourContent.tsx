@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { getBestOfficialPlace } from '@/lib/ai/officialData';
 import { useTranslation } from 'next-i18next';
 import useSWR from 'swr';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // 🔥 강력한 디버깅: 컴포넌트 로드 확인
 console.log('🚀 TourContent 컴포넌트 파일 로드됨!');
@@ -350,7 +351,7 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
   };
 
   const chapters = tourData?.content?.realTimeGuide?.chapters || [];
-  const { currentLanguage } = useLanguage ? useLanguage() : { currentLanguage: 'en' };
+  const { currentLanguage } = useLanguage();
   const { data: chaptersWithCoords, isLoading: coordsLoading, error: coordsError } = useChaptersWithCoordinates(chapters, currentLanguage);
 
   if (isLoading) {
