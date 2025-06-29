@@ -292,45 +292,6 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
-      {/* 고정 헤더 */}
-      <header className="bg-white shadow-sm border-b px-4 py-3 sticky top-0 z-50">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={() => window.history.back()}
-              className="p-2 hover:bg-gray-100 rounded-lg"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div>
-              <h1 className="font-semibold text-gray-900">실시간 가이드</h1>
-              <p className="text-sm text-gray-500">{tourData.metadata.originalLocationName}</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2 text-sm text-gray-500">
-            <Clock className="w-4 h-4" />
-            <span>약 {tourData.content.realTimeGuide.totalDuration}분</span>
-          </div>
-        </div>
-
-        {/* 챕터 네비게이션 */}
-        <div className="flex space-x-2 overflow-x-auto pb-2">
-          {chapters.map((chapter, index) => (
-            <button
-              key={index}
-              onClick={() => scrollToChapter(index)}
-              className={`flex-shrink-0 px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
-                activeChapter === index
-                  ? 'bg-indigo-500 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {index + 1}. {chapter.title.length > 15 ? chapter.title.substring(0, 15) + '...' : chapter.title}
-            </button>
-          ))}
-        </div>
-      </header>
-
       {/* 지도/동선 표시 (최상단) */}
       <main className="px-4 py-6 max-w-4xl mx-auto">
         <MapWithRoute
