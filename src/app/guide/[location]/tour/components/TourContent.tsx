@@ -201,29 +201,46 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
     return () => window.removeEventListener('scroll', handleScroll);
   }, [tourData]);
 
+  // 안전한 fallback: 원본 chapters/steps
+  const originalChapters = tourData?.content?.realTimeGuide?.chapters || [];
+  const originalSteps = tourData?.content?.route?.steps || [];
+
   useEffect(() => {
     async function fetchAndPatchChaptersAndSteps() {
       if (!tourData?.content) return;
-      // 챕터 보정
-      const chapters = tourData.content.realTimeGuide.chapters;
-      const patchedCh = await Promise.all(chapters.map(async (ch) => {
-        const poi = await getBestOfficialPlace(ch.title) || await getBestOfficialPlace(ch.location);
-        if (poi?.geometry?.location) {
-          return { ...ch, coordinates: { lat: poi.geometry.location.lat, lng: poi.geometry.location.lng } };
-        }
-        return ch;
-      }));
-      setPatchedChapters(patchedCh);
-      // 스텝 보정
-      const steps = tourData.content.route.steps;
-      const patchedSt = await Promise.all(steps.map(async (st) => {
-        const poi = await getBestOfficialPlace(st.title) || await getBestOfficialPlace(st.location);
-        if (poi?.geometry?.location) {
-          return { ...st, coordinates: { lat: poi.geometry.location.lat, lng: poi.geometry.location.lng } };
-        }
-        return st;
-      }));
-      setPatchedSteps(patchedSt);
+      try {
+        // 챕터 보정
+        const chapters = tourData.content.realTimeGuide.chapters;
+        const patchedCh = await Promise.all(chapters.map(async (ch) => {
+          try {
+            const poi = await getBestOfficialPlace(ch.title) || await getBestOfficialPlace(ch.location);
+            if (poi?.geometry?.location) {
+              return { ...ch, coordinates: { lat: poi.geometry.location.lat, lng: poi.geometry.location.lng } };
+            }
+            return ch;
+          } catch {
+            return ch;
+          }
+        }));
+        setPatchedChapters(patchedCh);
+        // 스텝 보정
+        const steps = tourData.content.route.steps;
+        const patchedSt = await Promise.all(steps.map(async (st) => {
+          try {
+            const poi = await getBestOfficialPlace(st.title) || await getBestOfficialPlace(st.location);
+            if (poi?.geometry?.location) {
+              return { ...st, coordinates: { lat: poi.geometry.location.lat, lng: poi.geometry.location.lng } };
+            }
+            return st;
+          } catch {
+            return st;
+          }
+        }));
+        setPatchedSteps(patchedSt);
+      } catch (e) {
+        setPatchedChapters(originalChapters);
+        setPatchedSteps(originalSteps);
+      }
     }
     fetchAndPatchChaptersAndSteps();
   }, [tourData]);
@@ -389,12 +406,12 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
         </header>
 
         {/* 추천 동선 */}
-        {patchedSteps?.length > 0 && (
+        {(patchedSteps?.length > 0 ? patchedSteps : originalSteps).length > 0 && (
           <section className="mb-8">
             <div className="bg-white rounded-xl shadow p-5 mb-4 border border-gray-200">
               <h2 className="text-2xl font-bold text-slate-900 mb-3">{t('route')}</h2>
               <ol className="list-decimal ml-6 space-y-1">
-                {patchedSteps.map((step, idx) => (
+                {(patchedSteps?.length > 0 ? patchedSteps : originalSteps).map((step, idx) => (
                   <li key={idx} className="pl-2">
                     <span className="font-bold">{step.title}</span>
                     {step.location && <span className="text-slate-500"> - {step.location}</span>}
@@ -406,9 +423,9 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
         )}
 
         {/* 지도/동선 */}
-        {patchedChapters?.length > 0 && (
+        {(patchedChapters?.length > 0 ? patchedChapters : originalChapters).length > 0 && (
           <section className="mb-8">
-            <MapWithRoute chapters={patchedChapters} />
+            <MapWithRoute chapters={patchedChapters?.length > 0 ? patchedChapters : originalChapters} />
           </section>
         )}
 
@@ -417,7 +434,7 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
           <div className="lg:col-span-2 space-y-6">
             <h2 className="text-2xl font-bold text-slate-900 border-b pb-2">{t('realTimeGuide')}</h2>
             <div className="space-y-6">
-              {patchedChapters.map((chapter, idx) => (
+              {(patchedChapters?.length > 0 ? patchedChapters : originalChapters).map((chapter, idx) => (
                 <div key={chapter.id} className="bg-white rounded-xl shadow card border border-gray-200">
                   <div className="p-5">
                     <div className="flex items-center justify-between">
