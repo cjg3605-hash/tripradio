@@ -7,6 +7,7 @@ import { getServerSession } from 'next-auth/next'
 import authOptions from '@/lib/auth'
 import { Session } from 'next-auth'
 import Head from 'next/head'
+import ClientLayout from '@/components/layout/ClientLayout'
 
 // 구글 폰트 로드 (영문용)
 const inter = Inter({ 
@@ -64,7 +65,9 @@ export default async function RootLayout({
       <body className={`${fontClassName} font-sans`}>
         <SessionProvider session={session as Session | null}>
           <LanguageProvider>
-            {children}
+            <ClientLayout>
+              {children}
+            </ClientLayout>
           </LanguageProvider>
         </SessionProvider>
       </body>

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Header } from '@/components/layout/Header';
 import { HistorySidebar } from '@/components/layout/HistorySidebar';
 import { SearchBox } from '@/components/home/SearchBox';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -12,7 +11,6 @@ export default function HomePage() {
 
   return (
     <>
-      <Header onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
       <HistorySidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       
       <main>

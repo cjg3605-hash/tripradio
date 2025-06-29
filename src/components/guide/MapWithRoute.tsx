@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useEffect } from 'react';
@@ -34,6 +34,20 @@ function MapFlyTo({ lat, lng }: { lat: number; lng: number }) {
   return null;
 }
 
+// === ⭐️ 노란 별 마커 아이콘 생성 ===
+const starIconSvg = `
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFC700" width="32px" height="32px" stroke="%23B79000" stroke-width="0.5">
+    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+  </svg>
+`;
+const customMarkerIcon = new L.Icon({
+  iconUrl: `data:image/svg+xml,${encodeURIComponent(starIconSvg)}`,
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+  tooltipAnchor: [0, -32], // 툴팁 위치 조정
+});
+
 export default function MapWithRoute({ chapters, activeChapter, onMarkerClick }: MapWithRouteProps) {
   // 좌표만 추출 (0도 허용, 모든 필드 지원)
   const getLatLng = (c: any) => [
@@ -55,10 +69,16 @@ export default function MapWithRoute({ chapters, activeChapter, onMarkerClick }:
         />
         {points.length > 1 && <Polyline positions={points} color="#7c3aed" weight={5} opacity={0.7} />} {/* 보라색 동선 */}
         {points.map(([lat, lng], idx) => (
-          <Marker key={idx} position={[lat, lng]} eventHandlers={{ click: () => onMarkerClick?.(idx) }}>
-            <Popup>
+          <Marker
+            key={idx}
+            position={[lat, lng]}
+            icon={customMarkerIcon} // === 커스텀 아이콘 적용 ===
+            eventHandlers={{ click: () => onMarkerClick?.(idx) }}
+          >
+            {/* === 클릭 -> 호버, Popup -> Tooltip 변경 === */}
+            <Tooltip permanent={false} direction="top">
               <b>{chapters[idx].title}</b>
-            </Popup>
+            </Tooltip>
           </Marker>
         ))}
         {/* 활성 챕터에 지도 이동 */}
