@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
     const { data: cachedGuide } = await supabase
       .from('guides')
       .select('*')
-      .eq('locationName', locationName)
+      .eq('locationname', locationName)
       .eq('language', language)
       .single();
     if (cachedGuide) {
@@ -192,7 +192,7 @@ export async function POST(req: NextRequest) {
     const { error: insertError } = await supabase.from('guides').insert([{
       content: guideData.content,
       metadata: guideData.metadata,
-      locationName,
+      locationname: locationName,
       language,
       user_id: session?.user?.id || null,
       created_at: new Date().toISOString()

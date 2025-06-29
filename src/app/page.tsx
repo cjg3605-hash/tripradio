@@ -26,7 +26,13 @@ export default function HomePage() {
   return (
     <>
       <HistorySidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      
+      <button
+        onClick={() => setIsSidebarOpen(true)}
+        className="fixed top-4 right-4 z-50 bg-white border border-gray-200 shadow-md rounded-full p-3 hover:bg-gray-100 transition-colors"
+        aria-label="히스토리 열기"
+      >
+        <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-history w-6 h-6 text-indigo-600"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+      </button>
       <main>
         <div className="flex min-h-screen flex-col items-center justify-start bg-gray-50 p-4 text-center pt-8">
           <h1 className="mb-4 text-4xl font-bold md:text-5xl">

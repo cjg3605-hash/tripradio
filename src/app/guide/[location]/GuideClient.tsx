@@ -7,17 +7,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { getTTSLanguage } from '@/lib/ai/prompts';
 import MapWithRoute from '@/components/guide/MapWithRoute';
 
-// SplashScreen 컴포넌트 추가
-function SplashScreen({ message, locationName, show }: { message: string, locationName: string, show: boolean }) {
-  return (
-    <div className={`min-h-screen bg-gradient-to-br from-sky-200 to-indigo-200 flex flex-col items-center justify-center transition-opacity duration-700 ${show ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-      <img src="/butterfly-icon.svg" alt="Butterfly Logo" className="w-32 h-32 mb-8 animate-bounce" />
-      <h2 className="text-2xl font-bold text-slate-800 mb-2 animate-fade-in">{locationName}</h2>
-      <p className="text-lg text-slate-600 animate-fade-in-slow">{message}</p>
-    </div>
-  );
-}
-
 export default function GuideClient({ locationName, initialGuide }: { locationName: string, initialGuide: any }) {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
@@ -27,7 +16,6 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
   const [loadingMessage, setLoadingMessage] = useState('로딩 중...');
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
   const [currentlyPlayingButton, setCurrentlyPlayingButton] = useState<string | null>(null);
-  const [showSplash, setShowSplash] = useState(true);
 
   // 언어별 로딩 메시지
   const getLoadingMessages = () => {
@@ -113,16 +101,6 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     }, 2000);
     return () => clearInterval(interval);
   }, [isLoading, currentLanguage]);
-
-  useEffect(() => {
-    if (!isLoading) {
-      // 로딩 완료 후 700ms 후에 splash 숨김 (페이드아웃)
-      const timeout = setTimeout(() => setShowSplash(false), 700);
-      return () => clearTimeout(timeout);
-    } else {
-      setShowSplash(true);
-    }
-  }, [isLoading]);
 
   const content = guideData?.content;
 
