@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Clock, MapPin, Play, Pause, Volume2 } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Play, Pause, Volume2, StopCircle } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { getBestOfficialPlace } from '@/lib/ai/officialData';
 
@@ -27,19 +27,31 @@ interface Chapter {
     lat: number;
     lng: number;
   };
+  realTimeScript: string;
+}
+
+interface Step {
+  step: number;
+  location: string;
+  title: string;
+}
+
+interface Overview {
+  title: string;
+  narrativeTheme?: string;
+  keyFacts?: string[];
+  visitInfo?: {
+    duration?: number;
+    difficulty?: string;
+    season?: string;
+  };
 }
 
 interface TourData {
   content: {
-    overview: {
-      title: string;
-      description: string;
-    };
-    realTimeGuide: {
-      chapters: Chapter[];
-      totalDuration: number;
-      chapterCount: number;
-    };
+    overview: Overview;
+    route: { steps: Step[] };
+    realTimeGuide: { chapters: Chapter[] };
     personalizedNote?: string;
   };
   metadata: {
@@ -50,10 +62,19 @@ interface TourData {
 interface TourContentProps {
   locationName: string;
   userProfile?: any;
-  offlineData?: any;
+  offlineData?: {
+    overview: Overview;
+    route: { steps: Step[] };
+    realTimeGuide: { chapters: Chapter[] };
+  };
 }
 
 const MapWithRoute = dynamic(() => import('@/components/guide/MapWithRoute'), { ssr: false });
+
+const ICONS = {
+  PLAY: <Play className="w-7 h-7" />,
+  STOP: <StopCircle className="w-7 h-7" />,
+};
 
 export default function TourContent({ locationName, userProfile, offlineData }: TourContentProps) {
   // 🔥 강력한 디버깅: 컴포넌트 시작
@@ -66,8 +87,11 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
   const [activeChapter, setActiveChapter] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [officialPlace, setOfficialPlace] = useState<any>(null);
+  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+  const [currentlyPlayingId, setCurrentlyPlayingId] = useState<number | null>(null);
   
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const ttsRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const getCacheKey = () => {
     // locationName + userProfile(문자열화) 조합으로 고유 키 생성
@@ -196,6 +220,24 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
     // 실제 오디오 재생 기능은 별도 구현
   };
 
+  // TTS 핸들러
+  const handlePlayStop = (chapterId: number, script: string, idx: number) => {
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
+      if (currentlyPlayingId === chapterId) {
+        setCurrentlyPlayingId(null);
+        return;
+      }
+    }
+    const utterance = new SpeechSynthesisUtterance(script);
+    utterance.lang = 'en-US';
+    utterance.onstart = () => setCurrentlyPlayingId(chapterId);
+    utterance.onend = () => { setCurrentlyPlayingId(null); setCurrentUtterance(null); };
+    utterance.onerror = () => { setCurrentlyPlayingId(null); setCurrentUtterance(null); };
+    setCurrentUtterance(utterance);
+    speechSynthesis.speak(utterance);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -307,239 +349,111 @@ export default function TourContent({ locationName, userProfile, offlineData }: 
   const content = tourData?.content || tourData?.data || tourData;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
-      {/* 지도/동선 표시 (최상단) */}
-      <main className="px-4 py-6 max-w-4xl mx-auto">
-        <MapWithRoute
-          chapters={chapters.map((c, i) => ({
-            id: c.id,
-            title: c.title,
-            lat: i === 0 && officialPlace?.geometry?.location?.lat ? officialPlace.geometry.location.lat : (c.lat || c.latitude || c.coordinates?.lat || c.coordinates?.latitude),
-            lng: i === 0 && officialPlace?.geometry?.location?.lng ? officialPlace.geometry.location.lng : (c.lng || c.longitude || c.coordinates?.lng || c.coordinates?.longitude)
-          }))}
-          activeChapter={activeChapter}
-          onMarkerClick={scrollToChapter}
-        />
+    <div className="bg-slate-50 text-slate-800 min-h-screen">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        {/* Header */}
+        <header className="mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">{tourData.content.overview.title || locationName}</h1>
+          {tourData.content.overview.narrativeTheme && <p className="mt-2 text-lg text-slate-600">{tourData.content.overview.narrativeTheme}</p>}
+        </header>
 
-        {/* 오디오 컨트롤 (고정) */}
-        <div className="bg-white rounded-xl shadow-sm border p-4 mb-8 sticky top-24 z-40">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={handlePlayPause}
-                className="w-12 h-12 bg-indigo-500 hover:bg-indigo-600 text-white rounded-full flex items-center justify-center"
-              >
-                {isPlaying ? (
-                  <Pause className="w-6 h-6" />
-                ) : (
-                  <Play className="w-6 h-6 ml-1" />
-                )}
-              </button>
-              <div>
-                <h3 className="font-semibold text-gray-900">
-                  {chapters[activeChapter]?.title || '실시간 가이드'}
-                </h3>
-                <p className="text-sm text-gray-500">
-                  {activeChapter + 1} / {totalChapters} 챕터
-                </p>
-              </div>
+        {/* 추천 동선 */}
+        {tourData.content.route?.steps?.length > 0 && (
+          <section className="mb-8">
+            <div className="bg-white rounded-xl shadow p-5 mb-4 border border-gray-200">
+              <h2 className="text-2xl font-bold text-slate-900 mb-3">추천 동선</h2>
+              <ol className="list-decimal ml-6 space-y-1">
+                {tourData.content.route.steps.map((step, idx) => (
+                  <li key={idx} className="pl-2">
+                    <span className="font-bold">{step.title}</span>
+                    {step.location && <span className="text-slate-500"> - {step.location}</span>}
+                  </li>
+                ))}
+              </ol>
             </div>
-            <Volume2 className="w-5 h-5 text-gray-400" />
-          </div>
-        </div>
-
-        {/* 전체 챕터 내용 */}
-        <div className="space-y-12">
-          {chapters.map((chapter, index) => {
-            const isLastChapter = index === totalChapters - 1;
-            const directionInfo = chapter.nextDirection ? parseStartDirection(chapter.nextDirection) : null;
-            
-            // 🔍 디버깅: narrativeLayers 상태 확인
-            console.log(`🎬 챕터 ${index + 1} 렌더링:`, {
-              title: chapter.title,
-              hasNarrativeLayers: !!chapter.narrativeLayers,
-              narrativeLayersKeys: chapter.narrativeLayers ? Object.keys(chapter.narrativeLayers) : 'null',
-              coreNarrative: chapter.narrativeLayers?.coreNarrative ? 'exists' : 'missing',
-              architectureDeepDive: chapter.narrativeLayers?.architectureDeepDive ? 'exists' : 'missing',
-              humanStories: chapter.narrativeLayers?.humanStories ? 'exists' : 'missing',
-              sensoryBehindTheScenes: chapter.narrativeLayers?.sensoryBehindTheScenes ? 'exists' : 'missing'
-            });
-            
-            return (
-              <div key={index} ref={el => {
-                if (el) {
-                  chapterRefs.current[index] = el;
-                } else {
-                  delete chapterRefs.current[index];
-                }
-              }}>
-                {/* 챕터 콘텐츠 */}
-                <div className={`bg-white rounded-xl shadow-lg p-6 transition-all duration-300 ${activeChapter === index ? 'ring-2 ring-indigo-500 scale-102' : 'shadow-md'}`}>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-bold text-indigo-500 bg-indigo-100 px-3 py-1 rounded-full">
-                      챕터 {index + 1}
-                    </span>
-                    <span className="text-sm text-gray-500 flex items-center">
-                      <Clock className="w-4 h-4 mr-1.5" />약 5분
-                    </span>
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">{chapter.title}</h3>
-                  
-                  {/* 장면 묘사 */}
-                  {chapter.sceneDescription && (
-                    <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-r-lg">
-                      <h4 className="font-semibold text-blue-900 mb-2">🎬 현재 장면</h4>
-                      <p className="text-blue-800 leading-relaxed whitespace-pre-line">{addLineBreaks(chapter.sceneDescription)}</p>
-                    </div>
-                  )}
-                  
-                  {/* 🔍 디버깅: narrativeLayers 상태 표시 */}
-                  {!chapter.narrativeLayers && (
-                    <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-r-lg">
-                      <h4 className="font-semibold text-red-900 mb-2">❌ 디버깅: narrativeLayers 없음</h4>
-                      <p className="text-red-800">이 챕터에는 narrativeLayers가 없습니다.</p>
-                    </div>
-                  )}
-                  
-                  {/* 다층 컨텐츠 */}
-                  {chapter.narrativeLayers && (
-                    <div className="space-y-6">
-                      {/* 🔍 디버깅: narrativeLayers 존재 확인 */}
-                      <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                        <h5 className="text-xs font-bold text-gray-600 mb-1">🔍 디버깅 정보</h5>
-                        <div className="text-xs text-gray-500 space-y-1">
-                          <div>narrativeLayers 키: {Object.keys(chapter.narrativeLayers).join(', ')}</div>
-                          <div>coreNarrative: {chapter.narrativeLayers.coreNarrative ? `${chapter.narrativeLayers.coreNarrative.length}자` : '없음'}</div>
-                          <div>architectureDeepDive: {chapter.narrativeLayers.architectureDeepDive ? `${chapter.narrativeLayers.architectureDeepDive.length}자` : '없음'}</div>
-                          <div>humanStories: {chapter.narrativeLayers.humanStories ? `${chapter.narrativeLayers.humanStories.length}자` : '없음'}</div>
-                          <div>sensoryBehindTheScenes: {chapter.narrativeLayers.sensoryBehindTheScenes ? `${chapter.narrativeLayers.sensoryBehindTheScenes.length}자` : '없음'}</div>
-                        </div>
-                      </div>
-                      
-                      {/* 핵심 서사 */}
-                      {chapter.narrativeLayers.coreNarrative && (
-                        <div className="p-4 bg-green-50 border-l-4 border-green-400 rounded-r-lg">
-                          <h4 className="font-semibold text-green-900 mb-2">📚 핵심 이야기</h4>
-                          <p className="text-green-800 leading-relaxed whitespace-pre-line">{addLineBreaks(chapter.narrativeLayers.coreNarrative)}</p>
-                        </div>
-                      )}
-                      
-                      {/* 건축 심층 분석 */}
-                      {chapter.narrativeLayers.architectureDeepDive && (
-                        <div className="p-4 bg-purple-50 border-l-4 border-purple-400 rounded-r-lg">
-                          <h4 className="font-semibold text-purple-900 mb-2">🏛️ 건축 분석</h4>
-                          <p className="text-purple-800 leading-relaxed whitespace-pre-line">{addLineBreaks(chapter.narrativeLayers.architectureDeepDive)}</p>
-                        </div>
-                      )}
-                      
-                      {/* 인물 이야기 */}
-                      {chapter.narrativeLayers.humanStories && (
-                        <div className="p-4 bg-orange-50 border-l-4 border-orange-400 rounded-r-lg">
-                          <h4 className="font-semibold text-orange-900 mb-2">👥 인물 이야기</h4>
-                          <p className="text-orange-800 leading-relaxed whitespace-pre-line">{addLineBreaks(chapter.narrativeLayers.humanStories)}</p>
-                        </div>
-                      )}
-                      
-                      {/* 감각적 묘사 */}
-                      {chapter.narrativeLayers.sensoryBehindTheScenes && (
-                        <div className="p-4 bg-rose-50 border-l-4 border-rose-400 rounded-r-lg">
-                          <h4 className="font-semibold text-rose-900 mb-2">🌟 오감 체험</h4>
-                          <p className="text-rose-800 leading-relaxed whitespace-pre-line">{addLineBreaks(chapter.narrativeLayers.sensoryBehindTheScenes)}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* 다음 장소 이동 안내 */}
-                {!isLastChapter && chapter.nextDirection && (
-                  <div className="my-8 text-center">
-                    <div className="inline-block relative">
-                      <div className="h-16 w-0.5 bg-gray-300 absolute left-1/2 top-[-4rem]" />
-                      <div className="h-16 w-0.5 bg-gray-300 absolute left-1/2 bottom-[-4rem]" />
-                      <div className="bg-white border border-gray-200 rounded-full p-4 shadow-sm">
-                        <MapPin className="w-6 h-6 text-indigo-500" />
-                      </div>
-                    </div>
-                    
-                    {directionInfo?.isStart ? (
-                      <div className="mt-4 max-w-lg mx-auto bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg text-left">
-                        <h4 className="font-bold text-amber-800 mb-2">투어 시작점 안내</h4>
-                        <div className="space-y-2 text-sm text-amber-700">
-                          <p><strong className="font-semibold">📍 시작 위치:</strong> {directionInfo.start}</p>
-                          <p><strong className="font-semibold">🎯 도착 확인:</strong> {directionInfo.confirm}</p>
-                          <p><strong className="font-semibold">▶️ 가이드 시작:</strong> {directionInfo.guide}</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="mt-4">
-                        <p className="text-gray-600 whitespace-pre-line">{addLineBreaks(directionInfo?.fullText || '')}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* 개인화된 메시지 */}
-        {tourData.content.personalizedNote && (
-          <div className="mt-12 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-8 border border-indigo-200">
-            <h4 className="font-semibold text-indigo-900 mb-4 text-lg">💝 특별한 메시지</h4>
-            <p className="text-indigo-800 leading-relaxed text-lg whitespace-pre-line">
-              {tourData.content.personalizedNote}
-            </p>
-          </div>
+          </section>
         )}
 
-        {/* 투어 완료 섹션 */}
-        <div className="mt-12 bg-white rounded-xl shadow-sm border p-8 text-center">
-          <div className="text-6xl mb-4">🎉</div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            투어 완료!
-          </h3>
-          <p className="text-gray-600 mb-6">
-            {tourData.metadata.originalLocationName}의 특별한 이야기와 함께 해주셔서 감사합니다.
-          </p>
-          <div className="space-y-3">
-            <button
-              onClick={() => window.history.back()}
-              className="px-8 py-3 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors text-lg font-medium"
-            >
-              다른 명소 탐험하기
-            </button>
-            <div className="text-sm text-gray-500">
-              이 가이드가 도움이 되셨나요? 다른 명소도 함께 탐험해보세요!
+        {/* 지도/동선 */}
+        {tourData.content.realTimeGuide?.chapters?.length > 0 && (
+          <section className="mb-8">
+            <MapWithRoute chapters={tourData.content.realTimeGuide.chapters} />
+          </section>
+        )}
+
+        <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left: 실시간 오디오 가이드 */}
+          <div className="lg:col-span-2 space-y-6">
+            <h2 className="text-2xl font-bold text-slate-900 border-b pb-2">실시간 오디오 가이드</h2>
+            <div className="space-y-6">
+              {tourData.content.realTimeGuide?.chapters?.map((chapter, idx) => (
+                <div key={chapter.id} className="bg-white rounded-xl shadow card border border-gray-200">
+                  <div className="p-5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 font-bold text-xl">{chapter.id}</div>
+                        <div><h3 className="text-xl font-bold text-slate-900">{chapter.title}</h3></div>
+                      </div>
+                      <button
+                        ref={el => ttsRefs.current[idx] = el}
+                        className={`tts-button text-slate-400 hover:text-sky-500 transition-colors ml-2`}
+                        aria-label={`Play chapter ${chapter.id}`}
+                        onClick={() => handlePlayStop(chapter.id, chapter.realTimeScript, idx)}
+                      >
+                        {currentlyPlayingId === chapter.id ? ICONS.STOP : ICONS.PLAY}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="px-5 pb-6 text-slate-600 leading-relaxed space-y-4">
+                    {chapter.realTimeScript.split('\n').map((p, i) => <p key={i}>{p}</p>)}
+                  </div>
+                  {chapter.coordinates && (
+                    <div className="px-5 pb-3 text-xs text-slate-400">위치: {chapter.coordinates.lat}, {chapter.coordinates.lng}</div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* 다운로드 버튼 섹션 */}
-        <div className="mt-8 flex flex-col items-center gap-4">
-          <button
-            onClick={() => {
-              if (!tourData) return;
-              const guides = JSON.parse(localStorage.getItem('myGuides') || '[]');
-              const exists = guides.some((g: any) => g.metadata?.originalLocationName === tourData.metadata.originalLocationName);
-              if (exists) {
-                alert('이미 오프라인에 저장된 가이드입니다.');
-                return;
-              }
-              guides.push({ ...tourData, savedAt: new Date().toISOString() });
-              localStorage.setItem('myGuides', JSON.stringify(guides));
-              alert('오프라인 가이드함에 저장되었습니다!\n마이페이지 > 가이드함에서 언제든 열람할 수 있습니다.');
-            }}
-            className="px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors font-medium"
-            aria-label="오프라인 저장"
-          >
-            💾 오프라인 저장
-          </button>
-        </div>
-      </main>
-
-      {/* 하단 여백 */}
-      <div className="h-20"></div>
+          {/* Right: 투어 개요/핵심 정보 */}
+          <aside className="lg:col-span-1 space-y-6">
+            <div className="bg-white rounded-xl shadow card border border-gray-200">
+              <div className="p-5">
+                <h3 className="text-xl font-bold text-slate-900">투어 개요</h3>
+              </div>
+              <div className="px-5 pb-5 border-b border-gray-200">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <span>예상 소요 시간:</span>
+                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.duration ? `${tourData.content.overview.visitInfo.duration}분` : '정보 없음'}</strong>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <span>난이도:</span>
+                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.difficulty || '정보 없음'}</strong>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <span>추천 시즌:</span>
+                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.season || '정보 없음'}</strong>
+                  </div>
+                </div>
+              </div>
+              {tourData.content.overview.keyFacts && tourData.content.overview.keyFacts.length > 0 && (
+                <div className="p-5">
+                  <h4 className="font-semibold text-slate-800 mb-3">핵심 정보</h4>
+                  <ul className="space-y-2 list-none">
+                    {tourData.content.overview.keyFacts.map((fact, i) => (
+                      <li key={i} className="flex items-start">
+                        <span className="w-2 h-2 bg-sky-500 rounded-full mt-2 mr-2 flex-shrink-0" />
+                        <span className="text-slate-600 text-sm">{fact}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </aside>
+        </main>
+      </div>
     </div>
   );
 }
