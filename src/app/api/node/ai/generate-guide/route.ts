@@ -124,7 +124,15 @@ export async function POST(req: NextRequest) {
       .eq('locationname', locationName)
       .eq('language', language)
       .single();
-    if (cachedGuide) {
+    
+    console.log('🔍 Supabase 캐시 조회 결과:', cachedGuide);
+    console.log('🔍 cachedGuide.content:', cachedGuide?.content);
+    
+    if (cachedGuide && cachedGuide.content && 
+        cachedGuide.content.overview && 
+        cachedGuide.content.route && 
+        cachedGuide.content.realTimeGuide) {
+      console.log('✅ 캐시 hit - 기존 데이터 반환');
       // 캐시 hit 시 일관된 구조로 반환 (캐시 miss와 동일한 구조)
       return NextResponse.json({ 
         success: true, 
@@ -133,6 +141,14 @@ export async function POST(req: NextRequest) {
         language: language 
       });
     }
+    
+    if (cachedGuide && !cachedGuide.content) {
+      console.log('⚠️ 캐시에 있지만 content가 null - 기존 데이터 삭제 후 새로 생성');
+      // content가 null인 기존 레코드 삭제
+      await supabase.from('guides').delete().eq('id', cachedGuide.id);
+    }
+    
+    console.log('❌ 캐시 miss - 새로운 가이드 생성 시작');
     
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-1.5-pro',
@@ -169,8 +185,12 @@ export async function POST(req: NextRequest) {
       if (!responseText || responseText === 'undefined' || responseText.trim() === '' || responseText === undefined || responseText === null) {
         throw new Error('AI 응답이 비어있거나 undefined/null입니다.');
       }
+      console.log('🔍 AI 응답 파싱 시작');
       guideData = parseJsonResponse(responseText);
+      console.log('🔍 JSON 파싱 결과:', guideData);
+      
       guideData = normalizeGuideData(guideData); // 구조 보정
+      console.log('🔍 구조 정규화 후:', guideData);
       console.log('✅ JSON 파싱 및 구조 보정 성공');
     } catch (parseError) {
       console.error('❌ JSON 파싱 실패:', parseError);
@@ -200,18 +220,29 @@ export async function POST(req: NextRequest) {
     console.log(`✅ AI 가이드 생성 완료 (${language})`);
 
     // === Supabase guides 테이블에 저장 ===
-    const { error: insertError } = await supabase.from('guides').insert([{
+    console.log('💾 Supabase에 저장할 데이터:', guideData);
+    console.log('💾 저장할 데이터 구조 확인 - overview:', !!guideData.overview);
+    console.log('💾 저장할 데이터 구조 확인 - route:', !!guideData.route);
+    console.log('💾 저장할 데이터 구조 확인 - realTimeGuide:', !!guideData.realTimeGuide);
+    
+    const insertData = {
       content: guideData, // 구조 검증된 데이터만 저장
       metadata: null,
       locationname: locationName,
       language,
       user_id: session?.user?.id || null,
       created_at: new Date().toISOString()
-    }]);
+    };
+    
+    console.log('💾 실제 insert할 데이터:', JSON.stringify(insertData, null, 2));
+    
+    const { error: insertError } = await supabase.from('guides').insert([insertData]);
     if (insertError) {
-      console.error('Supabase guides insert error:', insertError);
+      console.error('❌ Supabase guides insert error:', insertError);
       return NextResponse.json({ success: false, error: insertError.message }, { status: 500 });
     }
+    console.log('✅ Supabase 저장 완료');
+    
     return NextResponse.json({ 
       success: true, 
       data: { content: guideData }, 
