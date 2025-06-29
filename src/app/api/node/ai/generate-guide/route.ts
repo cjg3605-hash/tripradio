@@ -74,6 +74,9 @@ const saveGuideToCache = async (
  * Gemini AI 응답에서 JSON을 추출하고 파싱하는 함수
  */
 function parseJsonResponse(jsonString: string) {
+    if (!jsonString || jsonString === 'undefined' || jsonString.trim() === '' || jsonString === undefined || jsonString === null) {
+        throw new Error('AI 응답이 비어있거나 undefined/null입니다.');
+    }
     console.log(`🔍 원본 응답 길이: ${jsonString.length}자`);
     console.log(`🔍 원본 시작 100자: ${JSON.stringify(jsonString.substring(0, 100))}`);
     
@@ -196,6 +199,9 @@ export async function POST(req: NextRequest) {
     // 응답 파싱
     let guideData;
     try {
+      if (!responseText || responseText === 'undefined' || responseText.trim() === '' || responseText === undefined || responseText === null) {
+        throw new Error('AI 응답이 비어있거나 undefined/null입니다.');
+      }
       guideData = parseJsonResponse(responseText);
       console.log('✅ JSON 파싱 성공');
     } catch (parseError) {
