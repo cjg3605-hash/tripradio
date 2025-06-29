@@ -200,16 +200,15 @@ export async function POST(req: NextRequest) {
     });
 
     console.log(`🚀 AI 가이드 생성 시작 - ${locationName} (${language})`);
-    // 테스트용 간단한 프롬프트 사용
-    const testPrompt = createSimpleTestPrompt(locationName, language);
-    console.log('🧪 테스트 프롬프트 사용 - 간단한 JSON 구조 확인');
+    // AI 프롬프트 원래대로 복구
+    const autonomousPrompt = createAutonomousGuidePrompt(locationName, language, userProfile);
     
     console.log(`📝 프롬프트 전송 완료, 응답 대기 중...`);
     
     let responseText: string;
     try {
       console.log('🤖 Gemini API 호출 시작');
-      const result = await model.generateContent(testPrompt);
+      const result = await model.generateContent(autonomousPrompt);
       const response = await result.response;
       responseText = await response.text();
       
@@ -227,124 +226,25 @@ export async function POST(req: NextRequest) {
       throw new Error(`AI 응답 생성 실패: ${error instanceof Error ? error.message : String(error)}`);
     }
     
-    // 응답 파싱
+    // 응답 파싱 (구조 보정 없이 그대로 저장)
     let guideData;
     try {
-      if (!responseText || responseText === 'undefined' || responseText.trim() === '' || responseText === undefined || responseText === null) {
-        throw new Error('AI 응답이 비어있거나 undefined/null입니다.');
-      }
-      console.log('🔍 AI 응답 파싱 시작');
-      
-      // AI 원본 응답을 로그로 남기기 (처음 1000자만)
-      console.log('🔍 AI 원본 응답 (첫 1000자):', responseText.substring(0, 1000));
-      console.log('🔍 AI 원본 응답 (마지막 500자):', responseText.substring(-500));
-      
-      guideData = parseJsonResponse(responseText);
-      console.log('🔍 JSON 파싱 결과:', JSON.stringify(guideData, null, 2));
-      console.log('🔍 파싱된 데이터의 키들:', Object.keys(guideData || {}));
-      
-      // 원본 데이터 구조 분석
-      console.log('🔍 원본 데이터 구조 분석:');
-      console.log('  - overview 존재:', !!guideData?.overview);
-      console.log('  - Overview 존재:', !!guideData?.Overview);
-      console.log('  - route 존재:', !!guideData?.route);
-      console.log('  - Route 존재:', !!guideData?.Route);
-      console.log('  - realTimeGuide 존재:', !!guideData?.realTimeGuide);
-      console.log('  - RealTimeGuide 존재:', !!guideData?.RealTimeGuide);
-      console.log('  - realtimeGuide 존재:', !!guideData?.realtimeGuide);
-      console.log('  - chapters 존재:', !!guideData?.chapters);
-      
-      // 구조 보정 - 다시 활성화
-      guideData = normalizeGuideData(guideData);
-      console.log('🔍 구조 정규화 후:', guideData);
-      console.log('✅ JSON 파싱 및 구조 보정 성공');
+      guideData = JSON.parse(responseText);
     } catch (parseError) {
-      console.error('❌ JSON 파싱 실패:', parseError);
       return NextResponse.json({ success: false, error: 'AI 응답 파싱 실패: ' + (parseError instanceof Error ? parseError.message : '알 수 없는 오류') }, { status: 500 });
     }
 
-    // GuideData 구조 검증
-    if (!guideData || !guideData.overview || !guideData.route || !guideData.realTimeGuide) {
-      console.error('❌ GuideData 구조 오류:', guideData);
-      console.error('❌ AI 원본 응답 분석 필요 - 응답 길이:', responseText?.length);
-      console.error('❌ parseJsonResponse 결과 타입:', typeof guideData);
-      console.error('❌ guideData 전체 구조:', JSON.stringify(guideData, null, 2));
-      
-      // 마지막 시도: 원본 응답에서 다른 패턴 찾기
-      if (responseText && responseText.length > 0) {
-        console.log('🔧 마지막 시도: 다른 JSON 패턴 찾기');
-        const alternativePatterns = [
-          /\{[\s\S]*"overview"[\s\S]*\}/i,
-          /\{[\s\S]*"소개"[\s\S]*\}/i,
-          /\{[\s\S]*"Introduction"[\s\S]*\}/i,
-          /\{[\s\S]*"chapters"[\s\S]*\}/i
-        ];
-        
-        for (const pattern of alternativePatterns) {
-          const match = responseText.match(pattern);
-          if (match) {
-            console.log('🔧 대안 패턴 발견:', match[0].substring(0, 200));
-            try {
-              const altData = JSON.parse(match[0]);
-              console.log('🔧 대안 데이터 파싱 성공:', Object.keys(altData));
-              break;
-            } catch (e) {
-              console.log('🔧 대안 패턴 파싱 실패');
-            }
-          }
-        }
-      }
-      
-      return NextResponse.json({ success: false, error: 'AI 응답 구조 오류: 필수 정보 누락' }, { status: 500 });
-    }
-
-    // 오디오 생성 및 업로드 (시작 챕터만 예시)
-    let audioUrl = null;
-    try {
-      const script = guideData.realTimeGuide?.chapters?.[0]?.realTimeScript;
-      if (script) {
-        // 언어코드 변환 (ko, en 등 -> ko-KR, en-US 등)
-        const ttsLang = language === 'ko' ? 'ko-KR' : language === 'en' ? 'en-US' : language;
-        audioUrl = await getOrCreateTTSAndUrl(script, locationName, ttsLang);
-        guideData.realTimeGuide.chapters[0].audioUrl = audioUrl;
-      }
-    } catch (ttsError) {
-      console.error('TTS/GCS 업로드 실패:', ttsError);
-    }
-    
-    console.log(`✅ AI 가이드 생성 완료 (${language})`);
-
     // === Supabase guides 테이블에 저장 ===
-    console.log('💾 Supabase에 저장할 데이터:', guideData);
-    console.log('💾 저장할 데이터 구조 확인 - overview:', !!guideData.overview);
-    console.log('💾 저장할 데이터 구조 확인 - route:', !!guideData.route);
-    console.log('💾 저장할 데이터 구조 확인 - realTimeGuide:', !!guideData.realTimeGuide);
-    
     const insertData = {
-      content: guideData, // 구조 검증된 데이터만 저장
+      content: guideData, // 구조 보정 없이 원본 그대로 저장
       metadata: null,
       locationname: locationName,
       language,
       user_id: session?.user?.id || null,
       created_at: new Date().toISOString()
     };
-    
-    console.log('💾 실제 insert할 데이터:', JSON.stringify(insertData, null, 2));
-    
-    const { error: insertError } = await supabase.from('guides').insert([insertData]);
-    if (insertError) {
-      console.error('❌ Supabase guides insert error:', insertError);
-      return NextResponse.json({ success: false, error: insertError.message }, { status: 500 });
-    }
-    console.log('✅ Supabase 저장 완료');
-    
-    return NextResponse.json({ 
-      success: true, 
-      data: { content: guideData }, 
-      cached: 'new',
-      language: language,
-      version: '4.0-database-free'
-    });
+    await supabase.from('guides').insert([insertData]);
+    return NextResponse.json({ success: true, data: { content: guideData }, cached: 'new', language });
 
   } catch (error) {
     console.error('❌ API Error:', error);
