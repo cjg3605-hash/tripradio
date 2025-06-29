@@ -43,6 +43,36 @@ interface GuideHistoryEntry {
   completed: boolean;
 }
 
+// === 추가: localStorage의 guide-cache:* 및 ai_guide_* 기반 가이드 목록 추출 함수 ===
+const getAllLocalGuides = () => {
+  if (typeof window === 'undefined' || !window.localStorage) return [];
+  const guides = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key) continue;
+    if (key.startsWith('guide-cache:') || key.startsWith('ai_guide_')) {
+      try {
+        const value = localStorage.getItem(key);
+        if (!value) continue;
+        const parsed = JSON.parse(value);
+        // guide-cache: 구조와 ai_guide_ 구조 모두 지원
+        if (parsed && (parsed.content?.realTimeGuide || parsed.content || parsed.chapters)) {
+          guides.push({
+            key,
+            locationName: parsed.locationName || parsed.content?.overview?.title || parsed.content?.locationName || parsed.metadata?.originalLocationName || '알 수 없음',
+            createdAt: parsed.createdAt || parsed.timestamp || parsed.content?.createdAt || new Date().toISOString(),
+            data: parsed
+          });
+        }
+      } catch (e) {
+        // 파싱 실패 무시
+      }
+    }
+  }
+  // 최신순 정렬
+  return guides.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+};
+
 export default function MyPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -53,6 +83,7 @@ export default function MyPage() {
   const [storageInfo, setStorageInfo] = useState<any>(null);
   const [useFileStorage, setUseFileStorage] = useState(true); // 파일 저장소 우선 사용
   const [offlineGuides, setOfflineGuides] = useState<any[]>([]);
+  const [localGuides, setLocalGuides] = useState<any[]>([]);
 
   // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
   useEffect(() => {
@@ -75,6 +106,10 @@ export default function MyPage() {
     // 오프라인 가이드함 불러오기
     const guides = JSON.parse(localStorage.getItem('myGuides') || '[]');
     setOfflineGuides(guides);
+  }, [session]);
+
+  useEffect(() => {
+    setLocalGuides(getAllLocalGuides());
   }, [session]);
 
   const loadHistory = () => {
@@ -317,7 +352,7 @@ export default function MyPage() {
             {activeTab === 'history' && (
               <div>
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">가이드 히스토리</h3>
+                  <h3 className="text-lg font-bold text-gray-900">가이드 히스토리</h3>
                   <div className="flex items-center space-x-2 text-sm text-gray-500">
                     <span>{useFileStorage ? fileHistoryEntries.length : historyEntries.length}개</span>
                     {useFileStorage && (
@@ -426,6 +461,35 @@ export default function MyPage() {
                         </div>
                       ))}
                     </div>
+                  )}
+                </div>
+
+                {/* === 히스토리 탭에 localGuides 목록 추가 === */}
+                <div className="mt-8">
+                  <h2 className="text-lg font-bold mb-4">브라우저 저장 가이드 히스토리</h2>
+                  {localGuides.length === 0 ? (
+                    <div className="text-gray-500">저장된 가이드가 없습니다.</div>
+                  ) : (
+                    <ul className="space-y-4">
+                      {localGuides.map((g, idx) => (
+                        <li key={g.key} className="bg-white rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center md:justify-between">
+                          <div>
+                            <div className="font-semibold text-gray-900">{g.locationName}</div>
+                            <div className="text-xs text-gray-500">{g.createdAt ? new Date(g.createdAt).toLocaleString('ko-KR') : ''}</div>
+                          </div>
+                          <button
+                            className="mt-2 md:mt-0 px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600"
+                            onClick={() => {
+                              const encoded = encodeURIComponent(g.locationName);
+                              window.location.href = `/guide/${encoded}/tour`;
+                            }}
+                            aria-label="가이드 바로가기"
+                          >
+                            가이드 열기
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
                   )}
                 </div>
               </div>
