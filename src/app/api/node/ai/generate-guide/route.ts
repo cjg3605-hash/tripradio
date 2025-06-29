@@ -226,10 +226,14 @@ export async function POST(req: NextRequest) {
       throw new Error(`AI 응답 생성 실패: ${error instanceof Error ? error.message : String(error)}`);
     }
     
-    // 응답 파싱 (구조 보정 없이 그대로 저장)
+    // 응답 파싱 (코드블록 제거 후 파싱)
     let guideData;
     try {
-      guideData = JSON.parse(responseText);
+      let jsonString = responseText.trim();
+      if (jsonString.startsWith('```')) {
+        jsonString = jsonString.replace(/^```json|^```/i, '').replace(/```$/, '').trim();
+      }
+      guideData = JSON.parse(jsonString);
     } catch (parseError) {
       return NextResponse.json({ success: false, error: 'AI 응답 파싱 실패: ' + (parseError instanceof Error ? parseError.message : '알 수 없는 오류') }, { status: 500 });
     }

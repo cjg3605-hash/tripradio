@@ -424,4 +424,4 @@ export function createBlueprintPrompt(locationName: string): string {
 export function createFinalGuidePrompt(blueprintJson: string, userProfile?: UserProfile): string {
   console.warn('createFinalGuidePrompt is deprecated. Use createAutonomousGuidePrompt instead.');
   return '';
-} 
+}
