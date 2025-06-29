@@ -189,7 +189,7 @@ export async function POST(req: NextRequest) {
     console.log(`✅ AI 가이드 생성 완료 (${language})`);
 
     // === Supabase guides 테이블에 저장 ===
-    await supabase.from('guides').insert([{
+    const { error: insertError } = await supabase.from('guides').insert([{
       content: guideData.content,
       metadata: guideData.metadata,
       locationName,
@@ -197,6 +197,10 @@ export async function POST(req: NextRequest) {
       user_id: session?.user?.id || null,
       created_at: new Date().toISOString()
     }]);
+    if (insertError) {
+      console.error('Supabase guides insert error:', insertError);
+      return NextResponse.json({ success: false, error: insertError.message }, { status: 500 });
+    }
     return NextResponse.json({ 
       success: true, 
       data: guideData, 
