@@ -84,27 +84,68 @@ function parseJsonResponse(jsonString: string) {
     }
 }
 
-// GuideData 구조 normalize 함수 추가
+// GuideData 구조 normalize 함수 - 포괄적 필드명 매핑
 function normalizeGuideData(raw: any) {
-  // overview
-  const overview = raw.overview || raw.Overview || null;
-  // route
-  const route = raw.route || raw.Route || { steps: raw.steps || [] };
-  // realTimeGuide
-  let realTimeGuide = raw.realTimeGuide || raw.RealTimeGuide || raw.realtimeGuide || null;
+  console.log('🔧 normalizeGuideData 시작 - 원본 키들:', Object.keys(raw || {}));
+  
+  // overview - 다양한 케이스 지원
+  const overview = raw.overview || raw.Overview || raw.OVERVIEW || 
+                   raw.소개 || raw.개요 || raw.introduction || raw.Introduction ||
+                   null;
+  console.log('🔧 overview 매핑 결과:', !!overview);
+  
+  // route - 다양한 케이스 지원  
+  const route = raw.route || raw.Route || raw.ROUTE ||
+                raw.경로 || raw.동선 || raw.navigation || raw.Navigation ||
+                { steps: raw.steps || raw.Steps || [] };
+  console.log('🔧 route 매핑 결과:', !!route);
+  
+  // realTimeGuide - 다양한 케이스 지원
+  let realTimeGuide = raw.realTimeGuide || raw.RealTimeGuide || raw.REALTIMEGUIDE ||
+                      raw.realtimeGuide || raw.realtime_guide || raw.real_time_guide ||
+                      raw.audioGuide || raw.AudioGuide || raw.audio_guide ||
+                      raw.실시간가이드 || raw.오디오가이드 || raw.chapters || 
+                      null;
+  console.log('🔧 realTimeGuide 매핑 결과:', !!realTimeGuide);
+  
+  // chapters가 최상위에 있는 경우 realTimeGuide로 감싸기
+  if (!realTimeGuide && Array.isArray(raw.chapters)) {
+    realTimeGuide = { chapters: raw.chapters };
+    console.log('🔧 chapters를 realTimeGuide로 감쌈');
+  }
+  
   // chapters 보정
   if (realTimeGuide && !realTimeGuide.chapters && Array.isArray(raw.chapters)) {
     realTimeGuide.chapters = raw.chapters;
+    console.log('🔧 realTimeGuide에 chapters 추가');
   }
-  return {
+  
+  const result = {
     overview,
     route,
     realTimeGuide
   };
+  
+  console.log('🔧 normalize 결과:');
+  console.log('  - overview:', !!result.overview);
+  console.log('  - route:', !!result.route); 
+  console.log('  - realTimeGuide:', !!result.realTimeGuide);
+  
+  return result;
 }
 
 export async function POST(req: NextRequest) {
   try {
+    // 환경변수 확인
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    console.log('🔑 GEMINI_API_KEY 설정 여부:', !!geminiApiKey);
+    console.log('🔑 GEMINI_API_KEY 길이:', geminiApiKey?.length || 0);
+    
+    if (!geminiApiKey) {
+      console.error('❌ GEMINI_API_KEY가 설정되지 않음');
+      return NextResponse.json({ error: 'AI API 키가 설정되지 않았습니다.' }, { status: 500 });
+    }
+    
     const genAI = getGeminiClient();
     let session = null;
     try {
@@ -165,17 +206,22 @@ export async function POST(req: NextRequest) {
     
     let responseText: string;
     try {
+      console.log('🤖 Gemini API 호출 시작');
       const result = await model.generateContent(autonomousPrompt);
       const response = await result.response;
       responseText = await response.text();
       
-      console.log(`📝 AI 응답 수신 (${responseText.length}자)`);
+      console.log(`📝 AI 응답 수신 (${responseText?.length || 0}자)`);
+      console.log('🔍 응답 첫 200자:', responseText?.substring(0, 200) || 'null');
+      console.log('🔍 응답 마지막 200자:', responseText?.substring(-200) || 'null');
       
       if (!responseText || responseText.trim().length === 0) {
+        console.log('❌ AI 응답이 비어있음 - 전체 응답:', responseText);
         throw new Error('AI로부터 빈 응답을 받았습니다.');
       }
     } catch (error) {
       console.error('❌ AI 응답 생성 중 오류 발생:', error);
+      console.error('❌ 에러 상세:', error instanceof Error ? error.stack : error);
       throw new Error(`AI 응답 생성 실패: ${error instanceof Error ? error.message : String(error)}`);
     }
     
@@ -187,9 +233,22 @@ export async function POST(req: NextRequest) {
       }
       console.log('🔍 AI 응답 파싱 시작');
       guideData = parseJsonResponse(responseText);
-      console.log('🔍 JSON 파싱 결과:', guideData);
+      console.log('🔍 JSON 파싱 결과:', JSON.stringify(guideData, null, 2));
+      console.log('🔍 파싱된 데이터의 키들:', Object.keys(guideData || {}));
       
-      guideData = normalizeGuideData(guideData); // 구조 보정
+      // 원본 데이터 구조 분석
+      console.log('🔍 원본 데이터 구조 분석:');
+      console.log('  - overview 존재:', !!guideData?.overview);
+      console.log('  - Overview 존재:', !!guideData?.Overview);
+      console.log('  - route 존재:', !!guideData?.route);
+      console.log('  - Route 존재:', !!guideData?.Route);
+      console.log('  - realTimeGuide 존재:', !!guideData?.realTimeGuide);
+      console.log('  - RealTimeGuide 존재:', !!guideData?.RealTimeGuide);
+      console.log('  - realtimeGuide 존재:', !!guideData?.realtimeGuide);
+      console.log('  - chapters 존재:', !!guideData?.chapters);
+      
+      // 구조 보정 - 다시 활성화
+      guideData = normalizeGuideData(guideData);
       console.log('🔍 구조 정규화 후:', guideData);
       console.log('✅ JSON 파싱 및 구조 보정 성공');
     } catch (parseError) {
