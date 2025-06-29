@@ -289,27 +289,6 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
     speechSynthesis.speak(utterance);
   };
 
-  // TTS 오디오 파일 생성 및 DB 저장 요청
-  const handleGenerateTTS = async (chapterText: string) => {
-    if (!guideId) {
-      alert('guideId가 없습니다.');
-      return;
-    }
-    const language = 'en'; // TODO: 실제 언어코드로 교체
-    const res = await fetch('/api/ai/generate-tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: chapterText, guide_id: guideId, locationName, language }),
-    });
-    const result = await res.json();
-    if (result.success) {
-      alert('오디오 파일 생성 및 저장 성공!');
-      // 필요시 오디오 URL(result.url)로 플레이어 연결
-    } else {
-      alert('TTS 생성 실패: ' + result.error);
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -473,13 +452,6 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
                         onClick={() => handlePlayStop(chapter.id, chapter.realTimeScript, idx)}
                       >
                         {currentlyPlayingId === chapter.id ? ICONS.STOP : ICONS.PLAY}
-                      </button>
-                      {/* 오디오 생성 버튼 예시 */}
-                      <button
-                        className="ml-2 px-2 py-1 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 text-xs"
-                        onClick={() => handleGenerateTTS(chapter.realTimeScript)}
-                      >
-                        오디오 생성
                       </button>
                     </div>
                   </div>
