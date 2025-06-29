@@ -164,36 +164,27 @@ export async function POST(req: NextRequest) {
     // === 정규화 적용 ===
     const normLocation = normalizeString(locationName);
     const normLang = normalizeString(language);
-    console.log(`🌍 가이드 생성 요청 - 장소: ${locationName}, 언어: ${language}`);
-    // === Supabase guides 테이블에서 조회 (lower(trim()) 비교) ===
-    const { data: cachedGuide } = await supabase
+    // === guides 테이블에서 locationname+language로 중복 체크 ===
+    const { data: existing } = await supabase
       .from('guides')
       .select('*')
       .filter('lower(trim(locationname))', 'eq', normLocation)
       .filter('lower(trim(language))', 'eq', normLang)
       .single();
-    
-    console.log('🔍 Supabase 캐시 조회 결과:', cachedGuide);
-    console.log('🔍 cachedGuide.content:', cachedGuide?.content);
-    
-    if (cachedGuide && cachedGuide.content && 
-        cachedGuide.content.overview && 
-        cachedGuide.content.route && 
-        cachedGuide.content.realTimeGuide) {
-      console.log('✅ 캐시 hit - 기존 데이터 반환');
-      // 캐시 hit 시 일관된 구조로 반환 (캐시 miss와 동일한 구조)
-      return NextResponse.json({ 
-        success: true, 
-        data: { content: cachedGuide.content }, // cachedGuide.content에 실제 가이드 데이터가 있음
+    if (existing && existing.content) {
+      // 이미 있으면 새로 생성하지 않고 기존 데이터 반환
+      return NextResponse.json({
+        success: true,
+        data: { content: existing.content },
         cached: 'hit',
-        language: language 
+        language
       });
     }
     
-    if (cachedGuide && !cachedGuide.content) {
+    if (existing && !existing.content) {
       console.log('⚠️ 캐시에 있지만 content가 null - 기존 데이터 삭제 후 새로 생성');
       // content가 null인 기존 레코드 삭제
-      await supabase.from('guides').delete().eq('id', cachedGuide.id);
+      await supabase.from('guides').delete().eq('id', existing.id);
     }
     
     console.log('❌ 캐시 miss - 새로운 가이드 생성 시작');
