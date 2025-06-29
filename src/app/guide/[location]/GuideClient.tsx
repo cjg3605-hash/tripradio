@@ -180,7 +180,10 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
       <TourContent
         locationName={locationName}
         userProfile={null}
-        offlineData={content}
+        offlineData={{
+          content: content,
+          metadata: { originalLocationName: locationName }
+        }}
       />
     );
   }
