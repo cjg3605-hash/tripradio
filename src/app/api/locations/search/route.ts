@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getOrCreateGoldenCoordinates } from '@/lib/ai/officialData';
 
 // Types
 interface Suggestion {
@@ -447,5 +448,20 @@ export async function GET(request: NextRequest) {
         headers: { 'Content-Type': 'application/json' }
       }
     );
+  }
+}
+
+// === 골든레코드 기반 좌표 자동화 엔드포인트 ===
+export async function POST(req) {
+  try {
+    const { locationName, language } = await req.json();
+    if (!locationName || !language) {
+      return new Response(JSON.stringify({ success: false, error: '필수 파라미터 누락' }), { status: 400 });
+    }
+    const coordinates = await getOrCreateGoldenCoordinates(locationName, language);
+    return new Response(JSON.stringify({ success: true, coordinates }), { status: 200 });
+  } catch (e) {
+    const err = e instanceof Error ? e : new Error(String(e));
+    return new Response(JSON.stringify({ success: false, error: err.message }), { status: 500 });
   }
 }

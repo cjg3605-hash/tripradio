@@ -5,6 +5,7 @@ import { ArrowLeft, Clock, MapPin, Play, Pause, Volume2, StopCircle } from 'luci
 import dynamic from 'next/dynamic';
 import { getBestOfficialPlace } from '@/lib/ai/officialData';
 import { useTranslation } from 'next-i18next';
+import useSWR from 'swr';
 
 // 🔥 강력한 디버깅: 컴포넌트 로드 확인
 console.log('🚀 TourContent 컴포넌트 파일 로드됨!');
@@ -99,6 +100,43 @@ const normalizePOI = (titleOrLocation: string) => {
   }
   return null;
 };
+
+function useChaptersWithCoordinates(chapters, language) {
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!chapters || chapters.length === 0 || !language) {
+      setData(null);
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    Promise.all(
+      chapters.map(async (ch) => {
+        try {
+          const res = await fetch('/api/locations/search/coordinates', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ locationName: ch.title || ch.location, language }),
+          });
+          const result = await res.json();
+          if (result.success && result.coordinates) {
+            return { ...ch, coordinates: result.coordinates };
+          }
+        } catch {}
+        return { ...ch };
+      })
+    )
+      .then(setData)
+      .catch(e => setError(e.message))
+      .finally(() => setIsLoading(false));
+  }, [chapters, language]);
+
+  return { data, isLoading, error };
+}
 
 export default function TourContent({ locationName, userProfile, initialGuide, offlineData }: TourContentProps) {
   const { t } = useTranslation('guide');
@@ -311,6 +349,10 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
     speechSynthesis.speak(utterance);
   };
 
+  const chapters = tourData?.content?.realTimeGuide?.chapters || [];
+  const { currentLanguage } = useLanguage ? useLanguage() : { currentLanguage: 'en' };
+  const { data: chaptersWithCoords, isLoading: coordsLoading, error: coordsError } = useChaptersWithCoordinates(chapters, currentLanguage);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -366,9 +408,6 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
       </div>
     );
   }
-
-  const chapters = tourData.content.realTimeGuide.chapters;
-  const totalChapters = chapters.length;
 
   // 디버깅 로그
   console.log('🎬 렌더링 상태:', {
@@ -448,11 +487,13 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
         )}
 
         {/* 지도/동선 */}
-        {(patchedChapters?.length > 0 ? patchedChapters : originalChapters).length > 0 && (
+        {(chaptersWithCoords && chaptersWithCoords.length > 0) && (
           <section className="mb-8">
-            <MapWithRoute chapters={patchedChapters?.length > 0 ? patchedChapters : originalChapters} />
+            <MapWithRoute chapters={chaptersWithCoords} />
           </section>
         )}
+        {coordsLoading && <div>지도 좌표 불러오는 중...</div>}
+        {coordsError && <div>좌표 불러오기 오류: {coordsError}</div>}
 
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left: 실시간 오디오 가이드 */}

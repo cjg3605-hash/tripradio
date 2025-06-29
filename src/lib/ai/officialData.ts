@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { supabase } from '@/lib/supabaseClient';
+import stringSimilarity from 'string-similarity';
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
@@ -66,4 +68,71 @@ export async function getBestOfficialPlace(locationName: string) {
   const wiki = await getWikidataPlace(locationName);
   if (wiki) return { source: 'wikidata', ...wiki };
   return null;
+}
+
+// === 골든레코드 자동화 유틸리티 ===
+async function reverseGeocode(lat, lng) {
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_API_KEY}&language=ko`;
+  const res = await axios.get(url);
+  if (res.data.results && res.data.results.length > 0) {
+    return res.data.results[0].formatted_address || '';
+  }
+  return '';
+}
+
+async function validateCoordinates(coords, originalName) {
+  const address = await reverseGeocode(coords.lat, coords.lng);
+  const sim = stringSimilarity.compareTwoStrings(
+    address.trim().toLowerCase(),
+    originalName.trim().toLowerCase()
+  );
+  return sim > 0.7;
+}
+
+async function saveGoldenRecord(locationName, language, coords, placeId, source) {
+  await supabase.from('places').upsert([
+    {
+      location_name: locationName,
+      language,
+      coordinates: coords,
+      place_id: placeId,
+      source,
+    }
+  ]);
+}
+
+export async function getOrCreateGoldenCoordinates(locationName, language) {
+  const normLocation = locationName.trim().toLowerCase();
+  const normLang = language.trim().toLowerCase();
+  // 1. 캐시/DB 조회
+  const { data: cached } = await supabase
+    .from('places')
+    .select('*')
+    .eq('location_name', normLocation)
+    .eq('language', normLang)
+    .single();
+  if (cached && cached.coordinates) return cached.coordinates;
+  // 2. 공식 API 순차 호출 (구글 → OSM → Wikidata)
+  let coords = null;
+  let placeId = null;
+  let source = null;
+  const google = await getGooglePlace(normLocation);
+  if (google && google.geometry && google.geometry.location) {
+    coords = { lat: google.geometry.location.lat, lng: google.geometry.location.lng };
+    placeId = google.place_id;
+    source = 'google';
+  }
+  // OSM, Wikidata 등 추가 폴백 가능
+  if (!coords) {
+    const osm = await getOSMPlace(normLocation);
+    if (osm && osm.lat && osm.lon) {
+      coords = { lat: parseFloat(osm.lat), lng: parseFloat(osm.lon) };
+      source = 'osm';
+    }
+  }
+  // 3. 검증 (구글/OSM 등 공식 데이터는 생략 가능, AI 등은 반드시 검증)
+  if (!coords) throw new Error('좌표를 찾을 수 없습니다.');
+  // 4. 골든레코드 저장
+  await saveGoldenRecord(normLocation, normLang, coords, placeId, source);
+  return coords;
 } 

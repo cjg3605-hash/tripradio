@@ -1,3 +1,4 @@
+// 이 파일은 반드시 dynamic import({ ssr: false })로만 사용하세요. SSR에서 직접 import 금지!
 import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -45,7 +46,7 @@ const customMarkerIcon = new L.Icon({
   iconSize: [32, 32],
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
-  tooltipAnchor: [0, -32], // 툴팁 위치 조정
+  tooltipAnchor: [0, -32], // 툴크 위치 조정
 });
 
 export default function MapWithRoute({ chapters, activeChapter, onMarkerClick }: MapWithRouteProps) {

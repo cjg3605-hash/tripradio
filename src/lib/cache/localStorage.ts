@@ -326,13 +326,14 @@ export const cleanupLocalCache = () => {
 };
 
 // 자동 정리 (용량 부족시)
-if (typeof window !== 'undefined') {
-  const info = getLocalStorageInfo();
-  
-  // 사용량이 80% 이상이면 자동 정리
-  if (info.available < info.used * 0.2) {
-    console.log('📱 로컬 저장 공간 부족, 자동 정리 실행');
-    cleanupLocalCache();
+export function runLocalCacheAutoCleanupIfNeeded() {
+  if (typeof window !== 'undefined') {
+    const info = getLocalStorageInfo();
+    // 사용량이 80% 이상이면 자동 정리
+    if (info.available < info.used * 0.2) {
+      console.log('📱 로컬 저장 공간 부족, 자동 정리 실행');
+      cleanupLocalCache();
+    }
   }
 }
 
