@@ -78,6 +78,28 @@ const ICONS = {
   STOP: <StopCircle className="w-7 h-7" />,
 };
 
+// 공식 POI 좌표 매핑
+const POI_COORDS: Record<string, { lat: number; lng: number }> = {
+  "Giralda Tower": { lat: 37.384008, lng: -5.995588 },
+  "Patio de los Naranjos": { lat: 37.383988, lng: -5.995833 },
+  "Main Altar": { lat: 37.383825, lng: -5.996715 },
+  "Tomb of Christopher Columbus": { lat: 37.384159, lng: -5.996687 },
+  "Royal Chapel": { lat: 37.383504, lng: -5.996887 },
+  "Interior of the Cathedral": { lat: 37.384068, lng: -5.996852 },
+  // ... 필요시 추가 ...
+};
+
+// POI명 정규화 및 좌표 매핑
+const normalizePOI = (titleOrLocation: string) => {
+  if (!titleOrLocation) return null;
+  for (const poi in POI_COORDS) {
+    if (titleOrLocation.toLowerCase().includes(poi.toLowerCase())) {
+      return POI_COORDS[poi];
+    }
+  }
+  return null;
+};
+
 export default function TourContent({ locationName, userProfile, initialGuide, offlineData }: TourContentProps) {
   const { t } = useTranslation('guide');
   // 🔥 강력한 디버깅: 컴포넌트 시작
@@ -216,7 +238,7 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
         const chapters = tourData.content.realTimeGuide.chapters;
         const patchedCh = await Promise.all(chapters.map(async (ch) => {
           try {
-            const poi = await getBestOfficialPlace(ch.title) || await getBestOfficialPlace(ch.location);
+            const poi = normalizePOI(ch.title) || normalizePOI(ch.location);
             if (poi?.geometry?.location) {
               return { ...ch, coordinates: { lat: poi.geometry.location.lat, lng: poi.geometry.location.lng } };
             }
@@ -230,7 +252,7 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
         const steps = tourData.content.route.steps;
         const patchedSt = await Promise.all(steps.map(async (st) => {
           try {
-            const poi = await getBestOfficialPlace(st.title) || await getBestOfficialPlace(st.location);
+            const poi = normalizePOI(st.title) || normalizePOI(st.location);
             if (poi?.geometry?.location) {
               return { ...st, coordinates: { lat: poi.geometry.location.lat, lng: poi.geometry.location.lng } };
             }

@@ -164,12 +164,12 @@ export async function POST(req: NextRequest) {
     // === 정규화 적용 ===
     const normLocation = normalizeString(locationName);
     const normLang = normalizeString(language);
-    // === guides 테이블에서 locationname+language로 중복 체크 ===
+    // === guides 테이블에서 locationname+language로 중복 체크 (정규화 값만 사용) ===
     const { data: existing } = await supabase
       .from('guides')
       .select('*')
-      .filter('lower(trim(locationname))', 'eq', normLocation)
-      .filter('lower(trim(language))', 'eq', normLang)
+      .filter('locationname', 'eq', normLocation)
+      .filter('language', 'eq', normLang)
       .single();
     if (existing && existing.content) {
       // 항상 동일한 구조(data: { content: ... })로 반환
@@ -240,8 +240,8 @@ export async function POST(req: NextRequest) {
     const insertData = {
       content: guideData, // 구조 보정 없이 원본 그대로 저장
       metadata: null,
-      locationname: locationName,
-      language,
+      locationname: normLocation,
+      language: normLang,
       user_id: session?.user?.id || null,
       created_at: new Date().toISOString()
     };
