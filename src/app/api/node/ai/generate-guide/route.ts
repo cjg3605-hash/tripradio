@@ -232,6 +232,11 @@ export async function POST(req: NextRequest) {
         throw new Error('AI 응답이 비어있거나 undefined/null입니다.');
       }
       console.log('🔍 AI 응답 파싱 시작');
+      
+      // AI 원본 응답을 로그로 남기기 (처음 1000자만)
+      console.log('🔍 AI 원본 응답 (첫 1000자):', responseText.substring(0, 1000));
+      console.log('🔍 AI 원본 응답 (마지막 500자):', responseText.substring(-500));
+      
       guideData = parseJsonResponse(responseText);
       console.log('🔍 JSON 파싱 결과:', JSON.stringify(guideData, null, 2));
       console.log('🔍 파싱된 데이터의 키들:', Object.keys(guideData || {}));
@@ -259,6 +264,35 @@ export async function POST(req: NextRequest) {
     // GuideData 구조 검증
     if (!guideData || !guideData.overview || !guideData.route || !guideData.realTimeGuide) {
       console.error('❌ GuideData 구조 오류:', guideData);
+      console.error('❌ AI 원본 응답 분석 필요 - 응답 길이:', responseText?.length);
+      console.error('❌ parseJsonResponse 결과 타입:', typeof guideData);
+      console.error('❌ guideData 전체 구조:', JSON.stringify(guideData, null, 2));
+      
+      // 마지막 시도: 원본 응답에서 다른 패턴 찾기
+      if (responseText && responseText.length > 0) {
+        console.log('🔧 마지막 시도: 다른 JSON 패턴 찾기');
+        const alternativePatterns = [
+          /\{[\s\S]*"overview"[\s\S]*\}/i,
+          /\{[\s\S]*"소개"[\s\S]*\}/i,
+          /\{[\s\S]*"Introduction"[\s\S]*\}/i,
+          /\{[\s\S]*"chapters"[\s\S]*\}/i
+        ];
+        
+        for (const pattern of alternativePatterns) {
+          const match = responseText.match(pattern);
+          if (match) {
+            console.log('🔧 대안 패턴 발견:', match[0].substring(0, 200));
+            try {
+              const altData = JSON.parse(match[0]);
+              console.log('🔧 대안 데이터 파싱 성공:', Object.keys(altData));
+              break;
+            } catch (e) {
+              console.log('🔧 대안 패턴 파싱 실패');
+            }
+          }
+        }
+      }
+      
       return NextResponse.json({ success: false, error: 'AI 응답 구조 오류: 필수 정보 누락' }, { status: 500 });
     }
 
