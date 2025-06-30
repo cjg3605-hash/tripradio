@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useSession, signIn, signOut } from 'next-auth/react';
 import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
 // Public 폴더의 이미지 경로 (대소문자 주의)
 const logoImage = '/navi.png';
 import { 
@@ -19,12 +19,31 @@ import {
   History
 } from 'lucide-react';
 
+// Supabase 인증 세션 커스텀 훅
+function useSupabaseUser() {
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
+  return user;
+}
+
 interface HeaderProps {
   onSidebarToggle?: () => void;
 }
 
 export function Header({ onSidebarToggle }: HeaderProps) {
-  const { data: session, status } = useSession();
+  const user = useSupabaseUser();
   const { currentLanguage, setLanguage, t, isLoading } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -47,8 +66,10 @@ export function Header({ onSidebarToggle }: HeaderProps) {
     router.push('/auth/signin');
   };
   
-  const handleSignOut = () => {
-    signOut({ callbackUrl: '/' });
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setIsProfileMenuOpen(false);
+    router.push('/');
   };
 
   // 모바일에서 메뉴 열렸을 때 스크롤 방지
@@ -148,18 +169,18 @@ export function Header({ onSidebarToggle }: HeaderProps) {
               </div>
 
               {/* 로그인/프로필 */}
-              {status === 'loading' ? (
+              {user === undefined ? (
                 <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
-              ) : session ? (
+              ) : user ? (
                 <div className="relative">
                   <button
                     onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                     className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-50"
                   >
-                    {session.user?.image ? (
+                    {user.user_metadata?.avatar_url ? (
                       <Image
-                        src={session.user.image}
-                        alt={session.user.name || 'User profile'}
+                        src={user.user_metadata.avatar_url}
+                        alt={user.user_metadata.full_name || 'User profile'}
                         width={32}
                         height={32}
                         className="rounded-full"
@@ -169,7 +190,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                         <User className="w-5 h-5 text-indigo-600" />
                       </div>
                     )}
-                    <span className="text-sm font-medium text-gray-700">{session.user?.name}</span>
+                    <span className="text-sm font-medium text-gray-700">{user.user_metadata?.full_name || user.email}</span>
                     <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -186,7 +207,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                         onClick={handleSignOut} 
                         className="flex items-center w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50"
                       >
-                        <LogOut className="w-4 h-4 mr-3" /> {t.header.logout}
+                        <LogOut className="w-4 h-4 mr-3" /> 로그아웃
                       </button>
                     </div>
                   )}
@@ -197,7 +218,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                   className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                 >
                   <LogIn className="w-4 h-4" />
-                  <span>{t.header.login}</span>
+                  <span>로그인</span>
                 </button>
               )}
             </div>
@@ -233,17 +254,17 @@ export function Header({ onSidebarToggle }: HeaderProps) {
               </div>
 
               {/* 로그인/프로필 (모바일) */}
-              {status === 'loading' ? (
+              {user === undefined ? (
                 <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
-              ) : session ? (
+              ) : user ? (
                 <button
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                   className="p-1 rounded-lg hover:bg-gray-50"
                 >
-                  {session.user?.image ? (
+                  {user.user_metadata?.avatar_url ? (
                     <Image
-                      src={session.user.image}
-                      alt={session.user.name || 'User profile'}
+                      src={user.user_metadata.avatar_url}
+                      alt={user.user_metadata.full_name || 'User profile'}
                       width={32}
                       height={32}
                       className="rounded-full"
@@ -275,13 +296,13 @@ export function Header({ onSidebarToggle }: HeaderProps) {
         </div>
         
         {/* 모바일 프로필 메뉴 */}
-        {isProfileMenuOpen && session && (
+        {isProfileMenuOpen && user && (
           <div className="md:hidden bg-white border-t border-gray-200 py-3 px-4">
             <div className="flex items-center gap-3 mb-4">
-              {session.user?.image ? (
+              {user.user_metadata?.avatar_url ? (
                 <Image
-                  src={session.user.image}
-                  alt={session.user.name || 'User profile'}
+                  src={user.user_metadata.avatar_url}
+                  alt={user.user_metadata.full_name || 'User profile'}
                   width={40}
                   height={40}
                   className="rounded-full"
@@ -292,8 +313,8 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                 </div>
               )}
               <div>
-                <p className="font-medium text-gray-900">{session.user?.name}</p>
-                <p className="text-sm text-gray-500">{session.user?.email}</p>
+                <p className="font-medium text-gray-900">{user.user_metadata?.full_name || user.email}</p>
+                <p className="text-sm text-gray-500">{user.email}</p>
               </div>
             </div>
             <div className="space-y-2">
@@ -308,7 +329,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                 onClick={handleSignOut} 
                 className="flex items-center w-full px-3 py-2 text-left text-gray-700 hover:bg-gray-50 rounded-lg"
               >
-                <LogOut className="w-4 h-4 mr-3" /> {t.header.logout}
+                <LogOut className="w-4 h-4 mr-3" /> 로그아웃
               </button>
             </div>
           </div>
