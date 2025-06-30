@@ -57,7 +57,7 @@ export default async function RootLayout({
         <link rel="apple-touch-icon" href="/navi.png" />
         <meta name="theme-color" content="#2563eb" />
         <meta name="application-name" content="NAVI" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="NAVI" />
         <meta name="msapplication-TileColor" content="#2563eb" />

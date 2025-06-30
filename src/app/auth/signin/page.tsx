@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
+import { useTranslation } from 'next-i18next';
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -18,6 +19,7 @@ export default function SignInPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const { t } = useTranslation('common');
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
@@ -131,10 +133,10 @@ export default function SignInPage() {
             </div>
           </Link>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {authMode === 'signup' ? '회원가입' : '로그인'}
+            {authMode === 'signup' ? t('signup') : t('login')}
           </h2>
           <p className="text-gray-600">
-            AI가 만드는 개인 맞춤 가이드를 경험해보세요
+            {t('login_subtitle')}
           </p>
         </div>
 
@@ -173,7 +175,7 @@ export default function SignInPage() {
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              로그인
+              {t('login')}
             </button>
             <button
               type="button"
@@ -184,7 +186,7 @@ export default function SignInPage() {
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              회원가입
+              {t('signup')}
             </button>
           </div>
 
@@ -205,7 +207,7 @@ export default function SignInPage() {
               </svg>
             )}
             <span className="text-gray-700 font-medium">
-              Google로 {authMode === 'signup' ? '회원가입' : '로그인'}
+              {t('google_login', { mode: t(authMode) })}
             </span>
           </button>
 
@@ -215,7 +217,7 @@ export default function SignInPage() {
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">또는</span>
+              <span className="px-2 bg-white text-gray-500">{t('or')}</span>
             </div>
           </div>
 
@@ -224,7 +226,7 @@ export default function SignInPage() {
             {authMode === 'signup' && (
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  이름
+                  {t('name')}
                 </label>
                 <input
                   id="name"
@@ -234,7 +236,7 @@ export default function SignInPage() {
                   className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                     errors.name ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="이름을 입력하세요"
+                  placeholder={t('name_placeholder')}
                   required
                 />
                 {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
@@ -243,7 +245,7 @@ export default function SignInPage() {
             
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                이메일
+                {t('email')}
               </label>
               <input
                 id="email"
@@ -253,7 +255,7 @@ export default function SignInPage() {
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                   errors.email ? 'border-red-300' : 'border-gray-300'
                 }`}
-                placeholder="이메일을 입력하세요"
+                placeholder={t('email_placeholder')}
                 required
               />
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
@@ -261,7 +263,7 @@ export default function SignInPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                비밀번호
+                {t('password')}
               </label>
               <input
                 id="password"
@@ -271,8 +273,9 @@ export default function SignInPage() {
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                   errors.password ? 'border-red-300' : 'border-gray-300'
                 }`}
-                placeholder="비밀번호를 입력하세요"
+                placeholder={t('password_placeholder')}
                 required
+                autoComplete="current-password"
               />
               {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
             </div>
@@ -280,7 +283,7 @@ export default function SignInPage() {
             {authMode === 'signup' && (
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                  비밀번호 확인
+                  {t('confirm_password')}
                 </label>
                 <input
                   id="confirmPassword"
@@ -290,8 +293,9 @@ export default function SignInPage() {
                   className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                     errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="비밀번호를 다시 입력하세요"
+                  placeholder={t('confirm_password_placeholder')}
                   required
+                  autoComplete="new-password"
                 />
                 {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
               </div>
@@ -305,11 +309,11 @@ export default function SignInPage() {
               {isLoading ? (
                 <div className="flex items-center justify-center">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  처리중...
+                  {t('processing')}
                 </div>
               ) : (
                 <>
-                  {authMode === 'signup' ? '회원가입' : '로그인'}
+                  {authMode === 'signup' ? t('signup') : t('login')}
                 </>
               )}
             </button>
@@ -318,41 +322,33 @@ export default function SignInPage() {
           {/* 안내 메시지 */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <h4 className="text-sm font-medium text-gray-900 mb-2">
-              로그인하면 이용할 수 있는 기능:
+              {t('login_features')}
             </h4>
             <ul className="text-sm text-gray-600 space-y-1">
               <li className="flex items-center">
                 <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                개인 맞춤 가이드 생성
+                {t('feature_personal_guide')}
               </li>
               <li className="flex items-center">
                 <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                가이드 히스토리 저장 (30일)
+                {t('feature_history')}
               </li>
               <li className="flex items-center">
                 <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                선호도 기반 추천
+                {t('feature_recommend')}
               </li>
             </ul>
           </div>
 
           <div className="mt-6 text-center">
             <p className="text-xs text-gray-500">
-              계속 진행하시면 NAVI의{' '}
-              <Link href="/terms" className="text-indigo-600 hover:text-indigo-500">
-                서비스 약관
-              </Link>
-              {' '}및{' '}
-              <Link href="/privacy" className="text-indigo-600 hover:text-indigo-500">
-                개인정보 처리방침
-              </Link>
-              에 동의하는 것으로 간주됩니다.
+              {t('terms_agree', { terms: <Link href="/terms" className="text-indigo-600 hover:text-indigo-500">{t('terms_of_service')}</Link>, privacy: <Link href="/privacy" className="text-indigo-600 hover:text-indigo-500">{t('privacy_policy')}</Link> })}
             </p>
           </div>
         </div>
@@ -363,7 +359,7 @@ export default function SignInPage() {
             href="/" 
             className="text-indigo-600 hover:text-indigo-500 text-sm font-medium"
           >
-            ← 홈으로 돌아가기
+            ← {t('home')}
           </Link>
         </div>
       </div>

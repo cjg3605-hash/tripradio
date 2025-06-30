@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { guideHistory } from '@/lib/cache/localStorage';
 import { fetchGuideHistoryFromSupabase } from '@/lib/supabaseGuideHistory';
+import { useTranslation } from 'next-i18next';
 
 interface FileGuideEntry {
   id: string;
@@ -85,6 +86,7 @@ export default function MyPage() {
   const [useFileStorage, setUseFileStorage] = useState(true); // 파일 저장소 우선 사용
   const [offlineGuides, setOfflineGuides] = useState<any[]>([]);
   const [localGuides, setLocalGuides] = useState<any[]>([]);
+  const { t } = useTranslation('common');
 
   // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
   useEffect(() => {
@@ -210,7 +212,7 @@ export default function MyPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex items-center space-x-2">
           <LoaderIcon className="w-6 h-6 animate-spin text-indigo-600" />
-          <span className="text-gray-600">로딩 중...</span>
+          <span className="text-gray-600">{t('loading')}</span>
         </div>
       </div>
     );
@@ -226,7 +228,7 @@ export default function MyPage() {
               {session.user?.image ? (
                 <img 
                   src={session.user.image} 
-                  alt="프로필" 
+                  alt={t('profile')} 
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
@@ -235,23 +237,23 @@ export default function MyPage() {
             </div>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900">
-                {session.user?.name || '여행자'}님
+                {session.user?.name || t('traveler')}{t('suffix_nim')}
               </h1>
               <p className="text-gray-600">{session.user?.email}</p>
               <div className="flex items-center space-x-4 mt-2">
                 <div className="flex items-center space-x-1 text-sm text-gray-500">
                   <HistoryIcon className="w-4 h-4" />
-                  <span>가이드 {useFileStorage ? fileHistoryEntries.length : historyEntries.length}개</span>
+                  <span>{t('guide_count', { count: useFileStorage ? fileHistoryEntries.length : historyEntries.length })}</span>
                 </div>
                 {useFileStorage && storageInfo && (
                   <div className="flex items-center space-x-1 text-sm text-gray-500">
                     <FolderIcon className="w-4 h-4" />
-                    <span>{storageInfo.totalSize} • {storageInfo.locations.length}개 장소</span>
+                    <span>{storageInfo.totalSize} • {storageInfo.locations.length}{t('places')}</span>
                   </div>
                 )}
                 <div className="flex items-center space-x-1 text-sm text-gray-500">
                   <CheckCircleIcon className="w-4 h-4" />
-                  <span>완료 {historyEntries.filter(h => h.completed).length}개</span>
+                  <span>{t('completed_guide', { count: historyEntries.filter(h => h.completed).length })}</span>
                 </div>
               </div>
             </div>
@@ -260,7 +262,7 @@ export default function MyPage() {
               className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
             >
               <LogOutIcon className="w-5 h-5" />
-              <span>로그아웃</span>
+              <span>{t('logout')}</span>
             </button>
           </div>
         </div>
@@ -276,7 +278,7 @@ export default function MyPage() {
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              내 정보
+              {t('my_profile')}
             </button>
             <button
               onClick={() => setActiveTab('history')}
@@ -286,7 +288,7 @@ export default function MyPage() {
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              가이드 히스토리 ({useFileStorage ? fileHistoryEntries.length : historyEntries.length})
+              {t('guide_history', { count: useFileStorage ? fileHistoryEntries.length : historyEntries.length })}
             </button>
             <button
               onClick={() => setActiveTab('settings')}
@@ -296,7 +298,7 @@ export default function MyPage() {
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              설정
+              {t('settings')}
             </button>
           </div>
 
@@ -305,31 +307,31 @@ export default function MyPage() {
             {activeTab === 'profile' && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">계정 정보</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('account_info')}</h3>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                      <span className="text-gray-600">이메일</span>
+                      <span className="text-gray-600">{t('email')}</span>
                       <span className="font-medium">{session.user?.email}</span>
                     </div>
                     <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                      <span className="text-gray-600">이름</span>
-                      <span className="font-medium">{session.user?.name || '설정되지 않음'}</span>
+                      <span className="text-gray-600">{t('name')}</span>
+                      <span className="font-medium">{session.user?.name || t('not_set')}</span>
                     </div>
                     <div className="flex justify-between items-center py-3">
-                      <span className="text-gray-600">가입일</span>
+                      <span className="text-gray-600">{t('signup_date')}</span>
                       <span className="font-medium">2024년 12월</span>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">이용 통계</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('usage_stats')}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-indigo-50 p-4 rounded-xl">
                       <div className="text-2xl font-bold text-indigo-600">
                         {useFileStorage ? fileHistoryEntries.length : historyEntries.length}
                       </div>
-                      <div className="text-sm text-indigo-600">생성한 가이드</div>
+                      <div className="text-sm text-indigo-600">{t('created_guides')}</div>
                     </div>
                     <div className="bg-green-50 p-4 rounded-xl">
                       <div className="text-2xl font-bold text-green-600">
@@ -338,7 +340,7 @@ export default function MyPage() {
                           : historyEntries.filter(h => h.completed).length
                         }
                       </div>
-                      <div className="text-sm text-green-600">완료한 가이드</div>
+                      <div className="text-sm text-green-600">{t('completed_guides')}</div>
                     </div>
                     <div className="bg-purple-50 p-4 rounded-xl">
                       <div className="text-2xl font-bold text-purple-600">
@@ -347,7 +349,7 @@ export default function MyPage() {
                           : new Set(historyEntries.map(h => h.locationName)).size
                         }
                       </div>
-                      <div className="text-sm text-purple-600">방문한 명소</div>
+                      <div className="text-sm text-purple-600">{t('visited_places')}</div>
                     </div>
                   </div>
                 </div>
@@ -357,13 +359,11 @@ export default function MyPage() {
             {activeTab === 'history' && (
               <div>
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-bold text-gray-900">가이드 히스토리</h3>
+                  <h3 className="text-lg font-bold text-gray-900">{t('guide_history')}</h3>
                   <div className="flex items-center space-x-2 text-sm text-gray-500">
-                    <span>{useFileStorage ? fileHistoryEntries.length : historyEntries.length}개</span>
+                    <span>{useFileStorage ? fileHistoryEntries.length : historyEntries.length}{t('count_unit')}</span>
                     {useFileStorage && (
-                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-                        📁 파일 저장
-                      </span>
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">📁 {t('file_storage')}</span>
                     )}
                   </div>
                 </div>
@@ -371,17 +371,17 @@ export default function MyPage() {
                 {isLoading ? (
                   <div className="text-center py-12">
                     <LoaderIcon className="w-6 h-6 animate-spin text-indigo-600 mx-auto mb-2" />
-                    <p className="text-gray-500">히스토리를 불러오는 중...</p>
+                    <p className="text-gray-500">{t('loading_history')}</p>
                   </div>
                 ) : (useFileStorage ? fileHistoryEntries.length : historyEntries.length) === 0 ? (
                   <div className="text-center py-12">
                     <HistoryIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500 mb-4">아직 생성한 가이드가 없습니다</p>
+                    <p className="text-gray-500 mb-4">{t('no_guides')}</p>
                     <button
                       onClick={() => router.push('/')}
                       className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
                     >
-                      첫 가이드 만들기
+                      {t('create_first_guide')}
                     </button>
                   </div>
                 ) : (
@@ -405,18 +405,18 @@ export default function MyPage() {
                               <span>•</span>
                               <div className="flex items-center space-x-1">
                                 <EyeIcon className="w-4 h-4" />
-                                <span>조회 {history.viewedPages.length}회</span>
+                                <span>{t('view_count', { count: history.viewedPages.length })}</span>
                               </div>
                             </div>
                             <div className="text-xs text-gray-400 mb-3">
-                              생성일: {formatDetailedDate(history.createdAt)}
+                              {t('created_at')}: {formatDetailedDate(history.createdAt)}
                             </div>
                             <div className="flex items-center space-x-2">
                               <button
                                 onClick={() => goToGuide(history.locationName)}
                                 className="flex items-center space-x-1 text-indigo-600 hover:text-indigo-800 text-sm font-medium"
                               >
-                                <span>가이드 보기</span>
+                                <span>{t('view_guide')}</span>
                                 <ExternalLinkIcon className="w-4 h-4" />
                               </button>
                             </div>
@@ -425,14 +425,14 @@ export default function MyPage() {
                             <button
                               onClick={() => handleDeleteHistory(history.id)}
                               className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                              title="삭제"
+                              title={t('delete')}
                             >
                               <TrashIcon className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => goToGuide(history.locationName)}
                               className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                              title="보기"
+                              title={t('view')}
                             >
                               <ChevronRightIcon className="w-4 h-4" />
                             </button>
@@ -445,23 +445,23 @@ export default function MyPage() {
 
                 {/* 오프라인 가이드함 */}
                 <div className="mt-10">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">오프라인 가이드함</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('offline_guides')}</h3>
                   {offlineGuides.length === 0 ? (
-                    <div className="text-gray-500 text-center py-8">아직 오프라인에 저장한 가이드가 없습니다.</div>
+                    <div className="text-gray-500 text-center py-8">{t('no_offline_guides')}</div>
                   ) : (
                     <div className="space-y-4">
                       {offlineGuides.map((guide) => (
                         <div key={guide.metadata?.originalLocationName} className="border border-yellow-200 rounded-xl p-4 bg-yellow-50 flex items-center justify-between">
                           <div>
                             <div className="font-semibold text-yellow-900">{guide.metadata?.originalLocationName}</div>
-                            <div className="text-xs text-gray-500">저장일: {guide.savedAt ? new Date(guide.savedAt).toLocaleString('ko-KR') : '-'}</div>
+                            <div className="text-xs text-gray-500">{t('saved_at')}: {guide.savedAt ? new Date(guide.savedAt).toLocaleString('ko-KR') : '-'}</div>
                           </div>
                           <button
                             onClick={() => router.push(`/my-guide/${encodeURIComponent(guide.metadata?.originalLocationName)}`)}
                             className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 text-sm font-medium"
-                            aria-label="오프라인 가이드 보기"
+                            aria-label={t('open_offline_guide')}
                           >
-                            오프라인 가이드 보기
+                            {t('open_offline_guide')}
                           </button>
                         </div>
                       ))}
@@ -471,9 +471,9 @@ export default function MyPage() {
 
                 {/* === 히스토리 탭에 localGuides 목록 추가 === */}
                 <div className="mt-8">
-                  <h2 className="text-lg font-bold mb-4">브라우저 저장 가이드 히스토리</h2>
+                  <h2 className="text-lg font-bold mb-4">{t('browser_guide_history')}</h2>
                   {localGuides.length === 0 ? (
-                    <div className="text-gray-500">저장된 가이드가 없습니다.</div>
+                    <div className="text-gray-500">{t('no_guides')}</div>
                   ) : (
                     <ul className="space-y-4">
                       {localGuides.map((g, idx) => (
@@ -488,9 +488,9 @@ export default function MyPage() {
                               const encoded = encodeURIComponent(g.locationName);
                               window.location.href = `/guide/${encoded}/tour`;
                             }}
-                            aria-label="가이드 바로가기"
+                            aria-label={t('open_guide')}
                           >
-                            가이드 열기
+                            {t('open_guide')}
                           </button>
                         </li>
                       ))}
@@ -503,35 +503,20 @@ export default function MyPage() {
             {activeTab === 'settings' && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">알림 설정</h3>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium text-gray-900">이메일 알림</p>
-                        <p className="text-sm text-gray-500">새로운 기능 및 업데이트 소식</p>
-                      </div>
-                      <input type="checkbox" className="toggle" defaultChecked />
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium text-gray-900">가이드 저장 알림</p>
-                        <p className="text-sm text-gray-500">새 가이드 생성 시 알림</p>
-                      </div>
-                      <input type="checkbox" className="toggle" defaultChecked />
-                    </div>
-                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('settings')}</h3>
+                  <p className="text-gray-500">{t('settings_coming_soon')}</p>
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">데이터 관리</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('data_management')}</h3>
                   <div className="space-y-4">
                     <button className="w-full text-left p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                      <p className="font-medium text-gray-900">가이드 히스토리 전체 삭제</p>
-                      <p className="text-sm text-gray-500">저장된 모든 가이드 히스토리를 삭제합니다</p>
+                      <p className="font-medium text-gray-900">{t('delete_all_history')}</p>
+                      <p className="text-sm text-gray-500">{t('delete_all_history_description')}</p>
                     </button>
                     <button className="w-full text-left p-4 border border-red-200 rounded-lg hover:bg-red-50 transition-colors text-red-600">
-                      <p className="font-medium">계정 삭제</p>
-                      <p className="text-sm text-red-500">계정과 모든 데이터가 영구적으로 삭제됩니다</p>
+                      <p className="font-medium">{t('delete_account')}</p>
+                      <p className="text-sm text-red-500">{t('delete_account_description')}</p>
                     </button>
                   </div>
                 </div>
