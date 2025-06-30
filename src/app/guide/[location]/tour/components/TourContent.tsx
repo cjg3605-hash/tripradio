@@ -496,32 +496,6 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
           {tourData.content.overview.narrativeTheme && <p className="mt-2 text-lg text-slate-600">{tourData.content.overview.narrativeTheme}</p>}
         </header>
 
-        {/* 추천 동선 */}
-        // {(patchedSteps?.length > 0 ? patchedSteps : originalSteps).length > 0 && (
-        //   <section className="mb-8">
-        //     <div className="bg-white rounded-xl shadow p-5 mb-4 border border-gray-200">
-        //       <h2 className="text-2xl font-bold text-slate-900 mb-3">{t('route')}</h2>
-        //       <ol className="list-decimal ml-6 space-y-1">
-        //         {(patchedSteps?.length > 0 ? patchedSteps : originalSteps).map((step, idx) => (
-        //           <li key={idx} className="pl-2">
-        //             <span className="font-bold">{step.title}</span>
-        //             {step.location && <span className="text-slate-500"> - {step.location}</span>}
-        //           </li>
-        //         ))}
-        //       </ol>
-        //     </div>
-        //   </section>
-        // )}
-
-        {/* 지도/동선 */}
-        // {(chaptersWithCoords && chaptersWithCoords.length > 0) && (
-        //   <section className="mb-8">
-        //     <MapWithRoute chapters={chaptersWithCoords} />
-        //   </section>
-        // )}
-        // {coordsLoading && <div>지도 좌표 불러오는 중...</div>}
-        // {coordsError && <div>좌표 불러오기 오류: {coordsError}</div>}
-
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left: 실시간 오디오 가이드 */}
           <div className="lg:col-span-2 space-y-6">
