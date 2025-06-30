@@ -548,13 +548,6 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
                   <div className="px-5 pb-6 text-slate-600 leading-relaxed space-y-4">
                     {chapter.realTimeScript.split('\n').map((p, i) => <p key={i}>{p}</p>)}
                   </div>
-                  {/*
-                  {ch.coordinates && (
-                    <div className="text-xs text-slate-400 mt-1">
-                      위치: {ch.coordinates.lat}, {ch.coordinates.lng}
-                    </div>
-                  )}
-                  */}
                 </div>
               ))}
             </div>
