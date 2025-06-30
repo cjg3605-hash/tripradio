@@ -534,8 +534,24 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
               )}
             </div>
           </aside>
-          {/* Left: 실시간 오디오 가이드 */}
+
+          {/* Recommended Route: 관람순서 */}
           <div className="lg:col-span-2 space-y-6 order-2 lg:order-none">
+            <section className="mb-8">
+              <div className="card bg-white rounded-xl shadow p-5 mb-4">
+                <h2 className="text-2xl font-bold text-slate-900 mb-3">{t('route')}</h2>
+                <ol className="list-decimal ml-6 space-y-1">
+                  {tourData.content.route.steps.map((step, idx) => (
+                    <li key={idx}>
+                      <span className="font-bold">{step.title}</span>
+                      {step.location && <> - <span className="text-slate-500">{step.location}</span></>}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </section>
+
+            {/* Real-Time Guide */}
             <h2 className="text-2xl font-bold text-slate-900 border-b pb-2">{t('realTimeGuide')}</h2>
             <div className="space-y-6">
               {(patchedChapters?.length > 0 ? patchedChapters : originalChapters).map((chapter, idx) => (
