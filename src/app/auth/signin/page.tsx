@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { signIn, getSession } from 'next-auth/react';
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -18,28 +18,19 @@ export default function SignInPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
-  const error = searchParams.get('error');
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
+    setErrors({});
     try {
-      const result = await signIn('google', {
-        callbackUrl,
-        redirect: false,
-      });
-
-      if (result?.ok) {
-        const session = await getSession();
-        if (session) {
-          router.push(callbackUrl);
-        }
-      } else if (result?.error) {
-        console.error('구글 로그인 오류:', result.error);
+      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+      if (error) {
         setErrors({ general: '구글 로그인에 실패했습니다. 다시 시도해주세요.' });
+      } else {
+        // 구글 OAuth는 리다이렉트로 처리됨
       }
     } catch (error) {
-      console.error('구글 로그인 처리 중 오류:', error);
-      setErrors({ general: '로그인 처리 중 오류가 발생했습니다.' });
+      setErrors({ general: '구글 로그인 처리 중 오류가 발생했습니다.' });
     } finally {
       setIsLoading(false);
     }
@@ -49,79 +40,45 @@ export default function SignInPage() {
     e.preventDefault();
     setErrors({});
     setIsLoading(true);
-
     try {
       if (authMode === 'signup') {
-        // 회원가입 처리
         if (formData.password !== formData.confirmPassword) {
           setErrors({ confirmPassword: '비밀번호가 일치하지 않습니다.' });
           return;
         }
-
         if (formData.password.length < 6) {
           setErrors({ password: '비밀번호는 최소 6자리 이상이어야 합니다.' });
           return;
         }
-
         if (!formData.name.trim()) {
           setErrors({ name: '이름을 입력해주세요.' });
           return;
         }
-
-        // 회원가입 API 호출
-        const response = await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            name: formData.name,
-            password: formData.password,
-          }),
+        // Supabase 회원가입
+        const { error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password
         });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          // 회원가입 성공 후 자동 로그인
-          const result = await signIn('credentials', {
-            email: formData.email,
-            password: formData.password,
-            redirect: false,
-          });
-
-          if (result?.ok) {
-            const session = await getSession();
-            if (session) {
-              router.push(callbackUrl);
-            }
-          } else {
-            setErrors({ general: '회원가입은 완료되었지만 로그인에 실패했습니다. 다시 로그인해주세요.' });
-            setAuthMode('signin');
-          }
+        if (error) {
+          setErrors({ general: error.message || '회원가입에 실패했습니다.' });
         } else {
-          setErrors({ general: data.error || '회원가입에 실패했습니다.' });
+          setErrors({ success: '회원가입이 완료되었습니다! 이메일을 확인해 주세요.' });
+          setAuthMode('signin');
         }
       } else {
-        // 로그인 처리
-        const result = await signIn('credentials', {
+        // Supabase 로그인
+        const { error } = await supabase.auth.signInWithPassword({
           email: formData.email,
-          password: formData.password,
-          redirect: false,
+          password: formData.password
         });
-
-        if (result?.ok) {
-          const session = await getSession();
-          if (session) {
-            router.push(callbackUrl);
-          }
+        if (error) {
+          setErrors({ general: error.message || '로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.' });
         } else {
-          setErrors({ general: result?.error || '로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.' });
+          // 로그인 성공 시 홈으로 이동
+          router.push(callbackUrl);
         }
       }
     } catch (error) {
-      console.error('인증 처리 오류:', error);
       setErrors({ general: '인증 처리 중 오류가 발생했습니다.' });
     } finally {
       setIsLoading(false);
@@ -129,24 +86,7 @@ export default function SignInPage() {
   };
 
   const getErrorMessage = (errorCode: string) => {
-    switch (errorCode) {
-      case 'OAuthSignin':
-        return '소셜 로그인 중 오류가 발생했습니다. 다시 시도해주세요.';
-      case 'OAuthCallback':
-        return '로그인 콜백 처리 중 오류가 발생했습니다.';
-      case 'OAuthCreateAccount':
-        return '계정 생성 중 오류가 발생했습니다. 다시 시도해주세요.';
-      case 'EmailCreateAccount':
-        return '이메일 계정 생성 중 오류가 발생했습니다.';
-      case 'Callback':
-        return '로그인 처리 중 오류가 발생했습니다.';
-      case 'AccessDenied':
-        return '로그인이 거부되었습니다. 다시 시도해주세요.';
-      case 'CredentialsSignin':
-        return '이메일 또는 비밀번호가 올바르지 않습니다.';
-      default:
-        return '알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
-    }
+    return '알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
   };
 
   return (
@@ -199,7 +139,7 @@ export default function SignInPage() {
         </div>
 
         {/* 오류/성공 메시지 */}
-        {(error || errors.general || errors.success) && (
+        {(errors.general || errors.success) && (
           <div className={`rounded-lg p-4 ${errors.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
             <div className="flex items-start">
               <div className="flex-shrink-0">
@@ -213,7 +153,7 @@ export default function SignInPage() {
               </div>
               <div className="ml-3">
                 <div className={`text-sm ${errors.success ? 'text-green-700' : 'text-red-700'}`}>
-                  <p>{errors.success || errors.general || getErrorMessage(error || '')}</p>
+                  <p>{errors.success || errors.general}</p>
                 </div>
               </div>
             </div>
