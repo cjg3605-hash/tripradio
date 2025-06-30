@@ -235,7 +235,7 @@ export async function POST(req: NextRequest) {
 
     // === 디버깅: normalizeGuideData 호출 ===
     console.log('🔧 POST에서 normalizeGuideData 호출, language:', language);
-    const normalized = normalizeGuideData(guideData, language);
+    const normalized = normalizeGuideData(guideData.content || guideData, language);
     // 필수 필드 체크
     if (!normalized.overview || !normalized.route || !normalized.realTimeGuide) {
       console.error('❌ 필수 필드 누락:', {
