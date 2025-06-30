@@ -14,12 +14,55 @@ import { useSession } from 'next-auth/react';
 // GuideData 구조 보정 유틸
 const extractGuideData = (raw: any) => {
   if (!raw) return null;
-  if (raw.content && raw.content.overview && raw.content.route && raw.content.realTimeGuide) return raw.content;
-  if (raw.content && raw.content.content) return raw.content.content;
-  if (raw.data && raw.data.content && raw.data.content.overview) return raw.data.content;
-  if (raw.data && raw.data.content && raw.data.content.content) return raw.data.content.content;
-  if (raw.data && raw.data.overview) return raw.data;
-  if (raw.overview && raw.route && raw.realTimeGuide) return raw;
+  // 실시간가이드 키 유연하게 매핑
+  const realTimeGuide =
+    raw.realTimeGuide ||
+    raw.RealTimeGuide ||
+    raw['실시간가이드'] ||
+    raw['realTimeGuide'] ||
+    raw['RealTimeGuide'] ||
+    null;
+
+  if (raw.content && raw.content.overview && raw.content.route && (raw.content.realTimeGuide || raw.content.RealTimeGuide || raw.content['실시간가이드'])) {
+    return {
+      ...raw.content,
+      realTimeGuide: realTimeGuide || raw.content.realTimeGuide
+    };
+  }
+  if (raw.content && raw.content.content) {
+    const c = raw.content.content;
+    return {
+      ...c,
+      realTimeGuide: c.realTimeGuide || c.RealTimeGuide || c['실시간가이드'] || realTimeGuide
+    };
+  }
+  if (raw.data && raw.data.content && raw.data.content.overview) {
+    const c = raw.data.content;
+    return {
+      ...c,
+      realTimeGuide: c.realTimeGuide || c.RealTimeGuide || c['실시간가이드'] || realTimeGuide
+    };
+  }
+  if (raw.data && raw.data.content && raw.data.content.content) {
+    const c = raw.data.content.content;
+    return {
+      ...c,
+      realTimeGuide: c.realTimeGuide || c.RealTimeGuide || c['실시간가이드'] || realTimeGuide
+    };
+  }
+  if (raw.data && raw.data.overview) {
+    const c = raw.data;
+    return {
+      ...c,
+      realTimeGuide: c.realTimeGuide || c.RealTimeGuide || c['실시간가이드'] || realTimeGuide
+    };
+  }
+  if (raw.overview && raw.route && (raw.realTimeGuide || raw.RealTimeGuide || raw['실시간가이드'])) {
+    return {
+      ...raw,
+      realTimeGuide: realTimeGuide || raw.realTimeGuide
+    };
+  }
   return null;
 };
 
@@ -136,9 +179,14 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
 
   // 데이터 접근 경로를 유연하게 처리 - API 응답 구조에 맞게 개선
   const content = guideData;
-
+  // 실시간가이드 키 유연하게 접근
+  const realTimeGuide =
+    content?.realTimeGuide ||
+    content?.RealTimeGuide ||
+    content?.['실시간가이드'] ||
+    null;
   // 필수 필드 체크
-  const isContentValid = content && content.overview && content.route && content.realTimeGuide;
+  const isContentValid = content && content.overview && content.route && realTimeGuide;
 
   if (isLoading) {
     return (
@@ -246,18 +294,18 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         )}
 
         {/* 🗺️ 지도/동선: 추천 동선과 실시간 오디오 가이드 사이 */}
-        {content?.realTimeGuide?.chapters?.length > 0 && (
+        {realTimeGuide?.chapters?.length > 0 && (
           <section className="mb-8">
-            <MapWithRoute chapters={content.realTimeGuide.chapters} />
+            <MapWithRoute chapters={realTimeGuide.chapters} />
           </section>
         )}
 
         {/* 실시간 오디오 가이드 */}
-        {content?.realTimeGuide?.chapters?.length > 0 && (
+        {realTimeGuide?.chapters?.length > 0 && (
           <section>
             <h2 className="text-2xl font-bold mb-2">실시간 오디오 가이드</h2>
             <ol className="space-y-4">
-              {content.realTimeGuide.chapters.map((ch, idx) => (
+              {realTimeGuide.chapters.map((ch, idx) => (
                 <li key={idx} className="card bg-white rounded-xl shadow p-5 mb-4">
                   <div className="font-bold">{ch.title}</div>
                   <div className="text-slate-600 whitespace-pre-line">{ch.realTimeScript}</div>
