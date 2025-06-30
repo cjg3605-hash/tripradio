@@ -2,7 +2,14 @@ import { supabase } from './supabaseClient';
 
 // Supabase에 히스토리 저장
 export async function saveGuideHistoryToSupabase(user, locationName, guideData, userProfile) {
-  if (!user?.id) return;
+  // 디버깅: user_id, session.user.id, supabase.auth.getUser() UID 모두 출력
+  console.log('INSERT user_id (session.user.id):', user?.id);
+  try {
+    const { data: { user: supaUser } } = await supabase.auth.getUser();
+    console.log('supabase.auth.getUser() UID:', supaUser?.id);
+  } catch (e) {
+    console.warn('supabase.auth.getUser() error:', e);
+  }
   const { error } = await supabase
     .from('guide_history')
     .insert([{
