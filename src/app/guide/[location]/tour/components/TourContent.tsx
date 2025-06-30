@@ -105,7 +105,7 @@ const normalizePOI = (titleOrLocation: string) => {
   return null;
 };
 
-function useChaptersWithCoordinates(chapters, language) {
+function useChaptersWithCoordinates(chapters, language, mainLocationName, mainLocationNameEn) {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -121,10 +121,16 @@ function useChaptersWithCoordinates(chapters, language) {
     Promise.all(
       chapters.map(async (ch) => {
         try {
+          // 영어/현지어 명칭 우선 사용
+          let queryName = mainLocationNameEn || mainLocationName;
+          const sub = ch.title || ch.location;
+          if (sub && sub.length > 2 && !sub.includes(queryName)) {
+            queryName = `${queryName} ${sub}`;
+          }
           const res = await fetch('/api/locations/search/coordinates', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ locationName: ch.title || ch.location, language }),
+            body: JSON.stringify({ locationName: queryName, language }),
           });
           const result = await res.json();
           if (result.success && result.coordinates) {
@@ -137,7 +143,7 @@ function useChaptersWithCoordinates(chapters, language) {
       .then(setData)
       .catch(e => setError(e.message))
       .finally(() => setIsLoading(false));
-  }, [chapters, language]);
+  }, [chapters, language, mainLocationName, mainLocationNameEn]);
 
   return { data, isLoading, error };
 }
@@ -362,7 +368,12 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
 
   const chapters = tourData?.content?.realTimeGuide?.chapters || [];
   const { currentLanguage } = useLanguage();
-  const { data: chaptersWithCoords, isLoading: coordsLoading, error: coordsError } = useChaptersWithCoordinates(chapters, currentLanguage);
+  // 예시: 영어/현지어 공식명칭 하드코딩 (실제 서비스에서는 DB/AI에서 받아올 수 있음)
+  let locationNameEn = '';
+  if (locationName.includes('알카사르')) locationNameEn = 'Real Alcázar de Sevilla';
+  if (locationName.includes('대성당')) locationNameEn = 'Seville Cathedral';
+  // 필요시 더 추가
+  const { data: chaptersWithCoords, isLoading: coordsLoading, error: coordsError } = useChaptersWithCoordinates(chapters, currentLanguage, locationName, locationNameEn);
 
   if (isLoading) {
     return (
