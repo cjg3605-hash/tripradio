@@ -102,10 +102,18 @@ export function createAutonomousGuidePrompt(
   const currentLang = languageHeaders[language as keyof typeof languageHeaders] || languageHeaders.ko;
 
   // 언어 코드에 따라 키 선택, 기본값은 영어
-  const realTimeGuideKey = REALTIME_GUIDE_KEYS[language] || 'RealTimeGuide';
+  // const realTimeGuideKey = REALTIME_GUIDE_KEYS[language] || 'RealTimeGuide';
+
+  // === [중요] 실시간 오디오 가이드 키 강제 규칙 ===
+  // 반드시 모든 언어에서 실시간 오디오 가이드 데이터는 'realTimeGuide' (소문자, camelCase)라는 키로만 반환하세요.
+  // 번역하거나 대소문자를 바꾸지 말고, 오직 'realTimeGuide'로만 반환해야 합니다.
 
   return `
 # 최종 목표: 단일 호출 및 완전 자동화로 완성되는 '실패 방지' AI 오디오 가이드 생성
+
+# [중요] 실시간 오디오 가이드 키 강제 규칙 (반드시 준수)
+- 반드시 모든 언어에서 실시간 오디오 가이드 데이터는 'realTimeGuide' (소문자, camelCase)라는 키로만 반환하세요.
+- 번역하거나 대소문자를 바꾸지 말고, 오직 'realTimeGuide'로만 반환해야 합니다.
 
 # overview 객체 생성 규칙 (반드시 준수)
 - overview에는 반드시 visitInfo 필드를 포함하세요.
@@ -376,6 +384,8 @@ ${language === 'ko' ? `**한국어 웰컴 톤**: "안녕하세요! 오늘 [명�
 ${currentLang.outputInstructions}
 
 **⚠️ JSON 형식 주의사항 (절대 준수):**
+- **실시간 오디오 가이드 데이터는 반드시 'realTimeGuide' (소문자, camelCase)라는 키로만 반환하세요.**
+- 번역하거나 대소문자를 바꾸지 말고, 오직 'realTimeGuide'로만 반환해야 합니다.
 - **단어 연속성**: "세비야대성당" (연속) ✅, "세비 야 대성당" (분할) ❌  
 - **문자열 완전성**: 모든 한글 단어는 공백 없이 완전한 형태로 작성
 - **이스케이프**: 줄바꿈은 \\n, 따옴표는 \\\" 사용
@@ -412,11 +422,11 @@ ${currentLang.outputInstructions}
         }
       ]
     },
-    "${realTimeGuideKey}": {
+    "realTimeGuide": {
       "startingLocation": {
         "name": "카사 바트요 입구 (Passeig de Gràcia, 43)",
         "address": "Passeig de Gràcia, 43, 08007 Barcelona, 스페인",
-        "googleMapsUrl": "https://www.google.com/maps/place/Casa+Batll%C3%B3/@41.391632,2.164998,17z/",
+        "googleMapsUrl": "https://www.google.com/maps/search/[영어 명소명]",
         "coordinates": { "lat": 41.391632, "lng": 2.164998 }
       },
       "chapters": [
