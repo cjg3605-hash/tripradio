@@ -23,13 +23,25 @@ const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = {
 };
 
 // 언어별 실시간 가이드 키 매핑
-const REALTIME_GUIDE_KEYS: Record<string, string> = {
+export const REALTIME_GUIDE_KEYS: Record<string, string> = {
   ko: '실시간가이드',
   en: 'RealTimeGuide',
   ja: 'リアルタイムガイド',
   zh: '实时导览',
   es: 'GuíaEnTiempoReal'
 };
+
+// 언어별 TTS 언어코드 반환 함수
+export function getTTSLanguage(language: string): string {
+  const LANGUAGE_CONFIGS: Record<string, { ttsLang: string }> = {
+    ko: { ttsLang: 'ko-KR' },
+    en: { ttsLang: 'en-US' },
+    ja: { ttsLang: 'ja-JP' },
+    zh: { ttsLang: 'zh-CN' },
+    es: { ttsLang: 'es-ES' }
+  };
+  return LANGUAGE_CONFIGS[language?.slice(0,2)]?.ttsLang || 'en-US';
+}
 
 /**
  * 다국어 지원 자율 리서치 기반 AI 오디오 가이드 생성 프롬프트
