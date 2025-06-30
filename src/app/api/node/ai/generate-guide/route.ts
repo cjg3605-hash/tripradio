@@ -86,7 +86,16 @@ function parseJsonResponse(jsonString: string) {
 
 // GuideData 구조 normalize 함수 - 포괄적 필드명 매핑
 function normalizeGuideData(raw: any, language?: string) {
-  console.log('🔧 normalizeGuideData 시작 - 원본 키들:', Object.keys(raw || {}));
+  console.log('�� normalizeGuideData input:', JSON.stringify(raw, null, 2));
+  const realTimeGuideKey = REALTIME_GUIDE_KEYS[language?.slice(0,2)] || 'RealTimeGuide';
+  console.log('🔧 realTimeGuideKey:', realTimeGuideKey);
+  let realTimeGuide = raw[realTimeGuideKey] ||
+    raw.realTimeGuide || raw.RealTimeGuide || raw.REALTIMEGUIDE ||
+    raw.realtimeGuide || raw.realtime_guide || raw.real_time_guide ||
+    raw.audioGuide || raw.AudioGuide || raw.audio_guide ||
+    raw.실시간가이드 || raw.오디오가이드 || raw.chapters || 
+    null;
+  console.log('🔧 realTimeGuide 추출 결과:', !!realTimeGuide, realTimeGuide);
   
   // overview - 다양한 케이스 지원
   const overview = raw.overview || raw.Overview || raw.OVERVIEW || 
@@ -99,16 +108,6 @@ function normalizeGuideData(raw: any, language?: string) {
                 raw.경로 || raw.동선 || raw.navigation || raw.Navigation ||
                 { steps: raw.steps || raw.Steps || [] };
   console.log('🔧 route 매핑 결과:', !!route);
-  
-  // realTimeGuide - 언어별 동적 키 우선
-  const realTimeGuideKey = REALTIME_GUIDE_KEYS[language?.slice(0,2)] || 'RealTimeGuide';
-  let realTimeGuide = raw[realTimeGuideKey] ||
-                      raw.realTimeGuide || raw.RealTimeGuide || raw.REALTIMEGUIDE ||
-                      raw.realtimeGuide || raw.realtime_guide || raw.real_time_guide ||
-                      raw.audioGuide || raw.AudioGuide || raw.audio_guide ||
-                      raw.실시간가이드 || raw.오디오가이드 || raw.chapters || 
-                      null;
-  console.log('🔧 realTimeGuide 매핑 결과:', !!realTimeGuide);
   
   // chapters가 최상위에 있는 경우 realTimeGuide로 감싸기
   if (!realTimeGuide && Array.isArray(raw.chapters)) {
@@ -128,11 +127,7 @@ function normalizeGuideData(raw: any, language?: string) {
     realTimeGuide
   };
   
-  console.log('🔧 normalize 결과:');
-  console.log('  - overview:', !!result.overview);
-  console.log('  - route:', !!result.route); 
-  console.log('  - realTimeGuide:', !!result.realTimeGuide);
-  
+  console.log('🔧 normalizeGuideData result:', JSON.stringify(result, null, 2));
   return result;
 }
 
@@ -236,6 +231,27 @@ export async function POST(req: NextRequest) {
       guideData = JSON.parse(jsonString);
     } catch (parseError) {
       return NextResponse.json({ success: false, error: 'AI 응답 파싱 실패: ' + (parseError instanceof Error ? parseError.message : '알 수 없는 오류') }, { status: 500 });
+    }
+
+    // === 디버깅: normalizeGuideData 호출 ===
+    console.log('🔧 POST에서 normalizeGuideData 호출, language:', language);
+    const normalized = normalizeGuideData(guideData, language);
+    // 필수 필드 체크
+    if (!normalized.overview || !normalized.route || !normalized.realTimeGuide) {
+      console.error('❌ 필수 필드 누락:', {
+        overview: !!normalized.overview,
+        route: !!normalized.route,
+        realTimeGuide: !!normalized.realTimeGuide
+      });
+      return NextResponse.json({
+        success: false,
+        error: '필수 필드 누락: ' + JSON.stringify({
+          overview: !!normalized.overview,
+          route: !!normalized.route,
+          realTimeGuide: !!normalized.realTimeGuide
+        }),
+        data: normalized
+      }, { status: 500 });
     }
 
     // === Supabase guides 테이블에 저장 ===
