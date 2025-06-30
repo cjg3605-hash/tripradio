@@ -381,7 +381,7 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
   if (locationName.includes('알카사르')) locationNameEn = 'Real Alcázar de Sevilla';
   if (locationName.includes('대성당')) locationNameEn = 'Seville Cathedral';
   // 필요시 더 추가
-  const { data: chaptersWithCoords, isLoading: coordsLoading, error: coordsError } = useChaptersWithCoordinates(chapters, currentLanguage, locationName, locationNameEn);
+  // const { data: chaptersWithCoords, isLoading: coordsLoading, error: coordsError } = useChaptersWithCoordinates(chapters, currentLanguage, locationName, locationNameEn);
 
   if (isLoading) {
     return (
@@ -497,30 +497,30 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
         </header>
 
         {/* 추천 동선 */}
-        {(patchedSteps?.length > 0 ? patchedSteps : originalSteps).length > 0 && (
-          <section className="mb-8">
-            <div className="bg-white rounded-xl shadow p-5 mb-4 border border-gray-200">
-              <h2 className="text-2xl font-bold text-slate-900 mb-3">{t('route')}</h2>
-              <ol className="list-decimal ml-6 space-y-1">
-                {(patchedSteps?.length > 0 ? patchedSteps : originalSteps).map((step, idx) => (
-                  <li key={idx} className="pl-2">
-                    <span className="font-bold">{step.title}</span>
-                    {step.location && <span className="text-slate-500"> - {step.location}</span>}
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </section>
-        )}
+        // {(patchedSteps?.length > 0 ? patchedSteps : originalSteps).length > 0 && (
+        //   <section className="mb-8">
+        //     <div className="bg-white rounded-xl shadow p-5 mb-4 border border-gray-200">
+        //       <h2 className="text-2xl font-bold text-slate-900 mb-3">{t('route')}</h2>
+        //       <ol className="list-decimal ml-6 space-y-1">
+        //         {(patchedSteps?.length > 0 ? patchedSteps : originalSteps).map((step, idx) => (
+        //           <li key={idx} className="pl-2">
+        //             <span className="font-bold">{step.title}</span>
+        //             {step.location && <span className="text-slate-500"> - {step.location}</span>}
+        //           </li>
+        //         ))}
+        //       </ol>
+        //     </div>
+        //   </section>
+        // )}
 
         {/* 지도/동선 */}
-        {(chaptersWithCoords && chaptersWithCoords.length > 0) && (
-          <section className="mb-8">
-            <MapWithRoute chapters={chaptersWithCoords} />
-          </section>
-        )}
-        {coordsLoading && <div>지도 좌표 불러오는 중...</div>}
-        {coordsError && <div>좌표 불러오기 오류: {coordsError}</div>}
+        // {(chaptersWithCoords && chaptersWithCoords.length > 0) && (
+        //   <section className="mb-8">
+        //     <MapWithRoute chapters={chaptersWithCoords} />
+        //   </section>
+        // )}
+        // {coordsLoading && <div>지도 좌표 불러오는 중...</div>}
+        // {coordsError && <div>좌표 불러오기 오류: {coordsError}</div>}
 
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left: 실시간 오디오 가이드 */}
@@ -549,7 +549,11 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
                     {chapter.realTimeScript.split('\n').map((p, i) => <p key={i}>{p}</p>)}
                   </div>
                   {chapter.coordinates && (
-                    <div className="px-5 pb-3 text-xs text-slate-400">{t('location', '위치')}: {chapter.coordinates.lat}, {chapter.coordinates.lng}</div>
+                    // {ch.coordinates && (
+                    //   <div className="text-xs text-slate-400 mt-1">
+                    //     위치: {ch.coordinates.lat}, {ch.coordinates.lng}
+                    //   </div>
+                    // )}
                   )}
                 </div>
               ))}

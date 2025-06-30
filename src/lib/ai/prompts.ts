@@ -107,6 +107,14 @@ export function createAutonomousGuidePrompt(
   return `
 # 최종 목표: 단일 호출 및 완전 자동화로 완성되는 '실패 방지' AI 오디오 가이드 생성
 
+# overview 객체 생성 규칙 (반드시 준수)
+- overview에는 반드시 visitInfo 필드를 포함하세요.
+- visitInfo는 다음 정보를 포함합니다:
+  - duration: 전체 투어 예상 소요 시간(분 단위, 예: 90)
+  - difficulty: 투어 난이도(예: 쉬움, 보통, 어려움)
+  - season: 추천 계절(예: 봄, 여름, 가을, 겨울, 연중무휴)
+- 공식 정보가 없으면 AI가 추정해서 작성하세요.
+
 ## 좌표/동선 품질 규칙 (반드시 준수)
 - 반드시 구글 플레이스 API, OpenStreetMap, TripAdvisor, Wikidata 등 공식 데이터셋에서 "${locationName}"의 정확한 위도/경도, 입구/출구, 주요 포인트 좌표를 추출하세요.
 - 공식 데이터와 AI가 추출한 좌표가 20m 이상 차이날 경우, 공식 데이터를 우선 사용하세요.
@@ -381,7 +389,12 @@ ${currentLang.outputInstructions}
     "overview": {
       "title": "세비야 대성당",
       "narrativeTheme": "고딕 양식의 정수와 이슬람 문화의 흔적이 어우러진 역사적 건축물",
-      "keyFacts": ["세계 최대 규모의 고딕 대성당", "콜럼버스의 묘 소재지"]
+      "keyFacts": ["세계 최대 규모의 고딕 대성당", "콜럼버스의 묘 소재지"],
+      "visitInfo": {
+        "duration": 90,
+        "difficulty": "보통",
+        "season": "봄, 가을"
+      }
     },
     "route": {
       "steps": [

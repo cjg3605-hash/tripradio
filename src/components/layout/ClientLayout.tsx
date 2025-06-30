@@ -9,12 +9,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
-  // /guide로 시작하는 모든 경로에서 헤더 숨김
-  const hideHeader = pathname.startsWith('/guide');
-
   return (
     <>
-      {!hideHeader && <Header onSidebarToggle={() => setIsHistoryOpen(true)} />}
+      <Header onSidebarToggle={() => setIsHistoryOpen(true)} />
       <HistorySidebar isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
       {children}
     </>
