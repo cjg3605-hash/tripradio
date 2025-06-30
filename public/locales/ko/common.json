@@ -49,5 +49,6 @@
   "invalid_date": "날짜 정보 없음",
   "login": "로그인",
   "logout": "로그아웃",
-  "mypage": "마이페이지"
+  "mypage": "마이페이지",
+  "minutes": "분"
 } 

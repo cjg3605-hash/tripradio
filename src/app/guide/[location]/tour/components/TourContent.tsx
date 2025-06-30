@@ -497,8 +497,45 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
         </header>
 
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Overview & Key Facts: Always at the top */}
+          <aside className="lg:col-span-1 space-y-6 order-1 lg:order-none">
+            <div className="bg-white rounded-xl shadow card border border-gray-200">
+              <div className="p-5">
+                <h3 className="text-xl font-bold text-slate-900">{t('overview')}</h3>
+              </div>
+              <div className="px-5 pb-5 border-b border-gray-200">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <span>{t('duration')}:</span>
+                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.duration ? `${tourData.content.overview.visitInfo.duration}${t('minutes')}` : t('no_info')}</strong>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <span>{t('difficulty')}:</span>
+                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.difficulty || t('no_info')}</strong>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <span>{t('season')}:</span>
+                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.season || t('no_info')}</strong>
+                  </div>
+                </div>
+              </div>
+              {tourData.content.overview.keyFacts && tourData.content.overview.keyFacts.length > 0 && (
+                <div className="p-5">
+                  <h4 className="font-semibold text-slate-800 mb-3">{t('keyFacts')}</h4>
+                  <ul className="space-y-2 list-none">
+                    {tourData.content.overview.keyFacts.map((fact, i) => (
+                      <li key={i} className="flex items-start">
+                        <span className="w-2 h-2 bg-sky-500 rounded-full mt-2 mr-2 flex-shrink-0" />
+                        <span className="text-slate-600 text-sm">{fact}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </aside>
           {/* Left: 실시간 오디오 가이드 */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 order-2 lg:order-none">
             <h2 className="text-2xl font-bold text-slate-900 border-b pb-2">{t('realTimeGuide')}</h2>
             <div className="space-y-6">
               {(patchedChapters?.length > 0 ? patchedChapters : originalChapters).map((chapter, idx) => (
@@ -526,44 +563,6 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
               ))}
             </div>
           </div>
-
-          {/* Right: 투어 개요/핵심 정보 */}
-          <aside className="lg:col-span-1 space-y-6">
-            <div className="bg-white rounded-xl shadow card border border-gray-200">
-              <div className="p-5">
-                <h3 className="text-xl font-bold text-slate-900">{t('overview')}</h3>
-              </div>
-              <div className="px-5 pb-5 border-b border-gray-200">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <span>{t('duration')}:</span>
-                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.duration ? `${tourData.content.overview.visitInfo.duration}${t('minutes', '분')}` : t('no_info', '정보 없음')}</strong>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <span>{t('difficulty')}:</span>
-                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.difficulty || t('no_info', '정보 없음')}</strong>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <span>{t('season')}:</span>
-                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.season || t('no_info', '정보 없음')}</strong>
-                  </div>
-                </div>
-              </div>
-              {tourData.content.overview.keyFacts && tourData.content.overview.keyFacts.length > 0 && (
-                <div className="p-5">
-                  <h4 className="font-semibold text-slate-800 mb-3">{t('keyFacts')}</h4>
-                  <ul className="space-y-2 list-none">
-                    {tourData.content.overview.keyFacts.map((fact, i) => (
-                      <li key={i} className="flex items-start">
-                        <span className="w-2 h-2 bg-sky-500 rounded-full mt-2 mr-2 flex-shrink-0" />
-                        <span className="text-slate-600 text-sm">{fact}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </aside>
         </main>
       </div>
     </div>
