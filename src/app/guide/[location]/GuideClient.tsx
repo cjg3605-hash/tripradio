@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Play, Pause, MapPin, Clock, Star, Calendar, Volume2 } from 'lucide-react';
 import { GuideData } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getTTSLanguage } from '@/lib/ai/prompts';
+import { getTTSLanguage, REALTIME_GUIDE_KEYS } from '@/lib/ai/prompts';
 import MapWithRoute from '@/components/guide/MapWithRoute';
 import TourContent from './tour/components/TourContent';
 import { guideHistory } from '@/lib/cache/localStorage';
@@ -12,55 +12,54 @@ import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
 
 // GuideData 구조 보정 유틸
-const extractGuideData = (raw: any) => {
+const extractGuideData = (raw: any, language: string) => {
   if (!raw) return null;
-  // 실시간가이드 키 유연하게 매핑
+  const realTimeGuideKey = REALTIME_GUIDE_KEYS[language?.slice(0,2)] || 'RealTimeGuide';
   const realTimeGuide =
+    raw[realTimeGuideKey] ||
     raw.realTimeGuide ||
     raw.RealTimeGuide ||
     raw['실시간가이드'] ||
-    raw['realTimeGuide'] ||
-    raw['RealTimeGuide'] ||
     null;
 
-  if (raw.content && raw.content.overview && raw.content.route && (raw.content.realTimeGuide || raw.content.RealTimeGuide || raw.content['실시간가이드'])) {
+  if (raw.content && raw.content.overview && raw.content.route && (raw.content[realTimeGuideKey] || raw.content.realTimeGuide || raw.content.RealTimeGuide || raw.content['실시간가이드'])) {
     return {
       ...raw.content,
-      realTimeGuide: realTimeGuide || raw.content.realTimeGuide
+      realTimeGuide: realTimeGuide || raw.content[realTimeGuideKey] || raw.content.realTimeGuide
     };
   }
   if (raw.content && raw.content.content) {
     const c = raw.content.content;
     return {
       ...c,
-      realTimeGuide: c.realTimeGuide || c.RealTimeGuide || c['실시간가이드'] || realTimeGuide
+      realTimeGuide: c[realTimeGuideKey] || c.realTimeGuide || c.RealTimeGuide || c['실시간가이드'] || realTimeGuide
     };
   }
   if (raw.data && raw.data.content && raw.data.content.overview) {
     const c = raw.data.content;
     return {
       ...c,
-      realTimeGuide: c.realTimeGuide || c.RealTimeGuide || c['실시간가이드'] || realTimeGuide
+      realTimeGuide: c[realTimeGuideKey] || c.realTimeGuide || c.RealTimeGuide || c['실시간가이드'] || realTimeGuide
     };
   }
   if (raw.data && raw.data.content && raw.data.content.content) {
     const c = raw.data.content.content;
     return {
       ...c,
-      realTimeGuide: c.realTimeGuide || c.RealTimeGuide || c['실시간가이드'] || realTimeGuide
+      realTimeGuide: c[realTimeGuideKey] || c.realTimeGuide || c.RealTimeGuide || c['실시간가이드'] || realTimeGuide
     };
   }
   if (raw.data && raw.data.overview) {
     const c = raw.data;
     return {
       ...c,
-      realTimeGuide: c.realTimeGuide || c.RealTimeGuide || c['실시간가이드'] || realTimeGuide
+      realTimeGuide: c[realTimeGuideKey] || c.realTimeGuide || c.RealTimeGuide || c['실시간가이드'] || realTimeGuide
     };
   }
-  if (raw.overview && raw.route && (raw.realTimeGuide || raw.RealTimeGuide || raw['실시간가이드'])) {
+  if (raw.overview && raw.route && (raw[realTimeGuideKey] || raw.realTimeGuide || raw.RealTimeGuide || raw['실시간가이드'])) {
     return {
       ...raw,
-      realTimeGuide: realTimeGuide || raw.realTimeGuide
+      realTimeGuide: realTimeGuide || raw[realTimeGuideKey] || raw.realTimeGuide
     };
   }
   return null;
@@ -72,7 +71,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
   const { data: session } = useSession();
-  const [guideData, setGuideData] = useState<GuideData | null>(extractGuideData(initialGuide) || null);
+  const [guideData, setGuideData] = useState<GuideData | null>(extractGuideData(initialGuide, currentLanguage) || null);
   const [isLoading, setIsLoading] = useState(!initialGuide);
   const [error, setError] = useState<string | null>(null);
   const [loadingMessage, setLoadingMessage] = useState('로딩 중...');
@@ -147,7 +146,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
       .then(res => res.json())
       .then(result => {
         console.log('API result:', result);
-        const extracted = extractGuideData(result.data);
+        const extracted = extractGuideData(result.data, currentLanguage);
         if (result.success && extracted) {
           setGuideData(extracted);
           if (session?.user?.id) {
@@ -179,12 +178,8 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
 
   // 데이터 접근 경로를 유연하게 처리 - API 응답 구조에 맞게 개선
   const content = guideData;
-  // 실시간가이드 키 유연하게 접근
-  const realTimeGuide =
-    content?.realTimeGuide ||
-    content?.RealTimeGuide ||
-    content?.['실시간가이드'] ||
-    null;
+  const realTimeGuideKey = REALTIME_GUIDE_KEYS[currentLanguage?.slice(0,2)] || 'RealTimeGuide';
+  const realTimeGuide = content?.[realTimeGuideKey] || content?.realTimeGuide || content?.RealTimeGuide || content?.['실시간가이드'] || null;
   // 필수 필드 체크
   const isContentValid = content && content.overview && content.route && realTimeGuide;
 

@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { createAutonomousGuidePrompt, createSimpleTestPrompt } from '@/lib/ai/prompts';
+import { createAutonomousGuidePrompt, createSimpleTestPrompt, REALTIME_GUIDE_KEYS } from '@/lib/ai/prompts';
 import authOptions from '@/lib/auth';
 import { getOrCreateTTSAndUrl } from '@/lib/tts-gcs';
 import { supabase } from '@/lib/supabaseClient';
@@ -85,7 +85,7 @@ function parseJsonResponse(jsonString: string) {
 }
 
 // GuideData 구조 normalize 함수 - 포괄적 필드명 매핑
-function normalizeGuideData(raw: any) {
+function normalizeGuideData(raw: any, language?: string) {
   console.log('🔧 normalizeGuideData 시작 - 원본 키들:', Object.keys(raw || {}));
   
   // overview - 다양한 케이스 지원
@@ -100,8 +100,10 @@ function normalizeGuideData(raw: any) {
                 { steps: raw.steps || raw.Steps || [] };
   console.log('🔧 route 매핑 결과:', !!route);
   
-  // realTimeGuide - 다양한 케이스 지원
-  let realTimeGuide = raw.realTimeGuide || raw.RealTimeGuide || raw.REALTIMEGUIDE ||
+  // realTimeGuide - 언어별 동적 키 우선
+  const realTimeGuideKey = REALTIME_GUIDE_KEYS[language?.slice(0,2)] || 'RealTimeGuide';
+  let realTimeGuide = raw[realTimeGuideKey] ||
+                      raw.realTimeGuide || raw.RealTimeGuide || raw.REALTIMEGUIDE ||
                       raw.realtimeGuide || raw.realtime_guide || raw.real_time_guide ||
                       raw.audioGuide || raw.AudioGuide || raw.audio_guide ||
                       raw.실시간가이드 || raw.오디오가이드 || raw.chapters || 

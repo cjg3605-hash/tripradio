@@ -10,6 +10,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
+import { REALTIME_GUIDE_KEYS } from '@/lib/ai/prompts';
 
 // 🔥 강력한 디버깅: 컴포넌트 로드 확인
 console.log('🚀 TourContent 컴포넌트 파일 로드됨!');
@@ -366,8 +367,13 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
     speechSynthesis.speak(utterance);
   };
 
-  const chapters = tourData?.content?.realTimeGuide?.chapters || [];
   const { currentLanguage } = useLanguage();
+  // 실시간 가이드 키 동적 추출
+  const realTimeGuideKey = REALTIME_GUIDE_KEYS[currentLanguage?.slice(0,2)] || 'RealTimeGuide';
+  const content = tourData?.content || tourData?.data || tourData;
+  const realTimeGuide = content?.[realTimeGuideKey] || content?.realTimeGuide || content?.RealTimeGuide || content?.['실시간가이드'] || null;
+  const chapters = realTimeGuide?.chapters || [];
+
   // 예시: 영어/현지어 공식명칭 하드코딩 (실제 서비스에서는 DB/AI에서 받아올 수 있음)
   let locationNameEn = '';
   if (locationName.includes('알카사르')) locationNameEn = 'Real Alcázar de Sevilla';
@@ -478,9 +484,6 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
       .replace(/([.!?])$/g, '$1')
       .trim();
   };
-
-  // 데이터 접근 경로를 유연하게 처리 (content, data, tourData 자체)
-  const content = tourData?.content || tourData?.data || tourData;
 
   return (
     <div className="bg-slate-50 text-slate-800 min-h-screen">
