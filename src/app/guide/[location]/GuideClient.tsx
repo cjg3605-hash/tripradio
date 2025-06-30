@@ -151,6 +151,9 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
           setGuideData(extracted);
           if (session?.user?.id) {
             saveGuideHistoryToSupabase(session.user, locationName, extracted, null);
+            if (extracted && extracted.content) {
+              saveGuideHistoryToSupabase(session.user, locationName, extracted.content, null);
+            }
           } else {
             guideHistory.saveGuide(locationName, extracted, null);
           }

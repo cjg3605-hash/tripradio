@@ -226,7 +226,9 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
         setTourData(result.data);
         // === 병행 저장 ===
         if (session?.user?.id) {
-          saveGuideHistoryToSupabase(session.user, locationName, result.data, userProfile);
+          if (result.data && result.data.content) {
+            saveGuideHistoryToSupabase(session.user, locationName, result.data.content, userProfile);
+          }
         } else {
           guideHistory.saveGuide(locationName, result.data, userProfile);
         }
