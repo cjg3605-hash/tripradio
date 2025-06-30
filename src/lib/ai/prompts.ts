@@ -22,6 +22,15 @@ const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = {
   es: { code: 'es', name: 'Español', ttsLang: 'es-ES' }
 };
 
+// 언어별 실시간 가이드 키 매핑
+const REALTIME_GUIDE_KEYS: Record<string, string> = {
+  ko: '실시간가이드',
+  en: 'RealTimeGuide',
+  ja: 'リアルタイムガイド',
+  zh: '实时导览',
+  es: 'GuíaEnTiempoReal'
+};
+
 /**
  * 다국어 지원 자율 리서치 기반 AI 오디오 가이드 생성 프롬프트
  * @param locationName 명소명
@@ -80,8 +89,8 @@ export function createAutonomousGuidePrompt(
 
   const currentLang = languageHeaders[language as keyof typeof languageHeaders] || languageHeaders.ko;
 
-  // 최종 산출물 형식 (Final Output Format)
-  const realTimeGuideKey = language === 'en' ? 'RealTimeGuide' : 'realTimeGuide';
+  // 언어 코드에 따라 키 선택, 기본값은 영어
+  const realTimeGuideKey = REALTIME_GUIDE_KEYS[language] || 'RealTimeGuide';
 
   return `
 # 최종 목표: 단일 호출 및 완전 자동화로 완성되는 '실패 방지' AI 오디오 가이드 생성

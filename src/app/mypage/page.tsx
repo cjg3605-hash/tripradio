@@ -21,6 +21,7 @@ import {
   ArchiveXIcon
 } from 'lucide-react';
 import { guideHistory } from '@/lib/cache/localStorage';
+import { fetchGuideHistoryFromSupabase } from '@/lib/supabaseGuideHistory';
 
 interface FileGuideEntry {
   id: string;
@@ -95,11 +96,30 @@ export default function MyPage() {
     }
   }, [session, status, router]);
 
-  // 가이드 히스토리 조회 (localStorage 기반)
+  // 가이드 히스토리 조회 (Supabase/localStorage 병행)
   useEffect(() => {
-    if (session?.user) {
-      loadHistory();
+    async function loadHistory() {
+      setIsLoading(true);
+      try {
+        if (session?.user?.id) {
+          // 로그인: Supabase에서 불러오기
+          const data = await fetchGuideHistoryFromSupabase(session.user);
+          setHistoryEntries(data || []);
+        } else {
+          // 비로그인: localStorage에서 불러오기
+          const history = guideHistory.getHistory();
+          const sortedHistory = history.sort((a, b) => {
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          });
+          setHistoryEntries(sortedHistory);
+        }
+      } catch (error) {
+        setHistoryEntries([]);
+      } finally {
+        setIsLoading(false);
+      }
     }
+    loadHistory();
   }, [session]);
 
   useEffect(() => {
@@ -111,21 +131,6 @@ export default function MyPage() {
   useEffect(() => {
     setLocalGuides(getAllLocalGuides());
   }, [session]);
-
-  const loadHistory = () => {
-    setIsLoading(true);
-    try {
-      const history = guideHistory.getHistory();
-      const sortedHistory = history.sort((a, b) => {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      });
-      setHistoryEntries(sortedHistory);
-    } catch (error) {
-      setHistoryEntries([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleDeleteHistory = (id: string) => {
     if (!confirm('이 가이드 기록을 삭제하시겠습니까?')) return;

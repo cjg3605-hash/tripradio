@@ -7,6 +7,9 @@ import { getBestOfficialPlace } from '@/lib/ai/officialData';
 import { useTranslation } from 'next-i18next';
 import useSWR from 'swr';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { guideHistory } from '@/lib/cache/localStorage';
+import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
+import { useSession } from 'next-auth/react';
 
 // 🔥 강력한 디버깅: 컴포넌트 로드 확인
 console.log('🚀 TourContent 컴포넌트 파일 로드됨!');
@@ -141,6 +144,7 @@ function useChaptersWithCoordinates(chapters, language) {
 
 export default function TourContent({ locationName, userProfile, initialGuide, offlineData }: TourContentProps) {
   const { t } = useTranslation('guide');
+  const { data: session } = useSession();
   // 🔥 강력한 디버깅: 컴포넌트 시작
   console.log('🎬 TourContent 컴포넌트 렌더링 시작!', { locationName, userProfile });
   
@@ -213,7 +217,13 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
         )
       ) {
         setTourData(result.data);
-        // 2. localStorage에 캐시 저장
+        // === 병행 저장 ===
+        if (session?.user?.id) {
+          saveGuideHistoryToSupabase(session.user, locationName, result.data, userProfile);
+        } else {
+          guideHistory.saveGuide(locationName, result.data, userProfile);
+        }
+        // =================
         try {
           localStorage.setItem(cacheKey, JSON.stringify(result.data));
         } catch (e) {

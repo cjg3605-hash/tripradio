@@ -12,6 +12,8 @@ import {
   History
 } from 'lucide-react';
 import { guideHistory } from '@/lib/cache/localStorage';
+import { fetchGuideHistoryFromSupabase } from '@/lib/supabaseGuideHistory';
+import { useSession } from 'next-auth/react';
 
 interface HistoryEntry {
   fileName: string;
@@ -30,13 +32,21 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
+  const { data: session } = useSession();
 
-  // 히스토리 로드
-  const loadHistory = () => {
+  // 히스토리 로드 (Supabase/localStorage 병행)
+  const loadHistory = async () => {
     setIsLoading(true);
     try {
-      const localHistory = guideHistory.getHistory();
-      setHistory(localHistory);
+      if (session?.user?.id) {
+        // 로그인: Supabase에서 불러오기
+        const data = await fetchGuideHistoryFromSupabase(session.user);
+        setHistory(data || []);
+      } else {
+        // 비로그인: localStorage에서 불러오기
+        const localHistory = guideHistory.getHistory();
+        setHistory(localHistory);
+      }
     } catch (error) {
       setHistory([]);
       console.error('히스토리 로드 실패:', error);
@@ -87,7 +97,7 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
     if (isOpen) {
       loadHistory();
     }
-  }, [isOpen]);
+  }, [isOpen, session]);
 
   // 사이드바 열렸을 때 스크롤 방지
   useEffect(() => {

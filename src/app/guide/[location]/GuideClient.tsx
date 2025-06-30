@@ -7,6 +7,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { getTTSLanguage } from '@/lib/ai/prompts';
 import MapWithRoute from '@/components/guide/MapWithRoute';
 import TourContent from './tour/components/TourContent';
+import { guideHistory } from '@/lib/cache/localStorage';
+import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
+import { useSession } from 'next-auth/react';
 
 // GuideData 구조 보정 유틸
 const extractGuideData = (raw: any) => {
@@ -25,6 +28,7 @@ const normalizeString = (s: string) => decodeURIComponent(s || '').trim().toLowe
 export default function GuideClient({ locationName, initialGuide }: { locationName: string, initialGuide: any }) {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
+  const { data: session } = useSession();
   const [guideData, setGuideData] = useState<GuideData | null>(extractGuideData(initialGuide) || null);
   const [isLoading, setIsLoading] = useState(!initialGuide);
   const [error, setError] = useState<string | null>(null);
@@ -103,6 +107,11 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         const extracted = extractGuideData(result.data);
         if (result.success && extracted) {
           setGuideData(extracted);
+          if (session?.user?.id) {
+            saveGuideHistoryToSupabase(session.user, locationName, extracted, null);
+          } else {
+            guideHistory.saveGuide(locationName, extracted, null);
+          }
           console.log('setGuideData 완료:', extracted);
         } else {
           setError(result.error || '가이드 생성에 실패했습니다.');
