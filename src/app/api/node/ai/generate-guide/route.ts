@@ -224,11 +224,7 @@ export async function POST(req: NextRequest) {
     // 응답 파싱 (코드블록 제거 후 파싱)
     let guideData;
     try {
-      let jsonString = responseText.trim();
-      if (jsonString.startsWith('```')) {
-        jsonString = jsonString.replace(/^```json|^```/i, '').replace(/```$/, '').trim();
-      }
-      guideData = JSON.parse(jsonString);
+      guideData = parseJsonResponse(responseText);
     } catch (parseError) {
       return NextResponse.json({ success: false, error: 'AI 응답 파싱 실패: ' + (parseError instanceof Error ? parseError.message : '알 수 없는 오류') }, { status: 500 });
     }

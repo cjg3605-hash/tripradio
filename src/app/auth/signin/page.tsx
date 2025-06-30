@@ -257,6 +257,7 @@ export default function SignInPage() {
                 }`}
                 placeholder={t('email_placeholder')}
                 required
+                autoComplete="username"
               />
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
             </div>

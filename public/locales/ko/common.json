@@ -34,5 +34,20 @@
     "ja": "日本語",
     "zh": "中文",
     "es": "Español"
-  }
+  },
+  "search_history": "검색 히스토리",
+  "search_history_placeholder": "히스토리 검색...",
+  "loading_history": "히스토리를 불러오는 중...",
+  "no_search_results": "검색 결과가 없습니다",
+  "no_search_history": "아직 검색 히스토리가 없습니다",
+  "search_tip": "명소를 검색해보세요!",
+  "total_guides": "총 {{count}}개의 가이드",
+  "today": "오늘",
+  "yesterday": "어제",
+  "days_ago": "{{count}}일 전",
+  "weeks_ago": "{{count}}주 전",
+  "invalid_date": "날짜 정보 없음",
+  "login": "로그인",
+  "logout": "로그아웃",
+  "mypage": "마이페이지"
 } 

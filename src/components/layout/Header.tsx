@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
+import { useTranslation } from 'next-i18next';
 // Public 폴더의 이미지 경로 (대소문자 주의)
 const logoImage = '/navi.png';
 import { 
@@ -49,6 +50,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const router = useRouter();
+  const { t: commonT } = useTranslation('common');
 
   // 현재 언어 정보 가져오기
   const getCurrentLanguageInfo = () => {
@@ -201,13 +203,13 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                         className="flex items-center w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50" 
                         onClick={() => setIsProfileMenuOpen(false)}
                       >
-                        <User className="w-4 h-4 mr-3" /> 마이페이지
+                        <User className="w-4 h-4 mr-3" /> {commonT('mypage')}
                       </Link>
                       <button 
                         onClick={handleSignOut} 
                         className="flex items-center w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50"
                       >
-                        <LogOut className="w-4 h-4 mr-3" /> 로그아웃
+                        <LogOut className="w-4 h-4 mr-3" /> {commonT('logout')}
                       </button>
                     </div>
                   )}
@@ -218,7 +220,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                   className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                 >
                   <LogIn className="w-4 h-4" />
-                  <span>로그인</span>
+                  <span>{commonT('login')}</span>
                 </button>
               )}
             </div>
@@ -323,13 +325,13 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                 className="flex items-center w-full px-3 py-2 text-left text-gray-700 hover:bg-gray-50 rounded-lg" 
                 onClick={() => setIsProfileMenuOpen(false)}
               >
-                <User className="w-4 h-4 mr-3" /> 마이페이지
+                <User className="w-4 h-4 mr-3" /> {commonT('mypage')}
               </Link>
               <button 
                 onClick={handleSignOut} 
                 className="flex items-center w-full px-3 py-2 text-left text-gray-700 hover:bg-gray-50 rounded-lg"
               >
-                <LogOut className="w-4 h-4 mr-3" /> 로그아웃
+                <LogOut className="w-4 h-4 mr-3" /> {commonT('logout')}
               </button>
             </div>
           </div>

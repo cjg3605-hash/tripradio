@@ -88,6 +88,10 @@ export default function MyPage() {
   const [localGuides, setLocalGuides] = useState<any[]>([]);
   const { t } = useTranslation('common');
 
+  useEffect(() => {
+    console.log('session:', session, 'status:', status);
+  }, [session, status]);
+
   // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
   useEffect(() => {
     if (status === 'loading') return;
@@ -135,27 +139,27 @@ export default function MyPage() {
   }, [session]);
 
   const handleDeleteHistory = (id: string) => {
-    if (!confirm('이 가이드 기록을 삭제하시겠습니까?')) return;
+    if (!confirm(t('delete_history_confirmation'))) return;
     try {
       guideHistory.deleteHistory(id);
       setHistoryEntries(prev => prev.filter(h => h.id !== id));
     } catch (error) {
-      alert('삭제 중 오류가 발생했습니다.');
+      alert(t('delete_history_error'));
     }
   };
 
   const handleClearAllHistory = () => {
-    if (!confirm('모든 가이드 히스토리를 삭제하시겠습니까?')) return;
+    if (!confirm(t('clear_all_history_confirmation'))) return;
     try {
       guideHistory.clearHistory();
       setHistoryEntries([]);
     } catch (error) {
-      alert('삭제 중 오류가 발생했습니다.');
+      alert(t('clear_all_history_error'));
     }
   };
 
   const handleLogout = async () => {
-    if (confirm('로그아웃 하시겠습니까?')) {
+    if (confirm(t('logout_confirmation'))) {
       await signOut({ callbackUrl: '/' });
     }
   };
