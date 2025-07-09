@@ -27,62 +27,81 @@ function parseJsonResponse(jsonString: string) {
     }
     console.log(`🔍 원본 응답 길이: ${jsonString.length}자`);
     console.log(`🔍 원본 시작 100자: ${JSON.stringify(jsonString.substring(0, 100))}`);
-    
+
     // 1. 코드 블록에서 JSON 추출 시도
     const codeBlockMatch = jsonString.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
     let cleanedString = codeBlockMatch ? codeBlockMatch[1] : jsonString;
-    
-    // 2. JSON 시작/끝 찾기
+
+    // 1-1. 코드블록이 아니고, JSON 앞뒤에 불필요한 텍스트가 있을 수 있으므로, JSON 시작/끝만 남기기
     const jsonStart = cleanedString.indexOf('{');
-    if (jsonStart === -1) {
-        throw new Error('응답에서 JSON 시작(`{`)을 찾을 수 없습니다.');
+    const jsonEnd = cleanedString.lastIndexOf('}');
+    if (jsonStart === -1 || jsonEnd === -1) {
+        throw new Error('응답에서 JSON 시작(`{`) 또는 끝(`}`)을 찾을 수 없습니다.');
     }
-    
+    cleanedString = cleanedString.substring(jsonStart, jsonEnd + 1);
+
+    // 2. 자동 보정: 문자열 내 줄바꿈, 잘못된 따옴표, 누락된 콤마 등
+    let fixedString = cleanedString
+        // 줄바꿈 문자가 문자열 내에 있을 경우 이스케이프
+        .replace(/([^\\])\n/g, '$1\\n')
+        // 문자열 내 큰따옴표 미이스케이프 보정
+        .replace(/: ([^\"]*?)([\},])/g, (m, p1, p2) => {
+            // 콜론 뒤에 따옴표 없이 문자열이 올 경우 따옴표로 감싸기
+            if (!p1.startsWith('"') && !p1.endsWith('"')) {
+                return ': "' + p1.trim() + '"' + p2;
+            }
+            return m;
+        })
+        // 배열/객체 내 누락된 콤마 보정(간단, 완벽하지 않음)
+        .replace(/([\}\]"])(\s*[\{\["])/g, '$1,$2');
+
     // 3. 중괄호 밸런스를 맞추며 JSON 추출
     let balance = 0;
     let inString = false;
     let escapeNext = false;
     let result = '';
-    
-    for (let i = jsonStart; i < cleanedString.length; i++) {
-        const char = cleanedString[i];
-        
+    for (let i = 0; i < fixedString.length; i++) {
+        const char = fixedString[i];
         if (escapeNext) {
             result += char;
             escapeNext = false;
             continue;
         }
-        
         if (char === '"') {
             inString = !inString;
         } else if (char === '\\' && inString) {
             escapeNext = true;
-        } 
-        
+        }
         if (!inString) {
             if (char === '{') balance++;
             if (char === '}') balance--;
         }
-        
         result += char;
-        
         if (balance === 0 && result.startsWith('{')) {
             break;
         }
     }
-    
     // 4. JSON 파싱 시도
     try {
-        console.log(`🔍 추출된 JSON 길이: ${result.length}자`);
+        console.log(`🔍 보정 후 JSON 길이: ${result.length}자`);
         const parsed = JSON.parse(result);
         console.log('✅ JSON 파싱 성공!');
         return parsed;
     } catch (error) {
+        // 어디서 오류가 났는지 위치까지 출력
+        let errorPosition = 0;
+        if (error instanceof SyntaxError && /position (\d+)/.test(error.message)) {
+            errorPosition = Number(error.message.match(/position (\d+)/)?.[1]);
+        }
         console.error('🚨 JSON 파싱 실패:', error);
         console.error('💣 실패한 JSON 문자열 (첫 300자):', result.substring(0, 300));
+        if (errorPosition > 0) {
+            console.error('💣 오류 발생 위치 전후(±30자):', result.substring(Math.max(0, errorPosition-30), errorPosition+30));
+        }
         throw new Error(`JSON 파싱에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
 }
+
 
 // GuideData 구조 normalize 함수 - 포괄적 필드명 매핑
 function normalizeGuideData(raw: any, language?: string) {
