@@ -148,7 +148,9 @@ export async function getOrCreateGoldenCoordinates(locationName, language) {
   console.log('[좌표 fetch] input:', normLocation, 'bestMatch:', bestMatchName, 'language:', normLang);
   // 3. 공식 API 호출 (구글 등)
   const google = await getGooglePlace(bestMatchName);
-  let coords = null, placeId = null, source = null;
+  let coords: { lat: number; lng: number } | null = null;
+  let placeId: string | null = null;
+  let source: string | null = null;
   if (google && google.geometry && google.geometry.location) {
     coords = { lat: google.geometry.location.lat, lng: google.geometry.location.lng };
     placeId = google.place_id;

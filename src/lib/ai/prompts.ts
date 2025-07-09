@@ -1,5 +1,7 @@
 // AI 가이드 생성을 위한 단일 호출 자율 리서치 프롬프트 시스템
 
+import { json } from "stream/consumers";
+
 interface UserProfile {
   interests?: string[];
   ageGroup?: string;
@@ -33,30 +35,20 @@ export const REALTIME_GUIDE_KEYS: Record<string, string> = {
 
 // 언어별 TTS 언어코드 반환 함수
 export function getTTSLanguage(language: string): string {
-  const LANGUAGE_CONFIGS: Record<string, { ttsLang: string }> = {
-    ko: { ttsLang: 'ko-KR' },
-    en: { ttsLang: 'en-US' },
-    ja: { ttsLang: 'ja-JP' },
-    zh: { ttsLang: 'zh-CN' },
-    es: { ttsLang: 'es-ES' }
-  };
-  return LANGUAGE_CONFIGS[language?.slice(0,2)]?.ttsLang || 'en-US';
+  const langCode = language?.slice(0, 2);
+  return LANGUAGE_CONFIGS[langCode]?.ttsLang || 'en-US';
 }
 
 /**
  * 다국어 지원 자율 리서치 기반 AI 오디오 가이드 생성 프롬프트
- * @param locationName 명소명
- * @param language 생성할 언어 (기본값: 'ko')
- * @param userProfile 사용자 프로필 (선택사항)
- * @returns 완전한 가이드 생성 프롬프트
  */
 export function createAutonomousGuidePrompt(
-  locationName: string, 
+  locationName: string,
   language: string = 'ko',
   userProfile?: UserProfile
 ): string {
   const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.ko;
-  
+
   const userContext = userProfile ? `
 👤 사용자 맞춤 정보:
 - 관심사: ${userProfile.interests?.join(', ') || '일반'}
@@ -65,280 +57,188 @@ export function createAutonomousGuidePrompt(
 - 동행자: ${userProfile.companions || '혼자'}
 ` : '👤 일반 관광객 대상';
 
-  // 언어별 프롬프트 헤더 - 고품질 다국어 지원
-  const languageHeaders = {
+  const languageHeaders: Record<string, any> = {
     ko: {
       role: '당신은 **자율 리서치 능력을 갖춘 마스터 AI 투어 아키텍트(Autonomous Master AI Tour Architect)**입니다.',
       goal: '방문객이 100% 이해하며 따라올 수 있는 완벽한 한국어 오디오 가이드 JSON 객체 하나를 생성하는 것입니다.',
       outputInstructions: '아래 JSON 형식으로만 응답하세요. 마크다운 코드 블록이나 추가 설명 없이 순수 JSON만 출력하세요. 모든 텍스트는 자연스러운 한국어로 작성하세요.',
-      qualityStandards: '한국 최고 수준의 문화관광해설사의 품질로 작성하세요. 풍부한 스토리텔링, 생생한 묘사, 깊이 있는 역사적 통찰을 포함해야 합니다.'
+      qualityStandards: '한국 최고 수준의 문화관광해설사의 품질로 작성하세요. **분량에 제한 없이**, 명소와 관련된 **모든 배경지식, 숨겨진 이야기, 역사적 사실**을 포함하여 가장 상세하고 깊이 있는 내용을 제공해야 합니다. **명소 내 모든 세부 장소를 하나도 빠짐없이 포함**하여, 방문객이 원하는 곳을 선택해 들을 수 있는 완전한 가이드를 만드세요. **관람 동선은 입장부터 퇴장까지 가장 효율적인 한붓그리기 동선으로 설계하여, 방문객이 불필요하게 되돌아가거나 두 번 이동하는 일이 없도록 해야 합니다.** 풍부한 스토리텔링과 생생한 묘사는 필수입니다. 모든 언어에서 이와 동일한 최고 수준의 품질이 보장되어야 합니다.'
     },
     en: {
       role: 'You are an **Autonomous Master AI Tour Architect** with self-research capabilities.',
       goal: 'Generate a perfect English audio guide JSON object that visitors can understand 100% and follow along.',
       outputInstructions: 'Respond only in the JSON format below. Output pure JSON without markdown code blocks or additional explanations. Write all text in natural English.',
-      qualityStandards: 'Write with the quality of a top-tier professional tour guide from the UK or US. Include rich storytelling, vivid descriptions, and profound historical insights. Use sophisticated vocabulary while remaining accessible.'
+      qualityStandards: 'Write with the quality of a top-tier professional tour guide from the UK or US. Provide the most detailed and in-depth content possible **without any length restrictions**, including **all background knowledge, hidden stories, and historical facts** related to the landmark. **Include every single spot within the landmark without omission** to create a complete guide where visitors can choose what to listen to. **The tour route must be designed as the most efficient, one-way path from entrance to exit**, like a single continuous line, ensuring visitors do not need to backtrack or revisit spots unnecessarily. Rich storytelling and vivid descriptions are essential. This same top-tier quality must be ensured across all languages.'
     },
     ja: {
       role: 'あなたは**自律リサーチ能力を持つマスターAIツアーアーキテクト**です。',
       goal: '訪問者が100%理解し、ついていける完璧な日本語オーディオガイドJSONオブジェクトを生成することです。',
       outputInstructions: '以下のJSON形式でのみ回答してください。マークダウンコードブロックや追加説明なしに純粋なJSONのみを出力してください。すべてのテキストは自然な日本語で作成してください。',
-      qualityStandards: '日本の最高レベルの文化観光ガイドの品質で作成してください。豊かなストーリーテリング、生き生きとした描写、深い歴史的洞察を含める必要があります。敬語を適切に使用し、日本文化に適した表現を心がけてください。'
+      qualityStandards: '日本の最高レベルの文化観光ガイドの品質で作成してください。**分量に制限なく**、名所に関連する**すべての背景知識、隠された物語、歴史的事実**を含め、最も詳細で深みのある内容を提供しなければなりません。**名所内のすべての詳細な場所を一つも漏らさず含め**、訪問者が必要な場所を選んで聞ける完全なガイドを作成してください。**観覧ルートは、入口から出口まで最も効率的な一筆書きの動線として設計し、訪問者が不必要に戻ったり、二度手間になったりしないようにしなければなりません。**豊かなストーリーテリングと生き生きとした描写は必須です。すべての言語でこれと同じ最高レベルの品質が保証されなければなりません。'
     },
     zh: {
       role: '您是一位**具有自主研究能力的AI导览大师(Autonomous Master AI Tour Architect)**。',
       goal: '生成一个访客能够100%理解并跟随的完美中文音频导览JSON对象。',
       outputInstructions: '仅以下面的JSON格式回应。输出纯JSON，无需markdown代码块或额外说明。所有文本用自然的中文书写。',
-      qualityStandards: '请以中国顶级文化旅游讲解员的水准进行创作。包含丰富的故事叙述、生动的描绘和深刻的历史见解。使用优雅的中文表达，体现深厚的文化底蕴。'
+      qualityStandards: '请以中国顶级文化旅游讲解员的水准进行创作。**无任何篇幅限制**，必须提供最详尽、最深入的内容，包含与名胜相关的**所有背景知识、隐藏故事和历史事实**。**无一遗漏地包含名胜内的每一个具体地点**，打造一份访客可以自由选择收听的完整指南。**游览路线必须设计为从入口到出口最高效的单向路径**，如同一次性画成的线条，确保游客无需不必要地折返或重复访问地点。丰富的故事叙述和生动的描绘是必不可少的。所有语言版本都必须确保同等的顶级质量。'
     },
     es: {
       role: 'Eres un **Arquitecto Maestro de Tours AI Autónomo** con capacidades de investigación independiente.',
       goal: 'Generar un objeto JSON de guía de audio en español perfecto que los visitantes puedan entender 100% y seguir.',
       outputInstructions: 'Responde solo en el formato JSON a continuación. Genera JSON puro sin bloques de código markdown o explicaciones adicionales. Escribe todo el texto en español natural.',
-      qualityStandards: 'Escribe con la calidad de un guía turístico profesional de élite de España. Incluye narrativa rica, descripciones vívidas y perspectivas históricas profundas. Usa un español elegante y cultured, con expresiones naturales y fluidas.'
+      qualityStandards: 'Escribe con la calidad de un guía turístico profesional de élite de España. Ofrece el contenido más detallado y profundo posible **sin restricciones de longitud**, incluyendo **todos los conocimientos de fondo, historias ocultas y hechos históricos** relacionados con el lugar. **Incluye cada rincón del lugar sin omisión** para crear una guía completa donde los visitantes puedan elegir qué escuchar. **La ruta del tour debe diseñarse como el camino más eficiente y de un solo sentido desde la entrada hasta la salida**, como un trazo continuo, asegurando que los visitantes no necesiten retroceder o visitar lugares dos veces innecesariamente. La narración rica y las descripciones vívidas son esenciales. Se debe garantizar esta misma calidad superior en todos los idiomas.'
     }
   };
 
   const currentLang = languageHeaders[language as keyof typeof languageHeaders] || languageHeaders.ko;
 
-  // 언어 코드에 따라 키 선택, 기본값은 영어
-  // const realTimeGuideKey = REALTIME_GUIDE_KEYS[language] || 'RealTimeGuide';
-
-  // === [중요] 실시간 오디오 가이드 키 강제 규칙 ===
-  // 반드시 모든 언어에서 실시간 오디오 가이드 데이터는 'realTimeGuide' (소문자, camelCase)라는 키로만 반환하세요.
-  // 번역하거나 대소문자를 바꾸지 말고, 오직 'realTimeGuide'로만 반환해야 합니다.
-
-  return `
-# 🏛️ "${locationName}" 완벽 오디오 가이드 생성 미션
-
-## 🎯 당신의 역할과 미션
-${currentLang.role}
-${currentLang.goal}
-
-**생성 언어**: ${langConfig.name} (${langConfig.code})
-${userContext}
-
-## 📋 4단계 프로세스
-
-### 1단계: 리서치 & 분석 📚
-- **역사적 맥락 파악**: 건축 시대, 양식, 주요 건축가/후원자
-- **문화적 의미 탐구**: 종교적, 정치적, 사회적 배경
-- **건축적 특징 분석**: 구조, 재료, 기법, 장식 요소
-- **현재적 가치 평가**: 보존 상태, 현대적 의미, 관광적 가치
-
-### 2단계: 동선 설계 🗺️
-- **최적 루트 계획**: 실제 방문 동선에 따른 논리적 순서
-- **챕터별 포인트 선정**: 각 위치의 핵심 스토리 결정
-- **이동 안내 설계**: 구체적 랜드마크 기준 방향 제시
-- **시간 배분**: 각 챕터별 적절한 설명 분량 조절
-
-### 3단계: 스토리텔링 구성 📖
-- **내러티브 아크**: 시작-전개-절정-마무리의 완성된 스토리
-- **인물 중심 서술**: 역사적 인물들의 드라마와 갈등
-- **비교와 대조**: 다른 시대/지역과의 연관성
-- **미스터리와 발견**: 숨겨진 사실이나 최근 발견들
-
-### 4단계: 품질 검증 ✅
-- **사실 확인**: 모든 연도, 수치, 인명의 정확성
-- **언어 자연성**: 해당 언어의 자연스러운 표현
-- **감정적 몰입**: 방문객의 흥미와 감동 유발 요소
-- **교육적 가치**: 실질적 지식 전달과 이해 증진
-
-## 🏆 5대 품질 원칙
-
-### 원칙 1: 전문가급 깊이 🎓
-- **구체적 사실**: 정확한 연도, 수치, 인명, 재료명
-- **건축 용어**: 전문 용어 사용 후 즉시 쉬운 설명 병기
-- **역사적 맥락**: 당시 사회/정치/종교적 배경 상세 설명
-- **문화적 연결**: 다른 문명이나 시대와의 영향 관계
-
-### 원칙 2: 감탄사 최소화, 사실 최대화 📊
-- **❌ 피해야 할 표현**: "놀라운", "환상적인", "느껴보세요", "상상해보세요"
-- **✅ 권장 표현**: "높이 42미터의", "1248년에 완공된", "비잔틴 양식의", "당시로서는 혁신적인"
-- **객관적 서술**: 감정적 수식어보다 구체적 디테일 중심
-- **비교 데이터**: 다른 건축물과의 크기, 나이, 특징 비교
-
-### 원칙 3: 스토리텔링의 힘 📚
-- **인물 중심 서술**: 건축가, 후원자, 역사적 인물들의 이야기
-- **갈등과 해결**: 건축 과정의 어려움과 극복 과정
-- **반전과 놀라움**: 일반적 상식과 다른 흥미로운 사실들
-- **연결고리**: 과거와 현재를 잇는 의미 있는 연관성
-
-### 원칙 4: 실용적 안내 🧭
-- **정확한 위치**: 각 챕터별 정확한 GPS 좌표 제공
-- **명확한 동선**: "북쪽 출입구에서 시계방향으로" 등 구체적 안내
-- **랜드마크 활용**: "높은 첨탑 앞에서", "조각상 옆에서" 등 시각적 기준점
-- **시간 안내**: 각 구간별 이동 시간과 총 소요 시간
-
-### 원칙 5: 문화적 감수성 🌍
-- **언어별 특성**: 각 언어권의 문화적 표현 방식 반영
-- **존중하는 톤**: 종교적, 역사적으로 민감한 내용에 대한 적절한 표현
-- **현지 맥락**: 해당 지역의 문화적 특성과 관점 고려
-- **글로벌 관점**: 다양한 문화권 방문객이 이해할 수 있는 설명
-
-## 🏗️ 건축 양식별 핵심 설명 요소
-
-### 고딕 양식 (Gothic) 🏰
-- **구조적 특징**: 리브 볼트(ribbed vault), 플라잉 버트레스(flying buttress), 첨두 아치(pointed arch)
-- **시각적 요소**: 로즈 창(rose window), 수직성 강조, 빛의 활용
-- **기술적 혁신**: 하중 분산 시스템, 벽체의 얇아짐, 높이의 획득
-- **상징적 의미**: 하늘을 향한 염원, 신에게 가까워지려는 의지
-
-### 로마네스크 양식 (Romanesque) 🏛️
-- **구조적 특징**: 반원 아치(round arch), 두꺼운 벽체, 작은 창문
-- **장식적 요소**: 조각 장식(sculpture), 프레스코화, 기하학적 문양
-- **기능적 측면**: 순례 교회, 방어적 성격, 음향 고려
-- **역사적 배경**: 봉건제 사회, 수도원 문화, 순례길 발달
-
-### 바로크 양식 (Baroque) 🎭
-- **시각적 특징**: 곡선미, 역동성, 명암 대비(chiaroscuro)
-- **장식적 요소**: 화려한 조각, 금박, 천장화
-- **공간 구성**: 타원형 평면, 극적 공간감, 시점의 변화
-- **종교적 의도**: 반종교개혁, 감정적 호소, 신앙 강화
-
-### 이슬람 양식 (Islamic) 🕌
-- **기하학적 패턴**: 무한 반복 문양, 아라베스크, 칼리그래피
-- **건축적 요소**: 마카르나스(muqarnas), 호스슈 아치(horseshoe arch), 미나렛
-- **공간 개념**: 중정(courtyard), 물의 활용, 빛과 그림자의 조화
-- **문화적 의미**: 알라에 대한 경외, 천국의 은유, 기하학적 완벽성
-
-## 📍 동선 및 위치 안내 시스템
-
-### 이동 안내 템플릿
-- **표준 형식**: "➡️ 이제 [목적지명]로 이동합니다. [현재 랜드마크]에서 [방향]으로 [거리/시간]을 걸어가시면 됩니다."
-- **방향 표시**: 정확한 나침반 방향 + 시각적 랜드마크 조합
-- **거리 안내**: 걸음 수, 미터 단위, 예상 소요 시간 병기
-- **확인 포인트**: "~가 보이시면 정확한 위치입니다"
-
-### 좌표 정확성 기준
-- **소수점 6자리**: 1미터 오차 범위 내 정확도 유지
-- **실제 검증**: 구글 맵스 등으로 좌표 정확성 확인
-- **접근 가능성**: 실제 방문객이 도달 가능한 위치
-- **안전성 고려**: 위험하거나 제한된 구역 배제
-
-## 🎭 언어별 스타일 가이드
-
-### 한국어 (ko) 🇰🇷
-- **톤**: 따뜻하면서도 전문적, 존경어 적절히 사용
-- **예시**: "안녕하세요! 세비야 대성당에 오신 것을 환영합니다. 지금 여러분이 서 계신 이곳은 1401년 건설이 시작된 세계 최대 규모의 고딕 대성당입니다."
-- **문체**: 구어체와 문어체의 조화, 자연스러운 호흡
-- **특징**: 역사적 사실을 스토리로 풀어내는 한국적 화법
-
-### English (en) 🇺🇸🇬🇧
-- **톤**: Professional yet warm, sophisticated vocabulary
-- **예시**: "Welcome to Seville Cathedral! You're now standing before the world's largest Gothic cathedral by volume, begun in 1401. This magnificent structure took 117 years to complete."
-- **문체**: Clear articulation, varied sentence structure
-- **특징**: Rich historical narratives with Anglo cultural references
-
-### 日本語 (ja) 🇯🇵
-- **톤**: 丁寧語 사용, 섬세한 표현, 감성적 접근
-- **예시**: "セビリア大聖堂へようこそいらっしゃいました。現在皆様がご覧になっているこちらは、1401年に建設が開始された世界最大規模のゴシック様式大聖堂でございます。"
-- **문체**: 정중한 경어, 아름다운 일본어 표현
-- **특징**: 일본인의 미적 감수성을 고려한 세밀한 묘사
-
-### 中文 (zh) 🇨🇳
-- **톤**: 우아하고 품격 있는 중국어, 문화적 깊이
-- **예시**: "欢迎来到塞维利亚大教堂！您现在所站的位置是世界上体积最大的哥特式大教堂，始建于1401年。"
-- **문체**: 성어와 고전적 표현 활용, 리듬감 있는 서술
-- **특징**: 중화문화의 깊이를 반영한 풍부한 표현
-
-### Español (es) 🇪🇸
-- **톤**: Elegante y culto, con pasión mediterránea
-- **예시**: "¡Bienvenidos a la Catedral de Sevilla! Se encuentran ante la catedral gótica más grande del mundo por volumen, cuya construcción comenzó en 1401."
-- **문체**: 유려한 스페인어, 감정적 표현력
-- **특징**: 이베리아 반도의 문화적 자부심을 담은 서술
-
-## 📐 JSON 구조 및 안전성 가이드
-
-### 필수 구조 요소
-\`\`\`json
-{
-  "content": {
-    "overview": {
-      "title": "명소명",
-      "narrativeTheme": "전체적인 스토리 테마",
-      "keyFacts": ["핵심 사실1", "핵심 사실2", "핵심 사실3", "핵심 사실4"],
-      "visitInfo": {
-        "duration": 90,
-        "difficulty": "쉬움|보통|어려움",
-        "season": "계절 정보"
+  const prompt = [
+    `# 🏛️ "${locationName}" 완벽 오디오 가이드 생성 미션`,
+    '## 🎯 당신의 역할과 미션',
+    currentLang.role,
+    currentLang.goal,
+    `**생성 언어**: ${langConfig.name} (${langConfig.code})`,
+    userContext,
+    '## 📐 JSON 출력 형식 및 안전성',
+    '아래 예시 구조, 값, 타입, 순서를 반드시 정확히 지켜서 반환해야 합니다. (키값 영어 고정, 순수 JSON, 마크다운/설명 금지)',
+    '예시:',
+    '```json',
+    JSON.stringify({
+      content: {
+        overview: {
+          title: `${locationName}`,
+          narrativeTheme: `A journey through ${locationName}, its history and secrets.`,
+          keyFacts: [
+            `Key fact about ${locationName} 1`,
+            `Key fact about ${locationName} 2`,
+            `Key fact about ${locationName} 3`,
+            `Key fact about ${locationName} 4`
+          ],
+          visitInfo: {
+            duration: 90,
+            difficulty: "쉬움",
+            season: "All year"
+          }
+        },
+        route: {
+          steps: [
+            { step: 0, location: "Main Entrance", title: `Start: Main Entrance of ${locationName}`, coordinates: { lat: 37.3861, lng: -5.9926 } },
+            { step: 1, location: "Key Feature 1", title: `First stop in ${locationName}`, coordinates: { lat: 37.3858, lng: -5.9929 } },
+            { step: 2, location: "Exit", title: "Outro: Concluding the tour", coordinates: { lat: 37.3855, lng: -5.9932 } }
+          ]
+        },
+        realTimeGuide: {
+          startingLocation: { name: "Main Entrance", address: `Address of ${locationName}`, googleMapsUrl: `https://www.google.com/maps/search/${locationName}`, coordinates: { lat: 37.3861, lng: -5.9926 } },
+          chapters: [
+            { id: 0, title: "Main Entrance", coordinates: { lat: 37.3861, lng: -5.9926 }, realTimeScript: `Welcome to the main entrance of ${locationName}...` },
+            { id: 1, title: "Key Feature 1", coordinates: { lat: 37.3858, lng: -5.9929 }, realTimeScript: `Now, let's explore the first key feature of ${locationName}...` },
+            { id: 2, title: "Outro", coordinates: { lat: 37.3855, lng: -5.9932 }, realTimeScript: `As our tour of ${locationName} comes to a close...` }
+          ]
+        }
       }
-    },
-    "route": {
-      "steps": [
-        {
-          "step": 0,
-          "location": "정확한 위치명",
-          "title": "챕터 제목",
-          "coordinates": { "lat": 37.123456, "lng": -5.123456 }
-        }
-      ]
-    },
-    "realTimeGuide": {
-      "startingLocation": {
-        "name": "시작점 이름",
-        "address": "정확한 주소",
-        "googleMapsUrl": "https://www.google.com/maps/search/[영어명소명]",
-        "coordinates": { "lat": 37.123456, "lng": -5.123456 }
-      },
-      "chapters": [
-        {
-          "id": 0,
-          "title": "챕터 제목",
-          "coordinates": { "lat": 37.123456, "lng": -5.123456 },
-          "realTimeScript": "실제 오디오 스크립트..."
-        }
-      ]
-    }
-  }
+    }, null, 2),
+    '```'
+  ].join('\n\n');
+
+  return prompt;
 }
-\`\`\`
 
-### 텍스트 안전성 규칙
-- **줄바꿈 처리**: \\n으로 표시
-- **따옴표 이스케이프**: \\"로 처리
-- **JSON 안전 문자**: 특수문자 적절히 이스케이프
-- **유니코드 지원**: 각 언어의 특수문자 완벽 지원
+/**
+ * 최종 가이드 생성 프롬프트
+ */
+export function createFinalGuidePrompt(
+  locationName: string,
+  language: string,
+  researchData: any,
+  userProfile?: UserProfile
+): string {
+  const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.ko;
 
-## 🎯 시작 챕터 황금 공식
+  const userContext = userProfile ? `
+👤 사용자 맞춤 정보:
+- 관심사: ${userProfile.interests?.join(', ') || '일반'}
+- 연령대: ${userProfile.ageGroup || '성인'}
+- 지식수준: ${userProfile.knowledgeLevel || '중급'}
+- 동행자: ${userProfile.companions || '혼자'}
+` : '👤 일반 관광객 대상';
 
-### 웰컴 메시지 (30초)
-- 따뜻한 인사와 현재 위치 확인
-- 가이드의 역할과 투어 개요 소개
-- 방문객의 설렘과 기대감 자극
+  const languageHeaders: Record<string, any> = {
+    ko: {
+      role: '당신은 **최종 오디오 가이드 작가 AI(Final Audio Guide Writer AI)**입니다.',
+      goal: '제공된 리서치 데이터를 기반으로, 방문객을 위한 완벽한 한국어 오디오 가이드 JSON 객체를 완성하는 것입니다.',
+      outputInstructions: '아래 JSON 형식으로만 응답하세요. 마크다운 코드 블록이나 추가 설명 없이 순수 JSON만 출력하세요. 모든 텍스트는 자연스러운 한국어로 작성하세요.',
+      qualityStandards: '리서치 데이터를 바탕으로, 한국 최고 수준의 문화관광해설사의 품질로 스크립트를 작성하세요. **분량에 제한 없이**, 명소와 관련된 **모든 배경지식, 숨겨진 이야기, 역사적 사실**을 포함하여 가장 상세하고 깊이 있는 내용을 제공해야 합니다. **명소 내 모든 세부 장소를 하나도 빠짐없이 포함**하여, 방문객이 원하는 곳을 선택해 들을 수 있는 완전한 가이드를 만드세요. **관람 동선은 입장부터 퇴장까지 가장 효율적인 한붓그리기 동선으로 설계하여, 방문객이 불필요하게 되돌아가거나 두 번 이동하는 일이 없도록 해야 합니다.** 풍부한 스토리텔링과 생생한 묘사는 필수입니다. 모든 언어에서 이와 동일한 최고 수준의 품질이 보장되어야 합니다.'
+    },
+    en: {
+      role: 'You are a **Final Audio Guide Writer AI**.',
+      goal: 'Based on the provided research data, complete a perfect English audio guide JSON object for visitors.',
+      outputInstructions: 'Respond only in the JSON format below. Output pure JSON without markdown code blocks or additional explanations. Write all text in natural English.',
+      qualityStandards: 'Based on the research data, write scripts with the quality of a top-tier professional tour guide from the UK or US. Provide the most detailed and in-depth content possible **without any length restrictions**, including **all background knowledge, hidden stories, and historical facts** related to the landmark. **Include every single spot within the landmark without omission** to create a complete guide where visitors can choose what to listen to. **The tour route must be designed as the most efficient, one-way path from entrance to exit**, like a single continuous line, ensuring visitors do not need to backtrack or revisit spots unnecessarily. Rich storytelling and vivid descriptions are essential. This same top-tier quality must be ensured across all languages.'
+    },
+    ja: {
+      role: 'あなたは**最終オーディオガイド作家AI**です。',
+      goal: '提供されたリサーチデータに基づき、訪問者のための完璧な日本語オーディオガイドJSONオブジェクトを完成させることです。',
+      outputInstructions: '以下のJSON形式でのみ回答してください。マークダウンコードブロックや追加説明なしに純粋なJSONのみを出力してください。すべてのテキストは自然な日本語で作成してください。',
+      qualityStandards: 'リサーチデータに基づき、日本の最高レベルの文化観光ガイドの品質でスクリプトを作成してください。**分量に制限なく**、名所に関連する**すべての背景知識、隠された物語、歴史的事実**を含め、最も詳細で深みのある内容を提供しなければなりません。**名所内のすべての詳細な場所を一つも漏らさず含め**、訪問者が必要な場所を選んで聞ける完全なガイドを作成してください。**観覧ルートは、入口から出口まで最も効率的な一筆書きの動線として設計し、訪問者が不必要に戻ったり、二度手間になったりしないようにしなければなりません。**豊かなストーリーテリングと生き生きとした描写は必須です。すべての言語でこれと同じ最高レベルの品質が保証されなければなりません。'
+    },
+    zh: {
+      role: '您是一位**最终音频导览作家AI**。',
+      goal: '根据提供的研究数据，为访客完成一个完美的中文音频导览JSON对象。',
+      outputInstructions: '仅以下面的JSON格式回应。输出纯JSON，无需markdown代码块或额外说明。所有文本用自然的中文书写。',
+      qualityStandards: '根据研究数据，以中国顶级文化旅游讲解员的水准撰写脚本。**无任何篇幅限制**，必须提供最详尽、最深入的内容，包含与名胜相关的**所有背景知识、隐藏故事和历史事实**。**无一遗漏地包含名胜内的每一个具体地点**，打造一份访客可以自由选择收听的完整指南。**游览路线必须设计为从入口到出口最高效的单向路径**，如同一次性画成的线条，确保游客无需不必要地折返或重复访问地点。丰富的故事叙述和生动的描绘是必不可少的。所有语言版本都必须确保同等的顶级质量。'
+    },
+    es: {
+      role: 'Eres un **Escritor de Guías de Audio Final AI**.',
+      goal: 'Basado en los datos de investigación proporcionados, completar un objeto JSON de guía de audio en español perfecto para los visitantes.',
+      outputInstructions: 'Responde solo en el formato JSON a continuación. Genera JSON puro sin bloques de código markdown o explicaciones adicionales. Escribe todo el texto en español natural.',
+      qualityStandards: 'Basado en los datos de investigación, escribe guiones con la calidad de un guía turístico profesional de élite de España. Ofrece el contenido más detallado y profundo posible **sin restricciones de longitud**, incluyendo **todos los conocimientos de fondo, historias ocultas y hechos históricos** relacionados con el lugar. **Incluye cada rincón del lugar sin omisión** para crear una guía completa donde los visitantes puedan elegir qué escuchar. **La ruta del tour debe diseñarse como el camino más eficiente y de un solo sentido desde la entrada hasta la salida**, como un trazo continuo, asegurando que los visitantes no necesiten retroceder o visitar lugares dos veces innecesariamente. La narración rica y las descripciones vívidas son esenciales. Se debe garantizar esta misma calidad superior en todos los idiomas.'
+    }
+  };
 
-### 역사적 타임라인 (60초)
-- 건설 시작 연도와 배경
-- 주요 건설 단계와 완공 시기
-- 현재까지의 주요 변화와 보존 노력
+  const currentLang = languageHeaders[language as keyof typeof languageHeaders] || languageHeaders.ko;
 
-### 핵심 가치 제시 (45초)
-- 건축적 가치: 양식, 기술적 혁신
-- 역사적 가치: 시대적 의미, 문화적 영향
-- 예술적 가치: 장식, 조각, 회화 등
+  const prompt = [
+    `# 🖋️ "${locationName}" 최종 오디오 가이드 완성 미션`,
+    '## 🎯 당신의 역할과 미션',
+    currentLang.role,
+    currentLang.goal,
+    `**생성 언어**: ${langConfig.name} (${langConfig.code})`,
+    userContext,
+    '## 📚 제공된 리서치 데이터',
+    '이 데이터를 기반으로 모든 스크립트를 작성하세요.',
+    '```json',
+    JSON.stringify(researchData, null, 2),
+    '```',
+    '## 📐 최종 JSON 출력 형식',
+    '리서치 데이터의 구조를 유지하면서, `narrativeTheme`과 모든 `realTimeScript` 필드를 채워서 완전한 가이드를 생성하세요. **절대로 응답에 \`\`\`json 마크다운을 포함하지 마세요.**',
+    '예시:',
+    JSON.stringify({
+      content: {
+        overview: {
+          title: `${locationName}`,
+          narrativeTheme: `A journey through ${locationName}, exploring its rich history, architectural marvels, and hidden secrets.`,
+          keyFacts: researchData.content.overview.keyFacts,
+          visitInfo: researchData.content.overview.visitInfo
+        },
+        route: researchData.content.route,
+        realTimeGuide: {
+          startingLocation: researchData.content.realTimeGuide.startingLocation,
+          chapters: researchData.content.realTimeGuide.chapters.map((chapter: any) => {
+            if (chapter.title.toLowerCase().includes('outro')) {
+              return {
+                ...chapter,
+                realTimeScript: `This is the completed OUTRO script for the tour at ${locationName}. It should summarize the experience and provide a memorable closing.`
+              };
+            }
+            return {
+              ...chapter,
+              realTimeScript: `This is the completed script for ${chapter.title} at ${locationName}. It should be detailed and engaging, based on the research data.`
+            };
+          })
+        }
+      }
+    }, null, 2)
+  ].join('\n\n');
 
-### 투어 하이라이트 예고 (30초)
-- 앞으로 볼 주요 볼거리 3-4가지 예고
-- 특별한 체험이나 발견 요소 암시
-- 첫 번째 챕터로의 자연스러운 연결
-
-## 🏛️ 깊이 있는 해설 기법
-
-### 반전과 역설 기법 🔄
-- **일반 상식 뒤집기**: "많은 사람들이 생각하는 것과 달리..."
-- **놀라운 사실 공개**: "실제로는 이 건물이..."
-- **숨겨진 진실**: "최근 연구에 따르면..."
-
-### 혁신적 해결책 조명 💡
-- **기술적 도전**: "당시 건축가들이 직면한 문제는..."
-- **창의적 해법**: "이를 해결하기 위해 고안된 방법은..."
-- **현대적 관점**: "현재 기준으로 봐도 놀라운 기술입니다"
-
-### 문화적 연결고리 🌐
-- **동시대 비교**: "같은 시기 유럽의 다른 지역에서는..."
-- **영향 관계**: "이 양식은 후에 ~에 영향을 미쳤습니다"
-- **현재적 의미**: "오늘날에도 이런 의미를 갖고 있습니다"
-
-지금 즉시 "${locationName}"에 대한 완벽한 ${langConfig.name} 오디오 가이드를 위 모든 기준에 따라 생성하세요.
-`;
+  return prompt;
 }

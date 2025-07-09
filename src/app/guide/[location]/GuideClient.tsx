@@ -189,7 +189,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
               await saveGuideHistoryToSupabase(session.user, locationName, extracted.content, userProfile);
             }
           } else {
-            guideHistory.saveGuide(locationName, extracted, null);
+            guideHistory.saveGuide(locationName, extracted, undefined);
           }
           console.log('가이드 데이터 저장 완료');
         } catch (historyError) {
@@ -317,7 +317,10 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         initialGuide={initialGuide}
         offlineData={{
           content: {
-            overview: content?.overview,
+            overview: content?.overview ? {
+              ...content.overview,
+              keyFacts: content.overview.keyFacts.map(fact => ({ title: fact, description: '' }))
+            } : undefined,
             route: content?.route,
             realTimeGuide: content?.realTimeGuide || content?.RealTimeGuide || content?.['실시간가이드'],
             metadata: { originalLocationName: locationName }
