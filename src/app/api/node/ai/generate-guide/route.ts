@@ -154,13 +154,24 @@ export async function POST(req: NextRequest) {
     } catch (error) {
       console.log('⚠️ 세션 획득 실패, 익명 사용자로 처리:', error);
     }
-    const { locationName, language = 'ko', userProfile } = await req.json();
+    const { locationName, language = 'ko', userProfile, forceRegenerate = false } = await req.json();
     if (!locationName) {
       return NextResponse.json({ success: false, error: 'Location is required' }, { status: 400 });
     }
     // === 정규화 적용 ===
     const normLocation = normalizeString(locationName);
     const normLang = normalizeString(language);
+    
+    // forceRegenerate가 true면 기존 캐시 삭제
+    if (forceRegenerate) {
+      console.log('🔄 강제 재생성 모드 - 기존 캐시 삭제');
+      await supabase
+        .from('guides')
+        .delete()
+        .filter('locationname', 'eq', normLocation)
+        .filter('language', 'eq', normLang);
+    }
+    
     // === guides 테이블에서 locationname+language로 중복 체크 (정규화 값만 사용) ===
     const { data: existing } = await supabase
       .from('guides')
@@ -168,7 +179,7 @@ export async function POST(req: NextRequest) {
       .filter('locationname', 'eq', normLocation)
       .filter('language', 'eq', normLang)
       .single();
-    if (existing && existing.content) {
+    if (existing && existing.content && !forceRegenerate) {
       // 항상 동일한 구조(data: { content: ... })로 반환
       return NextResponse.json({
         success: true,

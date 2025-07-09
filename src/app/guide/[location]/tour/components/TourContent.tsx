@@ -207,7 +207,7 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
         preferredStyle: '친근함',
         ...userProfile
       };
-      const response = await fetch('/api/ai/generate-guide', {
+      const response = await fetch('/api/node/ai/generate-guide', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
