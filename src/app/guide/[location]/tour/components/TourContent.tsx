@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { ArrowLeft, Clock, MapPin, Play, Pause, Volume2, StopCircle } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSession } from 'next-auth/react';
 import { REALTIME_GUIDE_KEYS } from '@/lib/ai/prompts';
@@ -182,14 +182,14 @@ const useChaptersWithCoordinates = (chapters: Chapter[] = [], language: string) 
   return { chapters: chaptersWithCoords, isLoading, error };
 };
 
-const TourContent: React.FC<TourContentProps> = ({ locationName, userProfile, initialGuide, offlineData }) => {
+const TourContent: React.FC<TourContentProps> = ({ locationName, userProfile, offlineData }) => {
   const { t } = useTranslation('guide');
   const { data: session } = useSession();
   const { currentLanguage } = useLanguage();
   
   // State management
-  const [tourData, setTourData] = useState<TourData | null>(initialGuide || null);
-  const [isLoading, setIsLoading] = useState(!initialGuide);
+  const [tourData, setTourData] = useState<TourData | null>(offlineData || null);
+  const [isLoading, setIsLoading] = useState(!offlineData);
   const [error, setError] = useState<string | null>(null);
   const [activeChapter, setActiveChapter] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -248,10 +248,10 @@ const TourContent: React.FC<TourContentProps> = ({ locationName, userProfile, in
   
   // Initial load
   useEffect(() => {
-    if (!initialGuide) {
+    if (!offlineData) {
       loadTourData();
     }
-  }, [initialGuide, loadTourData]);
+  }, [offlineData, loadTourData]);
   
   // Handle play/pause
   const togglePlayPause = useCallback(() => {

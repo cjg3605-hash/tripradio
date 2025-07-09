@@ -331,7 +331,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
           knowledgeLevel: 'intermediate',
           companions: 'solo'
         }}
-        initialGuide={initialGuide}
+
         offlineData={{
           content: {
             overview: content?.overview ? {
