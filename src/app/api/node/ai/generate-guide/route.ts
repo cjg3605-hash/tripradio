@@ -83,7 +83,14 @@ function parseJsonResponse(jsonString: string) {
     }
     // 4. JSON 파싱 시도
     try {
-        console.log(`🔍 보정 후 JSON 길이: ${result.length}자`);
+        // BOM, 공백, 줄바꿈 제거
+        result = result.replace(/^[\uFEFF\s]+/, '');
+        // 맨 앞이 {가 아니면 {가 나올 때까지 앞부분 제거
+        if (!result.startsWith('{')) {
+            const idx = result.indexOf('{');
+            if (idx !== -1) result = result.substring(idx);
+        }
+        console.log('🔍 최종 파싱 시도 문자열(앞 100자):', result.substring(0, 100));
         const parsed = JSON.parse(result);
         console.log('✅ JSON 파싱 성공!');
         return parsed;
