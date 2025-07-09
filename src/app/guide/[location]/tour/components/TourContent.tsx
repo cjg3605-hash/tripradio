@@ -107,8 +107,9 @@ const TourContent: React.FC<TourContentProps> = ({ locationName, offlineData }) 
   const { currentLanguage } = useLanguage();
 
   // State for UI interaction
-  const [activeChapter, setActiveChapter] = useState<number | null>(0);
+  const [activeChapter, setActiveChapter] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isTtsLoading, setIsTtsLoading] = useState<number | null>(null); // Track loading state by chapter index
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // Memoized data extraction from props
@@ -116,188 +117,141 @@ const TourContent: React.FC<TourContentProps> = ({ locationName, offlineData }) 
   const chapters = useMemo(() => realTimeGuide?.chapters || [], [realTimeGuide]);
   const keyFacts = useMemo(() => overview.keyFacts || [], [overview]);
 
-  // Fetch coordinates for chapters
-  const { chapters: chaptersWithCoords, isLoading: isLoadingCoords } = 
-    useChaptersWithCoordinates(chapters, currentLanguage);
-
-  // Audio player controls
-  const togglePlayPause = useCallback(() => {
-    const audioElement = audioRef.current;
-    if (!audioElement) return;
-
-    if (isPlaying) {
-      audioElement.pause();
-    } else {
-      audioElement.play().catch(err => console.error("Audio play failed:", err));
+  const handlePlayPause = useCallback(async (index: number) => {
+    if (activeChapter === index && isPlaying) {
+      audioRef.current?.pause();
+      return;
     }
-  }, [isPlaying]);
+
+    if (audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause();
+    }
+
+    setActiveChapter(index);
+    setIsTtsLoading(index);
+
+    const chapter = chapters[index];
+    if (!chapter) {
+      setIsTtsLoading(null);
+      return;
+    }
+
+    const textToSpeak = [
+      chapter.title,
+      chapter.sceneDescription,
+      chapter.coreNarrative,
+      chapter.humanStories,
+      chapter.architectureDeepDive,
+      chapter.sensoryBehindTheScenes
+    ].filter(Boolean).join(' ');
+
+    try {
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: textToSpeak,
+          language: currentLanguage,
+          guideId: locationName, // Using locationName as a unique ID for the guide
+          chapterId: chapter.id || index
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate TTS audio');
+      }
+
+      const { url } = await response.json();
+
+      if (audioRef.current) {
+        audioRef.current.src = url;
+        audioRef.current.play().catch(e => console.error(e));
+      }
+    } catch (error) {
+      console.error('TTS Error:', error);
+    } finally {
+      setIsTtsLoading(null);
+    }
+  }, [chapters, activeChapter, isPlaying, currentLanguage, locationName]);
 
   const handleChapterSelect = useCallback((index: number) => {
-    setActiveChapter(index);
-    setIsPlaying(false);
-    if (audioRef.current) {
-        audioRef.current.pause();
-        const newSrc = chapters[index]?.audioUrl;
-        if (newSrc) {
-            audioRef.current.src = newSrc;
-        }
-    }
-  }, [chapters]);
+    setActiveChapter(prev => (prev === index ? null : index));
+  }, []);
 
-  // Effect to handle audio source change when activeChapter changes
+  // Effect to handle audio player state
   useEffect(() => {
-    if (activeChapter === null || !audioRef.current) return;
-    const audioUrl = chapters[activeChapter]?.audioUrl;
-    if (audioUrl) {
-      audioRef.current.src = audioUrl;
-      if(isPlaying) {
-        audioRef.current.play().catch(e => console.error("Failed to autoplay:", e));
-      }
-    }
-  }, [activeChapter, chapters, isPlaying]);
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    const onEnded = () => setIsPlaying(false);
+
+    audio.addEventListener('play', onPlay);
+    audio.addEventListener('pause', onPause);
+    audio.addEventListener('ended', onEnded);
+
+    return () => {
+      audio.removeEventListener('play', onPlay);
+      audio.removeEventListener('pause', onPause);
+      audio.removeEventListener('ended', onEnded);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <button
-            onClick={() => window.history.back()}
-            className="p-2 rounded-full hover:bg-gray-100"
-            aria-label={t('back', 'Back')}
-          >
+          <button onClick={() => window.history.back()} className="p-2 rounded-full hover:bg-gray-100" aria-label={t('back', 'Back')}>
             {ICONS.BACK}
           </button>
           <h1 className="text-xl font-semibold text-gray-900 truncate px-2">
             {overview?.title || locationName}
           </h1>
-          <div className="w-10"></div> {/* Spacer */}
+          <div className="w-10"></div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        {/* Overview Section */}
         <section className="mb-8 p-6 bg-white rounded-lg shadow">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">{overview.title}</h2>
             {overview.summary && <p className="text-lg text-gray-600 mb-4">{overview.summary}</p>}
-            {overview.narrativeTheme && (
-                <p className="text-sm italic text-gray-500 mb-4">{t('theme', 'Theme')}: {overview.narrativeTheme}</p>
-            )}
-            {overview.visitInfo && (
-                <div className="flex items-center space-x-4 text-sm text-gray-700">
-                    {overview.visitInfo.duration && <span><Clock size={16} className="inline mr-1"/>{overview.visitInfo.duration} {t('minutes_short', 'min')}</span>}
-                    {overview.visitInfo.difficulty && <span><Zap size={16} className="inline mr-1"/>{overview.visitInfo.difficulty}</span>}
-                    {overview.visitInfo.season && <span><Sun size={16} className="inline mr-1"/>{overview.visitInfo.season}</span>}
-                </div>
-            )}
         </section>
 
-        {/* Key Facts */}
-        {keyFacts.length > 0 && (
-          <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">{t('key_facts', 'Key Facts')}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {keyFacts.map((fact, index) => (
-                <div key={index} className="bg-white p-4 rounded-lg shadow">
-                  <h3 className="font-medium text-gray-900">{fact.title}</h3>
-                  {fact.description && <p className="text-gray-600 mt-1">{fact.description}</p>}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Recommended Route */}
-        {route?.steps && route.steps.length > 0 && (
-            <section className="mb-8">
-                <h2 className="text-xl font-semibold mb-4">{t('recommended_route', 'Recommended Route')}</h2>
-                <div className="bg-white p-4 rounded-lg shadow">
-                    <ol className="list-decimal list-inside space-y-3 text-gray-700">
-                        {route.steps.map((step, index) => (
-                            <li key={index}>
-                                <span className="font-semibold">{step.title}</span>
-                                <span className="text-sm text-gray-500 ml-2">({step.location})</span>
-                            </li>
-                        ))}
-                    </ol>
-                </div>
-            </section>
-        )}
-
-        {/* Audio Player and Chapters */}
         {chapters.length > 0 && (
             <section className="mb-8">
                 <h2 className="text-xl font-semibold mb-4">{t('real_time_guide', 'Real-Time Guide')}</h2>
-                {/* Audio Player */}
-                <div className="bg-white rounded-lg shadow p-4 sticky top-[72px] z-10 mb-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-medium text-gray-900 truncate">
-                                {activeChapter !== null && chapters[activeChapter] 
-                                ? `${activeChapter + 1}. ${chapters[activeChapter].title}`
-                                : t('audio_guide', 'Audio Guide')}
-                            </h3>
-                            <p className="text-sm text-gray-500">
-                                {activeChapter !== null && chapters[activeChapter]?.duration 
-                                ? `${chapters[activeChapter].duration} ${t('minutes', 'min')}`
-                                : t('select_chapter', 'Select a chapter to begin')}
-                            </p>
-                        </div>
-                        <div className="flex space-x-4 pl-4">
-                            <button
-                                onClick={togglePlayPause}
-                                className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 disabled:bg-gray-200 disabled:text-gray-400"
-                                disabled={activeChapter === null}
-                                aria-label={isPlaying ? 'Pause' : 'Play'}
-                            >
-                                {isPlaying ? ICONS.PAUSE : ICONS.PLAY}
-                            </button>
-                            <audio
-                                ref={audioRef}
-                                onPlay={() => setIsPlaying(true)}
-                                onPause={() => setIsPlaying(false)}
-                                onEnded={() => setIsPlaying(false)}
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Chapters List */}
                 <div className="space-y-4">
                     {chapters.map((chapter, index) => (
-                        <div
-                            key={chapter.id || index}
-                            className={`bg-white p-4 rounded-lg shadow cursor-pointer transition-all duration-300`}
-                            onClick={() => handleChapterSelect(index)}
-                        >
-                            <div className={`flex items-center justify-between transition-colors ${activeChapter === index ? 'text-blue-600' : ''}`}>
+                        <div key={chapter.id || index} className={`bg-white p-4 rounded-lg shadow transition-all duration-300`}>
+                            <div className="flex items-center justify-between cursor-pointer" onClick={() => handleChapterSelect(index)}>
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="font-medium text-gray-900 truncate">{`${index + 1}. ${chapter.title}`}</h4>
+                                    <h4 className="font-medium text-gray-900 truncate">{index === 0 ? chapter.title : `${index}. ${chapter.title}`}</h4>
                                 </div>
-                                {chapter.duration && (
-                                    <div className="flex items-center text-sm text-gray-500 pl-4">
-                                        <Clock className="w-4 h-4 mr-1" />
-                                        {chapter.duration} {t('minutes', 'min')}
-                                    </div>
-                                )}
+                                <button 
+                                   onClick={(e) => { e.stopPropagation(); handlePlayPause(index); }}
+                                   className="p-2 rounded-full hover:bg-gray-100 transition-colors ml-4"
+                                   aria-label={isPlaying && activeChapter === index ? 'Pause' : 'Play'}
+                                   disabled={isTtsLoading === index}
+                                >
+                                  {isTtsLoading === index ? (
+                                    <Zap className="w-5 h-5 text-gray-400 animate-pulse" />
+                                  ) : (
+                                    isPlaying && activeChapter === index ? <Pause className="w-5 h-5 text-blue-600" /> : <Play className="w-5 h-5 text-gray-600" />
+                                  )}
+                                </button>
                                 <ChevronDown className={`w-5 h-5 ml-2 transform transition-transform ${activeChapter === index ? 'rotate-180' : ''}`} />
                             </div>
                             {activeChapter === index && (
-                                <div className="mt-4 pt-4 border-t border-gray-200 text-gray-700 space-y-3">
-                                    {chapter.description && <p className="text-base">{chapter.description}</p>}
-                                    {chapter.sceneDescription && <p className="text-sm italic text-gray-500">{chapter.sceneDescription}</p>}
-                                    
-                                    {chapter.narrativeLayers && (
-                                        <div className="p-3 bg-gray-50 rounded-md space-y-2">
-                                            {chapter.narrativeLayers.coreNarrative && <p><span className="font-semibold">{t('narrative_core', 'Core Story')}:</span> {chapter.narrativeLayers.coreNarrative}</p>}
-                                            {chapter.narrativeLayers.humanStories && <p><span className="font-semibold">{t('narrative_human', 'Human Stories')}:</span> {chapter.narrativeLayers.humanStories}</p>}
-                                            {chapter.narrativeLayers.architectureDeepDive && <p><span className="font-semibold">{t('narrative_architecture', 'Architecture')}:</span> {chapter.narrativeLayers.architectureDeepDive}</p>}
-                                            {chapter.narrativeLayers.sensoryBehindTheScenes && <p><span className="font-semibold">{t('narrative_sensory', 'Behind the Scenes')}:</span> {chapter.narrativeLayers.sensoryBehindTheScenes}</p>}
-                                        </div>
-                                    )}
+                                <div className="mt-4 pt-4 border-t border-gray-200 text-gray-700 space-y-4 prose prose-sm max-w-none">
+                                    {chapter.sceneDescription && <p className="italic text-gray-600">{chapter.sceneDescription}</p>}
+                                    {chapter.coreNarrative && <p>{chapter.coreNarrative}</p>}
+                                    {chapter.humanStories && <p>{chapter.humanStories}</p>}
+                                    {chapter.architectureDeepDive && <p>{chapter.architectureDeepDive}</p>}
+                                    {chapter.sensoryBehindTheScenes && <p>{chapter.sensoryBehindTheScenes}</p>}
 
                                     {chapter.nextDirection && (
-                                        <div className="mt-3 flex items-center text-blue-600 font-semibold">
+                                        <div className="not-prose mt-4 flex items-center text-blue-600 font-semibold">
                                             <MapPin className="w-4 h-4 mr-2" />
                                             <span>{chapter.nextDirection}</span>
                                         </div>
@@ -310,6 +264,7 @@ const TourContent: React.FC<TourContentProps> = ({ locationName, offlineData }) 
             </section>
         )}
       </main>
+      <audio ref={audioRef} />
     </div>
   );
 };
