@@ -37,6 +37,10 @@ function parseJsonResponse(jsonString: string) {
     cleanedString = cleanedString.substring(jsonStart, jsonEnd + 1);
     // 앞뒤 공백/BOM 제거 후 바로 파싱
     cleanedString = cleanedString.replace(/^[\uFEFF\s]+/, '');
+
+    // AI 응답에 포함될 수 있는 주석 제거 (e.g., // ...)
+    cleanedString = cleanedString.replace(/\/\/.*$/gm, '');
+
     return JSON.parse(cleanedString);
 }
 
