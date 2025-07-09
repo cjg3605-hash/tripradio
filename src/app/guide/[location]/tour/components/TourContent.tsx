@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { ArrowLeft, Clock, MapPin, Play, Pause } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Play, Pause, Zap, Sun, ChevronDown } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -112,7 +112,7 @@ const TourContent: React.FC<TourContentProps> = ({ locationName, offlineData }) 
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // Memoized data extraction from props
-  const { overview, realTimeGuide } = offlineData;
+  const { overview, route, realTimeGuide, metadata } = offlineData;
   const chapters = useMemo(() => realTimeGuide?.chapters || [], [realTimeGuide]);
   const keyFacts = useMemo(() => overview.keyFacts || [], [overview]);
 
@@ -176,63 +176,20 @@ const TourContent: React.FC<TourContentProps> = ({ locationName, offlineData }) 
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        {/* Map Section */}
-        <section className="mb-8">
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="h-64 md:h-96 w-full relative">
-              {isLoadingCoords ? (
-                 <div className="h-full w-full flex items-center justify-center bg-gray-100">
-                  <p className="text-gray-500">{t('map_loading', 'Loading map...')}</p>
+        {/* Overview Section */}
+        <section className="mb-8 p-6 bg-white rounded-lg shadow">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{overview.title}</h2>
+            {overview.summary && <p className="text-lg text-gray-600 mb-4">{overview.summary}</p>}
+            {overview.narrativeTheme && (
+                <p className="text-sm italic text-gray-500 mb-4">{t('theme', 'Theme')}: {overview.narrativeTheme}</p>
+            )}
+            {overview.visitInfo && (
+                <div className="flex items-center space-x-4 text-sm text-gray-700">
+                    {overview.visitInfo.duration && <span><Clock size={16} className="inline mr-1"/>{overview.visitInfo.duration} {t('minutes_short', 'min')}</span>}
+                    {overview.visitInfo.difficulty && <span><Zap size={16} className="inline mr-1"/>{overview.visitInfo.difficulty}</span>}
+                    {overview.visitInfo.season && <span><Sun size={16} className="inline mr-1"/>{overview.visitInfo.season}</span>}
                 </div>
-              ) : chaptersWithCoords.length > 0 ? (
-                <div className="h-full w-full">
-                  <MapWithRoute
-                    chapters={chaptersWithCoords}
-                    activeChapter={activeChapter ?? 0}
-                    onMarkerClick={handleChapterSelect}
-                  />
-                </div>
-              ) : (
-                <div className="h-full w-full flex items-center justify-center bg-gray-100">
-                  <p className="text-gray-500">{t('map_no_data', 'Map data not available.')}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* Audio Player */}
-        <section className="mb-8 bg-white rounded-lg shadow p-4 sticky top-[72px] z-10">
-          <div className="flex items-center justify-between">
-            <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-medium text-gray-900 truncate">
-                {activeChapter !== null && chapters[activeChapter] 
-                  ? `${activeChapter + 1}. ${chapters[activeChapter].title}`
-                  : t('audio_guide', 'Audio Guide')}
-              </h2>
-              <p className="text-sm text-gray-500">
-                {activeChapter !== null && chapters[activeChapter]?.duration 
-                  ? `${chapters[activeChapter].duration} ${t('minutes', 'min')}`
-                  : t('select_chapter', 'Select a chapter to begin')}
-              </p>
-            </div>
-            <div className="flex space-x-4 pl-4">
-              <button
-                onClick={togglePlayPause}
-                className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 disabled:bg-gray-200 disabled:text-gray-400"
-                disabled={activeChapter === null}
-                aria-label={isPlaying ? 'Pause' : 'Play'}
-              >
-                {isPlaying ? ICONS.PAUSE : ICONS.PLAY}
-              </button>
-              <audio
-                ref={audioRef}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                onEnded={() => setIsPlaying(false)}
-              />
-            </div>
-          </div>
+            )}
         </section>
 
         {/* Key Facts */}
@@ -250,36 +207,108 @@ const TourContent: React.FC<TourContentProps> = ({ locationName, offlineData }) 
           </section>
         )}
 
-        {/* Chapters */}
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">{t('chapters', 'Chapters')}</h2>
-          <div className="space-y-4">
-            {chapters.map((chapter, index) => (
-              <div
-                key={chapter.id || index}
-                className={`bg-white p-4 rounded-lg shadow cursor-pointer transition-colors ${
-                  activeChapter === index ? 'ring-2 ring-blue-500' : 'hover:bg-gray-50'
-                }`}
-                onClick={() => handleChapterSelect(index)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-gray-900 truncate">{`${index + 1}. ${chapter.title}`}</h3>
-                    {chapter.description && <p className="text-sm text-gray-500 mt-1 line-clamp-2">
-                      {chapter.description}
-                    </p>}
-                  </div>
-                  {chapter.duration && (
-                    <div className="flex items-center text-sm text-gray-500 pl-4">
-                      <Clock className="w-4 h-4 mr-1" />
-                      {chapter.duration} {t('minutes', 'min')}
-                    </div>
-                  )}
+        {/* Recommended Route */}
+        {route?.steps && route.steps.length > 0 && (
+            <section className="mb-8">
+                <h2 className="text-xl font-semibold mb-4">{t('recommended_route', 'Recommended Route')}</h2>
+                <div className="bg-white p-4 rounded-lg shadow">
+                    <ol className="list-decimal list-inside space-y-3 text-gray-700">
+                        {route.steps.map((step, index) => (
+                            <li key={index}>
+                                <span className="font-semibold">{step.title}</span>
+                                <span className="text-sm text-gray-500 ml-2">({step.location})</span>
+                            </li>
+                        ))}
+                    </ol>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
+            </section>
+        )}
+
+        {/* Audio Player and Chapters */}
+        {chapters.length > 0 && (
+            <section className="mb-8">
+                <h2 className="text-xl font-semibold mb-4">{t('real_time_guide', 'Real-Time Guide')}</h2>
+                {/* Audio Player */}
+                <div className="bg-white rounded-lg shadow p-4 sticky top-[72px] z-10 mb-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-medium text-gray-900 truncate">
+                                {activeChapter !== null && chapters[activeChapter] 
+                                ? `${activeChapter + 1}. ${chapters[activeChapter].title}`
+                                : t('audio_guide', 'Audio Guide')}
+                            </h3>
+                            <p className="text-sm text-gray-500">
+                                {activeChapter !== null && chapters[activeChapter]?.duration 
+                                ? `${chapters[activeChapter].duration} ${t('minutes', 'min')}`
+                                : t('select_chapter', 'Select a chapter to begin')}
+                            </p>
+                        </div>
+                        <div className="flex space-x-4 pl-4">
+                            <button
+                                onClick={togglePlayPause}
+                                className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 disabled:bg-gray-200 disabled:text-gray-400"
+                                disabled={activeChapter === null}
+                                aria-label={isPlaying ? 'Pause' : 'Play'}
+                            >
+                                {isPlaying ? ICONS.PAUSE : ICONS.PLAY}
+                            </button>
+                            <audio
+                                ref={audioRef}
+                                onPlay={() => setIsPlaying(true)}
+                                onPause={() => setIsPlaying(false)}
+                                onEnded={() => setIsPlaying(false)}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Chapters List */}
+                <div className="space-y-4">
+                    {chapters.map((chapter, index) => (
+                        <div
+                            key={chapter.id || index}
+                            className={`bg-white p-4 rounded-lg shadow cursor-pointer transition-all duration-300`}
+                            onClick={() => handleChapterSelect(index)}
+                        >
+                            <div className={`flex items-center justify-between transition-colors ${activeChapter === index ? 'text-blue-600' : ''}`}>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="font-medium text-gray-900 truncate">{`${index + 1}. ${chapter.title}`}</h4>
+                                </div>
+                                {chapter.duration && (
+                                    <div className="flex items-center text-sm text-gray-500 pl-4">
+                                        <Clock className="w-4 h-4 mr-1" />
+                                        {chapter.duration} {t('minutes', 'min')}
+                                    </div>
+                                )}
+                                <ChevronDown className={`w-5 h-5 ml-2 transform transition-transform ${activeChapter === index ? 'rotate-180' : ''}`} />
+                            </div>
+                            {activeChapter === index && (
+                                <div className="mt-4 pt-4 border-t border-gray-200 text-gray-700 space-y-3">
+                                    {chapter.description && <p className="text-base">{chapter.description}</p>}
+                                    {chapter.sceneDescription && <p className="text-sm italic text-gray-500">{chapter.sceneDescription}</p>}
+                                    
+                                    {chapter.narrativeLayers && (
+                                        <div className="p-3 bg-gray-50 rounded-md space-y-2">
+                                            {chapter.narrativeLayers.coreNarrative && <p><span className="font-semibold">{t('narrative_core', 'Core Story')}:</span> {chapter.narrativeLayers.coreNarrative}</p>}
+                                            {chapter.narrativeLayers.humanStories && <p><span className="font-semibold">{t('narrative_human', 'Human Stories')}:</span> {chapter.narrativeLayers.humanStories}</p>}
+                                            {chapter.narrativeLayers.architectureDeepDive && <p><span className="font-semibold">{t('narrative_architecture', 'Architecture')}:</span> {chapter.narrativeLayers.architectureDeepDive}</p>}
+                                            {chapter.narrativeLayers.sensoryBehindTheScenes && <p><span className="font-semibold">{t('narrative_sensory', 'Behind the Scenes')}:</span> {chapter.narrativeLayers.sensoryBehindTheScenes}</p>}
+                                        </div>
+                                    )}
+
+                                    {chapter.nextDirection && (
+                                        <div className="mt-3 flex items-center text-blue-600 font-semibold">
+                                            <MapPin className="w-4 h-4 mr-2" />
+                                            <span>{chapter.nextDirection}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </section>
+        )}
       </main>
     </div>
   );

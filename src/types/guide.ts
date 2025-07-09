@@ -7,6 +7,7 @@ export interface UserProfile {
 
 export interface GuideOverview {
   title: string;
+  summary?: string;
   narrativeTheme?: string;
   keyFacts: {
     title: string;
