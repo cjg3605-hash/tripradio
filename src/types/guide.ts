@@ -7,76 +7,76 @@ export interface UserProfile {
 
 export interface GuideOverview {
   title: string;
-  narrativeTheme: string;
-  keyFacts: string[];
-  visitInfo: {
-    duration: string;
-    difficulty: string;
-    season: string;
+  narrativeTheme?: string;
+  keyFacts: {
+    title: string;
+    description: string;
+  }[];
+  visitInfo?: {
+    duration?: string;
+    difficulty?: string;
+    season?: string;
   };
 }
 
-export interface RouteStep {
+export interface GuideStep {
   step: number;
   location: string;
   title: string;
 }
 
 export interface GuideRoute {
-  steps: RouteStep[];
+  steps: GuideStep[];
 }
 
 export interface GuideChapter {
   id: number;
   title: string;
-  realTimeScript: string;
+  description?: string;
+  duration?: number | string;
+  audioUrl?: string;
+  sceneDescription?: string;
+  narrativeLayers?: {
+    coreNarrative?: string;
+    architectureDeepDive?: string;
+    humanStories?: string;
+    sensoryBehindTheScenes?: string;
+    [key: string]: any;
+  };
+  nextDirection?: string;
+  lat?: number;
+  lng?: number;
+  latitude?: number;
+  longitude?: number;
   coordinates?: {
     lat: number;
     lng: number;
   };
-  [key: string]: any; // For dynamic access to properties
-}
-
-export interface StartingLocation {
-  name: string;
-  address: string;
-  googleMapsUrl: string;
-  coordinates: {
-    latitude: string;
-    longitude: string;
+  realTimeScript?: string;
+  location?: {
+    name?: string;
+    [key: string]: any;
   };
+  [key: string]: any;
 }
 
 export interface RealTimeGuide {
-  startingLocation?: StartingLocation;
   chapters: GuideChapter[];
-}
-
-export interface GuideContent {
-  overview?: GuideOverview;
-  route?: GuideRoute;
-  realTimeGuide?: RealTimeGuide;
-  RealTimeGuide?: RealTimeGuide;
-  '실시간가이드'?: RealTimeGuide;
-  [key: string]: any; // For dynamic access to properties
+  [key: string]: any;
 }
 
 export interface GuideMetadata {
   originalLocationName: string;
-  englishFileName: string;
-  generatedAt: string;
-  version: string;
+  englishFileName?: string;
+  generatedAt?: string;
+  version?: string;
 }
 
 export interface GuideData {
-  content?: GuideContent;
-  overview?: GuideOverview;
-  route?: GuideRoute;
+  overview: GuideOverview;
+  route: GuideRoute;
   realTimeGuide?: RealTimeGuide;
-  RealTimeGuide?: RealTimeGuide;
-  '실시간가이드'?: RealTimeGuide;
-  [key: string]: any; // For dynamic access to properties
-  metadata?: GuideMetadata;
+  metadata: GuideMetadata;
 }
 
 export interface ApiResponse {

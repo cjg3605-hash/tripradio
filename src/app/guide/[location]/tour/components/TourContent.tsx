@@ -1,98 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { ArrowLeft, Clock, MapPin, Play, Pause, Volume2, StopCircle } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Play, Pause } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useSession } from 'next-auth/react';
-import { REALTIME_GUIDE_KEYS } from '@/lib/ai/prompts';
+import { GuideData, GuideChapter } from '@/types/guide';
 
-// Types
-interface Chapter {
-  id: number;
-  title: string;
-  description?: string;
-  duration?: number | string;
-  audioUrl?: string;
-  sceneDescription?: string;
-  narrativeLayers?: {
-    coreNarrative?: string;
-    architectureDeepDive?: string;
-    humanStories?: string;
-    sensoryBehindTheScenes?: string;
-    [key: string]: any;
-  };
-  nextDirection?: string;
-  lat?: number;
-  lng?: number;
-  latitude?: number;
-  longitude?: number;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
-  realTimeScript?: string;
-  location?: {
-    name?: string;
-    [key: string]: any;
-  };
-  [key: string]: any;
-}
-
-interface Step {
-  step: number;
-  location: string;
-  title: string;
-  [key: string]: any;
-}
-
-interface Overview {
-  title: string;
-  narrativeTheme?: string;
-  keyFacts?: Array<{
-    title: string;
-    description: string;
-  }>;
-  visitInfo?: {
-    duration?: number | string;
-    difficulty?: string;
-    season?: string;
-    [key: string]: any;
-  };
-  [key: string]: any;
-}
-
-interface TourData {
-  content?: {
-    overview?: Overview;
-    route?: { steps: Step[] };
-    realTimeGuide?: { chapters: Chapter[] };
-    RealTimeGuide?: { chapters: Chapter[] };
-    '실시간가이드'?: { chapters: Chapter[] };
-    personalizedNote?: string;
-    [key: string]: any;
-  };
-  overview?: Overview;
-  route?: { steps: Step[] };
-  realTimeGuide?: { chapters: Chapter[] };
-  RealTimeGuide?: { chapters: Chapter[] };
-  '실시간가이드'?: { chapters: Chapter[] };
-  metadata?: {
-    originalLocationName: string;
-    [key: string]: any;
-  };
-  [key: string]: any;
-}
-
-interface TourContentProps {
-  locationName: string;
-  userProfile?: any;
-  initialGuide?: TourData | null;
-  offlineData?: TourData;
-}
-
-// Dynamic imports with loading states
+// Dynamic import for Map component
 const MapWithRoute = dynamic(
   () => import('@/components/guide/MapWithRoute'),
   { 
@@ -105,51 +20,54 @@ const MapWithRoute = dynamic(
   }
 );
 
-// Icons
+// Icon definitions
 const ICONS = {
   PLAY: <Play className="w-7 h-7" />,
   PAUSE: <Pause className="w-7 h-7" />,
-  STOP: <StopCircle className="w-7 h-7" />,
-  VOLUME: <Volume2 className="w-7 h-7" />,
-  CLOCK: <Clock className="w-7 h-7" />,
-  MAP: <MapPin className="w-7 h-7" />,
   BACK: <ArrowLeft className="w-7 h-7" />
 };
 
-// Helper function to normalize POI names
+// Props interface for the component
+interface TourContentProps {
+  locationName: string;
+  offlineData: GuideData;
+}
+
+// Helper function to normalize POI names for API search
 const normalizePOI = (titleOrLocation?: string): string => {
   if (!titleOrLocation) return '';
   return titleOrLocation
     .replace(/^\d+\.\s*/, '') // Remove leading numbers
-    .replace(/\s*\(.*?\)/g, '') // Remove parentheses and their content
+    .replace(/\s*\(.*\)/g, '') // Remove parentheses and their content
     .trim();
 };
 
-// Hook to fetch coordinates for chapters
-const useChaptersWithCoordinates = (chapters: Chapter[] = [], language: string) => {
-  const [chaptersWithCoords, setChaptersWithCoords] = useState<Chapter[]>(chapters);
+// Hook to fetch coordinates for chapters that lack them
+const useChaptersWithCoordinates = (chapters: GuideChapter[] = [], language: string) => {
+  const [chaptersWithCoords, setChaptersWithCoords] = useState<GuideChapter[]>(chapters);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!chapters?.length) {
-      setIsLoading(false);
-      return;
+    const chaptersNeedingCoords = chapters.filter(c => !c.lat || !c.lng);
+    if (chaptersNeedingCoords.length === 0) {
+        setChaptersWithCoords(chapters);
+        return;
     }
 
     const fetchCoordinates = async () => {
       setIsLoading(true);
-      setError(null);
       try {
         const updatedChapters = await Promise.all(
           chapters.map(async (chapter) => {
+            if (chapter.lat && chapter.lng) return chapter; // Already has coords
+
             try {
               const searchQuery = normalizePOI(chapter.title || chapter.location?.name || '');
               if (!searchQuery) return chapter;
               const response = await fetch(
                 `/api/places/search?query=${encodeURIComponent(searchQuery)}&language=${language}`
               );
-              if (!response.ok) throw new Error('Failed to fetch coordinates');
+              if (!response.ok) return chapter;
               const data = await response.json();
               const place = data.results?.[0];
               if (place?.geometry?.location) {
@@ -165,13 +83,13 @@ const useChaptersWithCoordinates = (chapters: Chapter[] = [], language: string) 
               }
               return chapter;
             } catch {
-              return chapter;
+              return chapter; // Return original chapter on individual fetch error
             }
           })
         );
         setChaptersWithCoords(updatedChapters);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch coordinates'));
+        console.error("Failed to fetch coordinates", err);
       } finally {
         setIsLoading(false);
       }
@@ -179,153 +97,81 @@ const useChaptersWithCoordinates = (chapters: Chapter[] = [], language: string) 
     fetchCoordinates();
   }, [chapters, language]);
 
-  return { chapters: chaptersWithCoords, isLoading, error };
+  return { chapters: chaptersWithCoords, isLoading };
 };
 
-const TourContent: React.FC<TourContentProps> = ({ locationName, userProfile, offlineData }) => {
+
+// The main presentational component
+const TourContent: React.FC<TourContentProps> = ({ locationName, offlineData }) => {
   const { t } = useTranslation('guide');
-  const { data: session } = useSession();
   const { currentLanguage } = useLanguage();
-  
-  // State management
-  const [tourData, setTourData] = useState<TourData | null>(offlineData || null);
-  const [isLoading, setIsLoading] = useState(!offlineData);
-  const [error, setError] = useState<string | null>(null);
-  const [activeChapter, setActiveChapter] = useState<number | null>(null);
+
+  // State for UI interaction
+  const [activeChapter, setActiveChapter] = useState<number | null>(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  
-  // Extract chapters from tour data
-  const chapters = useMemo(() => {
-    if (!tourData) return [];
-    const realTimeGuide =
-      tourData.content?.realTimeGuide?.chapters ||
-      tourData.content?.RealTimeGuide?.chapters ||
-      tourData.content?.['실시간가이드']?.chapters ||
-      tourData.realTimeGuide?.chapters ||
-      tourData.RealTimeGuide?.chapters ||
-      tourData['실시간가이드']?.chapters ||
-      [];
-    return realTimeGuide;
-  }, [tourData]);
-  
-  // Get coordinates for chapters
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Memoized data extraction from props
+  const { overview, realTimeGuide } = offlineData;
+  const chapters = useMemo(() => realTimeGuide?.chapters || [], [realTimeGuide]);
+  const keyFacts = useMemo(() => overview.keyFacts || [], [overview]);
+
+  // Fetch coordinates for chapters
   const { chapters: chaptersWithCoords, isLoading: isLoadingCoords } = 
     useChaptersWithCoordinates(chapters, currentLanguage);
-  
-  // Load tour data
-  const loadTourData = useCallback(async (forceRegenerate = false) => {
-    if (!locationName || !currentLanguage) return;
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const response = await fetch('/api/node/ai/generate-guide', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          locationName: locationName, // 'location' -> 'locationName'
-          language: currentLanguage,
-          forceRegenerate
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(t('error.loading_guide'));
-      }
-      
-      const data = await response.json();
-      setTourData(data);
-      
-    } catch (err) {
-      console.error('Error loading tour data:', err);
-      setError(err instanceof Error ? err.message : t('error.unknown'));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [locationName, currentLanguage, t]);
-  
-  // Initial load
-  useEffect(() => {
-    if (!offlineData) {
-      loadTourData();
-    }
-  }, [offlineData, loadTourData]);
-  
-  // Handle play/pause
+
+  // Audio player controls
   const togglePlayPause = useCallback(() => {
-    if (!audioRef.current) return;
-    
+    const audioElement = audioRef.current;
+    if (!audioElement) return;
+
     if (isPlaying) {
-      audioRef.current.pause();
+      audioElement.pause();
     } else {
-      audioRef.current.play().catch(err => {
-        console.error('Error playing audio:', err);
-        setError(t('error.audio_playback'));
-      });
+      audioElement.play().catch(err => console.error("Audio play failed:", err));
     }
-    
-    setIsPlaying(!isPlaying);
-  }, [isPlaying, t]);
-  
-  // Handle chapter selection
-  const handleChapterSelect = useCallback((chapterId: number) => {
-    setActiveChapter(chapterId);
-    // TODO: Implement chapter navigation logic
-  }, []);
+  }, [isPlaying]);
 
-  // Render loading state
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-lg">{t('loading')}</p>
-        </div>
-      </div>
-    );
-  }
+  const handleChapterSelect = useCallback((index: number) => {
+    setActiveChapter(index);
+    setIsPlaying(false);
+    if (audioRef.current) {
+        audioRef.current.pause();
+        const newSrc = chapters[index]?.audioUrl;
+        if (newSrc) {
+            audioRef.current.src = newSrc;
+        }
+    }
+  }, [chapters]);
 
-  // Render error state
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center p-6 max-w-md mx-auto bg-red-50 rounded-lg">
-          <h2 className="text-xl font-semibold text-red-600 mb-2">{t('error.title')}</h2>
-          <p className="text-gray-700 mb-4">{error}</p>
-          <button
-            onClick={() => loadTourData()}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-          >
-            {t('retry')}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Get overview data with fallbacks
-  const overview = tourData?.content?.overview || tourData?.overview;
-  const routeSteps = tourData?.content?.route?.steps || tourData?.route?.steps || [];
-  const keyFacts = overview?.keyFacts || [];
+  // Effect to handle audio source change when activeChapter changes
+  useEffect(() => {
+    if (activeChapter === null || !audioRef.current) return;
+    const audioUrl = chapters[activeChapter]?.audioUrl;
+    if (audioUrl) {
+      audioRef.current.src = audioUrl;
+      if(isPlaying) {
+        audioRef.current.play().catch(e => console.error("Failed to autoplay:", e));
+      }
+    }
+  }, [activeChapter, chapters, isPlaying]);
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <button
             onClick={() => window.history.back()}
             className="p-2 rounded-full hover:bg-gray-100"
-            aria-label={t('back')}
+            aria-label={t('back', 'Back')}
           >
             {ICONS.BACK}
           </button>
-          <h1 className="text-xl font-semibold text-gray-900">
+          <h1 className="text-xl font-semibold text-gray-900 truncate px-2">
             {overview?.title || locationName}
           </h1>
-          <div className="w-10"></div> {/* Spacer for alignment */}
+          <div className="w-10"></div> {/* Spacer */}
         </div>
       </header>
 
@@ -334,17 +180,21 @@ const TourContent: React.FC<TourContentProps> = ({ locationName, userProfile, of
         <section className="mb-8">
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="h-64 md:h-96 w-full relative">
-              {chaptersWithCoords.length > 0 ? (
+              {isLoadingCoords ? (
+                 <div className="h-full w-full flex items-center justify-center bg-gray-100">
+                  <p className="text-gray-500">{t('map_loading', 'Loading map...')}</p>
+                </div>
+              ) : chaptersWithCoords.length > 0 ? (
                 <div className="h-full w-full">
                   <MapWithRoute
                     chapters={chaptersWithCoords}
-                    activeChapter={typeof activeChapter === 'number' ? activeChapter : 0}
+                    activeChapter={activeChapter ?? 0}
                     onMarkerClick={handleChapterSelect}
                   />
                 </div>
               ) : (
                 <div className="h-full w-full flex items-center justify-center bg-gray-100">
-                  <p className="text-gray-500">{t('map_loading')}</p>
+                  <p className="text-gray-500">{t('map_no_data', 'Map data not available.')}</p>
                 </div>
               )}
             </div>
@@ -352,31 +202,33 @@ const TourContent: React.FC<TourContentProps> = ({ locationName, userProfile, of
         </section>
 
         {/* Audio Player */}
-        <section className="mb-8 bg-white rounded-lg shadow p-4">
+        <section className="mb-8 bg-white rounded-lg shadow p-4 sticky top-[72px] z-10">
           <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-medium text-gray-900">
-                {typeof activeChapter === 'number' && chapters[activeChapter] 
-                  ? chapters[activeChapter].title 
-                  : t('audio_guide')}
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-medium text-gray-900 truncate">
+                {activeChapter !== null && chapters[activeChapter] 
+                  ? `${activeChapter + 1}. ${chapters[activeChapter].title}`
+                  : t('audio_guide', 'Audio Guide')}
               </h2>
               <p className="text-sm text-gray-500">
-                {typeof activeChapter === 'number' && chapters[activeChapter]?.duration 
-                  ? `${chapters[activeChapter].duration} ${t('minutes')}`
-                  : t('select_chapter')}
+                {activeChapter !== null && chapters[activeChapter]?.duration 
+                  ? `${chapters[activeChapter].duration} ${t('minutes', 'min')}`
+                  : t('select_chapter', 'Select a chapter to begin')}
               </p>
             </div>
-            <div className="flex space-x-4">
+            <div className="flex space-x-4 pl-4">
               <button
                 onClick={togglePlayPause}
-                className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200"
+                className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 disabled:bg-gray-200 disabled:text-gray-400"
                 disabled={activeChapter === null}
+                aria-label={isPlaying ? 'Pause' : 'Play'}
               >
                 {isPlaying ? ICONS.PAUSE : ICONS.PLAY}
               </button>
               <audio
                 ref={audioRef}
-                src={typeof activeChapter === 'number' ? chapters[activeChapter]?.audioUrl : undefined}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
                 onEnded={() => setIsPlaying(false)}
               />
             </div>
@@ -386,12 +238,12 @@ const TourContent: React.FC<TourContentProps> = ({ locationName, userProfile, of
         {/* Key Facts */}
         {keyFacts.length > 0 && (
           <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">{t('key_facts')}</h2>
+            <h2 className="text-xl font-semibold mb-4">{t('key_facts', 'Key Facts')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {keyFacts.map((fact, index) => (
                 <div key={index} className="bg-white p-4 rounded-lg shadow">
                   <h3 className="font-medium text-gray-900">{fact.title}</h3>
-                  <p className="text-gray-600 mt-1">{fact.description}</p>
+                  {fact.description && <p className="text-gray-600 mt-1">{fact.description}</p>}
                 </div>
               ))}
             </div>
@@ -400,27 +252,27 @@ const TourContent: React.FC<TourContentProps> = ({ locationName, userProfile, of
 
         {/* Chapters */}
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">{t('chapters')}</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('chapters', 'Chapters')}</h2>
           <div className="space-y-4">
             {chapters.map((chapter, index) => (
               <div
-                key={index}
+                key={chapter.id || index}
                 className={`bg-white p-4 rounded-lg shadow cursor-pointer transition-colors ${
                   activeChapter === index ? 'ring-2 ring-blue-500' : 'hover:bg-gray-50'
                 }`}
                 onClick={() => handleChapterSelect(index)}
               >
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900">{chapter.title}</h3>
-                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-gray-900 truncate">{`${index + 1}. ${chapter.title}`}</h3>
+                    {chapter.description && <p className="text-sm text-gray-500 mt-1 line-clamp-2">
                       {chapter.description}
-                    </p>
+                    </p>}
                   </div>
                   {chapter.duration && (
-                    <div className="flex items-center text-sm text-gray-500">
+                    <div className="flex items-center text-sm text-gray-500 pl-4">
                       <Clock className="w-4 h-4 mr-1" />
-                      {chapter.duration} {t('minutes')}
+                      {chapter.duration} {t('minutes', 'min')}
                     </div>
                   )}
                 </div>
