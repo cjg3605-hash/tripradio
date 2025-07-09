@@ -11,6 +11,7 @@ import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
 import { REALTIME_GUIDE_KEYS } from '@/lib/ai/prompts';
+import { getTTSLanguage } from '@/lib/ai/prompts';
 
 // 🔥 강력한 디버깅: 컴포넌트 로드 확인
 console.log('🚀 TourContent 컴포넌트 파일 로드됨!');
@@ -361,7 +362,7 @@ export default function TourContent({ locationName, userProfile, initialGuide, o
       }
     }
     const utterance = new SpeechSynthesisUtterance(script);
-    utterance.lang = 'en-US';
+    utterance.lang = getTTSLanguage(currentLanguage); // 동적으로 언어코드 할당
     utterance.onstart = () => setCurrentlyPlayingId(chapterId);
     utterance.onend = () => { setCurrentlyPlayingId(null); setCurrentUtterance(null); };
     utterance.onerror = () => { setCurrentlyPlayingId(null); setCurrentUtterance(null); };
