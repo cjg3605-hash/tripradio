@@ -82,11 +82,36 @@ function normalizeGuideData(raw: any, language?: string) {
     console.log('🔧 realTimeGuide에 chapters 추가');
   }
   
+  // === [NEW] steps-chapters 동기화 보정 ===
+  if (route && Array.isArray(route.steps) && realTimeGuide && Array.isArray(realTimeGuide.chapters)) {
+    const steps = route.steps;
+    let chapters = realTimeGuide.chapters;
+    if (chapters.length !== steps.length) {
+      console.warn(`⚠️ steps(${steps.length})와 chapters(${chapters.length}) 개수 불일치. steps 기준으로 보정.`);
+      // 각 step에 대해 title/location이 일치하는 chapter가 있으면 사용, 없으면 빈 챕터 생성
+      chapters = steps.map((step, idx) => {
+        const found = realTimeGuide.chapters.find(
+          (ch: any) => ch && ch.title && step && ch.title === step.title
+        );
+        return found || {
+          title: step.title || `Chapter ${idx + 1}`,
+          location: step.location || '',
+          humanStories: '',
+          coreNarrative: '',
+          nextDirection: '',
+          sceneDescription: ''
+        };
+      });
+      realTimeGuide.chapters = chapters;
+    }
+  }
+
   const result = {
     overview,
     route,
     realTimeGuide
   };
+
   
   console.log('🔧 normalizeGuideData result:', JSON.stringify(result, null, 2));
   return result;
@@ -264,6 +289,20 @@ export async function POST(req: NextRequest) {
         success: false,
         error: '필수 값 누락: ' + validation.missing.join(', '),
         missing: validation.missing,
+        data: normalized
+      }, { status: 500 });
+    }
+    // === [NEW] 챕터 내용 비어있음 검사 ===
+    const chapters = normalized.realTimeGuide?.chapters || [];
+    const emptyChapters = chapters.filter(
+      (ch: any) => !ch || [ch.humanStories, ch.coreNarrative, ch.nextDirection, ch.sceneDescription].some(v => !v || v.trim() === "")
+    );
+    if (emptyChapters.length > 0) {
+      console.error('❌ 내용이 비어있는 챕터가 발견됨:', emptyChapters);
+      return NextResponse.json({
+        success: false,
+        error: `One or more chapters are missing real content. All chapters must have non-empty humanStories, coreNarrative, nextDirection, and sceneDescription fields.`,
+        emptyChaptersCount: emptyChapters.length,
         data: normalized
       }, { status: 500 });
     }

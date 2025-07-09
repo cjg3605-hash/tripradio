@@ -246,48 +246,62 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
           </section>
         )}
 
-        {chapters.length > 0 && (
+        {route?.steps && route.steps.length > 0 && (
             <section className="mb-8">
                 <h2 className="text-xl font-semibold mb-4">{t('real_time_guide', 'Real-Time Guide')}</h2>
                 <div className="space-y-4">
-                    {chapters.map((chapter, index) => (
-                        <div key={chapter.id || index} className={`bg-white p-4 rounded-lg shadow transition-all duration-300`}>
-                            <div className="flex items-center justify-between cursor-pointer" onClick={() => handleChapterSelect(index)}>
-                                <div className="flex-1 min-w-0">
-                                    <h4 className="font-medium text-gray-900 truncate">{index === 0 ? chapter.title : `${index}. ${chapter.title}`}</h4>
+                    {(route.steps.map((step, index) => {
+                        const chapter = chapters[index] || {
+                            title: step.title || `Chapter ${index + 1}`,
+                            location: step.location || '',
+                            humanStories: '',
+                            coreNarrative: '',
+                            nextDirection: '',
+                            sceneDescription: ''
+                        };
+                        return (
+                            <div key={chapter.id || index} className={`bg-white p-4 rounded-lg shadow transition-all duration-300`}>
+                                <div className="flex items-center justify-between cursor-pointer" onClick={() => handleChapterSelect(index)}>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="font-medium text-gray-900 truncate">{index === 0 ? chapter.title : `${index}. ${chapter.title}`}</h4>
+                                    </div>
+                                    <button 
+                                       onClick={(e) => { e.stopPropagation(); handlePlayPause(index); }}
+                                       className="p-2 rounded-full hover:bg-gray-100 transition-colors ml-4"
+                                       aria-label={isPlaying && activeChapter === index ? 'Pause' : 'Play'}
+                                       disabled={isTtsLoading === index}
+                                    >
+                                      {isTtsLoading === index ? (
+                                        <Zap className="w-5 h-5 text-gray-400 animate-pulse" />
+                                      ) : (
+                                        isPlaying && activeChapter === index ? <Pause className="w-5 h-5 text-blue-600" /> : <Play className="w-5 h-5 text-gray-600" />
+                                      )}
+                                    </button>
+                                    <ChevronDown className={`w-5 h-5 ml-2 transform transition-transform ${activeChapter === index ? 'rotate-180' : ''}`} />
                                 </div>
-                                <button 
-                                   onClick={(e) => { e.stopPropagation(); handlePlayPause(index); }}
-                                   className="p-2 rounded-full hover:bg-gray-100 transition-colors ml-4"
-                                   aria-label={isPlaying && activeChapter === index ? 'Pause' : 'Play'}
-                                   disabled={isTtsLoading === index}
-                                >
-                                  {isTtsLoading === index ? (
-                                    <Zap className="w-5 h-5 text-gray-400 animate-pulse" />
-                                  ) : (
-                                    isPlaying && activeChapter === index ? <Pause className="w-5 h-5 text-blue-600" /> : <Play className="w-5 h-5 text-gray-600" />
-                                  )}
-                                </button>
-                                <ChevronDown className={`w-5 h-5 ml-2 transform transition-transform ${activeChapter === index ? 'rotate-180' : ''}`} />
-                            </div>
-                            {activeChapter === index && (
-                                <div className="mt-4 pt-4 border-t border-gray-200 text-gray-700 space-y-4 prose prose-sm max-w-none">
-                                    {chapter.sceneDescription && <p className="italic text-gray-600">{chapter.sceneDescription}</p>}
-                                    {chapter.coreNarrative && <p>{chapter.coreNarrative}</p>}
-                                    {chapter.humanStories && <p>{chapter.humanStories}</p>}
-                                    {chapter.architectureDeepDive && <p>{chapter.architectureDeepDive}</p>}
-                                    {chapter.sensoryBehindTheScenes && <p>{chapter.sensoryBehindTheScenes}</p>}
+                                {activeChapter === index && (
+                                    <div className="mt-4 pt-4 border-t border-gray-200 text-gray-700 space-y-4 prose prose-sm max-w-none">
+                                        {chapter.sceneDescription && <p className="italic text-gray-600">{chapter.sceneDescription}</p>}
+                                        {chapter.coreNarrative && <p>{chapter.coreNarrative}</p>}
+                                        {chapter.humanStories && <p>{chapter.humanStories}</p>}
+                                        {chapter.architectureDeepDive && <p>{chapter.architectureDeepDive}</p>}
+                                        {chapter.sensoryBehindTheScenes && <p>{chapter.sensoryBehindTheScenes}</p>}
 
-                                    {chapter.nextDirection && (
-                                        <div className="not-prose mt-4 flex items-center text-blue-600 font-semibold">
-                                            <MapPin className="w-4 h-4 mr-2" />
-                                            <span>{chapter.nextDirection}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                                        {chapter.nextDirection && (
+                                            <div className="not-prose mt-4 flex items-center text-blue-600 font-semibold">
+                                                <MapPin className="w-4 h-4 mr-2" />
+                                                <span>{chapter.nextDirection}</span>
+                                            </div>
+                                        )}
+                                        {/* 안내 메시지 */}
+                                        {!(chapter.sceneDescription || chapter.coreNarrative || chapter.humanStories) && (
+                                            <div className="text-gray-400 italic">{t('chapter_content_preparing', 'This chapter is being prepared...')}</div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    }))}
                 </div>
             </section>
         )}
