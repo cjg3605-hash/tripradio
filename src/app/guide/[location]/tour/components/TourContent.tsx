@@ -1,30 +1,27 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { ArrowLeft, Clock, MapPin, Play, Pause, Volume2, StopCircle } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { getBestOfficialPlace } from '@/lib/ai/officialData';
 import { useTranslation } from 'next-i18next';
-import useSWR from 'swr';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { guideHistory } from '@/lib/cache/localStorage';
-import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
 import { REALTIME_GUIDE_KEYS } from '@/lib/ai/prompts';
-import { getTTSLanguage } from '@/lib/ai/prompts';
 
-// 🔥 강력한 디버깅: 컴포넌트 로드 확인
-console.log('🚀 TourContent 컴포넌트 파일 로드됨!');
-
+// Types
 interface Chapter {
   id: number;
   title: string;
-  sceneDescription: string;
-  narrativeLayers: {
-    coreNarrative: string;
-    architectureDeepDive: string;
-    humanStories: string;
-    sensoryBehindTheScenes: string;
+  description?: string;
+  duration?: number | string;
+  audioUrl?: string;
+  sceneDescription?: string;
+  narrativeLayers?: {
+    coreNarrative?: string;
+    architectureDeepDive?: string;
+    humanStories?: string;
+    sensoryBehindTheScenes?: string;
+    [key: string]: any;
   };
   nextDirection?: string;
   lat?: number;
@@ -35,553 +32,405 @@ interface Chapter {
     lat: number;
     lng: number;
   };
-  realTimeScript: string;
+  realTimeScript?: string;
+  location?: {
+    name?: string;
+    [key: string]: any;
+  };
+  [key: string]: any;
 }
 
 interface Step {
   step: number;
   location: string;
   title: string;
+  [key: string]: any;
 }
 
 interface Overview {
   title: string;
   narrativeTheme?: string;
-  keyFacts?: string[];
+  keyFacts?: Array<{
+    title: string;
+    description: string;
+  }>;
   visitInfo?: {
-    duration?: number;
+    duration?: number | string;
     difficulty?: string;
     season?: string;
+    [key: string]: any;
   };
+  [key: string]: any;
 }
 
 interface TourData {
-  content: {
-    overview: Overview;
-    route: { steps: Step[] };
-    realTimeGuide: { chapters: Chapter[] };
+  content?: {
+    overview?: Overview;
+    route?: { steps: Step[] };
+    realTimeGuide?: { chapters: Chapter[] };
+    RealTimeGuide?: { chapters: Chapter[] };
+    '실시간가이드'?: { chapters: Chapter[] };
     personalizedNote?: string;
+    [key: string]: any;
   };
-  metadata: {
+  overview?: Overview;
+  route?: { steps: Step[] };
+  realTimeGuide?: { chapters: Chapter[] };
+  RealTimeGuide?: { chapters: Chapter[] };
+  '실시간가이드'?: { chapters: Chapter[] };
+  metadata?: {
     originalLocationName: string;
+    [key: string]: any;
   };
+  [key: string]: any;
 }
 
 interface TourContentProps {
   locationName: string;
   userProfile?: any;
-  initialGuide?: any;
-  offlineData?: {
-    overview: Overview;
-    route: { steps: Step[] };
-    realTimeGuide: { chapters: Chapter[] };
-  };
+  initialGuide?: TourData | null;
+  offlineData?: TourData;
 }
 
-const MapWithRoute = dynamic(() => import('@/components/guide/MapWithRoute'), { ssr: false });
+// Dynamic imports with loading states
+const MapWithRoute = dynamic(
+  () => import('@/components/guide/MapWithRoute'),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+        Loading map...
+      </div>
+    )
+  }
+);
 
+// Icons
 const ICONS = {
   PLAY: <Play className="w-7 h-7" />,
+  PAUSE: <Pause className="w-7 h-7" />,
   STOP: <StopCircle className="w-7 h-7" />,
+  VOLUME: <Volume2 className="w-7 h-7" />,
+  CLOCK: <Clock className="w-7 h-7" />,
+  MAP: <MapPin className="w-7 h-7" />,
+  BACK: <ArrowLeft className="w-7 h-7" />
 };
 
-// 공식 POI 좌표 매핑
-const POI_COORDS: Record<string, { lat: number; lng: number }> = {
-  "Giralda Tower": { lat: 37.384008, lng: -5.995588 },
-  "Patio de los Naranjos": { lat: 37.383988, lng: -5.995833 },
-  "Main Altar": { lat: 37.383825, lng: -5.996715 },
-  "Tomb of Christopher Columbus": { lat: 37.384159, lng: -5.996687 },
-  "Royal Chapel": { lat: 37.383504, lng: -5.996887 },
-  "Interior of the Cathedral": { lat: 37.384068, lng: -5.996852 },
-  // ... 필요시 추가 ...
+// Helper function to normalize POI names
+const normalizePOI = (titleOrLocation?: string): string => {
+  if (!titleOrLocation) return '';
+  return titleOrLocation
+    .replace(/^\d+\.\s*/, '') // Remove leading numbers
+    .replace(/\s*\(.*?\)/g, '') // Remove parentheses and their content
+    .trim();
 };
 
-// POI명 정규화 및 좌표 매핑
-const normalizePOI = (titleOrLocation: string) => {
-  if (!titleOrLocation) return null;
-  for (const poi in POI_COORDS) {
-    if (titleOrLocation.toLowerCase().includes(poi.toLowerCase())) {
-      return POI_COORDS[poi];
-    }
-  }
-  return null;
-};
-
-function useChaptersWithCoordinates(chapters, language, mainLocationName, mainLocationNameEn) {
-  const [data, setData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+// Hook to fetch coordinates for chapters
+const useChaptersWithCoordinates = (chapters: Chapter[] = [], language: string) => {
+  const [chaptersWithCoords, setChaptersWithCoords] = useState<Chapter[]>(chapters);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!chapters || chapters.length === 0 || !language) {
-      setData(null);
+    if (!chapters?.length) {
       setIsLoading(false);
       return;
     }
-    setIsLoading(true);
-    setError(null);
-    Promise.all(
-      chapters.map(async (ch) => {
-        try {
-          // 영어/현지어 명칭 우선 사용
-          let queryName = mainLocationNameEn || mainLocationName;
-          const sub = ch.title || ch.location;
-          if (sub && sub.length > 2 && !sub.includes(queryName)) {
-            queryName = `${queryName} ${sub}`;
-          }
-          const res = await fetch('/api/locations/search/coordinates', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ locationName: queryName, language }),
-          });
-          const result = await res.json();
-          if (result.success && result.coordinates) {
-            return { ...ch, coordinates: result.coordinates };
-          }
-        } catch {}
-        return { ...ch };
-      })
-    )
-      .then(setData)
-      .catch(e => setError(e.message))
-      .finally(() => setIsLoading(false));
-  }, [chapters, language, mainLocationName, mainLocationNameEn]);
 
-  return { data, isLoading, error };
-}
+    const fetchCoordinates = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const updatedChapters = await Promise.all(
+          chapters.map(async (chapter) => {
+            try {
+              const searchQuery = normalizePOI(chapter.title || chapter.location?.name || '');
+              if (!searchQuery) return chapter;
+              const response = await fetch(
+                `/api/places/search?query=${encodeURIComponent(searchQuery)}&language=${language}`
+              );
+              if (!response.ok) throw new Error('Failed to fetch coordinates');
+              const data = await response.json();
+              const place = data.results?.[0];
+              if (place?.geometry?.location) {
+                return {
+                  ...chapter,
+                  lat: place.geometry.location.lat,
+                  lng: place.geometry.location.lng,
+                  coordinates: {
+                    lat: place.geometry.location.lat,
+                    lng: place.geometry.location.lng
+                  }
+                };
+              }
+              return chapter;
+            } catch {
+              return chapter;
+            }
+          })
+        );
+        setChaptersWithCoords(updatedChapters);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Failed to fetch coordinates'));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCoordinates();
+  }, [chapters, language]);
 
-export default function TourContent({ locationName, userProfile, initialGuide, offlineData }: TourContentProps) {
+  return { chapters: chaptersWithCoords, isLoading, error };
+};
+
+const TourContent: React.FC<TourContentProps> = ({ locationName, userProfile, initialGuide, offlineData }) => {
   const { t } = useTranslation('guide');
   const { data: session } = useSession();
-  // 🔥 강력한 디버깅: 컴포넌트 시작
-  console.log('🎬 TourContent 컴포넌트 렌더링 시작!', { locationName, userProfile });
+  const { currentLanguage } = useLanguage();
   
-  const [tourData, setTourData] = useState<TourData | null>(offlineData || null);
-  const [isLoading, setIsLoading] = useState(true);
+  // State management
+  const [tourData, setTourData] = useState<TourData | null>(initialGuide || null);
+  const [isLoading, setIsLoading] = useState(!initialGuide);
   const [error, setError] = useState<string | null>(null);
-  const [isRetrying, setIsRetrying] = useState(false);
-  const [activeChapter, setActiveChapter] = useState(0);
+  const [activeChapter, setActiveChapter] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [officialPlace, setOfficialPlace] = useState<any>(null);
-  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
-  const [currentlyPlayingId, setCurrentlyPlayingId] = useState<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   
-  const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const ttsRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const [patchedChapters, setPatchedChapters] = useState<Chapter[]>([]);
-  const [patchedSteps, setPatchedSteps] = useState<Step[]>([]);
-
-  const guideId = initialGuide?.id;
-
-  const getCacheKey = () => {
-    // locationName + userProfile(문자열화) 조합으로 고유 키 생성
-    const profileStr = userProfile ? JSON.stringify(userProfile) : '';
-    return `guide-cache:${locationName}:${profileStr}`;
-  };
-
-  const loadTourData = async (forceRegenerate = false) => {
-    console.log('🚀 loadTourData 함수 시작!', { locationName });
+  // Extract chapters from tour data
+  const chapters = useMemo(() => {
+    if (!tourData) return [];
+    const realTimeGuide =
+      tourData.content?.realTimeGuide?.chapters ||
+      tourData.content?.RealTimeGuide?.chapters ||
+      tourData.content?.['실시간가이드']?.chapters ||
+      tourData.realTimeGuide?.chapters ||
+      tourData.RealTimeGuide?.chapters ||
+      tourData['실시간가이드']?.chapters ||
+      [];
+    return realTimeGuide;
+  }, [tourData]);
+  
+  // Get coordinates for chapters
+  const { chapters: chaptersWithCoords, isLoading: isLoadingCoords } = 
+    useChaptersWithCoordinates(chapters, currentLanguage);
+  
+  // Load tour data
+  const loadTourData = useCallback(async (forceRegenerate = false) => {
+    if (!locationName || !currentLanguage) return;
+    
     setIsLoading(true);
     setError(null);
-    const cacheKey = getCacheKey();
-    if (!forceRegenerate) {
-      // 1. localStorage 캐시 우선 조회
-      try {
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          setTourData(parsed);
-          setIsLoading(false);
-          console.log('✅ localStorage 캐시 사용');
-          return;
-        }
-      } catch (e) {
-        console.warn('❌ localStorage 캐시 파싱 실패', e);
-      }
-    }
+    
     try {
-      const defaultProfile = {
-        interests: ['문화', '역사'],
-        knowledgeLevel: '중급',
-        ageGroup: '30대',
-        preferredStyle: '친근함',
-        ...userProfile
-      };
-      const response = await fetch('/api/node/ai/generate-guide', {
+      const response = await fetch('/api/ai/generate-guide', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          locationName,
-          userProfile: defaultProfile,
+          location: locationName,
+          language: currentLanguage,
           forceRegenerate
         })
       });
-      const result = await response.json();
-      if (
-        result.success &&
-        (
-          result.data?.content?.realTimeGuide?.chapters?.length > 0 ||
-          result.data?.data?.realTimeGuide?.chapters?.length > 0
-        )
-      ) {
-        setTourData(result.data);
-        // === 병행 저장 ===
-        if (session?.user?.id) {
-          if (result.data && result.data.content) {
-            saveGuideHistoryToSupabase(session.user, locationName, result.data.content, userProfile);
-          }
-        } else {
-          guideHistory.saveGuide(locationName, result.data, userProfile);
-        }
-        // =================
-        try {
-          localStorage.setItem(cacheKey, JSON.stringify(result.data));
-        } catch (e) {
-          console.warn('❌ localStorage 캐시 저장 실패', e);
-        }
-      } else {
-        setError(result.error || '실시간 가이드 생성에 실패했습니다.');
+      
+      if (!response.ok) {
+        throw new Error(t('error.loading_guide'));
       }
-    } catch (error) {
-      setError('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      
+      const data = await response.json();
+      setTourData(data);
+      
+    } catch (err) {
+      console.error('Error loading tour data:', err);
+      setError(err instanceof Error ? err.message : t('error.unknown'));
     } finally {
       setIsLoading(false);
     }
-  };
-
+  }, [locationName, currentLanguage, t]);
+  
+  // Initial load
   useEffect(() => {
-    if (offlineData) {
-      setTourData(offlineData);
-      setIsLoading(false);
-      return;
+    if (!initialGuide) {
+      loadTourData();
     }
-    if (locationName) {
-      loadTourData(false); // 기본은 캐시 우선
-    }
-  }, [locationName, offlineData]);
-
-  useEffect(() => {
-    // 공식 데이터셋에서 명소 좌표/POI 조회
-    getBestOfficialPlace(locationName).then(setOfficialPlace).catch(() => setOfficialPlace(null));
-  }, [locationName]);
-
-  // 스크롤 위치에 따라 활성 챕터 업데이트
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!chapterRefs.current.length) return;
-
-      const scrollPosition = window.scrollY + 200; // 헤더 높이 고려
-      
-      for (let i = chapterRefs.current.length - 1; i >= 0; i--) {
-        const element = chapterRefs.current[i];
-        if (element && element.offsetTop <= scrollPosition) {
-          setActiveChapter(i);
-          break;
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [tourData]);
-
-  // 안전한 fallback: 원본 chapters/steps
-  const originalChapters = tourData?.content?.realTimeGuide?.chapters || [];
-  const originalSteps = tourData?.content?.route?.steps || [];
-
-  useEffect(() => {
-    async function fetchAndPatchChaptersAndSteps() {
-      if (!tourData?.content) return;
-      try {
-        // 챕터 보정
-        const chapters = tourData.content.realTimeGuide.chapters;
-        const patchedCh = await Promise.all(chapters.map(async (ch) => {
-          try {
-            const poi = normalizePOI(ch.title) || normalizePOI(ch.location);
-            if (poi?.geometry?.location) {
-              return { ...ch, coordinates: { lat: poi.geometry.location.lat, lng: poi.geometry.location.lng } };
-            }
-            return ch;
-          } catch {
-            return ch;
-          }
-        }));
-        setPatchedChapters(patchedCh);
-        // 스텝 보정
-        const steps = tourData.content.route.steps;
-        const patchedSt = await Promise.all(steps.map(async (st) => {
-          try {
-            const poi = normalizePOI(st.title) || normalizePOI(st.location);
-            if (poi?.geometry?.location) {
-              return { ...st, coordinates: { lat: poi.geometry.location.lat, lng: poi.geometry.location.lng } };
-            }
-            return st;
-          } catch {
-            return st;
-          }
-        }));
-        setPatchedSteps(patchedSt);
-      } catch (e) {
-        setPatchedChapters(originalChapters);
-        setPatchedSteps(originalSteps);
-      }
-    }
-    fetchAndPatchChaptersAndSteps();
-  }, [tourData]);
-
-  const handleRetry = async () => {
-    setIsRetrying(true);
-    await loadTourData(true); // 강제 재생성
-    setIsRetrying(false);
-  };
-
-  const scrollToChapter = (index: number) => {
-    const element = chapterRefs.current[index];
-    if (element) {
-      const headerHeight = 120; // 헤더 높이
-      const elementPosition = element.offsetTop - headerHeight;
-      window.scrollTo({
-        top: elementPosition,
-        behavior: 'smooth'
+  }, [initialGuide, loadTourData]);
+  
+  // Handle play/pause
+  const togglePlayPause = useCallback(() => {
+    if (!audioRef.current) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play().catch(err => {
+        console.error('Error playing audio:', err);
+        setError(t('error.audio_playback'));
       });
     }
-  };
-
-  const handlePlayPause = () => {
+    
     setIsPlaying(!isPlaying);
-    // 실제 오디오 재생 기능은 별도 구현
-  };
+  }, [isPlaying, t]);
+  
+  // Handle chapter selection
+  const handleChapterSelect = useCallback((chapterId: number) => {
+    setActiveChapter(chapterId);
+    // TODO: Implement chapter navigation logic
+  }, []);
 
-  // TTS 핸들러
-  const handlePlayStop = (chapterId: number, script: string, idx: number) => {
-    if (speechSynthesis.speaking) {
-      speechSynthesis.cancel();
-      if (currentlyPlayingId === chapterId) {
-        setCurrentlyPlayingId(null);
-        return;
-      }
-    }
-    const utterance = new SpeechSynthesisUtterance(script);
-    utterance.lang = getTTSLanguage(currentLanguage); // 동적으로 언어코드 할당
-    utterance.onstart = () => setCurrentlyPlayingId(chapterId);
-    utterance.onend = () => { setCurrentlyPlayingId(null); setCurrentUtterance(null); };
-    utterance.onerror = () => { setCurrentlyPlayingId(null); setCurrentUtterance(null); };
-    setCurrentUtterance(utterance);
-    speechSynthesis.speak(utterance);
-  };
-
-  const { currentLanguage } = useLanguage();
-  // 실시간 가이드 키 동적 추출
-  const realTimeGuideKey = REALTIME_GUIDE_KEYS[currentLanguage?.slice(0,2)] || 'RealTimeGuide';
-  const content = tourData?.content || tourData?.data || tourData;
-  const realTimeGuide = content?.[realTimeGuideKey] || content?.realTimeGuide || content?.RealTimeGuide || content?.['실시간가이드'] || null;
-  const chapters = realTimeGuide?.chapters || [];
-
-  // 예시: 영어/현지어 공식명칭 하드코딩 (실제 서비스에서는 DB/AI에서 받아올 수 있음)
-  let locationNameEn = '';
-  if (locationName.includes('알카사르')) locationNameEn = 'Real Alcázar de Sevilla';
-  if (locationName.includes('대성당')) locationNameEn = 'Seville Cathedral';
-  // 필요시 더 추가
-  // const { data: chaptersWithCoords, isLoading: coordsLoading, error: coordsError } = useChaptersWithCoordinates(chapters, currentLanguage, locationName, locationNameEn);
-
+  // Render loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            실시간 가이드 준비 중...
-          </h2>
-          <p className="text-gray-600">
-            {locationName}의 특별한 이야기를 생성하고 있습니다
-          </p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-lg">{t('loading')}</p>
         </div>
       </div>
     );
   }
 
-  if (error || !tourData?.content?.realTimeGuide?.chapters?.length) {
+  // Render error state
+  if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center p-8 max-w-md mx-auto">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-red-500 text-2xl">⚠️</span>
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            실시간 가이드를 불러올 수 없습니다
-          </h2>
-          <p className="text-gray-600 mb-6">
-            {error || '콘텐츠가 없습니다. 다시 시도해주세요.'}
-          </p>
-          <div className="space-y-3">
-            <button
-              onClick={handleRetry}
-              disabled={isRetrying}
-              className="w-full px-6 py-3 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 disabled:opacity-50"
-            >
-              {isRetrying ? (
-                <div className="flex items-center justify-center">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  다시 생성 중...
-                </div>
-              ) : (
-                '다시 시도'
-              )}
-            </button>
-            <button
-              onClick={() => window.history.back()}
-              className="w-full px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-            >
-              돌아가기
-            </button>
-          </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center p-6 max-w-md mx-auto bg-red-50 rounded-lg">
+          <h2 className="text-xl font-semibold text-red-600 mb-2">{t('error.title')}</h2>
+          <p className="text-gray-700 mb-4">{error}</p>
+          <button
+            onClick={() => loadTourData()}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          >
+            {t('retry')}
+          </button>
         </div>
       </div>
     );
   }
 
-  // 디버깅 로그
-  console.log('🎬 렌더링 상태:', {
-    isLoading,
-    error,
-    tourData: !!tourData,
-    chaptersLength: chapters?.length,
-    locationName
-  });
-  // 지도 마커 디버깅: 각 챕터의 좌표값 확인
-  console.log('지도 마커 디버깅:', chapters.map(c => ({ title: c.title, lat: c.lat, lng: c.lng, latitude: c.latitude, longitude: c.longitude, coordinates: c.coordinates })));
-
-  // 시작 위치 정보를 파싱하는 함수
-  const parseStartDirection = (direction: string) => {
-    const startMatch = direction.match(/📍 시작 위치: (.*?)\n/);
-    const confirmMatch = direction.match(/🎯 도착 확인: (.*?)\n/);
-    const guideMatch = direction.match(/▶️ 가이드 시작: (.*)/);
-    
-    if (startMatch && confirmMatch && guideMatch) {
-      return {
-        isStart: true,
-        start: startMatch[1],
-        confirm: confirmMatch[1],
-        guide: guideMatch[1]
-      };
-    }
-    return { isStart: false, fullText: direction };
-  };
-
-  // 텍스트에 자동 줄바꿈을 추가하는 함수
-  const addLineBreaks = (text: string | undefined | null) => {
-    if (!text) return '';
-    
-    // 1. AI가 생성한 \\n (백슬래시 두 개 + n)을 실제 줄바꿈으로 변환
-    let processedText = text.replace(/\\n/g, '\n');
-    
-    // 2. 이미 실제 줄바꿈(\n)이 있으면 그대로 반환
-    if (processedText.includes('\n')) {
-      return processedText;
-    }
-    
-    // 3. 줄바꿈이 없는 경우에만 자동 줄바꿈 추가
-    // 문장 단위로 분리 (. ! ? 뒤에 공백이 있는 경우)
-    return processedText
-      .replace(/([.!?])\s+/g, '$1\n')
-      .replace(/([.!?])$/g, '$1')
-      .trim();
-  };
+  // Get overview data with fallbacks
+  const overview = tourData?.content?.overview || tourData?.overview;
+  const routeSteps = tourData?.content?.route?.steps || tourData?.route?.steps || [];
+  const keyFacts = overview?.keyFacts || [];
 
   return (
-    <div className="bg-slate-50 text-slate-800 min-h-screen">
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Header */}
-        <header className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">{tourData.content.overview.title || locationName}</h1>
-          {tourData.content.overview.narrativeTheme && <p className="mt-2 text-lg text-slate-600">{tourData.content.overview.narrativeTheme}</p>}
-        </header>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          <button
+            onClick={() => window.history.back()}
+            className="p-2 rounded-full hover:bg-gray-100"
+            aria-label={t('back')}
+          >
+            {ICONS.BACK}
+          </button>
+          <h1 className="text-xl font-semibold text-gray-900">
+            {overview?.title || locationName}
+          </h1>
+          <div className="w-10"></div> {/* Spacer for alignment */}
+        </div>
+      </header>
 
-        <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Overview & Key Facts: Always at the top */}
-          <aside className="lg:col-span-1 space-y-6 order-1 lg:order-none">
-            <div className="bg-white rounded-xl shadow card border border-gray-200">
-              <div className="p-5">
-                <h3 className="text-xl font-bold text-slate-900">{t('overview')}</h3>
-              </div>
-              <div className="px-5 pb-5 border-b border-gray-200">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <span>{t('duration')}:</span>
-                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.duration ? `${tourData.content.overview.visitInfo.duration}${t('minutes')}` : t('no_info')}</strong>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <span>{t('difficulty')}:</span>
-                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.difficulty || t('no_info')}</strong>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <span>{t('season')}:</span>
-                    <strong className="font-semibold">{tourData.content.overview.visitInfo?.season || t('no_info')}</strong>
-                  </div>
+      <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        {/* Map Section */}
+        <section className="mb-8">
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="h-64 md:h-96 w-full relative">
+              {chaptersWithCoords.length > 0 ? (
+                <div className="h-full w-full">
+                  <MapWithRoute
+                    chapters={chaptersWithCoords}
+                    activeChapter={typeof activeChapter === 'number' ? activeChapter : 0}
+                    onMarkerClick={handleChapterSelect}
+                  />
                 </div>
-              </div>
-              {tourData.content.overview.keyFacts && tourData.content.overview.keyFacts.length > 0 && (
-                <div className="p-5">
-                  <h4 className="font-semibold text-slate-800 mb-3">{t('keyFacts')}</h4>
-                  <ul className="space-y-2 list-none">
-                    {tourData.content.overview.keyFacts.map((fact, i) => (
-                      <li key={i} className="flex items-start">
-                        <span className="w-2 h-2 bg-sky-500 rounded-full mt-2 mr-2 flex-shrink-0" />
-                        <span className="text-slate-600 text-sm">{fact}</span>
-                      </li>
-                    ))}
-                  </ul>
+              ) : (
+                <div className="h-full w-full flex items-center justify-center bg-gray-100">
+                  <p className="text-gray-500">{t('map_loading')}</p>
                 </div>
               )}
             </div>
-          </aside>
+          </div>
+        </section>
 
-          {/* Recommended Route: 관람순서 */}
-          <div className="lg:col-span-2 space-y-6 order-2 lg:order-none">
-            <section className="mb-8">
-              <div className="card bg-white rounded-xl shadow p-5 mb-4">
-                <h2 className="text-2xl font-bold text-slate-900 mb-3">{t('route')}</h2>
-                <ol className="list-decimal ml-6 space-y-1">
-                  {tourData.content.route.steps.map((step, idx) => (
-                    <li key={idx}>
-                      <span className="font-bold">{step.title}</span>
-                      {step.location && <> - <span className="text-slate-500">{step.location}</span></>}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            </section>
+        {/* Audio Player */}
+        <section className="mb-8 bg-white rounded-lg shadow p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-medium text-gray-900">
+                {typeof activeChapter === 'number' && chapters[activeChapter] 
+                  ? chapters[activeChapter].title 
+                  : t('audio_guide')}
+              </h2>
+              <p className="text-sm text-gray-500">
+                {typeof activeChapter === 'number' && chapters[activeChapter]?.duration 
+                  ? `${chapters[activeChapter].duration} ${t('minutes')}`
+                  : t('select_chapter')}
+              </p>
+            </div>
+            <div className="flex space-x-4">
+              <button
+                onClick={togglePlayPause}
+                className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200"
+                disabled={activeChapter === null}
+              >
+                {isPlaying ? ICONS.PAUSE : ICONS.PLAY}
+              </button>
+              <audio
+                ref={audioRef}
+                src={typeof activeChapter === 'number' ? chapters[activeChapter]?.audioUrl : undefined}
+                onEnded={() => setIsPlaying(false)}
+              />
+            </div>
+          </div>
+        </section>
 
-            {/* Real-Time Guide */}
-            <h2 className="text-2xl font-bold text-slate-900 border-b pb-2">{t('realTimeGuide')}</h2>
-            <div className="space-y-6">
-              {(patchedChapters?.length > 0 ? patchedChapters : originalChapters).map((chapter, idx) => (
-                <div key={chapter.id} className="bg-white rounded-xl shadow card border border-gray-200">
-                  <div className="p-5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 font-bold text-xl">{chapter.id}</div>
-                        <div><h3 className="text-xl font-bold text-slate-900">{chapter.title}</h3></div>
-                      </div>
-                      <button
-                        ref={el => ttsRefs.current[idx] = el}
-                        className={`tts-button text-slate-400 hover:text-sky-500 transition-colors ml-2`}
-                        aria-label={t('play_chapter', { id: chapter.id })}
-                        onClick={() => handlePlayStop(chapter.id, chapter.realTimeScript, idx)}
-                      >
-                        {currentlyPlayingId === chapter.id ? ICONS.STOP : ICONS.PLAY}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="px-5 pb-6 text-slate-600 leading-relaxed space-y-4">
-                    {chapter.realTimeScript.split('\n').map((p, i) => <p key={i}>{p}</p>)}
-                  </div>
+        {/* Key Facts */}
+        {keyFacts.length > 0 && (
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">{t('key_facts')}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {keyFacts.map((fact, index) => (
+                <div key={index} className="bg-white p-4 rounded-lg shadow">
+                  <h3 className="font-medium text-gray-900">{fact.title}</h3>
+                  <p className="text-gray-600 mt-1">{fact.description}</p>
                 </div>
               ))}
             </div>
+          </section>
+        )}
+
+        {/* Chapters */}
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">{t('chapters')}</h2>
+          <div className="space-y-4">
+            {chapters.map((chapter, index) => (
+              <div
+                key={index}
+                className={`bg-white p-4 rounded-lg shadow cursor-pointer transition-colors ${
+                  activeChapter === index ? 'ring-2 ring-blue-500' : 'hover:bg-gray-50'
+                }`}
+                onClick={() => handleChapterSelect(index)}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium text-gray-900">{chapter.title}</h3>
+                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                      {chapter.description}
+                    </p>
+                  </div>
+                  {chapter.duration && (
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Clock className="w-4 h-4 mr-1" />
+                      {chapter.duration} {t('minutes')}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-        </main>
-      </div>
+        </section>
+      </main>
     </div>
   );
-}
+};
+
+export default TourContent;

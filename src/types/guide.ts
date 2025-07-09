@@ -30,6 +30,11 @@ export interface GuideChapter {
   id: number;
   title: string;
   realTimeScript: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+  [key: string]: any; // For dynamic access to properties
 }
 
 export interface StartingLocation {
@@ -48,9 +53,12 @@ export interface RealTimeGuide {
 }
 
 export interface GuideContent {
-  overview: GuideOverview;
-  route: GuideRoute;
-  realTimeGuide: RealTimeGuide;
+  overview?: GuideOverview;
+  route?: GuideRoute;
+  realTimeGuide?: RealTimeGuide;
+  RealTimeGuide?: RealTimeGuide;
+  '실시간가이드'?: RealTimeGuide;
+  [key: string]: any; // For dynamic access to properties
 }
 
 export interface GuideMetadata {
@@ -61,7 +69,13 @@ export interface GuideMetadata {
 }
 
 export interface GuideData {
-  content: GuideContent;
+  content?: GuideContent;
+  overview?: GuideOverview;
+  route?: GuideRoute;
+  realTimeGuide?: RealTimeGuide;
+  RealTimeGuide?: RealTimeGuide;
+  '실시간가이드'?: RealTimeGuide;
+  [key: string]: any; // For dynamic access to properties
   metadata?: GuideMetadata;
 }
 

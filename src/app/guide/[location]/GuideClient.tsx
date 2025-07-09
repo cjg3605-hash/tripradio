@@ -10,6 +10,7 @@ import TourContent from './tour/components/TourContent';
 import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
+import { UserProfile } from '@/types/guide';
 
 // GuideData 구조 보정 유틸
 const extractGuideData = (raw: any, language: string) => {
@@ -136,35 +137,82 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
   useEffect(() => {
     if (guideData) return;
     if (!locationName || !currentLanguage) return;
-    setIsLoading(true);
-    setError(null);
-    fetch('/api/node/ai/generate-guide', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ locationName: normLocation, language: normLang }),
-    })
-      .then(res => res.json())
-      .then(result => {
-        console.log('API result:', result);
+    
+    const fetchGuide = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const response = await fetch('/api/node/ai/generate-guide', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            locationName: normLocation, 
+            language: normLang,
+            forceRegenerate: false
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.error || 
+            `서버 오류가 발생했습니다 (${response.status} ${response.statusText})`
+          );
+        }
+
+        const result = await response.json();
+        console.log('API response:', result);
+        
+        if (!result.success) {
+          throw new Error(result.error || '가이드 생성에 실패했습니다.');
+        }
+
         const extracted = extractGuideData(result.data, currentLanguage);
-        if (result.success && extracted) {
-          setGuideData(extracted);
+        if (!extracted) {
+          throw new Error('가이드 데이터를 처리하는 중 오류가 발생했습니다.');
+        }
+
+        setGuideData(extracted);
+        
+        // Save to history
+        try {
           if (session?.user?.id) {
-            saveGuideHistoryToSupabase(session.user, locationName, extracted, null);
-            if (extracted && extracted.content) {
-              saveGuideHistoryToSupabase(session.user, locationName, extracted.content, null);
+            const userProfile: UserProfile = {
+              interests: [],
+              ageGroup: 'adult',
+              knowledgeLevel: 'intermediate',
+              companions: 'solo'
+            };
+            await saveGuideHistoryToSupabase(session.user, locationName, extracted, userProfile);
+            if (extracted.content) {
+              await saveGuideHistoryToSupabase(session.user, locationName, extracted.content, userProfile);
             }
           } else {
             guideHistory.saveGuide(locationName, extracted, null);
           }
-          console.log('setGuideData 완료:', extracted);
-        } else {
-          setError(result.error || '가이드 생성에 실패했습니다.');
+          console.log('가이드 데이터 저장 완료');
+        } catch (historyError) {
+          console.error('가이드 기록 저장 중 오류:', historyError);
+          // Continue even if history save fails
         }
-      })
-      .catch(e => setError(e.message))
-      .finally(() => setIsLoading(false));
-  }, [locationName, currentLanguage, guideData]);
+        
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
+        console.error('가이드 로드 중 오류:', error);
+        setError(errorMessage);
+        
+        // Show error toast if available
+        if (typeof window !== 'undefined' && (window as any).toast) {
+          (window as any).toast.error(errorMessage, { autoClose: 5000 });
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchGuide();
+  }, [locationName, currentLanguage, guideData, normLocation, normLang, session?.user]);
 
   // 로딩 메시지 애니메이션
   useEffect(() => {
@@ -186,6 +234,36 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
   // 필수 필드 체크
   const isContentValid = content && content.overview && content.route && realTimeGuide;
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6 text-center">
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+            <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-lg font-medium text-gray-900 mb-2">오류 발생</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <div className="flex justify-center space-x-3">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+            >
+              다시 시도
+            </button>
+            <button
+              onClick={() => router.push('/')}
+              className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
+            >
+              홈으로
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -193,15 +271,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
           <div className="w-16 h-16 border-4 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <h2 className="text-xl font-semibold text-slate-900 mb-2">{locationName}</h2>
           <p className="text-slate-600">{loadingMessage}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-4">
+          <p className="text-sm text-slate-500 mt-2">잠시만 기다려주세요...</p>
           <div className="text-red-500 text-6xl mb-4">⚠️</div>
           <h2 className="text-xl font-semibold text-slate-900 mb-2">오류가 발생했습니다</h2>
           <p className="text-slate-600 mb-4">{error}</p>
@@ -238,10 +308,20 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     return (
       <TourContent
         locationName={locationName}
-        userProfile={null}
+        userProfile={{
+          interests: [],
+          ageGroup: 'adult',
+          knowledgeLevel: 'intermediate',
+          companions: 'solo'
+        }}
         initialGuide={initialGuide}
         offlineData={{
-          content: content,
+          content: {
+            overview: content?.overview,
+            route: content?.route,
+            realTimeGuide: content?.realTimeGuide || content?.RealTimeGuide || content?.['실시간가이드'],
+            metadata: { originalLocationName: locationName }
+          },
           metadata: { originalLocationName: locationName }
         }}
       />
@@ -275,12 +355,12 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         </header>
 
         {/* 추천 동선 */}
-        {content?.route?.steps?.length > 0 && (
+        {content?.route?.steps && content.route.steps.length > 0 && (
           <section className="mb-8">
             <div className="card bg-white rounded-xl shadow p-5 mb-4">
               <h2 className="text-2xl font-bold text-slate-900 mb-3">추천 동선</h2>
               <ol className="list-decimal ml-6 space-y-1">
-                {content.route.steps.map((step, idx) => (
+                {content?.route?.steps?.map((step: any, idx: number) => (
                   <li key={idx}>
                     <span className="font-bold">{step.title}</span>
                     {step.location && <> - <span className="text-slate-500">{step.location}</span></>}
@@ -294,7 +374,10 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         {/* 🗺️ 지도/동선: 추천 동선과 실시간 오디오 가이드 사이 */}
         {realTimeGuide?.chapters?.length > 0 && (
           <section className="mb-8">
-            <MapWithRoute chapters={realTimeGuide.chapters} />
+            <MapWithRoute 
+              chapters={realTimeGuide.chapters} 
+              activeChapter={realTimeGuide.chapters[0]} // Set first chapter as active by default
+            />
           </section>
         )}
 

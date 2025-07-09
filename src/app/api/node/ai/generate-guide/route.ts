@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { createAutonomousGuidePrompt, createSimpleTestPrompt, REALTIME_GUIDE_KEYS } from '@/lib/ai/prompts';
+import { createAutonomousGuidePrompt, REALTIME_GUIDE_KEYS } from '@/lib/ai/prompts';
 import authOptions from '@/lib/auth';
 import { getOrCreateTTSAndUrl } from '@/lib/tts-gcs';
 import { supabase } from '@/lib/supabaseClient';
@@ -87,7 +87,8 @@ function parseJsonResponse(jsonString: string) {
 // GuideData 구조 normalize 함수 - 포괄적 필드명 매핑
 function normalizeGuideData(raw: any, language?: string) {
   console.log('�� normalizeGuideData input:', JSON.stringify(raw, null, 2));
-  const realTimeGuideKey = REALTIME_GUIDE_KEYS[language?.slice(0,2)] || 'RealTimeGuide';
+  const languageKey = language?.slice(0, 2) as keyof typeof REALTIME_GUIDE_KEYS || 'en';
+  const realTimeGuideKey = REALTIME_GUIDE_KEYS[languageKey] || 'RealTimeGuide';
   console.log('🔧 realTimeGuideKey:', realTimeGuideKey);
   let realTimeGuide = raw[realTimeGuideKey] ||
     raw.realTimeGuide || raw.RealTimeGuide || raw.REALTIMEGUIDE ||
@@ -136,15 +137,27 @@ function normalizeString(s: string) {
 }
 
 export async function POST(req: NextRequest) {
+  // Set default response headers
+  const headers = new Headers();
+  headers.set('Content-Type', 'application/json');
+  
   try {
     // 환경변수 확인
     const geminiApiKey = process.env.GEMINI_API_KEY;
     console.log('🔑 GEMINI_API_KEY 설정 여부:', !!geminiApiKey);
-    console.log('🔑 GEMINI_API_KEY 길이:', geminiApiKey?.length || 0);
     
     if (!geminiApiKey) {
       console.error('❌ GEMINI_API_KEY가 설정되지 않음');
-      return NextResponse.json({ error: 'AI API 키가 설정되지 않았습니다.' }, { status: 500 });
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'AI API 키가 설정되지 않았습니다.' 
+        }), 
+        { 
+          status: 500, 
+          headers 
+        }
+      );
     }
     
     const genAI = getGeminiClient();
@@ -154,9 +167,37 @@ export async function POST(req: NextRequest) {
     } catch (error) {
       console.log('⚠️ 세션 획득 실패, 익명 사용자로 처리:', error);
     }
-    const { locationName, language = 'ko', userProfile, forceRegenerate = false } = await req.json();
-    if (!locationName) {
-      return NextResponse.json({ success: false, error: 'Location is required' }, { status: 400 });
+    // Parse and validate request body
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch (error) {
+      console.error('❌ 요청 본문 파싱 실패:', error);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: '잘못된 요청 형식입니다.' 
+        }), 
+        { 
+          status: 400, 
+          headers 
+        }
+      );
+    }
+
+    const { locationName, language = 'ko', userProfile, forceRegenerate = false } = requestBody;
+    
+    if (!locationName || typeof locationName !== 'string') {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: '유효한 위치 정보가 필요합니다.' 
+        }), 
+        { 
+          status: 400, 
+          headers 
+        }
+      );
     }
     // === 정규화 적용 ===
     const normLocation = normalizeString(locationName);
@@ -262,26 +303,62 @@ export async function POST(req: NextRequest) {
     }
 
     // === Supabase guides 테이블에 저장 ===
-    const insertData = {
-      content: guideData, // 구조 보정 없이 원본 그대로 저장
-      metadata: null,
-      locationname: normLocation,
-      language: normLang,
-      user_id: session?.user?.id || null,
-      created_at: new Date().toISOString()
-    };
-    await supabase.from('guides').insert([insertData]);
-    return NextResponse.json({ success: true, data: { content: guideData }, cached: 'new', language });
+    try {
+      const insertData = {
+        content: guideData,
+        metadata: null,
+        locationname: normLocation,
+        language: normLang,
+        user_id: (session as any)?.user?.id || null,
+        created_at: new Date().toISOString()
+      };
+      
+      const { error: insertError } = await supabase
+        .from('guides')
+        .insert([insertData]);
+      
+      if (insertError) {
+        console.error('❌ Supabase 저장 실패:', insertError);
+        throw new Error('가이드 저장 중 오류가 발생했습니다.');
+      }
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          data: { content: guideData }, 
+          cached: 'new', 
+          language 
+        }),
+        { 
+          status: 200, 
+          headers 
+        }
+      );
+    } catch (dbError) {
+      console.error('❌ 데이터베이스 오류:', dbError);
+      throw new Error('데이터베이스 저장 중 오류가 발생했습니다.');
+    }
 
   } catch (error) {
     console.error('❌ API Error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
     
-    return NextResponse.json({ 
-      success: false, 
-      error: errorMessage,
-      timestamp: new Date().toISOString(),
-      cached: 'error' 
-    }, { status: 500 });
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: errorMessage,
+        timestamp: new Date().toISOString(),
+        cached: 'error'
+      }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      }
+    );
   }
 }
