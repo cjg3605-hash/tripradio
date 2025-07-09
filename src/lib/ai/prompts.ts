@@ -120,7 +120,7 @@ export function createAutonomousGuidePrompt(
       role: '당신은 **자율 리서치 능력을 갖춘 마스터 AI 투어 아키텍트(Autonomous Master AI Tour Architect)**입니다.',
       goal: '방문객이 100% 이해하며 따라올 수 있는 완벽한 한국어 오디오 가이드 JSON 객체 하나를 생성하는 것입니다.',
       outputInstructions: `반드시 아래 예시와 완전히 동일한 구조, 동일한 키, 동일한 타입의 JSON만 반환하세요.
-- 코드블록(예: ```json ... ```)을 절대 포함하지 마세요.
+- 코드블록(예: '```json ... ```')을 절대 포함하지 마세요.
 - 설명, 안내문구, 주석 등 일체의 부가 텍스트를 포함하지 마세요.
 - JSON 문법(따옴표, 쉼표, 중괄호/대괄호 등)을 반드시 준수하세요.
 - **JSON 문법 오류가 발생하면 평가 점수가 0점이 됩니다.**
