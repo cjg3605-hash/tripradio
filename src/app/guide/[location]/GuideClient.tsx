@@ -63,18 +63,10 @@ const extractGuideData = (raw: any, language: string): GuideData | null => {
 
 function validateGuideContent(content: GuideData | null): content is GuideData {
     if (!content) return false;
-    const { overview, route, realTimeGuide } = content;
-    return !!(
-        overview &&
-        overview.title &&
-        Array.isArray(overview.keyFacts) &&
-        route &&
-        Array.isArray(route.steps) &&
-        route.steps.length > 0 &&
-        realTimeGuide &&
-        Array.isArray(realTimeGuide.chapters) &&
-        realTimeGuide.chapters.length > 0
-    );
+    // Only validate the most critical part of the guide data to prevent full page crash
+    // The component can handle missing route or chapters gracefully.
+    const { overview } = content;
+    return !!(overview && overview.title);
 }
 
 export default function GuideClient({ locationName, initialGuide }: { locationName: string, initialGuide: any }) {
