@@ -68,11 +68,27 @@ const extractGuideData = (raw: any, language: string) => {
 
 const normalizeString = (s: string) => decodeURIComponent(s || '').trim().toLowerCase();
 
+// 필수 값 포함 여부 검사 함수 (프론트엔드용)
+function validateGuideContent(content: any): { valid: boolean, missing: string[] } {
+  const missing: string[] = [];
+  if (!content?.overview) missing.push('overview');
+  if (!content?.route) missing.push('route');
+  if (!content?.realTimeGuide) missing.push('realTimeGuide');
+  if (content?.overview && !content.overview.title) missing.push('overview.title');
+  if (content?.route && (!Array.isArray(content.route.steps) || content.route.steps.length === 0)) missing.push('route.steps');
+  if (content?.realTimeGuide && (!Array.isArray(content.realTimeGuide.chapters) || content.realTimeGuide.chapters.length === 0)) missing.push('realTimeGuide.chapters');
+  return { valid: missing.length === 0, missing };
+}
+
 export default function GuideClient({ locationName, initialGuide }: { locationName: string, initialGuide: any }) {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
   const { data: session } = useSession();
   const [guideData, setGuideData] = useState<GuideData | null>(extractGuideData(initialGuide, currentLanguage) || null);
+  // 유효성 검사 결과 (content, isContentValid 변수는 여기서만 선언)
+  const content = guideData;
+  const validation = validateGuideContent(content);
+  const isContentValid = validation.valid;
   const [isLoading, setIsLoading] = useState(!initialGuide);
   const [error, setError] = useState<string | null>(null);
   const [loadingMessage, setLoadingMessage] = useState('로딩 중...');
@@ -227,12 +243,12 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     return () => clearInterval(interval);
   }, [isLoading, currentLanguage]);
 
-  // 데이터 접근 경로를 유연하게 처리 - API 응답 구조에 맞게 개선
-  const content = guideData;
+  // 기존에 선언된 content, isContentValid를 재선언하지 않고, 위에서 선언한 변수만 사용합니다.
+  // realTimeGuide는 content에서 추출
   const realTimeGuideKey = REALTIME_GUIDE_KEYS[currentLanguage?.slice(0,2)] || 'RealTimeGuide';
   const realTimeGuide = content?.[realTimeGuideKey] || content?.realTimeGuide || content?.RealTimeGuide || content?.['실시간가이드'] || null;
-  // 필수 필드 체크
-  const isContentValid = content && content.overview && content.route && realTimeGuide;
+  // isContentValid는 이미 상단에서 validateGuideContent로 선언됨(중복 선언 제거)
+
 
   if (error) {
     return (

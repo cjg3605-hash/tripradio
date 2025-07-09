@@ -158,6 +158,20 @@ function normalizeGuideData(raw: any, language?: string) {
   return result;
 }
 
+// 필수 값 포함 여부 검사 함수
+function validateGuideContent(content: any): { valid: boolean, missing: string[] } {
+  const missing: string[] = [];
+  if (!content.overview) missing.push('overview');
+  if (!content.route) missing.push('route');
+  if (!content.realTimeGuide) missing.push('realTimeGuide');
+  // 세부 필드까지 검사 (예시)
+  if (content.overview && !content.overview.title) missing.push('overview.title');
+  if (content.route && (!Array.isArray(content.route.steps) || content.route.steps.length === 0)) missing.push('route.steps');
+  if (content.realTimeGuide && (!Array.isArray(content.realTimeGuide.chapters) || content.realTimeGuide.chapters.length === 0)) missing.push('realTimeGuide.chapters');
+  return { valid: missing.length === 0, missing };
+}
+
+
 function normalizeString(s: string) {
   return decodeURIComponent(s || '').trim().toLowerCase();
 }
@@ -310,20 +324,14 @@ export async function POST(req: NextRequest) {
     // === 디버깅: normalizeGuideData 호출 ===
     console.log('🔧 POST에서 normalizeGuideData 호출, language:', language);
     const normalized = normalizeGuideData(guideData.content || guideData, language);
-    // 필수 필드 체크
-    if (!normalized.overview || !normalized.route || !normalized.realTimeGuide) {
-      console.error('❌ 필수 필드 누락:', {
-        overview: !!normalized.overview,
-        route: !!normalized.route,
-        realTimeGuide: !!normalized.realTimeGuide
-      });
+    // 필수 값 포함 여부 검사
+    const validation = validateGuideContent(normalized);
+    if (!validation.valid) {
+      console.error('❌ 필수 값 누락:', validation.missing);
       return NextResponse.json({
         success: false,
-        error: '필수 필드 누락: ' + JSON.stringify({
-          overview: !!normalized.overview,
-          route: !!normalized.route,
-          realTimeGuide: !!normalized.realTimeGuide
-        }),
+        error: '필수 값 누락: ' + validation.missing.join(', '),
+        missing: validation.missing,
         data: normalized
       }, { status: 500 });
     }
