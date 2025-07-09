@@ -5,7 +5,8 @@ import { ArrowLeft, Play, Pause, MapPin, Clock, Star, Calendar, Volume2 } from '
 import { GuideData } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTTSLanguage, REALTIME_GUIDE_KEYS } from '@/lib/ai/prompts';
-import MapWithRoute from '@/components/guide/MapWithRoute';
+import dynamic from 'next/dynamic';
+const MapWithRoute = dynamic(() => import('@/components/guide/MapWithRoute'), { ssr: false });
 import TourContent from './tour/components/TourContent';
 import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
