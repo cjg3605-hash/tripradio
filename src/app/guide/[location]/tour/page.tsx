@@ -63,7 +63,11 @@ export default function TourPage() {
 
         const data = await response.json();
         console.log('✅ 가이드 데이터 수신 성공:', data);
-        setGuideData(data.guide);
+        if (data.success && data.data) {
+          setGuideData(data.data);
+        } else {
+          setError(data.error || 'Failed to load guide data.');
+        }
       } catch (err: any) {
         console.error('❌ 가이드 데이터 요청 오류:', err);
         setError(err.message);
