@@ -67,7 +67,7 @@ const extractGuideData = (raw: any, language: string) => {
   return null;
 };
 
-import { normalizeString } from '@/app/api/node/ai/generate-guide/route';
+import { normalizeString } from '@/lib/utils';
 
 // 필수 값 포함 여부 검사 함수 (프론트엔드용)
 function validateGuideContent(content: any): { valid: boolean, missing: string[] } {

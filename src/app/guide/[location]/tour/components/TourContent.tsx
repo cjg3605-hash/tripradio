@@ -221,11 +221,11 @@ const TourContent: React.FC<TourContentProps> = ({ locationName, userProfile, in
     setError(null);
     
     try {
-      const response = await fetch('/api/ai/generate-guide', {
+      const response = await fetch('/api/node/ai/generate-guide', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          location: locationName,
+          locationName: locationName, // 'location' -> 'locationName'
           language: currentLanguage,
           forceRegenerate
         })

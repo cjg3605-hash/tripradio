@@ -102,9 +102,7 @@ function validateGuideContent(content: any): { valid: boolean, missing: string[]
 }
 
 
-export function normalizeString(s: string) {
-  return decodeURIComponent(s || '').trim().toLowerCase();
-}
+import { normalizeString } from '@/lib/utils';
 
 export async function POST(req: NextRequest) {
   // Set default response headers
