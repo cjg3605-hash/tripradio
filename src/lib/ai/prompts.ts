@@ -103,41 +103,64 @@ export function createAutonomousGuidePrompt(
     '아래 예시 구조, 값, 타입, 순서를 반드시 정확히 지켜서 반환해야 합니다. (키값 영어 고정, 순수 JSON, 마크다운/설명 금지)',
     '예시:',
     '```json',
-    JSON.stringify({
-      content: {
-        overview: {
-          title: `${locationName}`,
-          narrativeTheme: `A journey through ${locationName}, its history and secrets.`,
-          keyFacts: [
-            `Key fact about ${locationName} 1`,
-            `Key fact about ${locationName} 2`,
-            `Key fact about ${locationName} 3`,
-            `Key fact about ${locationName} 4`
-          ],
-          visitInfo: {
-            duration: 90,
-            difficulty: "쉬움",
-            season: "All year"
-          }
-        },
-        route: {
-          steps: [
-            { step: 0, location: "Main Entrance", title: `Start: Main Entrance of ${locationName}`, coordinates: { lat: 37.3861, lng: -5.9926 } },
-            { step: 1, location: "Key Feature 1", title: `First stop in ${locationName}`, coordinates: { lat: 37.3858, lng: -5.9929 } },
-            { step: 2, location: "Exit", title: "Outro: Concluding the tour", coordinates: { lat: 37.3855, lng: -5.9932 } }
-          ]
-        },
-        realTimeGuide: {
-          startingLocation: { name: "Main Entrance", address: `Address of ${locationName}`, googleMapsUrl: `https://www.google.com/maps/search/${locationName}`, coordinates: { lat: 37.3861, lng: -5.9926 } },
-          chapters: [
-            { id: 0, title: "Main Entrance", coordinates: { lat: 37.3861, lng: -5.9926 }, realTimeScript: `Welcome to the main entrance of ${locationName}...` },
-            { id: 1, title: "Key Feature 1", coordinates: { lat: 37.3858, lng: -5.9929 }, realTimeScript: `Now, let's explore the first key feature of ${locationName}...` },
-            { id: 2, title: "Outro", coordinates: { lat: 37.3855, lng: -5.9932 }, realTimeScript: `As our tour of ${locationName} comes to a close...` }
-          ]
-        }
-      }
-    }, null, 2),
-    '```'
+    '{',
+    '  "content": {',
+    '    "overview": {',
+    '      "title": "[명소명]",',
+    '      "narrativeTheme": "[주제]",',
+    '      "keyFacts": [',
+    '        { "title": "주요 사실 제목", "description": "주요 사실 설명" }',
+    '      ],',
+    '      "visitInfo": {',
+    '        "duration": 90,',
+    '        "difficulty": "쉬움",',
+    '        "season": "봄, 가을 추천"',
+    '      }',
+    '    },',
+    '    "route": {',
+    '      "steps": [',
+    '        {',
+    '          "step": 0,',
+    '          "location": "시작 위치명",',
+    '          "title": "시작 챕터: 웰컴 메시지",',
+    '          "coordinates": { "lat": 0.0, "lng": 0.0 }',
+    '        }',
+    '      ]',
+    '    },',
+    '    "realTimeGuide": {',
+    '      "startingLocation": {',
+    '        "name": "시작 위치명",',
+    '        "address": "정확한 주소",',
+    '        "googleMapsUrl": "https://www.google.com/maps/search/[영어 명소명]",',
+    '        "coordinates": { "lat": 0.0, "lng": 0.0 }',
+    '      },',
+    '      "chapters": [',
+    '        {',
+    '          "id": 0,',
+    '          "title": "시작 챕터: 웰컴 메시지",',
+    '          "description": "챕터 설명",',
+    '          "duration": 120,',
+    '          "audioUrl": "https://.../audio.mp3",',
+    '          "sceneDescription": "현장 묘사",',
+    '          "narrativeLayers": {',
+    '            "coreNarrative": "핵심 해설",',
+    '            "architectureDeepDive": "건축 해설",',
+    '            "humanStories": "인물 이야기",',
+    '            "sensoryBehindTheScenes": "감각적 비하인드"',
+    '          },',
+    '          "nextDirection": "➡️ 동쪽으로 50m 이동",',
+    '          "coordinates": { "lat": 0.0, "lng": 0.0 },',
+    '          "realTimeScript": "안녕하세요! 오늘 [명소명]을 함께 탐험하게 되어 기쁩니다. 지금 여러분이 서 계신 이곳은... [역사적 타임라인] ...\\n\\n${currentLang.example}",',
+    '          "location": {',
+    '            "name": "세부 장소명"',
+    '          }',
+    '        }',
+    '      ]',
+    '    }',
+    '  }',
+    '}',
+    '```',
+    '이제 "${locationName}"에 대한 ${langConfig.name} 오디오 가이드 JSON을 생성하세요.',
   ].join('\n\n');
 
   return prompt;
