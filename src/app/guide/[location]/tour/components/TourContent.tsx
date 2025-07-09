@@ -29,7 +29,7 @@ const ICONS = {
 
 // Props interface for the component
 interface TourContentProps {
-  guideData: GuideData;
+  guideContent: GuideData;
 }
 
 // Helper function to normalize POI names for API search
@@ -101,7 +101,7 @@ const useChaptersWithCoordinates = (chapters: GuideChapter[] = [], language: str
 
 
 // The main presentational component
-const TourContent: React.FC<TourContentProps> = ({ guideData }) => {
+const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
   const { t, i18n } = useTranslation('guide');
   const ready = i18n.isInitialized;
   const { currentLanguage } = useLanguage();
@@ -112,13 +112,13 @@ const TourContent: React.FC<TourContentProps> = ({ guideData }) => {
   const [isTtsLoading, setIsTtsLoading] = useState<number | null>(null); // Track loading state by chapter index
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  if (!ready) {
+  if (!guideContent) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            가이드 준비 중...
+            가이드 데이터를 불러오는 중입니다...
           </h2>
         </div>
       </div>
@@ -126,7 +126,7 @@ const TourContent: React.FC<TourContentProps> = ({ guideData }) => {
   }
 
   // Memoized data extraction from props
-  const { overview, route, realTimeGuide, metadata } = guideData;
+  const { overview, route, realTimeGuide, metadata } = guideContent;
   const chapters = useMemo(() => realTimeGuide?.chapters || [], [realTimeGuide]);
   const keyFacts = useMemo(() => overview.keyFacts || [], [overview]);
 
@@ -165,7 +165,7 @@ const TourContent: React.FC<TourContentProps> = ({ guideData }) => {
         body: JSON.stringify({
           text: textToSpeak,
           language: currentLanguage,
-          guideId: guideData.metadata.originalLocationName, // Using locationName as a unique ID for the guide
+          guideId: guideContent.metadata.originalLocationName, // Using locationName as a unique ID for the guide
           chapterId: chapter.id || index
         })
       });
@@ -185,7 +185,7 @@ const TourContent: React.FC<TourContentProps> = ({ guideData }) => {
     } finally {
       setIsTtsLoading(null);
     }
-  }, [chapters, activeChapter, isPlaying, currentLanguage, guideData.metadata.originalLocationName]);
+  }, [chapters, activeChapter, isPlaying, currentLanguage, guideContent.metadata.originalLocationName]);
 
   const handleChapterSelect = useCallback((index: number) => {
     setActiveChapter(prev => (prev === index ? null : index));

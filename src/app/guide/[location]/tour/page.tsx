@@ -30,7 +30,7 @@ export default function TourPage() {
   
   const params = useParams();
   const [isMounted, setIsMounted] = useState(false);
-  const [guideData, setGuideData] = useState<any>(null);
+  const [guideContent, setGuideContent] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -73,10 +73,10 @@ export default function TourPage() {
         console.log('✅ Raw API Response:', JSON.stringify(data, null, 2));
 
         // Safely extract content using optional chaining
-        const guideContent = data?.data?.content;
+        const content = data?.content;
 
-        if (data.success && guideContent) {
-          setGuideData(guideContent);
+        if (content) {
+          setGuideContent(content);
         } else {
           console.error('❌ Failed to extract guide content from response:', data);
           setError(data.error || 'Failed to load guide data.');
@@ -119,12 +119,12 @@ export default function TourPage() {
     );
   }
 
-  if (!guideData) {
+  if (!guideContent) {
     // 이 상태는 보통 로딩중에 잠깐 보이거나, 데이터가 없을 때 표시됩니다.
     return null;
   }
 
-  console.log('✅ 데이터 로드 완료, TourContent 렌더링!', { guideData });
+  console.log('✅ 데이터 로드 완료, TourContent 렌더링!', { guideContent });
 
-  return <TourContent guideData={guideData} />;
+  return <TourContent guideContent={guideContent} />;
 }
