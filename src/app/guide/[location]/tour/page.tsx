@@ -50,36 +50,45 @@ export default function TourPage() {
     const fetchGuideData = async () => {
       if (!locationName) return;
 
-      console.log(`🚀 가이드 데이터 요청 시작: ${locationName}`);
+      console.log(`🚀 가이드 데이터 조회 시작: ${locationName}`);
       setIsLoading(true);
       setError(null);
 
       try {
-        const response = await fetch('/api/node/ai/generate-guide', {
+        // 1. 먼저 DB에서 가이드 조회
+        const checkRes = await fetch('/api/node/ai/get-guide', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ locationName, userProfile }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ locationName, language: 'ko' }),
         });
+        const checkData = await checkRes.json();
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || '가이드 생성에 실패했습니다.');
-        }
-
-        const data = await response.json();
-        // IMPORTANT: Log the raw data to inspect its structure in the browser console
-        console.log('✅ Raw API Response:', JSON.stringify(data, null, 2));
-
-        // Safely extract content using optional chaining
-        const content = data?.content;
-
-        if (content) {
-          setGuideContent(content);
+        if (checkData && checkData.content) {
+          console.log('✅ DB에서 가이드 데이터 조회 성공:', checkData);
+          setGuideContent(checkData.content);
         } else {
-          console.error('❌ Failed to extract guide content from response:', data);
-          setError(data.error || 'Failed to load guide data.');
+          // 2. 없으면 새로 생성
+          console.log('❎ DB에 없음, 새로 생성 시도');
+          const response = await fetch('/api/node/ai/generate-guide', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ locationName, language: 'ko', userProfile }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || '가이드 생성에 실패했습니다.');
+          }
+
+          const data = await response.json();
+          console.log('✅ 새로 생성된 가이드:', data);
+          const content = data?.content;
+          if (content) {
+            setGuideContent(content);
+          } else {
+            console.error('❌ Failed to extract guide content from response:', data);
+            setError(data.error || 'Failed to load guide data.');
+          }
         }
       } catch (err: any) {
         console.error('❌ 가이드 데이터 요청 오류:', err);
