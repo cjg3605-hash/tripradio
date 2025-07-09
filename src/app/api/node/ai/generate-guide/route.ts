@@ -102,7 +102,7 @@ function validateGuideContent(content: any): { valid: boolean, missing: string[]
 }
 
 
-function normalizeString(s: string) {
+export function normalizeString(s: string) {
   return decodeURIComponent(s || '').trim().toLowerCase();
 }
 
