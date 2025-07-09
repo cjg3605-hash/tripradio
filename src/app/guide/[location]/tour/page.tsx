@@ -55,40 +55,25 @@ export default function TourPage() {
       setError(null);
 
       try {
-        // 1. 먼저 DB에서 가이드 조회
-        const checkRes = await fetch('/api/node/ai/get-guide', {
+        // 단일 엔드포인트로 통일: DB 조회+생성 모두 처리
+        const response = await fetch('/api/node/ai/generate-guide', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ locationName, language: 'ko' }),
+          body: JSON.stringify({ locationName, language: 'ko', userProfile }),
         });
-        const checkData = await checkRes.json();
 
-        if (checkData && checkData.content) {
-          console.log('✅ DB에서 가이드 데이터 조회 성공:', checkData);
-          setGuideContent(checkData.content);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || '가이드 생성에 실패했습니다.');
+        }
+
+        const data = await response.json();
+        const content = data?.content;
+        if (content) {
+          setGuideContent(content);
         } else {
-          // 2. 없으면 새로 생성
-          console.log('❎ DB에 없음, 새로 생성 시도');
-          const response = await fetch('/api/node/ai/generate-guide', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ locationName, language: 'ko', userProfile }),
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || '가이드 생성에 실패했습니다.');
-          }
-
-          const data = await response.json();
-          console.log('✅ 새로 생성된 가이드:', data);
-          const content = data?.content;
-          if (content) {
-            setGuideContent(content);
-          } else {
-            console.error('❌ Failed to extract guide content from response:', data);
-            setError(data.error || 'Failed to load guide data.');
-          }
+          console.error('❌ Failed to extract guide content from response:', data);
+          setError(data.error || 'Failed to load guide data.');
         }
       } catch (err: any) {
         console.error('❌ 가이드 데이터 요청 오류:', err);

@@ -85,45 +85,27 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
             setIsLoading(true);
             setError(null);
             try {
-                // 1. 먼저 DB에서 가이드 조회
-                const checkRes = await fetch('/api/node/ai/get-guide', {
+                // 단일 엔드포인트로 통일: DB 조회+생성 모두 처리
+                const response = await fetch('/api/node/ai/generate-guide', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         locationName: normalizeString(locationName), 
-                        language: normalizeString(currentLanguage)
+                        language: normalizeString(currentLanguage),
+                        forceRegenerate: false
                     }),
                 });
-                const checkData = await checkRes.json();
 
-                let extracted: GuideData | null = null;
-                if (checkData && (checkData.content || checkData.data)) {
-                    // DB에서 성공적으로 불러온 경우
-                    extracted = extractGuideData(checkData.content || checkData.data, currentLanguage);
-                } else {
-                    // 2. 없으면 새로 생성
-                    const response = await fetch('/api/node/ai/generate-guide', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            locationName: normalizeString(locationName), 
-                            language: normalizeString(currentLanguage),
-                            forceRegenerate: false
-                        }),
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
-                        throw new Error(errorData.error || `Server error: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    if (!result.success && !result.content && !result.data) {
-                        throw new Error(result.error || 'Failed to generate guide.');
-                    }
-                    extracted = extractGuideData(result.data || result.content, currentLanguage);
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `Server error: ${response.status}`);
                 }
 
+                const result = await response.json();
+                let extracted: GuideData | null = null;
+                if (result.data || result.content) {
+                    extracted = extractGuideData(result.data || result.content, currentLanguage);
+                }
                 if (!validateGuideContent(extracted)) {
                     console.error("Validation failed for extracted data:", extracted);
                     throw new Error('Received guide data is invalid.');
