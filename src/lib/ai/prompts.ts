@@ -119,7 +119,69 @@ export function createAutonomousGuidePrompt(
     ko: {
       role: '당신은 **자율 리서치 능력을 갖춘 마스터 AI 투어 아키텍트(Autonomous Master AI Tour Architect)**입니다.',
       goal: '방문객이 100% 이해하며 따라올 수 있는 완벽한 한국어 오디오 가이드 JSON 객체 하나를 생성하는 것입니다.',
-      outputInstructions: `반드시 아래 예시와 완전히 동일한 구조, 동일한 키, 동일한 타입의 JSON만 반환하세요.\n- 코드블록(예: \`\`\`json ... \`\`\`)을 절대 포함하지 마세요.\n- 설명, 안내문구, 주석 등 일체의 부가 텍스트를 포함하지 마세요.\n- JSON 문법(따옴표, 쉼표, 중괄호/대괄호 등)을 반드시 준수하세요.\n- 예시:\n{\n  \"content\": {\n    \"overview\": {\n      \"title\": \"[명소명]\",\n      \"narrativeTheme\": \"[주제]\",\n      \"keyFacts\": [\n        { \"title\": \"주요 사실 제목\", \"description\": \"주요 사실 설명\" }\n      ],\n      \"visitInfo\": {\n        \"duration\": 90,\n        \"difficulty\": \"쉬움\",\n        \"season\": \"봄, 가을 추천\"\n      }\n    },\n    \"route\": {\n      \"steps\": [\n        {\n          \"step\": 0,\n          \"location\": \"시작 위치명\",\n          \"title\": \"시작 챕터: 웰컴 메시지\",\n          \"coordinates\": { \"lat\": 0.0, \"lng\": 0.0 }\n        }\n      ]\n    },\n    \"realTimeGuide\": {\n      \"startingLocation\": {\n        \"name\": \"시작 위치명\",\n        \"address\": \"정확한 주소\",\n        \"googleMapsUrl\": \"https://www.google.com/maps/search/[영어 명소명]\",\n        \"coordinates\": { \"lat\": 0.0, \"lng\": 0.0 }\n      },\n      \"chapters\": [\n        {\n          \"id\": 0,\n          \"title\": \"시작 챕터: 웰컴 메시지\",\n          \"description\": \"챕터 설명\",\n          \"duration\": 120,\n          \"audioUrl\": \"https://.../audio.mp3\",\n          \"sceneDescription\": \"현장 묘사\",\n          \"narrativeLayers\": {\n            \"coreNarrative\": \"핵심 해설\",\n            \"architectureDeepDive\": \"건축 해설\",\n            \"humanStories\": \"인물 이야기\",\n            \"sensoryBehindTheScenes\": \"감각적 비하인드\"\n          },\n          \"nextDirection\": \"➡️ 동쪽으로 50m 이동\",\n          \"coordinates\": { \"lat\": 0.0, \"lng\": 0.0 },\n          \"realTimeScript\": \"안녕하세요! 오늘 [명소명]을 함께 탐험하게 되어 기쁩니다. ...\",\n          \"location\": {\n            \"name\": \"세부 장소명\"\n          }\n        }\n      ]\n    }\n  }\n}\n`,
+      outputInstructions: `반드시 아래 예시와 완전히 동일한 구조, 동일한 키, 동일한 타입의 JSON만 반환하세요.
+- 코드블록(예: ```json ... ```)을 절대 포함하지 마세요.
+- 설명, 안내문구, 주석 등 일체의 부가 텍스트를 포함하지 마세요.
+- JSON 문법(따옴표, 쉼표, 중괄호/대괄호 등)을 반드시 준수하세요.
+- **JSON 문법 오류가 발생하면 평가 점수가 0점이 됩니다.**
+- 예시:
+{
+  "content": {
+    "overview": {
+      "title": "[명소명]",
+      "narrativeTheme": "[주제]",
+      "keyFacts": [
+        { "title": "주요 사실 제목", "description": "주요 사실 설명" }
+      ],
+      "visitInfo": {
+        "duration": 90,
+        "difficulty": "쉬움",
+        "season": "봄, 가을 추천"
+      }
+    },
+    "route": {
+      "steps": [
+        {
+          "step": 0,
+          "location": "시작 위치명",
+          "title": "시작 챕터: 웰컴 메시지",
+          "coordinates": { "lat": 0.0, "lng": 0.0 }
+        }
+      ]
+    },
+    "realTimeGuide": {
+      "startingLocation": {
+        "name": "시작 위치명",
+        "address": "정확한 주소",
+        "googleMapsUrl": "https://www.google.com/maps/search/[영어 명소명]",
+        "coordinates": { "lat": 0.0, "lng": 0.0 }
+      },
+      "chapters": [
+        {
+          "id": 0,
+          "title": "시작 챕터: 웰컴 메시지",
+          "description": "챕터 설명",
+          "duration": 120,
+          "audioUrl": "https://.../audio.mp3",
+          "sceneDescription": "현장 묘사",
+          "narrativeLayers": {
+            "coreNarrative": "핵심 해설",
+            "architectureDeepDive": "건축 해설",
+            "humanStories": "인물 이야기",
+            "sensoryBehindTheScenes": "감각적 비하인드"
+          },
+          "nextDirection": "➡️ 동쪽으로 50m 이동",
+          "coordinates": { "lat": 0.0, "lng": 0.0 },
+          "realTimeScript": "안녕하세요! 오늘 [명소명]을 함께 탐험하게 되어 기쁩니다. ...",
+          "location": {
+            "name": "세부 장소명"
+          }
+        }
+      ]
+    }
+  }
+}
+`,
       qualityStandards: '한국 최고 수준의 문화관광해설사의 품질로 작성하세요. **분량에 제한 없이**, 명소와 관련된 **모든 배경지식, 숨겨진 이야기, 역사적 사실**을 포함하여 가장 상세하고 깊이 있는 내용을 제공해야 합니다. **명소 내 모든 세부 장소를 하나도 빠짐없이 포함**하여, 방문객이 원하는 곳을 선택해 들을 수 있는 완전한 가이드를 만드세요. **관람 동선은 입장부터 퇴장까지 가장 효율적인 한붓그리기 동선으로 설계하여, 방문객이 불필요하게 되돌아가거나 두 번 이동하는 일이 없도록 해야 합니다.** 풍부한 스토리텔링과 생생한 묘사는 필수입니다. 모든 언어에서 이와 동일한 최고 수준의 품질이 보장되어야 합니다.'
     },
     en: {
