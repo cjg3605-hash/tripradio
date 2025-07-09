@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
@@ -38,6 +38,13 @@ export default function TourPage() {
   
   console.log('📍 URL 파라미터:', { params, locationName });
 
+  const userProfile = useMemo(() => ({
+    interests: ['문화', '역사'],
+    knowledgeLevel: '중급',
+    ageGroup: '30대',
+    preferredStyle: '친근함'
+  }), []);
+
   useEffect(() => {
     setIsMounted(true);
     const fetchGuideData = async () => {
@@ -62,10 +69,16 @@ export default function TourPage() {
         }
 
         const data = await response.json();
-        console.log('✅ 가이드 데이터 수신 성공:', data);
-        if (data.success && data.data) {
-          setGuideData(data.data);
+        // IMPORTANT: Log the raw data to inspect its structure in the browser console
+        console.log('✅ Raw API Response:', JSON.stringify(data, null, 2));
+
+        // Safely extract content using optional chaining
+        const guideContent = data?.data?.content;
+
+        if (data.success && guideContent) {
+          setGuideData(guideContent);
         } else {
+          console.error('❌ Failed to extract guide content from response:', data);
           setError(data.error || 'Failed to load guide data.');
         }
       } catch (err: any) {
@@ -77,14 +90,9 @@ export default function TourPage() {
     };
 
     fetchGuideData();
-  }, [locationName]);
+  }, [locationName, userProfile]);
 
-  const userProfile = {
-    interests: ['문화', '역사'],
-    knowledgeLevel: '중급',
-    ageGroup: '30대',
-    preferredStyle: '친근함'
-  }; // TODO: currently not used in this component but may be forwarded to API.
+
 
   if (isLoading || !isMounted) {
     console.log('⏳ 아직 마운트되지 않음, 로딩 화면 표시');

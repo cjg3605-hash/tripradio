@@ -102,7 +102,8 @@ const useChaptersWithCoordinates = (chapters: GuideChapter[] = [], language: str
 
 // The main presentational component
 const TourContent: React.FC<TourContentProps> = ({ guideData }) => {
-  const { t } = useTranslation('guide');
+  const { t, i18n } = useTranslation('guide');
+  const ready = i18n.isInitialized;
   const { currentLanguage } = useLanguage();
 
   // State for UI interaction
@@ -110,6 +111,19 @@ const TourContent: React.FC<TourContentProps> = ({ guideData }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isTtsLoading, setIsTtsLoading] = useState<number | null>(null); // Track loading state by chapter index
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  if (!ready) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            가이드 준비 중...
+          </h2>
+        </div>
+      </div>
+    );
+  }
 
   // Memoized data extraction from props
   const { overview, route, realTimeGuide, metadata } = guideData;
