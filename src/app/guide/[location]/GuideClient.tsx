@@ -26,14 +26,29 @@ const extractGuideData = (raw: any, language: string): GuideData | null => {
     if (!contentSource) return null;
 
     const langKey = language.slice(0, 2);
-    const realTimeGuideKeyOptions = REALTIME_GUIDE_KEYS[langKey] || ['RealTimeGuide', 'realTimeGuide', '실시간가이드'];
     
+    // 포괄적인 realTimeGuide 키 찾기 (REALTIME_GUIDE_KEYS + 기본 키들)
     let realTimeGuide: RealTimeGuide | undefined;
-    for (const key of realTimeGuideKeyOptions) {
-        if (contentSource[key]) {
+    const possibleKeys = [
+        REALTIME_GUIDE_KEYS[langKey], // 언어별 키
+        'realTimeGuide',
+        'RealTimeGuide', 
+        '실시간가이드',
+        'realtimeGuide',
+        'realtime_guide',
+        'real_time_guide'
+    ].filter(Boolean); // null/undefined 제거
+    
+    for (const key of possibleKeys) {
+        if (contentSource[key] && (contentSource[key].chapters || Array.isArray(contentSource[key]))) {
             realTimeGuide = contentSource[key];
             break;
         }
+    }
+    
+    // realTimeGuide가 없고 최상위에 chapters가 있다면 realTimeGuide로 감싸기
+    if (!realTimeGuide && Array.isArray(contentSource.chapters)) {
+        realTimeGuide = { chapters: contentSource.chapters };
     }
 
     let keyFacts = contentSource.overview?.keyFacts || [];

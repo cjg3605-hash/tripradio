@@ -246,19 +246,12 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
           </section>
         )}
 
-        {route?.steps && route.steps.length > 0 && (
+        {/* 실시간 가이드 챕터 표시 - realTimeGuide.chapters 우선 사용 */}
+        {chapters && chapters.length > 0 && (
             <section className="mb-8">
                 <h2 className="text-xl font-semibold mb-4">{t('real_time_guide', 'Real-Time Guide')}</h2>
                 <div className="space-y-4">
-                    {(route.steps.map((step, index) => {
-                        const chapter = chapters[index] || {
-                            title: step.title || `Chapter ${index + 1}`,
-                            location: step.location || '',
-                            humanStories: '',
-                            coreNarrative: '',
-                            nextDirection: '',
-                            sceneDescription: ''
-                        };
+                    {chapters.map((chapter, index) => {
                         return (
                             <div key={chapter.id || index} className={`bg-white p-4 rounded-lg shadow transition-all duration-300`}>
                                 <div className="flex items-center justify-between cursor-pointer" onClick={() => handleChapterSelect(index)}>
@@ -293,7 +286,7 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
                                                 <span>{chapter.nextDirection}</span>
                                             </div>
                                         )}
-                                        {/* 안내 메시지 */}
+                                        {/* 안내 메시지 - 실제 내용이 없을 때만 표시 */}
                                         {!(chapter.sceneDescription || chapter.coreNarrative || chapter.humanStories) && (
                                             <div className="text-gray-400 italic">{t('chapter_content_preparing', 'This chapter is being prepared...')}</div>
                                         )}
@@ -301,7 +294,22 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
                                 )}
                             </div>
                         );
-                    }))}
+                    })}
+                </div>
+            </section>
+        )}
+
+        {/* 만약 chapters가 없고 route.steps만 있다면 fallback으로 표시 */}
+        {(!chapters || chapters.length === 0) && route?.steps && route.steps.length > 0 && (
+            <section className="mb-8">
+                <h2 className="text-xl font-semibold mb-4">{t('route_steps', 'Route Steps')}</h2>
+                <div className="space-y-4">
+                    {route.steps.map((step, index) => (
+                        <div key={step.step || index} className="bg-white p-4 rounded-lg shadow">
+                            <h4 className="font-medium text-gray-900">{step.title}</h4>
+                            <p className="text-gray-600 mt-2">{step.location}</p>
+                        </div>
+                    ))}
                 </div>
             </section>
         )}
