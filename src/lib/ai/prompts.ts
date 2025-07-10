@@ -19,11 +19,11 @@ const MINIMAL_EXAMPLE_JSON = {
     },
     route: {
       steps: [
-        { step: 1, location: "광화문", title: "조선왕조의 정문에서 시작하는 여행" },
-        { step: 2, location: "근정전", title: "왕의 권위가 서린 정전" },
-        { step: 3, location: "경회루", title: "연못 위의 누각, 외교의 무대" },
-        { step: 4, location: "향원정", title: "왕실 정원의 숨겨진 보석" },
-        { step: 5, location: "국립고궁박물관", title: "왕실 문화의 정수를 만나다" }
+        { step: 1, location: "광화문", title: "광화문 - 조선왕조의 위엄 있는 시작" },
+        { step: 2, location: "근정전", title: "근정전 - 왕의 권위와 조선의 정치 무대" },
+        { step: 3, location: "경회루", title: "경회루 - 연못 위의 누각, 외교의 무대" },
+        { step: 4, location: "향원정", title: "향원정 - 왕실 정원의 숨겨진 보석" },
+        { step: 5, location: "국립고궁박물관", title: "국립고궁박물관 - 왕실 문화의 정수를 만나다" }
       ]
     },
     realTimeGuide: {
@@ -43,6 +43,30 @@ const MINIMAL_EXAMPLE_JSON = {
           coreNarrative: "근정전은 조선왕조 500년간 가장 중요한 정치적 결정들이 내려진 곳입니다. 왕의 즉위식, 신하들의 조회, 외국 사신 접견 등 국가의 운명을 좌우하는 일들이 이곳에서 벌어졌죠. 정전의 이름 '근정(勤政)'은 '부지런히 정사를 돌본다'는 뜻으로, 조선 왕들의 통치 이념을 보여줍니다. 건물의 배치와 장식 하나하나가 왕권의 신성함을 표현하도록 설계되었습니다.",
           humanStories: "세종대왕이 이곳에서 신하들과 집현전 학자들을 만나 한글 창제를 논의했고, 정조는 이곳에서 규장각 설치를 발표했습니다. 흥미롭게도 근정전의 천장에는 두 마리의 용이 여의주를 물고 있는 모습이 그려져 있는데, 이는 왕과 왕비, 또는 왕과 백성의 조화를 상징한다고 해석됩니다. 임진왜란 때는 이곳에서 선조가 피난을 결정하는 마지막 조회를 열기도 했죠.",
           nextDirection: "근정전 뒤편으로 돌아가 사정전으로 향하세요. 길을 따라 걸으며 좌측의 수정전과 우측의 조경의 아름다움을 감상해보세요."
+        },
+        {
+          id: 2,
+          title: "경회루 - 연못 위의 누각, 외교의 무대",
+          sceneDescription: "경회루 연못가에 서면 물 위에 떠 있는 듯한 2층 누각의 절묘한 균형미에 감탄하게 됩니다. 연못에 비친 누각의 그림자와 주변 버드나무가 어우러져 한 폭의 그림 같은 풍경을 연출합니다. 특히 해질 무렵 누각에서 새어 나오는 은은한 빛이 물결에 흔들리는 모습은 마치 신선이 노니는 별천지 같습니다.",
+          coreNarrative: "경회루는 조선시대 최고의 외교 무대였습니다. 이곳에서 중국 명나라 사신을 접대하고, 일본 통신사를 맞이했으며, 몽골 사신과도 만남을 가졌죠. 연못 위에 세워진 독특한 구조는 '하늘과 땅, 물이 어우러진 이상향'을 의미하며, 조선의 문화적 수준을 과시하는 상징적 공간이었습니다. 누각에서 바라보는 경복궁 전체의 경관은 방문한 외국 사신들을 감탄케 했다고 전해집니다.",
+          humanStories: "태종은 이곳에서 명나라 사신들과 시 짓기 대회를 열어 조선 문인들의 실력을 뽐냈고, 세종대왕은 경회루에서 집현전 학사들과 함께 음악을 연주하며 학문을 논했습니다. 특히 정조 시대에는 이곳에서 '만천명월주인옹(萬川明月主人翁)' 연회를 열어 신하들과 밤새도록 시와 음악을 즐겼다는 기록이 남아있습니다.",
+          nextDirection: "경회루를 한 바퀴 돌아보신 후 북쪽으로 향해 향원정으로 이동하세요. 작은 다리를 건너며 후원의 자연스러운 아름다움을 느껴보세요."
+        },
+        {
+          id: 3,
+          title: "향원정 - 왕실 정원의 숨겨진 보석",
+          sceneDescription: "향원정에 이르면 아담한 연못 가운데 자리 잡은 육각형 정자의 우아한 모습이 눈에 들어옵니다. 정자로 이어지는 나무다리를 걸으며 발밑으로 보이는 연꽃과 물고기들, 그리고 정자 안에서 바라보는 주변 풍경은 마치 동양화 속에 들어온 듯한 느낌을 줍니다.",
+          coreNarrative: "향원정은 고종이 건청궁과 함께 조성한 후원의 핵심 건물로, '향기가 멀리 퍼진다'는 뜻을 담고 있습니다. 이곳은 왕과 왕비가 일상적인 정무에서 벗어나 휴식을 취하고 사색하던 공간이었죠. 정자의 육각형 구조는 '하늘은 둥글고 땅은 네모나다'는 천원지방(天圓地方) 사상에서 하늘과 땅의 조화를 의미하며, 연못과 함께 소우주를 표현한 조선 후기 조경의 걸작입니다.",
+          humanStories: "고종과 명성황후는 이곳에서 차를 마시며 국정을 논의했고, 특히 명성황후는 이곳에서 서양 선교사들을 만나 신문물을 받아들이는 회담을 갖기도 했습니다. 일제강점기에는 이곳이 거의 방치되었다가, 1990년대 복원 공사를 통해 옛 모습을 되찾았습니다. 현재도 이곳은 많은 사진작가들이 찾는 경복궁의 숨겨진 명소입니다.",
+          nextDirection: "향원정을 나와 동쪽으로 향하면 국립고궁박물관이 보입니다. 궁궐의 야외 관람을 마치고 박물관에서 왕실 문화재들을 자세히 살펴보세요."
+        },
+        {
+          id: 4,
+          title: "국립고궁박물관 - 왕실 문화의 정수를 만나다",
+          sceneDescription: "국립고궁박물관에 들어서면 조선왕조 500년의 찬란한 문화유산들이 체계적으로 전시된 모습을 볼 수 있습니다. 화려한 왕실 복식부터 정교한 공예품, 과학 기구들까지 각각의 유물들이 들려주는 이야기를 통해 조선시대 궁중문화의 깊이와 세련됨을 체감할 수 있습니다.",
+          coreNarrative: "국립고궁박물관은 조선왕조와 대한제국의 왕실 문화를 종합적으로 보여주는 전문 박물관입니다. 이곳에 전시된 4만여 점의 유물들은 단순한 장식품이 아니라 당시의 과학기술, 예술 수준, 사상과 철학을 보여주는 역사의 증거들입니다. 특히 조선시대 천문과학의 발달상을 보여주는 혼천의나 자격루 같은 과학기구들은 당시 조선의 높은 기술 수준을 증명합니다.",
+          humanStories: "박물관의 대표 유물 중 하나인 '어진(왕의 초상화)'은 조선 왕들의 실제 모습을 생생하게 전해주는데, 특히 태조 어진은 600년이 넘는 세월을 견뎌온 기적적인 보물입니다. 또한 왕실에서 사용했던 의료기구들을 보면 조선시대 궁중 의학의 발달 정도를 알 수 있으며, 왕실 음식 문화를 보여주는 각종 그릇들에서는 조선인들의 미의식과 생활 철학을 엿볼 수 있습니다.",
+          nextDirection: "박물관 관람을 마치고 나오시면 경복궁 탐방이 완료됩니다. 광화문 방향으로 나가며 처음 들어왔을 때와는 다른 느낌으로 궁궐을 바라보세요."
         }
       ]
     }
@@ -328,6 +352,11 @@ ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 
 **📍 챕터 구성 필수 요구사항:**
 - **최소 5-7개 챕터 생성**: 주요 관람 포인트마다 별도 챕터 구성
 - **관람 동선 순서대로 배치**: 입구부터 출구까지 효율적인 한붓그리기 경로
+- **🚨 CRITICAL: route.steps와 realTimeGuide.chapters 동기화 필수 🚨**
+  * route.steps 배열과 realTimeGuide.chapters 배열의 개수가 **반드시 정확히 일치**해야 함
+  * 각 step의 title과 해당 chapter의 title이 **완전히 동일**해야 함
+  * step 순서와 chapter 순서가 **정확히 일치**해야 함
+  * 이 규칙을 위반하면 시스템 오류가 발생합니다!
 - **각 필드별 최소 작성 기준**:
   * sceneDescription: 200자 이상, 5감을 자극하는 생생한 묘사
   * coreNarrative: 300자 이상, 역사적 사실과 의미 상세 설명
@@ -357,6 +386,11 @@ ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 
 **📍 Chapter Composition Requirements:**
 - **Generate at least 5-7 chapters**: Create separate chapters for each major viewing point
 - **Follow visitor route order**: Efficient one-way path from entrance to exit
+- **🚨 CRITICAL: route.steps and realTimeGuide.chapters synchronization REQUIRED 🚨**
+  * route.steps array and realTimeGuide.chapters array count must **match exactly**
+  * Each step's title and corresponding chapter's title must be **completely identical**
+  * Step order and chapter order must **match exactly**
+  * Violating this rule will cause system errors!
 - **Minimum content requirements for each field**:
   * sceneDescription: 200+ characters, vivid descriptions engaging all 5 senses
   * coreNarrative: 300+ characters, detailed historical facts and significance
@@ -388,6 +422,7 @@ ${currentLangConfig.name}로 "${locationName}"에 대한 완전한 오디오 가
 
 **중요 체크리스트:**
 ✅ realTimeGuide.chapters 배열에 최소 5-7개 챕터 포함
+✅ 🚨 CRITICAL: route.steps와 realTimeGuide.chapters 개수 및 title 완전 일치 🚨
 ✅ 각 챕터의 sceneDescription, coreNarrative, humanStories, nextDirection 모든 필드가 실제 내용으로 충실히 작성됨
 ✅ 관람 동선에 따른 순차적 챕터 배치 (입구→주요 관람지→출구)
 ✅ 각 필드별 최소 글자 수 충족
@@ -397,7 +432,8 @@ ${currentLangConfig.name}로 "${locationName}"에 대한 완전한 오디오 가
 ❌ 빈 문자열 ("") 사용 금지
 ❌ "추후 작성" 같은 플레이스홀더 사용 금지  
 ❌ 단순 반복 내용 사용 금지
-❌ JSON 외부 텍스트 포함 금지`
+❌ JSON 외부 텍스트 포함 금지
+❌ route.steps와 realTimeGuide.chapters 불일치 절대 금지`
   ].join('\n\n');
 
   return prompt;
