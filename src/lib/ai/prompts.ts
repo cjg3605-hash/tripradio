@@ -265,24 +265,13 @@ export function createFinalGuidePrompt(
         overview: {
           title: `${locationName}`,
           narrativeTheme: `A journey through ${locationName}, exploring its rich history, architectural marvels, and hidden secrets.`,
-          keyFacts: researchData.content.overview.keyFacts,
-          visitInfo: researchData.content.overview.visitInfo
+          keyFacts: [],
+          visitInfo: {}
         },
-        route: researchData.content.route,
+        route: { steps: [] },
         realTimeGuide: {
-          startingLocation: researchData.content.realTimeGuide.startingLocation,
-          chapters: researchData.content.realTimeGuide.chapters.map((chapter: any) => {
-            if (chapter.title.toLowerCase().includes('outro')) {
-              return {
-                ...chapter,
-                realTimeScript: `This is the completed OUTRO script for the tour at ${locationName}. It should summarize the experience and provide a memorable closing.`
-              };
-            }
-            return {
-              ...chapter,
-              realTimeScript: `This is the completed script for ${chapter.title} at ${locationName}. It should be detailed and engaging, based on the research data.`
-            };
-          })
+          startingLocation: '',
+          chapters: []
         }
       }
     }, null, 2)
