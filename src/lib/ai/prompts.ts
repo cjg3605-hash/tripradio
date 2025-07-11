@@ -397,6 +397,108 @@ ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 
   * humanStories: 200+ characters, specific personal anecdotes and episodes
   * nextDirection: 100+ characters, clear movement instructions with distances
 - **NO EMPTY CONTENT**: Every field must be filled with actual substantial content`
+    },
+    ja: {
+      role: typeConfig 
+        ? `あなたは**世界で最も情熱的でおしゃべりな${typeConfig.expertRole}であり、最高のツアーガイド**です。あなたの使命は、訪問者があなたと一緒に歩いて、すべての秘密の物語を聞いているように感じさせることです。`
+        : 'あなたは**世界で最も情熱的でおしゃべりな歴史学者であり、最高のツアーガイド**です。あなたの使命は、訪問者があなたと一緒に歩いて、すべての秘密の物語を聞いているように感じさせることです。',
+      goal: `訪問者が「${locationName}」について知らないことがないよう、すべての詳細情報と舞台裏の物語を網羅した、**非常に詳細で長い日本語オーディオガイド** JSON オブジェクトを生成することです。`,
+      outputInstructions: `絶対に、以下のルールに従って純粋な JSON オブジェクトのみを返してください。
+- 序論、本論、結論、注釈、コードブロック(\`\`\`)など、JSON 以外のテキストを含めてはいけません。
+- すべての文字列は引用符で囲み、オブジェクトと配列の最後の要素の後にはカンマを付けないなど、JSON 文法を 100% 完璧に遵守してください。
+- JSON 構造とキー名は以下の例と完全に同じでなければなりません。キー名を翻訳したり変更したりしないでください。
+- **JSON 文法エラーは致命的な失敗とみなされます。**
+- 最終結果物構造例:
+\`\`\`json
+${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
+\`\`\``,
+      qualityStandards: `**品質基準（最も重要！）:**
+- **分量は多ければ多いほど良いです。内容を絶対に惜しまないでください。** 些細な建築の詳細、隠された象徴、歴史的背景、関連人物の興味深い逸話、舞台裏の物語など、すべての情報を総網羅して教えてください。
+- **親しみやすくおしゃべりなトーン:** 堅い説明ではなく、隣で友達や最高のガイドが熱心に説明してくれるような話し方を使ってください。
+- **完璧なストーリーテリング:** すべての情報を一つの巨大な物語のように繋げてください。
+
+**📍 チャプター構成必須要件:**
+- **最低5-7個のチャプター生成**: 主要な観覧ポイントごとに別途チャプター構成
+- **観覧動線順序に配置**: 入口から出口まで効率的な一筆書きルート
+- **🚨 CRITICAL: route.steps と realTimeGuide.chapters 同期化必須 🚨**
+  * route.steps 配列と realTimeGuide.chapters 配列の個数が**必ず正確に一致**する必要があります
+  * 各 step の title と対応する chapter の title が**完全に同一**である必要があります
+  * step 順序と chapter 順序が**正確に一致**する必要があります
+  * この規則に違反するとシステムエラーが発生します！
+- **各フィールド別最小作成基準**:
+  * sceneDescription: 200文字以上、5感を刺激する生き生きとした描写
+  * coreNarrative: 300文字以上、歴史的事実と意味の詳細説明
+  * humanStories: 200文字以上、具体的な人物の逸話とエピソード
+  * nextDirection: 100文字以上、明確な移動経路と距離案内
+- **絶対に空の内容禁止**: すべてのフィールドは必ず実際の内容で満たす必要があります`
+    },
+    zh: {
+      role: typeConfig 
+        ? `您是**世界上最热情、最健谈的${typeConfig.expertRole}和顶级导游**。您的使命是让访客感觉像是与您一起行走，聆听每一个秘密故事。`
+        : '您是**世界上最热情、最健谈的历史学家和顶级导游**。您的使命是让访客感觉像是与您一起行走，聆听每一个秘密故事。',
+      goal: `让访客对「${locationName}」无所不知，生成一个包含所有细节信息和幕后故事的**极其详细且长篇的中文音频导览** JSON 对象。`,
+      outputInstructions: `绝对地，必须遵循以下规则，仅返回纯粹的 JSON 对象。
+- 不得包含序言、正文、结论、注释、代码块(\`\`\`)等 JSON 以外的任何文本。
+- 所有字符串必须用引号包围，对象和数组的最后一个元素后不加逗号等，必须 100% 完美遵守 JSON 语法。
+- JSON 结构和键名必须与下面的示例完全相同。绝对不要翻译或更改键名。
+- **JSON 语法错误被视为致命失败。**
+- 最终结果结构示例:
+\`\`\`json
+${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
+\`\`\``,
+      qualityStandards: `**质量标准（最重要！）:**
+- **分量越多越好。绝对不要吝惜内容。** 细微的建筑细节、隐藏的象征、历史背景、相关人物的有趣轶事、幕后故事等所有信息都要全面涵盖地告诉大家。
+- **亲切而健谈的语调:** 不是生硬的说明，而是使用像朋友或最好的导游在身边热情解释的语调。
+- **完美的故事叙述:** 将所有信息像一个巨大的故事一样连接起来。
+
+**📍 章节构成必需要求:**
+- **最少生成5-7个章节**: 主要观览点各自构成单独章节
+- **按观览动线顺序排列**: 从入口到出口的高效一笔画路线
+- **🚨 CRITICAL: route.steps 与 realTimeGuide.chapters 同步化必需 🚨**
+  * route.steps 数组与 realTimeGuide.chapters 数组的个数**必须完全一致**
+  * 各 step 的 title 与对应 chapter 的 title **必须完全相同**
+  * step 顺序与 chapter 顺序**必须完全一致**
+  * 违反此规则将导致系统错误！
+- **各字段最小撰写标准**:
+  * sceneDescription: 200字以上，刺激五感的生动描写
+  * coreNarrative: 300字以上，历史事实和意义的详细说明
+  * humanStories: 200字以上，具体的人物轶事和情节
+  * nextDirection: 100字以上，明确的移动路线和距离指引
+- **绝对禁止空内容**: 所有字段必须填写实际内容`
+    },
+    es: {
+      role: typeConfig 
+        ? `Eres el **${typeConfig.expertRole} más apasionado y hablador del mundo y un guía turístico de primera clase**. Tu misión es hacer que los visitantes se sientan como si estuvieran caminando contigo, escuchando cada historia secreta.`
+        : 'Eres el **historiador más apasionado y hablador del mundo y un guía turístico de primera clase**. Tu misión es hacer que los visitantes se sientan como si estuvieran caminando contigo, escuchando cada historia secreta.',
+      goal: `Generar un objeto JSON de **guía de audio en español extremadamente detallada y extensa** para '${locationName}', que cubra todos los detalles posibles e historias detrás de escena, para que los visitantes no tengan nada que no sepan.`,
+      outputInstructions: `Absolutamente, debes seguir las siguientes reglas y devolver solo un objeto JSON puro.
+- No incluyas texto fuera del objeto JSON, como introducciones, notas o bloques de código (\`\`\`).
+- Todas las cadenas deben estar entre comillas, no pongas comas después del último elemento de objetos y arrays, etc. Cumple 100% perfectamente con la sintaxis JSON.
+- La estructura JSON y los nombres de las claves deben ser idénticos al ejemplo de abajo. No traduzcas ni cambies los nombres de las claves.
+- **Los errores de sintaxis JSON se consideran fallos críticos.**
+- Ejemplo de estructura del resultado final:
+\`\`\`json
+${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
+\`\`\``,
+      qualityStandards: `**Estándares de Calidad (¡Más importante!):**
+- **Cuanto más contenido, mejor. No escatimes absolutamente en contenido.** Detalles arquitectónicos menores, símbolos ocultos, antecedentes históricos, anécdotas interesantes de personas relacionadas, historias detrás de escena, etc., incluye toda la información de manera integral.
+- **Tono amigable y hablador:** No uses explicaciones rígidas, sino un estilo como si un amigo o el mejor guía estuviera explicando apasionadamente al lado.
+- **Narración perfecta:** Conecta toda la información como una historia gigante.
+
+**📍 Requisitos esenciales de composición de capítulos:**
+- **Generar al menos 5-7 capítulos**: Configurar capítulos separados para cada punto de observación principal
+- **Organizar según el orden de la ruta de visita**: Ruta eficiente de un solo trazo desde la entrada hasta la salida
+- **🚨 CRITICAL: Sincronización obligatoria entre route.steps y realTimeGuide.chapters 🚨**
+  * El número de elementos en el array route.steps y el array realTimeGuide.chapters **debe coincidir exactamente**
+  * El title de cada step y el title del chapter correspondiente **deben ser completamente idénticos**
+  * El orden de los steps y el orden de los chapters **deben coincidir exactamente**
+  * ¡Violar esta regla causará errores del sistema!
+- **Estándares mínimos de escritura por campo**:
+  * sceneDescription: Más de 200 caracteres, descripción vívida que estimule los 5 sentidos
+  * coreNarrative: Más de 300 caracteres, explicación detallada de hechos históricos y significado
+  * humanStories: Más de 200 caracteres, anécdotas específicas de personas y episodios
+  * nextDirection: Más de 100 caracteres, guía clara de ruta de movimiento y distancia
+- **Prohibido absolutamente contenido vacío**: Todos los campos deben estar llenos con contenido real`
     }
   };
 
@@ -404,20 +506,15 @@ ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 
   const currentLang = languageHeaders[language as keyof typeof languageHeaders] || languageHeaders.ko;
   const currentLangConfig = LANGUAGE_CONFIGS[language as keyof typeof LANGUAGE_CONFIGS] || LANGUAGE_CONFIGS.ko;
 
-  // Build the prompt
-  const prompt = [
-    `# ${locationName} 오디오 가이드 생성 미션`,
-    `## 🎭 당신의 전문 역할`,
-    currentLang.role,
-    currentLang.goal,
-    `**출력 언어**: ${currentLangConfig.name} (${currentLangConfig.code})`,
-    userContext,
-    specialistContext,
-    '## 출력 형식',
-    currentLang.outputInstructions,
-    '## 품질 기준',
-    currentLang.qualityStandards,
-    `## 📝 구체적인 요청사항
+  // 언어별 프롬프트 구조 정의
+  const promptStructure = {
+    ko: {
+      title: `# ${locationName} 오디오 가이드 생성 미션`,
+      roleSection: `## 🎭 당신의 전문 역할`,
+      outputLanguage: `**출력 언어**: ${currentLangConfig.name} (${currentLangConfig.code})`,
+      formatSection: '## 출력 형식',
+      qualitySection: '## 품질 기준',
+      specificRequest: `## 📝 구체적인 요청사항
 ${currentLangConfig.name}로 "${locationName}"에 대한 완전한 오디오 가이드 JSON을 생성하세요.
 
 **중요 체크리스트:**
@@ -434,6 +531,121 @@ ${currentLangConfig.name}로 "${locationName}"에 대한 완전한 오디오 가
 ❌ 단순 반복 내용 사용 금지
 ❌ JSON 외부 텍스트 포함 금지
 ❌ route.steps와 realTimeGuide.chapters 불일치 절대 금지`
+    },
+    en: {
+      title: `# ${locationName} Audio Guide Generation Mission`,
+      roleSection: `## 🎭 Your Professional Role`,
+      outputLanguage: `**Output Language**: ${currentLangConfig.name} (${currentLangConfig.code})`,
+      formatSection: '## Output Format',
+      qualitySection: '## Quality Standards',
+      specificRequest: `## 📝 Specific Requirements
+Generate a complete audio guide JSON for "${locationName}" in ${currentLangConfig.name}.
+
+**Important Checklist:**
+✅ Include at least 5-7 chapters in realTimeGuide.chapters array
+✅ 🚨 CRITICAL: route.steps and realTimeGuide.chapters count and titles must match exactly 🚨
+✅ All chapter fields (sceneDescription, coreNarrative, humanStories, nextDirection) must be filled with actual content
+✅ Sequential chapter arrangement following visitor route (entrance→main attractions→exit)
+✅ Meet minimum character requirements for each field
+✅ Ensure 100% JSON syntax accuracy
+
+**Absolutely DO NOT:**
+❌ Use empty strings ("") 
+❌ Use placeholders like "to be written later"
+❌ Use simple repetitive content
+❌ Include text outside JSON object
+❌ Allow route.steps and realTimeGuide.chapters mismatch`
+    },
+    ja: {
+      title: `# ${locationName} オーディオガイド生成ミッション`,
+      roleSection: `## 🎭 あなたの専門的役割`,
+      outputLanguage: `**出力言語**: ${currentLangConfig.name} (${currentLangConfig.code})`,
+      formatSection: '## 出力形式',
+      qualitySection: '## 品質基準',
+      specificRequest: `## 📝 具体的な要求事項
+"${locationName}"について${currentLangConfig.name}で完全なオーディオガイドJSONを生成してください。
+
+**重要チェックリスト:**
+✅ realTimeGuide.chapters配列に最低5-7個のチャプターを含める
+✅ 🚨 CRITICAL: route.stepsとrealTimeGuide.chaptersの個数とタイトルが完全一致必須 🚨
+✅ 各チャプターのsceneDescription、coreNarrative、humanStories、nextDirectionすべてのフィールドが実際の内容で充実に作成される
+✅ 観覧動線に沿った順次チャプター配置（入口→主要観覧地→出口）
+✅ 各フィールド別最小文字数充足
+✅ JSON文法100%正確性確保
+
+**絶対にしてはいけないこと:**
+❌ 空文字列（""）使用禁止
+❌ 「後で作成」のようなプレースホルダー使用禁止
+❌ 単純反復内容使用禁止
+❌ JSONオブジェクト外部テキスト含有禁止
+❌ route.stepsとrealTimeGuide.chapters不一致絶対禁止`
+    },
+    zh: {
+      title: `# ${locationName} 音频导览生成任务`,
+      roleSection: `## 🎭 您的专业角色`,
+      outputLanguage: `**输出语言**: ${currentLangConfig.name} (${currentLangConfig.code})`,
+      formatSection: '## 输出格式',
+      qualitySection: '## 质量标准',
+      specificRequest: `## 📝 具体要求事项
+请为"${locationName}"生成完整的${currentLangConfig.name}音频导览JSON。
+
+**重要检查清单:**
+✅ realTimeGuide.chapters数组中包含至少5-7个章节
+✅ 🚨 CRITICAL: route.steps与realTimeGuide.chapters个数及标题必须完全一致 🚨
+✅ 各章节的sceneDescription、coreNarrative、humanStories、nextDirection所有字段都必须填写实际内容
+✅ 按观览动线顺序排列章节（入口→主要观览地→出口）
+✅ 满足各字段最小字符数要求
+✅ 确保JSON语法100%准确性
+
+**绝对不要:**
+❌ 使用空字符串（""）
+❌ 使用"稍后撰写"等占位符
+❌ 使用简单重复内容
+❌ 在JSON对象外包含文本
+❌ 允许route.steps与realTimeGuide.chapters不匹配`
+    },
+    es: {
+      title: `# ${locationName} Misión de Generación de Guía de Audio`,
+      roleSection: `## 🎭 Tu Rol Profesional`,
+      outputLanguage: `**Idioma de Salida**: ${currentLangConfig.name} (${currentLangConfig.code})`,
+      formatSection: '## Formato de Salida',
+      qualitySection: '## Estándares de Calidad',
+      specificRequest: `## 📝 Requisitos Específicos
+Genera un JSON completo de guía de audio para "${locationName}" en ${currentLangConfig.name}.
+
+**Lista de Verificación Importante:**
+✅ Incluir al menos 5-7 capítulos en el array realTimeGuide.chapters
+✅ 🚨 CRITICAL: route.steps y realTimeGuide.chapters deben coincidir exactamente en número y títulos 🚨
+✅ Todos los campos de capítulos (sceneDescription, coreNarrative, humanStories, nextDirection) deben llenarse con contenido real
+✅ Disposición secuencial de capítulos siguiendo la ruta del visitante (entrada→atracciones principales→salida)
+✅ Cumplir con los requisitos mínimos de caracteres para cada campo
+✅ Asegurar 100% de precisión en la sintaxis JSON
+
+**Absolutamente NO:**
+❌ Usar cadenas vacías ("") 
+❌ Usar marcadores de posición como "se escribirá más tarde"
+❌ Usar contenido repetitivo simple
+❌ Incluir texto fuera del objeto JSON
+❌ Permitir desajuste entre route.steps y realTimeGuide.chapters`
+    }
+  };
+
+  const currentStructure = promptStructure[language as keyof typeof promptStructure] || promptStructure.ko;
+
+  // Build the prompt
+  const prompt = [
+    currentStructure.title,
+    currentStructure.roleSection,
+    currentLang.role,
+    currentLang.goal,
+    currentStructure.outputLanguage,
+    userContext,
+    specialistContext,
+    currentStructure.formatSection,
+    currentLang.outputInstructions,
+    currentStructure.qualitySection,
+    currentLang.qualityStandards,
+    currentStructure.specificRequest
   ].join('\n\n');
 
   return prompt;
