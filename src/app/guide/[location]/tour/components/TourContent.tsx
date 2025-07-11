@@ -1,167 +1,82 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { ArrowLeft, Clock, MapPin, Play, Pause, Zap, Sun, ChevronDown } from 'lucide-react';
-import dynamic from 'next/dynamic';
-import { useTranslation } from 'react-i18next';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { GuideData } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { GuideData, GuideChapter } from '@/types/guide';
 
-// Dynamic import for Map component
-const MapWithRoute = dynamic(
-  () => import('@/components/guide/MapWithRoute'),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-        Loading map...
-      </div>
-    )
-  }
-);
-
-// Icon definitions
-const ICONS = {
-  PLAY: <Play className="w-7 h-7" />,
-  PAUSE: <Pause className="w-7 h-7" />,
-  BACK: <ArrowLeft className="w-7 h-7" />
-};
-
-// Props interface for the component
 interface TourContentProps {
   guideContent: GuideData;
 }
 
-// Helper function to normalize POI names for API search
-const normalizePOI = (titleOrLocation?: string): string => {
-  if (!titleOrLocation) return '';
-  return titleOrLocation
-    .replace(/^\d+\.\s*/, '') // Remove leading numbers
-    .replace(/\s*\(.*\)/g, '') // Remove parentheses and their content
-    .trim();
+const ICONS = {
+  BACK: (
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+    </svg>
+  ),
+  PLAY: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  ),
+  PAUSE: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  ),
+  LOADING: (
+    <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+      <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+  )
 };
 
-// Hook to fetch coordinates for chapters that lack them
-const useChaptersWithCoordinates = (chapters: GuideChapter[] = [], language: string) => {
-  const [chaptersWithCoords, setChaptersWithCoords] = useState<GuideChapter[]>(chapters);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const chaptersNeedingCoords = chapters.filter(c => !c.lat || !c.lng);
-    if (chaptersNeedingCoords.length === 0) {
-        setChaptersWithCoords(chapters);
-        return;
-    }
-
-    const fetchCoordinates = async () => {
-      setIsLoading(true);
-      try {
-        const updatedChapters = await Promise.all(
-          chapters.map(async (chapter) => {
-            if (chapter.lat && chapter.lng) return chapter; // Already has coords
-
-            try {
-              const searchQuery = normalizePOI(chapter.title || chapter.location?.name || '');
-              if (!searchQuery) return chapter;
-              const response = await fetch(
-                `/api/places/search?query=${encodeURIComponent(searchQuery)}&language=${language}`
-              );
-              if (!response.ok) return chapter;
-              const data = await response.json();
-              const place = data.results?.[0];
-              if (place?.geometry?.location) {
-                return {
-                  ...chapter,
-                  lat: place.geometry.location.lat,
-                  lng: place.geometry.location.lng,
-                  coordinates: {
-                    lat: place.geometry.location.lat,
-                    lng: place.geometry.location.lng
-                  }
-                };
-              }
-              return chapter;
-            } catch {
-              return chapter; // Return original chapter on individual fetch error
-            }
-          })
-        );
-        setChaptersWithCoords(updatedChapters);
-      } catch (err) {
-        console.error("Failed to fetch coordinates", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchCoordinates();
-  }, [chapters, language]);
-
-  return { chapters: chaptersWithCoords, isLoading };
-};
-
-
-// The main presentational component
 const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
-  const { t, i18n } = useTranslation('guide');
-  const ready = i18n.isInitialized;
-  const { currentLanguage } = useLanguage();
-
-  // State for UI interaction
-  const [activeChapter, setActiveChapter] = useState<number | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isTtsLoading, setIsTtsLoading] = useState<number | null>(null); // Track loading state by chapter index
-  const [currentPlayingChapter, setCurrentPlayingChapter] = useState<number | null>(null); // Track which chapter is currently playing
+  const { currentLanguage, t } = useLanguage();
   const audioRef = useRef<HTMLAudioElement>(null);
+  
+  const [activeChapter, setActiveChapter] = useState<number | null>(null);
+  const [currentPlayingChapter, setCurrentPlayingChapter] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [ttsLoading, setIsTtsLoading] = useState<number | null>(null);
 
-  if (!guideContent) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            가이드 데이터를 불러오는 중입니다...
-          </h2>
-        </div>
-      </div>
-    );
-  }
+  const overview = guideContent?.overview;
+  const route = guideContent?.route;
+  const chapters = guideContent?.realTimeGuide?.chapters || [];
 
-  // Memoized data extraction from props
-  const { overview, route, realTimeGuide, metadata } = guideContent;
-  const chapters = useMemo(() => realTimeGuide?.chapters || [], [realTimeGuide]);
-  const keyFacts = useMemo(() => overview.keyFacts || [], [overview]);
-
-  const handlePlayPause = useCallback(async (index: number) => {
-    // 현재 재생 중인 챕터와 같은 챕터의 재생 버튼을 클릭한 경우
-    if (currentPlayingChapter === index && isPlaying) {
-      audioRef.current?.pause();
-      return;
-    }
-
-    // 다른 오디오가 재생 중이면 정지
-    if (audioRef.current && !audioRef.current.paused) {
-      audioRef.current.pause();
-    }
-
-    setCurrentPlayingChapter(index);
-    setIsTtsLoading(index);
-
-    const chapter = chapters[index];
-    if (!chapter) {
-      setIsTtsLoading(null);
-      return;
-    }
-
-    const textToSpeak = [
-      chapter.title,
-      chapter.sceneDescription,
-      chapter.coreNarrative,
-      chapter.humanStories,
-      chapter.architectureDeepDive,
-      chapter.sensoryBehindTheScenes
-    ].filter(Boolean).join(' ');
-
+  const handlePlayChapterTTS = useCallback(async (index: number) => {
     try {
+      // 현재 재생 중인 챕터와 같은 챕터의 재생 버튼을 클릭한 경우
+      if (currentPlayingChapter === index && isPlaying) {
+        audioRef.current?.pause();
+        return;
+      }
+
+      // 다른 오디오가 재생 중이면 정지
+      if (audioRef.current && !audioRef.current.paused) {
+        audioRef.current.pause();
+      }
+
+      setCurrentPlayingChapter(index);
+      setIsTtsLoading(index);
+
+      const chapter = chapters[index];
+      if (!chapter) {
+        setIsTtsLoading(null);
+        return;
+      }
+
+      const textToSpeak = [
+        chapter.title,
+        chapter.sceneDescription,
+        chapter.coreNarrative,
+        chapter.humanStories,
+        chapter.architectureDeepDive,
+        chapter.sensoryBehindTheScenes
+      ].filter(Boolean).join(' ');
+
       const response = await fetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -184,31 +99,101 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
         throw new Error('TTS URL을 받지 못했습니다.');
       }
 
-      if (audioRef.current) {
-        audioRef.current.src = data.url;
-        
-        // 오디오 로드 완료 후 재생 시도
-        audioRef.current.addEventListener('loadeddata', () => {
-          audioRef.current?.play().catch(e => {
-            console.error('오디오 재생 오류:', e);
-            // 사용자에게 오디오 재생 오류 알림 (브라우저 자동재생 정책 등)
-            if (e.name === 'NotAllowedError') {
-              alert('브라우저에서 자동 재생이 차단되었습니다. 재생 버튼을 다시 클릭해주세요.');
-            } else {
-              alert('오디오 재생에 실패했습니다. 다시 시도해주세요.');
-            }
-          });
-        }, { once: true });
-        
-        // 오디오 로드 시작
-        audioRef.current.load();
+      // 오디오 요소가 존재하는지 확인
+      if (!audioRef.current) {
+        console.error('오디오 요소가 존재하지 않습니다.');
+        setIsTtsLoading(null);
+        return;
       }
+
+      const audio = audioRef.current;
+      
+      // 기존 이벤트 리스너 제거 (중복 방지)
+      const removeExistingListeners = () => {
+        audio.removeEventListener('loadeddata', handleLoadedData);
+        audio.removeEventListener('canplay', handleCanPlay);
+        audio.removeEventListener('error', handleError);
+      };
+
+      // 오디오 로드 성공 시 재생 함수
+      const handleLoadedData = async () => {
+        console.log('오디오 로드 완료');
+        try {
+          await audio.play();
+          setIsTtsLoading(null);
+        } catch (playError) {
+          console.error('오디오 재생 오류:', playError);
+          handleAudioPlayError(playError);
+        }
+        removeExistingListeners();
+      };
+
+      // 오디오 재생 가능 상태 확인
+      const handleCanPlay = async () => {
+        console.log('오디오 재생 준비 완료');
+        try {
+          await audio.play();
+          setIsTtsLoading(null);
+        } catch (playError) {
+          console.error('오디오 재생 오류:', playError);
+          handleAudioPlayError(playError);
+        }
+        removeExistingListeners();
+      };
+
+      // 오디오 로드 오류 처리
+      const handleError = (errorEvent: Event) => {
+        console.error('오디오 로드 오류:', errorEvent);
+        alert('오디오 파일을 불러오는데 실패했습니다. 다시 시도해주세요.');
+        setIsTtsLoading(null);
+        setCurrentPlayingChapter(null);
+        removeExistingListeners();
+      };
+
+      // 오디오 재생 오류 처리 함수
+      const handleAudioPlayError = (error: any) => {
+        setIsTtsLoading(null);
+        setCurrentPlayingChapter(null);
+        
+        if (error.name === 'NotAllowedError') {
+          alert('브라우저에서 자동 재생이 차단되었습니다. 재생 버튼을 다시 클릭해주세요.');
+        } else if (error.name === 'NotSupportedError') {
+          alert('이 브라우저에서는 해당 오디오 형식을 지원하지 않습니다.');
+        } else {
+          alert('오디오 재생에 실패했습니다. 네트워크 연결을 확인하고 다시 시도해주세요.');
+        }
+      };
+
+      // 기존 리스너 정리
+      removeExistingListeners();
+
+      // 새로운 이벤트 리스너 등록
+      audio.addEventListener('loadeddata', handleLoadedData, { once: true });
+      audio.addEventListener('canplay', handleCanPlay, { once: true });
+      audio.addEventListener('error', handleError, { once: true });
+
+      // 오디오 소스 설정 및 로드 시작
+      audio.src = data.url;
+      audio.load();
+
+      // 타임아웃 설정 (10초 후에도 로드되지 않으면 오류 처리)
+      setTimeout(() => {
+        if (audio.readyState < 2) { // HAVE_CURRENT_DATA
+          console.warn('오디오 로드 타임아웃');
+          removeExistingListeners();
+          alert('오디오 로드 시간이 초과되었습니다. 네트워크 상태를 확인하고 다시 시도해주세요.');
+          setIsTtsLoading(null);
+          setCurrentPlayingChapter(null);
+        }
+      }, 10000);
+
     } catch (error) {
       console.error('TTS 오류:', error);
-      // 사용자에게 오류 알림
-      alert(`음성 생성에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
-    } finally {
       setIsTtsLoading(null);
+      setCurrentPlayingChapter(null);
+      
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+      alert(`음성 생성에 실패했습니다: ${errorMessage}`);
     }
   }, [chapters, currentPlayingChapter, isPlaying, currentLanguage, guideContent.metadata.originalLocationName]);
 
@@ -216,26 +201,55 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
     setActiveChapter(prev => (prev === index ? null : index));
   }, []);
 
-  // Effect to handle audio player state
+  // 오디오 요소 이벤트 리스너 설정 개선
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
-    const onEnded = () => {
+    const handlePlay = () => {
+      console.log('오디오 재생 시작');
+      setIsPlaying(true);
+    };
+
+    const handlePause = () => {
+      console.log('오디오 일시정지');
+      setIsPlaying(false);
+    };
+
+    const handleEnded = () => {
+      console.log('오디오 재생 완료');
       setIsPlaying(false);
       setCurrentPlayingChapter(null);
     };
 
-    audio.addEventListener('play', onPlay);
-    audio.addEventListener('pause', onPause);
-    audio.addEventListener('ended', onEnded);
+    const handleLoadStart = () => {
+      console.log('오디오 로드 시작');
+    };
 
+    const handleWaiting = () => {
+      console.log('오디오 버퍼링 중');
+    };
+
+    const handleStalled = () => {
+      console.log('오디오 스톨됨 - 네트워크 문제 가능성');
+    };
+
+    // 이벤트 리스너 등록
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('loadstart', handleLoadStart);
+    audio.addEventListener('waiting', handleWaiting);
+    audio.addEventListener('stalled', handleStalled);
+
+    // 클린업 함수
     return () => {
-      audio.removeEventListener('play', onPlay);
-      audio.removeEventListener('pause', onPause);
-      audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('loadstart', handleLoadStart);
+      audio.removeEventListener('waiting', handleWaiting);
+      audio.removeEventListener('stalled', handleStalled);
     };
   }, []);
 
@@ -243,7 +257,7 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <button onClick={() => window.history.back()} className="p-2 rounded-full hover:bg-gray-100" aria-label={t('back', 'Back')}>
+          <button onClick={() => window.history.back()} className="p-2 rounded-full hover:bg-gray-100" aria-label="Back">
             {ICONS.BACK}
           </button>
           <h1 className="text-xl font-semibold text-gray-900 truncate px-2">
@@ -261,12 +275,13 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
 
         {route?.steps && route.steps.length > 0 && (
           <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">{t('recommended_route', 'Recommended Route')}</h2>
+            <h2 className="text-xl font-semibold mb-4">추천 관람순서</h2>
             <div className="bg-white p-6 rounded-lg shadow">
               <ol className="list-decimal list-inside space-y-3">
                 {route.steps.map((step) => (
                   <li key={step.step} className="text-gray-800">
-                    <span className="font-semibold text-gray-900">{step.title}</span>: {step.location}
+                    <span className="font-medium">{step.title}</span>
+                    {step.location && <span className="text-gray-600 ml-2">- {step.location}</span>}
                   </li>
                 ))}
               </ol>
@@ -274,49 +289,72 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
           </section>
         )}
 
-        {/* 실시간 가이드 챕터 표시 - realTimeGuide.chapters 우선 사용 */}
         {chapters && chapters.length > 0 && (
             <section className="mb-8">
-                <h2 className="text-xl font-semibold mb-4">{t('real_time_guide', 'Real-Time Guide')}</h2>
+                <h2 className="text-xl font-semibold mb-4">{t.guide.realTimeGuide}</h2>
                 <div className="space-y-4">
                     {chapters.map((chapter, index) => {
-                        return (
-                            <div key={chapter.id || index} className={`bg-white p-4 rounded-lg shadow transition-all duration-300`}>
-                                <div className="flex items-center justify-between cursor-pointer" onClick={() => handleChapterSelect(index)}>
-                                    <div className="flex-1 min-w-0">
-                                        <h4 className="font-medium text-gray-900 truncate">{index === 0 ? chapter.title : `${index}. ${chapter.title}`}</h4>
-                                    </div>
-                                    <button 
-                                       onClick={(e) => { e.stopPropagation(); handlePlayPause(index); }}
-                                       className="p-2 rounded-full hover:bg-gray-100 transition-colors ml-4"
-                                       aria-label={isPlaying && currentPlayingChapter === index ? 'Pause' : 'Play'}
-                                       disabled={isTtsLoading === index}
-                                    >
-                                      {isTtsLoading === index ? (
-                                        <Zap className="w-5 h-5 text-gray-400 animate-pulse" />
-                                      ) : (
-                                        isPlaying && currentPlayingChapter === index ? <Pause className="w-5 h-5 text-blue-600" /> : <Play className="w-5 h-5 text-gray-600" />
-                                      )}
-                                    </button>
-                                    <ChevronDown className={`w-5 h-5 ml-2 transform transition-transform ${activeChapter === index ? 'rotate-180' : ''}`} />
-                                </div>
-                                {activeChapter === index && (
-                                    <div className="mt-4 pt-4 border-t border-gray-200 text-gray-700 space-y-4 prose prose-sm max-w-none">
-                                        {chapter.sceneDescription && <p className="italic text-gray-600">{chapter.sceneDescription}</p>}
-                                        {chapter.coreNarrative && <p>{chapter.coreNarrative}</p>}
-                                        {chapter.humanStories && <p>{chapter.humanStories}</p>}
-                                        {chapter.architectureDeepDive && <p>{chapter.architectureDeepDive}</p>}
-                                        {chapter.sensoryBehindTheScenes && <p>{chapter.sensoryBehindTheScenes}</p>}
+                        const isCurrentlyPlaying = currentPlayingChapter === index && isPlaying;
+                        const isCurrentlyLoading = ttsLoading === index;
+                        const isExpanded = activeChapter === index;
 
-                                        {chapter.nextDirection && (
-                                            <div className="not-prose mt-4 flex items-center text-blue-600 font-semibold">
-                                                <MapPin className="w-4 h-4 mr-2" />
-                                                <span>{chapter.nextDirection}</span>
+                        return (
+                            <div key={chapter.id || index} className="bg-white rounded-lg shadow overflow-hidden">
+                                <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                                    <button
+                                        onClick={() => handleChapterSelect(index)}
+                                        className="flex-1 text-left"
+                                        aria-expanded={isExpanded}
+                                    >
+                                        <h3 className="text-lg font-medium text-gray-900">
+                                            Chapter {index + 1}: {chapter.title}
+                                        </h3>
+                                    </button>
+                                    <button
+                                        onClick={() => handlePlayChapterTTS(index)}
+                                        disabled={isCurrentlyLoading}
+                                        className="ml-4 p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        aria-label={isCurrentlyPlaying ? t.guide.pause : t.guide.play}
+                                    >
+                                        {isCurrentlyLoading ? ICONS.LOADING : (isCurrentlyPlaying ? ICONS.PAUSE : ICONS.PLAY)}
+                                    </button>
+                                </div>
+
+                                {isExpanded && (
+                                    <div className="p-4 space-y-4">
+                                        {chapter.sceneDescription && (
+                                            <div>
+                                                <h4 className="font-medium text-gray-900 mb-2">Scene Description</h4>
+                                                <p className="text-gray-700">{chapter.sceneDescription}</p>
                                             </div>
                                         )}
-                                        {/* 안내 메시지 - 실제 내용이 없을 때만 표시 */}
+                                        {chapter.coreNarrative && (
+                                            <div>
+                                                <h4 className="font-medium text-gray-900 mb-2">Core Narrative</h4>
+                                                <p className="text-gray-700">{chapter.coreNarrative}</p>
+                                            </div>
+                                        )}
+                                        {chapter.humanStories && (
+                                            <div>
+                                                <h4 className="font-medium text-gray-900 mb-2">Human Stories</h4>
+                                                <p className="text-gray-700">{chapter.humanStories}</p>
+                                            </div>
+                                        )}
+                                        {chapter.architectureDeepDive && (
+                                            <div>
+                                                <h4 className="font-medium text-gray-900 mb-2">Architecture Deep Dive</h4>
+                                                <p className="text-gray-700">{chapter.architectureDeepDive}</p>
+                                            </div>
+                                        )}
+                                        {chapter.sensoryBehindTheScenes && (
+                                            <div>
+                                                <h4 className="font-medium text-gray-900 mb-2">Sensory Behind The Scenes</h4>
+                                                <p className="text-gray-700">{chapter.sensoryBehindTheScenes}</p>
+                                            </div>
+                                        )}
+                                        
                                         {!(chapter.sceneDescription || chapter.coreNarrative || chapter.humanStories) && (
-                                            <div className="text-gray-400 italic">{t('chapter_content_preparing', 'This chapter is being prepared...')}</div>
+                                            <div className="text-gray-400 italic">챕터 내용을 준비 중입니다...</div>
                                         )}
                                     </div>
                                 )}
@@ -330,7 +368,7 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
         {/* 만약 chapters가 없고 route.steps만 있다면 fallback으로 표시 */}
         {(!chapters || chapters.length === 0) && route?.steps && route.steps.length > 0 && (
             <section className="mb-8">
-                <h2 className="text-xl font-semibold mb-4">{t('route_steps', 'Route Steps')}</h2>
+                <h2 className="text-xl font-semibold mb-4">추천 경로</h2>
                 <div className="space-y-4">
                     {route.steps.map((step, index) => (
                         <div key={step.step || index} className="bg-white p-4 rounded-lg shadow">
@@ -342,7 +380,17 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
             </section>
         )}
       </main>
-      <audio ref={audioRef} />
+      
+      {/* 개선된 오디오 요소 */}
+      <audio
+        ref={audioRef}
+        preload="metadata"
+        crossOrigin="anonymous"
+        style={{ display: 'none' }}
+        onError={(e) => {
+          console.error('오디오 요소 오류:', e);
+        }}
+      />
     </div>
   );
 };
