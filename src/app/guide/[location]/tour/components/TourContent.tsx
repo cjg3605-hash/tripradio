@@ -110,6 +110,7 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
   const [activeChapter, setActiveChapter] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isTtsLoading, setIsTtsLoading] = useState<number | null>(null); // Track loading state by chapter index
+  const [currentPlayingChapter, setCurrentPlayingChapter] = useState<number | null>(null); // Track which chapter is currently playing
   const audioRef = useRef<HTMLAudioElement>(null);
 
   if (!guideContent) {
@@ -131,16 +132,18 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
   const keyFacts = useMemo(() => overview.keyFacts || [], [overview]);
 
   const handlePlayPause = useCallback(async (index: number) => {
-    if (activeChapter === index && isPlaying) {
+    // 현재 재생 중인 챕터와 같은 챕터의 재생 버튼을 클릭한 경우
+    if (currentPlayingChapter === index && isPlaying) {
       audioRef.current?.pause();
       return;
     }
 
+    // 다른 오디오가 재생 중이면 정지
     if (audioRef.current && !audioRef.current.paused) {
       audioRef.current.pause();
     }
 
-    setActiveChapter(index);
+    setCurrentPlayingChapter(index);
     setIsTtsLoading(index);
 
     const chapter = chapters[index];
@@ -165,27 +168,49 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
         body: JSON.stringify({
           text: textToSpeak,
           language: currentLanguage,
-          guideId: guideContent.metadata.originalLocationName, // Using locationName as a unique ID for the guide
+          guideId: guideContent.metadata.originalLocationName,
           chapterId: chapter.id || index
         })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate TTS audio');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'TTS 생성에 실패했습니다.');
       }
 
-      const { url } = await response.json();
+      const data = await response.json();
+      
+      if (!data.success || !data.url) {
+        throw new Error('TTS URL을 받지 못했습니다.');
+      }
 
       if (audioRef.current) {
-        audioRef.current.src = url;
-        audioRef.current.play().catch(e => console.error(e));
+        audioRef.current.src = data.url;
+        
+        // 오디오 로드 완료 후 재생 시도
+        audioRef.current.addEventListener('loadeddata', () => {
+          audioRef.current?.play().catch(e => {
+            console.error('오디오 재생 오류:', e);
+            // 사용자에게 오디오 재생 오류 알림 (브라우저 자동재생 정책 등)
+            if (e.name === 'NotAllowedError') {
+              alert('브라우저에서 자동 재생이 차단되었습니다. 재생 버튼을 다시 클릭해주세요.');
+            } else {
+              alert('오디오 재생에 실패했습니다. 다시 시도해주세요.');
+            }
+          });
+        }, { once: true });
+        
+        // 오디오 로드 시작
+        audioRef.current.load();
       }
     } catch (error) {
-      console.error('TTS Error:', error);
+      console.error('TTS 오류:', error);
+      // 사용자에게 오류 알림
+      alert(`음성 생성에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     } finally {
       setIsTtsLoading(null);
     }
-  }, [chapters, activeChapter, isPlaying, currentLanguage, guideContent.metadata.originalLocationName]);
+  }, [chapters, currentPlayingChapter, isPlaying, currentLanguage, guideContent.metadata.originalLocationName]);
 
   const handleChapterSelect = useCallback((index: number) => {
     setActiveChapter(prev => (prev === index ? null : index));
@@ -198,7 +223,10 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
 
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
-    const onEnded = () => setIsPlaying(false);
+    const onEnded = () => {
+      setIsPlaying(false);
+      setCurrentPlayingChapter(null);
+    };
 
     audio.addEventListener('play', onPlay);
     audio.addEventListener('pause', onPause);
@@ -261,13 +289,13 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
                                     <button 
                                        onClick={(e) => { e.stopPropagation(); handlePlayPause(index); }}
                                        className="p-2 rounded-full hover:bg-gray-100 transition-colors ml-4"
-                                       aria-label={isPlaying && activeChapter === index ? 'Pause' : 'Play'}
+                                       aria-label={isPlaying && currentPlayingChapter === index ? 'Pause' : 'Play'}
                                        disabled={isTtsLoading === index}
                                     >
                                       {isTtsLoading === index ? (
                                         <Zap className="w-5 h-5 text-gray-400 animate-pulse" />
                                       ) : (
-                                        isPlaying && activeChapter === index ? <Pause className="w-5 h-5 text-blue-600" /> : <Play className="w-5 h-5 text-gray-600" />
+                                        isPlaying && currentPlayingChapter === index ? <Pause className="w-5 h-5 text-blue-600" /> : <Play className="w-5 h-5 text-gray-600" />
                                       )}
                                     </button>
                                     <ChevronDown className={`w-5 h-5 ml-2 transform transition-transform ${activeChapter === index ? 'rotate-180' : ''}`} />
