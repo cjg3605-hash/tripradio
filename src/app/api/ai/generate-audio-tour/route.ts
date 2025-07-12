@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { createAutonomousGuidePrompt } from '@/lib/ai/prompts';
+import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
 
 function getGeminiClient() {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -38,7 +38,8 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    const prompt = createAutonomousGuidePrompt(locationName, 'ko', userProfile);
+    // 🔄 비동기 프롬프트 호출로 변경
+    const prompt = await createAutonomousGuidePrompt(locationName, 'ko', userProfile);
 
     console.log('🎧 오디오 투어 생성 요청:', { locationName, userProfile });
 
@@ -99,4 +100,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
