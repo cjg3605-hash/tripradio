@@ -169,12 +169,6 @@ export const TOURCONTENTCOMPATIBLE_IMPROVEMENTS = {
       '상냥하고 친근한 말투',
       '밀도 높은 전문 정보'
     ]
-  },
-  
-  expectedResult: {
-    이전: '감각적 표현 위주의 허공에 떠도는 내용',
-    개선후: '정확한 사실 + 친근한 설명 + 전문적 깊이',
-    호환성: 'TourContent.tsx 수정 불필요'
   }
 };
 
