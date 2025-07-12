@@ -1,4 +1,79 @@
-// AI 가이드 생성을 위한 최적화된 프롬프트 시스템 (완전한 버전)
+// AI 가이드 생성을 위한 완성된 프롬프트 시스템
+
+// 상세한 예시 JSON 구조
+const MINIMAL_EXAMPLE_JSON = {
+  content: {
+    overview: {
+      title: "경복궁: 조선왕조 600년 역사의 중심",
+      summary: "조선왕조의 정궁으로서 600년간 한국사의 중심 무대였던 경복궁의 숨겨진 이야기와 건축의 아름다움을 탐험하는 여정",
+      narrativeTheme: "왕조의 영광과 아픔이 스며든 궁궐 속에서 만나는 조선의 진짜 이야기",
+      keyFacts: [
+        { title: "건립 연도", description: "1395년 태조 이성계에 의해 창건" },
+        { title: "건축 특징", description: "한국 전통 건축의 정수를 보여주는 궁궐 건축" }
+      ],
+      visitInfo: {
+        duration: "2-3시간",
+        difficulty: "쉬움",
+        season: "봄(벚꽃), 가을(단풍) 추천"
+      }
+    },
+    route: {
+      steps: [
+        { step: 1, location: "광화문", title: "광화문 - 조선왕조의 위엄 있는 시작" },
+        { step: 2, location: "근정전", title: "근정전 - 왕의 권위와 조선의 정치 무대" },
+        { step: 3, location: "경회루", title: "경회루 - 연못 위의 누각, 외교의 무대" },
+        { step: 4, location: "향원정", title: "향원정 - 왕실 정원의 숨겨진 보석" },
+        { step: 5, location: "국립고궁박물관", title: "국립고궁박물관 - 왕실 문화의 정수를 만나다" }
+      ]
+    },
+    realTimeGuide: {
+      chapters: [
+        {
+          id: 0,
+          title: "광화문 - 조선왕조의 위엄 있는 시작",
+          sceneDescription: "높이 솟은 광화문 앞에 서면 육중한 돌기둥과 화려한 단청이 600년 전 그 위엄을 그대로 전해줍니다. 문 위의 현판에 새겨진 '광화문' 세 글자는 세종대왕의 친필로, 오늘도 수많은 시민들을 맞이하고 있습니다.",
+          coreNarrative: "1395년 태조 이성계가 한양에 새 도읍을 정하며 가장 먼저 세운 것이 바로 이 광화문이었습니다. '광화(光化)'란 '왕의 덕으로 천하를 밝게 교화한다'는 뜻으로, 새로운 왕조의 이상을 담았죠. 일제강점기 때 철거되었다가 2010년 원래 자리를 찾아 복원된 이 문은, 그 자체로 우리나라 근현대사의 아픈 상처와 회복을 상징합니다.",
+          humanStories: "세종대왕은 이 문을 지날 때마다 '백성을 위한 정치'를 다짐했다고 전해집니다. 특히 한글 창제 후 첫 반포식도 이곳에서 열렸죠. 또한 일제강점기 당시 이 문을 지키려던 궁내부 관리들의 눈물겨운 노력과, 광복 후 시민들이 '우리의 문'을 되찾기 위해 벌인 복원 운동의 이야기는 지금도 많은 이들에게 감동을 줍니다.",
+          nextDirection: "광화문을 지나 흥례문으로 향하세요. 돌다리를 건너며 좌우의 아름다운 석조물들을 감상해보세요. 약 100m 직진하면 근정문이 보입니다."
+        }
+      ]
+    }
+  }
+};
+
+// 타입 정의
+interface GuideContent {
+  content: {
+    overview: {
+      title: string;
+      summary: string;
+      narrativeTheme: string;
+      keyFacts: Array<{ title: string; description: string }>;
+      visitInfo: {
+        duration: string;
+        difficulty: string;
+        season: string;
+      };
+    };
+    route: {
+      steps: Array<{
+        step: number;
+        location: string;
+        title: string;
+      }>;
+    };
+    realTimeGuide: {
+      chapters: Array<{
+        id: number;
+        title: string;
+        sceneDescription: string;
+        coreNarrative: string;
+        humanStories: string;
+        nextDirection: string;
+      }>;
+    };
+  };
+}
 
 interface UserProfile {
   interests?: string[];
@@ -28,6 +103,7 @@ interface LocationTypeConfig {
   chapterStructure: string;
 }
 
+// 언어 설정
 const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = {
   ko: { code: 'ko', name: '한국어', ttsLang: 'ko-KR' },
   en: { code: 'en', name: 'English', ttsLang: 'en-US' },
@@ -36,6 +112,7 @@ const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = {
   es: { code: 'es', name: 'Español', ttsLang: 'es-ES' }
 };
 
+// 언어별 실시간 가이드 키 매핑
 export const REALTIME_GUIDE_KEYS: Record<string, string> = {
   ko: '실시간가이드',
   en: 'RealTimeGuide',
@@ -44,11 +121,7 @@ export const REALTIME_GUIDE_KEYS: Record<string, string> = {
   es: 'GuíaEnTiempoReal'
 };
 
-export function getTTSLanguage(language: string): string {
-  const langCode = language?.slice(0, 2);
-  return LANGUAGE_CONFIGS[langCode]?.ttsLang || 'en-US';
-}
-
+// 위치 유형별 전문 가이드 스타일 정의
 const LOCATION_TYPE_CONFIGS: Record<string, LocationTypeConfig> = {
   architecture: {
     keywords: ['궁궐', '성당', '사원', '교회', '성곽', '탑', '건축', '전각', '건물', 'cathedral', 'palace', 'temple', 'tower', 'architecture'],
@@ -108,6 +181,12 @@ const LOCATION_TYPE_CONFIGS: Record<string, LocationTypeConfig> = {
   }
 };
 
+// 유틸리티 함수들
+export function getTTSLanguage(language: string): string {
+  const langCode = language?.slice(0, 2);
+  return LANGUAGE_CONFIGS[langCode]?.ttsLang || 'en-US';
+}
+
 function analyzeLocationType(locationName: string): string {
   const lowerName = locationName.toLowerCase();
   
@@ -120,46 +199,7 @@ function analyzeLocationType(locationName: string): string {
   return 'general';
 }
 
-const MINIMAL_EXAMPLE_JSON = {
-  content: {
-    overview: {
-      title: "경복궁: 조선왕조 600년 역사의 중심",
-      summary: "조선왕조의 정궁으로서 600년간 한국사의 중심 무대였던 경복궁의 숨겨진 이야기와 건축의 아름다움을 탐험하는 여정",
-      narrativeTheme: "왕조의 영광과 아픔이 스며든 궁궐 속에서 만나는 조선의 진짜 이야기",
-      keyFacts: [
-        { title: "건립 연도", description: "1395년 태조 이성계에 의해 창건" },
-        { title: "건축 특징", description: "한국 전통 건축의 정수를 보여주는 궁궐 건축" }
-      ],
-      visitInfo: {
-        duration: "2-3시간",
-        difficulty: "쉬움",
-        season: "봄(벚꽃), 가을(단풍) 추천"
-      }
-    },
-    route: {
-      steps: [
-        { step: 1, location: "광화문", title: "광화문 - 조선왕조의 위엄 있는 시작" },
-        { step: 2, location: "근정전", title: "근정전 - 왕의 권위와 조선의 정치 무대" },
-        { step: 3, location: "경회루", title: "경회루 - 연못 위의 누각, 외교의 무대" },
-        { step: 4, location: "향원정", title: "향원정 - 왕실 정원의 숨겨진 보석" },
-        { step: 5, location: "국립고궁박물관", title: "국립고궁박물관 - 왕실 문화의 정수를 만나다" }
-      ]
-    },
-    realTimeGuide: {
-      chapters: [
-        {
-          id: 0,
-          title: "광화문 - 조선왕조의 위엄 있는 시작",
-          sceneDescription: "높이 솟은 광화문 앞에 서면 육중한 돌기둥과 화려한 단청이 600년 전 그 위엄을 그대로 전해줍니다. 문 위의 현판에 새겨진 '광화문' 세 글자는 세종대왕의 친필로, 오늘도 수많은 시민들을 맞이하고 있습니다.",
-          coreNarrative: "1395년 태조 이성계가 한양에 새 도읍을 정하며 가장 먼저 세운 것이 바로 이 광화문이었습니다. '광화(光化)'란 '왕의 덕으로 천하를 밝게 교화한다'는 뜻으로, 새로운 왕조의 이상을 담았죠. 일제강점기 때 철거되었다가 2010년 원래 자리를 찾아 복원된 이 문은, 그 자체로 우리나라 근현대사의 아픈 상처와 회복을 상징합니다.",
-          humanStories: "세종대왕은 이 문을 지날 때마다 '백성을 위한 정치'를 다짐했다고 전해집니다. 특히 한글 창제 후 첫 반포식도 이곳에서 열렸죠. 또한 일제강점기 당시 이 문을 지키려던 궁내부 관리들의 눈물겨운 노력과, 광복 후 시민들이 '우리의 문'을 되찾기 위해 벌인 복원 운동의 이야기는 지금도 많은 이들에게 감동을 줍니다.",
-          nextDirection: "광화문을 지나 흥례문으로 향하세요. 돌다리를 건너며 좌우의 아름다운 석조물들을 감상해보세요. 약 100m 직진하면 근정문이 보입니다."
-        }
-      ]
-    }
-  }
-};
-
+// 위치 유형별 맞춤형 예시 생성 함수
 function generateTypeSpecificExample(locationType: string, locationName: string) {
   const typeConfig = LOCATION_TYPE_CONFIGS[locationType];
   
@@ -167,6 +207,7 @@ function generateTypeSpecificExample(locationType: string, locationName: string)
     return MINIMAL_EXAMPLE_JSON;
   }
 
+  // 위치 유형별 맞춤 예시 생성
   const typeSpecificExamples = {
     architecture: {
       sceneDescription: "웅장한 석조 기둥들이 하늘 높이 솟아오르며, 정교한 조각 장식들이 햇빛을 받아 생생한 그림자를 만들어냅니다. 돔 위에서 반짝이는 청동 장식과 벽면의 섬세한 부조 조각들이 수백 년 전 장인들의 혼이 담긴 기술력을 고스란히 보여줍니다.",
@@ -177,11 +218,32 @@ function generateTypeSpecificExample(locationType: string, locationName: string)
       sceneDescription: "골목길 곳곳에서 피어오르는 구수한 육수 냄새와 지글지글 끓는 기름 소리가 어우러져 오감을 자극합니다. 좁은 가게 안에서 숙련된 요리사의 손놀림이 마치 춤추듯 리드미컬하게 움직이며, 뜨거운 철판 위에서 완성되는 요리의 색깔과 향이 식욕을 돋웁니다.",
       coreNarrative: "이 골목의 음식 문화는 조선시대 궁중 요리사들이 민간으로 내려와 서민들을 위한 음식을 개발하면서 시작되었습니다. 특히 이곳의 대표 음식인 '황제 떡볶이'는 고종황제가 즐겨 먹던 궁중 떡요리를 서민들도 쉽게 즐길 수 있도록 재창조한 것으로, 100년이 넘는 역사를 자랑합니다.",
       humanStories: "3대째 이어져 내려오는 '할머니 손만두' 집의 김 할머니는 6.25 전쟁 중에도 피난민들을 위해 만두를 나눠주며 이 골목을 지켜왔습니다. 그녀의 비법 양념장 레시피는 지금도 며느리에게만 전수되는 가문의 보물입니다."
+    },
+    nature: {
+      sceneDescription: "짙은 녹음 사이로 스며드는 햇살이 나뭇잎을 황금빛으로 물들이고, 멀리서 들려오는 새소리와 바람에 흔들리는 나뭇가지 소리가 자연의 교향곡을 연주합니다. 발밑의 촉촉한 흙냄새와 피톤치드 가득한 맑은 공기가 도시의 피로를 씻어줍니다.",
+      coreNarrative: "이 숲은 500년 전부터 자연 그대로 보존되어 온 원시림으로, 총 847종의 식물과 312종의 동물이 서식하는 생태계의 보고입니다. 특히 이곳에서만 자생하는 희귀식물 7종은 학술적 가치가 매우 높으며, 기후변화 연구의 중요한 기준점 역할을 하고 있습니다.",
+      humanStories: "산림청의 이영식 박사는 30년간 이 숲을 연구하며 멸종 위기에 있던 산양을 복원하는 데 성공했습니다. 그는 매일 새벽 5시부터 숲을 돌며 동물들의 생태를 관찰하고 기록했으며, 그의 연구 덕분에 이 숲은 유네스코 생태보전지역으로 지정되었습니다."
+    },
+    traditional: {
+      sceneDescription: "기와지붕이 곡선을 그리며 연결된 한옥 처마 아래로 따뜻한 햇살이 스며들고, 마당에 심어진 감나무에서 떨어지는 낙엽이 바스락거리며 옛 정취를 자아냅니다. 대청마루에서 들려오는 할머니의 옛 이야기와 함께 전통 장독대에서 익어가는 된장 냄새가 오감에 스며듭니다.",
+      coreNarrative: "이 한옥마을은 조선시대 양반가옥의 전형적인 배치를 보여주는 곳으로, '人'자형 지붕 구조와 온돌 시스템, 마루와 처마의 절묘한 비례는 우리 조상들의 자연친화적 건축 철학을 그대로 담고 있습니다. 특히 이곳의 'ㅁ'자형 배치는 유교적 질서와 가족 중심의 공동체 문화를 건축으로 구현한 걸작입니다.",
+      humanStories: "이 마을에 70년간 살아온 박순자 할머니는 일제강점기부터 현재까지의 마을 변천사를 생생히 기억하고 있습니다. 그녀는 6.25 전쟁 때 피난민들을 숨겨주었던 사랑채의 비밀 공간과, 마을 아이들을 위해 야학을 열었던 사당의 이야기를 들려줍니다."
+    },
+    shopping: {
+      sceneDescription: "형형색색의 네온사인이 밤거리를 환하게 밝히고, 좁은 골목 사이사이에서 들려오는 흥정 소리와 발걸음 소리가 활기찬 에너지를 만들어냅니다. 갓 구운 호떡 냄새와 튀김 기름 향이 어우러지며, 상인들의 구수한 사투리가 정겨운 분위기를 연출합니다.",
+      coreNarrative: "이 상권은 1960년대 산업화 시대와 함께 형성된 서민들의 생활터전으로, 한국 경제 발전의 축소판을 보여줍니다. 특히 이곳에서 시작된 '야시장 문화'는 아시아 전역으로 퍼져나갔으며, 24시간 불야성을 이루는 독특한 쇼핑 문화의 원조가 되었습니다.",
+      humanStories: "40년째 이곳에서 옷가게를 운영하는 김철수 사장은 동대문 패션의 산 증인입니다. 그는 새벽 2시에 시작되는 도매시장에서 전국 상인들과 거래하며, 한국 패션 트렌드를 이끌어온 숨은 주역이기도 합니다."
+    },
+    modern: {
+      sceneDescription: "유리와 강철로 이루어진 마천루가 구름을 뚫고 솟아오르며, 건물 외벽의 LED 스크린이 도시의 심장박동처럼 깜빡입니다. 지하에서부터 지상까지 이어지는 첨단 엘리베이터 시스템과 스마트 빌딩 기술이 미래 도시의 모습을 선보입니다.",
+      coreNarrative: "이 초고층 건물은 21세기 첨단 건축 기술의 집약체로, 지진 방지 시스템과 친환경 에너지 시설, AI 기반 건물 관리 시스템을 갖춘 스마트 빌딩입니다. 특히 외벽의 이중 커튼월 시스템은 에너지 효율을 40% 향상시키며, 지속가능한 도시 발전의 모델이 되고 있습니다.",
+      humanStories: "이 건물의 설계를 담당한 김현대 건축가는 20년간 '인간 중심의 고층 건축'을 연구해왔습니다. 그는 기술과 인간성의 조화를 추구하며, 이 건물에 옥상 정원과 커뮤니티 공간을 배치하여 수직 도시 속에서도 인간적 소통이 가능한 공간을 만들어냈습니다."
     }
   };
 
-  const specificExample = typeSpecificExamples[locationType as keyof typeof typeSpecificExamples] || typeSpecificExamples.architecture;
+  const specificExample = typeSpecificExamples[locationType] || typeSpecificExamples.architecture;
   
+  // 기본 예시에 위치 유형별 내용 적용
   return {
     ...MINIMAL_EXAMPLE_JSON,
     content: {
@@ -202,12 +264,17 @@ function generateTypeSpecificExample(locationType: string, locationName: string)
   };
 }
 
+/**
+ * 다국어 지원 자율 리서치 기반 AI 오디오 가이드 생성 프롬프트
+ */
 export function createAutonomousGuidePrompt(
   locationName: string,
   language: string = 'ko',
   userProfile?: UserProfile
 ): string {
   const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.ko;
+  
+  // 위치 유형 분석 및 전문 가이드 설정
   const locationType = analyzeLocationType(locationName);
   const typeConfig = LOCATION_TYPE_CONFIGS[locationType];
 
@@ -219,6 +286,7 @@ export function createAutonomousGuidePrompt(
 - 동행자: ${userProfile.companions || '혼자'}
 ` : '👤 일반 관광객 대상';
 
+  // 위치 유형별 전문 컨텍스트 추가
   const specialistContext = typeConfig ? `
 🎯 전문 분야 가이드 설정:
 - 감지된 위치 유형: ${locationType}
@@ -238,12 +306,15 @@ export function createAutonomousGuidePrompt(
 - 서론, 본론, 결론, 주석, 코드블록(\`\`\`) 등 JSON 이외의 어떤 텍스트도 포함해서는 안 됩니다.
 - 모든 문자열은 따옴표로 감싸고, 객체와 배열의 마지막 요소 뒤에는 쉼표를 붙이지 않는 등 JSON 문법을 100% 완벽하게 준수해야 합니다.
 - JSON 구조와 키 이름은 아래 예시와 완전히 동일해야 합니다. 키 이름을 절대 번역하거나 바꾸지 마세요.
-- **JSON 문법 오류는 치명적인 실패로 간주됩니다.**`,
+- **JSON 문법 오류는 치명적인 실패로 간주됩니다.**
+- 최종 결과물 구조 예시:
+\`\`\`json
+${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
+\`\`\``,
       qualityStandards: `**품질 기준 (가장 중요!):**
 - **분량은 많을수록 좋습니다. 절대 내용을 아끼지 마세요.** 사소한 건축 디테일, 숨겨진 상징, 역사적 배경, 관련 인물들의 재미있는 일화, 비하인드 스토리 등 모든 정보를 총망라하여 알려주세요.
 - **친근하고 수다스러운 톤앤매너:** 딱딱한 설명이 아닌, 옆에서 친구나 최고의 가이드가 열정적으로 설명해주는 듯한 말투를 사용하세요.
 - **완벽한 스토리텔링:** 모든 정보를 하나의 거대한 이야기처럼 연결하세요.
-- **텍스트 읽기와 오디오 청취 이중 최적화:** 눈으로 읽어도 이해하기 쉽고, 귀로 들어도 생생하게 전달되도록 작성하세요.
 
 **📍 챕터 구성 필수 요구사항:**
 - **최소 5-7개 챕터 생성**: 주요 관람 포인트마다 별도 챕터 구성
@@ -269,12 +340,15 @@ export function createAutonomousGuidePrompt(
 - Do not include any text outside the JSON object, such as introductions, notes, or markdown code blocks (\`\`\`).
 - Adhere 100% to JSON syntax.
 - The JSON structure and key names must be identical to the example below. Do not translate or change key names.
-- **Any JSON syntax error is a critical failure.**`,
+- **Any JSON syntax error is a critical failure.**
+- Example of the final output structure:
+\`\`\`json
+${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
+\`\`\``,
       qualityStandards: `**Quality Standards (Most Important!)**
 - **Longer is better. Do not hold back on content.** Include every piece of information: minor architectural details, hidden symbols, historical context, fun anecdotes about people involved, behind-the-scenes stories, etc.
 - **Friendly and Chatty Tone:** Use a conversational style, as if a friend or the best guide is passionately explaining things.
 - **Perfect Storytelling:** Connect all information into one cohesive narrative.
-- **Text Reading and Audio Listening Dual Optimization:** Write content that's easy to understand when read and vivid when heard.
 
 **📍 Chapter Composition Requirements:**
 - **Generate at least 5-7 chapters**: Create separate chapters for each major viewing point
@@ -300,12 +374,15 @@ export function createAutonomousGuidePrompt(
 - 序論、本論、結論、注釈、コードブロック(\`\`\`)など、JSON 以外のテキストを含めてはいけません。
 - すべての文字列は引用符で囲み、オブジェクトと配列の最後の要素の後にはカンマを付けないなど、JSON 文法を 100% 完璧に遵守してください。
 - JSON 構造とキー名は以下の例と完全に同じでなければなりません。キー名を翻訳したり変更したりしないでください。
-- **JSON 文法エラーは致命的な失敗とみなされます。**`,
+- **JSON 文法エラーは致命的な失敗とみなされます。**
+- 最終結果物構造例:
+\`\`\`json
+${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
+\`\`\``,
       qualityStandards: `**品質基準（最も重要！）:**
 - **分量は多ければ多いほど良いです。内容を絶対に惜しまないでください。** 些細な建築の詳細、隠された象徴、歴史的背景、関連人物の興味深い逸話、舞台裏の物語など、すべての情報を総網羅して教えてください。
 - **親しみやすくおしゃべりなトーン:** 堅い説明ではなく、隣で友達や最高のガイドが熱心に説明してくれるような話し方を使ってください。
 - **完璧なストーリーテリング:** すべての情報を一つの巨大な物語のように繋げてください。
-- **テキスト読書とオーディオ聴取の二重最適化:** 目で読んでも理解しやすく、耳で聞いても生き生きと伝わるように作成してください。
 
 **📍 チャプター構成必須要件:**
 - **最低5-7個のチャプター生成**: 主要な観覧ポイントごとに別途チャプター構成
@@ -331,12 +408,15 @@ export function createAutonomousGuidePrompt(
 - 不得包含序言、正文、结论、注释、代码块(\`\`\`)等 JSON 以外的任何文本。
 - 所有字符串必须用引号包围，对象和数组的最后一个元素后不加逗号等，必须 100% 完美遵守 JSON 语法。
 - JSON 结构和键名必须与下面的示例完全相同。绝对不要翻译或更改键名。
-- **JSON 语法错误被视为致命失败。**`,
+- **JSON 语法错误被视为致命失败。**
+- 最终结果结构示例:
+\`\`\`json
+${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
+\`\`\``,
       qualityStandards: `**质量标准（最重要！）:**
 - **分量越多越好。绝对不要吝惜内容。** 细微的建筑细节、隐藏的象征、历史背景、相关人物的有趣轶事、幕后故事等所有信息都要全面涵盖地告诉大家。
 - **亲切而健谈的语调:** 不是生硬的说明，而是使用像朋友或最好的导游在身边热情解释的语调。
 - **完美的故事叙述:** 将所有信息像一个巨大的故事一样连接起来。
-- **文本阅读和音频聆听双重优化:** 编写易于阅读理解、听起来生动的内容。
 
 **📍 章节构成必需要求:**
 - **最少生成5-7个章节**: 主要观览点各自构成单独章节
@@ -362,12 +442,15 @@ export function createAutonomousGuidePrompt(
 - No incluyas texto fuera del objeto JSON, como introducciones, notas o bloques de código (\`\`\`).
 - Todas las cadenas deben estar entre comillas, no pongas comas después del último elemento de objetos y arrays, etc. Cumple 100% perfectamente con la sintaxis JSON.
 - La estructura JSON y los nombres de las claves deben ser idénticos al ejemplo de abajo. No traduzcas ni cambies los nombres de las claves.
-- **Los errores de sintaxis JSON se consideran fallos críticos.**`,
+- **Los errores de sintaxis JSON se consideran fallos críticos.**
+- Ejemplo de estructura del resultado final:
+\`\`\`json
+${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
+\`\`\``,
       qualityStandards: `**Estándares de Calidad (¡Más importante!):**
 - **Cuanto más contenido, mejor. No escatimes absolutamente en contenido.** Detalles arquitectónicos menores, símbolos ocultos, antecedentes históricos, anécdotas interesantes de personas relacionadas, historias detrás de escena, etc., incluye toda la información de manera integral.
 - **Tono amigable y hablador:** No uses explicaciones rígidas, sino un estilo como si un amigo o el mejor guía estuviera explicando apasionadamente al lado.
 - **Narración perfecta:** Conecta toda la información como una historia gigante.
-- **Optimización dual de lectura de texto y escucha de audio:** Escriba contenido que sea fácil de entender al leer y vívido al escuchar.
 
 **📍 Requisitos esenciales de composición de capítulos:**
 - **Generar al menos 5-7 capítulos**: Configurar capítulos separados para cada punto de observación principal
@@ -386,9 +469,11 @@ export function createAutonomousGuidePrompt(
     }
   };
 
+  // Get the current language configuration, defaulting to Korean if not found
   const currentLang = languageHeaders[language as keyof typeof languageHeaders] || languageHeaders.ko;
   const currentLangConfig = LANGUAGE_CONFIGS[language as keyof typeof LANGUAGE_CONFIGS] || LANGUAGE_CONFIGS.ko;
 
+  // 언어별 프롬프트 구조 정의
   const promptStructure = {
     ko: {
       title: `# ${locationName} 오디오 가이드 생성 미션`,
@@ -437,38 +522,12 @@ Generate a complete audio guide JSON for "${locationName}" in ${currentLangConfi
 ❌ Use simple repetitive content
 ❌ Include text outside JSON object
 ❌ Allow route.steps and realTimeGuide.chapters mismatch`
-    },
-    ja: {
-      title: `# ${locationName} オーディオガイド生成ミッション`,
-      roleSection: `## 🎭 あなたの専門的役割`,
-      outputLanguage: `**出力言語**: ${currentLangConfig.name} (${currentLangConfig.code})`,
-      formatSection: '## 出力形式',
-      qualitySection: '## 品質基準',
-      specificRequest: `## 📝 具体的な要求事項
-"${locationName}"について${currentLangConfig.name}で完全なオーディオガイドJSONを生成してください。`
-    },
-    zh: {
-      title: `# ${locationName} 音频导览生成任务`,
-      roleSection: `## 🎭 您的专业角色`,
-      outputLanguage: `**输出语言**: ${currentLangConfig.name} (${currentLangConfig.code})`,
-      formatSection: '## 输出格式',
-      qualitySection: '## 质量标准',
-      specificRequest: `## 📝 具体要求事项
-请为"${locationName}"生成完整的${currentLangConfig.name}音频导览JSON。`
-    },
-    es: {
-      title: `# ${locationName} Misión de Generación de Guía de Audio`,
-      roleSection: `## 🎭 Tu Rol Profesional`,
-      outputLanguage: `**Idioma de Salida**: ${currentLangConfig.name} (${currentLangConfig.code})`,
-      formatSection: '## Formato de Salida',
-      qualitySection: '## Estándares de Calidad',
-      specificRequest: `## 📝 Requisitos Específicos
-Genera un JSON completo de guía de audio para "${locationName}" en ${currentLangConfig.name}.`
     }
   };
 
   const currentStructure = promptStructure[language as keyof typeof promptStructure] || promptStructure.ko;
 
+  // Build the prompt
   const prompt = [
     currentStructure.title,
     currentStructure.roleSection,
@@ -479,10 +538,6 @@ Genera un JSON completo de guía de audio para "${locationName}" en ${currentLan
     specialistContext,
     currentStructure.formatSection,
     currentLang.outputInstructions,
-    `최종 결과물 구조 예시:
-\`\`\`json
-${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
-\`\`\``,
     currentStructure.qualitySection,
     currentLang.qualityStandards,
     currentStructure.specificRequest
@@ -491,6 +546,9 @@ ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 
   return prompt;
 }
 
+/**
+ * 최종 가이드 생성 프롬프트
+ */
 export function createFinalGuidePrompt(
   locationName: string,
   language: string,
@@ -512,31 +570,13 @@ export function createFinalGuidePrompt(
       role: '당신은 **최종 오디오 가이드 작가 AI(Final Audio Guide Writer AI)**입니다.',
       goal: '제공된 리서치 데이터를 기반으로, 방문객을 위한 완벽한 한국어 오디오 가이드 JSON 객체를 완성하는 것입니다.',
       outputInstructions: `반드시 아래 예시와 완전히 동일한 구조, 동일한 키, 동일한 타입의 JSON만 반환하세요.\n- 코드블록(예: \`\`\`json ... \`\`\`)을 절대 포함하지 마세요.\n- 설명, 안내문구, 주석 등 일체의 부가 텍스트를 포함하지 마세요.\n- JSON 문법(따옴표, 쉼표, 중괄호/대괄호 등)을 반드시 준수하세요.`,
-      qualityStandards: '리서치 데이터를 바탕으로, 한국 최고 수준의 문화관광해설사의 품질로 스크립트를 작성하세요.'
+      qualityStandards: '리서치 데이터를 바탕으로, 한국 최고 수준의 문화관광해설사의 품질로 스크립트를 작성하세요. **분량에 제한 없이**, 명소와 관련된 **모든 배경지식, 숨겨진 이야기, 역사적 사실**을 포함하여 가장 상세하고 깊이 있는 내용을 제공해야 합니다. **명소 내 모든 세부 장소를 하나도 빠짐없이 포함**하여, 방문객이 원하는 곳을 선택해 들을 수 있는 완전한 가이드를 만드세요. **관람 동선은 입장부터 퇴장까지 가장 효율적인 한붓그리기 동선으로 설계하여, 방문객이 불필요하게 되돌아가거나 두 번 이동하는 일이 없도록 해야 합니다.** 풍부한 스토리텔링과 생생한 묘사는 필수입니다.'
     },
     en: {
       role: 'You are a **Final Audio Guide Writer AI**.',
       goal: 'Based on the provided research data, complete a perfect English audio guide JSON object for visitors.',
       outputInstructions: 'Respond only in the JSON format below. Output pure JSON without markdown code blocks or additional explanations. Write all text in natural English.',
-      qualityStandards: 'Based on the research data, write scripts with the quality of a top-tier professional tour guide.'
-    },
-    ja: {
-      role: 'あなたは**最終オーディオガイド作家AI**です。',
-      goal: '提供されたリサーチデータに基づき、訪問者のための完璧な日本語オーディオガイドJSONオブジェクトを完成させることです。',
-      outputInstructions: '以下のJSON形式でのみ回答してください。マークダウンコードブロックや追加説明なしに純粋なJSONのみを出力してください。',
-      qualityStandards: 'リサーチデータに基づき、日本の最高レベルの文化観光ガイドの品質でスクリプトを作成してください。'
-    },
-    zh: {
-      role: '您是一位**最终音频导览作家AI**。',
-      goal: '根据提供的研究数据，为访客完成一个完美的中文音频导览JSON对象。',
-      outputInstructions: '仅以下面的JSON格式回应。输出纯JSON，无需markdown代码块或额外说明。',
-      qualityStandards: '根据研究数据，以中国顶级文化旅游讲解员的水准撰写脚本。'
-    },
-    es: {
-      role: 'Eres un **Escritor de Guías de Audio Final AI**.',
-      goal: 'Basado en los datos de investigación proporcionados, completar un objeto JSON de guía de audio en español perfecto para los visitantes.',
-      outputInstructions: 'Responde solo en el formato JSON a continuación. Genera JSON puro sin bloques de código markdown o explicaciones adicionales.',
-      qualityStandards: 'Basado en los datos de investigación, escribe guiones con la calidad de un guía turístico profesional de élite.'
+      qualityStandards: 'Based on the research data, write scripts with the quality of a top-tier professional tour guide. Provide the most detailed and in-depth content possible **without any length restrictions**, including **all background knowledge, hidden stories, and historical facts** related to the landmark. **Include every single spot within the landmark without omission** to create a complete guide where visitors can choose what to listen to. **The tour route must be designed as the most efficient, one-way path from entrance to exit**, ensuring visitors do not need to backtrack unnecessarily. Rich storytelling and vivid descriptions are essential.'
     }
   };
 
@@ -555,14 +595,15 @@ export function createFinalGuidePrompt(
     JSON.stringify(researchData, null, 2),
     '```',
     '## 📐 최종 JSON 출력 형식',
-    '리서치 데이터의 구조를 유지하면서, `narrativeTheme`과 모든 `realTimeScript` 필드를 채워서 완전한 가이드를 생성하세요. **절대로 응답에 \`\`\`json 마크다운을 포함하지 마세요.**',
-    currentLang.outputInstructions,
-    currentLang.qualityStandards
+    currentLang.outputInstructions
   ].join('\n\n');
 
   return prompt;
 }
 
+/**
+ * GPT-4O용 스키마 기반 가이드 생성 프롬프트
+ */
 export function generateAudioGuidePrompt(
   location: string,
   language: string,
@@ -613,7 +654,7 @@ export function generateAudioGuidePrompt(
   };
 } {
   return {
-    model: 'gemini-1.5-pro',
+    model: 'gpt-4o',
     messages: [
       {
         role: 'system',
