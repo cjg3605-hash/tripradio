@@ -1,6 +1,131 @@
-// 🎯 NAVI 프롬프트 개선 - 현재 시스템 완벽 호환
-// 기존 JSON 스키마와 TourContent.tsx 컴포넌트 100% 호환
+// src/lib/ai/prompts/korean.ts
+import { 
+  UserProfile, 
+  LOCATION_TYPE_CONFIGS, 
+  LANGUAGE_CONFIGS,
+  analyzeLocationType,
+  generateTypeSpecificExample
+} from './index';
 
+// 메인 export 함수 - 누락된 함수
+export function createKoreanGuidePrompt(
+  locationName: string,
+  userProfile?: UserProfile
+): string {
+  const locationType = analyzeLocationType(locationName);
+  const typeConfig = LOCATION_TYPE_CONFIGS[locationType];
+
+  const userContext = userProfile ? `
+👤 사용자 맞춤 정보:
+- 관심사: ${userProfile.interests?.join(', ') || '일반'}
+- 연령대: ${userProfile.ageGroup || '성인'}
+- 지식수준: ${userProfile.knowledgeLevel || '중급'}
+- 동행자: ${userProfile.companions || '혼자'}
+` : '👤 일반 관광객 대상';
+
+  const specialistContext = typeConfig ? `
+🎯 전문가 가이드 설정:
+- 감지된 장소 유형: ${locationType}
+- 전문가 역할: ${typeConfig.expertRole}
+- 집중 영역: ${typeConfig.focusAreas.join(', ')}
+- 특별 요구사항: ${typeConfig.specialRequirements}
+- 권장 챕터 구조: ${typeConfig.chapterStructure}
+` : '';
+
+  return `# ${locationName} 오디오 가이드 생성 미션
+
+## 🎭 당신의 전문 역할
+당신은 **세계에서 가장 열정적이고 수다스러운 ${typeConfig?.expertRole || '여행 가이드'}**입니다.
+방문객들이 마치 당신과 함께 걸으며 모든 비밀 이야기를 듣고 있는 것처럼 느끼게 하는 것이 당신의 사명입니다.
+
+## 🎯 목표
+'${locationName}'에 대한 모든 디테일과 비하인드 스토리를 담아낸 **매우 상세하고 긴 한국어 오디오 가이드** JSON 객체를 생성하여, 방문객들이 알아야 할 모든 것을 알 수 있도록 합니다.
+
+**출력 언어**: 한국어 (ko)
+
+${userContext}
+
+${specialistContext}
+
+## 📐 출력 형식
+아래 규칙을 절대적으로 준수하여 순수한 JSON 객체만 반환해야 합니다.
+- 서론, 본문, 결론, 주석이나 코드 블록(\`\`\`) 등 JSON 외부의 텍스트는 절대 포함하지 마세요.
+- 모든 문자열은 따옴표로 감싸고, 객체와 배열의 마지막 요소 뒤에 쉼표를 추가하지 않는 등 JSON 문법을 100% 완벽히 준수해야 합니다.
+- JSON 구조와 키 이름은 아래 예시와 동일해야 합니다. 키 이름을 번역하거나 변경하지 마세요.
+- **JSON 문법 오류는 치명적인 실패로 간주됩니다.**
+
+최종 결과 구조 예시:
+\`\`\`json
+${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
+\`\`\`
+
+## 🎯 품질 기준 (가장 중요!)
+- **내용이 많을수록 좋습니다. 절대 내용을 아끼지 마세요.** 사소한 건축적 디테일, 숨겨진 심볼, 역사적 배경, 관련 인물들의 재미있는 일화, 비하인드 스토리 등 모든 정보를 종합적으로 포함하세요.
+- **친근하고 수다스러운 어조:** 딱딱한 설명이 아닌, 친구나 최고의 가이드가 바로 옆에서 열정적으로 설명해주는 것 같은 대화체를 사용하세요.
+- **완벽한 스토리텔링:** 모든 정보를 하나의 거대한 이야기처럼 연결하세요.
+
+**📍 챕터 구성 필수사항:**
+- **최소 5-7개 챕터 생성**: 주요 관람 지점마다 별도의 챕터 구성
+- **관람 동선 순서에 따라 배치**: 입구→출구까지 효율적인 일필획 경로
+- **🚨 CRITICAL: route.steps와 realTimeGuide.chapters 동기화 필수 🚨**
+  * route.steps 배열과 realTimeGuide.chapters 배열의 개수가 **완전히 일치**해야 함
+  * 각 step의 title과 해당 chapter의 title이 **완전히 동일**해야 함
+  * step 순서와 chapter 순서가 **완전히 일치**해야 함
+  * 이 규칙을 위반하면 시스템 오류가 발생합니다!
+- **각 필드별 최소 작성 기준**:
+  * sceneDescription: 200자 이상, 5감을 자극하는 생생한 묘사
+  * coreNarrative: 300자 이상, 역사적 사실과 의미 상세 설명
+  * humanStories: 200자 이상, 구체적인 인물 일화와 에피소드
+  * nextDirection: 100자 이상, 명확한 이동 경로와 거리 안내
+- **절대 빈 내용 금지**: 모든 필드는 반드시 실제 내용으로 채워야 함
+
+**중요 체크리스트:**
+✅ realTimeGuide.chapters 배열에 최소 5-7개 챕터 포함
+✅ 🚨 CRITICAL: route.steps와 realTimeGuide.chapters 개수 및 title 완전 일치 🚨
+✅ 각 챕터의 sceneDescription, coreNarrative, humanStories, nextDirection 모든 필드가 실제 내용으로 충실히 작성됨
+✅ 관람 동선에 따른 순차적 챕터 배치 (입구→주요 관람지→출구)
+✅ 각 필드별 최소 글자 수 충족
+✅ JSON 문법 100% 정확성 확보
+
+**절대 하지 말 것:**
+❌ 빈 문자열 ("") 사용 금지
+❌ "추후 작성" 같은 플레이스홀더 사용 금지  
+❌ 단순 반복 내용 사용 금지
+❌ JSON 외부 텍스트 포함 금지
+❌ route.steps와 realTimeGuide.chapters 불일치 절대 금지`;
+}
+
+// 최종 가이드 생성 함수 - 누락된 함수
+export function createKoreanFinalPrompt(
+  locationName: string,
+  researchData: any,
+  userProfile?: UserProfile
+): string {
+  const userContext = userProfile ? `
+👤 사용자 맞춤 정보:
+- 관심사: ${userProfile.interests?.join(', ') || '일반'}
+- 연령대: ${userProfile.ageGroup || '성인'}
+- 지식수준: ${userProfile.knowledgeLevel || '중급'}
+- 동행자: ${userProfile.companions || '혼자'}
+` : '👤 일반 관광객 대상';
+
+  return `당신은 **최종 오디오 가이드 작가 AI(Final Audio Guide Writer AI)**입니다.
+
+제공된 리서치 데이터를 기반으로, 방문객을 위한 완벽한 한국어 오디오 가이드 JSON 객체를 완성하는 것입니다.
+
+**출력 언어**: 한국어 (ko)
+
+${userContext}
+
+## 📊 제공된 리서치 데이터
+${JSON.stringify(researchData, null, 2)}
+
+위 리서치 데이터를 활용하여 ${locationName}에 대한 완전한 오디오 가이드를 생성하세요.
+
+모든 정보를 종합하여 매우 상세하고 정확한 가이드를 만들어주세요.`;
+}
+
+// 기존 개선된 프롬프트 함수들 (현재 시스템과 호환)
 export function createImprovedPrompt(
   locationName: string,
   userProfile?: UserProfile
@@ -113,7 +238,7 @@ ${generatePersonalTouch(userProfile)}
   return improvedPrompt;
 }
 
-// 개인화 터치 (현재 시스템과 호환)
+// 개인화 터치 함수
 function generatePersonalTouch(userProfile?: UserProfile): string {
   if (!userProfile) return '';
   
@@ -139,15 +264,9 @@ function generatePersonalTouch(userProfile?: UserProfile): string {
   return personalTouch;
 }
 
-// 타입 정의 (현재 시스템 호환)
-interface UserProfile {
-  interests?: string[];
-  ageGroup?: string;
-  knowledgeLevel?: string;
-  companions?: string;
-}
+// UserProfile은 index.ts에서 import하므로 로컬 정의 제거
 
-// 🎯 현재 TourContent.tsx와 완벽 호환되는 개선사항
+// 호환성 개선사항 정의
 export const TOURCONTENTCOMPATIBLE_IMPROVEMENTS = {
   jsonStructure: {
     현재구조: 'overview + route + realTimeGuide',
