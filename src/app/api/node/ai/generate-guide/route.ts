@@ -238,7 +238,6 @@ export async function POST(req: NextRequest) {
           locationname: normLocation,
           language: normLang,
           original_location: locationName,
-          original_language: language,
           content: normalizedData,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
