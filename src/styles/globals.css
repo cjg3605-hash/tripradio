@@ -1,0 +1,8 @@
+/* Custom additional styles */
+
+/* 여기에 추가 스타일이나 Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 또는 빈 파일로도 OK */

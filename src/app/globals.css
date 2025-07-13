@@ -1,4 +1,5 @@
 /* Import custom styles with Tailwind directives */
+@import '../styles/custom.css';
 
 /* NAVI 브랜드 색상 변수 */
 :root {
