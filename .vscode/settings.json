@@ -1,8 +1,0 @@
-{
-  "css.validate": false,
-  "editor.quickSuggestions.strings": true,
-  "editor.codeActionsOnSave.source.fixAll": true,
-  "tailwindCSS.emmetCompletions": true,
-  "editor.inlineSuggest.enabled": true,
-  "css.lint.unknownAtRules": "ignore"
-}
