@@ -51,45 +51,20 @@ function parseJsonResponse(jsonString: string) {
 
 // GuideData 구조 normalize 함수 - 포괄적 필드명 매핑
 function normalizeGuideData(raw: any, language?: string) {
-  console.log('🔧 normalizeGuideData input:', JSON.stringify(raw, null, 2));
-  const languageKey = language?.slice(0, 2) as keyof typeof REALTIME_GUIDE_KEYS || 'en';
-  const realTimeGuideKey = REALTIME_GUIDE_KEYS[languageKey] || 'RealTimeGuide';
-  console.log('🔧 realTimeGuideKey:', realTimeGuideKey);
-  let realTimeGuide = raw[realTimeGuideKey] ||
-    raw.realTimeGuide || raw.RealTimeGuide || raw.REALTIMEGUIDE ||
-    raw.realtimeGuide || raw.realtime_guide || raw.real_time_guide ||
-    raw.audioGuide || raw.AudioGuide || raw.audio_guide ||
-    raw.실시간가이드 || raw.오디오가이드 || raw.chapters || 
-    null;
-  console.log('🔧 realTimeGuide 추출 결과:', !!realTimeGuide, realTimeGuide);
-  
-  // overview - 다양한 케이스 지원
-  const overview = raw.overview || raw.Overview || raw.OVERVIEW || 
-                   raw.소개 || raw.개요 || raw.introduction || raw.Introduction ||
-                   null;
-  console.log('🔧 overview 매핑 결과:', !!overview);
-
-  // route - 다양한 케이스 지원 
-  const route = raw.route || raw.Route || raw.ROUTE ||
-                raw.관람동선 || raw.동선 || raw.루트 ||
-                null;
-  console.log('🔧 route 매핑 결과:', !!route);
-
-  // 정규화된 구조로 반환
-  const normalized = {
+  // 프롬프트 예시와 100% 동일한 구조만 허용
+  if (!raw.content || typeof raw.content !== 'object') {
+    return {
+      overview: '개요 정보가 없습니다.',
+      route: { steps: [], tips: [], duration: '정보 없음' },
+      realTimeGuide: { chapters: [] }
+    };
+  }
+  const { overview, route, realTimeGuide } = raw.content;
+  return {
     overview: overview || '개요 정보가 없습니다.',
     route: route || { steps: [], tips: [], duration: '정보 없음' },
     realTimeGuide: realTimeGuide || { chapters: [] }
   };
-
-  console.log('🔧 최종 정규화 결과:', {
-    hasOverview: !!normalized.overview,
-    hasRoute: !!normalized.route,
-    hasRealTimeGuide: !!normalized.realTimeGuide,
-    chaptersCount: normalized.realTimeGuide?.chapters?.length || 0
-  });
-
-  return normalized;
 }
 
 export async function POST(req: NextRequest) {
@@ -237,10 +212,8 @@ export async function POST(req: NextRequest) {
         {
           locationname: normLocation,
           language: normLang,
-          original_location: locationName,
           content: normalizedData,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          created_at: new Date().toISOString()
         }
       ], {
         onConflict: 'locationname,language',

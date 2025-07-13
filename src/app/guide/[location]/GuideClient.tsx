@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { GuideData, RealTimeGuide, GuideOverview, GuideMetadata } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { REALTIME_GUIDE_KEYS } from '@/lib/ai/prompts';
+import { REALTIME_GUIDE_KEYS } from '@/lib/ai/prompts/index';
 import TourContent from './tour/components/TourContent';
 import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
