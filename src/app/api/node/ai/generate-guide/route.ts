@@ -204,28 +204,44 @@ export async function POST(req: NextRequest) {
     const normalizedData = normalizeGuideData(parsedData, language);
     console.log('✅ 데이터 정규화 완료');
 
-    // === Supabase에 저장 (중복 방지를 위해 upsert 사용) ===
-    console.log('💾 DB 저장 시작');
-    const { data: saveData, error: saveError } = await supabase
+    // === Supabase에 저장 (중복이면 insert하지 않고 기존 데이터 반환) ===
+    console.log('💾 DB 저장/중복 체크 시작');
+    // 1. 다시 한 번 중복 체크 (혹시 race condition 방지)
+    const { data: checkExisting, error: checkError } = await supabase
       .from('guides')
-      .upsert([
+      .select('*')
+      .filter('locationname', 'eq', normLocation)
+      .filter('language', 'eq', normLang)
+      .single();
+
+    if (checkExisting && checkExisting.content) {
+      // 이미 있으면 그 데이터 반환
+      return NextResponse.json({
+        success: true,
+        data: { content: checkExisting.content },
+        cached: 'hit',
+        language
+      });
+    }
+
+    // 2. 없으면 insert
+    const { data: inserted, error: insertError } = await supabase
+      .from('guides')
+      .insert([
         {
           locationname: normLocation,
           language: normLang,
           content: normalizedData,
           created_at: new Date().toISOString()
         }
-      ], {
-        onConflict: 'locationname,language',
-        ignoreDuplicates: false
-      })
+      ])
       .select();
 
-    if (saveError) {
-      console.error('❌ DB 저장 실패:', saveError);
+    if (insertError) {
+      console.error('❌ DB 저장 실패:', insertError);
       // DB 저장 실패해도 응답은 반환
     } else {
-      console.log('✅ DB 저장 성공:', saveData);
+      console.log('✅ DB 저장 성공:', inserted);
     }
 
     // === 최종 응답 ===
