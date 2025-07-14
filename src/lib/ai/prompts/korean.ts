@@ -166,7 +166,7 @@ function analyzeLocationType(locationName: string): string {
   for (const [type, cfg] of Object.entries(LOCATION_TYPE_CONFIGS)) {
     if (cfg.keywords.some((k) => lower.includes(k.toLowerCase()))) return type;
   }
-  return "general";
+  return "default";
 }
 export function getTTSLanguage(lang: string): string {
   return LANGUAGE_CONFIGS[lang.slice(0, 2)]?.ttsLang || "en-US";
