@@ -127,30 +127,31 @@ export async function POST(req: NextRequest) {
         .filter('language', 'eq', normLang);
     }
     
-    // === guides 테이블에서 locationname+language로 중복 체크 (정규화 값만 사용) ===
-    const { data: existing } = await supabase
+    // === guides 테이블에서 locationname+language로 캐시(중복) 조회 ===
+    const { data: cached, error: cacheError } = await supabase
       .from('guides')
-      .select('*')
-      .filter('locationname', 'eq', normLocation)
-      .filter('language', 'eq', normLang)
+      .select('content')
+      .eq('locationname', normLocation)
+      .eq('language', normLang)
       .single();
-      
-    if (existing && existing.content && !forceRegenerate) {
-      // 항상 동일한 구조(data: { content: ... })로 반환
+
+    if (cached && cached.content && !forceRegenerate) {
       return NextResponse.json({
         success: true,
-        data: { content: existing.content },
-        cached: 'hit',
+        data: { content: cached.content },
+        cached: 'file',
         language
       });
     }
-    
-    if (existing && !existing.content) {
-      console.log('⚠️ 캐시에 있지만 content가 null - 기존 데이터 삭제 후 새로 생성');
-      // content가 null인 기존 레코드 삭제
-      await supabase.from('guides').delete().eq('id', existing.id);
+
+    // forceRegenerate거나 캐시 없으면 새로 생성
+    if (forceRegenerate) {
+      await supabase.from('guides')
+        .delete()
+        .eq('locationname', normLocation)
+        .eq('language', normLang);
     }
-    
+
     console.log('❌ 캐시 miss - 새로운 가이드 생성 시작');
     
     const model = genAI.getGenerativeModel({ 
@@ -204,27 +205,8 @@ export async function POST(req: NextRequest) {
     const normalizedData = normalizeGuideData(parsedData, language);
     console.log('✅ 데이터 정규화 완료');
 
-    // === Supabase에 저장 (중복이면 insert하지 않고 기존 데이터 반환) ===
-    console.log('💾 DB 저장/중복 체크 시작');
-    // 1. 다시 한 번 중복 체크 (혹시 race condition 방지)
-    const { data: checkExisting, error: checkError } = await supabase
-      .from('guides')
-      .select('*')
-      .filter('locationname', 'eq', normLocation)
-      .filter('language', 'eq', normLang)
-      .single();
-
-    if (checkExisting && checkExisting.content) {
-      // 이미 있으면 그 데이터 반환
-      return NextResponse.json({
-        success: true,
-        data: { content: checkExisting.content },
-        cached: 'hit',
-        language
-      });
-    }
-
-    // 2. 없으면 insert
+    // === Supabase에 저장 (UNIQUE 제약 유지, 중복 INSERT 시도 없음) ===
+    console.log('💾 DB 저장 시작');
     const { data: inserted, error: insertError } = await supabase
       .from('guides')
       .insert([
@@ -234,8 +216,7 @@ export async function POST(req: NextRequest) {
           content: normalizedData,
           created_at: new Date().toISOString()
         }
-      ])
-      .select();
+      ]);
 
     if (insertError) {
       console.error('❌ DB 저장 실패:', insertError);
