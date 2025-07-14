@@ -215,6 +215,16 @@ interface UserProfile {
   companions?: string;
 }
 
+// ResearchData 타입 정의 추가
+export interface ResearchData {
+  historicalFacts?: Array<{ date: string; event: string }>;
+  keyFigures?: Array<{ name: string; role: string; description: string }>;
+  architecturalDetails?: Record<string, string>;
+  culturalSignificance?: string[];
+  interestingAnecdotes?: string[];
+  [key: string]: any; // 추가 필드 허용
+}
+
 // 위치 유형 분석 함수
 function analyzeLocationType(locationName: string): string {
   const lowerName = locationName.toLowerCase();
@@ -357,7 +367,7 @@ ${JSON.stringify(AUDIO_GUIDE_EXAMPLE, null, 2)}
  */
 export function createKoreanFinalPrompt(
   locationName: string,
-  researchData: any,
+  researchData: ResearchData,
   userProfile?: UserProfile
 ): string {
   const langConfig = LANGUAGE_CONFIGS.ko;
