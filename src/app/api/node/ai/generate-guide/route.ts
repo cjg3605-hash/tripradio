@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
       .select('content')
       .eq('locationname', normLocation)
       .eq('language', normLang)
-      .single();
+      .maybeSingle();
 
     if (cached && cached.content && !forceRegenerate) {
       // 이미 있으면 바로 반환 (AI 토큰 소모 X)
@@ -193,14 +193,16 @@ export async function POST(req: NextRequest) {
       .select('content')
       .eq('locationname', normLocation)
       .eq('language', normLang)
-      .single();
-    if (selectError) {
+      .maybeSingle();
+
+    if (!selected) {
       return NextResponse.json({
         success: false,
-        error: selectError.message || 'DB select error',
+        error: '가이드 데이터가 존재하지 않습니다.',
         language
-      }, { status: 500 });
+      }, { status: 404 });
     }
+
     return NextResponse.json({
       success: true,
       data: { content: selected.content },
