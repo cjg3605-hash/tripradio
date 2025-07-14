@@ -143,6 +143,13 @@ interface LocationTypeConfig {
 }
 
 const LOCATION_TYPE_CONFIGS: Record<string, LocationTypeConfig> = {
+  default: {
+    keywords: [],
+    expertRole: '문화관광 전문 해설사',
+    focusAreas: ['역사', '문화', '건축', '예술'],
+    specialRequirements: '방문객의 흥미를 끄는 다양한 이야기와 정보를 균형 있게 제공해야 합니다.',
+    audioGuideTips: '스토리텔링, 몰입감 있는 설명, 명확한 이동 안내'
+  },
   // …(architecture / history / nature / food / traditional 등 기존 정의 그대로)…
 };
 
