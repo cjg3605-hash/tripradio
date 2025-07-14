@@ -36,14 +36,19 @@ export interface GuideChapter {
   description?: string;
   duration?: number | string;
   audioUrl?: string;
-  sceneDescription?: string;
+  /**
+   * Unified continuous narrative for the chapter (≈ 2 100+ chars)
+   */
+  narrative?: string;
+  /** @deprecated 기존 다중 파트 구조. 더 이상 사용하지 않음 */
   narrativeLayers?: {
     coreNarrative?: string;
-    architectureDeepDive?: string;
     humanStories?: string;
-    sensoryBehindTheScenes?: string;
     [key: string]: any;
   };
+  /**
+   * Concrete navigation instructions guiding the visitor to the next stop (≥ 300 chars)
+   */
   nextDirection?: string;
   lat?: number;
   lng?: number;

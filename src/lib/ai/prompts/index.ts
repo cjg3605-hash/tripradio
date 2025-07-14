@@ -141,10 +141,10 @@ export function generateTypeSpecificExample(locationType: string, locationName: 
       chapters: [
         {
           title: "입구 및 전체 개관",
-          sceneDescription: "200자 이상의 생생한 현장 묘사 - 5감을 자극하는 디테일한 설명",
-          coreNarrative: "300자 이상의 핵심 내용 - 역사적 사실, 건축적 특징, 문화적 의미 등 심도있는 해설",
-          humanStories: "200자 이상의 인물 이야기 - 구체적 인물들의 일화와 감동적 에피소드",
-          nextDirection: "100자 이상의 이동 안내 - 다음 관람 지점으로의 명확한 경로 및 거리 정보"
+          narrative: "2 100자 이상의 연속 서사 - 현장 묘사 · 역사 · 인물 이야기가 자연스레 이어진 스크립트",
+
+
+          nextDirection: "300자 이상의 이동 안내 - 다음 관람 지점으로의 명확한 경로 및 거리 정보"
         }
       ]
     }
