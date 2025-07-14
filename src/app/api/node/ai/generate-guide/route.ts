@@ -207,6 +207,7 @@ export async function POST(req: NextRequest) {
 
     // === Supabase에 저장 (UNIQUE 제약 유지, 중복 INSERT 시도 없음) ===
     console.log('💾 DB 저장 시작');
+    // ON CONFLICT DO NOTHING + select 패턴 적용
     const { data: inserted, error: insertError } = await supabase
       .from('guides')
       .insert([
@@ -216,57 +217,32 @@ export async function POST(req: NextRequest) {
           content: normalizedData,
           created_at: new Date().toISOString()
         }
-      ]);
+      ], { onConflict: ['locationname', 'language'] });
 
-    if (insertError) {
-      // UNIQUE 제약 위반(중복)일 경우, 기존 데이터 다시 조회해서 반환
-      if (insertError.code === '23505') {
-        const { data: existing } = await supabase
-          .from('guides')
-          .select('content')
-          .eq('locationname', normLocation)
-          .eq('language', normLang)
-          .single();
-        if (existing && existing.content) {
-          return NextResponse.json({
-            success: true,
-            data: { content: existing.content },
-            cached: 'file',
-            language
-          });
-        }
-      }
-      // 그 외 에러는 그대로 처리
-      console.error('❌ DB 저장 실패:', insertError);
-      // DB 저장 실패해도 응답은 반환
-    } else {
-      console.log('✅ DB 저장 성공:', inserted);
+    // insert가 성공했거나(새로 생성), 아무것도 안 했으면(중복)
+    // 항상 select로 최종 데이터 반환
+    const { data: selected, error: selectError } = await supabase
+      .from('guides')
+      .select('content')
+      .eq('locationname', normLocation)
+      .eq('language', normLang)
+      .single();
+
+    if (selectError) {
+      console.error('❌ DB select 실패:', selectError);
+      return NextResponse.json({
+        success: false,
+        error: selectError.message || 'DB select error',
+        language
+      }, { status: 500 });
     }
 
-    // === 최종 응답 ===
-    const finalResponse = {
+    return NextResponse.json({
       success: true,
-      data: { content: normalizedData },
-      cached: 'miss',
-      language,
-      metadata: {
-        originalLocationName: locationName,
-        normalizedLocationName: normLocation,
-        responseLength: responseText.length,
-        generatedAt: new Date().toISOString(),
-        hasRealTimeGuide: !!(normalizedData.realTimeGuide?.chapters?.length),
-        chaptersCount: normalizedData.realTimeGuide?.chapters?.length || 0
-      }
-    };
-
-    console.log('🎉 AI 가이드 생성 완료!', {
-      location: locationName,
-      language,
-      hasContent: !!normalizedData,
-      chaptersCount: normalizedData.realTimeGuide?.chapters?.length || 0
+      data: { content: selected.content },
+      cached: inserted ? 'miss' : 'file',
+      language
     });
-
-    return NextResponse.json(finalResponse);
 
   } catch (error) {
     console.error('❌ 전체 프로세스 실패:', error);
