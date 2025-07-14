@@ -117,16 +117,6 @@ export async function POST(req: NextRequest) {
     const normLocation = normalizeString(locationName);
     const normLang = normalizeString(language);
     
-    // forceRegenerate가 true면 기존 캐시 삭제
-    if (forceRegenerate) {
-      console.log('🔄 강제 재생성 모드 - 기존 캐시 삭제');
-      await supabase
-        .from('guides')
-        .delete()
-        .filter('locationname', 'eq', normLocation)
-        .filter('language', 'eq', normLang);
-    }
-    
     // === guides 테이블에서 locationname+language로 캐시(중복) 조회 ===
     const { data: cached, error: cacheError } = await supabase
       .from('guides')
@@ -136,6 +126,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (cached && cached.content && !forceRegenerate) {
+      // 이미 있으면 바로 반환 (AI 토큰 소모 X)
       return NextResponse.json({
         success: true,
         data: { content: cached.content },
@@ -144,16 +135,18 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // forceRegenerate거나 캐시 없으면 새로 생성
+    // forceRegenerate가 true면 기존 캐시 삭제
     if (forceRegenerate) {
-      await supabase.from('guides')
+      console.log('🔄 강제 재생성 모드 - 기존 캐시 삭제');
+      await supabase
+        .from('guides')
         .delete()
-        .eq('locationname', normLocation)
-        .eq('language', normLang);
+        .filter('locationname', 'eq', normLocation)
+        .filter('language', 'eq', normLang);
     }
 
+    // === (없으면) AI로 생성 후 insert ===
     console.log('❌ 캐시 miss - 새로운 가이드 생성 시작');
-    
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-1.5-pro',
       generationConfig: {
@@ -161,54 +154,30 @@ export async function POST(req: NextRequest) {
         maxOutputTokens: 8192
       }
     });
-
     console.log(`🚀 AI 가이드 생성 시작 - ${locationName} (${language})`);
-    
-    // 🔄 비동기 프롬프트 호출로 변경
     const autonomousPrompt = await createAutonomousGuidePrompt(locationName, language, userProfile);
-    
     console.log(`📝 프롬프트 전송 완료, 응답 대기 중...`);
-    
     let responseText: string;
     try {
       console.log('🤖 Gemini API 호출 시작');
       const result = await model.generateContent(autonomousPrompt);
       const response = await result.response;
       responseText = await response.text();
-      
-      console.log(`📝 AI 응답 수신 (${responseText?.length || 0}자)`);
-      console.log('🔍 응답 첫 200자:', responseText?.substring(0, 200) || 'null');
-      console.log('🔍 응답 마지막 200자:', responseText?.substring(-200) || 'null');
-      
       if (!responseText || responseText.trim().length === 0) {
-        console.log('❌ AI 응답이 비어있음 - 전체 응답:', responseText);
         throw new Error('AI로부터 빈 응답을 받았습니다.');
       }
     } catch (error) {
-      console.error('❌ AI 응답 생성 중 오류 발생:', error);
-      console.error('❌ 에러 상세:', error instanceof Error ? error.stack : error);
       throw new Error(`AI 응답 생성 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
-
     let parsedData;
     try {
-      console.log('🔍 JSON 파싱 시작');
       parsedData = parseJsonResponse(responseText);
-      console.log('✅ JSON 파싱 성공');
     } catch (parseError) {
-      console.error('❌ JSON 파싱 실패:', parseError);
-      console.error('❌ 원본 응답 텍스트:', responseText);
       throw new Error(`AI 응답 파싱 실패: ${parseError instanceof Error ? parseError.message : '알 수 없는 파싱 오류'}`);
     }
-
-    console.log('🔧 데이터 정규화 시작');
     const normalizedData = normalizeGuideData(parsedData, language);
-    console.log('✅ 데이터 정규화 완료');
-
-    // === Supabase에 저장 (UNIQUE 제약 유지, 중복 INSERT 시도 없음) ===
-    console.log('💾 DB 저장 시작');
-    // ON CONFLICT DO NOTHING + select 패턴 적용
-    const { data: inserted, error: insertError } = await supabase
+    // === Supabase에 저장 (ON CONFLICT DO NOTHING) ===
+    await supabase
       .from('guides')
       .insert([
         {
@@ -218,8 +187,6 @@ export async function POST(req: NextRequest) {
           created_at: new Date().toISOString()
         }
       ], { onConflict: ['locationname', 'language'] });
-
-    // insert가 성공했거나(새로 생성), 아무것도 안 했으면(중복)
     // 항상 select로 최종 데이터 반환
     const { data: selected, error: selectError } = await supabase
       .from('guides')
@@ -227,20 +194,17 @@ export async function POST(req: NextRequest) {
       .eq('locationname', normLocation)
       .eq('language', normLang)
       .single();
-
     if (selectError) {
-      console.error('❌ DB select 실패:', selectError);
       return NextResponse.json({
         success: false,
         error: selectError.message || 'DB select error',
         language
       }, { status: 500 });
     }
-
     return NextResponse.json({
       success: true,
       data: { content: selected.content },
-      cached: inserted ? 'miss' : 'file',
+      cached: 'miss',
       language
     });
 
