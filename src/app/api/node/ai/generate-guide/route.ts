@@ -9,7 +9,7 @@ function normalizeString(str: string): string {
   return str.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
-function getGeminiClient() {
+function getGeminiClient(): GoogleGenerativeAI | Response {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return new Response(
@@ -23,33 +23,52 @@ function getGeminiClient() {
   return new GoogleGenerativeAI(apiKey);
 }
 
-function parseJsonResponse(jsonString: string) {
+function parseJsonResponse(jsonString: string): { success: true; data: any } | { success: false; response: Response } {
   if (!jsonString || jsonString === 'undefined' || jsonString.trim() === '' || jsonString === undefined || jsonString === null) {
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: 'AI 응답이 비어있거나 undefined/null입니다.',
-      }),
-      { status: 500 }
-    );
+    return {
+      success: false,
+      response: new Response(
+        JSON.stringify({
+          success: false,
+          error: 'AI 응답이 비어있거나 undefined/null입니다.',
+        }),
+        { status: 500 }
+      )
+    };
   }
   const codeBlockMatch = jsonString.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
   let cleanedString = codeBlockMatch ? codeBlockMatch[1] : jsonString;
   const jsonStart = cleanedString.indexOf('{');
   const jsonEnd = cleanedString.lastIndexOf('}');
   if (jsonStart === -1 || jsonEnd === -1) {
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: '응답에서 JSON 시작(`{`) 또는 끝(`}`)을 찾을 수 없습니다.',
-      }),
-      { status: 500 }
-    );
+    return {
+      success: false,
+      response: new Response(
+        JSON.stringify({
+          success: false,
+          error: '응답에서 JSON 시작(`{`) 또는 끝(`}`)을 찾을 수 없습니다.',
+        }),
+        { status: 500 }
+      )
+    };
   }
   cleanedString = cleanedString.substring(jsonStart, jsonEnd + 1);
   cleanedString = cleanedString.replace(/^[\uFEFF\s]+/, '');
   cleanedString = cleanedString.replace(/\/\/.*$/gm, '');
-  return JSON.parse(cleanedString);
+  try {
+    return { success: true, data: JSON.parse(cleanedString) };
+  } catch (error) {
+    return {
+      success: false,
+      response: new Response(
+        JSON.stringify({
+          success: false,
+          error: 'JSON 파싱 실패',
+        }),
+        { status: 500 }
+      )
+    };
+  }
 }
 
 function normalizeGuideData(raw: any, language?: string) {
@@ -150,16 +169,12 @@ export async function POST(req: NextRequest) {
       { status: 500, headers }
     );
   }
-  let parsedData;
-  try {
-    parsedData = parseJsonResponse(responseText);
-  } catch (parseError) {
-    return new Response(
-      JSON.stringify({ success: false, error: `AI 응답 파싱 실패: ${parseError instanceof Error ? parseError.message : '알 수 없는 파싱 오류'}` }),
-      { status: 500, headers }
-    );
+
+  const parsed = parseJsonResponse(responseText);
+  if (!parsed.success) {
+    return parsed.response;
   }
-  const normalizedData = normalizeGuideData(parsedData, language);
+  const normalizedData = normalizeGuideData(parsed.data, language);
   const { error: insertError } = await supabase
     .from('guides')
     .insert([
@@ -169,7 +184,7 @@ export async function POST(req: NextRequest) {
         content: normalizedData,
         created_at: new Date().toISOString()
       }
-    ], { onConflict: ['locationname', 'language'] });
+    ]);
   if (insertError && insertError.code !== '23505') {
     return new Response(
       JSON.stringify({
