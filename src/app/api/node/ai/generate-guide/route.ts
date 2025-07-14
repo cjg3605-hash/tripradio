@@ -219,6 +219,24 @@ export async function POST(req: NextRequest) {
       ]);
 
     if (insertError) {
+      // UNIQUE 제약 위반(중복)일 경우, 기존 데이터 다시 조회해서 반환
+      if (insertError.code === '23505') {
+        const { data: existing } = await supabase
+          .from('guides')
+          .select('content')
+          .eq('locationname', normLocation)
+          .eq('language', normLang)
+          .single();
+        if (existing && existing.content) {
+          return NextResponse.json({
+            success: true,
+            data: { content: existing.content },
+            cached: 'file',
+            language
+          });
+        }
+      }
+      // 그 외 에러는 그대로 처리
       console.error('❌ DB 저장 실패:', insertError);
       // DB 저장 실패해도 응답은 반환
     } else {
