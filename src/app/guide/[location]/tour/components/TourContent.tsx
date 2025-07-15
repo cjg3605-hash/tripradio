@@ -82,7 +82,7 @@ export default function TourContent({ guide, language }: TourContentProps) {
   }, [currentChapter]);
 
   const handlePlayPause = async () => {
-    if (!currentChapterData?.content) return;
+    if (!currentChapterData?.narrative) return;
 
     const audio = audioRef.current;
     if (!audio) return;
@@ -111,7 +111,7 @@ export default function TourContent({ guide, language }: TourContentProps) {
           const audioUrl = await getOrCreateChapterAudio(
             guideId,
             currentChapter,
-            currentChapterData.content,
+            currentChapterData.narrative,
             language
           );
 
@@ -176,7 +176,7 @@ export default function TourContent({ guide, language }: TourContentProps) {
 
       {/* 헤더 */}
       <div className="mb-6 text-center">
-        <h1 className="text-2xl font-bold mb-2">{guide.title}</h1>
+        <h1 className="text-2xl font-bold mb-2">{guide.overview.title}</h1>
         <p className="text-gray-600">
           챕터 {currentChapter + 1} / {chapters.length}
         </p>
@@ -187,7 +187,11 @@ export default function TourContent({ guide, language }: TourContentProps) {
 
       {/* 맵 */}
       <div className="mb-8">
-        <MapWithRoute guide={guide} />
+        <MapWithRoute 
+          chapters={chapters}
+          activeChapter={currentChapter}
+          onMarkerClick={handleChapterChange}
+        />
       </div>
 
       {/* 현재 챕터 제목 */}
@@ -255,7 +259,7 @@ export default function TourContent({ guide, language }: TourContentProps) {
       <div className="bg-gray-50 rounded-lg p-6 mb-6">
         <div className="prose max-w-none">
           <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
-            {currentChapterData.content}
+            {currentChapterData.narrative}
           </p>
         </div>
       </div>
