@@ -88,6 +88,8 @@ function normalizeGuideData(raw: any, language?: string) {
 }
 
 export async function POST(req: NextRequest) {
+  console.log('📍 /api/node/ai/generate-guide POST 호출됨');
+  
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -106,7 +108,10 @@ export async function POST(req: NextRequest) {
   }
 
   const { locationName, language = 'ko', userProfile, forceRegenerate = false } = requestBody;
+  console.log('📝 요청 파라미터:', { locationName, language, forceRegenerate });
+  
   if (!locationName || typeof locationName !== 'string') {
+    console.error('❌ 위치 정보 누락:', locationName);
     return new Response(
       JSON.stringify({ success: false, error: '유효한 위치 정보가 필요합니다.' }),
       { status: 400, headers }
@@ -115,16 +120,32 @@ export async function POST(req: NextRequest) {
 
   const normLocation = normalizeString(locationName);
   const normLang = normalizeString(language);
+  console.log('🔄 정규화된 파라미터:', { normLocation, normLang });
 
   // guides 테이블에서 locationname+language로 캐시(중복) 조회
-  const { data: cached } = await supabase
+  // 먼저 기존 데이터 조회
+  console.log('🔍 DB 조회 시작:', { locationname: normLocation, language: normLang });
+  const { data: cached, error: cacheError } = await supabase
     .from('guides')
     .select('content')
     .eq('locationname', normLocation)
     .eq('language', normLang)
     .maybeSingle();
 
+  console.log('🔍 DB 조회 결과:', { cached: !!cached, error: cacheError?.message || 'none' });
+
+  // 에러가 발생했지만 레코드가 없다는 에러가 아니라면 실제 에러
+  if (cacheError && cacheError.code !== 'PGRST116') {
+    console.error('❌ DB 조회 에러:', cacheError);
+    return new Response(
+      JSON.stringify({ success: false, error: `데이터베이스 조회 실패: ${cacheError.message}` }),
+      { status: 500, headers }
+    );
+  }
+
+  // 캐시된 데이터가 있고 강제 재생성이 아니면 반환
   if (cached && cached.content && !forceRegenerate) {
+    console.log('✅ 캐시된 데이터 반환');
     return NextResponse.json({
       success: true,
       data: { content: cached.content },
@@ -133,15 +154,17 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  if (forceRegenerate) {
+  // 강제 재생성인 경우에만 기존 데이터 삭제
+  if (forceRegenerate && cached) {
     await supabase
       .from('guides')
       .delete()
-      .filter('locationname', 'eq', normLocation)
-      .filter('language', 'eq', normLang);
+      .eq('locationname', normLocation)
+      .eq('language', normLang);
   }
 
   // AI로 생성 후 insert
+  console.log('🤖 AI 가이드 생성 시작');
   const genAI = getGeminiClient();
   if (genAI instanceof Response) return genAI;
   const model = genAI.getGenerativeModel({
@@ -152,6 +175,7 @@ export async function POST(req: NextRequest) {
     }
   });
   const autonomousPrompt = await createAutonomousGuidePrompt(locationName, language, userProfile);
+  console.log('🤖 프롬프트 생성 완료, AI 호출 중...');
   let responseText: string;
   try {
     const result = await model.generateContent(autonomousPrompt);
@@ -175,6 +199,8 @@ export async function POST(req: NextRequest) {
     return parsed.response;
   }
   const normalizedData = normalizeGuideData(parsed.data, language);
+  
+  // 중복 키 처리를 위한 insert 시도
   const { error: insertError } = await supabase
     .from('guides')
     .insert([
@@ -185,6 +211,39 @@ export async function POST(req: NextRequest) {
         created_at: new Date().toISOString()
       }
     ]);
+
+  // 중복 키 에러(23505)인 경우, 기존 레코드를 조회해서 반환
+  if (insertError && insertError.code === '23505') {
+    console.log(`중복 키 감지: ${normLocation} (${normLang}) - 기존 레코드 조회`);
+    const { data: existing, error: fetchError } = await supabase
+      .from('guides')
+      .select('content')
+      .eq('locationname', normLocation)
+      .eq('language', normLang)
+      .maybeSingle();
+
+    if (fetchError) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: `기존 가이드 조회 실패: ${fetchError.message}`,
+          language
+        }),
+        { status: 500, headers }
+      );
+    }
+
+    if (existing && existing.content) {
+      return NextResponse.json({
+        success: true,
+        data: { content: existing.content },
+        cached: 'existing',
+        language
+      });
+    }
+  }
+
+  // 다른 insert 에러인 경우 실패 처리
   if (insertError && insertError.code !== '23505') {
     return new Response(
       JSON.stringify({
@@ -195,6 +254,8 @@ export async function POST(req: NextRequest) {
       { status: 500, headers }
     );
   }
+
+  // 정상적으로 insert 된 경우, 새로 생성된 데이터 반환
   const { data: selected, error: selectError } = await supabase
     .from('guides')
     .select('content')
@@ -212,6 +273,7 @@ export async function POST(req: NextRequest) {
       { status: 500, headers }
     );
   }
+  
   if (!selected) {
     return NextResponse.json({
       success: false,
