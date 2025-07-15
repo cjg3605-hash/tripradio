@@ -34,6 +34,12 @@ export default function LoadingAdSense({
     }
   }, []);
 
+  // AdSense 클라이언트 ID가 없으면 렌더링하지 않음
+  if (!process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID || !process.env.NEXT_PUBLIC_ADSENSE_LOADING_AD_SLOT) {
+    console.warn('AdSense 환경 변수가 설정되지 않아 로딩화면 광고를 표시할 수 없습니다.');
+    return null;
+  }
+
   // 개발 환경에서는 플레이스홀더 표시
   if (adTest) {
     return (
