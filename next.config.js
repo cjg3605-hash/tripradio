@@ -85,7 +85,7 @@ const nextConfig = {
   
   // TypeScript 빌드 오류 처리
   typescript: {
-    ignoreBuildErrors: false, // 타입 오류 확인하되 빌드 중단 방지
+    ignoreBuildErrors: false, // 타입 오류 시 빌드 중단
   },
   
   // ESLint 설정
@@ -124,7 +124,12 @@ const nextConfig = {
       {
         source: '/api/:path*',
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { 
+            key: 'Access-Control-Allow-Origin', 
+            value: process.env.NODE_ENV === 'production' 
+              ? 'https://navi-guide-3nlzt47nx-jg-chois-projects.vercel.app' 
+              : '*' 
+          },
           { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
         ],
