@@ -3,13 +3,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, Volume2, RotateCcw } from 'lucide-react';
-import { Guide } from '@/types/guide';
+import { GuideData } from '@/types/guide';
 import MapWithRoute from '@/components/guide/MapWithRoute';
 import { getOrCreateChapterAudio } from '@/lib/tts-gcs';
 import crypto from 'crypto';
 
 interface TourContentProps {
-  guide: Guide;
+  guide: GuideData;
   language: string;
 }
 
