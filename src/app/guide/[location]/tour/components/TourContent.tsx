@@ -146,6 +146,10 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
 
       const audio = audioRef.current;
       
+      // CORS 우회를 위해 프록시 API 사용
+      const proxyUrl = `/api/tts/stream?url=${encodeURIComponent(data.url)}`;
+      console.log('🔄 프록시 URL 사용:', proxyUrl);
+      
       // 기존 이벤트 리스너 제거 함수
       const removeExistingListeners = () => {
         audio.removeEventListener('loadeddata', handleLoadedData);
@@ -213,8 +217,8 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
       audio.addEventListener('error', handleError, { once: true });
 
       // 오디오 소스 설정 및 로드 시작
-      console.log('🔄 오디오 로드 시작...');
-      audio.src = data.url;
+      console.log('🔄 오디오 로드 시작');
+      audio.src = proxyUrl;
       audio.load();
 
       // 타임아웃 설정 (15초 후에도 로드되지 않으면 오류 처리)
