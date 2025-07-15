@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import LoadingWithAd from '@/components/ui/LoadingWithAd';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // 🔥 강력한 디버깅: 페이지 로드 확인
 console.log('🚀 TourPage 파일 로드됨!');
@@ -30,6 +31,7 @@ export default function TourPage() {
   console.log('🎬 TourPage 컴포넌트 렌더링 시작!');
   
   const params = useParams();
+  const { currentLanguage } = useLanguage();
   const [isMounted, setIsMounted] = useState(false);
   const [guideContent, setGuideContent] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -116,5 +118,5 @@ export default function TourPage() {
 
   console.log('✅ 데이터 로드 완료, TourContent 렌더링!', { guideContent });
 
-  return <TourContent guideContent={guideContent} />;
+  return <TourContent guide={guideContent} language={currentLanguage} />;
 }

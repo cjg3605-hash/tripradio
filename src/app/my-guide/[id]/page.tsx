@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTranslation } from 'next-i18next';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // TourContent를 동적 import (서버 fetch 방지)
 const TourContent = dynamic(() => import("../../guide/[location]/tour/components/TourContent"), { ssr: false });
@@ -10,6 +11,7 @@ const TourContent = dynamic(() => import("../../guide/[location]/tour/components
 export default function MyGuidePage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { t } = useTranslation('common');
+  const { currentLanguage } = useLanguage();
   const [guide, setGuide] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -41,7 +43,7 @@ export default function MyGuidePage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TourContent guideContent={guide} />
+      <TourContent guide={guide} language={currentLanguage} />
     </div>
   );
 }
