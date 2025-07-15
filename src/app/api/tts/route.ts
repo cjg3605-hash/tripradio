@@ -3,7 +3,7 @@ import { getOrCreateTTSAndUrl } from '@/lib/tts-gcs';
 
 export async function POST(req: NextRequest) {
   try {
-    const { text, language, guideId, chapterId } = await req.json();
+    const { text, language, guideId, chapterId, stream } = await req.json();
     
     console.log('🎵 TTS 요청 받음:', { 
       textLength: text?.length || 0, 
