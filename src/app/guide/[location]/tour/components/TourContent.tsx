@@ -22,11 +22,11 @@ export default function TourContent({ guide, language }: TourContentProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const chapters = guide.chapters || [];
+  const chapters = guide.realTimeGuide?.chapters || [];
   const currentChapterData = chapters[currentChapter];
   
   // 가이드 ID 생성 (일관된 식별자)
-  const guideId = crypto.createHash('md5').update(`${guide.location}_${guide.title}`).digest('hex');
+  const guideId = crypto.createHash('md5').update(`${guide.metadata.originalLocationName}_${guide.overview.title}`).digest('hex');
 
   // 오디오 이벤트 리스너 설정
   useEffect(() => {
