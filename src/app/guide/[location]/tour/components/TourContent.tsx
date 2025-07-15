@@ -20,7 +20,21 @@ interface ChapterAudioState {
 }
 
 export default function TourContent({ guide, language }: TourContentProps) {
+  console.log('🎵 TourContent 데이터 확인:', {
+    hasGuide: !!guide,
+    hasRealTimeGuide: !!guide?.realTimeGuide,
+    hasChapters: !!guide?.realTimeGuide?.chapters,
+    chaptersLength: guide?.realTimeGuide?.chapters?.length || 0,
+    chaptersData: guide?.realTimeGuide?.chapters?.slice(0, 2) || [] // 처음 2개만 로그
+  });
+
   const chapters = guide.realTimeGuide?.chapters || [];
+
+  console.log('📚 실제 chapters 배열:', {
+    length: chapters.length,
+    firstChapter: chapters[0] || null,
+    chaptersStructure: chapters.map(c => ({ id: c.id, title: c.title, hasNarrative: !!c.narrative }))
+  });
 
   // 각 챕터별 오디오 상태 관리
   const [chapterStates, setChapterStates] = useState<ChapterAudioState[]>(
@@ -118,11 +132,34 @@ export default function TourContent({ guide, language }: TourContentProps) {
     try {
       if (!audio?.src) {
         const chapter = chapters[chapterIndex];
-        if (!chapter.narrative) {
+        
+        // 실제 데이터 구조에 맞게 텍스트 조합
+        let narrativeText = '';
+        if (chapter.narrative) {
+          narrativeText = chapter.narrative;
+        } else {
+          // coreNarrative, humanStories, sceneDescription 조합
+          const parts: string[] = [];
+          if (chapter.sceneDescription) parts.push(chapter.sceneDescription);
+          if (chapter.coreNarrative) parts.push(chapter.coreNarrative);
+          if (chapter.humanStories) parts.push(chapter.humanStories);
+          if (chapter.nextDirection) parts.push(chapter.nextDirection);
+          
+          narrativeText = parts.join(' ');
+        }
+        
+        if (!narrativeText) {
           throw new Error('챕터 내용이 없습니다.');
         }
+        
+        console.log('🎤 TTS 텍스트 준비:', {
+          chapterIndex,
+          textLength: narrativeText.length,
+          textPreview: narrativeText.substring(0, 100) + '...'
+        });
+        
         const guideId = `${guide.metadata.originalLocationName}_${chapterIndex}`;
-        const audioUrl = await getOrCreateChapterAudio(guideId, chapterIndex, chapter.narrative, language);
+        const audioUrl = await getOrCreateChapterAudio(guideId, chapterIndex, narrativeText, language);
         if (audio) {
           audio.src = audioUrl;
         }
@@ -247,7 +284,38 @@ export default function TourContent({ guide, language }: TourContentProps) {
 
           {/* 챕터 내용 */}
           <div className="prose prose-gray max-w-none">
-            <p className="text-gray-700 leading-relaxed">{chapter.narrative}</p>
+            {chapter.sceneDescription && (
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-blue-600 mb-2">🎬 장면 설명</h4>
+                <p className="text-gray-700 leading-relaxed">{chapter.sceneDescription}</p>
+              </div>
+            )}
+            
+            {chapter.coreNarrative && (
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-green-600 mb-2">📖 핵심 이야기</h4>
+                <p className="text-gray-700 leading-relaxed">{chapter.coreNarrative}</p>
+              </div>
+            )}
+            
+            {chapter.humanStories && (
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-purple-600 mb-2">👥 인간적인 이야기</h4>
+                <p className="text-gray-700 leading-relaxed">{chapter.humanStories}</p>
+              </div>
+            )}
+            
+            {chapter.nextDirection && (
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-orange-600 mb-2">🧭 다음 이동 방향</h4>
+                <p className="text-gray-700 leading-relaxed">{chapter.nextDirection}</p>
+              </div>
+            )}
+            
+            {/* 기존 narrative 필드도 지원 (하위 호환성) */}
+            {chapter.narrative && !chapter.sceneDescription && !chapter.coreNarrative && (
+              <p className="text-gray-700 leading-relaxed">{chapter.narrative}</p>
+            )}
           </div>
         </div>
       ))}

@@ -2,147 +2,136 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { GuideData, RealTimeGuide, GuideOverview, GuideMetadata } from '@/types/guide';
+import { GuideData } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { REALTIME_GUIDE_KEYS } from '@/lib/ai/prompts/index';
 import TourContent from './tour/components/TourContent';
 import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
 import { UserProfile } from '@/types/guide';
-import { normalizeString, isValidGuideData } from '@/lib/utils';
 import LoadingWithAd from '@/components/ui/LoadingWithAd';
 import { MapPin, Route, Headphones } from 'lucide-react';
-
-const extractGuideData = (raw: any, language: string): GuideData | null => {
-    if (!raw) return null;
-
-    let contentSource: any = null;
-    if (raw.overview) contentSource = raw;
-    else if (raw.content?.overview) contentSource = raw.content;
-    else if (raw.content?.content?.overview) contentSource = raw.content.content;
-    else if (raw.data?.overview) contentSource = raw.data;
-    else if (raw.data?.content?.overview) contentSource = raw.data.content;
-    else if (raw.data?.content?.content?.overview) contentSource = raw.data.content.content;
-
-    if (!contentSource) return null;
-
-    const langKey = language.slice(0, 2);
-    
-    // 포괄적인 realTimeGuide 키 찾기 (REALTIME_GUIDE_KEYS + 기본 키들)
-    let realTimeGuide: RealTimeGuide | undefined;
-    const possibleKeys = [
-        REALTIME_GUIDE_KEYS[langKey], // 언어별 키
-        'realTimeGuide',
-        'RealTimeGuide', 
-        '실시간가이드',
-        'realtimeGuide',
-        'realtime_guide',
-        'real_time_guide'
-    ].filter(Boolean); // null/undefined 제거
-    
-    for (const key of possibleKeys) {
-        if (contentSource[key] && (contentSource[key].chapters || Array.isArray(contentSource[key]))) {
-            realTimeGuide = contentSource[key];
-            break;
-        }
-    }
-    
-    // realTimeGuide가 없고 최상위에 chapters가 있다면 realTimeGuide로 감싸기
-    if (!realTimeGuide && Array.isArray(contentSource.chapters)) {
-        realTimeGuide = { chapters: contentSource.chapters };
-    }
-
-    let keyFacts = contentSource.overview?.keyFacts || [];
-    if (keyFacts.length > 0 && typeof keyFacts[0] === 'string') {
-        keyFacts = keyFacts.map((fact: string) => ({ title: fact, description: '' }));
-    }
-
-    const overview: GuideOverview = {
-        ...contentSource.overview,
-        keyFacts: keyFacts,
-    };
-
-    const metadata: GuideMetadata = {
-        originalLocationName: contentSource.metadata?.originalLocationName || '',
-        englishFileName: contentSource.metadata?.englishFileName || '',
-        generatedAt: contentSource.metadata?.generatedAt || new Date().toISOString(),
-        version: contentSource.metadata?.version || '1.0',
-    };
-
-    return {
-        overview: overview,
-        route: contentSource.route,
-        realTimeGuide: realTimeGuide,
-        metadata: metadata,
-    };
-};
-
-function validateGuideContent(content: GuideData | null): content is GuideData {
-    if (!content) return false;
-    
-    // 완전한 타입 가드를 사용하되, 실패시 최소 검증으로 fallback
-    try {
-        return isValidGuideData(content);
-    } catch (error) {
-        console.warn('Complete validation failed, using minimal validation:', error);
-        // Only validate the most critical part of the guide data to prevent full page crash
-        // The component can handle missing route or chapters gracefully.
-        const { overview } = content;
-        return !!(overview && overview.title);
-    }
-}
 
 export default function GuideClient({ locationName, initialGuide }: { locationName: string, initialGuide: any }) {
     const router = useRouter();
     const { currentLanguage } = useLanguage();
     const { data: session } = useSession();
 
-    const [guideData, setGuideData] = useState<GuideData | null>(() => extractGuideData(initialGuide, currentLanguage));
-    const [isLoading, setIsLoading] = useState(!validateGuideContent(guideData));
+    const [guideData, setGuideData] = useState<GuideData | null>(() => {
+        if (!initialGuide) return null;
+
+        console.log('🔍 초기 가이드 데이터 구조:', {
+            hasOverview: !!initialGuide.overview,
+            hasRoute: !!initialGuide.route,
+            hasRealTimeGuide: !!initialGuide.realTimeGuide,
+            hasContent: !!initialGuide.content,
+            keys: Object.keys(initialGuide)
+        });
+
+        // 직접 구조인 경우 (캐시된 데이터)
+        if (initialGuide.overview && initialGuide.route && initialGuide.realTimeGuide) {
+            console.log('✅ 직접 구조 데이터 사용');
+            return {
+                overview: initialGuide.overview,
+                route: initialGuide.route,
+                realTimeGuide: initialGuide.realTimeGuide,
+                metadata: initialGuide.metadata || {
+                    originalLocationName: locationName,
+                    englishFileName: '',
+                    generatedAt: new Date().toISOString(),
+                    version: '1.0'
+                }
+            };
+        }
+
+        // content 래핑된 구조인 경우 (새 API 응답)
+        if (initialGuide.content) {
+            console.log('✅ content 래핑 구조 데이터 사용');
+            const content = initialGuide.content;
+            return {
+                overview: content.overview || { title: '', summary: '', keyFacts: [], visitInfo: {}, narrativeTheme: '' },
+                route: content.route || { steps: [], tips: [], duration: '' },
+                realTimeGuide: content.realTimeGuide || { chapters: [] },
+                metadata: content.metadata || {
+                    originalLocationName: locationName,
+                    englishFileName: '',
+                    generatedAt: new Date().toISOString(),
+                    version: '1.0'
+                }
+            };
+        }
+
+        console.log('⚠️ 알 수 없는 데이터 구조, null 반환');
+        return null;
+    });
+
+    const [isLoading, setIsLoading] = useState(!guideData);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'overview' | 'route' | 'realtime'>('overview');
 
     useEffect(() => {
-        if (validateGuideContent(guideData)) return;
+        if (guideData) return;
 
         const fetchGuide = async () => {
             setIsLoading(true);
             setError(null);
             try {
-                // 단일 엔드포인트로 통일: DB 조회+생성 모두 처리
+                console.log('📥 가이드 데이터 로드 시도:', { location: locationName, language: currentLanguage });
+                
                 const response = await fetch('/api/node/ai/generate-guide', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        locationName: normalizeString(locationName), 
-                        language: normalizeString(currentLanguage),
-                        forceRegenerate: false
-                    }),
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    locationName,
+                    language: currentLanguage,
+                    forceRegenerate: false
+                  })
                 });
 
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.error || `Server error: ${response.status}`);
-                }
-
                 const result = await response.json();
-                let extracted: GuideData | null = null;
-                if (result.data || result.content) {
-                    extracted = extractGuideData(result.data || result.content, currentLanguage);
-                }
-                if (!validateGuideContent(extracted)) {
-                    console.error("Validation failed for extracted data:", extracted);
-                    throw new Error('Received guide data is invalid.');
+                console.log('📊 API 응답 받음:', {
+                  success: result.success,
+                  hasData: !!result.data,
+                  dataKeys: result.data ? Object.keys(result.data) : [],
+                  cached: result.cached
+                });
+
+                if (!result.success) {
+                  throw new Error(result.error || '가이드 생성에 실패했습니다.');
                 }
 
-                setGuideData(extracted);
+                if (!result.data || !result.data.content) {
+                  console.error('❌ 응답 데이터 구조 오류:', {
+                    result,
+                    hasData: !!result.data,
+                    hasContent: !!(result.data && result.data.content)
+                  });
+                  throw new Error('응답 데이터 구조가 올바르지 않습니다.');
+                }
+
+                // 가이드 데이터 검증
+                const guideData = result.data.content;
+                console.log('🔍 가이드 데이터 검증:', {
+                  hasOverview: !!guideData.overview,
+                  hasRoute: !!guideData.route,
+                  hasRealTimeGuide: !!guideData.realTimeGuide,
+                  dataStructure: JSON.stringify(guideData, null, 2).substring(0, 300) + '...'
+                });
+
+                // 기본 구조 검증
+                if (!guideData.overview && !guideData.route && !guideData.realTimeGuide) {
+                  console.error('❌ 가이드 데이터가 비어있음:', guideData);
+                  throw new Error('가이드 데이터가 비어있습니다.');
+                }
+
+                console.log('✅ 가이드 데이터 검증 성공');
+                setGuideData(guideData);
 
                 if (session?.user?.id) {
                     const userProfile: UserProfile = { interests: [], ageGroup: 'adult', knowledgeLevel: 'intermediate', companions: 'solo' };
-                    await saveGuideHistoryToSupabase(session.user, locationName, extracted, userProfile);
+                    await saveGuideHistoryToSupabase(session.user, locationName, guideData, userProfile);
                 } else {
-                    guideHistory.saveGuide(locationName, extracted, undefined);
+                    guideHistory.saveGuide(locationName, guideData, undefined);
                 }
 
             } catch (err) {

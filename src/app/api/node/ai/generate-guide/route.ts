@@ -28,14 +28,40 @@ function getGeminiClient(): GoogleGenerativeAI | Response {
 import { validateJsonResponse, createErrorResponse, createSuccessResponse } from '@/lib/utils';
 
 function normalizeGuideData(raw: any, language?: string) {
+  console.log('🔍 원본 데이터 구조 확인:', {
+    hasContent: !!raw.content,
+    contentType: typeof raw.content,
+    keys: raw.content ? Object.keys(raw.content) : [],
+    raw: JSON.stringify(raw, null, 2).substring(0, 500) + '...'
+  });
+
+  // raw가 직접 가이드 데이터인 경우
+  if (raw.overview || raw.route || raw.realTimeGuide) {
+    console.log('📋 직접 가이드 데이터 형식 감지');
+    return {
+      overview: raw.overview || '개요 정보가 없습니다.',
+      route: raw.route || { steps: [], tips: [], duration: '정보 없음' },
+      realTimeGuide: raw.realTimeGuide || { chapters: [] }
+    };
+  }
+
+  // raw.content가 있는 경우
   if (!raw.content || typeof raw.content !== 'object') {
+    console.log('⚠️ content 필드가 없거나 올바르지 않음, 기본값 반환');
     return {
       overview: '개요 정보가 없습니다.',
       route: { steps: [], tips: [], duration: '정보 없음' },
       realTimeGuide: { chapters: [] }
     };
   }
+
   const { overview, route, realTimeGuide } = raw.content;
+  console.log('✅ content에서 데이터 추출:', {
+    hasOverview: !!overview,
+    hasRoute: !!route,
+    hasRealTimeGuide: !!realTimeGuide
+  });
+
   return {
     overview: overview || '개요 정보가 없습니다.',
     route: route || { steps: [], tips: [], duration: '정보 없음' },
@@ -135,12 +161,31 @@ export async function POST(req: NextRequest) {
 
   const parsed = validateJsonResponse(responseText);
   if (!parsed.success) {
+    console.error('❌ JSON 파싱 실패:', {
+      error: parsed.error,
+      responseLength: responseText.length,
+      responsePreview: responseText.substring(0, 1000) + '...'
+    });
     return new Response(
       JSON.stringify(createErrorResponse(parsed.error, 'JSON_PARSE_ERROR')),
       { status: 500, headers }
     );
   }
+
+  console.log('✅ JSON 파싱 성공:', {
+    dataKeys: Object.keys(parsed.data),
+    hasContent: !!parsed.data.content,
+    dataStructure: JSON.stringify(parsed.data, null, 2).substring(0, 500) + '...'
+  });
+
   const normalizedData = normalizeGuideData(parsed.data, language);
+  console.log('📊 정규화된 데이터:', {
+    hasOverview: !!normalizedData.overview,
+    hasRoute: !!normalizedData.route,
+    hasRealTimeGuide: !!normalizedData.realTimeGuide,
+    routeSteps: normalizedData.route?.steps?.length || 0,
+    chapters: normalizedData.realTimeGuide?.chapters?.length || 0
+  });
 
   // 3. 간단한 INSERT 시도 (중복이면 기존 데이터 반환)
   console.log('💾 새 가이드 저장 시도');
