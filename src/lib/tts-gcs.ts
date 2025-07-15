@@ -2,11 +2,18 @@ import textToSpeech from '@google-cloud/text-to-speech';
 import { Storage } from '@google-cloud/storage';
 import crypto from 'crypto';
 
-const credentials = JSON.parse(process.env.GCP_SERVICE_ACCOUNT!);
+// 환경 변수 안전 체크
+const gcpServiceAccount = process.env.GCP_SERVICE_ACCOUNT;
+if (!gcpServiceAccount) {
+  console.warn('⚠️ GCP_SERVICE_ACCOUNT 환경 변수가 설정되지 않았습니다. TTS 기능이 비활성화됩니다.');
+}
 
-const ttsClient = new textToSpeech.TextToSpeechClient({ credentials, projectId: process.env.GCP_PROJECT_ID });
-const storage = new Storage({ credentials, projectId: process.env.GCP_PROJECT_ID });
-const bucket = storage.bucket(process.env.GCS_BUCKET!);
+const credentials = gcpServiceAccount ? JSON.parse(gcpServiceAccount) : null;
+
+// credentials가 없으면 null로 초기화 (빌드 시 오류 방지)
+const ttsClient = credentials ? new textToSpeech.TextToSpeechClient({ credentials, projectId: process.env.GCP_PROJECT_ID }) : null;
+const storage = credentials ? new Storage({ credentials, projectId: process.env.GCP_PROJECT_ID }) : null;
+const bucket = storage ? storage.bucket(process.env.GCS_BUCKET!) : null;
 
 // WaveNet 음성 맵 (언어별)
 const WAVENET_VOICES: Record<string, string> = {
@@ -28,6 +35,11 @@ function cleanTtsText(text: string): string {
 }
 
 export async function getOrCreateTTSAndUrl(text: string, locationName: string, language = 'ko-KR') {
+  // TTS 클라이언트가 초기화되지 않은 경우 오류 반환
+  if (!ttsClient || !bucket) {
+    throw new Error('TTS 서비스가 설정되지 않았습니다. GCP 환경 변수를 확인해주세요.');
+  }
+
   const langCode = language;
   const fileName = getAudioFileName(locationName, langCode, text);
   const file = bucket.file(fileName);
@@ -57,6 +69,11 @@ export async function getOrCreateTTSAndUrl(text: string, locationName: string, l
 
 // 기존 함수는 deprecated 처리
 export async function generateTTSAndUpload(text: string, fileName: string, lang = 'ko-KR') {
+  // TTS 클라이언트가 초기화되지 않은 경우 오류 반환
+  if (!ttsClient || !bucket) {
+    throw new Error('TTS 서비스가 설정되지 않았습니다. GCP 환경 변수를 확인해주세요.');
+  }
+
   // deprecated: getOrCreateTTSAndUrl을 사용하세요
   const cleanedText = cleanTtsText(text);
   const [response] = await ttsClient.synthesizeSpeech({

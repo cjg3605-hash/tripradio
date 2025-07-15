@@ -115,6 +115,15 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
 
       if (!response.ok) {
         const errorData = await response.json();
+        
+        // TTS 서비스 비활성화 상태 처리
+        if (response.status === 503 && errorData.code === 'TTS_DISABLED') {
+          alert('🔊 음성 서비스가 현재 점검 중입니다.\n\n💡 대안: 화면의 텍스트 내용을 읽어보세요!');
+          setIsTtsLoading(null);
+          setCurrentPlayingChapter(null);
+          return;
+        }
+        
         throw new Error(errorData.error || `TTS 생성에 실패했습니다. (${response.status})`);
       }
 
@@ -224,7 +233,13 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
       setCurrentPlayingChapter(null);
       
       const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
-      alert(`음성 생성에 실패했습니다: ${errorMessage}`);
+      
+      // 네트워크 오류 구분
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+        alert('🌐 네트워크 연결을 확인하고 다시 시도해주세요.');
+      } else {
+        alert(`음성 생성에 실패했습니다: ${errorMessage}`);
+      }
     }
   }, [chapters, currentPlayingChapter, isPlaying, currentLanguage, guideContent.metadata?.originalLocationName]);
 

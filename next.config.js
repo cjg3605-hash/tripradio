@@ -1,37 +1,7 @@
 const { i18n } = require('./next-i18next.config');
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
-  // 개발 환경에서 디버깅을 위한 설정
-  buildExcludes: [/middleware-manifest\.json$/],
-  fallbacks: {
-    document: '/offline', // 오프라인 페이지 설정 (선택사항)
-  },
-  // 개발 환경에서 압축 비활성화
-  ...(process.env.NODE_ENV === 'development' && {
-    sw: 'sw-dev.js', // 개발용 서비스 워커 파일명
-    scope: '/',
-  }),
-  // 프로덕션 환경에서만 압축 활성화
-  ...(process.env.NODE_ENV === 'production' && {
-    sw: 'sw.js',
-    mode: 'production',
-  }),
-  runtimeCaching: [
-    {
-      urlPattern: /^\/api\/auth\//,
-      handler: 'NetworkOnly',
-      method: 'GET',
-    },
-    {
-      urlPattern: /^\/api\/auth\//,
-      handler: 'NetworkOnly',
-      method: 'POST',
-    },
-  ],
-});
+
+// PWA 기능을 비활성화하여 빌드 오류 해결
+// const withPWA = require('next-pwa')({...}); // 비활성화
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -144,4 +114,5 @@ const nextConfig = {
   },
 };
 
-module.exports = withPWA(nextConfig);
+// PWA 비활성화: withPWA 래퍼 제거
+module.exports = nextConfig;

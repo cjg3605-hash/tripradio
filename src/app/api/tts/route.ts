@@ -45,9 +45,22 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error('TTS 생성 오류:', error);
+    
+    // 특정 오류 메시지에 따른 처리
+    const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
+    
+    if (errorMessage.includes('TTS 서비스가 설정되지 않았습니다')) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'TTS 기능이 현재 비활성화되어 있습니다. 관리자에게 문의해주세요.',
+        code: 'TTS_DISABLED'
+      }, { status: 503 }); // Service Unavailable
+    }
+    
     return NextResponse.json({ 
       success: false, 
-      error: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.' 
+      error: errorMessage,
+      code: 'TTS_ERROR'
     }, { status: 500 });
   }
 } 
