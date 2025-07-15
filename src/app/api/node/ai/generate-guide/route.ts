@@ -6,7 +6,8 @@ import { supabase } from '@/lib/supabaseClient';
 export const runtime = 'nodejs';
 
 function normalizeString(str: string): string {
-  return str.trim().toLowerCase().replace(/\s+/g, ' ');
+  // lib/utils.ts와 동일한 로직으로 통일
+  return decodeURIComponent(str || '').trim().toLowerCase();
 }
 
 function getGeminiClient(): GoogleGenerativeAI | Response {
@@ -120,7 +121,11 @@ export async function POST(req: NextRequest) {
 
   const normLocation = normalizeString(locationName);
   const normLang = normalizeString(language);
-  console.log('🔄 정규화된 파라미터:', { normLocation, normLang });
+  console.log('🔄 정규화된 파라미터:', { 
+    original: { locationName, language }, 
+    normalized: { normLocation, normLang },
+    lengths: { normLocation: normLocation.length, normLang: normLang.length }
+  });
 
   // guides 테이블에서 locationname+language로 캐시(중복) 조회
   // 먼저 기존 데이터 조회
@@ -229,20 +234,31 @@ export async function POST(req: NextRequest) {
   }
   
   // 중복 키 처리를 위한 insert 시도
+  const insertData = {
+    locationname: normLocation,
+    language: normLang,
+    content: normalizedData,
+    created_at: new Date().toISOString()
+  };
+  
+  console.log('📥 DB INSERT 시도:', {
+    locationname: insertData.locationname,
+    language: insertData.language,
+    locationname_bytes: Buffer.from(insertData.locationname).toString('hex'),
+    language_bytes: Buffer.from(insertData.language).toString('hex')
+  });
+  
   const { error: insertError } = await supabase
     .from('guides')
-    .insert([
-      {
-        locationname: normLocation,
-        language: normLang,
-        content: normalizedData,
-        created_at: new Date().toISOString()
-      }
-    ]);
+    .insert([insertData]);
 
-  // 중복 키 에러(23505)인 경우, 기존 레코드를 조회해서 반환
+  // 중복 키 에러(23505)인 경우 처리
   if (insertError && insertError.code === '23505') {
     console.log(`중복 키 감지: ${normLocation} (${normLang}) - 기존 레코드 조회`);
+    
+    // 잠시 대기 후 재조회 (race condition 대응)
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     const { data: existing, error: fetchError } = await supabase
       .from('guides')
       .select('content')
@@ -251,6 +267,7 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     if (fetchError) {
+      console.error(`기존 레코드 조회 에러:`, fetchError);
       return new Response(
         JSON.stringify({
           success: false,
@@ -262,6 +279,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (existing && existing.content) {
+      console.log(`✅ 기존 레코드 발견 및 반환: ${normLocation} (${normLang})`);
       return NextResponse.json({
         success: true,
         data: { content: existing.content },
@@ -270,16 +288,61 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 중복 키 오류 발생했지만 기존 레코드가 없는 경우 (데이터베이스 일관성 문제)
-    console.error(`중복 키 오류 발생했지만 기존 레코드 조회 실패: ${normLocation} (${normLang})`);
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: `데이터베이스 일관성 오류: 중복 키가 감지되었지만 기존 레코드를 찾을 수 없습니다. 잠시 후 다시 시도해주세요.`,
+    // 중복 키 오류가 발생했지만 레코드를 찾을 수 없는 경우
+    // 이는 데이터베이스 일관성 문제이므로 문제 레코드를 삭제하고 재시도
+    console.warn(`🔧 일관성 문제 감지: ${normLocation} (${normLang}) - 문제 레코드 정리 시도`);
+    
+    try {
+      // 문제가 되는 레코드 삭제 시도
+      await supabase
+        .from('guides')
+        .delete()
+        .eq('locationname', normLocation)
+        .eq('language', normLang);
+      
+      // 정리 후 다시 insert 시도
+      const { error: retryInsertError } = await supabase
+        .from('guides')
+        .insert([
+          {
+            locationname: normLocation,
+            language: normLang,
+            content: normalizedData,
+            created_at: new Date().toISOString()
+          }
+        ]);
+
+      if (retryInsertError) {
+        console.error(`재시도 insert 실패:`, retryInsertError);
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: `데이터 저장 재시도 실패: ${retryInsertError.message}`,
+            language
+          }),
+          { status: 500, headers }
+        );
+      }
+
+      console.log(`✅ 문제 해결 및 저장 완료: ${normLocation} (${normLang})`);
+      return NextResponse.json({
+        success: true,
+        data: { content: normalizedData },
+        cached: 'recovery_insert',
         language
-      }),
-      { status: 500, headers }
-    );
+      });
+
+    } catch (recoveryError) {
+      console.error(`복구 과정 실패:`, recoveryError);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: `데이터베이스 일관성 오류가 발생했습니다. 잠시 후 다시 시도해주세요.`,
+          language
+        }),
+        { status: 500, headers }
+      );
+    }
   }
 
   // 다른 insert 에러인 경우 실패 처리
