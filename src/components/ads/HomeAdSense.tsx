@@ -8,11 +8,11 @@ declare global {
   }
 }
 
-interface TourAdSenseProps {
+interface HomeAdSenseProps {
   className?: string;
 }
 
-const TourAdSense: React.FC<TourAdSenseProps> = ({ className = '' }) => {
+const HomeAdSense: React.FC<HomeAdSenseProps> = ({ className = '' }) => {
   useEffect(() => {
     try {
       if (typeof window !== 'undefined') {
@@ -20,16 +20,16 @@ const TourAdSense: React.FC<TourAdSenseProps> = ({ className = '' }) => {
         window.adsbygoogle.push({});
       }
     } catch (error) {
-      console.error('AdSense 광고 로드 오류:', error);
+      console.error('AdSense 홈페이지 광고 로드 오류:', error);
     }
   }, []);
 
   // 개발 환경에서는 플레이스홀더 표시
   if (process.env.NODE_ENV === 'development') {
     return (
-      <div className={`bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center ${className}`}>
-        <p className="text-gray-500 text-sm">
-          📱 투어페이지 광고 영역<br />
+      <div className={`bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-4 text-center ${className}`}>
+        <p className="text-blue-500 text-sm">
+          🏠 홈페이지 광고 영역<br />
           (개발 환경에서는 표시되지 않음)
         </p>
       </div>
@@ -42,7 +42,7 @@ const TourAdSense: React.FC<TourAdSenseProps> = ({ className = '' }) => {
         className="adsbygoogle"
         style={{ display: 'block' }}
         data-ad-client={process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID}
-        data-ad-slot={process.env.NEXT_PUBLIC_ADSENSE_TOUR_AD_SLOT}
+        data-ad-slot={process.env.NEXT_PUBLIC_ADSENSE_LOADING_AD_SLOT}
         data-ad-format="auto"
         data-full-width-responsive="true"
       />
@@ -50,4 +50,4 @@ const TourAdSense: React.FC<TourAdSenseProps> = ({ className = '' }) => {
   );
 };
 
-export default TourAdSense; 
+export default HomeAdSense; 

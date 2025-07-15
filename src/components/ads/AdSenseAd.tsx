@@ -61,7 +61,7 @@ export default function AdSenseAd({
         ref={adRef}
         className="adsbygoogle"
         style={{ display: 'block', textAlign: 'center' }}
-        data-ad-client="ca-pub-8225961966676319"
+        data-ad-client={process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID}
         data-ad-slot={adSlot}
         data-ad-format={adFormat}
         data-ad-layout={adLayout}

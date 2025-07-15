@@ -2,6 +2,12 @@
 
 import { useEffect } from 'react';
 
+declare global {
+  interface Window {
+    adsbygoogle: any[];
+  }
+}
+
 interface AutoAdSenseProps {
   className?: string;
   style?: React.CSSProperties;
@@ -15,9 +21,10 @@ export default function AutoAdSense({
   useEffect(() => {
     try {
       // 자동 광고 활성화
-      if (typeof window !== 'undefined' && window.adsbygoogle) {
-        (window.adsbygoogle = window.adsbygoogle || []).push({
-          google_ad_client: "ca-pub-8225961966676319",
+      if (typeof window !== 'undefined') {
+        window.adsbygoogle = window.adsbygoogle || [];
+        window.adsbygoogle.push({
+          google_ad_client: process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID,
           enable_page_level_ads: true
         });
       }

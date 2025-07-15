@@ -80,6 +80,13 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   
+  // 환경 변수 설정
+  env: {
+    NEXT_PUBLIC_ADSENSE_PUBLISHER_ID: process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID || 'ca-pub-8225961966676319',
+    NEXT_PUBLIC_ADSENSE_TOUR_AD_SLOT: process.env.NEXT_PUBLIC_ADSENSE_TOUR_AD_SLOT || '8122491387',
+    NEXT_PUBLIC_ADSENSE_LOADING_AD_SLOT: process.env.NEXT_PUBLIC_ADSENSE_LOADING_AD_SLOT || '5109315234',
+  },
+  
   // 국제화 설정
   i18n,
   

@@ -25,8 +25,9 @@ export default function LoadingAdSense({
   useEffect(() => {
     try {
       // AdSense가 로드되었는지 확인하고 광고 초기화
-      if (typeof window !== 'undefined' && window.adsbygoogle) {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      if (typeof window !== 'undefined') {
+        window.adsbygoogle = window.adsbygoogle || [];
+        window.adsbygoogle.push({});
       }
     } catch (error) {
       console.error('AdSense 로딩화면 광고 로드 오류:', error);
@@ -57,8 +58,8 @@ export default function LoadingAdSense({
         ref={adRef}
         className="adsbygoogle"
         style={{ display: 'block' }}
-        data-ad-client="ca-pub-8225961966676319"
-        data-ad-slot="5109315234"
+        data-ad-client={process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID}
+        data-ad-slot={process.env.NEXT_PUBLIC_ADSENSE_LOADING_AD_SLOT}
         data-ad-format="auto"
         data-full-width-responsive="true"
       />

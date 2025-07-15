@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { HistorySidebar } from '@/components/layout/HistorySidebar';
 import { SearchBox } from '@/components/home/SearchBox';
 import { useLanguage } from '@/contexts/LanguageContext';
-import LoadingAdSense from '@/components/ads/LoadingAdSense';
+import HomeAdSense from '@/components/ads/HomeAdSense';
 
 export default function HomePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -50,7 +50,7 @@ export default function HomePage() {
               <div className="text-center mb-3">
                 <div className="text-xs text-gray-400 uppercase tracking-wider">Advertisement</div>
               </div>
-              <LoadingAdSense className="max-w-full" />
+              <HomeAdSense className="max-w-full" />
             </div>
           </div>
         </div>
