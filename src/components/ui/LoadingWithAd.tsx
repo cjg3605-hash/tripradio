@@ -29,8 +29,8 @@ const LoadingWithAd: React.FC<LoadingWithAdProps> = ({
       {/* 로딩 애니메이션 */}
       <div className="text-center mb-8">
         <div className="relative">
-          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-cyan-400 rounded-full animate-spin-slow mx-auto"></div>
+          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" role="status" aria-label="로딩 중"></div>
+          <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-cyan-400 rounded-full animate-spin-slow mx-auto" aria-hidden="true"></div>
         </div>
         
         <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-2">
@@ -62,21 +62,6 @@ const LoadingWithAd: React.FC<LoadingWithAdProps> = ({
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        .animate-spin-slow {
-          animation: spin 3s linear infinite;
-        }
-        
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
     </div>
   );
 };
