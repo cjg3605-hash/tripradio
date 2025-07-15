@@ -1,10 +1,10 @@
 import { 
-  UserProfile, 
   LOCATION_TYPE_CONFIGS, 
   LANGUAGE_CONFIGS,
   analyzeLocationType,
   generateTypeSpecificExample
 } from './index';
+import { UserProfile } from '@/types/guide';
 
 export function createEnglishGuidePrompt(
   locationName: string,
