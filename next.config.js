@@ -4,6 +4,21 @@ const withPWA = require('next-pwa')({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development',
+  // 개발 환경에서 디버깅을 위한 설정
+  buildExcludes: [/middleware-manifest\.json$/],
+  fallbacks: {
+    document: '/offline', // 오프라인 페이지 설정 (선택사항)
+  },
+  // 개발 환경에서 압축 비활성화
+  ...(process.env.NODE_ENV === 'development' && {
+    sw: 'sw-dev.js', // 개발용 서비스 워커 파일명
+    scope: '/',
+  }),
+  // 프로덕션 환경에서만 압축 활성화
+  ...(process.env.NODE_ENV === 'production' && {
+    sw: 'sw.js',
+    mode: 'production',
+  }),
   runtimeCaching: [
     {
       urlPattern: /^\/api\/auth\//,

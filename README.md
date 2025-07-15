@@ -122,6 +122,28 @@ npm run type-check  # 타입 검사
 npm run lint        # 린트 검사
 ```
 
+## 🔧 서비스 워커 디버깅
+
+### 개발 환경
+- 개발 서버(`npm run dev`)에서는 PWA가 비활성화됨
+- 압축되지 않은 서비스 워커(`sw-dev.js`) 사용
+- 브라우저 콘솔에서 `SWDebug` 도구 사용 가능
+
+### 디버깅 도구 사용법
+```javascript
+// 브라우저 콘솔에서 사용
+SWDebug.debugInfo()         // 현재 상태 확인
+SWDebug.getCaches()         // 캐시 내용 확인
+SWDebug.clearAllCaches()    // 모든 캐시 삭제
+SWDebug.unregisterAll()     // 서비스 워커 등록 해제
+SWDebug.reset()             // 완전 초기화
+```
+
+### 문제 해결
+1. **서비스 워커 문제**: `SWDebug.reset()` 후 새로고침
+2. **캐시 문제**: `SWDebug.clearAllCaches()` 실행
+3. **오프라인 테스트**: 개발자 도구 → Application → Service Workers → Offline 체크
+
 ## 🛫 배포
 - Vercel 권장
 - Vercel 환경변수: GEMINI_API_KEY, NEXTAUTH_SECRET 등

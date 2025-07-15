@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오프라인 - NAVI</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 400px;
+            padding: 2rem;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        h1 {
+            margin: 0 0 1rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        p {
+            margin: 0 0 1.5rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .retry-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .retry-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .features {
+            margin-top: 2rem;
+            text-align: left;
+        }
+        
+        .feature {
+            margin: 0.5rem 0;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        .feature::before {
+            content: "✓ ";
+            color: #4ade80;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            🦋
+        </div>
+        
+        <h1>NAVI - 오프라인</h1>
+        
+        <p>
+            현재 인터넷 연결이 없습니다.<br>
+            네트워크 연결을 확인한 후 다시 시도해주세요.
+        </p>
+        
+        <button class="retry-btn" onclick="window.location.reload()">
+            다시 시도
+        </button>
+        
+        <div class="features">
+            <div class="feature">저장된 가이드는 오프라인에서도 이용 가능</div>
+            <div class="feature">브라우저 캐시에 저장된 페이지 접근</div>
+            <div class="feature">연결 복구 시 자동 동기화</div>
+        </div>
+    </div>
+    
+    <script>
+        // 온라인 상태 복구 시 자동 새로고침
+        window.addEventListener('online', function() {
+            console.log('네트워크 연결 복구됨');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        });
+        
+        // 서비스 워커와 통신
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(function(registration) {
+                console.log('서비스 워커 준비 완료:', registration);
+            });
+        }
+        
+        console.log('오프라인 페이지 로드됨');
+    </script>
+</body>
+</html> 

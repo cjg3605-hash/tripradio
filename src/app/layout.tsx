@@ -62,6 +62,10 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-title" content="NAVI" />
         <meta name="msapplication-TileColor" content="#2563eb" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
+        {/* 개발 환경에서만 서비스 워커 디버깅 도구 로드 */}
+        {process.env.NODE_ENV === 'development' && (
+          <script src="/sw-debug.js" async></script>
+        )}
       </head>
       <body className={`${fontClassName} font-sans`}>
         <ClientI18nProvider>
