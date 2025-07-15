@@ -210,7 +210,7 @@ interface LanguageConfig {
   ttsLang: string;
 }
 
-// UserProfile은 types/guide.ts에서 import됨
+// UserProfile 타입은 @/types/guide에서 중앙화되어 관리됨
 
 // ResearchData 타입 정의 추가
 export interface ResearchData {

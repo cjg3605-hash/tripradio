@@ -247,7 +247,8 @@ export function validateJsonResponse(jsonString: string): {
     
     // BOM 및 주석 제거
     cleanedString = cleanedString.replace(/^[\uFEFF\s]+/, '');
-    cleanedString = cleanedString.replace(/\/\/.*$/gm, '');
+    // JSON 파싱 전에 주석 제거는 위험할 수 있으므로 제거하거나
+    // 더 정교한 파서를 사용하는 것이 좋습니다
     
     const parsed = JSON.parse(cleanedString);
     return { success: true, data: parsed };
