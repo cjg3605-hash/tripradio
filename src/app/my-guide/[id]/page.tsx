@@ -41,7 +41,7 @@ export default function MyGuidePage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TourContent locationName={guide.metadata?.originalLocationName} userProfile={guide.userProfile} offlineData={guide} />
+      <TourContent guideContent={guide} />
     </div>
   );
 }

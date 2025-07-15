@@ -1,21 +1,96 @@
 const { i18n } = require('./next-i18next.config');
 
-// PWA 기능을 비활성화하여 빌드 오류 해결
-// const withPWA = require('next-pwa')({...}); // 비활성화
+// 환경별 PWA 설정
+const isProd = process.env.NODE_ENV === 'production';
+const isDev = process.env.NODE_ENV === 'development';
+
+// PWA 설정 (안정적인 구성)
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: isDev, // 개발 환경에서만 비활성화
+  
+  // 빌드 제외 설정 (문제가 되는 파일들 제외)
+  buildExcludes: [
+    /middleware-manifest\.json$/,
+    /build-manifest\.json$/,
+    /_buildManifest\.js$/,
+    /_ssgManifest\.js$/
+  ],
+  
+  // 기본적인 런타임 캐싱만 설정
+  runtimeCaching: [
+    {
+      urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'google-fonts-cache',
+        expiration: {
+          maxEntries: 10,
+          maxAgeSeconds: 60 * 60 * 24 * 365, // 1년
+        },
+      },
+    },
+    {
+      urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'gstatic-fonts-cache',
+        expiration: {
+          maxEntries: 10,
+          maxAgeSeconds: 60 * 60 * 24 * 365, // 1년
+        },
+      },
+    },
+    {
+      urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'images-cache',
+        expiration: {
+          maxEntries: 60,
+          maxAgeSeconds: 60 * 60 * 24 * 30, // 30일
+        },
+      },
+    },
+    {
+      urlPattern: /^\/api\/(?!auth)/,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'api-cache',
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 60 * 5, // 5분
+        },
+      },
+    },
+  ],
+  
+  // 간단한 오프라인 폴백만 설정
+  ...(isProd && {
+    fallbacks: {
+      document: '/offline',
+    },
+  }),
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   
-  // TypeScript 오류 무시 (빌드 시)
+  // 국제화 설정
+  i18n,
+  
+  // TypeScript 빌드 오류 처리
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false, // 타입 오류 확인하되 빌드 중단 방지
   },
   
-  // ESLint 오류 무시 (빌드 시)
+  // ESLint 설정
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false, // ESLint 오류 확인
   },
   
   // 이미지 최적화 설정
@@ -33,86 +108,41 @@ const nextConfig = {
     ],
   },
   
-  // API 라우트 리라이트 설정 (필요시 사용)
+  // API 라우트 설정
   async rewrites() {
-    return [];
+    return [
+      {
+        source: '/api/guides/:path*',
+        destination: '/api/node/ai/generate-guide',
+      },
+    ];
   },
   
-  // 웹팩 설정
-  webpack: (config, { isServer }) => {
-    // 정적 자원 로더 설정
-    config.module.rules.push({
-      test: /\.(woff|woff2|eot|ttf|otf|png|jpg|gif|svg)$/i,
-      type: 'asset/resource',
-      generator: {
-        filename: 'static/media/[name].[hash][ext]',
-        publicPath: '/_next/'
-      }
-    });
-
-    // @auth/core 관련 모듈 해결
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      };
-    }
-
-    return config;
-  },
-  
-  // 환경 변수 설정 (필요시)
-  env: {
-    // 여기에 환경 변수 추가
-  },
-  
-  // 프로덕션에서 소스맵 생성 비활성화 (성능 최적화)
-  productionBrowserSourceMaps: false,
-  
-  // 정적 파일 캐싱 설정
+  // 보안 헤더 설정
   async headers() {
     return [
       {
-        source: '/_next/static/(.*)',
+        source: '/api/:path*',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
-        source: '/static/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
-        source: '/locales/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, must-revalidate',
-          },
-        ],
-      },
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
         ],
       },
     ];
   },
+  
+  // 웹팩 설정 (PWA 호환성 개선)
+  webpack: (config, { dev, isServer }) => {
+    // 개발 환경에서 PWA 관련 경고 무시
+    if (dev && !isServer) {
+      config.infrastructureLogging = {
+        level: 'error',
+      };
+    }
+    
+    return config;
+  },
 };
 
-// PWA 비활성화: withPWA 래퍼 제거
-module.exports = nextConfig;
+module.exports = withPWA(nextConfig);

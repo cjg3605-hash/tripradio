@@ -48,7 +48,12 @@ interface GuideHistoryEntry {
 // === 추가: localStorage의 guide-cache:* 및 ai_guide_* 기반 가이드 목록 추출 함수 ===
 const getAllLocalGuides = () => {
   if (typeof window === 'undefined' || !window.localStorage) return [];
-  const guides = [];
+  const guides: Array<{
+    key: string;
+    locationName: string;
+    createdAt: string;
+    data: any;
+  }> = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (!key) continue;

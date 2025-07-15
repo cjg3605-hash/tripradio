@@ -47,7 +47,14 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
       } else {
         // 비로그인: localStorage에서 불러오기
         const localHistory = guideHistory.getHistory();
-        setHistory(localHistory);
+        // GuideHistoryEntry를 HistoryEntry로 변환
+        const convertedHistory: HistoryEntry[] = localHistory.map(entry => ({
+          fileName: entry.id,
+          locationName: entry.locationName,
+          generatedAt: entry.createdAt,
+          preview: entry.guideData?.overview?.summary || entry.guideData?.overview?.title || '가이드 미리보기'
+        }));
+        setHistory(convertedHistory);
       }
     } catch (error) {
       setHistory([]);
@@ -63,7 +70,14 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
       // localStorage에서 삭제
       const localHistory = guideHistory.getHistory().filter(item => item.id !== historyId);
       localStorage.setItem('navi_guide_history', JSON.stringify(localHistory));
-      setHistory(localHistory);
+      // GuideHistoryEntry를 HistoryEntry로 변환
+      const convertedHistory: HistoryEntry[] = localHistory.map(entry => ({
+        fileName: entry.id,
+        locationName: entry.locationName,
+        generatedAt: entry.createdAt,
+        preview: entry.guideData?.overview?.summary || entry.guideData?.overview?.title || '가이드 미리보기'
+      }));
+      setHistory(convertedHistory);
     } catch (error) {
       console.error('히스토리 삭제 실패:', error);
     }

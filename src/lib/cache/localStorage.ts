@@ -412,6 +412,19 @@ class GuideHistoryManager {
           console.error('페이지 뷰 업데이트 실패:', error);
     }
   }
+
+  deleteHistory(id: string): void {
+    if (!isClientSide()) return;
+    
+    try {
+      const history = this.getHistory();
+      const filteredHistory = history.filter(entry => entry.id !== id);
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filteredHistory));
+      console.log(`✅ 가이드 히스토리 삭제 완료: ${id}`);
+    } catch (error) {
+      console.error('가이드 히스토리 삭제 실패:', error);
+    }
+  }
   
   clearHistory(): void {
     if (!isClientSide()) return;

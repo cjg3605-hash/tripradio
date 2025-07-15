@@ -7,12 +7,13 @@ import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { useTranslation } from 'next-i18next';
+import type { User } from '@supabase/supabase-js';
 // Public 폴더의 이미지 경로 (대소문자 주의)
 const logoImage = '/navi.png';
 import { 
   LogIn, 
   LogOut, 
-  User, 
+  User as UserIcon, 
   ChevronDown, 
   Languages, 
   Menu, 
@@ -22,7 +23,7 @@ import {
 
 // Supabase 인증 세션 커스텀 훅
 function useSupabaseUser() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -189,7 +190,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                       />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                        <User className="w-5 h-5 text-indigo-600" />
+                        <UserIcon className="w-5 h-5 text-indigo-600" />
                       </div>
                     )}
                     <span className="text-sm font-medium text-gray-700">{user.user_metadata?.full_name || user.email}</span>
@@ -203,7 +204,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                         className="flex items-center w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50" 
                         onClick={() => setIsProfileMenuOpen(false)}
                       >
-                        <User className="w-4 h-4 mr-3" /> {commonT('mypage')}
+                        <UserIcon className="w-4 h-4 mr-3" /> {commonT('mypage')}
                       </Link>
                       <button 
                         onClick={handleSignOut} 
@@ -273,7 +274,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                      <User className="w-5 h-5 text-indigo-600" />
+                      <UserIcon className="w-5 h-5 text-indigo-600" />
                     </div>
                   )}
                 </button>
@@ -311,7 +312,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                 />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                  <User className="w-6 h-6 text-indigo-600" />
+                  <UserIcon className="w-6 h-6 text-indigo-600" />
                 </div>
               )}
               <div>
@@ -325,7 +326,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                 className="flex items-center w-full px-3 py-2 text-left text-gray-700 hover:bg-gray-50 rounded-lg" 
                 onClick={() => setIsProfileMenuOpen(false)}
               >
-                <User className="w-4 h-4 mr-3" /> {commonT('mypage')}
+                <UserIcon className="w-4 h-4 mr-3" /> {commonT('mypage')}
               </Link>
               <button 
                 onClick={handleSignOut} 

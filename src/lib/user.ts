@@ -33,7 +33,7 @@ export async function createUser(email: string, name: string, password: string):
 
   try {
     // Vercel KV에 사용자 저장
-    await kv.hset(`user:${id}`, user);
+    await kv.hset(`user:${id}`, user as unknown as Record<string, unknown>);
     await kv.set(`email:${email}`, id); // 이메일로 ID 조회용
     
     return user;
