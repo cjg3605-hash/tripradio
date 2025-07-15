@@ -24,6 +24,42 @@ export const metadata: Metadata = {
   },
 }
 
+// 간단한 헤더 컴포넌트
+function SimpleHeader() {
+  return (
+    <header className="bg-white/95 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex-shrink-0">
+            <a href="/" className="flex items-center gap-0">
+              <img
+                src="/navi.png"
+                alt="NAVI 로고"
+                width={50}
+                height={50}
+                className="object-contain -mr-1"
+              />
+              <span className="text-2xl font-bold">
+                <span className="text-indigo-600">N</span>
+                <span className="text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text font-extrabold">A</span>
+                <span className="text-indigo-600">V</span>
+                <span className="text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text font-extrabold">I</span>
+                <span className="text-gray-400">-</span>
+                <span className="text-indigo-600">GUIDE</span>
+              </span>
+            </a>
+          </div>
+          <div className="flex items-center space-x-4">
+            <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+              로그인
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -44,6 +80,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <SessionProvider>
           <LanguageProvider>
+            <SimpleHeader />
             {children}
             <AutoAdSense />
           </LanguageProvider>

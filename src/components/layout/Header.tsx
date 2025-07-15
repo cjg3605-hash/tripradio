@@ -6,37 +6,42 @@ import Image from 'next/image';
 import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
-import { useTranslation } from 'next-i18next';
 import type { User } from '@supabase/supabase-js';
-// Public 폴더의 이미지 경로 (대소문자 주의)
-const logoImage = '/navi.png';
 import { 
   LogIn, 
   LogOut, 
   User as UserIcon, 
   ChevronDown, 
   Languages, 
-  Menu, 
-  X,
   History
 } from 'lucide-react';
 
 // Supabase 인증 세션 커스텀 훅
 function useSupabaseUser() {
   const [user, setUser] = useState<User | null>(null);
+  
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+      } catch (error) {
+        console.error('사용자 정보 가져오기 실패:', error);
+        setUser(null);
+      }
     };
+    
     getUser();
+    
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
+    
     return () => {
       listener?.subscription.unsubscribe();
     };
   }, []);
+  
   return user;
 }
 
@@ -47,47 +52,53 @@ interface HeaderProps {
 export function Header({ onSidebarToggle }: HeaderProps) {
   const user = useSupabaseUser();
   const { currentLanguage, setLanguage, t, isLoading } = useLanguage();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const router = useRouter();
-  const { t: commonT } = useTranslation('common');
 
-  // 현재 언어 정보 가져오기
+  // 현재 언어 정보 가져오기 (안전한 fallback)
   const getCurrentLanguageInfo = () => {
     return SUPPORTED_LANGUAGES.find(lang => lang.code === currentLanguage) || SUPPORTED_LANGUAGES[0];
   };
 
+  // 언어 변경 핸들러
   const handleLanguageChange = async (languageCode: string) => {
     setIsLanguageMenuOpen(false);
     if (languageCode !== currentLanguage) {
-      await setLanguage(languageCode as any);
+      try {
+        await setLanguage(languageCode as any);
+      } catch (error) {
+        console.error('언어 변경 실패:', error);
+      }
     }
   };
 
+  // 로그인 핸들러
   const handleSignIn = () => {
     router.push('/auth/signin');
   };
   
+  // 로그아웃 핸들러
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    setIsProfileMenuOpen(false);
-    router.push('/');
+    try {
+      await supabase.auth.signOut();
+      setIsProfileMenuOpen(false);
+      router.push('/');
+    } catch (error) {
+      console.error('로그아웃 실패:', error);
+    }
   };
 
-  // 모바일에서 메뉴 열렸을 때 스크롤 방지
-  useEffect(() => {
-    if (isMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isMenuOpen]);
-
   const currentLangInfo = getCurrentLanguageInfo();
+  
+  // 안전한 텍스트 렌더링 함수
+  const safeText = (key: string, fallback: string) => {
+    try {
+      return t?.header?.[key as keyof typeof t.header] || fallback;
+    } catch {
+      return fallback;
+    }
+  };
 
   return (
     <>
@@ -96,38 +107,22 @@ export function Header({ onSidebarToggle }: HeaderProps) {
           <div className="flex items-center justify-between h-16">
             {/* 로고 */}
             <div className="flex-shrink-0">
-              <Link href="/" className="flex items-center gap-0" onClick={() => setIsMenuOpen(false)}>
+              <Link href="/" className="flex items-center gap-0">
                 <Image
-                  src={logoImage}
+                  src="/navi.png"
                   alt="NAVI 로고"
                   width={50}
                   height={50}
                   className="object-contain -mr-1"
                   priority
-                  onError={(e) => {
-                    console.error('이미지 로드 실패:', e);
-                    console.log('이미지 경로:', e.currentTarget.src);
-                  }}
                 />
                 <span className="text-2xl font-bold">
                   <span className="text-indigo-600">N</span>
-                  <span 
-                    className="text-indigo-600 text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text font-extrabold"
-                    style={{
-                      textShadow: '0 1px 3px rgba(0,0,0,0.3)',
-                      filter: 'drop-shadow(0 1px 2px rgba(139, 92, 246, 0.3))'
-                    }}
-                  >
+                  <span className="text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text font-extrabold">
                     A
                   </span>
                   <span className="text-indigo-600">V</span>
-                  <span 
-                    className="text-indigo-600 text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text font-extrabold"
-                    style={{
-                      textShadow: '0 1px 3px rgba(0,0,0,0.3)',
-                      filter: 'drop-shadow(0 1px 2px rgba(139, 92, 246, 0.3))'
-                    }}
-                  >
+                  <span className="text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text font-extrabold">
                     I
                   </span>
                   <span className="text-gray-400">-</span>
@@ -193,7 +188,9 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                         <UserIcon className="w-5 h-5 text-indigo-600" />
                       </div>
                     )}
-                    <span className="text-sm font-medium text-gray-700">{user.user_metadata?.full_name || user.email}</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      {user.user_metadata?.full_name || user.email}
+                    </span>
                     <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -204,13 +201,13 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                         className="flex items-center w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50" 
                         onClick={() => setIsProfileMenuOpen(false)}
                       >
-                        <UserIcon className="w-4 h-4 mr-3" /> {commonT('mypage')}
+                        <UserIcon className="w-4 h-4 mr-3" /> 마이페이지
                       </Link>
                       <button 
                         onClick={handleSignOut} 
                         className="flex items-center w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50"
                       >
-                        <LogOut className="w-4 h-4 mr-3" /> {commonT('logout')}
+                        <LogOut className="w-4 h-4 mr-3" /> {safeText('logout', '로그아웃')}
                       </button>
                     </div>
                   )}
@@ -221,7 +218,7 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                   className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                 >
                   <LogIn className="w-4 h-4" />
-                  <span>{commonT('login')}</span>
+                  <span>{safeText('login', '로그인')}</span>
                 </button>
               )}
             </div>
@@ -288,12 +285,14 @@ export function Header({ onSidebarToggle }: HeaderProps) {
               )}
 
               {/* 히스토리 사이드바 버튼 */}
-              <button
-                onClick={onSidebarToggle}
-                className="p-2 text-gray-700 hover:bg-gray-50 rounded-lg"
-              >
-                <History className="w-5 h-5" />
-              </button>
+              {onSidebarToggle && (
+                <button
+                  onClick={onSidebarToggle}
+                  className="p-2 text-gray-700 hover:bg-gray-50 rounded-lg"
+                >
+                  <History className="w-5 h-5" />
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -326,13 +325,13 @@ export function Header({ onSidebarToggle }: HeaderProps) {
                 className="flex items-center w-full px-3 py-2 text-left text-gray-700 hover:bg-gray-50 rounded-lg" 
                 onClick={() => setIsProfileMenuOpen(false)}
               >
-                <UserIcon className="w-4 h-4 mr-3" /> {commonT('mypage')}
+                <UserIcon className="w-4 h-4 mr-3" /> 마이페이지
               </Link>
               <button 
                 onClick={handleSignOut} 
                 className="flex items-center w-full px-3 py-2 text-left text-gray-700 hover:bg-gray-50 rounded-lg"
               >
-                <LogOut className="w-4 h-4 mr-3" /> {commonT('logout')}
+                <LogOut className="w-4 h-4 mr-3" /> {safeText('logout', '로그아웃')}
               </button>
             </div>
           </div>
