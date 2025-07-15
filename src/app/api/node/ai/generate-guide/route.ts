@@ -203,11 +203,11 @@ export async function POST(req: NextRequest) {
       .select('content')
       .eq('locationname', normLocation)
       .eq('language', normLang)
-      .single();
+      .maybeSingle();
 
-    if (fetchError) {
+    if (fetchError || !existing) {
       return new Response(
-        JSON.stringify({ success: false, error: `기존 가이드 조회 실패: ${fetchError.message}`, language }),
+        JSON.stringify({ success: false, error: `기존 가이드 조회 실패: ${fetchError?.message || '데이터를 찾을 수 없습니다'}`, language }),
         { status: 500, headers }
       );
     }

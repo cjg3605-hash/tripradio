@@ -83,12 +83,13 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
         return;
       }
 
-      // 챕터 텍스트 구성
+      // 챕터 텍스트 구성 (연속된 오디오 스크립트)
       const textToSpeak = [
         chapter.title,
         chapter.sceneDescription,
         chapter.coreNarrative,
         chapter.humanStories,
+        chapter.nextDirection,
         chapter.architectureDeepDive,
         chapter.sensoryBehindTheScenes
       ].filter(Boolean).join(' ');
@@ -395,22 +396,21 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
                     {/* 챕터 상세 내용 (펼쳐졌을 때만 표시) */}
                     {isExpanded && (
                       <div className="px-4 pb-4 space-y-4 border-t border-gray-100">
-                        {chapter.sceneDescription && (
+                        {/* 연속된 오디오 스크립트로 표시 */}
+                        {(chapter.sceneDescription || chapter.coreNarrative || chapter.humanStories) && (
                           <div className="pt-4">
-                            <h4 className="font-medium text-gray-900 mb-2">장면 설명</h4>
-                            <p className="text-gray-700 leading-relaxed">{chapter.sceneDescription}</p>
-                          </div>
-                        )}
-                        {chapter.coreNarrative && (
-                          <div>
-                            <h4 className="font-medium text-gray-900 mb-2">핵심 이야기</h4>
-                            <p className="text-gray-700 leading-relaxed">{chapter.coreNarrative}</p>
-                          </div>
-                        )}
-                        {chapter.humanStories && (
-                          <div>
-                            <h4 className="font-medium text-gray-900 mb-2">인간 이야기</h4>
-                            <p className="text-gray-700 leading-relaxed">{chapter.humanStories}</p>
+                            <h4 className="font-medium text-gray-900 mb-2">오디오 가이드</h4>
+                            <div className="text-gray-700 leading-relaxed space-y-3">
+                              {chapter.sceneDescription && (
+                                <p>{chapter.sceneDescription}</p>
+                              )}
+                              {chapter.coreNarrative && (
+                                <p>{chapter.coreNarrative}</p>
+                              )}
+                              {chapter.humanStories && (
+                                <p>{chapter.humanStories}</p>
+                              )}
+                            </div>
                           </div>
                         )}
                         {chapter.architectureDeepDive && (
@@ -423,6 +423,12 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
                           <div>
                             <h4 className="font-medium text-gray-900 mb-2">감각적 뒷이야기</h4>
                             <p className="text-gray-700 leading-relaxed">{chapter.sensoryBehindTheScenes}</p>
+                          </div>
+                        )}
+                        {chapter.nextDirection && (
+                          <div className="mt-4 p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                            <h4 className="font-medium text-blue-900 mb-2">다음 이동 안내</h4>
+                            <p className="text-blue-800 leading-relaxed">{chapter.nextDirection}</p>
                           </div>
                         )}
                         
