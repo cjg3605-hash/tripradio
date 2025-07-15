@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import SessionProvider from '@/components/providers/SessionProvider';
 import { LanguageProvider } from '@/contexts/LanguageContext';
-import ClientLayout from '@/components/layout/ClientLayout';
 import AutoAdSense from '@/components/ads/AutoAdSense';
 import './globals.css';
 
@@ -42,15 +41,14 @@ export default function RootLayout({
           />
         )}
       </head>
-              <body className={inter.className}>
-          <SessionProvider>
-            <LanguageProvider>
-              <ClientLayout>
-                {children}
-              </ClientLayout>
-            </LanguageProvider>
-          </SessionProvider>
-        </body>
+      <body className={inter.className}>
+        <SessionProvider>
+          <LanguageProvider>
+            {children}
+            <AutoAdSense />
+          </LanguageProvider>
+        </SessionProvider>
+      </body>
     </html>
   );
 } 
