@@ -14,7 +14,6 @@ import {
 import { guideHistory } from '@/lib/cache/localStorage';
 import { fetchGuideHistoryFromSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
-import { useTranslation } from 'next-i18next';
 
 interface HistoryEntry {
   fileName: string;
@@ -34,7 +33,6 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const { data: session } = useSession();
-  const { t } = useTranslation('common');
 
   // 히스토리 로드 (Supabase/localStorage 병행)
   const loadHistory = async () => {
@@ -92,16 +90,16 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
 
   // 날짜 포맷팅
   const formatDate = (dateString: string) => {
-    if (!dateString) return t('invalid_date');
+    if (!dateString) return '잘못된 날짜';
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return t('invalid_date');
+    if (isNaN(date.getTime())) return '잘못된 날짜';
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) return t('today');
-    if (diffDays === 1) return t('yesterday');
-    if (diffDays < 7) return t('days_ago', { count: diffDays });
-    if (diffDays < 30) return t('weeks_ago', { count: Math.floor(diffDays / 7) });
+    if (diffDays === 0) return '오늘';
+    if (diffDays === 1) return '어제';
+    if (diffDays < 7) return `${diffDays}일 전`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)}주 전`;
     return date.toLocaleDateString();
   };
 
@@ -149,7 +147,7 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <div className="flex items-center gap-2">
               <History className="w-5 h-5 text-indigo-600" />
-              <h2 className="text-lg font-semibold text-gray-900">{t('search_history')}</h2>
+              <h2 className="text-lg font-semibold text-gray-900">검색 기록</h2>
             </div>
             <button
               onClick={onClose}
@@ -165,7 +163,7 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder={t('search_history_placeholder')}
+                placeholder="기록 검색..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -178,16 +176,16 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
             {isLoading ? (
               <div className="p-4 text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-2"></div>
-                <p className="text-gray-500">{t('loading_history')}</p>
+                <p className="text-gray-500">기록 불러오는 중...</p>
               </div>
             ) : filteredHistory.length === 0 ? (
               <div className="p-4 text-center">
                 <History className="w-12 h-12 text-gray-300 mx-auto mb-2" />
                 <p className="text-gray-500">
-                  {searchQuery ? t('no_search_results') : t('no_search_history')}
+                  {searchQuery ? '검색 결과가 없습니다' : '검색 기록이 없습니다'}
                 </p>
                 <p className="text-sm text-gray-400 mt-1">
-                  {t('search_tip')}
+                  장소를 검색해보세요
                 </p>
               </div>
             ) : (
@@ -241,7 +239,7 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
           {filteredHistory.length > 0 && (
             <div className="p-4 border-t border-gray-200">
               <span className="text-xs text-gray-400 block text-center mt-4">
-                {t('total_guides', { count: filteredHistory.length })}
+                총 {filteredHistory.length}개의 가이드
               </span>
             </div>
           )}
