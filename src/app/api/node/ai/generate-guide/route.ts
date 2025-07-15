@@ -200,6 +200,34 @@ export async function POST(req: NextRequest) {
   }
   const normalizedData = normalizeGuideData(parsed.data, language);
   
+  // Race condition 방지: AI 생성 완료 후 한 번 더 중복 검사
+  console.log('🔄 AI 생성 완료 후 최종 중복 검사');
+  const { data: raceCheck, error: raceError } = await supabase
+    .from('guides')
+    .select('content')
+    .eq('locationname', normLocation)
+    .eq('language', normLang)
+    .maybeSingle();
+
+  if (raceError && raceError.code !== 'PGRST116') {
+    console.error('❌ 최종 중복 검사 에러:', raceError);
+    return new Response(
+      JSON.stringify({ success: false, error: `최종 검사 실패: ${raceError.message}` }),
+      { status: 500, headers }
+    );
+  }
+
+  // 동시 요청으로 인해 이미 데이터가 생성된 경우
+  if (raceCheck && raceCheck.content) {
+    console.log(`🔄 Race condition 감지: ${normLocation} (${normLang}) - 기존 데이터 반환`);
+    return NextResponse.json({
+      success: true,
+      data: { content: raceCheck.content },
+      cached: 'race_prevented',
+      language
+    });
+  }
+  
   // 중복 키 처리를 위한 insert 시도
   const { error: insertError } = await supabase
     .from('guides')
@@ -241,6 +269,17 @@ export async function POST(req: NextRequest) {
         language
       });
     }
+
+    // 중복 키 오류 발생했지만 기존 레코드가 없는 경우 (데이터베이스 일관성 문제)
+    console.error(`중복 키 오류 발생했지만 기존 레코드 조회 실패: ${normLocation} (${normLang})`);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: `데이터베이스 일관성 오류: 중복 키가 감지되었지만 기존 레코드를 찾을 수 없습니다. 잠시 후 다시 시도해주세요.`,
+        language
+      }),
+      { status: 500, headers }
+    );
   }
 
   // 다른 insert 에러인 경우 실패 처리
