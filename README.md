@@ -34,6 +34,11 @@ NAVI는 AI가 생성하는 개인 맞춤형 관광 가이드 서비스입니다.
 - 인터넷 없이도 가이드 열람 가능
 - 마이페이지에서 저장된 가이드 관리
 
+### 💰 수익화 (AdSense)
+- 가이드 생성 대기 시간 중 광고 표시
+- 사용자 경험을 해치지 않는 적절한 광고 배치
+- 개발 환경에서는 테스트 광고 표시
+
 ## 🚀 빠른 시작
 
 ### 1. 환경설정
@@ -65,6 +70,11 @@ NEXTAUTH_SECRET=your-nextauth-secret
 # Supabase (옵션)
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+
+# Google AdSense (수익화 - 옵션)
+NEXT_PUBLIC_ADSENSE_PUBLISHER_ID=ca-pub-1234567890123456
+NEXT_PUBLIC_ADSENSE_LOADING_AD_SLOT=1234567890
+NEXT_PUBLIC_ADSENSE_TOUR_AD_SLOT=0987654321
 ```
 
 ### 3. 개발 서버 실행
@@ -144,9 +154,35 @@ SWDebug.reset()             // 완전 초기화
 2. **캐시 문제**: `SWDebug.clearAllCaches()` 실행
 3. **오프라인 테스트**: 개발자 도구 → Application → Service Workers → Offline 체크
 
+## 💰 AdSense 설정 (선택사항)
+
+### 1. Google AdSense 계정 설정
+1. [Google AdSense](https://www.google.com/adsense/) 가입
+2. 웹사이트 추가 및 승인 대기
+3. 승인 후 광고 단위 생성
+
+### 2. 환경 변수 설정
+```bash
+# Google AdSense Publisher ID (AdSense → 계정 → 계정 정보에서 확인)
+NEXT_PUBLIC_ADSENSE_PUBLISHER_ID=ca-pub-1234567890123456
+
+# 광고 슬롯 ID (AdSense → 광고 → 광고 단위에서 생성)
+NEXT_PUBLIC_ADSENSE_LOADING_AD_SLOT=1234567890  # 로딩 화면용
+NEXT_PUBLIC_ADSENSE_TOUR_AD_SLOT=0987654321     # 투어 페이지용
+```
+
+### 3. 개발 환경에서 테스트
+- 개발 환경에서는 실제 광고 대신 플레이스홀더가 표시됩니다
+- 운영 환경에 배포 후 실제 광고가 표시됩니다
+
+### 4. 주의사항
+- AdSense 정책을 준수해야 합니다
+- 광고는 콘텐츠와 명확히 구분되어야 합니다
+- 사용자가 실수로 클릭하지 않도록 주의하세요
+
 ## 🛫 배포
 - Vercel 권장
-- Vercel 환경변수: GEMINI_API_KEY, NEXTAUTH_SECRET 등
+- Vercel 환경변수: GEMINI_API_KEY, NEXTAUTH_SECRET, AdSense 관련 환경변수 등
 
 ## 🧑‍💻 기여하기
 - Fork → 브랜치 생성 → 커밋 → PR

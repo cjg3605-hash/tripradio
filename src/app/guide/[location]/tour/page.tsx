@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import LoadingWithAd from '@/components/ui/LoadingWithAd';
 
 // 🔥 강력한 디버깅: 페이지 로드 확인
 console.log('🚀 TourPage 파일 로드됨!');
@@ -91,14 +92,12 @@ export default function TourPage() {
   if (isLoading || !isMounted) {
     console.log('⏳ 아직 마운트되지 않음, 로딩 화면 표시');
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            가이드 생성 중...
-          </h2>
-        </div>
-      </div>
+      <LoadingWithAd
+        title={locationName || "여행지"}
+        subtitle="가이드 생성 중..."
+        adSlot={process.env.NEXT_PUBLIC_ADSENSE_TOUR_AD_SLOT || "1234567890"}
+        showAd={true}
+      />
     );
   }
 

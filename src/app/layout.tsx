@@ -62,6 +62,13 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-title" content="NAVI" />
         <meta name="msapplication-TileColor" content="#2563eb" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
+        {/* AdSense 스크립트 - Google에서 제공한 코드 */}
+        <script 
+          async 
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8225961966676319"
+          crossOrigin="anonymous"
+        />
+        
         {/* 개발 환경에서만 서비스 워커 디버깅 도구 로드 */}
         {process.env.NODE_ENV === 'development' && (
           <script src="/sw-debug.js" async></script>

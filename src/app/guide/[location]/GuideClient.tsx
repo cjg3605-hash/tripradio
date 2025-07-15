@@ -11,6 +11,7 @@ import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
 import { UserProfile } from '@/types/guide';
 import { normalizeString, isValidGuideData } from '@/lib/utils';
+import LoadingWithAd from '@/components/ui/LoadingWithAd';
 
 const extractGuideData = (raw: any, language: string): GuideData | null => {
     if (!raw) return null;
@@ -156,13 +157,12 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 className="text-xl font-semibold text-slate-900 mb-2">{locationName}</h2>
-                    <p className="text-slate-600">AI 가이드를 생성하고 있습니다...</p>
-                </div>
-            </div>
+            <LoadingWithAd
+                title={locationName}
+                subtitle="AI 가이드를 생성하고 있습니다..."
+                adSlot={process.env.NEXT_PUBLIC_ADSENSE_LOADING_AD_SLOT || "1234567890"}
+                showAd={true}
+            />
         );
     }
 

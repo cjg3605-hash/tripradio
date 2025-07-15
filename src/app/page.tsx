@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { HistorySidebar } from '@/components/layout/HistorySidebar';
 import { SearchBox } from '@/components/home/SearchBox';
 import { useLanguage } from '@/contexts/LanguageContext';
+import LoadingAdSense from '@/components/ads/LoadingAdSense';
 
 export default function HomePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -42,6 +43,16 @@ export default function HomePage() {
           <p className="mt-8 text-sm text-gray-600">
             ✨ {isLoading ? 'AI가 실시간으로 생성하는 독특한 여행 가이드를 만나보세요' : t.home.description}
           </p>
+
+          {/* 홈페이지 하단 광고 */}
+          <div className="mt-12 w-full max-w-2xl">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="text-center mb-3">
+                <div className="text-xs text-gray-400 uppercase tracking-wider">Advertisement</div>
+              </div>
+              <LoadingAdSense className="max-w-full" />
+            </div>
+          </div>
         </div>
       </main>
     </>
