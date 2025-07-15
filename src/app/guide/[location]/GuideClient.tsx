@@ -177,7 +177,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
 
     if (guideData) {
         return (
-            <TourContent guideContent={guideData} />
+            <TourContent guide={guideData} language={currentLanguage} />
         );
     }
     
