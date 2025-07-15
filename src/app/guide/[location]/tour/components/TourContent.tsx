@@ -448,17 +448,33 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
           </section>
         )}
 
-        {/* Fallback: chapters가 없고 route.steps만 있다면 표시 */}
-        {(!chapters || chapters.length === 0) && route?.steps && route.steps.length > 0 && (
+        {/* Fallback: chapters가 부족하거나 없을 때 */}
+        {route?.steps && route.steps.length > 0 && (!chapters || chapters.length < route.steps.length) && (
           <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">추천 경로</h2>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+              <p className="text-yellow-800 text-sm">
+                <strong>알림:</strong> 일부 챕터의 상세 가이드가 준비 중입니다. 
+                {chapters.length > 0 && `(${chapters.length}/${route.steps.length} 완료)`}
+              </p>
+            </div>
+            <h2 className="text-xl font-semibold mb-4">전체 추천 경로</h2>
             <div className="space-y-4">
-              {route.steps.map((step, index) => (
-                <div key={step.step || index} className="bg-white p-4 rounded-lg shadow">
-                  <h4 className="font-medium text-gray-900">{step.title}</h4>
-                  <p className="text-gray-600 mt-2">{step.location}</p>
-                </div>
-              ))}
+              {route.steps.map((step, index) => {
+                const hasChapter = chapters && chapters[index];
+                return (
+                  <div key={step.step || index} className={`bg-white p-4 rounded-lg shadow ${hasChapter ? 'border-l-4 border-green-500' : 'border-l-4 border-gray-300'}`}>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-medium text-gray-900">{step.title}</h4>
+                        <p className="text-gray-600 mt-1">{step.location}</p>
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded ${hasChapter ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                        {hasChapter ? '상세 가이드 있음' : '준비 중'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </section>
         )}

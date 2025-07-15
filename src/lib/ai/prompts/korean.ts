@@ -320,9 +320,12 @@ sceneDescription, coreNarrative, humanStories, nextDirection은 각각 별개의
 - 단순 정보 나열이 아닌 스토리텔링
 - 역사적 사실 + 인간적 감정 + 현장 묘사 조화
 
-### 4. **챕터 구성**
-- 최소 5-7개 챕터 필수
-- route.steps와 realTimeGuide.chapters 완벽 동기화
+### 4. **챕터 구성 (🚨 필수 준수 🚨)**
+- **정확히 5-7개 챕터 필수**
+- **🔴 CRITICAL: route.steps와 realTimeGuide.chapters 개수가 정확히 일치해야 함**
+- **route.steps[0].title === realTimeGuide.chapters[0].title (제목도 동일)**
+- **route.steps[1].title === realTimeGuide.chapters[1].title (제목도 동일)**
+- **모든 step과 chapter가 1:1 완벽 매칭**
 - 입구→주요지점→출구의 효율적 동선
 
 ## 💡 오디오 가이드 작성 예시
@@ -342,13 +345,19 @@ sceneDescription, coreNarrative, humanStories, nextDirection은 각각 별개의
 ${JSON.stringify(AUDIO_GUIDE_EXAMPLE, null, 2)}
 \`\`\`
 
-## ✅ 최종 체크리스트
+## ✅ 최종 체크리스트 (반드시 확인!)
 - [ ] 모든 텍스트가 ${langConfig.name}로 작성됨
-- [ ] route.steps와 realTimeGuide.chapters 개수/제목 일치
+- [ ] **🔴 route.steps 개수 === realTimeGuide.chapters 개수 (필수!)**
+- [ ] **🔴 route.steps[i].title === realTimeGuide.chapters[i].title (필수!)**
 - [ ] 각 챕터가 7-8분 분량의 오디오 콘텐츠
 - [ ] 4개 필드가 자연스럽게 연결된 하나의 스토리
 - [ ] 구어체와 상호작용적 표현 사용
 - [ ] JSON 문법 100% 정확
+
+**🚨 절대 금지사항 🚨**
+❌ route.steps는 6개인데 realTimeGuide.chapters는 2개
+❌ 제목이 다른 경우 (예: "광화문" vs "광화문 입구")
+❌ 개수가 맞지 않는 경우
 
 **🔴 최종 경고 🔴**
 각 챕터의 4개 필드(sceneDescription, coreNarrative, humanStories, nextDirection)는 
