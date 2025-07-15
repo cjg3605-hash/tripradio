@@ -1,3 +1,5 @@
+import { UserProfile, GuideData, GuideOverview, GuideRoute, GuideStep, RealTimeGuide, GuideChapter } from '@/types/guide';
+
 export function normalizeString(s: string | null | undefined): string {
   return decodeURIComponent(s || '').trim().toLowerCase();
 }
@@ -93,7 +95,6 @@ export function createApiResponse(
 }
 
 // 타입 가드 함수들
-import { UserProfile, GuideData, GuideOverview, GuideRoute, RealTimeGuide, GuideChapter } from '@/types/guide';
 
 // UserProfile 타입 가드
 export function isValidUserProfile(obj: any): obj is UserProfile {
@@ -188,6 +189,18 @@ export function isValidGuideOverview(obj: any): obj is GuideOverview {
   return true;
 }
 
+// GuideStep 배열 타입 가드
+export function isValidGuideStepArray(obj: any): obj is GuideStep[] {
+  if (!Array.isArray(obj)) return false;
+  
+  return obj.every((step: any) => {
+    return step && typeof step === 'object' &&
+           typeof step.step === 'number' &&
+           typeof step.location === 'string' &&
+           typeof step.title === 'string';
+  });
+}
+
 // GuideRoute 타입 가드
 export function isValidGuideRoute(obj: any): obj is GuideRoute {
   if (!obj || typeof obj !== 'object') return false;
@@ -208,7 +221,10 @@ export function isValidGuideData(obj: any): obj is GuideData {
   
   // 필수 필드들
   if (!isValidGuideOverview(obj.overview)) return false;
-  if (!isValidGuideRoute(obj.route)) return false;
+  
+  // route는 이제 GuideStep 배열
+  if (!isValidGuideStepArray(obj.route)) return false;
+  
   if (!obj.metadata || typeof obj.metadata !== 'object' || typeof obj.metadata.originalLocationName !== 'string') {
     return false;
   }

@@ -195,7 +195,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                 {/* 헤더 */}
                 <div className="bg-white rounded-lg shadow-sm mb-6 p-6">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">{guideData.overview.title}</h1>
-                    <p className="text-gray-600">{guideData.overview.description}</p>
+                    <p className="text-gray-600">{guideData.overview.summary}</p>
                 </div>
 
                 {/* 탭 네비게이션 */}

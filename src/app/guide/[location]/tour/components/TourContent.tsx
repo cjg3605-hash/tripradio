@@ -118,7 +118,11 @@ export default function TourContent({ guide, language }: TourContentProps) {
     try {
       if (!audio?.src) {
         const chapter = chapters[chapterIndex];
-        const audioUrl = await getOrCreateChapterAudio(chapter.title, chapter.narrative, language);
+        if (!chapter.narrative) {
+          throw new Error('챕터 내용이 없습니다.');
+        }
+        const guideId = `${guide.metadata.originalLocationName}_${chapterIndex}`;
+        const audioUrl = await getOrCreateChapterAudio(guideId, chapterIndex, chapter.narrative, language);
         if (audio) {
           audio.src = audioUrl;
         }

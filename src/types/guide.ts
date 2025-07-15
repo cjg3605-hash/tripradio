@@ -16,6 +16,8 @@ export interface GuideOverview {
     title: string;
     description: string;
   }[];
+  visitingTips?: string[];
+  historicalBackground?: string;
   visitInfo?: {
     duration?: string;
     difficulty?: string;
@@ -27,6 +29,8 @@ export interface GuideStep {
   step: number;
   location: string;
   title: string;
+  description?: string;
+  duration?: string;
 }
 
 export interface GuideRoute {
@@ -83,7 +87,7 @@ export interface GuideMetadata {
 
 export interface GuideData {
   overview: GuideOverview;
-  route: GuideRoute;
+  route: GuideStep[];  // 실제 사용에 맞게 배열로 변경
   realTimeGuide?: RealTimeGuide;
   metadata: GuideMetadata;
 }
