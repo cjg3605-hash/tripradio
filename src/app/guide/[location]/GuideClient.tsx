@@ -12,6 +12,7 @@ import { useSession } from 'next-auth/react';
 import { UserProfile } from '@/types/guide';
 import { normalizeString, isValidGuideData } from '@/lib/utils';
 import LoadingWithAd from '@/components/ui/LoadingWithAd';
+import { MapPin, Route, Headphones } from 'lucide-react';
 
 const extractGuideData = (raw: any, language: string): GuideData | null => {
     if (!raw) return null;
@@ -100,6 +101,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     const [guideData, setGuideData] = useState<GuideData | null>(() => extractGuideData(initialGuide, currentLanguage));
     const [isLoading, setIsLoading] = useState(!validateGuideContent(guideData));
     const [error, setError] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<'overview' | 'route' | 'realtime'>('overview');
 
     useEffect(() => {
         if (validateGuideContent(guideData)) return;
@@ -175,19 +177,151 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         );
     }
 
-    if (guideData) {
+    if (!guideData) {
         return (
-            <TourContent guide={guideData} language={currentLanguage} />
+             <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+               <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6 text-center">
+                 <h2 className="text-lg font-medium text-gray-900 mb-2">데이터 표시 실패</h2>
+                 <p className="text-gray-600 mb-6">가이드 데이터를 불러왔지만, 내용이 올바르지 않습니다. 다시 시도해주세요.</p>
+                 <button onClick={() => window.location.reload()} className="px-4 py-2 border rounded-md">다시 시도</button>
+               </div>
+             </div>
         );
     }
-    
+
     return (
-         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-           <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6 text-center">
-             <h2 className="text-lg font-medium text-gray-900 mb-2">데이터 표시 실패</h2>
-             <p className="text-gray-600 mb-6">가이드 데이터를 불러왔지만, 내용이 올바르지 않습니다. 다시 시도해주세요.</p>
-             <button onClick={() => window.location.reload()} className="px-4 py-2 border rounded-md">다시 시도</button>
-           </div>
-         </div>
+        <div className="min-h-screen bg-slate-50">
+            <div className="max-w-6xl mx-auto px-4 py-8">
+                {/* 헤더 */}
+                <div className="bg-white rounded-lg shadow-sm mb-6 p-6">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">{guideData.overview.title}</h1>
+                    <p className="text-gray-600">{guideData.overview.description}</p>
+                </div>
+
+                {/* 탭 네비게이션 */}
+                <div className="bg-white rounded-lg shadow-sm mb-6">
+                    <div className="border-b border-gray-200">
+                        <nav className="flex space-x-8 px-6">
+                            <button
+                                onClick={() => setActiveTab('overview')}
+                                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                                    activeTab === 'overview'
+                                        ? 'border-blue-500 text-blue-600'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                }`}
+                            >
+                                <MapPin className="w-4 h-4 inline mr-2" />
+                                개요
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('route')}
+                                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                                    activeTab === 'route'
+                                        ? 'border-blue-500 text-blue-600'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                }`}
+                            >
+                                <Route className="w-4 h-4 inline mr-2" />
+                                관람순서
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('realtime')}
+                                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                                    activeTab === 'realtime'
+                                        ? 'border-blue-500 text-blue-600'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                }`}
+                            >
+                                <Headphones className="w-4 h-4 inline mr-2" />
+                                실시간가이드
+                            </button>
+                        </nav>
+                    </div>
+
+                    {/* 탭 컨텐츠 */}
+                    <div className="p-6">
+                        {activeTab === 'overview' && (
+                            <div className="space-y-6">
+                                {/* 주요 정보 */}
+                                {guideData.overview.keyFacts && guideData.overview.keyFacts.length > 0 && (
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-4">주요 정보</h3>
+                                        <div className="grid gap-4 md:grid-cols-2">
+                                            {guideData.overview.keyFacts.map((fact, index) => (
+                                                <div key={index} className="bg-blue-50 rounded-lg p-4">
+                                                    <h4 className="font-medium text-blue-900">{fact.title}</h4>
+                                                    {fact.description && (
+                                                        <p className="text-blue-700 text-sm mt-1">{fact.description}</p>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* 방문 팁 */}
+                                {guideData.overview.visitingTips && guideData.overview.visitingTips.length > 0 && (
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-4">방문 팁</h3>
+                                        <div className="bg-green-50 rounded-lg p-4">
+                                            <ul className="space-y-2">
+                                                {guideData.overview.visitingTips.map((tip, index) => (
+                                                    <li key={index} className="text-green-800 flex items-start">
+                                                        <span className="text-green-600 mr-2">•</span>
+                                                        {tip}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* 역사적 배경 */}
+                                {guideData.overview.historicalBackground && (
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-4">역사적 배경</h3>
+                                        <div className="bg-amber-50 rounded-lg p-4">
+                                            <p className="text-amber-800">{guideData.overview.historicalBackground}</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'route' && (
+                            <div className="space-y-6">
+                                <h3 className="text-lg font-semibold text-gray-900">추천 관람순서</h3>
+                                {guideData.route && guideData.route.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {guideData.route.map((step, index) => (
+                                            <div key={index} className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow">
+                                                <div className="flex items-start space-x-4">
+                                                    <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                                        <span className="text-blue-600 font-semibold text-sm">{index + 1}</span>
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h4 className="font-medium text-gray-900 mb-2">{step.title}</h4>
+                                                        <p className="text-gray-600 text-sm">{step.description}</p>
+                                                        {step.duration && (
+                                                            <p className="text-blue-600 text-sm mt-2">소요시간: {step.duration}</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-gray-500">관람순서 정보가 없습니다.</p>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'realtime' && (
+                            <TourContent guide={guideData} language={currentLanguage} />
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }
