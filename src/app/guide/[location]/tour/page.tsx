@@ -93,10 +93,7 @@ export default function TourPage() {
     console.log('⏳ 아직 마운트되지 않음, 로딩 화면 표시');
     return (
       <LoadingWithAd
-        title={locationName || "여행지"}
-        subtitle="가이드 생성 중..."
-        adSlot={process.env.NEXT_PUBLIC_ADSENSE_TOUR_AD_SLOT || "1234567890"}
-        showAd={true}
+        message="가이드를 불러오는 중입니다..."
       />
     );
   }

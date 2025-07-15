@@ -77,14 +77,20 @@ const withPWA = require('next-pwa')({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
   reactStrictMode: true,
   swcMinify: true,
   
   // 환경 변수 설정
   env: {
+    // AdSense 설정 - 기본값 제공
     NEXT_PUBLIC_ADSENSE_PUBLISHER_ID: process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID || 'ca-pub-8225961966676319',
-    NEXT_PUBLIC_ADSENSE_TOUR_AD_SLOT: process.env.NEXT_PUBLIC_ADSENSE_TOUR_AD_SLOT || '8122491387',
-    NEXT_PUBLIC_ADSENSE_LOADING_AD_SLOT: process.env.NEXT_PUBLIC_ADSENSE_LOADING_AD_SLOT || '5109315234',
+    NEXT_PUBLIC_ADSENSE_LOADING_SLOT_ID: process.env.NEXT_PUBLIC_ADSENSE_LOADING_SLOT_ID || '5109315234',
+    NEXT_PUBLIC_ADSENSE_AUTO_ADS_ENABLED: process.env.NEXT_PUBLIC_ADSENSE_AUTO_ADS_ENABLED || 'true',
   },
   
   // 국제화 설정

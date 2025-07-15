@@ -158,10 +158,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     if (isLoading) {
         return (
             <LoadingWithAd
-                title={locationName}
-                subtitle="AI 가이드를 생성하고 있습니다..."
-                adSlot={process.env.NEXT_PUBLIC_ADSENSE_LOADING_AD_SLOT || "1234567890"}
-                showAd={true}
+                message={`${locationName} AI 가이드를 생성하고 있습니다...`}
             />
         );
     }

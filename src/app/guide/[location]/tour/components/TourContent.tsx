@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { GuideData } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
-import TourAdSense from '@/components/ads/TourAdSense';
+
 
 interface TourContentProps {
   guideContent: GuideData;
@@ -355,8 +355,7 @@ const TourContent: React.FC<TourContentProps> = ({ guideContent }) => {
           </section>
         )}
 
-        {/* 광고 배치 - 관람순서와 실시간 가이드 사이 */}
-        <TourAdSense className="mb-8" />
+
 
         {/* 실시간 오디오 가이드 섹션 */}
         {chapters && chapters.length > 0 && (

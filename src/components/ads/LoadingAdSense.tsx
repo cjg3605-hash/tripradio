@@ -35,7 +35,7 @@ export default function LoadingAdSense({
   }, []);
 
   // AdSense 클라이언트 ID가 없으면 렌더링하지 않음
-  if (!process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID || !process.env.NEXT_PUBLIC_ADSENSE_LOADING_AD_SLOT) {
+  if (!process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID || !process.env.NEXT_PUBLIC_ADSENSE_LOADING_SLOT_ID) {
     console.warn('AdSense 환경 변수가 설정되지 않아 로딩화면 광고를 표시할 수 없습니다.');
     return null;
   }
@@ -63,10 +63,10 @@ export default function LoadingAdSense({
       <ins
         ref={adRef}
         className="adsbygoogle"
-        style={{ display: 'block' }}
+        style={{ display: 'block', maxHeight: '200px' }}
         data-ad-client={process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID}
-        data-ad-slot={process.env.NEXT_PUBLIC_ADSENSE_LOADING_AD_SLOT}
-        data-ad-format="auto"
+        data-ad-slot={process.env.NEXT_PUBLIC_ADSENSE_LOADING_SLOT_ID}
+        data-ad-format="rectangle"
         data-full-width-responsive="true"
       />
     </div>

@@ -8,57 +8,30 @@ declare global {
   }
 }
 
-interface AutoAdSenseProps {
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-export default function AutoAdSense({
-  className = '',
-  style = {}
-}: AutoAdSenseProps) {
-  
+const AutoAdSense = () => {
   useEffect(() => {
-    try {
-      // 자동 광고 활성화
-      if (typeof window !== 'undefined') {
-        window.adsbygoogle = window.adsbygoogle || [];
-        window.adsbygoogle.push({
+    // 자동 광고가 활성화되어 있고 프로덕션 환경인 경우에만 실행
+    if (
+      process.env.NEXT_PUBLIC_ADSENSE_AUTO_ADS_ENABLED === 'true' && 
+      process.env.NODE_ENV === 'production' &&
+      typeof window !== 'undefined'
+    ) {
+      try {
+        // 자동 광고 초기화
+        (window.adsbygoogle = window.adsbygoogle || []).push({
           google_ad_client: process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID,
           enable_page_level_ads: true
         });
+        
+        console.log('🚀 AdSense 자동 광고 초기화됨');
+      } catch (error) {
+        console.error('❌ AdSense 자동 광고 초기화 실패:', error);
       }
-    } catch (error) {
-      console.error('자동 AdSense 광고 로드 오류:', error);
     }
   }, []);
 
-  // AdSense 클라이언트 ID가 없으면 렌더링하지 않음
-  if (!process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID) {
-    console.warn('NEXT_PUBLIC_ADSENSE_PUBLISHER_ID 환경 변수가 설정되지 않아 자동 광고를 표시할 수 없습니다.');
-    return null;
-  }
+  // 자동 광고는 별도의 DOM 요소가 필요하지 않음
+  return null;
+};
 
-  // 개발 환경에서는 플레이스홀더 표시
-  if (process.env.NODE_ENV === 'development') {
-    return (
-      <div 
-        className={`bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg flex items-center justify-center min-h-[280px] p-4 ${className}`}
-        style={style}
-      >
-        <div className="text-center text-blue-600">
-          <div className="text-lg font-medium mb-2">🚀 자동 AdSense 광고</div>
-          <div className="text-sm mb-1">개발 환경 - 배포 후 자동 표시됩니다</div>
-          <div className="text-xs text-blue-500">Google이 최적 위치에 광고를 자동 배치합니다</div>
-        </div>
-      </div>
-    );
-  }
-
-  // 운영 환경에서는 빈 div (Google이 자동으로 광고 삽입)
-  return (
-    <div className={className} style={style}>
-      {/* Google AdSense 자동 광고가 여기에 표시됩니다 */}
-    </div>
-  );
-} 
+export default AutoAdSense; 

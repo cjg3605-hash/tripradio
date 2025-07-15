@@ -1,38 +1,20 @@
-import type { Metadata } from 'next'
-import { Inter, Noto_Sans_KR } from 'next/font/google'
-import './globals.css'  // Corrected import path
-import SessionProvider from '@/components/providers/SessionProvider'
-import { LanguageProvider } from '@/contexts/LanguageContext'
-import { getServerSession } from 'next-auth/next'
-import authOptions from '@/lib/auth'
-import { Session } from 'next-auth'
-import Head from 'next/head'
-import ClientLayout from '@/components/layout/ClientLayout'
-import ClientI18nProvider from '@/components/providers/ClientI18nProvider'
+import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
+import SessionProvider from '@/components/providers/SessionProvider';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import ClientLayout from '@/components/layout/ClientLayout';
+import AutoAdSense from '@/components/ads/AutoAdSense';
+import './globals.css';
 
 // 구글 폰트 로드 (영문용)
 const inter = Inter({ 
   subsets: ['latin'],
-  display: 'optional', // swap → optional로 변경
+  display: 'optional',
   variable: '--font-inter',
   preload: true,
   adjustFontFallback: false,
   fallback: ['system-ui', 'sans-serif']
 })
-
-// 구글 폰트 로드 (한국어용 - Noto Sans KR)
-const notoSansKR = Noto_Sans_KR({
-  weight: ['400', '500', '600', '700'],
-  subsets: ['latin'],
-  display: 'optional', // swap → optional로 변경
-  variable: '--font-noto-sans-kr',
-  preload: true,
-  adjustFontFallback: false,
-  fallback: ['system-ui', 'sans-serif']
-})
-
-// 기본 폰트 클래스
-const fontClassName = `${inter.className} ${notoSansKR.className}`;
 
 export const metadata: Metadata = {
   title: 'NAVI-GUIDE - AI 개인 맞춤 관광 가이드',
@@ -43,48 +25,32 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions)
-  
   return (
-    <html lang="ko" className={`${inter.variable} ${notoSansKR.variable}`}>
+    <html lang="ko">
       <head>
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/navi.png" />
-        <meta name="theme-color" content="#2563eb" />
-        <meta name="application-name" content="NAVI" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="NAVI" />
-        <meta name="msapplication-TileColor" content="#2563eb" />
-        <meta name="msapplication-config" content="/browserconfig.xml" />
-        {/* AdSense 스크립트 - Google에서 제공한 코드 */}
-        <script 
-          async 
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8225961966676319"
-          crossOrigin="anonymous"
-        />
-        
-        {/* 개발 환경에서만 서비스 워커 디버깅 도구 로드 */}
-        {process.env.NODE_ENV === 'development' && (
-          <script src="/sw-debug.js" async></script>
+        {/* Google AdSense 스크립트 */}
+        {process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID && (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID}`}
+            crossOrigin="anonymous"
+          />
         )}
       </head>
-      <body className={`${fontClassName} font-sans`}>
-        <ClientI18nProvider>
-          <SessionProvider session={session as Session | null}>
+              <body className={inter.className}>
+          <SessionProvider>
             <LanguageProvider>
               <ClientLayout>
                 {children}
               </ClientLayout>
             </LanguageProvider>
           </SessionProvider>
-        </ClientI18nProvider>
-      </body>
+        </body>
     </html>
-  )
+  );
 } 

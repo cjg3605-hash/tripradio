@@ -1,60 +1,63 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { HistorySidebar } from '@/components/layout/HistorySidebar';
 import { SearchBox } from '@/components/home/SearchBox';
-import { useLanguage } from '@/contexts/LanguageContext';
-import HomeAdSense from '@/components/ads/HomeAdSense';
 
-export default function HomePage() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { t, isLoading } = useLanguage();
-  const [splashVisible, setSplashVisible] = useState(true);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => setSplashVisible(false), 1500);
-    return () => clearTimeout(timeout);
-  }, []);
-
-  if (splashVisible) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-        <img src="/navi.png" alt="Navi Logo" className="w-32 h-32 mb-8 animate-bounce" />
-      </div>
-    );
-  }
-
+export default function Home() {
   return (
-    <>
-      <HistorySidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      <main>
-        <div className="flex min-h-screen flex-col items-center justify-start bg-gray-50 p-4 text-center pt-8">
-          <h1 className="mb-4 text-4xl font-bold md:text-5xl">
-            {isLoading ? 'AI와 함께하는 가이드 투어' : t.home.title}
+    <main className="flex min-h-screen flex-col">
+      {/* 히어로 섹션 */}
+      <section className="flex-1 flex flex-col items-center justify-center px-4 py-8 bg-gradient-to-br from-blue-50 via-white to-cyan-50">
+        <div className="text-center max-w-4xl mx-auto">
+          {/* 제목 */}
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+            <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+              AI 가이드
+            </span>
+            <br />
+            <span className="text-2xl md:text-4xl lg:text-5xl text-gray-600">
+              어디든 떠나보세요
+            </span>
           </h1>
-          <p className="mb-8 text-gray-500">
-            {isLoading ? '개인 맞춤형 여행 가이드를 AI가 실시간으로 생성해드립니다' : t.home.subtitle}
+          
+          {/* 부제목 */}
+          <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
+            AI가 만들어주는 맞춤형 여행 가이드로<br />
+            새로운 모험을 시작하세요
           </p>
-
-          <div className="w-full max-w-2xl">
+          
+          {/* 검색 박스 */}
+          <div className="w-full max-w-2xl mx-auto">
             <SearchBox />
           </div>
-
-          <p className="mt-8 text-sm text-gray-600">
-            ✨ {isLoading ? 'AI가 실시간으로 생성하는 독특한 여행 가이드를 만나보세요' : t.home.description}
-          </p>
-
-          {/* 홈페이지 하단 광고 */}
-          <div className="mt-12 w-full max-w-2xl">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-              <div className="text-center mb-3">
-                <div className="text-xs text-gray-400 uppercase tracking-wider">Advertisement</div>
+          
+          {/* 특징 소개 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 max-w-4xl mx-auto">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🤖</span>
               </div>
-              <HomeAdSense className="max-w-full" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">AI 맞춤 가이드</h3>
+              <p className="text-gray-600">당신의 취향에 맞는 완벽한 여행 계획을 AI가 제안합니다</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🗺️</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">실시간 경로</h3>
+              <p className="text-gray-600">최적화된 경로와 실시간 지도로 효율적인 여행을 돕습니다</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🎧</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">음성 가이드</h3>
+              <p className="text-gray-600">손이 자유로운 음성 가이드로 편안한 여행을 즐기세요</p>
             </div>
           </div>
         </div>
-      </main>
-    </>
+      </section>
+    </main>
   );
 } 
