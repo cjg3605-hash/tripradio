@@ -212,7 +212,7 @@ export default function TourContent({ guide, language }: TourContentProps) {
           <div key={chapterIndex} className="bg-white rounded-lg shadow-md overflow-hidden">
             {/* 오디오 엘리먼트 */}
             <audio 
-              ref={el => audioRefs.current[chapterIndex] = el} 
+              ref={el => { audioRefs.current[chapterIndex] = el; }} 
               preload="none" 
             />
 
