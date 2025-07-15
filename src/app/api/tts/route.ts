@@ -1,76 +1,66 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOrCreateTTSAndUrl } from '@/lib/tts-gcs';
-import { createErrorResponse, createSuccessResponse, normalizeError } from '@/lib/utils';
+import { generateTTSAudio } from '@/lib/tts-gcs';
 
 export async function POST(req: NextRequest) {
   try {
-    const { text, language, guideId, chapterId } = await req.json();
+    const { text, language = 'ko-KR' } = await req.json();
     
     console.log('🎵 TTS 요청 받음:', { 
       textLength: text?.length || 0, 
-      language, 
-      guideId, 
-      chapterId 
+      language
     });
     
     if (!text) {
-      console.error('❌ TTS 요청 실패: 텍스트 없음');
       return NextResponse.json(
-        createErrorResponse('텍스트가 필요합니다.', 'MISSING_TEXT'),
+        { 
+          success: false, 
+          error: '텍스트가 필요합니다.', 
+          code: 'MISSING_TEXT' 
+        },
         { status: 400 }
       );
     }
 
-    // 언어 코드를 TTS 형식으로 변환
-    const languageMap: Record<string, string> = {
-      'ko': 'ko-KR',
-      'en': 'en-US', 
-      'ja': 'ja-JP',
-      'zh': 'zh-CN',
-      'es': 'es-ES'
-    };
-    
-    const ttsLanguage = languageMap[language] || 'ko-KR';
-    const locationName = guideId || 'default-guide';
-    
-    // TTS 파일 생성 및 URL 반환
-    console.log('🎵 TTS 생성 시작:', { locationName, ttsLanguage });
-    const ttsUrl = await getOrCreateTTSAndUrl(text, locationName, ttsLanguage);
-    console.log('✅ TTS 생성 완료:', { ttsUrl });
-
-    return NextResponse.json(
-      createSuccessResponse({
-        url: ttsUrl,
-        metadata: {
-          language: ttsLanguage,
-          guideId,
-          chapterId
-        }
-      })
-    );
-  } catch (error) {
-    console.error('TTS 생성 오류:', error);
-    
-    const normalizedError = normalizeError(error);
-    
-    // 특정 오류 메시지에 따른 처리
-    if (normalizedError.message.includes('TTS 서비스가 설정되지 않았습니다')) {
+    if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
-        createErrorResponse(
-          'TTS 기능이 현재 비활성화되어 있습니다. 관리자에게 문의해주세요.',
-          'TTS_DISABLED',
-          normalizedError.details
-        ),
-        { status: 503 }
+        { 
+          success: false, 
+          error: 'GEMINI_API_KEY가 설정되지 않았습니다.', 
+          code: 'MISSING_API_KEY' 
+        },
+        { status: 500 }
       );
     }
+
+    // Google Cloud TTS로 오디오 생성
+    const audioBuffer = await generateTTSAudio(text, language);
+    
+    console.log('✅ TTS 오디오 생성 완료:', { 
+      size: audioBuffer.byteLength,
+      language 
+    });
+
+    // ArrayBuffer를 Base64로 인코딩하여 반환
+    const base64Audio = Buffer.from(audioBuffer).toString('base64');
+    
+    return NextResponse.json({
+      success: true,
+      audioData: base64Audio,
+      mimeType: 'audio/mpeg',
+      language
+    });
+    
+  } catch (error) {
+    console.error('❌ TTS API 요청 처리 오류:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
     
     return NextResponse.json(
-      createErrorResponse(
-        normalizedError.message,
-        'TTS_ERROR',
-        normalizedError.details
-      ),
+      {
+        success: false,
+        error: errorMessage,
+        code: 'TTS_GENERATION_FAILED'
+      },
       { status: 500 }
     );
   }
