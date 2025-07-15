@@ -1,5 +1,7 @@
 // 전 세계 모든 장소를 위한 범용 AI 오디오 가이드 생성 프롬프트 시스템
 
+import { UserProfile } from '@/types/guide';
+
 // 오디오 가이드 예시 - 자연스럽게 이어지는 3단 구조
 const AUDIO_GUIDE_EXAMPLE = {
   content: {
@@ -208,12 +210,7 @@ interface LanguageConfig {
   ttsLang: string;
 }
 
-interface UserProfile {
-  interests?: string[];
-  ageGroup?: string;
-  knowledgeLevel?: string;
-  companions?: string;
-}
+// UserProfile은 types/guide.ts에서 import됨
 
 // ResearchData 타입 정의 추가
 export interface ResearchData {

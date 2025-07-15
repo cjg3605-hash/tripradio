@@ -10,7 +10,7 @@ import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
 import { UserProfile } from '@/types/guide';
-import { normalizeString } from '@/lib/utils';
+import { normalizeString, isValidGuideData } from '@/lib/utils';
 
 const extractGuideData = (raw: any, language: string): GuideData | null => {
     if (!raw) return null;
@@ -78,10 +78,17 @@ const extractGuideData = (raw: any, language: string): GuideData | null => {
 
 function validateGuideContent(content: GuideData | null): content is GuideData {
     if (!content) return false;
-    // Only validate the most critical part of the guide data to prevent full page crash
-    // The component can handle missing route or chapters gracefully.
-    const { overview } = content;
-    return !!(overview && overview.title);
+    
+    // 완전한 타입 가드를 사용하되, 실패시 최소 검증으로 fallback
+    try {
+        return isValidGuideData(content);
+    } catch (error) {
+        console.warn('Complete validation failed, using minimal validation:', error);
+        // Only validate the most critical part of the guide data to prevent full page crash
+        // The component can handle missing route or chapters gracefully.
+        const { overview } = content;
+        return !!(overview && overview.title);
+    }
 }
 
 export default function GuideClient({ locationName, initialGuide }: { locationName: string, initialGuide: any }) {

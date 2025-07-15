@@ -24,53 +24,8 @@ function getGeminiClient(): GoogleGenerativeAI | Response {
   return new GoogleGenerativeAI(apiKey);
 }
 
-function parseJsonResponse(jsonString: string): { success: true; data: any } | { success: false; response: Response } {
-  if (!jsonString || jsonString === 'undefined' || jsonString.trim() === '' || jsonString === undefined || jsonString === null) {
-    return {
-      success: false,
-      response: new Response(
-        JSON.stringify({
-          success: false,
-          error: 'AI 응답이 비어있거나 undefined/null입니다.',
-        }),
-        { status: 500 }
-      )
-    };
-  }
-  const codeBlockMatch = jsonString.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-  let cleanedString = codeBlockMatch ? codeBlockMatch[1] : jsonString;
-  const jsonStart = cleanedString.indexOf('{');
-  const jsonEnd = cleanedString.lastIndexOf('}');
-  if (jsonStart === -1 || jsonEnd === -1) {
-    return {
-      success: false,
-      response: new Response(
-        JSON.stringify({
-          success: false,
-          error: '응답에서 JSON 시작(`{`) 또는 끝(`}`)을 찾을 수 없습니다.',
-        }),
-        { status: 500 }
-      )
-    };
-  }
-  cleanedString = cleanedString.substring(jsonStart, jsonEnd + 1);
-  cleanedString = cleanedString.replace(/^[\uFEFF\s]+/, '');
-  cleanedString = cleanedString.replace(/\/\/.*$/gm, '');
-  try {
-    return { success: true, data: JSON.parse(cleanedString) };
-  } catch (error) {
-    return {
-      success: false,
-      response: new Response(
-        JSON.stringify({
-          success: false,
-          error: 'JSON 파싱 실패',
-        }),
-        { status: 500 }
-      )
-    };
-  }
-}
+// parseJsonResponse는 utils.ts의 validateJsonResponse로 대체됨
+import { validateJsonResponse, createErrorResponse, createSuccessResponse } from '@/lib/utils';
 
 function normalizeGuideData(raw: any, language?: string) {
   if (!raw.content || typeof raw.content !== 'object') {
@@ -178,9 +133,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const parsed = parseJsonResponse(responseText);
+  const parsed = validateJsonResponse(responseText);
   if (!parsed.success) {
-    return parsed.response;
+    return new Response(
+      JSON.stringify(createErrorResponse(parsed.error, 'JSON_PARSE_ERROR')),
+      { status: 500, headers }
+    );
   }
   const normalizedData = normalizeGuideData(parsed.data, language);
 

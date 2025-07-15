@@ -3,6 +3,9 @@ export interface UserProfile {
   ageGroup?: string;
   knowledgeLevel?: string;
   companions?: string;
+  tourDuration?: number;      // 투어 소요 시간 (분)
+  preferredStyle?: string;    // 선호하는 가이드 스타일
+  language?: string;          // 언어 설정
 }
 
 export interface GuideOverview {

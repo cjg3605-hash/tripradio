@@ -9,15 +9,8 @@ const genAI = process.env.GEMINI_API_KEY
   ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
   : null;
 
-export interface UserProfile {
-  interests: string[];
-  ageGroup: string;
-  knowledgeLevel: string;
-  companions: string;
-  tourDuration: number;
-  preferredStyle: string;
-  language: string;
-}
+// UserProfile은 types/guide.ts에서 import
+import { UserProfile } from '@/types/guide';
 
 export const GEMINI_PROMPTS = {
   GUIDE_GENERATION: {

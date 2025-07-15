@@ -1,15 +1,7 @@
 // 동적 임포트를 사용한 다국어 프롬프트 최적화
 
-// 타입 정의
-export interface UserProfile {
-  interests?: string[];
-  ageGroup?: string;
-  knowledgeLevel?: string;
-  companions?: string;
-  tourDuration?: number;      // gemini.ts 호환성을 위해 추가
-  preferredStyle?: string;    // gemini.ts 호환성을 위해 추가
-  language?: string;          // gemini.ts 호환성을 위해 추가
-}
+// 타입 정의 - UserProfile은 types/guide.ts에서 import
+import { UserProfile } from '@/types/guide';
 
 // 인터페이스 정의
 export interface LanguageConfig {

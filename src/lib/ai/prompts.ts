@@ -1,5 +1,7 @@
 // AI 가이드 생성을 위한 완성된 프롬프트 시스템
 
+import { UserProfile } from '@/types/guide';
+
 // 상세한 예시 JSON 구조
 const MINIMAL_EXAMPLE_JSON = {
   content: {
@@ -75,12 +77,7 @@ interface GuideContent {
   };
 }
 
-interface UserProfile {
-  interests?: string[];
-  ageGroup?: string;
-  knowledgeLevel?: string;
-  companions?: string;
-}
+// UserProfile은 types/guide.ts에서 import됨
 
 interface LanguageConfig {
   code: string;
