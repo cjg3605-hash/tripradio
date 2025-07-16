@@ -319,7 +319,7 @@ sceneDescription, coreNarrative, humanStories, nextDirection은 각각 별개의
 - 역사적 사실 + 인간적 감정 + 현장 묘사 조화
 
 ### 4. **챕터 구성 (🚨 필수 준수 🚨)**
-- **정확히 5-7개 챕터 필수**
+- **정확히 5개 챕터 필수 (더 이상 늘리지 말 것)**
 - **🔴 CRITICAL: route.steps와 realTimeGuide.chapters 개수가 정확히 일치해야 함**
 - **route.steps[0].title === realTimeGuide.chapters[0].title (제목도 동일)**
 - **route.steps[1].title === realTimeGuide.chapters[1].title (제목도 동일)**

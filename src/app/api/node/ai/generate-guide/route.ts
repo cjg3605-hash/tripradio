@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
   
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-pro',
-    generationConfig: { temperature: 0.3, maxOutputTokens: 16384 }
+    generationConfig: { temperature: 0.3, maxOutputTokens: 32768 }
   });
 
   const autonomousPrompt = await createAutonomousGuidePrompt(locationName, language, userProfile);
@@ -146,6 +146,9 @@ export async function POST(req: NextRequest) {
     const result = await model.generateContent(autonomousPrompt);
     const response = await result.response;
     responseText = await response.text();
+    console.log('🤖 AI 응답 길이:', responseText.length, '문자');
+    console.log('🤖 AI 응답 끝 200자:', responseText.slice(-200));
+    
     if (!responseText || responseText.trim().length === 0) {
       return new Response(
         JSON.stringify({ success: false, error: 'AI로부터 빈 응답을 받았습니다.' }),
@@ -184,7 +187,12 @@ export async function POST(req: NextRequest) {
     hasRoute: !!normalizedData.route,
     hasRealTimeGuide: !!normalizedData.realTimeGuide,
     routeSteps: normalizedData.route?.steps?.length || 0,
-    chapters: normalizedData.realTimeGuide?.chapters?.length || 0
+    chapters: normalizedData.realTimeGuide?.chapters?.length || 0,
+    chaptersDetail: normalizedData.realTimeGuide?.chapters?.map((ch: any, idx: number) => ({
+      index: idx,
+      title: ch.title,
+      hasContent: !!(ch.sceneDescription || ch.coreNarrative || ch.humanStories || ch.nextDirection)
+    })) || []
   });
 
   // 3. 간단한 INSERT 시도 (중복이면 기존 데이터 반환)
