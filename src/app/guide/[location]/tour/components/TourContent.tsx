@@ -136,9 +136,10 @@ export default function TourContent({ guide, language }: TourContentProps) {
         // 실제 데이터 구조에 맞게 텍스트 조합
         let narrativeText = '';
         if (chapter.narrative) {
+          // 새로운 통합 narrative 필드 우선 사용
           narrativeText = chapter.narrative;
         } else {
-          // coreNarrative, humanStories, sceneDescription 조합
+          // 기존 개별 필드들 조합 (하위 호환성)
           const parts: string[] = [];
           if (chapter.sceneDescription) parts.push(chapter.sceneDescription);
           if (chapter.coreNarrative) parts.push(chapter.coreNarrative);
@@ -285,26 +286,33 @@ export default function TourContent({ guide, language }: TourContentProps) {
           <div className="prose prose-gray max-w-none">
             {/* 통합된 스토리 텍스트 */}
             <div className="text-gray-700 leading-relaxed space-y-4">
-              {/* 4개 필드를 자연스럽게 연결된 하나의 스토리로 표시 */}
-              {chapter.sceneDescription && (
-                <p>{chapter.sceneDescription}</p>
-              )}
-              
-              {chapter.coreNarrative && (
-                <p>{chapter.coreNarrative}</p>
-              )}
-              
-              {chapter.humanStories && (
-                <p>{chapter.humanStories}</p>
-              )}
-              
-              {chapter.nextDirection && (
-                <p className="text-blue-600 font-medium">{chapter.nextDirection}</p>
-              )}
-              
-              {/* 기존 narrative 필드도 지원 (하위 호환성) */}
-              {chapter.narrative && !chapter.sceneDescription && !chapter.coreNarrative && (
-                <p>{chapter.narrative}</p>
+              {/* 새로운 narrative 필드 우선 사용 */}
+              {chapter.narrative ? (
+                <div className="whitespace-pre-line">
+                  <p>{chapter.narrative}</p>
+                  {chapter.nextDirection && (
+                    <p className="text-blue-600 font-medium mt-4">{chapter.nextDirection}</p>
+                  )}
+                </div>
+              ) : (
+                // 기존 개별 필드들 (하위 호환성)
+                <>
+                  {chapter.sceneDescription && (
+                    <p>{chapter.sceneDescription}</p>
+                  )}
+                  
+                  {chapter.coreNarrative && (
+                    <p>{chapter.coreNarrative}</p>
+                  )}
+                  
+                  {chapter.humanStories && (
+                    <p>{chapter.humanStories}</p>
+                  )}
+                  
+                  {chapter.nextDirection && (
+                    <p className="text-blue-600 font-medium">{chapter.nextDirection}</p>
+                  )}
+                </>
               )}
             </div>
           </div>

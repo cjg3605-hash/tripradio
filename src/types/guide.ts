@@ -44,9 +44,16 @@ export interface GuideChapter {
   duration?: number | string;
   audioUrl?: string;
   /**
-   * Unified continuous narrative for the chapter (≈ 2 100+ chars)
+   * Unified continuous narrative for the chapter (≈ 1700-2100 chars)
+   * 하나의 연속된 오디오 가이드 스토리 (새로운 방식)
    */
   narrative?: string;
+  /**
+   * 개별 필드들 (하위 호환성을 위해 유지)
+   */
+  sceneDescription?: string;
+  coreNarrative?: string;
+  humanStories?: string;
   /** @deprecated 기존 다중 파트 구조. 더 이상 사용하지 않음 */
   narrativeLayers?: {
     coreNarrative?: string;
@@ -54,7 +61,7 @@ export interface GuideChapter {
     [key: string]: any;
   };
   /**
-   * Concrete navigation instructions guiding the visitor to the next stop (≥ 300 chars)
+   * Concrete navigation instructions guiding the visitor to the next stop (≥ 200-300 chars)
    */
   nextDirection?: string;
   lat?: number;
