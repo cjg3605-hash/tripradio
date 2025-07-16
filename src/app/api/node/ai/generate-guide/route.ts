@@ -279,6 +279,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // 챕터 제목 추출
+    const chapterTitle = existingGuide.realTimeGuide?.chapters?.[targetChapter]?.title || `챕터 ${targetChapter + 1}`;
+    
     // 챕터 데이터 유효성 검증 - 더 관대하게 수정
     if (!newChapter.narrative || newChapter.narrative.length < 300) {
       console.error('❌ 챕터 narrative 부족 - 재시도 필요:', {
