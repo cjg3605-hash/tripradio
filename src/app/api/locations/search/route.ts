@@ -266,15 +266,44 @@ export async function GET(request: NextRequest) {
     // Generate response using Gemini AI
     try {
       console.log('🔍 검색 쿼리:', query, '언어:', lang);
+      console.log('🔑 API 키 상태:', process.env.GEMINI_API_KEY ? '설정됨' : '없음');
       
       const gemini = getGeminiClient();
-      const model = gemini.getGenerativeModel({ 
-        model: 'gemini-2.5-flash-lite-preview-06-17',
-        generationConfig: {
-          temperature: 0.3,
-          maxOutputTokens: 2048,
+      console.log('✅ Gemini 클라이언트 생성 성공');
+      
+      // 모델 우선순위: 최신 → 안정 → 폴백
+      const modelNames = [
+        'gemini-2.5-flash-lite-preview-06-17', // 최신 미리보기 (재도전!)
+        'gemini-2.5-flash',                    // 2.5 시리즈 안정 버전
+        'gemini-1.5-flash',                    // 안정된 폴백
+        'gemini-1.5-pro'                       // 최종 폴백
+      ];
+      
+      let model;
+      let usedModel = '';
+      
+      for (const modelName of modelNames) {
+        try {
+          console.log(`🔄 모델 시도: ${modelName}`);
+          model = gemini.getGenerativeModel({ 
+            model: modelName,
+            generationConfig: {
+              temperature: 0.3,
+              maxOutputTokens: 2048,
+            }
+          });
+          usedModel = modelName;
+          console.log(`✅ 모델 생성 성공: ${modelName}`);
+          break;
+        } catch (modelError) {
+          console.warn(`⚠️ 모델 ${modelName} 생성 실패:`, modelError.message);
+          continue;
         }
-      });
+      }
+      
+      if (!model) {
+        throw new Error('사용 가능한 Gemini 모델이 없습니다.');
+      }
       
       const prompt = createSearchPrompt(sanitizeInput(query), lang);
       console.log('📝 생성된 프롬프트:', prompt.substring(0, 200) + '...');
@@ -299,14 +328,36 @@ export async function GET(request: NextRequest) {
         // Make the API call
         const generatePromise = (async () => {
           try {
+            console.log(`🚀 Gemini API 호출 시작 (모델: ${usedModel})...`);
             const genResult = await model.generateContent(prompt);
+            console.log(`✅ Gemini API 호출 성공 (모델: ${usedModel})`);
             // Check if we've already timed out
             if (Date.now() - startTime >= TIMEOUT_MS) {
               throw new Error('AI 응답 처리 시간이 초과되었습니다.');
             }
             return genResult;
           } catch (error) {
-            console.error('Gemini API 호출 중 오류:', error);
+            console.error('❌ Gemini API 호출 중 상세 오류:', {
+              name: error.name,
+              message: error.message,
+              status: error.status,
+              statusText: error.statusText,
+              code: error.code,
+              details: error.details,
+              stack: error.stack
+            });
+            
+            // 구체적인 오류 분석
+            if (error.message?.includes('404') || error.message?.includes('not found')) {
+              throw new Error('모델을 찾을 수 없습니다 (404). 미리보기 모델 접근 권한이나 지역 설정을 확인하세요.');
+            } else if (error.message?.includes('403') || error.message?.includes('permission')) {
+              throw new Error('모델 접근 권한이 없습니다 (403). API 키나 프로젝트 권한을 확인하세요.');
+            } else if (error.message?.includes('400') || error.message?.includes('invalid')) {
+              throw new Error('잘못된 요청입니다 (400). 모델 파라미터나 프롬프트를 확인하세요.');
+            } else if (error.message?.includes('region') || error.message?.includes('location')) {
+              throw new Error('지역 제한 오류입니다. us-central1 지역으로 설정을 변경해보세요.');
+            }
+            
             throw error;
           }
         })();
