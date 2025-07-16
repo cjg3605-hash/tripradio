@@ -67,70 +67,106 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
 
     const [isLoading, setIsLoading] = useState(!guideData);
     const [error, setError] = useState<string | null>(null);
+    const [loadingMessage, setLoadingMessage] = useState('AI 가이드를 생성하고 있습니다...');
+    const [currentProgress, setCurrentProgress] = useState(0);
+    const [totalSteps, setTotalSteps] = useState(1);
 
     useEffect(() => {
         if (guideData) return;
 
-        const fetchGuide = async () => {
+        const fetchGuideProgressive = async () => {
             setIsLoading(true);
             setError(null);
+            
             try {
-                console.log('📥 가이드 데이터 로드 시도:', { location: locationName, language: currentLanguage });
+                console.log('📥 단계별 가이드 생성 시작:', { location: locationName, language: currentLanguage });
                 
-                const response = await fetch('/api/node/ai/generate-guide', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    locationName,
-                    language: currentLanguage,
-                    forceRegenerate: false
-                  })
+                // 1단계: 구조 생성
+                console.log('🏗️ 1단계: 기본 구조 생성');
+                setLoadingMessage('가이드 구조를 생성하고 있습니다...');
+                setCurrentProgress(1);
+                setTotalSteps(6); // 구조 + 5개 챕터
+                const structureResponse = await fetch('/api/node/ai/generate-guide', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        locationName,
+                        language: currentLanguage,
+                        generationMode: 'structure',
+                        forceRegenerate: false
+                    })
                 });
 
-                const result = await response.json();
-                console.log('📊 API 응답 받음:', {
-                  success: result.success,
-                  hasData: !!result.data,
-                  dataKeys: result.data ? Object.keys(result.data) : [],
-                  cached: result.cached
+                const structureResult = await structureResponse.json();
+                console.log('📊 구조 생성 결과:', {
+                    success: structureResult.success,
+                    hasData: !!structureResult.data,
+                    cached: structureResult.cached
                 });
 
-                if (!result.success) {
-                  throw new Error(result.error || '가이드 생성에 실패했습니다.');
+                if (!structureResult.success || !structureResult.data?.content) {
+                    throw new Error('기본 구조 생성에 실패했습니다.');
                 }
 
-                if (!result.data || !result.data.content) {
-                  console.error('❌ 응답 데이터 구조 오류:', {
-                    result,
-                    hasData: !!result.data,
-                    hasContent: !!(result.data && result.data.content)
-                  });
-                  throw new Error('응답 데이터 구조가 올바르지 않습니다.');
-                }
-
-                // 가이드 데이터 검증
-                const guideData = result.data.content;
-                console.log('🔍 가이드 데이터 검증:', {
-                  hasOverview: !!guideData.overview,
-                  hasRoute: !!guideData.route,
-                  hasRealTimeGuide: !!guideData.realTimeGuide,
-                  dataStructure: JSON.stringify(guideData, null, 2).substring(0, 300) + '...'
+                let currentGuide = structureResult.data.content;
+                const totalChapters = currentGuide.realTimeGuide?.chapters?.length || 5;
+                
+                console.log('📚 위치별 동적 챕터 수:', { 
+                    location: locationName, 
+                    detectedChapters: totalChapters,
+                    routeSteps: currentGuide.route?.steps?.length || 0
                 });
+                setTotalSteps(1 + totalChapters);
+                setCurrentProgress(1);
+                setLoadingMessage(`기본 구조 생성 완료! ${totalChapters}개 챕터 내용을 생성하고 있습니다...`);
+                setGuideData(currentGuide); // 구조를 먼저 표시
 
-                // 기본 구조 검증
-                if (!guideData.overview && !guideData.route && !guideData.realTimeGuide) {
-                  console.error('❌ 가이드 데이터가 비어있음:', guideData);
-                  throw new Error('가이드 데이터가 비어있습니다.');
+                // 2단계: 각 챕터 순차 생성
+                for (let chapterIndex = 0; chapterIndex < totalChapters; chapterIndex++) {
+                    console.log(`📖 챕터 ${chapterIndex + 1}/${totalChapters} 생성 중...`);
+                    setLoadingMessage(`챕터 ${chapterIndex + 1}/${totalChapters} 생성 중...`);
+                    setCurrentProgress(2 + chapterIndex);
+                    
+                    try {
+                        const chapterResponse = await fetch('/api/node/ai/generate-guide', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                locationName,
+                                language: currentLanguage,
+                                generationMode: 'chapter',
+                                existingGuide: currentGuide,
+                                targetChapter: chapterIndex
+                            })
+                        });
+
+                        const chapterResult = await chapterResponse.json();
+                        console.log(`📖 챕터 ${chapterIndex + 1} 생성 결과:`, {
+                            success: chapterResult.success,
+                            chapterIndex: chapterResult.targetChapter
+                        });
+
+                        if (chapterResult.success && chapterResult.data?.content) {
+                            currentGuide = chapterResult.data.content;
+                            setGuideData({ ...currentGuide }); // 업데이트된 가이드로 화면 갱신
+                        } else {
+                            console.warn(`⚠️ 챕터 ${chapterIndex + 1} 생성 실패, 계속 진행`);
+                        }
+                    } catch (chapterError) {
+                        console.warn(`⚠️ 챕터 ${chapterIndex + 1} 생성 중 오류:`, chapterError);
+                        // 챕터 하나 실패해도 계속 진행
+                    }
                 }
 
-                console.log('✅ 가이드 데이터 검증 성공');
-                setGuideData(guideData);
+                console.log('✅ 가이드 완전 생성 완료');
+                setLoadingMessage('가이드 생성 완료!');
+                setCurrentProgress(totalSteps);
 
                 if (session?.user?.id) {
                     const userProfile: UserProfile = { interests: [], ageGroup: 'adult', knowledgeLevel: 'intermediate', companions: 'solo' };
-                    await saveGuideHistoryToSupabase(session.user, locationName, guideData, userProfile);
+                    await saveGuideHistoryToSupabase(session.user, locationName, currentGuide, userProfile);
                 } else {
-                    guideHistory.saveGuide(locationName, guideData, undefined);
+                    guideHistory.saveGuide(locationName, currentGuide, undefined);
                 }
 
             } catch (err) {
@@ -142,14 +178,44 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
             }
         };
 
-        fetchGuide();
+        fetchGuideProgressive();
     }, [locationName, currentLanguage, guideData, session]);
 
     if (isLoading) {
         return (
-            <LoadingWithAd
-                message={`${locationName} AI 가이드를 생성하고 있습니다...`}
-            />
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+                <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6 text-center">
+                    <h2 className="text-lg font-medium text-gray-900 mb-4">{locationName} AI 가이드 생성</h2>
+                    
+                    {/* 진행률 표시 */}
+                    <div className="mb-4">
+                        <div className="flex justify-between text-sm text-gray-600 mb-2">
+                            <span>진행률</span>
+                            <span>{currentProgress}/{totalSteps}</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                                className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                                style={{ width: `${(currentProgress / totalSteps) * 100}%` }}
+                            />
+                        </div>
+                    </div>
+                    
+                    <p className="text-gray-600 mb-4">{loadingMessage}</p>
+                    
+                    {/* 로딩 스피너 */}
+                    <div className="flex justify-center">
+                        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                    
+                    {/* 현재 가이드 데이터가 있으면 미리보기 표시 */}
+                    {guideData && (
+                        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                            <p className="text-blue-800 text-sm">✨ 기본 구조는 준비되었습니다! 챕터 내용을 계속 생성하고 있어요.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
         );
     }
 

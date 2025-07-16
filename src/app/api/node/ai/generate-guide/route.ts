@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
+import { createStructurePrompt, createChapterPrompt, getRecommendedSpotCount } from '@/lib/ai/prompts/korean';
 import { supabase } from '@/lib/supabaseClient';
 
 export const runtime = 'nodejs';
@@ -89,8 +90,29 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { locationName, language = 'ko', userProfile, forceRegenerate = false } = requestBody;
-  console.log('📝 요청 파라미터:', { locationName, language, forceRegenerate });
+  const { 
+    locationName, 
+    language = 'ko', 
+    userProfile, 
+    forceRegenerate = false,
+    generationMode = 'auto', // 'auto' | 'structure' | 'chapter'
+    existingGuide = null,
+    targetChapter = null,
+    maxChapters
+  } = requestBody;
+  
+  // 위치 유형별 권장 스팟 수 동적 계산
+  const spotCount = getRecommendedSpotCount(locationName);
+  const finalMaxChapters = maxChapters || spotCount.default;
+  console.log('📝 요청 파라미터:', { 
+    locationName, 
+    language, 
+    forceRegenerate, 
+    generationMode, 
+    targetChapter,
+    spotCountInfo: spotCount,
+    finalMaxChapters 
+  });
   
   if (!locationName || typeof locationName !== 'string') {
     console.error('❌ 위치 정보 누락:', locationName);
@@ -129,21 +151,37 @@ export async function POST(req: NextRequest) {
     }
   }
 
-    // 2. AI로 새 가이드 생성
-  console.log('🤖 AI 가이드 생성 시작');
+  // 2. AI로 새 가이드 생성
+  console.log('🤖 AI 가이드 생성 시작 - 모드:', generationMode);
   const genAI = getGeminiClient();
   if (genAI instanceof Response) return genAI;
   
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-pro',
-    generationConfig: { temperature: 0.3, maxOutputTokens: 32768 }
+    generationConfig: { temperature: 0.3, maxOutputTokens: 16384 } // 단계별로 생성하므로 토큰 수 줄임
   });
 
-  const autonomousPrompt = await createAutonomousGuidePrompt(locationName, language, userProfile);
-  
   let responseText: string;
+  let prompt: string;
+
+  // 생성 모드에 따른 프롬프트 선택
+  if (generationMode === 'structure') {
+    // 구조만 생성
+    console.log('🏗️ 구조 생성 모드');
+    prompt = createStructurePrompt(locationName, language, userProfile);
+  } else if (generationMode === 'chapter' && existingGuide && targetChapter !== null) {
+    // 특정 챕터 생성
+    console.log('📖 챕터 생성 모드 - 챕터:', targetChapter);
+    const chapterTitle = existingGuide.realTimeGuide?.chapters?.[targetChapter]?.title || `챕터 ${targetChapter + 1}`;
+    prompt = createChapterPrompt(locationName, targetChapter, chapterTitle, existingGuide, language, userProfile);
+  } else {
+    // 기존 방식 (자동 완성 시도)
+    console.log('🔄 자동 완성 모드');
+    prompt = await createAutonomousGuidePrompt(locationName, language, userProfile);
+  }
+  
   try {
-    const result = await model.generateContent(autonomousPrompt);
+    const result = await model.generateContent(prompt);
     const response = await result.response;
     responseText = await response.text();
     console.log('🤖 AI 응답 길이:', responseText.length, '문자');
@@ -181,72 +219,131 @@ export async function POST(req: NextRequest) {
     dataStructure: JSON.stringify(parsed.data, null, 2).substring(0, 500) + '...'
   });
 
-  const normalizedData = normalizeGuideData(parsed.data, language);
-  console.log('📊 정규화된 데이터:', {
-    hasOverview: !!normalizedData.overview,
-    hasRoute: !!normalizedData.route,
-    hasRealTimeGuide: !!normalizedData.realTimeGuide,
-    routeSteps: normalizedData.route?.steps?.length || 0,
-    chapters: normalizedData.realTimeGuide?.chapters?.length || 0,
-    chaptersDetail: normalizedData.realTimeGuide?.chapters?.map((ch: any, idx: number) => ({
-      index: idx,
-      title: ch.title,
-      hasContent: !!(ch.sceneDescription || ch.coreNarrative || ch.humanStories || ch.nextDirection)
-    })) || []
-  });
+  let finalData;
 
-  // 3. 간단한 INSERT 시도 (중복이면 기존 데이터 반환)
-  console.log('💾 새 가이드 저장 시도');
-  const { error: insertError } = await supabase
-    .from('guides')
-    .insert([{
-      locationname: normLocation,
-      language: normLang,
-      content: normalizedData,
-      created_at: new Date().toISOString()
-    }]);
-
-  // 중복 키 에러 시 기존 데이터 조회하여 반환
-  if (insertError && insertError.code === '23505') {
-    console.log('🔍 중복 키 감지 - 기존 데이터 조회');
-    const { data: existing, error: fetchError } = await supabase
-      .from('guides')
-      .select('content')
-      .eq('locationname', normLocation)
-      .eq('language', normLang)
-      .maybeSingle();
-
-    if (fetchError || !existing) {
+  // 생성 모드에 따른 데이터 처리
+  if (generationMode === 'chapter' && existingGuide && targetChapter !== null) {
+    // 챕터 생성 모드: 기존 가이드에 새 챕터 추가
+    console.log('📖 챕터 통합 중...');
+    const newChapter = parsed.data.chapter;
+    
+    if (!newChapter) {
       return new Response(
-        JSON.stringify({ success: false, error: `기존 가이드 조회 실패: ${fetchError?.message || '데이터를 찾을 수 없습니다'}`, language }),
+        JSON.stringify({ success: false, error: '챕터 데이터가 생성되지 않았습니다.' }),
         { status: 500, headers }
       );
     }
 
-    console.log('✅ 기존 데이터 반환');
-    return NextResponse.json({
-      success: true,
-      data: { content: existing.content },
-      cached: 'existing',
-      language
+    // 기존 가이드 복사하고 새 챕터 추가
+    finalData = { ...existingGuide };
+    if (!finalData.realTimeGuide) {
+      finalData.realTimeGuide = { chapters: [] };
+    }
+    
+    // 새 챕터를 해당 인덱스에 추가
+    if (!finalData.realTimeGuide.chapters[targetChapter]) {
+      finalData.realTimeGuide.chapters[targetChapter] = { id: targetChapter, title: newChapter.title };
+    }
+    
+    // 챕터 상세 정보 업데이트
+    Object.assign(finalData.realTimeGuide.chapters[targetChapter], newChapter);
+    
+    console.log('📖 챕터 통합 완료:', {
+      chapterIndex: targetChapter,
+      chapterTitle: newChapter.title,
+      totalChapters: finalData.realTimeGuide.chapters.length
     });
+  } else {
+    // 구조 생성 또는 전체 생성 모드
+    finalData = normalizeGuideData(parsed.data, language);
   }
 
-  // 다른 insert 에러 처리
-  if (insertError) {
-    return new Response(
-      JSON.stringify({ success: false, error: `가이드 저장 실패: ${insertError.message}`, language }),
-      { status: 500, headers }
-    );
-  }
+  console.log('📊 최종 데이터:', {
+    hasOverview: !!finalData.overview,
+    hasRoute: !!finalData.route,
+    hasRealTimeGuide: !!finalData.realTimeGuide,
+    routeSteps: finalData.route?.steps?.length || 0,
+    chapters: finalData.realTimeGuide?.chapters?.length || 0,
+    chaptersDetail: finalData.realTimeGuide?.chapters?.map((ch: any, idx: number) => ({
+      index: idx,
+      title: ch.title,
+      hasContent: !!(ch.sceneDescription || ch.coreNarrative || ch.humanStories || ch.nextDirection)
+    })) || [],
+    generationMode
+  });
 
-  // 정상 저장 완료
-  console.log('✅ 새 가이드 저장 완료');
+  // 3. 데이터 저장 처리
+  if (generationMode === 'chapter') {
+    // 챕터 생성 모드: 기존 데이터 업데이트
+    console.log('💾 기존 가이드 업데이트');
+    const { error: updateError } = await supabase
+      .from('guides')
+      .update({
+        content: finalData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('locationname', normLocation)
+      .eq('language', normLang);
+
+    if (updateError) {
+      console.error('❌ 가이드 업데이트 실패:', updateError);
+      // 업데이트 실패해도 결과는 반환 (임시 데이터로)
+    }
+  } else {
+    // 구조 생성 또는 전체 생성 모드: 새로 저장
+    console.log('💾 새 가이드 저장 시도');
+    const { error: insertError } = await supabase
+      .from('guides')
+      .insert([{
+        locationname: normLocation,
+        language: normLang,
+        content: finalData,
+        created_at: new Date().toISOString()
+      }]);
+
+    // 중복 키 에러 시 기존 데이터 조회하여 반환
+    if (insertError && insertError.code === '23505') {
+      console.log('🔍 중복 키 감지 - 기존 데이터 조회');
+      const { data: existing, error: fetchError } = await supabase
+        .from('guides')
+        .select('content')
+        .eq('locationname', normLocation)
+        .eq('language', normLang)
+        .maybeSingle();
+
+      if (fetchError || !existing) {
+        return new Response(
+          JSON.stringify({ success: false, error: `기존 가이드 조회 실패: ${fetchError?.message || '데이터를 찾을 수 없습니다'}`, language }),
+          { status: 500, headers }
+        );
+      }
+
+      console.log('✅ 기존 데이터 반환');
+      return NextResponse.json({
+        success: true,
+        data: { content: existing.content },
+        cached: 'existing',
+        language
+      });
+    }
+
+    // 다른 insert 에러 처리
+    if (insertError) {
+      return new Response(
+        JSON.stringify({ success: false, error: `가이드 저장 실패: ${insertError.message}`, language }),
+        { status: 500, headers }
+      );
+    }
+
+    console.log('✅ 새 가이드 저장 완료');
+  }
   return NextResponse.json({
     success: true,
-    data: { content: normalizedData },
-    cached: 'miss',
-    language
+    data: { content: finalData },
+    cached: generationMode === 'chapter' ? 'updated' : 'new',
+    language,
+    generationMode,
+    targetChapter: generationMode === 'chapter' ? targetChapter : undefined
   });
 }
 

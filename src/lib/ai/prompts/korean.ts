@@ -155,35 +155,48 @@ const LOCATION_TYPE_CONFIGS: Record<string, LocationTypeConfig> = {
     expertRole: '건축사이자 문화재 전문 스토리텔러',
     focusAreas: ['건축 양식과 기법', '구조적 특징', '건축재료와 공법', '시대별 건축 변천사', '장인정신과 기술'],
     specialRequirements: '건축물을 보면서 "와, 이렇게 지었구나!"하는 감탄이 나오도록, 기술적 설명을 쉽고 재미있게 풀어서 설명하세요.',
-    audioGuideTips: '건축물의 규모를 현대적 비유로 설명하고, 건축 과정의 어려움과 당시 사람들의 노력을 드라마틱하게 묘사하세요.'
+    audioGuideTips: '건축물의 규모를 현대적 비유로 설명하고, 건축 과정의 어려움과 당시 사람들의 노력을 드라마틱하게 묘사하세요.',
+    recommendedSpots: '6-8개 (대형 건축물은 세밀한 탐방)'
   },
   historical: {
     keywords: ['박물관', '유적지', '기념관', '사적', '역사', '유물', '전쟁', '독립', 'museum', 'historical', 'memorial', 'heritage'],
     expertRole: '역사학자이자 감동적인 스토리텔러',
     focusAreas: ['역사적 사건과 맥락', '시대적 배경', '인물들의 이야기', '사회문화적 의미', '현재적 교훈'],
     specialRequirements: '마치 타임머신을 타고 그 시대로 돌아간 것처럼, 당시의 분위기와 사람들의 감정을 생생하게 전달하세요.',
-    audioGuideTips: '"만약 여러분이 그날 그 자리에 있었다면..."으로 시작하는 상황 설정을 자주 사용하세요.'
+    audioGuideTips: '"만약 여러분이 그날 그 자리에 있었다면..."으로 시작하는 상황 설정을 자주 사용하세요.',
+    recommendedSpots: '5-7개 (전시실, 기념관 등의 주요 공간별로 구성)'
   },
   nature: {
     keywords: ['공원', '산', '강', '바다', '숲', '정원', '자연', '생태', '경관', 'park', 'mountain', 'nature', 'garden', 'scenic'],
     expertRole: '자연 해설가이자 생태 스토리텔러',
     focusAreas: ['생태계와 생물다양성', '지형과 지질학적 특징', '계절별 변화', '환경보전의 중요성', '자연과 인간의 관계'],
     specialRequirements: '자연의 소리, 냄새, 촉감을 말로 전달하여 관람객이 자연과 하나가 되는 느낌을 받도록 하세요.',
-    audioGuideTips: '"잠깐, 조용히 해보세요. 들리시나요?"처럼 실제로 주변 소리를 듣게 하는 상호작용을 포함하세요.'
+    audioGuideTips: '"잠깐, 조용히 해보세요. 들리시나요?"처럼 실제로 주변 소리를 듣게 하는 상호작용을 포함하세요.',
+    recommendedSpots: '4-6개 (자연스러운 산책 동선을 따라 주요 뷰포인트별로)'
   },
   culinary: {
     keywords: ['맛집', '음식', '시장', '골목', '전통음식', '요리', '카페', '레스토랑', 'food', 'market', 'restaurant', 'culinary', 'cuisine'],
     expertRole: '미식 스토리텔러이자 음식문화 해설가',
     focusAreas: ['지역 특색 음식', '요리 역사와 전통', '식재료와 조리법', '음식문화와 사회', '미식 체험 포인트'],
     specialRequirements: '음식의 맛, 향, 질감을 말로 표현하여 관람객의 식욕을 자극하고, 그 음식을 꼭 먹어보고 싶게 만드세요.',
-    audioGuideTips: '"지금 이 순간 저 가게에서 나오는 고소한 냄새 맡으셨나요?"처럼 현장의 감각을 실시간으로 포착하세요.'
+    audioGuideTips: '"지금 이 순간 저 가게에서 나오는 고소한 냄새 맡으셨나요?"처럼 현장의 감각을 실시간으로 포착하세요.',
+    recommendedSpots: '5-8개 (음식 종류와 맛집 밀도에 따라 유연하게 조정)'
   },
   traditional: {
     keywords: ['한옥', '전통', '민속', '옛거리', '고택', '전통마을', '문화마을', '한옥마을', '북촌', '서촌', 'hanok', 'traditional', 'folk', 'heritage village'],
     expertRole: '전통문화 스토리텔러이자 민속 해설가',
     focusAreas: ['전통 생활양식', '민속 문화', '전통 기술과 공예', '공동체 문화', '전통의 현대적 계승'],
     specialRequirements: '옛 사람들의 일상을 현대인이 공감할 수 있도록, 과거와 현재를 연결하는 이야기를 들려주세요.',
-    audioGuideTips: '"이 마당에서 할머니가 빨래를 널고, 아이들이 뛰어놀던 모습을 상상해보세요"처럼 과거의 일상을 그려주세요.'
+    audioGuideTips: '"이 마당에서 할머니가 빨래를 널고, 아이들이 뛰어놀던 모습을 상상해보세요"처럼 과거의 일상을 그려주세요.',
+    recommendedSpots: '4-6개 (마을의 규모와 주요 전통 건물 수에 따라)'
+  },
+  general: {
+    keywords: [],
+    expertRole: '문화관광 전문 스토리텔러',
+    focusAreas: ['역사와 문화', '건축과 예술', '사회적 의미', '관광 정보', '체험 활동'],
+    specialRequirements: '방문객의 흥미를 끄는 다양한 이야기와 정보를 균형있게 제공해야 합니다.',
+    audioGuideTips: '방문객이 지루하지 않도록 다양한 관점에서 흥미로운 이야기를 들려주세요.',
+    recommendedSpots: '4-6개 (일반적인 관광지 규모에 맞춤)'
   }
 };
 
@@ -203,6 +216,7 @@ interface LocationTypeConfig {
   focusAreas: string[];
   specialRequirements: string;
   audioGuideTips: string;
+  recommendedSpots: string;
 }
 
 interface LanguageConfig {
@@ -234,6 +248,26 @@ function analyzeLocationType(locationName: string): string {
   }
   
   return 'general';
+}
+
+// 위치 유형별 권장 스팟 수 결정 함수
+export function getRecommendedSpotCount(locationName: string): { min: number, max: number, default: number } {
+  const locationType = analyzeLocationType(locationName);
+  
+  switch (locationType) {
+    case 'architecture':
+      return { min: 6, max: 8, default: 7 }; // 대형 건축물은 세밀한 탐방
+    case 'historical':
+      return { min: 5, max: 7, default: 6 }; // 박물관, 유적지
+    case 'nature':
+      return { min: 4, max: 6, default: 5 }; // 자연 경관
+    case 'culinary':
+      return { min: 5, max: 8, default: 6 }; // 맛집 투어는 다양하게
+    case 'traditional':
+      return { min: 4, max: 6, default: 5 }; // 전통 마을
+    default:
+      return { min: 4, max: 6, default: 5 }; // 일반적인 관광지
+  }
 }
 
 /**
@@ -318,13 +352,15 @@ sceneDescription, coreNarrative, humanStories, nextDirection은 각각 별개의
 - 단순 정보 나열이 아닌 스토리텔링
 - 역사적 사실 + 인간적 감정 + 현장 묘사 조화
 
-### 4. **챕터 구성 (🚨 필수 준수 🚨)**
-- **정확히 5개 챕터 필수 (더 이상 늘리지 말 것)**
+### 4. **동적 챕터 구성 (🚨 필수 준수 🚨)**
+- **위치의 규모와 특성에 따라 적절한 개수의 챕터 생성**
+- **소규모 장소: 3-4개, 중간 규모: 5-6개, 대규모 복합시설: 7-8개**
 - **🔴 CRITICAL: route.steps와 realTimeGuide.chapters 개수가 정확히 일치해야 함**
 - **route.steps[0].title === realTimeGuide.chapters[0].title (제목도 동일)**
 - **route.steps[1].title === realTimeGuide.chapters[1].title (제목도 동일)**
 - **모든 step과 chapter가 1:1 완벽 매칭**
-- 입구→주요지점→출구의 효율적 동선
+- 입구→주요지점들→출구의 효율적 동선
+- **위치의 복잡도와 볼거리를 고려하여 충분히 탐방할 수 있는 적절한 수의 스팟 구성**
 
 ## 💡 오디오 가이드 작성 예시
 
@@ -473,6 +509,142 @@ sceneDescription → coreNarrative → humanStories → nextDirection이
 **리서치 데이터를 완벽히 활용하여 "${locationName}"의 최고의 오디오 가이드를 만들어주세요!**`;
 
   return prompt;
+}
+
+/**
+ * 구조 생성용 프롬프트 (overview + route만)
+ */
+export function createStructurePrompt(
+  locationName: string,
+  language: string = 'ko',
+  userProfile?: UserProfile
+): string {
+  const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.ko;
+  const userContext = userProfile ? `
+👤 사용자 맞춤 정보:
+- 관심사: ${userProfile.interests?.join(', ') || '일반'}
+- 연령대: ${userProfile.ageGroup || '성인'}
+` : '👤 일반 관광객 대상';
+
+  // 위치 유형 분석 및 권장 스팟 수 정보
+  const locationType = analyzeLocationType(locationName);
+  const typeConfig = LOCATION_TYPE_CONFIGS[locationType] || LOCATION_TYPE_CONFIGS.default;
+  const spotCount = getRecommendedSpotCount(locationName);
+
+  return `# 🏗️ "${locationName}" 가이드 기본 구조 생성
+
+## 🎯 미션
+"${locationName}"에 대한 **기본 구조(overview + route)만** 생성하세요.
+실시간 가이드 챕터는 제목만 포함하고, 상세 내용은 생성하지 마세요.
+
+${userContext}
+
+## 🎯 위치 분석 정보
+- 감지된 위치 유형: ${locationType}
+- 권장 스팟 수: ${typeConfig.recommendedSpots}
+- 최적 스팟 범위: ${spotCount.min}-${spotCount.max}개
+- 추천 기본값: ${spotCount.default}개
+
+## 📋 출력 형식
+순수 JSON만 반환. 코드 블록이나 설명 없이 오직 JSON만.
+
+**스팟 수 결정 가이드라인:**
+- **소규모 단일 건물/상점**: 3-4개 스팟
+- **중간 규모 관광지**: 5-6개 스팟  
+- **대형 복합시설/궁궐**: 7-8개 스팟
+- **자연공원/산책로**: 주요 뷰포인트별로 4-6개
+- **맛집 투어 지역**: 음식 종류에 따라 5-8개
+
+### 구조 예시 (스팟 수는 위치에 맞게 조정):
+{
+  "content": {
+    "overview": {
+      "title": "${locationName} 개관",
+      "summary": "간단한 요약 (200자 이내)",
+      "narrativeTheme": "핵심 테마 한 줄",
+      "keyFacts": [
+        { "title": "주요 정보1", "description": "설명" },
+        { "title": "주요 정보2", "description": "설명" }
+      ],
+      "visitInfo": {
+        "duration": "적절한 소요시간",
+        "difficulty": "난이도",
+        "season": "최적 계절"
+      }
+    },
+    "route": {
+      "steps": [
+        { "step": 1, "location": "입구", "title": "1지점 제목" },
+        { "step": 2, "location": "주요지점1", "title": "2지점 제목" },
+        { "step": 3, "location": "주요지점2", "title": "3지점 제목" }
+        // ... 위치 특성에 맞는 적절한 수의 스팟
+      ]
+    },
+    "realTimeGuide": {
+      "chapters": [
+        { "id": 0, "title": "1지점 제목" },
+        { "id": 1, "title": "2지점 제목" },
+        { "id": 2, "title": "3지점 제목" }
+        // ... route.steps와 정확히 동일한 수
+      ]
+    }
+  }
+}
+
+**중요**: 
+- route.steps와 realTimeGuide.chapters의 title이 정확히 동일해야 함
+- **위치의 규모와 특성을 고려하여 적절한 수의 스팟 구성** (3-8개 범위 내)
+- 입구 → 주요 지점들 → 마무리/출구 순서로 자연스러운 동선
+- 챕터에는 제목만 포함, 상세 내용 없음
+- 순수 JSON만 반환, 설명이나 코드블록 없음`;
+}
+
+/**
+ * 챕터 상세 생성용 프롬프트
+ */
+export function createChapterPrompt(
+  locationName: string,
+  chapterIndex: number,
+  chapterTitle: string,
+  existingGuide: any,
+  language: string = 'ko',
+  userProfile?: UserProfile
+): string {
+  const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.ko;
+  const audioStyle = AUDIO_GUIDE_INSTRUCTIONS[language] || AUDIO_GUIDE_INSTRUCTIONS.ko;
+
+  return `# 🎙️ "${locationName}" 챕터 ${chapterIndex + 1}: "${chapterTitle}" 상세 생성
+
+## 🎯 미션
+"${chapterTitle}" 챕터의 상세한 오디오 가이드 내용만 생성하세요.
+
+## 📚 기존 가이드 정보
+${JSON.stringify(existingGuide, null, 2)}
+
+## 🎭 스타일 가이드
+${audioStyle.style}
+
+## 📋 출력 형식
+순수 JSON만 반환. 다음 구조로:
+{
+  "chapter": {
+    "id": ${chapterIndex},
+    "title": "${chapterTitle}",
+    "sceneDescription": "현장 묘사와 사전지식 (600-700자)",
+    "coreNarrative": "역사적 맥락과 의미 (700-800자)",
+    "humanStories": "인물 이야기와 일화 (600-700자)",
+    "nextDirection": "다음 장소 안내 (300-350자)"
+  }
+}
+
+**핵심 요구사항**:
+1. 4개 필드가 하나의 연속된 10분 오디오 스크립트를 구성
+2. 교육적 구조: 사전지식 → 현장관찰 → 지식연결 → 인물이야기 → 다음안내
+3. 각 필드 간 자연스러운 연결 (질문으로 끝내고 답으로 시작)
+4. 구어체, 친근한 톤
+5. 역사적 사실만 사용, 가상 인물 금지
+
+**절대 규칙**: 순수 JSON만 반환, 코드블록이나 설명 없음`;
 }
 
 // 기타 유틸리티 함수들

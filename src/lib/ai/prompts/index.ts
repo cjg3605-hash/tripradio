@@ -122,9 +122,10 @@ export function generateTypeSpecificExample(locationType: string, locationName: 
         { 
           title: "입구 및 전체 개관",
           description: "방문 시작점에서의 오리엔테이션",
-          duration: "15분",
+          duration: "적절한 시간",
           highlights: ["첫인상", "전체 구조 파악"]
         }
+        // ... 위치 특성에 따라 적절한 수의 단계들
       ],
       tips: [`${typeConfig.chapterStructure}에 따른 효율적 관람`],
       duration: "전체 소요시간"
@@ -133,11 +134,10 @@ export function generateTypeSpecificExample(locationType: string, locationName: 
       chapters: [
         {
           title: "입구 및 전체 개관",
-          narrative: "2 100자 이상의 연속 서사 - 현장 묘사 · 역사 · 인물 이야기가 자연스레 이어진 스크립트",
-
-
-          nextDirection: "300자 이상의 이동 안내 - 다음 관람 지점으로의 명확한 경로 및 거리 정보"
+          narrative: "현장 묘사·역사·인물 이야기가 자연스레 이어진 스크립트",
+          nextDirection: "다음 관람 지점으로의 명확한 경로 및 거리 정보"
         }
+        // ... route.steps와 동일한 수의 챕터들
       ]
     }
   };
