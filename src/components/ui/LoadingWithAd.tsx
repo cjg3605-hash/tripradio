@@ -7,12 +7,14 @@ interface LoadingWithAdProps {
   message?: string;
   showProgress?: boolean;
   progress?: number;
+  detailMessage?: string;
 }
 
 const LoadingWithAd: React.FC<LoadingWithAdProps> = ({ 
   message = "AI가 맞춤형 가이드를 생성하고 있습니다...", 
   showProgress = false,
-  progress = 0 
+  progress = 0,
+  detailMessage
 }) => {
   const [dots, setDots] = useState('');
 
@@ -38,12 +40,22 @@ const LoadingWithAd: React.FC<LoadingWithAdProps> = ({
         </h2>
         
         {showProgress && (
-          <div className="w-64 bg-gray-200 rounded-full h-2 mx-auto mb-4">
-            <div 
-              className="bg-gradient-to-r from-blue-600 to-cyan-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            ></div>
+          <div className="mb-4">
+            <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <span>진행률</span>
+              <span>{Math.round(progress)}%</span>
+            </div>
+            <div className="w-64 bg-gray-200 rounded-full h-2 mx-auto mb-2">
+              <div 
+                className="bg-gradient-to-r from-blue-600 to-cyan-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
           </div>
+        )}
+
+        {detailMessage && (
+          <p className="text-gray-600 text-sm mb-2">{detailMessage}</p>
         )}
         
         <p className="text-gray-600 max-w-md mx-auto">

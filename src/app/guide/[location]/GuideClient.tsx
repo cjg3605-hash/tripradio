@@ -210,39 +210,12 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-                <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6 text-center">
-                    <h2 className="text-lg font-medium text-gray-900 mb-4">{locationName} AI 가이드 생성</h2>
-                    
-                    {/* 진행률 표시 */}
-                    <div className="mb-4">
-                        <div className="flex justify-between text-sm text-gray-600 mb-2">
-                            <span>진행률</span>
-                            <span>{currentProgress}/{totalSteps}</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                                className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-                                style={{ width: `${(currentProgress / totalSteps) * 100}%` }}
-                            />
-                        </div>
-                    </div>
-                    
-                    <p className="text-gray-600 mb-4">{loadingMessage}</p>
-                    
-                    {/* 로딩 스피너 */}
-                    <div className="flex justify-center">
-                        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                    
-                    {/* 현재 가이드 데이터가 있으면 미리보기 표시 */}
-                    {guideData && (
-                        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                            <p className="text-blue-800 text-sm">✨ 기본 구조는 준비되었습니다! 챕터 내용을 계속 생성하고 있어요.</p>
-                        </div>
-                    )}
-                </div>
-            </div>
+            <LoadingWithAd
+                message={`${locationName} AI 가이드 생성 중...`}
+                showProgress={true}
+                progress={(currentProgress / totalSteps) * 100}
+                detailMessage={loadingMessage}
+            />
         );
     }
 

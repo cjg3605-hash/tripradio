@@ -367,8 +367,8 @@ export async function POST(req: NextRequest) {
     const { error: updateError } = await supabase
       .from('guides')
       .update({
-        content: finalData,
-        updated_at: new Date().toISOString()
+        content: finalData
+        // updated_at 컬럼 제거 - 테이블에 해당 컬럼이 없어서 PGRST204 오류 발생
       })
       .eq('locationname', normLocation)
       .eq('language', normLang);
