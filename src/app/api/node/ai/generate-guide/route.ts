@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
   if (genAI instanceof Response) return genAI;
   
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-pro',
+            model: 'gemini-2.5-flash-lite-preview-06-17', // 2.5 시리즈 최고 속도, 최저 비용
     generationConfig: { temperature: 0.3, maxOutputTokens: 16384 } // 단계별로 생성하므로 토큰 수 줄임
   });
 

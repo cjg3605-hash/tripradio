@@ -177,6 +177,12 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                         console.warn(`⚠️ 챕터 ${chapterIndex + 1} 생성 중 오류:`, chapterError);
                         // 챕터 하나 실패해도 계속 진행
                     }
+                    
+                    // API Rate Limiting 방지를 위한 딜레이 (마지막 챕터 제외)
+                    if (chapterIndex < totalChapters - 1) {
+                        console.log('⏱️ API 안정성을 위해 1초 대기...');
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
                 }
 
                 console.log('✅ 가이드 완전 생성 완료');
