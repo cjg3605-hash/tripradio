@@ -272,7 +272,7 @@ export default function TourContent({ guide, language }: TourContentProps) {
                   onClick={() => handlePlayPause(chapterIndex)}
                   disabled={chapterStates[chapterIndex].isLoading || !hasContent}
                   size="sm"
-                  variant={hasContent ? "outline" : "secondary"}
+                  variant={hasContent ? "outline" : "ghost"}
                   title={!hasContent ? "챕터 내용이 생성 중입니다" : undefined}
                 >
                   {chapterStates[chapterIndex].isLoading ? (
