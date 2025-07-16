@@ -171,8 +171,17 @@ export async function POST(req: NextRequest) {
     prompt = createStructurePrompt(locationName, language, userProfile);
   } else if (generationMode === 'chapter' && existingGuide && targetChapter !== null) {
     // 특정 챕터 생성
-    console.log('📖 챕터 생성 모드 - 챕터:', targetChapter);
+    console.log('📖 챕터 생성 모드 상세:', {
+      targetChapter,
+      hasExistingGuide: !!existingGuide,
+      hasRealTimeGuide: !!existingGuide.realTimeGuide,
+      hasChapters: !!existingGuide.realTimeGuide?.chapters,
+      chaptersLength: existingGuide.realTimeGuide?.chapters?.length || 0,
+      targetChapterExists: !!existingGuide.realTimeGuide?.chapters?.[targetChapter],
+      allChapterTitles: existingGuide.realTimeGuide?.chapters?.map((ch: any) => ch.title) || []
+    });
     const chapterTitle = existingGuide.realTimeGuide?.chapters?.[targetChapter]?.title || `챕터 ${targetChapter + 1}`;
+    console.log('📖 챕터 제목 확정:', chapterTitle);
     prompt = createChapterPrompt(locationName, targetChapter, chapterTitle, existingGuide, language, userProfile);
   } else {
     // 기존 방식 (자동 완성 시도)
@@ -181,11 +190,21 @@ export async function POST(req: NextRequest) {
   }
   
   try {
+    console.log('🚀 AI 요청 시작:', { 
+      mode: generationMode, 
+      targetChapter, 
+      promptLength: prompt.length,
+      promptPreview: prompt.substring(0, 200) + '...' 
+    });
     const result = await model.generateContent(prompt);
     const response = await result.response;
     responseText = await response.text();
-    console.log('🤖 AI 응답 길이:', responseText.length, '문자');
-    console.log('🤖 AI 응답 끝 200자:', responseText.slice(-200));
+    console.log('🤖 AI 응답 수신:', {
+      mode: generationMode,
+      responseLength: responseText.length,
+      responseStart: responseText.substring(0, 200) + '...',
+      responseEnd: responseText.slice(-200)
+    });
     
     if (!responseText || responseText.trim().length === 0) {
       return new Response(
@@ -224,10 +243,16 @@ export async function POST(req: NextRequest) {
   // 생성 모드에 따른 데이터 처리
   if (generationMode === 'chapter' && existingGuide && targetChapter !== null) {
     // 챕터 생성 모드: 기존 가이드에 새 챕터 추가
-    console.log('📖 챕터 통합 중...');
+    console.log('📖 챕터 통합 시작:', {
+      parsedDataKeys: Object.keys(parsed.data),
+      hasChapter: !!parsed.data.chapter,
+      chapterStructure: parsed.data.chapter ? Object.keys(parsed.data.chapter) : [],
+      chapterContent: parsed.data.chapter
+    });
     const newChapter = parsed.data.chapter;
     
     if (!newChapter) {
+      console.error('❌ 챕터 데이터 없음:', { parsedData: parsed.data });
       return new Response(
         JSON.stringify({ success: false, error: '챕터 데이터가 생성되지 않았습니다.' }),
         { status: 500, headers }

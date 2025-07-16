@@ -528,7 +528,7 @@ export function createStructurePrompt(
 
   // 위치 유형 분석 및 권장 스팟 수 정보
   const locationType = analyzeLocationType(locationName);
-  const typeConfig = LOCATION_TYPE_CONFIGS[locationType] || LOCATION_TYPE_CONFIGS.default;
+  const typeConfig = LOCATION_TYPE_CONFIGS[locationType] || LOCATION_TYPE_CONFIGS.general;
   const spotCount = getRecommendedSpotCount(locationName);
 
   return `# 🏗️ "${locationName}" 가이드 기본 구조 생성
@@ -611,7 +611,7 @@ export function createChapterPrompt(
   userProfile?: UserProfile
 ): string {
   const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.ko;
-  const audioStyle = AUDIO_GUIDE_INSTRUCTIONS[language] || AUDIO_GUIDE_INSTRUCTIONS.ko;
+  const audioStyle = AUDIO_GUIDE_INSTRUCTIONS.ko; // 한국어 스타일 직접 참조
 
   return `# 🎙️ "${locationName}" 챕터 ${chapterIndex + 1}: "${chapterTitle}" 상세 생성
 
@@ -622,7 +622,18 @@ export function createChapterPrompt(
 ${JSON.stringify(existingGuide, null, 2)}
 
 ## 🎭 스타일 가이드
-${audioStyle.style}
+당신은 **단 한 명의 최고의 스토리텔러**입니다. 
+
+**🎯 핵심 미션**: 당신은 관람객 바로 옆에서 친구처럼 이야기하는 **단 한 명의 가이드**입니다. 
+처음부터 끝까지 일관된 목소리와 성격으로, 마치 긴 여행 이야기를 들려주듯 자연스럽게 안내하세요.
+
+**📝 절대 준수 사항**:
+
+1. **하나의 연속된 교육적 대본**
+   - sceneDescription, coreNarrative, humanStories, nextDirection은 구분선이 아닙니다!
+   - 이 4개는 하나로 이어져 12-13분간 연속으로 재생되는 교육적 오디오 대본입니다
+   - 각 필드의 마지막 문장과 다음 필드의 첫 문장이 자연스럽게 연결되어야 합니다
+   - "그런데 말이죠", "이제 이 지식을 바탕으로", "실제로 여기서", "자, 그럼 이제" 등으로 매끄럽게 전환
 
 ## 📋 출력 형식
 순수 JSON만 반환. 다음 구조로:
