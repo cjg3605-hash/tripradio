@@ -1,10 +1,11 @@
+// src/lib/tts-simple.ts
 // 간단한 브라우저 내장 TTS 구현
 // GCP 없이 Web Speech API 사용
 
 interface TTSOptions {
   text: string;
   language?: string;
-  rate?: number;
+  rate?: number; // 기본값 1.2로 변경
   pitch?: number;
   volume?: number;
 }
@@ -66,7 +67,7 @@ export class SimpleTTS {
     return voice || null;
   }
 
-  // TTS 재생
+  // TTS 재생 (1.2배속 기본값)
   public async speak(options: TTSOptions): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.synthesis) {
@@ -92,8 +93,8 @@ export class SimpleTTS {
         this.currentUtterance.voice = voice;
       }
 
-      // 옵션 설정
-      this.currentUtterance.rate = options.rate || 0.9; // 조금 느리게
+      // 옵션 설정 (기본 배속 1.2로 변경)
+      this.currentUtterance.rate = options.rate || 1.2; // 1.2배속 기본값
       this.currentUtterance.pitch = options.pitch || 1.0;
       this.currentUtterance.volume = options.volume || 1.0;
 
@@ -109,7 +110,7 @@ export class SimpleTTS {
       };
 
       this.currentUtterance.onstart = () => {
-        console.log('🎵 TTS 재생 시작');
+        console.log('🎵 TTS 재생 시작 (배속:', this.currentUtterance?.rate || 1.2, ')');
       };
 
       // 재생 시작
@@ -147,19 +148,31 @@ export class SimpleTTS {
   public isPaused(): boolean {
     return this.synthesis ? this.synthesis.paused : false;
   }
+
+  // 배속 설정 메서드 추가
+  public setRate(rate: number): void {
+    if (this.currentUtterance) {
+      this.currentUtterance.rate = rate;
+    }
+  }
+
+  // 현재 배속 가져오기
+  public getRate(): number {
+    return this.currentUtterance?.rate || 1.2;
+  }
 }
 
 // 싱글톤 인스턴스
 let ttsInstance: SimpleTTS | null = null;
 
-export function getTTSInstance(): SimpleTTS {
+export const getTTSInstance = (): SimpleTTS => {
   if (!ttsInstance) {
     ttsInstance = new SimpleTTS();
   }
   return ttsInstance;
-}
+};
 
 // 호환성 체크
-export function isTTSSupported(): boolean {
+export const isTTSSupported = (): boolean => {
   return typeof window !== 'undefined' && 'speechSynthesis' in window;
-} 
+};

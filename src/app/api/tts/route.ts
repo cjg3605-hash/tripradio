@@ -1,13 +1,15 @@
+// src/app/api/tts/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { generateTTSAudio } from '@/lib/tts-gcs';
 
 export async function POST(req: NextRequest) {
   try {
-    const { text, language = 'ko-KR' } = await req.json();
+    const { text, language = 'ko-KR', speakingRate = 1.2 } = await req.json();
     
     console.log('🎵 TTS 요청 받음:', { 
       textLength: text?.length || 0, 
-      language
+      language,
+      speakingRate
     });
     
     if (!text) {
@@ -32,12 +34,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Google Cloud TTS로 오디오 생성
-    const audioBuffer = await generateTTSAudio(text, language);
+    // Google Cloud TTS로 오디오 생성 (배속 적용)
+    const audioBuffer = await generateTTSAudio(text, language, speakingRate);
     
     console.log('✅ TTS 오디오 생성 완료:', { 
       size: audioBuffer.byteLength,
-      language 
+      language,
+      speakingRate 
     });
 
     // ArrayBuffer를 Base64로 인코딩하여 반환
@@ -47,7 +50,8 @@ export async function POST(req: NextRequest) {
       success: true,
       audioData: base64Audio,
       mimeType: 'audio/mpeg',
-      language
+      language,
+      speakingRate
     });
     
   } catch (error) {
@@ -64,4 +68,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
