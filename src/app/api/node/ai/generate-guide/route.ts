@@ -131,7 +131,8 @@ export async function POST(req: NextRequest) {
   });
 
   // 1. 캐시 확인 (강제 재생성이 아닌 경우에만)
-  if (!forceRegenerate) {
+  // 🚨 중요: 챕터 생성 모드일 때는 캐시를 사용하지 않음
+  if (!forceRegenerate && generationMode !== 'chapter') {
     console.log('🔍 캐시 확인 중...');
     const { data: cached } = await supabase
       .from('guides')
