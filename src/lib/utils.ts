@@ -244,11 +244,24 @@ export function validateJsonResponse(jsonString: string): {
   error: string; 
 } {
   try {
-    // 코드 블록 제거
-    const codeBlockMatch = jsonString.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-    let cleanedString = codeBlockMatch ? codeBlockMatch[1] : jsonString;
+    let cleanedString = jsonString.trim();
     
-    // JSON 시작과 끝 찾기
+    // 1. 코드 블록 제거 (여러 패턴 지원)
+    if (cleanedString.includes('```')) {
+      // ```json ... ``` 패턴
+      const jsonBlockMatch = cleanedString.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (jsonBlockMatch) {
+        cleanedString = jsonBlockMatch[1].trim();
+      } else {
+        // ``` 시작으로만 되어 있는 경우
+        cleanedString = cleanedString.replace(/^```(?:json)?\s*/, '').replace(/```\s*$/, '');
+      }
+    }
+    
+    // 2. BOM 및 불필요한 공백 제거
+    cleanedString = cleanedString.replace(/^[\uFEFF\s]+/, '').replace(/[\s]+$/, '');
+    
+    // 3. JSON 시작과 끝 찾기
     const jsonStart = cleanedString.indexOf('{');
     const jsonEnd = cleanedString.lastIndexOf('}');
     
@@ -261,18 +274,27 @@ export function validateJsonResponse(jsonString: string): {
     
     cleanedString = cleanedString.substring(jsonStart, jsonEnd + 1);
     
-    // BOM 및 주석 제거
-    cleanedString = cleanedString.replace(/^[\uFEFF\s]+/, '');
-    // JSON 파싱 전에 주석 제거는 위험할 수 있으므로 제거하거나
-    // 더 정교한 파서를 사용하는 것이 좋습니다
+    // 4. 일반적인 JSON 오류 수정 시도
+    // 마지막 쉼표 제거 (trailing comma)
+    cleanedString = cleanedString.replace(/,(\s*[}\]])/g, '$1');
     
+    // 5. JSON 파싱 시도
     const parsed = JSON.parse(cleanedString);
     return { success: true, data: parsed };
     
   } catch (error) {
+    // 파싱 실패 시 더 자세한 디버그 정보 제공
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const cleanedLength = jsonString.replace(/\s/g, '').length;
+    
+    // 잘린 JSON인지 확인
+    const openBraces = (jsonString.match(/{/g) || []).length;
+    const closeBraces = (jsonString.match(/}/g) || []).length;
+    const isIncomplete = openBraces !== closeBraces;
+    
     return {
       success: false,
-      error: `JSON 파싱 실패: ${error instanceof Error ? error.message : String(error)}`
+      error: `JSON 파싱 실패: ${errorMessage}${isIncomplete ? ' (JSON이 불완전함 - 응답이 잘렸을 가능성)' : ''}`
     };
   }
 }
