@@ -181,7 +181,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                     // API Rate Limiting 방지를 위한 딜레이 (마지막 챕터 제외)
                     if (chapterIndex < totalChapters - 1) {
                         console.log('⏱️ API 안정성을 위해 1초 대기...');
-                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        await new Promise(resolve => setTimeout(resolve, 1500));
                     }
                 }
 
