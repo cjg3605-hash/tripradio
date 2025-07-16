@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
-import { createStructurePrompt, createChapterPrompt, getRecommendedSpotCount } from '@/lib/ai/prompts/korean';
+import { createStructurePrompt, createChapterPrompt, getRecommendedSpotCount, createAutonomousGuidePrompt as createKoreanAutonomousGuidePrompt } from '@/lib/ai/prompts/korean';
 import { supabase } from '@/lib/supabaseClient';
 
 export const runtime = 'nodejs';
@@ -213,7 +213,11 @@ export async function POST(req: NextRequest) {
   } else {
     // 기존 방식 (자동 완성 시도)
     console.log('🔄 자동 완성 모드');
-    prompt = await createAutonomousGuidePrompt(locationName, language, userProfile);
+    if (language === 'ko') {
+      prompt = createKoreanAutonomousGuidePrompt(locationName, language, userProfile);
+    } else {
+      prompt = await createAutonomousGuidePrompt(locationName, language, userProfile);
+    }
   }
   
   try {
