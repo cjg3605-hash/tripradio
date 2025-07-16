@@ -183,6 +183,12 @@ export async function POST(req: NextRequest) {
     const chapterTitle = existingGuide.realTimeGuide?.chapters?.[targetChapter]?.title || `챕터 ${targetChapter + 1}`;
     console.log('📖 챕터 제목 확정:', chapterTitle);
     prompt = createChapterPrompt(locationName, targetChapter, chapterTitle, existingGuide, language, userProfile);
+    console.log('📝 챕터 프롬프트 생성 완료:', {
+      promptLength: prompt.length,
+      promptPreview: prompt.substring(0, 300) + '...',
+      chapterTitle,
+      targetChapter
+    });
   } else {
     // 기존 방식 (자동 완성 시도)
     console.log('🔄 자동 완성 모드');
@@ -247,17 +253,49 @@ export async function POST(req: NextRequest) {
       parsedDataKeys: Object.keys(parsed.data),
       hasChapter: !!parsed.data.chapter,
       chapterStructure: parsed.data.chapter ? Object.keys(parsed.data.chapter) : [],
-      chapterContent: parsed.data.chapter
+      chapterContent: parsed.data.chapter,
+      fullParsedData: JSON.stringify(parsed.data, null, 2)
     });
     const newChapter = parsed.data.chapter;
     
     if (!newChapter) {
-      console.error('❌ 챕터 데이터 없음:', { parsedData: parsed.data });
+      console.error('❌ 챕터 데이터 없음:', { 
+        parsedData: parsed.data,
+        fullResponse: responseText.substring(0, 2000) + '...',
+        expectedStructure: "{ chapter: { id, title, narrative, nextDirection } }"
+      });
       return new Response(
-        JSON.stringify({ success: false, error: '챕터 데이터가 생성되지 않았습니다.' }),
+        JSON.stringify({ success: false, error: '챕터 데이터가 생성되지 않았습니다. AI 응답 구조가 올바르지 않습니다.' }),
         { status: 500, headers }
       );
     }
+
+    // 챕터 데이터 유효성 검증
+    if (!newChapter.narrative || newChapter.narrative.length < 500) {
+      console.error('❌ 챕터 narrative 부족:', {
+        hasNarrative: !!newChapter.narrative,
+        narrativeLength: newChapter.narrative?.length || 0,
+        minRequired: 1700,
+        chapterData: newChapter
+      });
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `챕터 narrative가 부족합니다. (현재: ${newChapter.narrative?.length || 0}자, 최소: 1700자)` 
+        }),
+        { status: 500, headers }
+      );
+    }
+
+    console.log('📖 새 챕터 데이터 상세:', {
+      id: newChapter.id,
+      title: newChapter.title,
+      hasNarrative: !!newChapter.narrative,
+      narrativeLength: newChapter.narrative?.length || 0,
+      narrativePreview: newChapter.narrative?.substring(0, 200) + '...',
+      hasNextDirection: !!newChapter.nextDirection,
+      allChapterKeys: Object.keys(newChapter)
+    });
 
     // 기존 가이드 복사하고 새 챕터 추가
     finalData = { ...existingGuide };

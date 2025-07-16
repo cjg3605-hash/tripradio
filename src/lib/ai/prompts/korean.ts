@@ -657,7 +657,7 @@ ${JSON.stringify(existingGuide, null, 2)}
 
 ## 📋 출력 형식
 순수 JSON만 반환. 다음 구조로:
-\`\`\`json
+
 {
   "chapter": {
     "id": ${chapterIndex},
@@ -666,7 +666,6 @@ ${JSON.stringify(existingGuide, null, 2)}
     "nextDirection": "다음 장소로의 구체적 이동 안내 (200-300자)"
   }
 }
-\`\`\`
 
 ## ✨ 스토리텔링 예시 (톤 참조용)
 
@@ -683,13 +682,17 @@ ${JSON.stringify(existingGuide, null, 2)}
 4. **현장 상호작용**: "보세요", "들리시나요?", "느껴지시죠?" 등
 5. **순수 JSON**: 설명이나 코드블록 없이 JSON만 반환
 
-**절대 규칙**: 
-- 분리된 필드들(sceneDescription, coreNarrative 등) 생성 금지
-- 하나의 narrative로만 구성
-- 중간에 소제목이나 구분선 넣지 말 것
-- 순수 JSON만 반환, 다른 텍스트 없음
+**🔴 절대 준수사항**: 
+- 반드시 순수 JSON만 반환 (설명이나 서론 없음)
+- 코드블록 사용 금지
+- narrative 필드는 반드시 1700자 이상
+- 하나의 연속된 스토리로 작성
+- JSON 구조: chapter 객체에 id, title, narrative, nextDirection 필드 포함
 
-지금 바로 "${chapterTitle}"의 매력적이고 교육적인 오디오 가이드 스토리를 생성해주세요!`
+**🔴 응답 예시 구조**:
+chapter 객체 안에 id(숫자), title(문자열), narrative(1700자 이상), nextDirection(문자열) 포함
+
+지금 즉시 "${chapterTitle}"에 대한 완벽한 JSON을 생성하세요!`
 }
 
 // 기타 유틸리티 함수들
