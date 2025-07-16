@@ -24,6 +24,56 @@ export async function saveGuideHistoryToSupabase(user, locationName, guideData, 
   }
 }
 
+// 🚨 누락된 함수 추가: Supabase에서 히스토리 조회
+export async function fetchGuideHistoryFromSupabase(user) {
+  if (!user?.id) {
+    console.warn('❌ fetchGuideHistoryFromSupabase: user.id가 없습니다');
+    return [];
+  }
+
+  try {
+    console.log('🔍 Supabase에서 히스토리 조회 중...', { userId: user.id });
+    
+    const { data, error } = await supabase
+      .from('guide_history')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('❌ Supabase 히스토리 조회 실패:', error);
+      return [];
+    }
+
+    // HistoryEntry/GuideHistoryEntry 형태로 변환 (두 타입 모두 호환)
+    const historyEntries = (data || []).map(entry => ({
+      // HistoryEntry 필드들
+      fileName: entry.id || `guide_${Date.now()}`,
+      locationName: entry.location_name || '알 수 없는 위치',
+      generatedAt: entry.created_at || new Date().toISOString(),
+      preview: entry.guide_data?.realTimeGuide?.chapters?.[0]?.title || '가이드 미리보기',
+      
+      // GuideHistoryEntry 필드들 추가
+      id: entry.id || `guide_${Date.now()}`,
+      createdAt: entry.created_at || new Date().toISOString(),
+      guideData: entry.guide_data,
+      userProfile: entry.user_profile,
+      viewedPages: [], // 기본값
+      completed: false, // 기본값
+      
+      // 기존 필드들 (하위 호환성)
+      timestamp: entry.created_at || new Date().toISOString()
+    }));
+
+    console.log('✅ 히스토리 조회 완료:', { count: historyEntries.length });
+    return historyEntries;
+
+  } catch (error) {
+    console.error('❌ fetchGuideHistoryFromSupabase 오류:', error);
+    return [];
+  }
+}
+
 // ===============================
 // 🚀 새로운 챕터별 상세 내용 관리 함수들
 // ===============================
