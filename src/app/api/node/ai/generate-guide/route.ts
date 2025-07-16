@@ -35,40 +35,72 @@ function normalizeGuideData(raw: any, language?: string) {
   console.log('🔍 원본 데이터 구조 확인:', {
     hasContent: !!raw.content,
     contentType: typeof raw.content,
-    keys: raw.content ? Object.keys(raw.content) : [],
+    directKeys: Object.keys(raw),
+    contentKeys: raw.content ? Object.keys(raw.content) : [],
   });
 
-  // raw가 직접 가이드 데이터인 경우
+  // 프롬프트 응답 구조: { "content": { "overview": ..., "route": ..., "realTimeGuide": ... } }
+  if (raw.content && typeof raw.content === 'object') {
+    const { overview, route, realTimeGuide } = raw.content;
+    console.log('✅ content 래퍼에서 데이터 추출:', {
+      hasOverview: !!overview,
+      hasRoute: !!route,
+      hasRealTimeGuide: !!realTimeGuide,
+      chaptersCount: realTimeGuide?.chapters?.length || 0
+    });
+
+    return {
+      overview: overview || {
+        title: '개요 정보 없음',
+        summary: '',
+        keyFacts: [],
+        visitInfo: {}
+      },
+      route: route || { steps: [] },
+      realTimeGuide: realTimeGuide || { chapters: [] },
+      metadata: {
+        originalLocationName: raw.metadata?.originalLocationName || '',
+        generatedAt: new Date().toISOString(),
+        version: '1.0'
+      }
+    };
+  }
+
+  // raw가 직접 가이드 데이터인 경우 (하위 호환성)
   if (raw.overview || raw.route || raw.realTimeGuide) {
-    console.log('📋 직접 가이드 데이터 형식 감지');
+    console.log('📋 직접 가이드 데이터 형식 감지 (하위 호환성)');
     return {
-      overview: raw.overview || '개요 정보가 없습니다.',
-      route: raw.route || { steps: [], tips: [], duration: '정보 없음' },
-      realTimeGuide: raw.realTimeGuide || { chapters: [] }
+      overview: raw.overview || {
+        title: '개요 정보 없음',
+        summary: '',
+        keyFacts: [],
+        visitInfo: {}
+      },
+      route: raw.route || { steps: [] },
+      realTimeGuide: raw.realTimeGuide || { chapters: [] },
+      metadata: {
+        originalLocationName: raw.metadata?.originalLocationName || '',
+        generatedAt: new Date().toISOString(),
+        version: '1.0'
+      }
     };
   }
 
-  // raw.content가 있는 경우
-  if (!raw.content || typeof raw.content !== 'object') {
-    console.log('⚠️ content 필드가 없거나 올바르지 않음, 기본값 반환');
-    return {
-      overview: '개요 정보가 없습니다.',
-      route: { steps: [], tips: [], duration: '정보 없음' },
-      realTimeGuide: { chapters: [] }
-    };
-  }
-
-  const { overview, route, realTimeGuide } = raw.content;
-  console.log('✅ content에서 데이터 추출:', {
-    hasOverview: !!overview,
-    hasRoute: !!route,
-    hasRealTimeGuide: !!realTimeGuide
-  });
-
+  console.log('⚠️ 예상하지 못한 데이터 구조, 기본값 반환');
   return {
-    overview: overview || '개요 정보가 없습니다.',
-    route: route || { steps: [], tips: [], duration: '정보 없음' },
-    realTimeGuide: realTimeGuide || { chapters: [] }
+    overview: {
+      title: '가이드 생성 실패',
+      summary: '데이터 구조 오류',
+      keyFacts: [],
+      visitInfo: {}
+    },
+    route: { steps: [] },
+    realTimeGuide: { chapters: [] },
+    metadata: {
+      originalLocationName: '',
+      generatedAt: new Date().toISOString(),
+      version: '1.0'
+    }
   };
 }
 
