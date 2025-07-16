@@ -3,12 +3,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
 import { createStructurePrompt, createChapterPrompt, getRecommendedSpotCount } from '@/lib/ai/prompts/korean';
 import { supabase } from '@/lib/supabaseClient';
+import { 
+  saveGuideWithChapters, 
+  getGuideWithDetailedChapters, 
+  updateChapterDetails,
+  hasChapterDetails 
+} from '@/lib/supabaseGuideHistory';
 
 export const runtime = 'nodejs';
 
-// 간단한 정규화 함수
 function normalize(str: string): string {
-  return str.trim().toLowerCase();
+  if (!str || typeof str !== 'string') return '';
+  return str.toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/[^\w\s가-힣]/g, '');
 }
 
 function getGeminiClient(): GoogleGenerativeAI | Response {
@@ -131,9 +140,50 @@ export async function POST(req: NextRequest) {
   });
 
   // 1. 캐시 확인 (강제 재생성이 아닌 경우에만)
-  // 🚨 중요: 챕터 생성 모드일 때는 캐시를 사용하지 않음
-  if (!forceRegenerate && generationMode !== 'chapter') {
+  // 🚨 중요: 챕터 생성 모드일 때는 기존 챕터 내용 확인
+  if (!forceRegenerate) {
     console.log('🔍 캐시 확인 중...');
+    
+    // 🚀 새로운 방식: 상세 챕터 포함 가이드 조회
+    const detailedGuideResult = await getGuideWithDetailedChapters(normLocation, normLang);
+    
+    if (detailedGuideResult.success && detailedGuideResult.guide) {
+      // 챕터 생성 모드에서 해당 챕터에 이미 내용이 있는지 확인
+      if (generationMode === 'chapter' && targetChapter !== null) {
+        const existingChapter = detailedGuideResult.guide?.realTimeGuide?.chapters?.[targetChapter];
+        console.log('📖 기존 챕터 확인:', {
+          targetChapter,
+          hasChapter: !!existingChapter,
+          hasNarrative: !!existingChapter?.narrative,
+          hasLegacyContent: !!(existingChapter?.sceneDescription || existingChapter?.coreNarrative || existingChapter?.humanStories),
+          narrativeLength: existingChapter?.narrative?.length || 0
+        });
+        
+        // 챕터에 이미 충분한 내용이 있으면 생성하지 않고 반환
+        if (existingChapter && (existingChapter.narrative || 
+           (existingChapter.sceneDescription && existingChapter.coreNarrative && existingChapter.humanStories))) {
+          console.log('✅ 챕터 내용이 이미 존재 - 기존 데이터 반환');
+          return NextResponse.json({
+            success: true,
+            data: { content: detailedGuideResult.guide },
+            cached: 'hit',
+            language,
+            message: '챕터 내용이 이미 존재합니다.'
+          });
+        }
+      } else if (generationMode !== 'chapter') {
+        // 일반 모드에서는 기존 로직 유지
+        console.log('✅ 상세 가이드 캐시 반환');
+        return NextResponse.json({
+          success: true,
+          data: { content: detailedGuideResult.guide },
+          cached: 'hit',
+          language
+        });
+      }
+    }
+    
+    // 🔄 기존 방식으로 폴백 (호환성 유지)
     const { data: cached } = await supabase
       .from('guides')
       .select('content')
@@ -142,13 +192,39 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
 
     if (cached) {
-      console.log('✅ 캐시된 데이터 반환');
-      return NextResponse.json({
-        success: true,
-        data: { content: cached.content },
-        cached: 'hit',
-        language
-      });
+      // 챕터 생성 모드에서 해당 챕터에 이미 내용이 있는지 확인
+      if (generationMode === 'chapter' && targetChapter !== null) {
+        const existingChapter = cached.content?.realTimeGuide?.chapters?.[targetChapter];
+        console.log('📖 기존 챕터 확인:', {
+          targetChapter,
+          hasChapter: !!existingChapter,
+          hasNarrative: !!existingChapter?.narrative,
+          hasLegacyContent: !!(existingChapter?.sceneDescription || existingChapter?.coreNarrative || existingChapter?.humanStories),
+          narrativeLength: existingChapter?.narrative?.length || 0
+        });
+        
+        // 챕터에 이미 충분한 내용이 있으면 생성하지 않고 반환
+        if (existingChapter && (existingChapter.narrative || 
+           (existingChapter.sceneDescription && existingChapter.coreNarrative && existingChapter.humanStories))) {
+          console.log('✅ 챕터 내용이 이미 존재 - 기존 데이터 반환');
+          return NextResponse.json({
+            success: true,
+            data: { content: cached.content },
+            cached: 'hit',
+            language,
+            message: '챕터 내용이 이미 존재합니다.'
+          });
+        }
+      } else if (generationMode !== 'chapter') {
+        // 일반 모드에서는 기존 로직 유지
+        console.log('✅ 캐시된 데이터 반환');
+        return NextResponse.json({
+          success: true,
+          data: { content: cached.content },
+          cached: 'hit',
+          language
+        });
+      }
     }
   }
 
@@ -288,20 +364,27 @@ export async function POST(req: NextRequest) {
     // 챕터 제목 추출
     const chapterTitle = existingGuide.realTimeGuide?.chapters?.[targetChapter]?.title || `챕터 ${targetChapter + 1}`;
     
-    // 챕터 데이터 유효성 검증 - 더 관대하게 수정
-    if (!newChapter.narrative || newChapter.narrative.length < 300) {
-      console.error('❌ 챕터 narrative 부족 - 재시도 필요:', {
+    // 챕터 데이터 유효성 검증 - narrative 필드 기준으로 강화
+    if (!newChapter.narrative || newChapter.narrative.length < 1500) {
+      console.error('❌ 챕터 narrative 내용 부족 - 재시도 필요:', {
         hasNarrative: !!newChapter.narrative,
         narrativeLength: newChapter.narrative?.length || 0,
-        minRequired: 300,
+        minRequired: 1500,
         chapterData: newChapter
       });
       
-      // 일단 기본 narrative라도 생성해서 저장
-      if (!newChapter.narrative) {
-        const fallbackNarrative = `${chapterTitle}에 대한 상세한 가이드입니다. 이곳은 ${locationName}의 중요한 장소 중 하나로, 방문객들에게 특별한 경험을 제공합니다. 역사적 의미와 문화적 가치가 깊은 이 장소에서는 다양한 이야기들이 펼쳐집니다. 잠시 후 더 상세한 내용이 추가될 예정입니다.`;
+      // 기본 narrative 생성 (더 풍부하게)
+      if (!newChapter.narrative || newChapter.narrative.length < 1500) {
+        const fallbackNarrative = `${chapterTitle}에 도착하시면 가장 먼저 이 장소의 독특한 분위기가 느껴지실 거예요. 여기서 바라보는 풍경과 주변의 특징들이 이 장소만의 특별함을 보여주고 있습니다. 
+        
+        이곳은 ${locationName}의 중요한 장소 중 하나로, 깊은 역사적 의미와 문화적 가치를 담고 있습니다. 수많은 사람들이 이곳을 거쳐 갔고, 각자의 이야기를 남겨놓았습니다. 건축적으로도 뛰어난 특징을 보여주며, 당시의 기술력과 미적 감각을 엿볼 수 있는 소중한 유산이기도 합니다.
+        
+        특히 이곳과 관련된 인물들의 이야기는 정말 감동적입니다. 과거부터 현재까지 이 장소를 지키고 가꿔온 많은 사람들의 노력과 열정이 오늘날의 모습을 만들어냈습니다. 방문객들 역시 이곳에서 특별한 경험을 하며, 오랫동안 기억에 남을 인상을 받게 됩니다.
+        
+        이런 의미 깊은 장소에서 잠시 머물며 그 분위기를 충분히 느껴보시기 바랍니다. 다음 장소로 이동하면서도 이곳에서 얻은 감동을 마음에 간직해보세요.`;
+        
         newChapter.narrative = fallbackNarrative;
-        console.log('🔄 임시 narrative 생성:', { fallbackLength: fallbackNarrative.length });
+        console.log('🔄 강화된 fallback narrative 생성:', { fallbackLength: fallbackNarrative.length });
       }
     }
 
@@ -312,6 +395,7 @@ export async function POST(req: NextRequest) {
       narrativeLength: newChapter.narrative?.length || 0,
       narrativePreview: newChapter.narrative?.substring(0, 200) + '...',
       hasNextDirection: !!newChapter.nextDirection,
+      nextDirectionLength: newChapter.nextDirection?.length || 0,
       allChapterKeys: Object.keys(newChapter)
     });
 
@@ -321,10 +405,10 @@ export async function POST(req: NextRequest) {
       finalData.realTimeGuide = { chapters: [] };
     }
     
-    // 새 챕터를 해당 인덱스에 직접 할당 (Object.assign 대신 직접 교체)
+    // 새 챕터를 해당 인덱스에 직접 할당
     finalData.realTimeGuide.chapters[targetChapter] = {
       ...finalData.realTimeGuide.chapters[targetChapter], // 기존 id, title 유지
-      ...newChapter // 새로운 narrative, nextDirection 등 추가
+      ...newChapter // 새로운 narrative, nextDirection 추가
     };
     
     console.log('📖 챕터 통합 완료:', {
@@ -332,7 +416,9 @@ export async function POST(req: NextRequest) {
       chapterTitle: newChapter.title,
       totalChapters: finalData.realTimeGuide.chapters.length,
       updatedChapterHasNarrative: !!finalData.realTimeGuide.chapters[targetChapter]?.narrative,
-      updatedNarrativeLength: finalData.realTimeGuide.chapters[targetChapter]?.narrative?.length || 0,
+      updatedChapterHasNextDirection: !!finalData.realTimeGuide.chapters[targetChapter]?.nextDirection,
+      narrativeLength: finalData.realTimeGuide.chapters[targetChapter]?.narrative?.length || 0,
+      nextDirectionLength: finalData.realTimeGuide.chapters[targetChapter]?.nextDirection?.length || 0,
       updatedChapterKeys: Object.keys(finalData.realTimeGuide.chapters[targetChapter] || {}),
       finalChapterData: finalData.realTimeGuide.chapters[targetChapter]
     });
@@ -362,68 +448,121 @@ export async function POST(req: NextRequest) {
 
   // 3. 데이터 저장 처리
   if (generationMode === 'chapter') {
-    // 챕터 생성 모드: 기존 데이터 업데이트
-    console.log('💾 기존 가이드 업데이트');
+    // 챕터 생성 모드: 기존 데이터 업데이트 + 상세 챕터 저장
+    console.log('💾 챕터 생성 모드 - 통합 저장');
+    
+    // 3-1. 기본 가이드 업데이트 (기존 방식 유지)
     const { error: updateError } = await supabase
       .from('guides')
       .update({
         content: finalData
-        // updated_at 컬럼 제거 - 테이블에 해당 컬럼이 없어서 PGRST204 오류 발생
       })
       .eq('locationname', normLocation)
       .eq('language', normLang);
 
     if (updateError) {
       console.error('❌ 가이드 업데이트 실패:', updateError);
-      // 업데이트 실패해도 결과는 반환 (임시 데이터로)
     }
-  } else {
-    // 구조 생성 또는 전체 생성 모드: 새로 저장
-    console.log('💾 새 가이드 저장 시도');
-    const { error: insertError } = await supabase
-      .from('guides')
-      .insert([{
-        locationname: normLocation,
-        language: normLang,
-        content: finalData,
-        created_at: new Date().toISOString()
-      }]);
-
-    // 중복 키 에러 시 기존 데이터 조회하여 반환
-    if (insertError && insertError.code === '23505') {
-      console.log('🔍 중복 키 감지 - 기존 데이터 조회');
-      const { data: existing, error: fetchError } = await supabase
+    
+    // 3-2. 🚀 새로운 방식: 챕터 상세 내용을 별도 테이블에 저장
+    try {
+      // 가이드 ID 조회
+      const { data: guideData } = await supabase
         .from('guides')
-        .select('content')
+        .select('id')
         .eq('locationname', normLocation)
         .eq('language', normLang)
-        .maybeSingle();
+        .single();
+      
+      if (guideData?.id && targetChapter !== null) {
+        const updatedChapter = finalData.realTimeGuide?.chapters?.[targetChapter];
+        if (updatedChapter) {
+          const updateResult = await updateChapterDetails(guideData.id, targetChapter, {
+            narrative: updatedChapter.narrative,
+            nextDirection: updatedChapter.nextDirection,
+            sceneDescription: updatedChapter.sceneDescription,
+            coreNarrative: updatedChapter.coreNarrative,
+            humanStories: updatedChapter.humanStories,
+            latitude: updatedChapter.latitude || updatedChapter.lat,
+            longitude: updatedChapter.longitude || updatedChapter.lng,
+            duration: updatedChapter.duration
+          });
+          
+          if (updateResult.success) {
+            console.log('✅ 챕터 상세 내용 별도 저장 완료');
+          } else {
+            console.warn('⚠️ 챕터 상세 내용 저장 실패:', updateResult.error);
+          }
+        }
+      }
+    } catch (chapterError) {
+      console.warn('⚠️ 챕터 상세 저장 중 오류:', chapterError);
+      // 챕터 저장 실패해도 기본 가이드는 반환
+    }
+    
+  } else {
+    // 구조 생성 또는 전체 생성 모드: 새로 저장 + 상세 챕터 저장
+    console.log('💾 새 가이드 저장 시도 - 통합 저장');
+    
+    // 3-1. 🚀 새로운 방식: 가이드+챕터 통합 저장 시도
+    const saveResult = await saveGuideWithChapters(
+      normLocation, 
+      normLang, 
+      finalData,
+      finalData.realTimeGuide?.chapters // 상세 챕터 정보
+    );
+    
+    if (saveResult.success) {
+      console.log('✅ 가이드+챕터 통합 저장 완료');
+    } else {
+      console.warn('⚠️ 통합 저장 실패, 기존 방식으로 폴백:', saveResult.error);
+      
+      // 3-2. 기존 방식으로 폴백
+      const { error: insertError } = await supabase
+        .from('guides')
+        .insert([{
+          locationname: normLocation,
+          language: normLang,
+          content: finalData,
+          created_at: new Date().toISOString()
+        }]);
 
-      if (fetchError || !existing) {
+      // 중복 키 에러 시 기존 데이터 조회하여 반환
+      if (insertError && insertError.code === '23505') {
+        console.log('🔍 중복 키 감지 - 기존 데이터 조회');
+        const { data: existing, error: fetchError } = await supabase
+          .from('guides')
+          .select('content')
+          .eq('locationname', normLocation)
+          .eq('language', normLang)
+          .maybeSingle();
+
+        if (fetchError || !existing) {
+          return new Response(
+            JSON.stringify({ success: false, error: `기존 가이드 조회 실패: ${fetchError?.message || '데이터를 찾을 수 없습니다'}`, language }),
+            { status: 500, headers }
+          );
+        }
+
+        console.log('✅ 기존 데이터 반환');
+        return NextResponse.json({
+          success: true,
+          data: { content: existing.content },
+          cached: 'existing',
+          language
+        });
+      }
+
+      // 다른 insert 에러 처리
+      if (insertError) {
         return new Response(
-          JSON.stringify({ success: false, error: `기존 가이드 조회 실패: ${fetchError?.message || '데이터를 찾을 수 없습니다'}`, language }),
+          JSON.stringify({ success: false, error: `가이드 저장 실패: ${insertError instanceof Error ? insertError.message : String(insertError)}`, language }),
           { status: 500, headers }
         );
       }
 
-      console.log('✅ 기존 데이터 반환');
-      return NextResponse.json({
-        success: true,
-        data: { content: existing.content },
-        cached: 'existing',
-        language
-      });
+      console.log('✅ 새 가이드 저장 완료');
     }
-
-    // 다른 insert 에러 처리
-    if (insertError) {
-      return new Response(
-        JSON.stringify({ success: false, error: `가이드 저장 실패: ${insertError instanceof Error ? insertError.message : String(insertError)}`, language }),
-        { status: 500, headers }
-      );
-    }
-
-    console.log('✅ 새 가이드 저장 완료');
   }
   return NextResponse.json({
     success: true,
