@@ -235,7 +235,7 @@ export async function POST(req: NextRequest) {
   
   const model = genAI.getGenerativeModel({
             model: 'gemini-2.5-flash-lite-preview-06-17', // 2.5 플래시 라이트 재도전!
-    generationConfig: { temperature: 0.3, maxOutputTokens: 16384 } // 단계별로 생성하므로 토큰 수 줄임
+    generationConfig: { temperature: 0.3, maxOutputTokens: 65536 } // 단계별로 생성하므로 토큰 수 줄임
   });
 
   let responseText: string;
@@ -447,23 +447,66 @@ export async function POST(req: NextRequest) {
   });
 
   // 3. 데이터 저장 처리
-  if (generationMode === 'chapter') {
-    // 챕터 생성 모드: 기존 데이터 업데이트
-    console.log('💾 기존 가이드 업데이트');
-    const { error: updateError } = await supabase
-      .from('guides')
-      .update({
-        content: finalData
-        // updated_at 컬럼 제거 - 테이블에 해당 컬럼이 없어서 PGRST204 오류 발생
-      })
-      .eq('locationname', normLocation)
-      .eq('language', normLang);
+if (generationMode === 'chapter') {
+  // 챕터 생성 모드: 기존 데이터 업데이트
+  console.log('💾 기존 가이드 업데이트');
+  
+  // 1. 기본 guides 테이블 업데이트
+  const { error: updateError } = await supabase
+    .from('guides')
+    .update({
+      content: finalData
+    })
+    .eq('locationname', normLocation)
+    .eq('language', normLang);
 
-    if (updateError) {
-      console.error('❌ 가이드 업데이트 실패:', updateError);
-      // 업데이트 실패해도 결과는 반환 (임시 데이터로)
+  if (updateError) {
+    console.error('❌ 가이드 업데이트 실패:', updateError);
+  }
+
+  // 2. 🚨 중요: guide_chapters 테이블에도 상세 내용 저장
+  try {
+    // 먼저 guide_id를 조회
+    const { data: guideRecord, error: guideError } = await supabase
+      .from('guides')
+      .select('id')
+      .eq('locationname', normLocation)
+      .eq('language', normLang)
+      .single();
+
+    if (guideRecord && !guideError) {
+      const chapterData = finalData.realTimeGuide?.chapters?.[targetChapter];
+      
+      if (chapterData) {
+        // guide_chapters 테이블에 narrative, nextDirection 저장
+        const { error: chapterError } = await supabase
+          .from('guide_chapters')
+          .upsert([{
+            guide_id: guideRecord.id,
+            chapter_index: targetChapter,
+            title: chapterData.title,
+            narrative: chapterData.narrative,
+            next_direction: chapterData.nextDirection,
+            scene_description: chapterData.sceneDescription,
+            core_narrative: chapterData.coreNarrative,
+            human_stories: chapterData.humanStories,
+            updated_at: new Date().toISOString()
+          }], {
+            onConflict: 'guide_id,chapter_index'
+          });
+
+        if (chapterError) {
+          console.error('❌ 챕터 테이블 저장 실패:', chapterError);
+        } else {
+          console.log('✅ 챕터 테이블 저장 완료');
+        }
+      }
     }
-  } else {
+  } catch (chapterSaveError) {
+    console.error('❌ 챕터 저장 중 오류:', chapterSaveError);
+  }
+}
+   else {
     // 구조 생성 또는 전체 생성 모드: 새로 저장
     console.log('💾 새 가이드 저장 시도');
     const { error: insertError } = await supabase
