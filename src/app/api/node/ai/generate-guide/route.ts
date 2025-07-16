@@ -418,7 +418,7 @@ export async function POST(req: NextRequest) {
     // 다른 insert 에러 처리
     if (insertError) {
       return new Response(
-        JSON.stringify({ success: false, error: `가이드 저장 실패: ${insertError.message}`, language }),
+        JSON.stringify({ success: false, error: `가이드 저장 실패: ${insertError instanceof Error ? insertError.message : String(insertError)}`, language }),
         { status: 500, headers }
       );
     }

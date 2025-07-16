@@ -78,10 +78,11 @@ JSON 형식으로만 응답해주세요.`;
       });
     }
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('AI 가이드 생성 오류:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: '가이드 생성 중 오류가 발생했습니다.', details: error.message },
+      { error: '가이드 생성 중 오류가 발생했습니다.', details: errorMessage },
       { status: 500 }
     );
   }

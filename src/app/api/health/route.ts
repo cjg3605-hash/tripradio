@@ -24,13 +24,14 @@ export async function GET() {
       }
     });
 
-  } catch (error: any) {
-    console.error('❌ Health check 실패:', error.message);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('❌ Health check 실패:', errorMessage);
     return NextResponse.json(
       { 
         status: 'error', 
         message: 'Health check failed',
-        error: error.message 
+        error: errorMessage 
       },
       { status: 500 }
     );

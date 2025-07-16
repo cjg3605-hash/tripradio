@@ -296,7 +296,7 @@ export async function GET(request: NextRequest) {
           console.log(`✅ 모델 생성 성공: ${modelName}`);
           break;
         } catch (modelError) {
-          console.warn(`⚠️ 모델 ${modelName} 생성 실패:`, modelError.message);
+          console.warn(`⚠️ 모델 ${modelName} 생성 실패:`, modelError instanceof Error ? modelError.message : String(modelError));
           continue;
         }
       }
@@ -337,24 +337,27 @@ export async function GET(request: NextRequest) {
             }
             return genResult;
           } catch (error) {
-            console.error('❌ Gemini API 호출 중 상세 오류:', {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            const errorInfo = error instanceof Error ? {
               name: error.name,
               message: error.message,
-              status: error.status,
-              statusText: error.statusText,
-              code: error.code,
-              details: error.details,
-              stack: error.stack
-            });
+              stack: error.stack,
+              ...(error as any).status && { status: (error as any).status },
+              ...(error as any).statusText && { statusText: (error as any).statusText },
+              ...(error as any).code && { code: (error as any).code },
+              ...(error as any).details && { details: (error as any).details }
+            } : { message: errorMessage };
+            
+            console.error('❌ Gemini API 호출 중 상세 오류:', errorInfo);
             
             // 구체적인 오류 분석
-            if (error.message?.includes('404') || error.message?.includes('not found')) {
+            if (errorMessage?.includes('404') || errorMessage?.includes('not found')) {
               throw new Error('모델을 찾을 수 없습니다 (404). 미리보기 모델 접근 권한이나 지역 설정을 확인하세요.');
-            } else if (error.message?.includes('403') || error.message?.includes('permission')) {
+            } else if (errorMessage?.includes('403') || errorMessage?.includes('permission')) {
               throw new Error('모델 접근 권한이 없습니다 (403). API 키나 프로젝트 권한을 확인하세요.');
-            } else if (error.message?.includes('400') || error.message?.includes('invalid')) {
+            } else if (errorMessage?.includes('400') || errorMessage?.includes('invalid')) {
               throw new Error('잘못된 요청입니다 (400). 모델 파라미터나 프롬프트를 확인하세요.');
-            } else if (error.message?.includes('region') || error.message?.includes('location')) {
+            } else if (errorMessage?.includes('region') || errorMessage?.includes('location')) {
               throw new Error('지역 제한 오류입니다. us-central1 지역으로 설정을 변경해보세요.');
             }
             
@@ -456,10 +459,11 @@ export async function GET(request: NextRequest) {
       let statusCode = 500;
       
       if (error instanceof Error) {
-        if (error.message.includes('timeout') || error.message.includes('time out')) {
+        const errMsg = error.message;
+        if (errMsg.includes('timeout') || errMsg.includes('time out')) {
           errorMessage = '요청 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.';
           statusCode = 504; // Gateway Timeout
-        } else if (error.message.includes('API key') || error.message.includes('인증')) {
+        } else if (errMsg.includes('API key') || errMsg.includes('인증')) {
           errorMessage = '인증 오류가 발생했습니다. 관리자에게 문의해주세요.';
           statusCode = 401; // Unauthorized
         }

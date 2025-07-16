@@ -45,12 +45,13 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('회원가입 오류:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     
-    if (error.message === '이미 존재하는 이메일입니다.') {
+    if (errorMessage === '이미 존재하는 이메일입니다.') {
       return NextResponse.json(
-        { error: error.message },
+        { error: errorMessage },
         { status: 409 }
       );
     }
