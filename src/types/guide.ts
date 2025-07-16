@@ -87,7 +87,7 @@ export interface GuideMetadata {
 
 export interface GuideData {
   overview: GuideOverview;
-  route: GuideStep[];  // 실제 사용에 맞게 배열로 변경
+  route: GuideRoute;  // 프롬프트 JSON 양식에 맞게 수정
   realTimeGuide?: RealTimeGuide;
   metadata: GuideMetadata;
 }

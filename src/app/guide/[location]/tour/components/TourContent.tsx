@@ -208,9 +208,8 @@ export default function TourContent({ guide, language }: TourContentProps) {
 
   return (
     <div className="space-y-6">
-      {/* 실시간 오디오 가이드 헤더 */}
+      {/* 안내 메시지 */}
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">실시간 오디오 가이드</h2>
         <p className="text-gray-600">각 챕터별로 오디오 가이드를 들으실 수 있습니다.</p>
       </div>
 
