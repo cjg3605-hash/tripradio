@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
   const { 
     locationName, 
     language = 'ko', 
-    userProfile, 
+    userProfile = {}, 
     forceRegenerate = false,
     generationMode = 'auto', // 'auto' | 'structure' | 'chapter'
     existingGuide = null,
