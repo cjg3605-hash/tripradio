@@ -230,7 +230,12 @@ export async function POST(req: NextRequest) {
     fullResponse: responseText,
     responseLength: responseText.length,
     containsChapter: responseText.includes('chapter'),
-    containsNarrative: responseText.includes('narrative')
+    containsNarrative: responseText.includes('narrative'),
+    containsCodeBlock: responseText.includes('```'),
+    startsWithBrace: responseText.trim().startsWith('{'),
+    endsWithBrace: responseText.trim().endsWith('}'),
+    responsePreview: responseText.substring(0, 500) + '...',
+    responseEnding: '...' + responseText.substring(Math.max(0, responseText.length - 200))
   });
 
   const parsed = validateJsonResponse(responseText);
@@ -344,7 +349,12 @@ export async function POST(req: NextRequest) {
     chaptersDetail: finalData.realTimeGuide?.chapters?.map((ch: any, idx: number) => ({
       index: idx,
       title: ch.title,
-      hasContent: !!(ch.sceneDescription || ch.coreNarrative || ch.humanStories || ch.nextDirection)
+      // ✅ narrative 필드도 포함하여 체크 (중요한 수정!)
+      hasContent: !!(ch.narrative || ch.sceneDescription || ch.coreNarrative || ch.humanStories || ch.nextDirection),
+      hasNarrative: !!ch.narrative,
+      narrativeLength: ch.narrative?.length || 0,
+      hasLegacyFields: !!(ch.sceneDescription || ch.coreNarrative || ch.humanStories),
+      allKeys: Object.keys(ch || {})
     })) || [],
     generationMode
   });
