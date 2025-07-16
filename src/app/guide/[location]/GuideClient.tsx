@@ -114,15 +114,23 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                 console.log('📚 위치별 동적 챕터 수:', { 
                     location: locationName, 
                     detectedChapters: totalChapters,
-                    routeSteps: currentGuide.route?.steps?.length || 0
+                    routeSteps: currentGuide.route?.steps?.length || 0,
+                    currentGuideStructure: {
+                        hasRealTimeGuide: !!currentGuide.realTimeGuide,
+                        hasChapters: !!currentGuide.realTimeGuide?.chapters,
+                        chaptersArray: currentGuide.realTimeGuide?.chapters
+                    }
                 });
                 setTotalSteps(1 + totalChapters);
                 setCurrentProgress(1);
                 setLoadingMessage(`기본 구조 생성 완료! ${totalChapters}개 챕터 내용을 생성하고 있습니다...`);
                 setGuideData(currentGuide); // 구조를 먼저 표시
 
+                console.log('🚀 챕터 생성 루프 시작:', { totalChapters, willLoop: totalChapters > 0 });
+
                 // 2단계: 각 챕터 순차 생성
                 for (let chapterIndex = 0; chapterIndex < totalChapters; chapterIndex++) {
+                    console.log(`🔄 루프 진입: chapterIndex=${chapterIndex}, totalChapters=${totalChapters}`);
                     console.log(`📖 챕터 ${chapterIndex + 1}/${totalChapters} 생성 중...`);
                     setLoadingMessage(`챕터 ${chapterIndex + 1}/${totalChapters} 생성 중...`);
                     setCurrentProgress(2 + chapterIndex);
