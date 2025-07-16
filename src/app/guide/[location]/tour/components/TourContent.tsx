@@ -187,7 +187,7 @@ export default function TourContent({ guide, language }: TourContentProps) {
           textPreview: narrativeText.substring(0, 100) + '...'
         });
         
-        const guideId = `${guide.metadata.originalLocationName}_${chapterIndex}`;
+        const guideId = `${guide.metadata?.originalLocationName || 'unknown'}_${chapterIndex}`;
         const audioUrl = await getOrCreateChapterAudio(guideId, chapterIndex, narrativeText, language);
         if (audio) {
           audio.src = audioUrl;

@@ -15,6 +15,7 @@ interface AdSenseAdProps {
 declare global {
   interface Window {
     adsbygoogle: any[];
+    adsensePageLevelEnabled?: boolean; // 페이지 레벨 광고 활성화 여부 확인
   }
 }
 
@@ -32,6 +33,10 @@ export default function AdSenseAd({
     try {
       // AdSense가 로드되었는지 확인
       if (typeof window !== 'undefined' && window.adsbygoogle) {
+        // 페이지 레벨 광고가 이미 활성화된 경우 경고 로그만 출력
+        if (window.adsensePageLevelEnabled) {
+          console.log('ℹ️ 페이지 레벨 광고가 활성화된 상태에서 개별 광고 단위 로드');
+        }
         (window.adsbygoogle = window.adsbygoogle || []).push({});
       }
     } catch (error) {
