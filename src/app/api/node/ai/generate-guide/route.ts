@@ -315,18 +315,20 @@ export async function POST(req: NextRequest) {
       finalData.realTimeGuide = { chapters: [] };
     }
     
-    // 새 챕터를 해당 인덱스에 추가
-    if (!finalData.realTimeGuide.chapters[targetChapter]) {
-      finalData.realTimeGuide.chapters[targetChapter] = { id: targetChapter, title: newChapter.title };
-    }
-    
-    // 챕터 상세 정보 업데이트
-    Object.assign(finalData.realTimeGuide.chapters[targetChapter], newChapter);
+    // 새 챕터를 해당 인덱스에 직접 할당 (Object.assign 대신 직접 교체)
+    finalData.realTimeGuide.chapters[targetChapter] = {
+      ...finalData.realTimeGuide.chapters[targetChapter], // 기존 id, title 유지
+      ...newChapter // 새로운 narrative, nextDirection 등 추가
+    };
     
     console.log('📖 챕터 통합 완료:', {
       chapterIndex: targetChapter,
       chapterTitle: newChapter.title,
-      totalChapters: finalData.realTimeGuide.chapters.length
+      totalChapters: finalData.realTimeGuide.chapters.length,
+      updatedChapterHasNarrative: !!finalData.realTimeGuide.chapters[targetChapter]?.narrative,
+      updatedNarrativeLength: finalData.realTimeGuide.chapters[targetChapter]?.narrative?.length || 0,
+      updatedChapterKeys: Object.keys(finalData.realTimeGuide.chapters[targetChapter] || {}),
+      finalChapterData: finalData.realTimeGuide.chapters[targetChapter]
     });
   } else {
     // 구조 생성 또는 전체 생성 모드

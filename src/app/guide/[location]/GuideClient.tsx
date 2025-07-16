@@ -151,14 +151,27 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                         const chapterResult = await chapterResponse.json();
                         console.log(`📖 챕터 ${chapterIndex + 1} 생성 결과:`, {
                             success: chapterResult.success,
-                            chapterIndex: chapterResult.targetChapter
+                            chapterIndex: chapterResult.targetChapter,
+                            hasData: !!chapterResult.data,
+                            hasContent: !!chapterResult.data?.content,
+                            error: chapterResult.error,
+                            fullResult: chapterResult
                         });
 
                         if (chapterResult.success && chapterResult.data?.content) {
                             currentGuide = chapterResult.data.content;
+                            console.log(`✅ 챕터 ${chapterIndex + 1} 업데이트 후 상태:`, {
+                                chapterHasNarrative: !!currentGuide.realTimeGuide?.chapters?.[chapterIndex]?.narrative,
+                                narrativeLength: currentGuide.realTimeGuide?.chapters?.[chapterIndex]?.narrative?.length || 0,
+                                chapterData: currentGuide.realTimeGuide?.chapters?.[chapterIndex]
+                            });
                             setGuideData({ ...currentGuide }); // 업데이트된 가이드로 화면 갱신
                         } else {
-                            console.warn(`⚠️ 챕터 ${chapterIndex + 1} 생성 실패, 계속 진행`);
+                            console.warn(`⚠️ 챕터 ${chapterIndex + 1} 생성 실패:`, {
+                                success: chapterResult.success,
+                                error: chapterResult.error,
+                                data: chapterResult.data
+                            });
                         }
                     } catch (chapterError) {
                         console.warn(`⚠️ 챕터 ${chapterIndex + 1} 생성 중 오류:`, chapterError);
