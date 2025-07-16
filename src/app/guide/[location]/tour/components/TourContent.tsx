@@ -281,40 +281,32 @@ export default function TourContent({ guide, language }: TourContentProps) {
             </div>
           )}
 
-          {/* 챕터 내용 */}
+          {/* 챕터 내용 - 하나의 연속된 스토리 */}
           <div className="prose prose-gray max-w-none">
-            {chapter.sceneDescription && (
-              <div className="mb-4">
-                <h4 className="text-sm font-semibold text-blue-600 mb-2">🎬 장면 설명</h4>
-                <p className="text-gray-700 leading-relaxed">{chapter.sceneDescription}</p>
-              </div>
-            )}
-            
-            {chapter.coreNarrative && (
-              <div className="mb-4">
-                <h4 className="text-sm font-semibold text-green-600 mb-2">📖 핵심 이야기</h4>
-                <p className="text-gray-700 leading-relaxed">{chapter.coreNarrative}</p>
-              </div>
-            )}
-            
-            {chapter.humanStories && (
-              <div className="mb-4">
-                <h4 className="text-sm font-semibold text-purple-600 mb-2">👥 인간적인 이야기</h4>
-                <p className="text-gray-700 leading-relaxed">{chapter.humanStories}</p>
-              </div>
-            )}
-            
-            {chapter.nextDirection && (
-              <div className="mb-4">
-                <h4 className="text-sm font-semibold text-orange-600 mb-2">🧭 다음 이동 방향</h4>
-                <p className="text-gray-700 leading-relaxed">{chapter.nextDirection}</p>
-              </div>
-            )}
-            
-            {/* 기존 narrative 필드도 지원 (하위 호환성) */}
-            {chapter.narrative && !chapter.sceneDescription && !chapter.coreNarrative && (
-              <p className="text-gray-700 leading-relaxed">{chapter.narrative}</p>
-            )}
+            {/* 통합된 스토리 텍스트 */}
+            <div className="text-gray-700 leading-relaxed space-y-4">
+              {/* 4개 필드를 자연스럽게 연결된 하나의 스토리로 표시 */}
+              {chapter.sceneDescription && (
+                <p>{chapter.sceneDescription}</p>
+              )}
+              
+              {chapter.coreNarrative && (
+                <p>{chapter.coreNarrative}</p>
+              )}
+              
+              {chapter.humanStories && (
+                <p>{chapter.humanStories}</p>
+              )}
+              
+              {chapter.nextDirection && (
+                <p className="text-blue-600 font-medium">{chapter.nextDirection}</p>
+              )}
+              
+              {/* 기존 narrative 필드도 지원 (하위 호환성) */}
+              {chapter.narrative && !chapter.sceneDescription && !chapter.coreNarrative && (
+                <p>{chapter.narrative}</p>
+              )}
+            </div>
           </div>
         </div>
       ))}
