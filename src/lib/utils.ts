@@ -236,24 +236,17 @@ export function isValidGuideData(obj: any): obj is GuideData {
 }
 
 // JSON 응답 유효성 검증
-export function validateJsonResponse(jsonString: string): {
-  success: true;
-  data: any;
-} | {
-  success: false;
-  error: string;
+export function validateJsonResponse(jsonString: string): { 
+  success: true; 
+  data: any; 
+} | { 
+  success: false; 
+  error: string; 
 } {
   try {
-    if (!jsonString || typeof jsonString !== 'string') {
-      return {
-        success: false,
-        error: '응답이 비어있거나 올바른 형식이 아닙니다.'
-      };
-    }
-
     let cleanedString = jsonString.trim();
-
-    // 1. 코드 블록 제거 (```json ... ``` 또는 ``` ... ```)
+    
+    // 1. 코드 블록 제거
     if (cleanedString.includes('```')) {
       const jsonBlockMatch = cleanedString.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
       if (jsonBlockMatch) {
@@ -262,84 +255,50 @@ export function validateJsonResponse(jsonString: string): {
         cleanedString = cleanedString.replace(/^```(?:json)?\s*/, '').replace(/```\s*$/, '');
       }
     }
-
-    // 2. BOM 및 앞뒤 불필요한 공백 제거
+    
+    // 2. BOM 및 불필요한 공백 제거
     cleanedString = cleanedString.replace(/^[\uFEFF\s]+/, '').replace(/[\s]+$/, '');
-
-    // 3. 제어 문자 및 비표준 문자 제거 (JSON에 허용되지 않는 문자)
+    
+    // 🔧 3. 제어 문자 및 특수 문자 안전 처리 (새로 추가)
     cleanedString = cleanedString
-      .replace(/[\u0000-\u0008\u000B-\u000C\u000E-\u001F\u007F]/g, '')
-      .replace(/,\s*([}\]])/g, '$1'); // 중복 쉼표 제거
-
-    // 4. JSON 시작 중괄호 찾기
+      // 실제 제어 문자 제거
+      .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
+      // 문자열 내부의 실제 줄바꿈을 안전하게 처리
+      .replace(/(?<!\\)\r?\n/g, ' \\n\\n ')
+      .replace(/(?<!\\)\r/g, '')
+      .replace(/(?<!\\)\t/g, ' ');
+    
+    // 4. JSON 시작과 끝 찾기
     const jsonStart = cleanedString.indexOf('{');
-    if (jsonStart === -1) {
+    const jsonEnd = cleanedString.lastIndexOf('}');
+    
+    if (jsonStart === -1 || jsonEnd === -1) {
       return {
         success: false,
-        error: 'JSON 시작 중괄호를 찾을 수 없습니다.'
+        error: 'JSON 시작 또는 끝을 찾을 수 없습니다.'
       };
     }
-
-    // 5. 중괄호 균형 맞는 JSON 끝 찾기 (문자열 내 중괄호 무시)
-    let openBraces = 0;
-    let jsonEnd = -1;
-    let inString = false;
-    let escaped = false;
-    for (let i = jsonStart; i < cleanedString.length; i++) {
-      const char = cleanedString[i];
-      if (escaped) {
-        escaped = false;
-        continue;
-      }
-      if (char === '\\' && inString) {
-        escaped = true;
-        continue;
-      }
-      if (char === '"') {
-        inString = !inString;
-        continue;
-      }
-      if (!inString) {
-        if (char === '{') {
-          openBraces++;
-        } else if (char === '}') {
-          openBraces--;
-          if (openBraces === 0) {
-            jsonEnd = i;
-            break;
-          }
-        }
-      }
-    }
-    if (jsonEnd === -1) {
-      return {
-        success: false,
-        error: 'JSON 종료 중괄호를 찾을 수 없습니다.'
-      };
-    }
-
+    
+    cleanedString = cleanedString.substring(jsonStart, jsonEnd + 1);
+    
+    // 5. 일반적인 JSON 오류 수정
+    cleanedString = cleanedString.replace(/,(\s*[}\]])/g, '$1');
+    
     // 6. JSON 파싱 시도
-    const jsonContent = cleanedString.substring(jsonStart, jsonEnd + 1);
-    try {
-      const parsed = JSON.parse(jsonContent);
-      return { success: true, data: parsed };
-    } catch (err) {
-      // 중복 쉼표, 잘못된 trailing comma 등 추가 정제 시도
-      let safeContent = jsonContent
-        .replace(/,\s*([}\]])/g, '$1') // trailing comma
-        .replace(/\u0000|\u0001|\u0002|\u0003|\u0004|\u0005|\u0006|\u0007|\u0008|\u000B|\u000C|\u000E|\u000F|\u0010|\u0011|\u0012|\u0013|\u0014|\u0015|\u0016|\u0017|\u0018|\u0019|\u001A|\u001B|\u001C|\u001D|\u001E|\u001F|\u007F/g, '');
-      try {
-        const parsed = JSON.parse(safeContent);
-        return { success: true, data: parsed };
-      } catch (err2) {
-        return {
-          success: false,
-          error: `JSON 파싱 실패: ${(err2 instanceof Error ? err2.message : String(err2))}\n원본: ${jsonContent}`
-        };
-      }
-    }
+    const parsed = JSON.parse(cleanedString);
+    
+    console.log('✅ JSON 파싱 성공 (문자 정리 적용)');
+    return { success: true, data: parsed };
+    
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    console.error('❌ JSON 파싱 오류:', {
+      error: errorMessage,
+      originalLength: jsonString.length,
+      preview: jsonString.substring(0, 300)
+    });
+    
     return {
       success: false,
       error: `JSON 파싱 실패: ${errorMessage}`
