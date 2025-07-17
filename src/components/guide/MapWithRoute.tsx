@@ -45,7 +45,7 @@ interface MapWithRouteProps {
 }
 
 function MapFlyTo({ lat, lng }: { lat: number; lng: number }) {
-  const map = useMap();
+  const map = (useMap as any)();
   useEffect(() => {
     if (lat && lng) {
       map.flyTo([lat, lng], 16, { duration: 0.7 });
