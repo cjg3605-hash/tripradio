@@ -44,18 +44,18 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
         stopAndCleanupAudio();
         // 📍 수정: 챕터 제목 위치로 정확히 스크롤하도록 개선
         setTimeout(() => {
-            const targetElement = document.querySelector(`[data-chapter-index="${chapterId}"]`);
-            if (targetElement) {
-                // 제목 부분이 화면 상단에 오도록 조정
-                const titleElement = targetElement.querySelector('.chapter-title');
-                if (titleElement) {
-                    titleElement.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'start',
-                        inline: 'nearest'
-                    });
-                } else {
-                    // 제목 요소가 없으면 기본 스크롤
+            // �� 수정: 제목 ID로 직접 스크롤
+            const titleElement = document.getElementById(`chapter-title-${chapterId}`);
+            if (titleElement) {
+                titleElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start',
+                    inline: 'nearest'
+                });
+            } else {
+                // 제목이 없으면 챕터 div로 대체
+                const targetElement = document.querySelector(`[data-chapter-index="${chapterId}"]`);
+                if (targetElement) {
                     targetElement.scrollIntoView({ 
                         behavior: 'smooth', 
                         block: 'start',
@@ -254,7 +254,10 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
                   {index + 1}
                 </div>
                 {/* 📍 수정: 제목에 클래스 추가하여 스크롤 타겟으로 사용 */}
-                <h3 className="text-xl font-semibold text-gray-900 chapter-title">
+                <h3 
+                  id={`chapter-title-${index}`}
+                  className="text-xl font-semibold text-gray-900 chapter-title"
+                >
                   {chapter.title}
                 </h3>
               </div>
