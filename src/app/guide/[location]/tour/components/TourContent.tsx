@@ -226,61 +226,30 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
 
               <div className="flex items-center space-x-2">
                 {hasContent && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={e => {
-                        e.stopPropagation();
-                        if (currentChapter === index && currentAudio) {
-                          handleTogglePlayback();
-                        } else {
-                          handlePlayChapter(index);
-                        }
-                      }}
-                      disabled={isPlaying && currentChapter !== index}
-                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
-                        isCurrentlyPlaying
-                          ? 'bg-blue-600 text-white hover:bg-blue-700'
-                          : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                      aria-label={isCurrentlyPlaying ? (isPlaying ? '일시정지' : '재개') : '재생'}
-                    >
-                      {isCurrentlyPlaying && isPlaying ? (
-                        <Pause className="w-5 h-5" />
-                      ) : (
-                        <Play className="w-5 h-5" />
-                      )}
-                    </button>
-
-                    {isCurrentlyPlaying && (
-                      <div className="flex items-center space-x-1">
-                        <button
-                          type="button"
-                          onClick={e => {
-                            e.stopPropagation();
-                            handleTogglePlayback();
-                          }}
-                          className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
-                          title={isPlaying ? '일시정지' : '재개'}
-                          aria-label={isPlaying ? '일시정지' : '재개'}
-                        >
-                          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={e => {
-                            e.stopPropagation();
-                            handleStopPlayback();
-                          }}
-                          className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
-                          title="정지"
-                          aria-label="정지"
-                        >
-                          <Square className="w-4 h-4" />
-                        </button>
-                      </div>
+                  <button
+                    type="button"
+                    onClick={e => {
+                      e.stopPropagation();
+                      if (currentChapter === index && currentAudio) {
+                        handleTogglePlayback();
+                      } else {
+                        handlePlayChapter(index);
+                      }
+                    }}
+                    disabled={isPlaying && currentChapter !== index}
+                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
+                      isCurrentlyPlaying
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    aria-label={isCurrentlyPlaying ? (isPlaying ? '일시정지' : '재개') : '재생'}
+                  >
+                    {isCurrentlyPlaying && isPlaying ? (
+                      <Pause className="w-5 h-5" />
+                    ) : (
+                      <Play className="w-5 h-5" />
                     )}
-                  </>
+                  </button>
                 )}
               </div>
             </div>
