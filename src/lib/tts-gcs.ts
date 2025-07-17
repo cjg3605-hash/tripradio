@@ -159,22 +159,11 @@ export const getOrCreateChapterAudio = async (
       return localUrl;
     }
 
-    // 6. audio_files 테이블에 메타데이터 저장 (중복 체크 후 insert)
-    // 중복 방지를 위해 먼저 확인 후 insert (upsert 대신)
-    const { data: duplicateCheck } = await supabase
+    // 6. audio_files 테이블에 메타데이터 저장 (upsert + onConflict로 원자적 처리)
+    const { error: insertError } = await supabase
       .from('audio_files')
-      .select('id')
-      .eq('guide_id', guideId)
-      .eq('chapter_index', chapterIndex)
-      .eq('language', language)
-      .eq('file_path', fileName)
-      .single();
-
-    if (!duplicateCheck) {
-      // 중복이 없을 때만 insert
-      const { error: insertError } = await supabase
-        .from('audio_files')
-        .insert([{
+      .upsert([
+        {
           guide_id: guideId,
           chapter_index: chapterIndex,
           language: language,
@@ -182,15 +171,15 @@ export const getOrCreateChapterAudio = async (
           file_size: audioBlob.size,
           duration_seconds: null, // 추후 계산 가능
           created_at: new Date().toISOString()
-        }]);
+        }
+      ], {
+        onConflict: 'guide_id,chapter_index,language,file_path'
+      });
 
-      if (insertError) {
-        console.warn('⚠️ audio_files 테이블 저장 실패:', insertError);
-      } else {
-        console.log('✅ audio_files 테이블 저장 성공');
-      }
+    if (insertError) {
+      console.warn('⚠️ audio_files 테이블 저장 실패:', insertError);
     } else {
-      console.log('ℹ️ audio_files에 이미 동일한 레코드 존재, insert 생략');
+      console.log('✅ audio_files 테이블 저장 성공');
     }
 
     // 7. 성공 - Blob URL 생성 및 캐시 저장
