@@ -321,9 +321,22 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 🤖 2. AI 가이드 생성 (재시도 로직 추가)
+    // 🤖 2. AI 가이드 생성 - 수정된 버전
     console.log('🤖 AI 가이드 생성 시작 - 모드:', generationMode);
 
+    let prompt: string;
+
+    // 생성 모드에 따른 프롬프트 선택 (올바른 await 사용)
+    if (generationMode === 'structure') {
+      prompt = await createStructurePrompt(locationName, language, userProfile);
+    } else if (generationMode === 'chapter' && existingGuide && targetChapter !== null) {
+      const chapterTitle = existingGuide.realTimeGuide?.chapters?.[targetChapter]?.title || `챕터 ${targetChapter + 1}`;
+      prompt = await createChapterPrompt(locationName, targetChapter, chapterTitle, existingGuide, language, userProfile);
+    } else {
+      prompt = await createAutonomousGuidePrompt(locationName, language, userProfile);
+    }
+
+    // 재시도 로직이 포함된 AI 응답 생성
     const generateWithRetry = async (): Promise<string> => {
       const genAI = getGeminiClient();
       
@@ -357,7 +370,7 @@ export async function POST(req: NextRequest) {
     };
 
     // 재시도 로직 (최대 3번)
-    let responseText: string;
+    let responseText: string | undefined;
     let lastError: Error | null = null;
 
     for (let attempt = 1; attempt <= 3; attempt++) {
@@ -376,7 +389,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (!responseText! && lastError) {
+    if (!responseText && lastError) {
       return new Response(
         JSON.stringify({ 
           success: false, 
