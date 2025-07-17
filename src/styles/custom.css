@@ -1,8 +1,8 @@
 /* Custom additional styles */
 
 /* 여기에 추가 스타일이나 Tailwind directives */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+/* @tailwind base; <- 삭제 */
+/* @tailwind components; <- 삭제 */
+/* @tailwind utilities; <- 삭제 */
+@import '../styles/custom.css'; 
 /* 또는 빈 파일로도 OK */
