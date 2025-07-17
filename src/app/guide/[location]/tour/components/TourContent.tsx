@@ -46,6 +46,7 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
         setTimeout(() => {
             const targetElement = document.querySelector(`[data-chapter-index="${chapterId}"]`);
             if (targetElement) {
+                // 제목 부분이 화면 상단에 오도록 조정
                 const titleElement = targetElement.querySelector('.chapter-title');
                 if (titleElement) {
                     titleElement.scrollIntoView({ 
@@ -54,6 +55,7 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
                         inline: 'nearest'
                     });
                 } else {
+                    // 제목 요소가 없으면 기본 스크롤
                     targetElement.scrollIntoView({ 
                         behavior: 'smooth', 
                         block: 'start',
@@ -61,7 +63,7 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
                     });
                 }
             }
-        }, 200);
+        }, 200); // 딜레이 증가로 더 안정적인 스크롤
     };
     window.addEventListener('jumpToChapter', handleJumpToChapter as EventListener);
     return () => {
@@ -256,7 +258,36 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
                   {chapter.title}
                 </h3>
               </div>
-              {/* ... 기존 재생 버튼 ... */}
+
+              {/* 재생/일시정지 버튼 복원 */}
+              <div className="flex items-center space-x-2">
+                {hasContent && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (currentChapter === index && currentAudio) {
+                        handleTogglePlayback();
+                      } else {
+                        handlePlayChapter(index);
+                      }
+                    }}
+                    disabled={isPlaying && currentChapter !== index}
+                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
+                      isCurrentlyPlaying
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    aria-label={isCurrentlyPlaying ? (isPlaying ? '일시정지' : '재개') : '재생'}
+                  >
+                    {isCurrentlyPlaying && isPlaying ? (
+                      <Pause className="w-5 h-5" />
+                    ) : (
+                      <Play className="w-5 h-5" />
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="space-y-4">
