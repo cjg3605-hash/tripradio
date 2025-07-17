@@ -44,26 +44,14 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
         stopAndCleanupAudio();
         // 📍 수정: 챕터 제목 위치로 정확히 스크롤하도록 개선
         setTimeout(() => {
-            // �� 수정: 제목 ID로 직접 스크롤
-            const titleElement = document.getElementById(`chapter-title-${chapterId}`);
-            if (titleElement) {
-                titleElement.scrollIntoView({ 
+            const targetElement = document.querySelector(`[data-chapter-index="${chapterId}"]`);
+            if (targetElement) {
+                targetElement.scrollIntoView({ 
                     behavior: 'smooth', 
-                    block: 'start',
-                    inline: 'nearest'
+                    block: 'start'
                 });
-            } else {
-                // 제목이 없으면 챕터 div로 대체
-                const targetElement = document.querySelector(`[data-chapter-index="${chapterId}"]`);
-                if (targetElement) {
-                    targetElement.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'start',
-                        inline: 'nearest'
-                    });
-                }
             }
-        }, 200); // 딜레이 증가로 더 안정적인 스크롤
+        }, 100);
     };
     window.addEventListener('jumpToChapter', handleJumpToChapter as EventListener);
     return () => {
