@@ -148,14 +148,19 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
   };
 
   // 일시정지/재개 핸들러
-  const handleTogglePlayback = () => {
+  const handleTogglePlayback = async () => {
     if (currentAudio) {
       if (isPlaying) {
         currentAudio.pause();
         setIsPlaying(false);
       } else {
-        currentAudio.play();
-        setIsPlaying(true);
+        try {
+          await currentAudio.play();
+          setIsPlaying(true);
+        } catch (error) {
+          console.error('오디오 재생 오류:', error);
+          setIsPlaying(false);
+        }
       }
     }
   };
