@@ -338,10 +338,10 @@ export async function POST(req: NextRequest) {
 
     // 생성 모드에 따른 프롬프트 선택
     if (generationMode === 'structure') {
-      prompt = createStructurePrompt(locationName, language, userProfile);
+      prompt = await createStructurePrompt(locationName, language, userProfile);
     } else if (generationMode === 'chapter' && existingGuide && targetChapter !== null) {
       const chapterTitle = existingGuide.realTimeGuide?.chapters?.[targetChapter]?.title || `챕터 ${targetChapter + 1}`;
-      prompt = createChapterPrompt(locationName, targetChapter, chapterTitle, existingGuide, language, userProfile);
+      prompt = await createChapterPrompt(locationName, targetChapter, chapterTitle, existingGuide, language, userProfile);
     } else {
       prompt = await createAutonomousGuidePrompt(locationName, language, userProfile);
     }
