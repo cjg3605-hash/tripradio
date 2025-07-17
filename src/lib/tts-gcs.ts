@@ -17,11 +17,11 @@ const WAVENET_VOICES: Record<string, string> = {
   'es-ES': 'es-ES-Wavenet-A',
 };
 
-// 챕터별 오디오 파일명 생성 (배속 정보 포함)
+// ✅ 수정: 파일명 생성 (audio/ 접두사 완전 제거)
 const getChapterAudioFileName = (guideId: string, chapterIndex: number, language: string, text: string, speakingRate = 1.2) => {
   const hash = crypto.createHash('md5').update(text).digest('hex').substring(0, 8);
   const rateStr = speakingRate.toString().replace('.', '_'); // 1.2 -> 1_2
-  // audio/ 접두사 제거 - supabase.storage.from('audio')에서 이미 버킷 지정
+  // audio/ 접두사 완전 제거 - supabase.storage.from('audio')가 버킷 지정
   return `guides/${guideId}/chapter_${chapterIndex}_${language}_${rateStr}x_${hash}.mp3`;
 };
 
@@ -96,7 +96,7 @@ export const getOrCreateChapterAudio = async (
     
     console.log('🔍 챕터 오디오 검색:', { guideId, chapterIndex, language, speakingRate, fileName });
 
-    // 1. 브라우저 캐시 확인 (빠른 로딩)
+    // 1. 브라우저 캐시 확인 (가장 빠른 로딩)
     if (typeof window !== 'undefined') {
       const cachedUrl = localStorage.getItem(cacheKey);
       if (cachedUrl) {
@@ -105,52 +105,59 @@ export const getOrCreateChapterAudio = async (
       }
     }
 
-    // 2. Supabase DB에서 기존 오디오 파일 확인 (배속 포함)
+    // 2. ✅ Supabase DB에서 기존 오디오 파일 확인 (토큰 절약의 핵심)
     const { data: existingAudio, error: dbError } = await supabase
       .from('audio_files')
-      .select('file_path')
+      .select('file_path, id')
       .eq('guide_id', guideId)
       .eq('chapter_index', chapterIndex)
       .eq('language', language)
-      .like('file_path', `%_${speakingRate.toString().replace('.', '_')}x_%`) // 배속 매칭
+      .like('file_path', `%_${speakingRate.toString().replace('.', '_')}x_%`)
       .single();
 
     if (!dbError && existingAudio) {
-      // 3. Supabase Storage에서 파일 존재 확인
-      const { data: fileData } = await supabase.storage
+      console.log('🔍 DB에서 기존 파일 발견:', existingAudio.file_path);
+      // 3. ✅ Supabase Storage에서 파일 다운로드 시도
+      const { data: fileData, error: downloadError } = await supabase.storage
         .from('audio')
         .download(existingAudio.file_path);
 
-      if (fileData) {
-        console.log('✅ Supabase Storage에서 로드:', existingAudio.file_path);
-        
+      if (fileData && !downloadError) {
+        console.log('✅ Supabase Storage에서 기존 파일 로드 성공:', existingAudio.file_path);
         // Blob URL 생성 및 캐시 저장
         const audioUrl = URL.createObjectURL(fileData);
-        
         if (typeof window !== 'undefined') {
           localStorage.setItem(cacheKey, audioUrl);
         }
-        
+        // ✅ 기존 파일이 있으면 바로 반환 (TTS 생성 안함 - 토큰 절약!)
         return audioUrl;
+      } else {
+        console.warn('⚠️ Storage에서 파일 다운로드 실패, 새로 생성 필요:', downloadError);
+        // Storage에 파일이 없으면 DB 레코드도 삭제
+        await supabase.from('audio_files').delete().eq('id', existingAudio.id);
       }
     }
 
+    // 4. ✅ 새로운 TTS 오디오 생성 (기존 파일이 없을 때만!)
     console.log('🎵 새 챕터 오디오 생성 시작...', { guideId, chapterIndex, language, speakingRate });
-
-    // 4. 새로운 TTS 오디오 생성 (배속 적용)
     const audioBuffer = await generateTTSAudio(text, language, speakingRate);
     const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
 
-    // 5. Supabase Storage에 업로드 (upsert 유지)
+    // 5. ✅ Supabase Storage에 새 파일 업로드 (upsert 제거)
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('audio')
       .upload(fileName, audioBlob, {
-        contentType: 'audio/mpeg',
-        upsert: true // 파일 덮어쓰기 허용
+        contentType: 'audio/mpeg'
+        // upsert 제거 - 새 파일만 업로드
       });
 
     if (uploadError) {
-      console.error('❌ Supabase Storage 업로드 실패:', uploadError);
+      console.error('❌ Supabase Storage 업로드 실패:', {
+        error: uploadError,
+        fileName,
+        bucketName: 'audio',
+        fileSize: audioBlob.size
+      });
       // Storage 실패 시에도 로컬 Blob URL 반환
       const localUrl = URL.createObjectURL(audioBlob);
       if (typeof window !== 'undefined') {
@@ -159,37 +166,34 @@ export const getOrCreateChapterAudio = async (
       return localUrl;
     }
 
-    // 6. audio_files 테이블에 메타데이터 저장 (upsert + onConflict로 원자적 처리)
+    console.log('✅ Supabase Storage 업로드 성공:', uploadData.path);
+
+    // 6. ✅ audio_files 테이블에 메타데이터 저장 (insert만 사용)
     const { error: insertError } = await supabase
       .from('audio_files')
-      .upsert([
-        {
-          guide_id: guideId,
-          chapter_index: chapterIndex,
-          language: language,
-          file_path: fileName,
-          file_size: audioBlob.size,
-          duration_seconds: null, // 추후 계산 가능
-          created_at: new Date().toISOString()
-        }
-      ], {
-        onConflict: 'guide_id,chapter_index,language,file_path'
-      });
+      .insert([{
+        guide_id: guideId,
+        chapter_index: chapterIndex,
+        language: language,
+        file_path: fileName,
+        file_size: audioBlob.size,
+        duration_seconds: null, // 추후 계산 가능
+        created_at: new Date().toISOString()
+      }]);
 
     if (insertError) {
       console.warn('⚠️ audio_files 테이블 저장 실패:', insertError);
+      // DB 저장 실패해도 오디오는 반환 (Storage는 성공했으므로)
     } else {
       console.log('✅ audio_files 테이블 저장 성공');
     }
 
-    // 7. 성공 - Blob URL 생성 및 캐시 저장
+    // 7. ✅ 성공 - Blob URL 생성 및 캐시 저장
     const audioUrl = URL.createObjectURL(audioBlob);
-    
     if (typeof window !== 'undefined') {
       localStorage.setItem(cacheKey, audioUrl);
     }
-
-    console.log('✅ 챕터 오디오 생성 및 저장 완료:', { 
+    console.log('✅ 새 챕터 오디오 생성 및 저장 완료:', { 
       guideId, 
       chapterIndex, 
       language,
@@ -197,9 +201,7 @@ export const getOrCreateChapterAudio = async (
       fileName,
       size: audioBlob.size 
     });
-
     return audioUrl;
-
   } catch (error) {
     console.error('❌ 챕터 오디오 생성 실패:', error);
     throw error;
