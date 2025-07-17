@@ -8,7 +8,7 @@ export default function Home() {
   const [currentWord, setCurrentWord] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   
-  const words = ['도슨트', '스마트 투어', '가이드북', '스토리텔러'];
+  const words = ['도슨트', '여행지식', '가이드북', '스토리텔러'];
 
   useEffect(() => {
     setIsLoaded(true);
@@ -91,7 +91,7 @@ export default function Home() {
   ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}
 `}>
           {/* Dynamic Subtitle */}
-          <div className="h-20 flex items-center justify-center mb-6">
+          <div className="h-20 flex items-center justify-center mb-4">
             <h2 className="text-[clamp(1.5rem,4vw,2.5rem)] font-light text-black tracking-wide">
               내 손안의 
               <span className="relative inline-block ml-4 min-w-[200px] text-left">
