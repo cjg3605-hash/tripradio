@@ -400,7 +400,17 @@ export async function POST(req: NextRequest) {
     }
 
     // 🔍 3. JSON 파싱 및 검증
-    const parsed = validateJsonResponse(responseText);
+    if (!responseText) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'AI 응답 생성에 실패했습니다.' 
+        }),
+        { status: 500, headers }
+      );
+    }
+
+    const parsed = validateJsonResponse(responseText); // 이제 responseText는 확실히 string
     if (!parsed.success) {
       console.error('❌ JSON 파싱 실패:', parsed.error);
       return new Response(
