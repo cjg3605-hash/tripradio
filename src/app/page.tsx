@@ -8,7 +8,7 @@ export default function Home() {
   const [currentWord, setCurrentWord] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   
-  const words = ['도슨트', '가이드', '여행동반자', '스토리텔러'];
+  const words = ['도슨트', '스마트 투어', '가이드북', '스토리텔러'];
 
   useEffect(() => {
     setIsLoaded(true);
@@ -90,23 +90,8 @@ export default function Home() {
   text-center max-w-4xl mx-auto mb-12 transform transition-all duration-1500 ease-out
   ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}
 `}>
-          
-          {/* Ultra Large Brand with breathing effect */}
-          <div className="relative mb-16">
-            <h1 className="relative">
-              <span className="block text-[clamp(5rem,18vw,20rem)] font-extralight text-black leading-[0.75] tracking-[-0.08em] font-mono">
-                NAVI
-              </span>
-              
-              {/* Subtle glow shadow */}
-              <div className="absolute inset-0 text-[clamp(5rem,18vw,20rem)] font-extralight text-black/3 leading-[0.75] tracking-[-0.08em] font-mono blur-2xl -z-10 animate-pulse">
-                NAVI
-              </div>
-            </h1>
-          </div>
-
           {/* Dynamic Subtitle */}
-          <div className="h-20 flex items-center justify-center mb-12">
+          <div className="h-20 flex items-center justify-center mb-6">
             <h2 className="text-[clamp(1.5rem,4vw,2.5rem)] font-light text-black tracking-wide">
               내 손안의 
               <span className="relative inline-block ml-4 min-w-[200px] text-left">
@@ -148,8 +133,8 @@ export default function Home() {
           {/* Tagline */}
           <div className="mb-20">
             <p className="text-[clamp(1rem,2.5vw,1.25rem)] font-light text-gray-600 tracking-wide leading-relaxed max-w-lg mx-auto">
-              AI가 들려주는<br />
-              <span className="text-black font-medium">생생한 현장 이야기</span>
+            가이드없이 자유롭게,<br />
+              <span className="text-black font-medium">여행은 깊이있게</span>
             </p>
           </div>
         </div>

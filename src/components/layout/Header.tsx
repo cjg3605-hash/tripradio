@@ -140,7 +140,7 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
             
             {/* Brand Text */}
             <span className="text-2xl font-extralight text-black tracking-tight font-mono group-hover:tracking-wide transition-all duration-300">
-              NAVI
+            NAVI GUIDE
             </span>
           </Link>
 
