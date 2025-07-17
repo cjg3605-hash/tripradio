@@ -46,9 +46,13 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
         setTimeout(() => {
             const targetElement = document.querySelector(`[data-chapter-index="${chapterId}"]`);
             if (targetElement) {
-                targetElement.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start'
+                // 🔧 수정: 헤더 높이만큼 여유 공간 확보
+                const headerHeight = 64; // 헤더 높이 (실제 헤더 높이에 맞게 조정)
+                const elementPosition = targetElement.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
                 });
             }
         }, 100);
