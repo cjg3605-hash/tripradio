@@ -463,7 +463,7 @@ ${JSON.stringify(existingGuide, null, 2)}
 🚫 **Absolutamente Prohibido**
 - Nunca usar saludos como "Hola", "¡Todos!", "¡Sí, todos!" (desde el capítulo 1)
 - Prohibidas expresiones incompletas como "...se cubrirá con más detalle más tarde...", "...contenido más detallado en breve..."
-- Prohibido escribir brevemente - **debe tener 1600-1800 caracteres de contenido rico**
+- Prohibido escribir brevemente - **debe tener 1400-1500 caracteres de contenido rico**
 
 ✅ **Expresiones de Inicio Recomendadas**
 - "En esta ubicación..." "Lo notable aquí es..." "Curiosamente..."
@@ -483,7 +483,7 @@ ${JSON.stringify(existingGuide, null, 2)}
 }
 
 🚨 Requisitos de Cumplimiento Absoluto 🚨
-- **El campo narrative debe ser 1800-2000 caracteres (¡mínimo 1800 caracteres!)**
+- **El campo narrative debe ser 1400-1500 caracteres (¡mínimo 1400 caracteres!)**
 - Comenzar JSON inmediatamente sin introducción o explicación
 - Absolutamente prohibidos marcadores de bloques de código  
 - Formato JSON gramaticalmente perfecto

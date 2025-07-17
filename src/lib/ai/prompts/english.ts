@@ -452,7 +452,7 @@ ${JSON.stringify(existingGuide, null, 2)}
 🚫 **Absolutely Prohibited**
 - Never use greetings like "Hello", "Everyone!", "Yes, everyone!" (from chapter 1)
 - Prohibited incomplete expressions like "...will be covered in more detail later...", "...more detailed content shortly..."
-- Prohibited writing briefly - **must have 1600-1800 characters of rich content**
+- Prohibited writing briefly - **must have 1400-1500 characters of rich content**
 
 ✅ **Recommended Starting Expressions**
 - "At this location..." "What's notable here is..." "Interestingly..."
@@ -472,7 +472,7 @@ ${JSON.stringify(existingGuide, null, 2)}
 }
 
 🚨 Absolute Compliance Requirements 🚨
-- **narrative field must be 1800-2000 characters (minimum 1800 chars!)**
+- **narrative field must be 1400-1500 characters (minimum 1400 characters!)**
 - Start JSON immediately without introduction or explanation
 - Absolutely prohibited code block markers  
 - Grammatically perfect JSON format

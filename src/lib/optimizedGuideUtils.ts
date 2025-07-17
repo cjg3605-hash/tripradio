@@ -388,14 +388,15 @@ export const GuideHelpers = {
   getCompletionScore(chapter: ChapterContent): number {
     let score = 0;
     
-    if (chapter.narrative && chapter.narrative.length >= 1500) score += 40;
-    else if (chapter.narrative && chapter.narrative.length >= 800) score += 20;
+    if (chapter.narrative && chapter.narrative.length >= 1400) score += 40;
+    else if (chapter.narrative && chapter.narrative.length >= 1200) score += 30;
+    else if (chapter.narrative && chapter.narrative.length >= 1000) score += 20;
     
-    if (chapter.nextDirection && chapter.nextDirection.length >= 100) score += 20;
+    if (chapter.nextDirection && chapter.nextDirection.length >= 150) score += 20;
     
-    if (chapter.sceneDescription && chapter.sceneDescription.length >= 200) score += 15;
-    if (chapter.coreNarrative && chapter.coreNarrative.length >= 300) score += 15;
-    if (chapter.humanStories && chapter.humanStories.length >= 200) score += 10;
+    if (chapter.sceneDescription && chapter.sceneDescription.length >= 600) score += 15;
+    if (chapter.coreNarrative && chapter.coreNarrative.length >= 500) score += 15;
+    if (chapter.humanStories && chapter.humanStories.length >= 250) score += 10;
     
     return Math.min(score, 100);
   }

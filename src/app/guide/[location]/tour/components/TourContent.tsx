@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, MutableRefObject } from 'react';
 import { Play, Pause, Square, Clock } from 'lucide-react';
 import { GuideData } from '@/types/guide';
+import { getOrCreateChapterAudio } from '@/lib/tts-gcs';
 
 interface TourContentProps {
   guide: GuideData;
@@ -102,49 +103,24 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
       setCurrentChapter(chapterIndex);
       setIsPlaying(true);
 
-      const response = await fetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: textToSpeak,
-          language: language,
-        }),
+      console.log('🎵 챕터 오디오 요청:', { 
+        guideId: guide.metadata.originalLocationName,
+        chapterIndex,
+        textLength: textToSpeak.length,
+        language 
       });
 
-      let data: any;
-      try {
-        data = await response.json();
-      } catch (jsonError) {
-        throw new Error('TTS 응답 파싱 실패: 서버에서 올바른 JSON을 반환하지 않았습니다.');
-      }
+      // DB 확인 → 없으면 TTS 생성 (분할 처리 포함) → DB 저장 → URL 반환
+      const audioUrl = await getOrCreateChapterAudio(
+        guide.metadata.originalLocationName,
+        chapterIndex,
+        textToSpeak,
+        language
+      );
 
-      if (!response.ok || !data.success) {
-        const errorMsg = data?.error || 'TTS 생성 실패';
-        const errorCode = data?.code ? ` (코드: ${data.code})` : '';
-        console.error('TTS API 오류:', errorMsg, errorCode, data);
-        alert(`음성 생성 중 오류가 발생했습니다.\n${errorMsg}${errorCode}`);
-        setIsPlaying(false);
-        return;
-      }
+      console.log('✅ 오디오 URL 수신:', audioUrl);
 
-      if (!data.audioData || !data.mimeType) {
-        console.error('TTS API 응답에 오디오 데이터가 없습니다:', data);
-        alert('TTS 응답에 오디오 데이터가 없습니다.');
-        setIsPlaying(false);
-        return;
-      }
-
-      // base64 -> Blob 변환
-      const byteCharacters = atob(data.audioData);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const audioBlob = new Blob([byteArray], { type: data.mimeType });
-      const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
-
       setCurrentAudio(audio);
       audioRef.current = audio;
 
