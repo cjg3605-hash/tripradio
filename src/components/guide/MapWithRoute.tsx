@@ -10,7 +10,7 @@ const TileLayer = dynamic(() => import('react-leaflet').then(mod => ({ default: 
 const Polyline = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.Polyline })), { ssr: false });
 const Marker = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.Marker })), { ssr: false });
 const Tooltip = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.Tooltip })), { ssr: false });
-const useMap = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.useMap })), { ssr: false });
+const useMap = dynamic(() => import('react-leaflet').then(mod => mod.useMap), { ssr: false });
 
 // 기본 마커 아이콘(Leaflet 기본 마커가 안 보일 때 필요)
 // @ts-ignore - Leaflet 내부 프로토타입 수정은 타입 체크 불가
