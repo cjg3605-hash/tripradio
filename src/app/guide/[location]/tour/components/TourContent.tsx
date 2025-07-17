@@ -40,6 +40,11 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
 
   // TTS 재생 핸들러
   const handlePlayChapter = async (chapterIndex: number) => {
+    // 이미 재생 중인 챕터 클릭 시 일시정지/재개 처리
+    if (currentChapter === chapterIndex && currentAudio) {
+      handleTogglePlayback();
+      return;
+    }
     stopAndCleanupAudio();
 
     const chapter = guide.realTimeGuide?.chapters?.[chapterIndex];
@@ -226,20 +231,25 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
                       type="button"
                       onClick={e => {
                         e.stopPropagation();
-                        handlePlayChapter(index);
+                        if (currentChapter === index && currentAudio) {
+                          handleTogglePlayback();
+                        } else {
+                          handlePlayChapter(index);
+                        }
                       }}
                       disabled={isPlaying && currentChapter !== index}
-                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
                         isCurrentlyPlaying
                           ? 'bg-blue-600 text-white hover:bg-blue-700'
                           : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
-                      aria-label={isCurrentlyPlaying ? '재생 중' : '음성 듣기'}
+                      aria-label={isCurrentlyPlaying ? (isPlaying ? '일시정지' : '재개') : '재생'}
                     >
-                      <Play className="w-4 h-4" />
-                      <span className="text-sm font-medium">
-                        {isCurrentlyPlaying ? '재생 중' : '음성 듣기'}
-                      </span>
+                      {isCurrentlyPlaying && isPlaying ? (
+                        <Pause className="w-5 h-5" />
+                      ) : (
+                        <Play className="w-5 h-5" />
+                      )}
                     </button>
 
                     {isCurrentlyPlaying && (
