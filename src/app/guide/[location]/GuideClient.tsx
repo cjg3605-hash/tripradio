@@ -4,13 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { GuideData } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
-import TourContent from './tour/components/TourContent';
+import MinimalTourContent from './tour/components/TourContent';
 import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
 import { UserProfile } from '@/types/guide';
-import LoadingWithAd from '@/components/ui/LoadingWithAd';
-import { MapPin, Route, Headphones, ChevronUp } from 'lucide-react';
 
 export default function GuideClient({ locationName, initialGuide }: { locationName: string, initialGuide: any }) {
     const router = useRouter();
@@ -50,7 +48,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
             const content = initialGuide.content;
             return {
                 overview: content.overview || { title: '', summary: '', keyFacts: [], visitInfo: {}, narrativeTheme: '' },
-                route: content.route || { steps: [], tips: [], duration: '' },
+                route: content.route || { steps: [] },
                 realTimeGuide: content.realTimeGuide || { chapters: [] },
                 metadata: content.metadata || {
                     originalLocationName: locationName,
@@ -70,7 +68,6 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     const [loadingMessage, setLoadingMessage] = useState('AI 가이드를 생성하고 있습니다...');
     const [currentProgress, setCurrentProgress] = useState(0);
     const [totalSteps, setTotalSteps] = useState(1);
-    const [showScrollTop, setShowScrollTop] = useState(false);
 
     useEffect(() => {
         if (guideData) return;
@@ -115,12 +112,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                 console.log('📚 위치별 동적 챕터 수:', { 
                     location: locationName, 
                     detectedChapters: totalChapters,
-                    routeSteps: currentGuide.route?.steps?.length || 0,
-                    currentGuideStructure: {
-                        hasRealTimeGuide: !!currentGuide.realTimeGuide,
-                        hasChapters: !!currentGuide.realTimeGuide?.chapters,
-                        chaptersArray: currentGuide.realTimeGuide?.chapters
-                    }
+                    routeSteps: currentGuide.route?.steps?.length || 0
                 });
                 setTotalSteps(1 + totalChapters);
                 setCurrentProgress(1);
@@ -136,300 +128,145 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                     setLoadingMessage(`챕터 ${chapterIndex + 1}/${totalChapters} 생성 중...`);
                     setCurrentProgress(2 + chapterIndex);
                     
-                    // 재시도 로직 추가
-                    let chapterSuccess = false;
-                    let retryCount = 0;
-                    const maxRetries = 3;
-                    
-                    while (!chapterSuccess && retryCount < maxRetries) {
-                        try {
-                            const chapterResponse = await fetch('/api/node/ai/generate-guide', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    locationName,
-                                    language: currentLanguage,
-                                    generationMode: 'chapter',
-                                    existingGuide: currentGuide,
-                                    targetChapter: chapterIndex
-                                })
-                            });
+                    try {
+                        const chapterResponse = await fetch('/api/node/ai/generate-guide', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                locationName,
+                                language: currentLanguage,
+                                generationMode: 'chapter',
+                                existingGuide: currentGuide,
+                                targetChapter: chapterIndex
+                            })
+                        });
 
-                            const chapterResult = await chapterResponse.json();
-                            console.log(`📖 챕터 ${chapterIndex + 1} 생성 결과 (시도 ${retryCount + 1}):`, {
-                                success: chapterResult.success,
-                                chapterIndex: chapterResult.targetChapter,
-                                hasData: !!chapterResult.data,
-                                hasContent: !!chapterResult.data?.content,
-                                error: chapterResult.error
-                            });
+                        const chapterResult = await chapterResponse.json();
+                        console.log(`📖 챕터 ${chapterIndex + 1} 생성 결과:`, {
+                            success: chapterResult.success,
+                            chapterIndex: chapterResult.targetChapter,
+                            hasData: !!chapterResult.data
+                        });
 
-                            if (chapterResult.success && chapterResult.data?.content) {
-                                // 성공한 경우
-                                currentGuide = chapterResult.data.content;
-                                setGuideData(currentGuide);
-                                
-                                const chapterHasNarrative = currentGuide.realTimeGuide?.chapters?.[chapterIndex]?.narrative;
-                                console.log(`✅ 챕터 ${chapterIndex + 1} 업데이트 후 상태:`, {
-                                    chapterHasNarrative: !!chapterHasNarrative,
-                                    narrativeLength: chapterHasNarrative?.length || 0,
-                                    chapterData: currentGuide.realTimeGuide?.chapters?.[chapterIndex] || null
-                                });
-                                
-                                chapterSuccess = true;
-                            } else {
-                                // 실패한 경우
-                                console.warn(`⚠️ 챕터 ${chapterIndex + 1} 생성 실패 (시도 ${retryCount + 1}):`, {
-                                    success: chapterResult.success,
-                                    error: chapterResult.error
-                                });
-                                
-                                retryCount++;
-                                if (retryCount < maxRetries) {
-                                    console.log(`🔄 챕터 ${chapterIndex + 1} 재시도 중... (${retryCount + 1}/${maxRetries})`);
-                                    await new Promise(resolve => setTimeout(resolve, 2000)); // 2초 대기
-                                }
-                            }
-                        } catch (error) {
-                            console.error(`❌ 챕터 ${chapterIndex + 1} 요청 실패 (시도 ${retryCount + 1}):`, error);
-                            retryCount++;
-                            if (retryCount < maxRetries) {
-                                await new Promise(resolve => setTimeout(resolve, 2000));
-                            }
+                        if (chapterResult.success && chapterResult.data?.content) {
+                            currentGuide = chapterResult.data.content;
+                            setGuideData({ ...currentGuide });
+                            console.log(`✅ 챕터 ${chapterIndex + 1} 업데이트 완료`);
+                        } else {
+                            console.warn(`⚠️ 챕터 ${chapterIndex + 1} 생성 실패, 계속 진행`);
                         }
+                    } catch (chapterError) {
+                        console.error(`❌ 챕터 ${chapterIndex + 1} 생성 오류:`, chapterError);
                     }
-                    
-                    // 최대 재시도 후에도 실패한 경우 기본 구조 유지
-                    if (!chapterSuccess) {
-                        console.warn(`⚠️ 챕터 ${chapterIndex + 1} 최대 재시도 후 실패, 기본 구조 유지`);
-                    }
-                    
-                    // API 안정성을 위해 대기
-                    console.log('⏱️ API 안정성을 위해 1초 대기...');
-                    await new Promise(resolve => setTimeout(resolve, 1000));
                 }
 
-                console.log('✅ 가이드 완전 생성 완료');
-                setLoadingMessage('가이드 생성 완료!');
+                console.log('🎉 모든 챕터 생성 완료!');
+                setLoadingMessage('모든 챕터 생성 완료!');
                 setCurrentProgress(totalSteps);
 
-                if (session?.user?.id) {
-                    const userProfile: UserProfile = { interests: [], ageGroup: 'adult', knowledgeLevel: 'intermediate', companions: 'solo' };
-                    await saveGuideHistoryToSupabase(session.user, locationName, currentGuide, userProfile);
-                } else {
-                    guideHistory.saveGuide(locationName, currentGuide, undefined);
+                // 히스토리 저장
+                try {
+                    if (session?.user?.id) {
+                        const userProfile = { interests: [], ageGroup: 'adult', knowledgeLevel: 'intermediate', companions: 'solo' };
+                        await saveGuideHistoryToSupabase(session.user, locationName, currentGuide, userProfile);
+                    } else {
+                        guideHistory.saveGuide(locationName, currentGuide);
+                    }
+                } catch (historyError) {
+                    console.warn('히스토리 저장 실패:', historyError);
                 }
 
-            } catch (err) {
-                const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-                console.error('Error loading guide:', err);
-                setError(errorMessage);
+            } catch (error: any) {
+                console.error('❌ 가이드 생성 오류:', error);
+                setError(error.message || '가이드 생성 중 오류가 발생했습니다.');
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchGuideProgressive();
-    }, [locationName, currentLanguage, guideData, session]);
+    }, [locationName, currentLanguage, session, guideData]);
 
-    useEffect(() => {
-        const handleScroll = () => {
-            setShowScrollTop(window.scrollY > 300);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    const handleScrollToTop = () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
+    // 로딩 중
     if (isLoading) {
         return (
-            <LoadingWithAd
-                message={`${locationName} AI 가이드 생성 중...`}
-                showProgress={true}
-                progress={(currentProgress / totalSteps) * 100}
-                detailMessage={loadingMessage}
-            />
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="max-w-md w-full mx-auto p-8">
+                    {/* 로딩 카드 */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
+                        {/* 프로그레스 바 */}
+                        <div className="mb-6">
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div 
+                                    className="bg-black h-2 rounded-full transition-all duration-500"
+                                    style={{ width: `${(currentProgress / totalSteps) * 100}%` }}
+                                ></div>
+                            </div>
+                            <div className="mt-2 text-sm text-gray-600">
+                                {currentProgress}/{totalSteps} 단계
+                            </div>
+                        </div>
+
+                        {/* 스피너 */}
+                        <div className="w-12 h-12 border-2 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+                        
+                        {/* 메시지 */}
+                        <h2 className="text-xl font-bold text-gray-900 mb-2">가이드 생성 중</h2>
+                        <p className="text-gray-600 text-sm">{loadingMessage}</p>
+                        
+                        {/* 팁 */}
+                        <div className="mt-6 p-4 bg-gray-50 rounded-xl">
+                            <p className="text-xs text-gray-500">
+                                💡 AI가 해당 장소의 역사, 문화, 숨겨진 이야기들을 찾아 정리하고 있습니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         );
     }
 
+    // 에러 상태
     if (error) {
         return (
-            <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-                <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6 text-center">
-                    <h2 className="text-lg font-medium text-gray-900 mb-2">오류 발생</h2>
-                    <p className="text-gray-600 mb-6">{error}</p>
-                    <button onClick={() => router.push('/')} className="px-4 py-2 border rounded-md">홈으로</button>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="max-w-md w-full mx-auto p-8">
+                    <div className="bg-white rounded-2xl shadow-sm border border-red-200 p-8 text-center">
+                        <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span className="text-red-600 text-xl">!</span>
+                        </div>
+                        <h2 className="text-xl font-bold text-gray-900 mb-2">오류가 발생했습니다</h2>
+                        <p className="text-gray-600 text-sm mb-6">{error}</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="bg-black text-white px-6 py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors"
+                        >
+                            다시 시도
+                        </button>
+                    </div>
                 </div>
             </div>
         );
     }
 
+    // 가이드 데이터가 없는 경우
     if (!guideData) {
         return (
-             <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-               <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6 text-center">
-                 <h2 className="text-lg font-medium text-gray-900 mb-2">데이터 표시 실패</h2>
-                 <p className="text-gray-600 mb-6">가이드 데이터를 불러왔지만, 내용이 올바르지 않습니다. 다시 시도해주세요.</p>
-                 <button onClick={() => window.location.reload()} className="px-4 py-2 border rounded-md">다시 시도</button>
-               </div>
-             </div>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="text-gray-500 mb-4">가이드 데이터를 찾을 수 없습니다.</div>
+                    <button
+                        onClick={() => router.push('/')}
+                        className="bg-black text-white px-6 py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors"
+                    >
+                        홈으로 돌아가기
+                    </button>
+                </div>
+            </div>
         );
     }
 
-    const handleStepClick = (stepIndex: number) => {
-        console.log('🔍 클릭된 stepIndex:', stepIndex);
-        // realTimeGuide chapters에서 동일한 인덱스의 챕터 찾기
-        if (guideData.realTimeGuide?.chapters && guideData.realTimeGuide.chapters[stepIndex]) {
-            // 실시간가이드 섹션으로 스크롤
-            const guideSection = document.getElementById('realtime-guide-section');
-            if (guideSection) {
-                guideSection.scrollIntoView({ behavior: 'smooth' });
-            }
-            // 디버깅: 전달되는 값 확인
-            console.log('📡 이벤트 발생 - chapterId:', stepIndex);
-            // 챕터 변경 이벤트 발생 (stepIndex 사용)
-            window.dispatchEvent(new CustomEvent('jumpToChapter', { 
-                detail: { chapterId: stepIndex }
-            }));
-            console.log('✅ 이벤트 발생 완료');
-        } else {
-            console.error('❌ 유효하지 않은 챕터:', stepIndex);
-        }
-    };
+    console.log('✅ 데이터 로드 완료, MinimalTourContent 렌더링!', { guideData });
 
-    return (
-        <div className="min-h-screen bg-slate-50">
-            <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-                {/* 헤더 */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">{guideData.overview.title}</h1>
-                    <p className="text-gray-600">{guideData.overview.summary}</p>
-                </div>
-
-                {/* 개요 섹션 */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center mb-6">
-                        <MapPin className="w-5 h-5 text-blue-600 mr-2" />
-                        <h2 className="text-2xl font-bold text-gray-900">개요</h2>
-                    </div>
-                    
-                    <div className="space-y-6">
-                        {/* 주요 정보 */}
-                        {guideData.overview.keyFacts && guideData.overview.keyFacts.length > 0 && (
-                            <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4">주요 정보</h3>
-                                <div className="grid gap-4 md:grid-cols-2">
-                                    {guideData.overview.keyFacts.map((fact, index) => (
-                                        <div key={index} className="bg-blue-50 rounded-lg p-4">
-                                            <h4 className="font-medium text-blue-900">{fact.title}</h4>
-                                            {fact.description && (
-                                                <p className="text-blue-700 text-sm mt-1">{fact.description}</p>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 방문 팁 */}
-                        {guideData.overview.visitingTips && guideData.overview.visitingTips.length > 0 && (
-                            <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4">방문 팁</h3>
-                                <div className="bg-green-50 rounded-lg p-4">
-                                    <ul className="space-y-2">
-                                        {guideData.overview.visitingTips.map((tip, index) => (
-                                            <li key={index} className="text-green-800 flex items-start">
-                                                <span className="text-green-600 mr-2">•</span>
-                                                {tip}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 역사적 배경 */}
-                        {guideData.overview.historicalBackground && (
-                            <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4">역사적 배경</h3>
-                                <div className="bg-amber-50 rounded-lg p-4">
-                                    <p className="text-amber-800">{guideData.overview.historicalBackground}</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* 추천 관람순서 섹션 */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center mb-6">
-                        <Route className="w-5 h-5 text-blue-600 mr-2" />
-                        <h2 className="text-2xl font-bold text-gray-900">추천 관람순서</h2>
-                    </div>
-                    
-                    {guideData.route && guideData.route.steps && guideData.route.steps.length > 0 ? (
-                        <div className="space-y-4">
-                            {guideData.route.steps.map((step, index) => (
-                                <div key={index} className="bg-gray-50 border rounded-lg p-4 hover:shadow-md transition-shadow">
-                                    <div className="flex items-start space-x-4">
-                                        <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                            <span className="text-blue-600 font-semibold text-sm">{step.step || index + 1}</span>
-                                        </div>
-                                        <div className="flex-1">
-                                            <h4 className="font-medium text-gray-900 mb-2">
-                                                <button 
-                                                    onClick={() => handleStepClick(index)}
-                                                    className="text-left hover:text-blue-600 hover:underline cursor-pointer transition-colors w-full"
-                                                >
-                                                    {step.title}
-                                                </button>
-                                            </h4>
-                                            {step.description && (
-                                                <p className="text-gray-600 text-sm">{step.description}</p>
-                                            )}
-                                            {step.duration && (
-                                                <p className="text-blue-600 text-sm mt-2">소요시간: {step.duration}</p>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="text-gray-500">관람순서 정보가 없습니다.</p>
-                    )}
-                </div>
-
-                {/* 실시간 가이드 섹션 */}
-                <div id="realtime-guide-section" className="bg-white rounded-lg shadow-sm p-6">
-                    <div className="flex items-center mb-6">
-                        <Headphones className="w-5 h-5 text-blue-600 mr-2" />
-                        <h2 className="text-2xl font-bold text-gray-900">실시간 오디오 가이드</h2>
-                    </div>
-                    
-                    <TourContent guide={guideData} language={currentLanguage} />
-                </div>
-            </div>
-            {showScrollTop && (
-                <button
-                    type="button"
-                    aria-label="맨 위로 스크롤"
-                    tabIndex={0}
-                    onClick={handleScrollToTop}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            handleScrollToTop();
-                        }
-                    }}
-                    className="fixed bottom-6 right-6 w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-200 hover:scale-105 flex items-center justify-center z-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
-                    <ChevronUp className="w-5 h-5" />
-                </button>
-            )}
-        </div>
-    );
+    return <MinimalTourContent guide={guideData} language={currentLanguage} />;
 }
