@@ -1,6 +1,6 @@
 'use client';
 
-import { SearchBox } from '@/components/home/SearchBox';
+import SearchBox from '@/components/home/SearchBox';
 
 export default function Home() {
   return (
