@@ -35,6 +35,10 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
     const handleJumpToChapter = (event: Event) => {
         const customEvent = event as CustomEvent<{ chapterId: number }>;
         const { chapterId } = customEvent.detail;
+        
+        console.log('🎯 받은 chapterId:', chapterId);
+        console.log('🔄 현재 챕터에서 변경:', currentChapter, '→', chapterId);
+        
         setCurrentChapter(chapterId);
         // 기존 오디오 정지
         stopAndCleanupAudio();

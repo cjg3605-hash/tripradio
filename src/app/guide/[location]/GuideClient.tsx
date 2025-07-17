@@ -244,6 +244,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     }
 
     const handleStepClick = (stepIndex: number) => {
+        console.log('🔍 클릭된 stepIndex:', stepIndex);
         // realTimeGuide chapters에서 동일한 인덱스의 챕터 찾기
         if (guideData.realTimeGuide?.chapters && guideData.realTimeGuide.chapters[stepIndex]) {
             // 실시간가이드 섹션으로 스크롤
@@ -251,10 +252,15 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
             if (guideSection) {
                 guideSection.scrollIntoView({ behavior: 'smooth' });
             }
+            // 디버깅: 전달되는 값 확인
+            console.log('📡 이벤트 발생 - chapterId:', stepIndex);
             // 챕터 변경 이벤트 발생 (stepIndex 사용)
             window.dispatchEvent(new CustomEvent('jumpToChapter', { 
                 detail: { chapterId: stepIndex }
             }));
+            console.log('✅ 이벤트 발생 완료');
+        } else {
+            console.error('❌ 유효하지 않은 챕터:', stepIndex);
         }
     };
 
