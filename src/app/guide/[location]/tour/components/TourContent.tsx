@@ -42,7 +42,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   const handlePlayChapter = async (chapterIndex: number) => {
     stopAndCleanupAudio();
 
-    const chapter = guide.realTimeGuide.chapters[chapterIndex];
+    const chapter = guide.realTimeGuide?.chapters?.[chapterIndex];
     if (!chapter) return;
 
     let textToSpeak = '';
@@ -79,11 +79,37 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('TTS 생성 실패');
+      let data: any;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        throw new Error('TTS 응답 파싱 실패: 서버에서 올바른 JSON을 반환하지 않았습니다.');
       }
 
-      const audioBlob = await response.blob();
+      if (!response.ok || !data.success) {
+        const errorMsg = data?.error || 'TTS 생성 실패';
+        const errorCode = data?.code ? ` (코드: ${data.code})` : '';
+        console.error('TTS API 오류:', errorMsg, errorCode, data);
+        alert(`음성 생성 중 오류가 발생했습니다.\n${errorMsg}${errorCode}`);
+        setIsPlaying(false);
+        return;
+      }
+
+      if (!data.audioData || !data.mimeType) {
+        console.error('TTS API 응답에 오디오 데이터가 없습니다:', data);
+        alert('TTS 응답에 오디오 데이터가 없습니다.');
+        setIsPlaying(false);
+        return;
+      }
+
+      // base64 -> Blob 변환
+      const byteCharacters = atob(data.audioData);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const audioBlob = new Blob([byteArray], { type: data.mimeType });
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
 
@@ -104,10 +130,15 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
       };
 
       await audio.play();
-    } catch (error) {
-      console.error('TTS 오류:', error);
+    } catch (error: any) {
       setIsPlaying(false);
-      alert('음성 생성 중 오류가 발생했습니다.');
+      if (error instanceof Error) {
+        console.error('TTS 오류:', error.message, error);
+        alert(`음성 생성 중 오류가 발생했습니다.\n${error.message}`);
+      } else {
+        console.error('TTS 알 수 없는 오류:', error);
+        alert('음성 생성 중 알 수 없는 오류가 발생했습니다.');
+      }
     }
   };
 
@@ -129,20 +160,36 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
     stopAndCleanupAudio();
   };
 
+  // realTimeGuide가 없거나 chapters가 없는 경우 처리
+  if (!guide.realTimeGuide?.chapters || guide.realTimeGuide.chapters.length === 0) {
+    return (
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <div className="flex items-center">
+          <Clock className="w-5 h-5 text-yellow-600 mr-2" />
+          <div>
+            <p className="text-yellow-800 font-medium">가이드 준비 중</p>
+            <p className="text-yellow-700 text-sm mt-1">
+              실시간 가이드 내용이 준비되고 있습니다. 잠시만 기다려주세요.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {guide.realTimeGuide.chapters.map((chapter, index) => {
+      {guide.realTimeGuide?.chapters?.map((chapter, index) => {
         const isCurrentlyPlaying = isPlaying && currentChapter === index;
-        const hasContent =
-          chapter.narrative ||
-          chapter.sceneDescription ||
-          chapter.coreNarrative ||
-          chapter.humanStories;
+        const hasContent = chapter.narrative || 
+                          chapter.sceneDescription || 
+                          chapter.coreNarrative || 
+                          chapter.humanStories;
 
         return (
           <div
             key={index}
-            ref={el => {
+            ref={(el) => {
               chapterRefs.current[index] = el;
             }}
             className={`border rounded-lg p-6 transition-all duration-300 ${
@@ -162,13 +209,11 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                    isCurrentlyPlaying
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-600'
-                  }`}
-                >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                  isCurrentlyPlaying
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-100 text-gray-600'
+                }`}>
                   {index + 1}
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900">{chapter.title}</h3>
