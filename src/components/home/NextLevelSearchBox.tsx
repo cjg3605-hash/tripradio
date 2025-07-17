@@ -61,6 +61,7 @@ export default function NextLevelSearchBox() {
       setSuggestions([]);
       setIsTyping(false);
       setSelectedIndex(-1);
+      return undefined;
     }
   }, [query, currentLanguage]);
 
@@ -218,69 +219,34 @@ export default function NextLevelSearchBox() {
                     w-full px-6 py-4 text-left transition-all duration-200
                     border-b border-gray-50 last:border-b-0 group
                     ${selectedIndex === index 
-                      ? 'bg-gray-50 text-black' 
-                      : 'hover:bg-gray-50 text-gray-900'
+                      ? 'bg-gray-50 border-l-4 border-l-black' 
+                      : 'hover:bg-gray-50'
                     }
                   `}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="font-medium text-black group-hover:text-black transition-colors">
+                    <div>
+                      <div className={`
+                        font-medium transition-colors
+                        ${selectedIndex === index ? 'text-black' : 'text-gray-900 group-hover:text-black'}
+                      `}>
                         {suggestion.name}
                       </div>
                       <div className="text-sm text-gray-500 mt-1">
                         {suggestion.location}
                       </div>
                     </div>
-                    <svg 
-                      className="w-5 h-5 text-gray-400 group-hover:text-black transition-all ml-3" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+                    <div className={`
+                      transition-all duration-200
+                      ${selectedIndex === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 group-hover:opacity-60 group-hover:translate-x-0'}
+                    `}>
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
                   </div>
                 </button>
               ))}
-            </div>
-          )}
-
-          {/* Smart Quick Suggestions */}
-          {!query && isFocused && !isSubmitting && (
-            <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 p-6 z-10">
-              <h3 className="text-sm font-medium text-gray-900 mb-4">인기 검색어</h3>
-              <div className="flex flex-wrap gap-2">
-                {placeholders.map((place, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setQuery(place);
-                      inputRef.current?.focus();
-                    }}
-                    className="px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl transition-all duration-200 hover:scale-105"
-                  >
-                    {place}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* No Results State */}
-          {query.length >= 2 && !isTyping && suggestions.length === 0 && isFocused && !isSubmitting && (
-            <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 p-6 z-10">
-              <div className="text-center">
-                <p className="text-gray-600 mb-3">
-                  "<span className="font-medium">{query}</span>" 바로 가이드 생성하기
-                </p>
-                <button
-                  onClick={handleSearch}
-                  className="text-black hover:text-gray-600 text-sm font-medium underline underline-offset-2 transition-colors duration-200"
-                >
-                  가이드 생성하기 →
-                </button>
-              </div>
             </div>
           )}
         </div>
