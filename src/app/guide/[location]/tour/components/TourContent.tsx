@@ -42,6 +42,13 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
         setCurrentChapter(chapterId);
         // 기존 오디오 정지
         stopAndCleanupAudio();
+        // 추가: 해당 챕터 요소로 스크롤
+        setTimeout(() => {
+            const targetElement = document.querySelector(`[data-chapter-index="${chapterId}"]`);
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 100);
     };
     window.addEventListener('jumpToChapter', handleJumpToChapter as EventListener);
     return () => {
@@ -211,11 +218,12 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
         return (
           <div
             key={index}
+            data-chapter-index={index}  // 추가: 스크롤 타겟용 속성
             ref={(el) => {
               chapterRefs.current[index] = el;
             }}
             className={`border rounded-lg p-6 transition-all duration-300 ${
-              isCurrentlyPlaying
+              currentChapter === index
                 ? 'border-blue-500 bg-blue-50 shadow-lg'
                 : 'border-gray-200 bg-white hover:shadow-md'
             }`}
@@ -232,7 +240,7 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                  isCurrentlyPlaying
+                  currentChapter === index
                     ? 'bg-blue-500 text-white'
                     : 'bg-gray-100 text-gray-600'
                 }`}>
