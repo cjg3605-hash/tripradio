@@ -17,18 +17,34 @@ const WAVENET_VOICES: Record<string, string> = {
   'es-ES': 'es-ES-Wavenet-A',
 };
 
-// ✅ 수정: 파일명 생성 (audio/ 접두사 완전 제거)
+// ✅ 한글 안전 파일 경로 생성 함수
+const sanitizeForPath = (str: string): string => {
+  return str
+    .replace(/[가-힣]/g, '') // 한글 제거
+    .replace(/[^a-zA-Z0-9_-]/g, '_') // 특수문자를 _로 변경
+    .replace(/_+/g, '_') // 연속된 _를 하나로
+    .replace(/^_|_$/g, '') // 앞뒤 _제거
+    .toLowerCase();
+};
+
+// ✅ 수정: 한글 안전 파일명 생성
 const getChapterAudioFileName = (guideId: string, chapterIndex: number, language: string, text: string, speakingRate = 1.2) => {
   const hash = crypto.createHash('md5').update(text).digest('hex').substring(0, 8);
   const rateStr = speakingRate.toString().replace('.', '_'); // 1.2 -> 1_2
-  // audio/ 접두사 완전 제거 - supabase.storage.from('audio')가 버킷 지정
-  return `guides/${guideId}/chapter_${chapterIndex}_${language}_${rateStr}x_${hash}.mp3`;
+  // guideId 한글 제거 및 안전 변환
+  const safeGuideId = sanitizeForPath(guideId);
+  // audio/ 접두사 완전 제거 + 한글 안전 경로
+  return `guides/${safeGuideId}/chapter_${chapterIndex}_${language}_${rateStr}x_${hash}.mp3`;
 };
 
-// 캐시 키 생성 (배속 정보 포함)
+// 세션 기반 메모리 캐시 (localStorage 대신)
+const sessionAudioCache = new Map<string, string>();
+
+// 캐시 키 생성
 const getChapterCacheKey = (guideId: string, chapterIndex: number, language: string, speakingRate = 1.2) => {
   const rateStr = speakingRate.toString().replace('.', '_');
-  return `tts_${guideId}_chapter_${chapterIndex}_${language}_${rateStr}x`;
+  const safeGuideId = sanitizeForPath(guideId);
+  return `tts_${safeGuideId}_chapter_${chapterIndex}_${language}_${rateStr}x`;
 };
 
 // TTS로 넘기기 전 텍스트에서 ➡️와 그 뒤의 공백을 모두 제거
@@ -97,7 +113,14 @@ export const getOrCreateChapterAudio = async (
     const cacheKey = getChapterCacheKey(guideId, chapterIndex, language, speakingRate);
     const fileName = getChapterAudioFileName(guideId, chapterIndex, language, text, speakingRate);
     
-    console.log('🔍 챕터 오디오 검색:', { guideId, chapterIndex, language, speakingRate, fileName });
+    console.log('🔍 챕터 오디오 검색:', { 
+      originalGuideId: guideId,
+      safeGuideId: sanitizeForPath(guideId),
+      chapterIndex, 
+      language, 
+      speakingRate, 
+      fileName 
+    });
 
     // 1. ✅ 세션 메모리 캐시 확인 (유효한 Blob URL만)
     if (typeof window !== 'undefined' && sessionAudioCache.has(cacheKey)) {
@@ -106,11 +129,12 @@ export const getOrCreateChapterAudio = async (
       return cachedUrl;
     }
 
-    // 2. ✅ Supabase DB에서 기존 오디오 파일 확인
+    // 2. ✅ Supabase DB에서 기존 오디오 파일 확인 (한글 안전 guideId 사용)
+    const safeGuideId = sanitizeForPath(guideId);
     const { data: existingAudio, error: dbError } = await supabase
       .from('audio_files')
       .select('file_path')
-      .eq('guide_id', guideId)
+      .eq('guide_id', safeGuideId) // 한글 안전 guideId 사용
       .eq('chapter_index', chapterIndex)
       .eq('language', language)
       .like('file_path', `%_${speakingRate.toString().replace('.', '_')}x_%`)
@@ -127,7 +151,7 @@ export const getOrCreateChapterAudio = async (
         console.log('✅ Supabase Storage에서 기존 파일 로드 성공:', existingAudio.file_path);
         // ✅ 새로운 Blob URL 생성 (매번 새로 생성)
         const audioUrl = URL.createObjectURL(fileData);
-        // ✅ 세션 메모리 캐시에 저장 (localStorage 대신)
+        // ✅ 세션 메모리 캐시에 저장
         if (typeof window !== 'undefined') {
           sessionAudioCache.set(cacheKey, audioUrl);
         }
@@ -140,11 +164,18 @@ export const getOrCreateChapterAudio = async (
     }
 
     // 4. ✅ 새로운 TTS 오디오 생성 (기존 파일이 없을 때만)
-    console.log('🎵 새 챕터 오디오 생성 시작...', { guideId, chapterIndex, language, speakingRate });
+    console.log('🎵 새 챕터 오디오 생성 시작...', { 
+      originalGuideId: guideId,
+      safeGuideId,
+      chapterIndex, 
+      language, 
+      speakingRate 
+    });
+    
     const audioBuffer = await generateTTSAudio(text, language, speakingRate);
     const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
 
-    // 5. ✅ Supabase Storage에 새 파일 업로드
+    // 5. ✅ Supabase Storage에 새 파일 업로드 (한글 안전 경로)
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('audio')
       .upload(fileName, audioBlob, {
@@ -168,11 +199,11 @@ export const getOrCreateChapterAudio = async (
 
     console.log('✅ Supabase Storage 업로드 성공:', uploadData.path);
 
-    // 6. ✅ audio_files 테이블에 메타데이터 저장
+    // 6. ✅ audio_files 테이블에 메타데이터 저장 (한글 안전 guideId 사용)
     const { error: insertError } = await supabase
       .from('audio_files')
       .insert([{
-        guide_id: guideId,
+        guide_id: safeGuideId, // 한글 안전 guideId 저장
         chapter_index: chapterIndex,
         language: language,
         file_path: fileName,
@@ -189,18 +220,23 @@ export const getOrCreateChapterAudio = async (
 
     // 7. ✅ 성공 - Blob URL 생성 및 세션 캐시 저장
     const audioUrl = URL.createObjectURL(audioBlob);
+    
     if (typeof window !== 'undefined') {
       sessionAudioCache.set(cacheKey, audioUrl);
     }
+
     console.log('✅ 새 챕터 오디오 생성 및 저장 완료:', { 
-      guideId, 
+      originalGuideId: guideId,
+      safeGuideId,
       chapterIndex, 
       language,
       speakingRate,
       fileName,
       size: audioBlob.size 
     });
+
     return audioUrl;
+
   } catch (error) {
     console.error('❌ 챕터 오디오 생성 실패:', error);
     throw error;
@@ -210,10 +246,12 @@ export const getOrCreateChapterAudio = async (
 // 📂 가이드 전체 오디오 파일 목록 조회
 export const getGuideAudioFiles = async (guideId: string, language: string) => {
   try {
+    const safeGuideId = sanitizeForPath(guideId);
+    
     const { data, error } = await supabase
       .from('audio_files')
       .select('*')
-      .eq('guide_id', guideId)
+      .eq('guide_id', safeGuideId)
       .eq('language', language)
       .order('chapter_index', { ascending: true });
 
@@ -232,7 +270,8 @@ export const getGuideAudioFiles = async (guideId: string, language: string) => {
 // 🗑️ 가이드 오디오 파일 삭제 (정리용)
 export const deleteGuideAudioFiles = async (guideId: string, language?: string) => {
   try {
-    let query = supabase.from('audio_files').select('file_path').eq('guide_id', guideId);
+    const safeGuideId = sanitizeForPath(guideId);
+    let query = supabase.from('audio_files').select('file_path').eq('guide_id', safeGuideId);
     
     if (language) {
       query = query.eq('language', language);
@@ -246,13 +285,13 @@ export const deleteGuideAudioFiles = async (guideId: string, language?: string) 
       await supabase.storage.from('audio').remove(filePaths);
 
       // DB에서 메타데이터 삭제
-      let deleteQuery = supabase.from('audio_files').delete().eq('guide_id', guideId);
+      let deleteQuery = supabase.from('audio_files').delete().eq('guide_id', safeGuideId);
       if (language) {
         deleteQuery = deleteQuery.eq('language', language);
       }
       await deleteQuery;
 
-      console.log('🗑️ 가이드 오디오 파일 삭제 완료:', { guideId, language, count: audioFiles.length });
+      console.log('🗑️ 가이드 오디오 파일 삭제 완료:', { guideId, safeGuideId, language, count: audioFiles.length });
     }
   } catch (error) {
     console.error('❌ 가이드 오디오 파일 삭제 실패:', error);
