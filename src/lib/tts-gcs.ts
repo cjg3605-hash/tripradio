@@ -37,7 +37,7 @@ const getChapterAudioFileName = (guideId: string, chapterIndex: number, language
   return `guides/${safeGuideId}/chapter_${chapterIndex}_${language}_${rateStr}x_${hash}.mp3`;
 };
 
-// 세션 기반 메모리 캐시 (localStorage 대신)
+// ✅ 수정: sessionAudioCache를 한 번만 선언 (중복 제거)
 const sessionAudioCache = new Map<string, string>();
 
 // 캐시 키 생성
