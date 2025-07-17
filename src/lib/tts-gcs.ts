@@ -21,7 +21,8 @@ const WAVENET_VOICES: Record<string, string> = {
 const getChapterAudioFileName = (guideId: string, chapterIndex: number, language: string, text: string, speakingRate = 1.2) => {
   const hash = crypto.createHash('md5').update(text).digest('hex').substring(0, 8);
   const rateStr = speakingRate.toString().replace('.', '_'); // 1.2 -> 1_2
-  return `audio/guides/${guideId}/chapter_${chapterIndex}_${language}_${rateStr}x_${hash}.mp3`;
+  // audio/ 접두사 제거 - supabase.storage.from('audio')에서 이미 버킷 지정
+  return `guides/${guideId}/chapter_${chapterIndex}_${language}_${rateStr}x_${hash}.mp3`;
 };
 
 // 캐시 키 생성 (배속 정보 포함)
@@ -140,12 +141,12 @@ export const getOrCreateChapterAudio = async (
     const audioBuffer = await generateTTSAudio(text, language, speakingRate);
     const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
 
-    // 5. Supabase Storage에 업로드
+    // 5. Supabase Storage에 업로드 (upsert 유지)
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('audio')
       .upload(fileName, audioBlob, {
         contentType: 'audio/mpeg',
-        upsert: true
+        upsert: true // 파일 덮어쓰기 허용
       });
 
     if (uploadError) {
@@ -158,21 +159,38 @@ export const getOrCreateChapterAudio = async (
       return localUrl;
     }
 
-    // 6. audio_files 테이블에 메타데이터 저장 (배속 정보 포함)
-    const { error: insertError } = await supabase
+    // 6. audio_files 테이블에 메타데이터 저장 (중복 체크 후 insert)
+    // 중복 방지를 위해 먼저 확인 후 insert (upsert 대신)
+    const { data: duplicateCheck } = await supabase
       .from('audio_files')
-      .upsert([{
-        guide_id: guideId,
-        chapter_index: chapterIndex,
-        language: language,
-        file_path: fileName,
-        file_size: audioBlob.size,
-        duration_seconds: null, // 추후 계산 가능
-        created_at: new Date().toISOString()
-      }]);
+      .select('id')
+      .eq('guide_id', guideId)
+      .eq('chapter_index', chapterIndex)
+      .eq('language', language)
+      .eq('file_path', fileName)
+      .single();
 
-    if (insertError) {
-      console.warn('⚠️ audio_files 테이블 저장 실패:', insertError);
+    if (!duplicateCheck) {
+      // 중복이 없을 때만 insert
+      const { error: insertError } = await supabase
+        .from('audio_files')
+        .insert([{
+          guide_id: guideId,
+          chapter_index: chapterIndex,
+          language: language,
+          file_path: fileName,
+          file_size: audioBlob.size,
+          duration_seconds: null, // 추후 계산 가능
+          created_at: new Date().toISOString()
+        }]);
+
+      if (insertError) {
+        console.warn('⚠️ audio_files 테이블 저장 실패:', insertError);
+      } else {
+        console.log('✅ audio_files 테이블 저장 성공');
+      }
+    } else {
+      console.log('ℹ️ audio_files에 이미 동일한 레코드 존재, insert 생략');
     }
 
     // 7. 성공 - Blob URL 생성 및 캐시 저장

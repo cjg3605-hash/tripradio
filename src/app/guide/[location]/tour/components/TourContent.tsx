@@ -329,28 +329,37 @@ export default function TourContent({ guide, language }: TourContentProps) {
                   {/* 새로운 narrative 필드 우선 사용 */}
                   {chapter.narrative ? (
                     <div className="whitespace-pre-line">
-                      <p>{chapter.narrative}</p>
+                      <p className={language === 'ko' ? 'indent-8' : ''}>
+                        {chapter.narrative}
+                      </p>
                       {chapter.nextDirection && (
-                        <p className="text-blue-600 font-medium mt-4">{chapter.nextDirection}</p>
+                        <p className={`text-blue-600 font-medium mt-4 ${language === 'ko' ? 'indent-8' : ''}`}>
+                          {chapter.nextDirection}
+                        </p>
                       )}
                     </div>
                   ) : (
                     // 기존 개별 필드들 (하위 호환성)
                     <>
                       {chapter.sceneDescription && (
-                        <p>{chapter.sceneDescription}</p>
+                        <p className={language === 'ko' ? 'indent-8' : ''}>
+                          {chapter.sceneDescription}
+                        </p>
                       )}
-                      
                       {chapter.coreNarrative && (
-                        <p>{chapter.coreNarrative}</p>
+                        <p className={language === 'ko' ? 'indent-8' : ''}>
+                          {chapter.coreNarrative}
+                        </p>
                       )}
-                      
                       {chapter.humanStories && (
-                        <p>{chapter.humanStories}</p>
+                        <p className={language === 'ko' ? 'indent-8' : ''}>
+                          {chapter.humanStories}
+                        </p>
                       )}
-                      
                       {chapter.nextDirection && (
-                        <p className="text-blue-600 font-medium">{chapter.nextDirection}</p>
+                        <p className={`text-blue-600 font-medium ${language === 'ko' ? 'indent-8' : ''}`}>
+                          {chapter.nextDirection}
+                        </p>
                       )}
                     </>
                   )}
