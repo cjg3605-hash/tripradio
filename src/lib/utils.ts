@@ -244,16 +244,21 @@ export function validateJsonResponse(jsonString: string): {
   error: string; 
 } {
   try {
+    if (!jsonString || typeof jsonString !== 'string') {
+      return {
+        success: false,
+        error: '응답이 비어있거나 올바른 형식이 아닙니다.'
+      };
+    }
+
     let cleanedString = jsonString.trim();
     
-    // 1. 코드 블록 제거 (여러 패턴 지원)
+    // 1. 코드 블록 제거
     if (cleanedString.includes('```')) {
-      // ```json ... ``` 패턴
       const jsonBlockMatch = cleanedString.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
       if (jsonBlockMatch) {
         cleanedString = jsonBlockMatch[1].trim();
       } else {
-        // ``` 시작으로만 되어 있는 경우
         cleanedString = cleanedString.replace(/^```(?:json)?\s*/, '').replace(/```\s*$/, '');
       }
     }
@@ -261,40 +266,79 @@ export function validateJsonResponse(jsonString: string): {
     // 2. BOM 및 불필요한 공백 제거
     cleanedString = cleanedString.replace(/^[\uFEFF\s]+/, '').replace(/[\s]+$/, '');
     
-    // 3. JSON 시작과 끝 찾기
-    const jsonStart = cleanedString.indexOf('{');
-    const jsonEnd = cleanedString.lastIndexOf('}');
+    // 3. 제어 문자 제거 (핵심 수정사항)
+    cleanedString = cleanedString
+      .replace(/[\u0000-\u0008\u000B-\u000C\u000E-\u001F\u007F]/g, '')
+      .replace(/,(\s*[}\]])/g, '$1');
     
-    if (jsonStart === -1 || jsonEnd === -1) {
+    // 4. JSON 시작과 끝 찾기 (균형 잡힌 중괄호 확인)
+    const jsonStart = cleanedString.indexOf('{');
+    if (jsonStart === -1) {
       return {
         success: false,
-        error: 'JSON 시작 또는 끝을 찾을 수 없습니다.'
+        error: 'JSON 시작 중괄호를 찾을 수 없습니다.'
       };
     }
     
-    cleanedString = cleanedString.substring(jsonStart, jsonEnd + 1);
+    // 중괄호 균형을 맞춰서 JSON 끝 찾기
+    let openBraces = 0;
+    let jsonEnd = -1;
+    let inString = false;
+    let escaped = false;
     
-    // 4. 일반적인 JSON 오류 수정 시도
-    // 마지막 쉼표 제거 (trailing comma)
-    cleanedString = cleanedString.replace(/,(\s*[}\]])/g, '$1');
+    for (let i = jsonStart; i < cleanedString.length; i++) {
+      const char = cleanedString[i];
+      
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+      
+      if (char === '\\' && inString) {
+        escaped = true;
+        continue;
+      }
+      
+      if (char === '"') {
+        inString = !inString;
+        continue;
+      }
+      
+      if (!inString) {
+        if (char === '{') {
+          openBraces++;
+        } else if (char === '}') {
+          openBraces--;
+          if (openBraces === 0) {
+            jsonEnd = i;
+            break;
+          }
+        }
+      }
+    }
     
-    // 5. JSON 파싱 시도
-    const parsed = JSON.parse(cleanedString);
+    if (jsonEnd === -1) {
+      return {
+        success: false,
+        error: 'JSON 종료 중괄호를 찾을 수 없습니다. (응답이 불완전할 수 있습니다)'
+      };
+    }
+    
+    const jsonContent = cleanedString.substring(jsonStart, jsonEnd + 1);
+    
+    // 5. 최종 JSON 파싱 시도
+    const parsed = JSON.parse(jsonContent);
+    
+    console.log('✅ JSON 파싱 성공, 데이터 크기:', JSON.stringify(parsed).length);
     return { success: true, data: parsed };
     
   } catch (error) {
-    // 파싱 실패 시 더 자세한 디버그 정보 제공
     const errorMessage = error instanceof Error ? error.message : String(error);
-    const cleanedLength = jsonString.replace(/\s/g, '').length;
-    
-    // 잘린 JSON인지 확인
-    const openBraces = (jsonString.match(/{/g) || []).length;
-    const closeBraces = (jsonString.match(/}/g) || []).length;
-    const isIncomplete = openBraces !== closeBraces;
+    console.error('❌ JSON 파싱 실패:', errorMessage);
     
     return {
       success: false,
-      error: `JSON 파싱 실패: ${errorMessage}${isIncomplete ? ' (JSON이 불완전함 - 응답이 잘렸을 가능성)' : ''}`
+      error: `JSON 파싱 실패: ${errorMessage}`
     };
   }
 }

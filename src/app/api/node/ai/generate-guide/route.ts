@@ -321,45 +321,67 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 🤖 2. AI 가이드 생성
+    // 🤖 2. AI 가이드 생성 (재시도 로직 추가)
     console.log('🤖 AI 가이드 생성 시작 - 모드:', generationMode);
-    const genAI = getGeminiClient();
-    
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash-lite-preview-06-17',
-      generationConfig: { 
-        temperature: 0.3, 
-        maxOutputTokens: 65536 // 🔥 토큰 수 증가
-      }
-    });
 
-    let prompt: string;
-    let responseText: string;
+    const generateWithRetry = async (): Promise<string> => {
+      const genAI = getGeminiClient();
+      
+      const config = {
+        temperature: 0.3,
+        maxOutputTokens: generationMode === 'chapter' ? 8192 : 32768,
+        topK: 40,
+        topP: 0.9
+      };
+      
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-2.5-flash-lite-preview-06-17',
+        generationConfig: config
+      });
 
-    // 생성 모드에 따른 프롬프트 선택
-    if (generationMode === 'structure') {
-      prompt = await createStructurePrompt(locationName, language, userProfile);
-    } else if (generationMode === 'chapter' && existingGuide && targetChapter !== null) {
-      const chapterTitle = existingGuide.realTimeGuide?.chapters?.[targetChapter]?.title || `챕터 ${targetChapter + 1}`;
-      prompt = await createChapterPrompt(locationName, targetChapter, chapterTitle, existingGuide, language, userProfile);
-    } else {
-      prompt = await createAutonomousGuidePrompt(locationName, language, userProfile);
-    }
-
-    try {
       const result = await model.generateContent(prompt);
       const response = await result.response;
-      responseText = await response.text();
+      const responseText = await response.text();
       
       if (!responseText || responseText.trim().length === 0) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'AI로부터 빈 응답을 받았습니다.' }),
-          { status: 500, headers }
-        );
+        throw new Error('AI로부터 빈 응답을 받았습니다.');
       }
-    } catch (error) {
+      
+      // 응답 품질 검증
+      const hasJsonStructure = responseText.includes('{') && responseText.includes('}');
+      if (!hasJsonStructure) {
+        throw new Error('JSON 구조가 없는 응답을 받았습니다.');
+      }
+      
+      return responseText;
+    };
+
+    // 재시도 로직 (최대 3번)
+    let responseText: string;
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        console.log(`🔄 AI 응답 시도 ${attempt}/3`);
+        responseText = await generateWithRetry();
+        console.log(`✅ 시도 ${attempt}에서 성공`);
+        break;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+        console.warn(`⚠️ 시도 ${attempt} 실패:`, lastError.message);
+        
+        if (attempt < 3) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
+      }
+    }
+
+    if (!responseText! && lastError) {
       return new Response(
-        JSON.stringify({ success: false, error: `AI 응답 생성 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}` }),
+        JSON.stringify({ 
+          success: false, 
+          error: `AI 응답 생성 실패 (3번 시도 후): ${lastError.message}` 
+        }),
         { status: 500, headers }
       );
     }

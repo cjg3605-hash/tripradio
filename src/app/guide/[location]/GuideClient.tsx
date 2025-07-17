@@ -136,54 +136,77 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                     setLoadingMessage(`챕터 ${chapterIndex + 1}/${totalChapters} 생성 중...`);
                     setCurrentProgress(2 + chapterIndex);
                     
-                    try {
-                        const chapterResponse = await fetch('/api/node/ai/generate-guide', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                locationName,
-                                language: currentLanguage,
-                                generationMode: 'chapter',
-                                existingGuide: currentGuide,
-                                targetChapter: chapterIndex
-                            })
-                        });
-
-                        const chapterResult = await chapterResponse.json();
-                        console.log(`📖 챕터 ${chapterIndex + 1} 생성 결과:`, {
-                            success: chapterResult.success,
-                            chapterIndex: chapterResult.targetChapter,
-                            hasData: !!chapterResult.data,
-                            hasContent: !!chapterResult.data?.content,
-                            error: chapterResult.error,
-                            fullResult: chapterResult
-                        });
-
-                        if (chapterResult.success && chapterResult.data?.content) {
-                            currentGuide = chapterResult.data.content;
-                            console.log(`✅ 챕터 ${chapterIndex + 1} 업데이트 후 상태:`, {
-                                chapterHasNarrative: !!currentGuide.realTimeGuide?.chapters?.[chapterIndex]?.narrative,
-                                narrativeLength: currentGuide.realTimeGuide?.chapters?.[chapterIndex]?.narrative?.length || 0,
-                                chapterData: currentGuide.realTimeGuide?.chapters?.[chapterIndex]
+                    // 재시도 로직 추가
+                    let chapterSuccess = false;
+                    let retryCount = 0;
+                    const maxRetries = 3;
+                    
+                    while (!chapterSuccess && retryCount < maxRetries) {
+                        try {
+                            const chapterResponse = await fetch('/api/node/ai/generate-guide', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    locationName,
+                                    language: currentLanguage,
+                                    generationMode: 'chapter',
+                                    existingGuide: currentGuide,
+                                    targetChapter: chapterIndex
+                                })
                             });
-                            setGuideData({ ...currentGuide }); // 업데이트된 가이드로 화면 갱신
-                        } else {
-                            console.warn(`⚠️ 챕터 ${chapterIndex + 1} 생성 실패:`, {
+
+                            const chapterResult = await chapterResponse.json();
+                            console.log(`📖 챕터 ${chapterIndex + 1} 생성 결과 (시도 ${retryCount + 1}):`, {
                                 success: chapterResult.success,
-                                error: chapterResult.error,
-                                data: chapterResult.data
+                                chapterIndex: chapterResult.targetChapter,
+                                hasData: !!chapterResult.data,
+                                hasContent: !!chapterResult.data?.content,
+                                error: chapterResult.error
                             });
+
+                            if (chapterResult.success && chapterResult.data?.content) {
+                                // 성공한 경우
+                                currentGuide = chapterResult.data.content;
+                                setGuideData(currentGuide);
+                                
+                                const chapterHasNarrative = currentGuide.realTimeGuide?.chapters?.[chapterIndex]?.narrative;
+                                console.log(`✅ 챕터 ${chapterIndex + 1} 업데이트 후 상태:`, {
+                                    chapterHasNarrative: !!chapterHasNarrative,
+                                    narrativeLength: chapterHasNarrative?.length || 0,
+                                    chapterData: currentGuide.realTimeGuide?.chapters?.[chapterIndex] || null
+                                });
+                                
+                                chapterSuccess = true;
+                            } else {
+                                // 실패한 경우
+                                console.warn(`⚠️ 챕터 ${chapterIndex + 1} 생성 실패 (시도 ${retryCount + 1}):`, {
+                                    success: chapterResult.success,
+                                    error: chapterResult.error
+                                });
+                                
+                                retryCount++;
+                                if (retryCount < maxRetries) {
+                                    console.log(`🔄 챕터 ${chapterIndex + 1} 재시도 중... (${retryCount + 1}/${maxRetries})`);
+                                    await new Promise(resolve => setTimeout(resolve, 2000)); // 2초 대기
+                                }
+                            }
+                        } catch (error) {
+                            console.error(`❌ 챕터 ${chapterIndex + 1} 요청 실패 (시도 ${retryCount + 1}):`, error);
+                            retryCount++;
+                            if (retryCount < maxRetries) {
+                                await new Promise(resolve => setTimeout(resolve, 2000));
+                            }
                         }
-                    } catch (chapterError) {
-                        console.warn(`⚠️ 챕터 ${chapterIndex + 1} 생성 중 오류:`, chapterError);
-                        // 챕터 하나 실패해도 계속 진행
                     }
                     
-                    // API Rate Limiting 방지를 위한 딜레이 (마지막 챕터 제외)
-                    if (chapterIndex < totalChapters - 1) {
-                        console.log('⏱️ API 안정성을 위해 1초 대기...');
-                        await new Promise(resolve => setTimeout(resolve, 1500));
+                    // 최대 재시도 후에도 실패한 경우 기본 구조 유지
+                    if (!chapterSuccess) {
+                        console.warn(`⚠️ 챕터 ${chapterIndex + 1} 최대 재시도 후 실패, 기본 구조 유지`);
                     }
+                    
+                    // API 안정성을 위해 대기
+                    console.log('⏱️ API 안정성을 위해 1초 대기...');
+                    await new Promise(resolve => setTimeout(resolve, 1000));
                 }
 
                 console.log('✅ 가이드 완전 생성 완료');
