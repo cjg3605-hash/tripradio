@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Header } from './Header';
+import Header from './Header';
 import { HistorySidebar } from './HistorySidebar';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
