@@ -243,21 +243,17 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         );
     }
 
-    const handleStepClick = (stepTitle: string) => {
-        // realTimeGuide chapters에서 동일한 title을 가진 챕터 찾기
-        const targetChapter = guideData.realTimeGuide?.chapters?.find(
-            chapter => chapter.title === stepTitle
-        );
-        
-        if (targetChapter) {
+    const handleStepClick = (stepIndex: number) => {
+        // realTimeGuide chapters에서 동일한 인덱스의 챕터 찾기
+        if (guideData.realTimeGuide?.chapters && guideData.realTimeGuide.chapters[stepIndex]) {
             // 실시간가이드 섹션으로 스크롤
             const guideSection = document.getElementById('realtime-guide-section');
             if (guideSection) {
                 guideSection.scrollIntoView({ behavior: 'smooth' });
             }
-            // 챕터 변경 이벤트 발생
+            // 챕터 변경 이벤트 발생 (stepIndex 사용)
             window.dispatchEvent(new CustomEvent('jumpToChapter', { 
-                detail: { chapterId: targetChapter.id } 
+                detail: { chapterId: stepIndex }
             }));
         }
     };
@@ -343,7 +339,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                                         <div className="flex-1">
                                             <h4 className="font-medium text-gray-900 mb-2">
                                                 <button 
-                                                    onClick={() => handleStepClick(step.title)}
+                                                    onClick={() => handleStepClick(index)}
                                                     className="text-left hover:text-blue-600 hover:underline cursor-pointer transition-colors w-full"
                                                 >
                                                     {step.title}
