@@ -83,13 +83,13 @@ export default function Home() {
       </div>
 
       {/* Main Content */}
-      <section className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6">
+      <section className="relative z-10 flex flex-col items-center justify-center min-h-[70vh] px-6 pt-24">
         
         {/* Hero Typography */}
         <div className={`
-          text-center max-w-6xl mx-auto transform transition-all duration-1500 ease-out
-          ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}
-        `}>
+  text-center max-w-4xl mx-auto mb-12 transform transition-all duration-1500 ease-out
+  ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}
+`}>
           
           {/* Ultra Large Brand with breathing effect */}
           <div className="relative mb-16">
@@ -155,7 +155,7 @@ export default function Home() {
         </div>
 
         {/* Next-Level Search */}
-        <div className="w-full max-w-2xl mx-auto mb-24">
+        <div className="w-full max-w-2xl mx-auto mb-8">
           <NextLevelSearchBox />
         </div>
 
@@ -209,26 +209,26 @@ export default function Home() {
 
         {/* Popular Examples */}
         <div className={`
-          mt-20 text-center transform transition-all duration-1000 delay-1000
-          ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
-        `}>
-          <p className="text-sm text-gray-400 font-light tracking-wide mb-4">
-            인기 검색어
-          </p>
-          <div className="flex flex-wrap justify-center gap-3 max-w-2xl mx-auto">
-            {['경복궁', '부산 해운대', '제주도 성산일출봉', '명동 카페거리', '강릉 커피거리'].map((place, index) => (
-              <span 
-                key={index}
-                className="px-4 py-2 text-sm text-gray-500 bg-gray-50 rounded-full hover:bg-gray-100 hover:text-gray-700 transition-all duration-200 cursor-pointer"
-                style={{
-                  animationDelay: `${1.2 + index * 0.1}s`
-                }}
-              >
-                {place}
-              </span>
-            ))}
-          </div>
-        </div>
+  text-center transform transition-all duration-1500 ease-out
+  ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
+`}>
+  <p className="text-sm text-gray-400 font-light tracking-wide mb-4">
+    인기 검색어
+  </p>
+  <div className="flex flex-wrap justify-center gap-3 max-w-2xl mx-auto">
+    {['경복궁', '부산 해운대', '제주도 성산일출봉', '명동 카페거리', '강릉 커피거리'].map((place, index) => (
+      <span 
+        key={index}
+        className="px-4 py-2 text-sm text-gray-500 bg-gray-50 rounded-full hover:bg-gray-100 hover:text-gray-700 transition-all duration-200 cursor-pointer"
+        style={{
+          animationDelay: `${1.2 + index * 0.1}s`
+        }}
+      >
+        {place}
+      </span>
+    ))}
+  </div>
+</div>
 
       </section>
 
