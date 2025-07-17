@@ -3,8 +3,12 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
-import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
-import { createStructurePrompt, createChapterPrompt, getRecommendedSpotCount } from '@/lib/ai/prompts/korean';
+import { 
+  createAutonomousGuidePrompt, 
+  createStructurePrompt, 
+  createChapterPrompt, 
+  getRecommendedSpotCount 
+} from '@/lib/ai/prompts/index';
 import { supabase } from '@/lib/supabaseClient';
 import { 
   saveGuideWithChapters, 
@@ -32,16 +36,10 @@ function normalize(str: string): string {
     .replace(/[^\w\s가-힣]/g, '');
 }
 
-function getGeminiClient(): GoogleGenerativeAI | Response {
+function getGeminiClient(): GoogleGenerativeAI {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: 'Server configuration error: Missing API key',
-      }),
-      { status: 500 }
-    );
+    throw new Error('Server configuration error: Missing API key');
   }
   return new GoogleGenerativeAI(apiKey);
 }
@@ -326,7 +324,6 @@ export async function POST(req: NextRequest) {
     // 🤖 2. AI 가이드 생성
     console.log('🤖 AI 가이드 생성 시작 - 모드:', generationMode);
     const genAI = getGeminiClient();
-    if (genAI instanceof Response) return genAI;
     
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.5-flash-lite-preview-06-17',

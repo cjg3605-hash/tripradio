@@ -1,16 +1,18 @@
 // src/lib/ai/prompts/index.ts - 완전히 새로운 최소화된 인덱스 라우터
 
 import { UserProfile } from '@/types/guide';
-
-// ===============================
-// 🔧 인터페이스 정의
-// ===============================
-
+import { LanguageConfig as BaseLanguageConfig } from '../../../contexts/LanguageContext';
 export interface LanguageConfig {
   code: string;
   name: string;
   ttsLang: string;
+  flag: string;
+  nativeName: string;
 }
+
+// ===============================
+// 🔧 인터페이스 정의
+// ===============================
 
 export interface LocationTypeConfig {
   keywords: string[];
@@ -25,12 +27,12 @@ export interface LocationTypeConfig {
 // 🔧 공통 설정들 (모든 언어가 공유)
 // ===============================
 
-const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = {
-  ko: { code: 'ko', name: '한국어', ttsLang: 'ko-KR' },
-  en: { code: 'en', name: 'English', ttsLang: 'en-US' },
-  ja: { code: 'ja', name: '日本語', ttsLang: 'ja-JP' },
-  zh: { code: 'zh', name: '中文', ttsLang: 'zh-CN' },
-  es: { code: 'es', name: 'Español', ttsLang: 'es-ES' }
+export const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = {
+  ko: { code: 'ko', name: '한국어', ttsLang: 'ko-KR', flag: '🇰🇷', nativeName: '한국어' },
+  en: { code: 'en', name: 'English', ttsLang: 'en-US', flag: '🇺🇸', nativeName: 'English' },
+  ja: { code: 'ja', name: '日本語', ttsLang: 'ja-JP', flag: '🇯🇵', nativeName: '日本語' },
+  zh: { code: 'zh', name: '中文', ttsLang: 'zh-CN', flag: '🇨🇳', nativeName: '中文' },
+  es: { code: 'es', name: 'Español', ttsLang: 'es-ES', flag: '🇪🇸', nativeName: 'Español' }
 };
 
 const REALTIME_GUIDE_KEYS: Record<string, string> = {
@@ -133,58 +135,58 @@ export async function createAutonomousGuidePrompt(
   try {
     switch (langCode) {
       case 'ko': {
-        const { createKoreanGuidePrompt } = await import('./korean');
-        return createKoreanGuidePrompt(locationName, userProfile);
+        const koreanModule = await import('./korean');
+        return koreanModule.createKoreanGuidePrompt(locationName, userProfile);
       }
       case 'en': {
         // 영어 파일이 없으면 한국어로 폴백
         try {
-          const { createEnglishGuidePrompt } = await import('./english');
-          return createEnglishGuidePrompt(locationName, userProfile);
+          const englishModule = await import('./english');
+          return englishModule.createEnglishGuidePrompt(locationName, userProfile);
         } catch {
-          const { createKoreanGuidePrompt } = await import('./korean');
-          return createKoreanGuidePrompt(locationName, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanGuidePrompt(locationName, userProfile);
         }
       }
       case 'ja': {
         // 일본어 파일이 없으면 한국어로 폴백
         try {
-          const { createJapaneseGuidePrompt } = await import('./japanese');
-          return createJapaneseGuidePrompt(locationName, userProfile);
+          const japaneseModule = await import('./japanese');
+          return japaneseModule.createJapaneseGuidePrompt(locationName, userProfile);
         } catch {
-          const { createKoreanGuidePrompt } = await import('./korean');
-          return createKoreanGuidePrompt(locationName, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanGuidePrompt(locationName, userProfile);
         }
       }
       case 'zh': {
         // 중국어 파일이 없으면 한국어로 폴백
         try {
-          const { createChineseGuidePrompt } = await import('./chinese');
-          return createChineseGuidePrompt(locationName, userProfile);
+          const chineseModule = await import('./chinese');
+          return chineseModule.createChineseGuidePrompt(locationName, userProfile);
         } catch {
-          const { createKoreanGuidePrompt } = await import('./korean');
-          return createKoreanGuidePrompt(locationName, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanGuidePrompt(locationName, userProfile);
         }
       }
       case 'es': {
         // 스페인어 파일이 없으면 한국어로 폴백
         try {
-          const { createSpanishGuidePrompt } = await import('./spanish');
-          return createSpanishGuidePrompt(locationName, userProfile);
+          const spanishModule = await import('./spanish');
+          return spanishModule.createSpanishGuidePrompt(locationName, userProfile);
         } catch {
-          const { createKoreanGuidePrompt } = await import('./korean');
-          return createKoreanGuidePrompt(locationName, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanGuidePrompt(locationName, userProfile);
         }
       }
       default:
         console.warn(`Unsupported language: ${language}, falling back to Korean`);
-        const { createKoreanGuidePrompt } = await import('./korean');
-        return createKoreanGuidePrompt(locationName, userProfile);
+        const koreanModule = await import('./korean');
+        return koreanModule.createKoreanGuidePrompt(locationName, userProfile);
     }
   } catch (error) {
     console.error(`Failed to load ${language} prompts:`, error);
-    const { createKoreanGuidePrompt } = await import('./korean');
-    return createKoreanGuidePrompt(locationName, userProfile);
+    const koreanModule = await import('./korean');
+    return koreanModule.createKoreanGuidePrompt(locationName, userProfile);
   }
 }
 
@@ -201,55 +203,55 @@ export async function createStructurePrompt(
   try {
     switch (langCode) {
       case 'ko': {
-        const { createKoreanStructurePrompt } = await import('./korean');
-        return createKoreanStructurePrompt(locationName, language, userProfile);
+        const koreanModule = await import('./korean');
+        return koreanModule.createKoreanStructurePrompt(locationName, language, userProfile);
       }
       case 'en': {
         try {
-          const { createEnglishStructurePrompt } = await import('./english');
-          return createEnglishStructurePrompt(locationName, language, userProfile);
+          const englishModule = await import('./english');
+          return englishModule.createEnglishStructurePrompt(locationName, language, userProfile);
         } catch {
-          const { createKoreanStructurePrompt } = await import('./korean');
-          return createKoreanStructurePrompt(locationName, language, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanStructurePrompt(locationName, language, userProfile);
         }
       }
       case 'ja': {
         try {
-          const { createJapaneseStructurePrompt } = await import('./japanese');
-          return createJapaneseStructurePrompt(locationName, language, userProfile);
+          const japaneseModule = await import('./japanese');
+          return japaneseModule.createJapaneseStructurePrompt(locationName, language, userProfile);
         } catch {
-          const { createKoreanStructurePrompt } = await import('./korean');
-          return createKoreanStructurePrompt(locationName, language, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanStructurePrompt(locationName, language, userProfile);
         }
       }
       case 'zh': {
         try {
-          const { createChineseStructurePrompt } = await import('./chinese');
-          return createChineseStructurePrompt(locationName, language, userProfile);
+          const chineseModule = await import('./chinese');
+          return chineseModule.createChineseStructurePrompt(locationName, language, userProfile);
         } catch {
-          const { createKoreanStructurePrompt } = await import('./korean');
-          return createKoreanStructurePrompt(locationName, language, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanStructurePrompt(locationName, language, userProfile);
         }
       }
       case 'es': {
         try {
-          const { createSpanishStructurePrompt } = await import('./spanish');
-          return createSpanishStructurePrompt(locationName, language, userProfile);
+          const spanishModule = await import('./spanish');
+          return spanishModule.createSpanishStructurePrompt(locationName, language, userProfile);
         } catch {
-          const { createKoreanStructurePrompt } = await import('./korean');
-          return createKoreanStructurePrompt(locationName, language, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanStructurePrompt(locationName, language, userProfile);
         }
       }
       default: {
         console.warn(`Unsupported language: ${language}, falling back to Korean`);
-        const { createKoreanStructurePrompt } = await import('./korean');
-        return createKoreanStructurePrompt(locationName, language, userProfile);
+        const koreanModule = await import('./korean');
+        return koreanModule.createKoreanStructurePrompt(locationName, language, userProfile);
       }
     }
   } catch (error) {
     console.error(`Failed to load ${language} structure prompts:`, error);
-    const { createKoreanStructurePrompt } = await import('./korean');
-    return createKoreanStructurePrompt(locationName, language, userProfile);
+    const koreanModule = await import('./korean');
+    return koreanModule.createKoreanStructurePrompt(locationName, language, userProfile);
   }
 }
 
@@ -269,55 +271,55 @@ export async function createChapterPrompt(
   try {
     switch (langCode) {
       case 'ko': {
-        const { createKoreanChapterPrompt } = await import('./korean');
-        return createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
+        const koreanModule = await import('./korean');
+        return koreanModule.createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
       }
       case 'en': {
         try {
-          const { createEnglishChapterPrompt } = await import('./english');
-          return createEnglishChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
+          const englishModule = await import('./english');
+          return englishModule.createEnglishChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
         } catch {
-          const { createKoreanChapterPrompt } = await import('./korean');
-          return createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
         }
       }
       case 'ja': {
         try {
-          const { createJapaneseChapterPrompt } = await import('./japanese');
-          return createJapaneseChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
+          const japaneseModule = await import('./japanese');
+          return japaneseModule.createJapaneseChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
         } catch {
-          const { createKoreanChapterPrompt } = await import('./korean');
-          return createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
         }
       }
       case 'zh': {
         try {
-          const { createChineseChapterPrompt } = await import('./chinese');
-          return createChineseChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
+          const chineseModule = await import('./chinese');
+          return chineseModule.createChineseChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
         } catch {
-          const { createKoreanChapterPrompt } = await import('./korean');
-          return createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
         }
       }
       case 'es': {
         try {
-          const { createSpanishChapterPrompt } = await import('./spanish');
-          return createSpanishChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
+          const spanishModule = await import('./spanish');
+          return spanishModule.createSpanishChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
         } catch {
-          const { createKoreanChapterPrompt } = await import('./korean');
-          return createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
         }
       }
       default: {
         console.warn(`Unsupported language: ${language}, falling back to Korean`);
-        const { createKoreanChapterPrompt } = await import('./korean');
-        return createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
+        const koreanModule = await import('./korean');
+        return koreanModule.createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
       }
     }
   } catch (error) {
     console.error(`Failed to load ${language} chapter prompts:`, error);
-    const { createKoreanChapterPrompt } = await import('./korean');
-    return createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
+    const koreanModule = await import('./korean');
+    return koreanModule.createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
   }
 }
 
@@ -335,55 +337,55 @@ export async function createFinalGuidePrompt(
   try {
     switch (langCode) {
       case 'ko': {
-        const { createKoreanFinalPrompt } = await import('./korean');
-        return createKoreanFinalPrompt(locationName, researchData, userProfile);
+        const koreanModule = await import('./korean');
+        return koreanModule.createKoreanFinalPrompt(locationName, researchData, userProfile);
       }
       case 'en': {
         try {
-          const { createEnglishFinalPrompt } = await import('./english');
-          return createEnglishFinalPrompt(locationName, researchData, userProfile);
+          const englishModule = await import('./english');
+          return englishModule.createEnglishFinalPrompt(locationName, researchData, userProfile);
         } catch {
-          const { createKoreanFinalPrompt } = await import('./korean');
-          return createKoreanFinalPrompt(locationName, researchData, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanFinalPrompt(locationName, researchData, userProfile);
         }
       }
       case 'ja': {
         try {
-          const { createJapaneseFinalPrompt } = await import('./japanese');
-          return createJapaneseFinalPrompt(locationName, researchData, userProfile);
+          const japaneseModule = await import('./japanese');
+          return japaneseModule.createJapaneseFinalPrompt(locationName, researchData, userProfile);
         } catch {
-          const { createKoreanFinalPrompt } = await import('./korean');
-          return createKoreanFinalPrompt(locationName, researchData, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanFinalPrompt(locationName, researchData, userProfile);
         }
       }
       case 'zh': {
         try {
-          const { createChineseFinalPrompt } = await import('./chinese');
-          return createChineseFinalPrompt(locationName, researchData, userProfile);
+          const chineseModule = await import('./chinese');
+          return chineseModule.createChineseFinalPrompt(locationName, researchData, userProfile);
         } catch {
-          const { createKoreanFinalPrompt } = await import('./korean');
-          return createKoreanFinalPrompt(locationName, researchData, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanFinalPrompt(locationName, researchData, userProfile);
         }
       }
       case 'es': {
         try {
-          const { createSpanishFinalPrompt } = await import('./spanish');
-          return createSpanishFinalPrompt(locationName, researchData, userProfile);
+          const spanishModule = await import('./spanish');
+          return spanishModule.createSpanishFinalPrompt(locationName, researchData, userProfile);
         } catch {
-          const { createKoreanFinalPrompt } = await import('./korean');
-          return createKoreanFinalPrompt(locationName, researchData, userProfile);
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanFinalPrompt(locationName, researchData, userProfile);
         }
       }
       default: {
         console.warn(`Unsupported language: ${language}, falling back to Korean`);
-        const { createKoreanFinalPrompt } = await import('./korean');
-        return createKoreanFinalPrompt(locationName, researchData, userProfile);
+        const koreanModule = await import('./korean');
+        return koreanModule.createKoreanFinalPrompt(locationName, researchData, userProfile);
       }
     }
   } catch (error) {
     console.error(`Failed to load ${language} final prompts:`, error);
-    const { createKoreanFinalPrompt } = await import('./korean');
-    return createKoreanFinalPrompt(locationName, researchData, userProfile);
+    const koreanModule = await import('./korean');
+    return koreanModule.createKoreanFinalPrompt(locationName, researchData, userProfile);
   }
 }
 
@@ -392,7 +394,6 @@ export async function createFinalGuidePrompt(
 // ===============================
 
 export {
-  LANGUAGE_CONFIGS,
   LOCATION_TYPE_CONFIGS,
   REALTIME_GUIDE_KEYS,
   analyzeLocationType,

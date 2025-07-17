@@ -4,7 +4,7 @@ import { UserProfile } from '@/types/guide';
 import { 
   LANGUAGE_CONFIGS, 
   LOCATION_TYPE_CONFIGS, 
-  analyzeLocationType, 
+  analyzeLocationType,
   getRecommendedSpotCount 
 } from './index';
 

@@ -222,8 +222,8 @@ export function isValidGuideData(obj: any): obj is GuideData {
   // 필수 필드들
   if (!isValidGuideOverview(obj.overview)) return false;
   
-  // route는 이제 GuideStep 배열
-  if (!isValidGuideStepArray(obj.route)) return false;
+  // route 검증 개선
+  if (!obj.route || (!isValidGuideStepArray(obj.route) && !isValidGuideRoute(obj.route))) return false;
   
   if (!obj.metadata || typeof obj.metadata !== 'object' || typeof obj.metadata.originalLocationName !== 'string') {
     return false;

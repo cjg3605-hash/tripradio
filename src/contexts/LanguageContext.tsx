@@ -6,7 +6,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 export type SupportedLanguage = 'ko' | 'en' | 'ja' | 'zh' | 'es';
 
 // 언어 설정 인터페이스
-interface LanguageConfig {
+export interface LanguageConfig {
   code: SupportedLanguage;
   name: string;
   flag: string;

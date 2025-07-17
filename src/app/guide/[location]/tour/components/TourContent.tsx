@@ -7,10 +7,10 @@ import { GuideData } from '@/types/guide';
 interface TourContentProps {
   guide: GuideData;
   language: string;
-  chapterRefs: MutableRefObject<(HTMLDivElement | null)[]>;
+  chapterRefs?: MutableRefObject<(HTMLDivElement | null)[]>;
 }
 
-const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
+const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourContentProps) => {
   const [currentChapter, setCurrentChapter] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);

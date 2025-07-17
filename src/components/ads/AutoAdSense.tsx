@@ -19,7 +19,8 @@ const AutoAdSense = () => {
     if (
       process.env.NEXT_PUBLIC_ADSENSE_AUTO_ADS_ENABLED === 'true' && 
       process.env.NODE_ENV === 'production' &&
-      typeof window !== 'undefined'
+      typeof window !== 'undefined' &&
+      !window.autoAdSenseInitialized
     ) {
       
       // 이미 초기화되었는지 확인
