@@ -21,14 +21,14 @@ export function SearchBox() {
   const router = useRouter();
   const { t, currentLanguage } = useLanguage();
 
-  // 언어별 플레이스홀더 텍스트
+  // 언어별 플레이스홀더 텍스트 - 오해 방지용으로 개선
   const getPlaceholderText = () => {
     const placeholders = {
-      ko: '어디로 가고 싶으세요?',
-      en: 'Where would you like to explore?',
-      ja: 'どちらへお出かけになりたいですか？',
-      zh: '您想去哪里？',
-      es: '¿Dónde te gustaría explorar?'
+      ko: '어디의 이야기가 궁금하세요?',
+      en: 'Which place would you like to learn about?',
+      ja: 'どちらの場所のお話を聞きたいですか？',
+      zh: '您想了解哪个地方的故事？',
+      es: '¿De qué lugar te gustaría escuchar la historia?'
     };
     return placeholders[currentLanguage as keyof typeof placeholders] || placeholders.ko;
   };
@@ -36,11 +36,11 @@ export function SearchBox() {
   // 언어별 버튼 텍스트
   const getButtonText = () => {
     const buttons = {
-      ko: { search: '🔍 탐험시작', loading: '생성중...' },
-      en: { search: '🔍 Start Exploring', loading: 'Generating...' },
-      ja: { search: '🔍 探検開始', loading: '生成중...' },
-      zh: { search: '🔍 开始探索', loading: '生成中...' },
-      es: { search: '🔍 Comenzar Exploración', loading: 'Generando...' }
+      ko: { search: '가이드 생성', loading: '생성중...' },
+      en: { search: 'Create Guide', loading: 'Generating...' },
+      ja: { search: 'ガイド生成', loading: '生成中...' },
+      zh: { search: '生成导览', loading: '生成中...' },
+      es: { search: 'Crear Guía', loading: 'Generando...' }
     };
     return buttons[currentLanguage as keyof typeof buttons] || buttons.ko;
   };
@@ -49,40 +49,40 @@ export function SearchBox() {
   const getMessages = () => {
     const messages = {
       ko: {
-        searching: '검색 중...',
-        noResults: '바로 탐험하기',
+        searching: '장소 검색 중...',
+        noResults: '바로 가이드 생성하기',
         generateGuide: '가이드 생성하기 →',
         tryAgain: '다시 시도하기',
         navigationError: '페이지 이동 중 오류가 발생했습니다.',
         searchError: '검색 중 오류가 발생했습니다. 다시 시도해주세요.'
       },
       en: {
-        searching: 'Searching...',
-        noResults: 'Explore directly',
+        searching: 'Searching places...',
+        noResults: 'Create guide directly',
         generateGuide: 'Generate Guide →',
         tryAgain: 'Try Again',
         navigationError: 'An error occurred while navigating.',
         searchError: 'An error occurred during search. Please try again.'
       },
       ja: {
-        searching: '検索中...',
-        noResults: '直接探検する',
+        searching: '場所を検索中...',
+        noResults: '直接ガイド生成',
         generateGuide: 'ガイド生成 →',
         tryAgain: '再試行',
         navigationError: 'ページ移動中にエラーが発生しました。',
         searchError: '検索中にエラーが発生しました。再試行してください。'
       },
       zh: {
-        searching: '搜索中...',
-        noResults: '直接探索',
+        searching: '搜索地点中...',
+        noResults: '直接生成导览',
         generateGuide: '生成导览 →',
         tryAgain: '重试',
         navigationError: '页面导航时发生错误。',
         searchError: '搜索时发生错误。请重试。'
       },
       es: {
-        searching: 'Buscando...',
-        noResults: 'Explorar directamente',
+        searching: 'Buscando lugares...',
+        noResults: 'Crear guía directamente',
         generateGuide: 'Generar Guía →',
         tryAgain: 'Intentar de Nuevo',
         navigationError: 'Ocurrió un error durante la navegación.',
@@ -91,6 +91,9 @@ export function SearchBox() {
     };
     return messages[currentLanguage as keyof typeof messages] || messages.ko;
   };
+
+  const buttonText = getButtonText();
+  const messages = getMessages();
 
   // 빠른 AI 자동완성
   useEffect(() => {
@@ -120,7 +123,7 @@ export function SearchBox() {
           }
         } catch (error) {
           console.error('Error fetching suggestions:', error);
-          setError(getMessages().searchError);
+          setError(messages.searchError);
           setSuggestions([]);
           setShowSuggestions(false);
         } finally {
@@ -132,7 +135,7 @@ export function SearchBox() {
     }, 300); // 300ms 지연으로 반응성 개선
 
     return () => clearTimeout(timer);
-  }, [query, currentLanguage, isSubmitting]);
+  }, [query, currentLanguage, isSubmitting, messages.searchError]);
 
   // 가이드 페이지로 이동 - 에러 처리 강화
   const navigateToGuide = (locationName: string) => {
@@ -141,7 +144,7 @@ export function SearchBox() {
       router.push(`/guide/${encodedName}`);
     } catch (error) {
       console.error('네비게이션 오류:', error);
-      setError(getMessages().navigationError);
+      setError(messages.navigationError);
       setIsSubmitting(false); // 네비게이션 실패 시 상태 초기화
     }
   };
@@ -190,9 +193,6 @@ export function SearchBox() {
     }, 200);
   };
 
-  const buttonText = getButtonText();
-  const messages = getMessages();
-
   // 클라이언트에서만 실제 인터랙티브 기능 제공
   return (
     <div className="relative w-full max-w-2xl mx-auto">
@@ -206,7 +206,7 @@ export function SearchBox() {
           onFocus={() => query.length >= 2 && suggestions.length > 0 && setShowSuggestions(true)}
           onBlur={handleInputBlur}
           placeholder={getPlaceholderText()}
-          className="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:outline-none pr-24 relative z-10"
+          className="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:outline-none pr-24 relative z-10 bg-white shadow-sm"
         />
         
         <button
@@ -291,4 +291,4 @@ export function SearchBox() {
       )}
     </div>
   );
-} 
+}
