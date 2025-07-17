@@ -11,7 +11,7 @@ interface Suggestion {
   location: string;
 }
 
-export function SearchBox() {
+export default function SearchBox() {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isSuggesting, setIsSuggesting] = useState(false);

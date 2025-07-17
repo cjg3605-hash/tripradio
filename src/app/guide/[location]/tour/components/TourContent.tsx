@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, MutableRefObject } from 'react';
-import { Play, Pause, Square, Clock } from 'lucide-react';
+import { Play, Pause, ChevronLeft, ChevronRight, MoreVertical, Bookmark, Menu } from 'lucide-react';
 import { GuideData } from '@/types/guide';
 import { getOrCreateChapterAudio } from '@/lib/tts-gcs';
 
@@ -11,11 +11,14 @@ interface TourContentProps {
   chapterRefs?: MutableRefObject<(HTMLDivElement | null)[]>;
 }
 
-const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourContentProps) => {
+const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: TourContentProps) => {
   const [currentChapter, setCurrentChapter] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const totalChapters = guide.realTimeGuide?.chapters?.length || 0;
+  const chapter = guide.realTimeGuide?.chapters?.[currentChapter];
 
   // 오디오 정리
   const stopAndCleanupAudio = () => {
@@ -34,277 +37,323 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
   // 컴포넌트 언마운트 시 오디오 정리
   useEffect(() => {
     const handleJumpToChapter = (event: Event) => {
-        const customEvent = event as CustomEvent<{ chapterId: number }>;
-        const { chapterId } = customEvent.detail;
-        
-        console.log('🎯 받은 chapterId:', chapterId);
-        console.log('🔄 현재 챕터에서 변경:', currentChapter, '→', chapterId);
-        
-        setCurrentChapter(chapterId);
-        // 기존 오디오 정지
-        stopAndCleanupAudio();
-        // 📍 수정: 챕터 제목 위치로 정확히 스크롤하도록 개선
-        setTimeout(() => {
-            const targetElement = document.querySelector(`[data-chapter-index="${chapterId}"]`);
-            if (targetElement) {
-                // 🔧 수정: 헤더 높이만큼 여유 공간 확보
-                const headerHeight = 64; // 헤더 높이 (실제 헤더 높이에 맞게 조정)
-                const elementPosition = targetElement.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                });
-            }
-        }, 100);
+      const customEvent = event as CustomEvent<{ chapterId: number }>;
+      const { chapterId } = customEvent.detail;
+      
+      setCurrentChapter(chapterId);
+      stopAndCleanupAudio();
     };
+    
     window.addEventListener('jumpToChapter', handleJumpToChapter as EventListener);
     return () => {
-        window.removeEventListener('jumpToChapter', handleJumpToChapter as EventListener);
-        stopAndCleanupAudio(); // 컴포넌트 언마운트 시 오디오 정리
+      window.removeEventListener('jumpToChapter', handleJumpToChapter as EventListener);
+      stopAndCleanupAudio();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // TTS 재생 핸들러
-  const handlePlayChapter = async (chapterIndex: number) => {
-    // 이미 재생 중인 챕터 클릭 시 일시정지/재개 처리
-    if (currentChapter === chapterIndex && currentAudio) {
-      handleTogglePlayback();
-      return;
-    }
-    stopAndCleanupAudio();
-
-    const chapter = guide.realTimeGuide?.chapters?.[chapterIndex];
+  const handlePlayChapter = async () => {
     if (!chapter) return;
 
-    let textToSpeak = '';
-    if (chapter.narrative) {
-      textToSpeak = chapter.narrative;
-      if (chapter.nextDirection) {
-        textToSpeak += '\n\n' + chapter.nextDirection;
-      }
-    } else {
-      const parts = [
-        chapter.sceneDescription,
-        chapter.coreNarrative,
-        chapter.humanStories,
-        chapter.nextDirection,
-      ].filter(Boolean);
-      textToSpeak = parts.join('\n\n');
+    if (currentAudio && isPlaying) {
+      currentAudio.pause();
+      setIsPlaying(false);
+      return;
     }
 
-    if (!textToSpeak.trim()) {
-      alert('이 챕터의 내용이 아직 준비되지 않았습니다.');
+    if (currentAudio && !isPlaying) {
+      currentAudio.play();
+      setIsPlaying(true);
       return;
     }
 
     try {
-      setCurrentChapter(chapterIndex);
-      setIsPlaying(true);
+      // 텍스트 합치기 (narrative 우선, 없으면 개별 필드들 합치기)
+      let fullText = '';
+      if (chapter.narrative) {
+        fullText = chapter.narrative;
+      } else {
+        const parts = [
+          chapter.sceneDescription || '',
+          chapter.coreNarrative || '',
+          chapter.humanStories || ''
+        ].filter(Boolean);
+        fullText = parts.join(' ');
+      }
 
-      const guideId = guide.metadata?.originalLocationName || 
-                      guide.overview?.title || 
-                      'unknown_guide';
+      if (chapter.nextDirection) {
+        fullText += ' ' + chapter.nextDirection;
+      }
 
-      console.log('🎵 챕터 오디오 요청:', { 
-        guideId: guideId,
-        chapterIndex,
-        textLength: textToSpeak.length,
-        language 
-      });
+      if (!fullText.trim()) {
+        console.warn('재생할 텍스트가 없습니다.');
+        return;
+      }
 
-      // DB 확인 → 없으면 TTS 생성 (분할 처리 포함) → DB 저장 → URL 반환
       const audioUrl = await getOrCreateChapterAudio(
-        guideId,
-        chapterIndex,
-        textToSpeak,
+        guide.metadata?.originalLocationName || 'unknown',
+        currentChapter,
+        fullText,
         language
       );
 
-      console.log('✅ 오디오 URL 수신:', audioUrl);
-
       const audio = new Audio(audioUrl);
-      setCurrentAudio(audio);
-      audioRef.current = audio;
-
       audio.onended = () => {
         setIsPlaying(false);
         setCurrentAudio(null);
-        URL.revokeObjectURL(audioUrl);
       };
-
-      audio.onerror = () => {
+      audio.onerror = (e) => {
+        console.error('오디오 재생 오류:', e);
         setIsPlaying(false);
         setCurrentAudio(null);
-        URL.revokeObjectURL(audioUrl);
-        alert('오디오 재생 중 오류가 발생했습니다.');
       };
 
+      setCurrentAudio(audio);
       await audio.play();
-    } catch (error: any) {
+      setIsPlaying(true);
+    } catch (error) {
+      console.error('TTS 생성/재생 오류:', error);
       setIsPlaying(false);
-      if (error instanceof Error) {
-        console.error('TTS 오류:', error.message, error);
-        alert(`음성 생성 중 오류가 발생했습니다.\n${error.message}`);
-      } else {
-        console.error('TTS 알 수 없는 오류:', error);
-        alert('음성 생성 중 알 수 없는 오류가 발생했습니다.');
-      }
     }
   };
 
-  // 일시정지/재개 핸들러
-  const handleTogglePlayback = async () => {
-    if (currentAudio) {
-      if (isPlaying) {
-        currentAudio.pause();
-        setIsPlaying(false);
-      } else {
-        try {
-          await currentAudio.play();
-          setIsPlaying(true);
-        } catch (error) {
-          console.error('오디오 재생 오류:', error);
-          setIsPlaying(false);
-        }
-      }
+  // 이전 챕터로 이동
+  const handlePrevChapter = () => {
+    if (currentChapter > 0) {
+      stopAndCleanupAudio();
+      setCurrentChapter(currentChapter - 1);
     }
   };
 
-  // 정지 핸들러
-  const handleStopPlayback = () => {
-    stopAndCleanupAudio();
+  // 다음 챕터로 이동
+  const handleNextChapter = () => {
+    if (currentChapter < totalChapters - 1) {
+      stopAndCleanupAudio();
+      setCurrentChapter(currentChapter + 1);
+    }
   };
 
-  // realTimeGuide가 없거나 chapters가 없는 경우 처리
-  if (!guide.realTimeGuide?.chapters || guide.realTimeGuide.chapters.length === 0) {
+  if (!chapter) {
     return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-        <div className="flex items-center">
-          <Clock className="w-5 h-5 text-yellow-600 mr-2" />
-          <div>
-            <p className="text-yellow-800 font-medium">가이드 준비 중</p>
-            <p className="text-yellow-700 text-sm mt-1">
-              실시간 가이드 내용이 준비되고 있습니다. 잠시만 기다려주세요.
-            </p>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-gray-500 mb-4">콘텐츠를 불러오는 중...</div>
         </div>
       </div>
     );
   }
 
+  const hasContent = chapter.narrative || chapter.sceneDescription || chapter.coreNarrative || chapter.humanStories;
+
   return (
-    <div className="space-y-6">
-      {guide.realTimeGuide?.chapters?.map((chapter, index) => {
-        const isCurrentlyPlaying = isPlaying && currentChapter === index;
-        const hasContent = chapter.narrative || 
-                          chapter.sceneDescription || 
-                          chapter.coreNarrative || 
-                          chapter.humanStories;
-
-        return (
-          <div
-            key={index}
-            data-chapter-index={index}
-            ref={(el) => {
-              chapterRefs.current[index] = el;
-            }}
-            className={`border rounded-lg p-6 transition-all duration-300 ${
-              currentChapter === index
-                ? 'border-blue-500 bg-blue-50 shadow-lg'
-                : 'border-gray-200 bg-white hover:shadow-md'
-            }`}
+    <div className="min-h-screen bg-gray-50">
+      {/* 헤더 */}
+      <div className="bg-white border-b border-gray-200 px-4 py-3">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          {/* 뒤로가기 버튼 */}
+          <button 
+            onClick={() => window.history.back()}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                  currentChapter === index
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-600'
-                }`}>
-                  {index + 1}
-                </div>
-                {/* 📍 수정: 제목에 클래스 추가하여 스크롤 타겟으로 사용 */}
-                <h3 
-                  id={`chapter-title-${index}`}
-                  className="text-xl font-semibold text-gray-900 chapter-title"
-                >
-                  {chapter.title}
-                </h3>
-              </div>
+            <ChevronLeft className="w-6 h-6 text-gray-600" />
+          </button>
 
-              {/* 재생/일시정지 버튼 복원 */}
-              <div className="flex items-center space-x-2">
-                {hasContent && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (currentChapter === index && currentAudio) {
-                        handleTogglePlayback();
-                      } else {
-                        handlePlayChapter(index);
-                      }
+          {/* 단계 표시 */}
+          <div className="text-sm font-medium text-gray-600">
+            Step {currentChapter + 1}/{totalChapters}
+          </div>
+
+          {/* 액션 버튼들 */}
+          <div className="flex items-center gap-2">
+            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+              <Bookmark className="w-5 h-5 text-gray-600" />
+            </button>
+            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+              <MoreVertical className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 메인 콘텐츠 */}
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* 메인 카드 */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          {/* 기하학적 헤더 - NYT 스타일 */}
+          <div className="relative h-32 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+            {/* 기하학적 요소 */}
+            <div className="absolute top-4 left-4">
+              <div className="grid grid-cols-8 gap-1">
+                {Array.from({ length: 64 }, (_, i) => (
+                  <div 
+                    key={i} 
+                    className="w-1 h-1 rounded-full bg-gray-400 opacity-30"
+                    style={{ 
+                      animationDelay: `${i * 0.1}s`,
+                      opacity: Math.random() > 0.7 ? 0.6 : 0.2 
                     }}
-                    disabled={isPlaying && currentChapter !== index}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
-                      isCurrentlyPlaying
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    aria-label={isCurrentlyPlaying ? (isPlaying ? '일시정지' : '재개') : '재생'}
-                  >
-                    {isCurrentlyPlaying && isPlaying ? (
-                      <Pause className="w-5 h-5" />
-                    ) : (
-                      <Play className="w-5 h-5" />
+                  />
+                ))}
+              </div>
+            </div>
+            
+            {/* 반원 요소 */}
+            <div className="absolute bottom-0 right-8 w-24 h-24 bg-black rounded-full transform translate-y-1/2">
+              <div className="absolute inset-2 bg-white rounded-full opacity-20"></div>
+            </div>
+
+            {/* 플레이 버튼 */}
+            {hasContent && (
+              <div className="absolute bottom-4 left-6">
+                <button
+                  onClick={handlePlayChapter}
+                  className="w-12 h-12 bg-black hover:bg-gray-800 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
+                >
+                  {isPlaying ? (
+                    <Pause className="w-5 h-5" />
+                  ) : (
+                    <Play className="w-5 h-5 ml-0.5" />
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* 콘텐츠 영역 */}
+          <div className="p-8">
+            {/* 타이틀 */}
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+              {chapter.title}
+            </h1>
+
+            {/* 메인 콘텐츠 */}
+            {hasContent ? (
+              <div className="prose prose-lg max-w-none">
+                {chapter.narrative ? (
+                  <div className="text-gray-700 leading-relaxed whitespace-pre-line text-lg">
+                    {chapter.narrative}
+                  </div>
+                ) : (
+                  <div className="space-y-6 text-gray-700 leading-relaxed text-lg">
+                    {chapter.sceneDescription && (
+                      <p>{chapter.sceneDescription}</p>
                     )}
-                  </button>
+                    {chapter.coreNarrative && (
+                      <p>{chapter.coreNarrative}</p>
+                    )}
+                    {chapter.humanStories && (
+                      <p>{chapter.humanStories}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* 다음 이동 안내 */}
+                {chapter.nextDirection && (
+                  <div className="mt-8 p-4 bg-gray-50 rounded-xl border-l-4 border-black">
+                    <h3 className="font-semibold text-gray-900 mb-2">다음 목적지</h3>
+                    <p className="text-gray-700">{chapter.nextDirection}</p>
+                  </div>
                 )}
               </div>
-            </div>
-
-            <div className="space-y-4">
-              {hasContent ? (
-                <div className="text-gray-700 leading-relaxed space-y-4">
-                  {chapter.narrative ? (
-                    <div className="whitespace-pre-line">
-                      <p>{chapter.narrative}</p>
-                      {chapter.nextDirection && (
-                        <p className="text-blue-600 font-medium mt-4">{chapter.nextDirection}</p>
-                      )}
-                    </div>
-                  ) : (
-                    <>
-                      {chapter.sceneDescription && <p>{chapter.sceneDescription}</p>}
-                      {chapter.coreNarrative && <p>{chapter.coreNarrative}</p>}
-                      {chapter.humanStories && <p>{chapter.humanStories}</p>}
-                      {chapter.nextDirection && (
-                        <p className="text-blue-600 font-medium">{chapter.nextDirection}</p>
-                      )}
-                    </>
-                  )}
+            ) : (
+              <div className="text-center py-12">
+                <div className="inline-flex items-center px-4 py-2 bg-yellow-100 rounded-full text-sm text-yellow-800">
+                  <div className="w-2 h-2 bg-yellow-400 rounded-full mr-2 animate-pulse"></div>
+                  콘텐츠 생성 중...
                 </div>
-              ) : (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <div className="flex items-center">
-                    <Clock className="w-5 h-5 text-yellow-600 mr-2" />
-                    <div>
-                      <p className="text-yellow-800 font-medium">챕터 내용 생성 중</p>
-                      <p className="text-yellow-700 text-sm mt-1">
-                        이 챕터의 상세 내용이 AI에 의해 생성되고 있습니다. 잠시만 기다려주세요.
-                      </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 네비게이션 */}
+        <div className="mt-8 flex justify-between items-center">
+          {/* 이전 버튼 */}
+          <button
+            onClick={handlePrevChapter}
+            disabled={currentChapter === 0}
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors ${
+              currentChapter === 0
+                ? 'text-gray-400 cursor-not-allowed'
+                : 'text-gray-700 hover:bg-white hover:shadow-sm border border-gray-200'
+            }`}
+          >
+            <ChevronLeft className="w-5 h-5" />
+            이전
+          </button>
+
+          {/* 프로그레스 인디케이터 */}
+          <div className="flex items-center gap-2">
+            {Array.from({ length: totalChapters }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  stopAndCleanupAudio();
+                  setCurrentChapter(i);
+                }}
+                className={`w-3 h-3 rounded-full transition-colors ${
+                  i === currentChapter
+                    ? 'bg-black'
+                    : i < currentChapter
+                    ? 'bg-gray-400'
+                    : 'bg-gray-200'
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* 다음 버튼 */}
+          <button
+            onClick={handleNextChapter}
+            disabled={currentChapter === totalChapters - 1}
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors ${
+              currentChapter === totalChapters - 1
+                ? 'text-gray-400 cursor-not-allowed'
+                : 'bg-black text-white hover:bg-gray-800'
+            }`}
+          >
+            다음
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* 챕터 목록 (선택사항) */}
+        <div className="mt-12">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">전체 챕터</h2>
+          <div className="grid gap-3">
+            {guide.realTimeGuide?.chapters?.map((chap, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  stopAndCleanupAudio();
+                  setCurrentChapter(index);
+                }}
+                className={`text-left p-4 rounded-xl border transition-colors ${
+                  index === currentChapter
+                    ? 'border-black bg-gray-50'
+                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-gray-500 mb-1">
+                      Step {index + 1}
+                    </div>
+                    <div className="font-medium text-gray-900">
+                      {chap.title}
                     </div>
                   </div>
+                  {index === currentChapter && isPlaying && (
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  )}
                 </div>
-              )}
-            </div>
+              </button>
+            ))}
           </div>
-        );
-      })}
+        </div>
+      </div>
     </div>
   );
 };
 
-export default TourContent;
+export default MinimalTourContent;
