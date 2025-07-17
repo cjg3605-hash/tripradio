@@ -1,6 +1,7 @@
 // 전 세계 모든 장소를 위한 범용 AI 오디오 가이드 생성 프롬프트 시스템 (개선된 버전)
 
 import { UserProfile } from '@/types/guide';
+import { LANGUAGE_CONFIGS, LOCATION_TYPE_CONFIGS, analyzeLocationType, getRecommendedSpotCount } from './index';
 
 // 오디오 가이드 예시 - 자연스럽게 이어지는 구조 (개선된 실용 예시)
 const AUDIO_GUIDE_EXAMPLE = {
@@ -161,144 +162,24 @@ const AUDIO_GUIDE_INSTRUCTIONS = {
   }
 };
 
-// 위치 유형별 전문 가이드 스타일 정의
-const LOCATION_TYPE_CONFIGS: Record<string, LocationTypeConfig> = {
-  architecture: {
-    keywords: ['궁궐', '성당', '사원', '교회', '성곽', '탑', '건축', '전각', '건물', 'cathedral', 'palace', 'temple', 'tower', 'architecture'],
-    expertRole: '건축사이자 문화재 전문 스토리텔러',
-    focusAreas: ['건축 양식과 기법', '구조적 특징', '건축재료와 공법', '시대별 건축 변천사', '장인정신과 기술'],
-    specialRequirements: '건축물을 보면서 "와, 이렇게 지었구나!"하는 감탄이 나오도록, 기술적 설명을 쉽고 재미있게 풀어서 설명하세요.',
-    audioGuideTips: '건축물의 규모를 현대적 비유로 설명하고, 건축 과정의 어려움과 당시 사람들의 노력을 드라마틱하게 묘사하세요.',
-    recommendedSpots: '6-8개 (대형 건축물은 세밀한 탐방)'
-  },
-  historical: {
-    keywords: ['박물관', '유적지', '기념관', '사적', '역사', '유물', '전쟁', '독립', 'museum', 'historical', 'memorial', 'heritage'],
-    expertRole: '역사학자이자 감동적인 스토리텔러',
-    focusAreas: ['역사적 사건과 맥락', '시대적 배경', '인물들의 이야기', '사회문화적 의미', '현재적 교훈'],
-    specialRequirements: '마치 타임머신을 타고 그 시대로 돌아간 것처럼, 당시의 분위기와 사람들의 감정을 생생하게 전달하세요.',
-    audioGuideTips: '"만약 여러분이 그날 그 자리에 있었다면..."으로 시작하는 상황 설정을 자주 사용하세요.',
-    recommendedSpots: '5-7개 (전시실, 기념관 등의 주요 공간별로 구성)'
-  },
-  nature: {
-    keywords: ['공원', '산', '강', '바다', '숲', '정원', '자연', '생태', '경관', 'park', 'mountain', 'nature', 'garden', 'scenic'],
-    expertRole: '자연 해설가이자 생태 스토리텔러',
-    focusAreas: ['생태계와 생물다양성', '지형과 지질학적 특징', '계절별 변화', '환경보전의 중요성', '자연과 인간의 관계'],
-    specialRequirements: '자연의 소리, 냄새, 촉감을 말로 전달하여 관람객이 자연과 하나가 되는 느낌을 받도록 하세요.',
-    audioGuideTips: '"잠깐, 조용히 해보세요. 들리시나요?"처럼 실제로 주변 소리를 듣게 하는 상호작용을 포함하세요.',
-    recommendedSpots: '4-6개 (자연스러운 산책 동선을 따라 주요 뷰포인트별로)'
-  },
-  culinary: {
-    keywords: ['맛집', '음식', '시장', '골목', '전통음식', '요리', '카페', '레스토랑', 'food', 'market', 'restaurant', 'culinary', 'cuisine'],
-    expertRole: '미식 스토리텔러이자 음식문화 해설가',
-    focusAreas: ['지역 특색 음식', '요리 역사와 전통', '식재료와 조리법', '음식문화와 사회', '미식 체험 포인트'],
-    specialRequirements: '음식의 맛, 향, 질감을 말로 표현하여 관람객의 식욕을 자극하고, 그 음식을 꼭 먹어보고 싶게 만드세요.',
-    audioGuideTips: '"지금 이 순간 저 가게에서 나오는 고소한 냄새 맡으셨나요?"처럼 현장의 감각을 실시간으로 포착하세요.',
-    recommendedSpots: '5-8개 (음식 종류와 맛집 밀도에 따라 유연하게 조정)'
-  },
-  traditional: {
-    keywords: ['한옥', '전통', '민속', '옛거리', '고택', '전통마을', '문화마을', '한옥마을', '북촌', '서촌', 'hanok', 'traditional', 'folk', 'heritage village'],
-    expertRole: '전통문화 스토리텔러이자 민속 해설가',
-    focusAreas: ['전통 생활양식', '민속 문화', '전통 기술과 공예', '공동체 문화', '전통의 현대적 계승'],
-    specialRequirements: '옛 사람들의 일상을 현대인이 공감할 수 있도록, 과거와 현재를 연결하는 이야기를 들려주세요.',
-    audioGuideTips: '"이 마당에서 할머니가 빨래를 널고, 아이들이 뛰어놀던 모습을 상상해보세요"처럼 과거의 일상을 그려주세요.',
-    recommendedSpots: '4-6개 (마을의 규모와 주요 전통 건물 수에 따라)'
-  },
-  general: {
-    keywords: [],
-    expertRole: '문화관광 전문 스토리텔러',
-    focusAreas: ['역사와 문화', '건축과 예술', '사회적 의미', '관광 정보', '체험 활동'],
-    specialRequirements: '방문객의 흥미를 끄는 다양한 이야기와 정보를 균형있게 제공해야 합니다.',
-    audioGuideTips: '방문객이 지루하지 않도록 다양한 관점에서 흥미로운 이야기를 들려주세요.',
-    recommendedSpots: '4-6개 (일반적인 관광지 규모에 맞춤)'
-  }
-};
-
-// 언어 설정
-const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = {
-  ko: { code: 'ko', name: '한국어', ttsLang: 'ko-KR' },
-  en: { code: 'en', name: 'English', ttsLang: 'en-US' },
-  ja: { code: 'ja', name: '日本語', ttsLang: 'ja-JP' },
-  zh: { code: 'zh', name: '中文', ttsLang: 'zh-CN' },
-  es: { code: 'es', name: 'Español', ttsLang: 'es-ES' }
-};
-
-// 인터페이스 정의
-interface LocationTypeConfig {
-  keywords: string[];
-  expertRole: string;
-  focusAreas: string[];
-  specialRequirements: string;
-  audioGuideTips: string;
-  recommendedSpots: string;
-}
-
-interface LanguageConfig {
-  code: string;
-  name: string;
-  ttsLang: string;
-}
-
-// ResearchData 타입 정의 추가
-export interface ResearchData {
-  historicalFacts?: Array<{ date: string; event: string }>;
-  keyFigures?: Array<{ name: string; role: string; description: string }>;
-  architecturalDetails?: Record<string, string>;
-  culturalSignificance?: string[];
-  interestingAnecdotes?: string[];
-  [key: string]: any; // 추가 필드 허용
-}
-
-// 위치 유형 분석 함수
-function analyzeLocationType(locationName: string): string {
-  const lowerName = locationName.toLowerCase();
-  
-  for (const [type, config] of Object.entries(LOCATION_TYPE_CONFIGS)) {
-    if (config.keywords.some(keyword => lowerName.includes(keyword.toLowerCase()))) {
-      return type;
-    }
-  }
-  
-  return 'general';
-}
-
-// 위치 유형별 권장 스팟 수 결정 함수
-export function getRecommendedSpotCount(locationName: string): { min: number, max: number, default: number } {
-  const locationType = analyzeLocationType(locationName);
-  
-  switch (locationType) {
-    case 'architecture':
-      return { min: 6, max: 8, default: 7 }; // 대형 건축물은 세밀한 탐방
-    case 'historical':
-      return { min: 5, max: 7, default: 6 }; // 박물관, 유적지
-    case 'nature':
-      return { min: 4, max: 6, default: 5 }; // 자연 경관
-    case 'culinary':
-      return { min: 5, max: 8, default: 6 }; // 맛집 투어는 다양하게
-    case 'traditional':
-      return { min: 4, max: 6, default: 5 }; // 전통 마을
-    default:
-      return { min: 4, max: 6, default: 5 }; // 일반적인 관광지
-  }
-}
-
 /**
  * 한국어 가이드 생성 프롬프트 (index.ts 호환용)
  */
-export function createKoreanGuidePrompt(
+export const createKoreanGuidePrompt = (
   locationName: string,
   userProfile?: UserProfile
-): string {
+): string => {
   return createAutonomousGuidePrompt(locationName, 'ko', userProfile);
 }
 
 /**
  * 개선된 자율 리서치 기반 AI 오디오 가이드 생성 프롬프트
  */
-export function createAutonomousGuidePrompt(
+export const createAutonomousGuidePrompt = (
   locationName: string,
   language: string = 'ko',
   userProfile?: UserProfile
-): string {
+): string => {
   const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.ko;
   const audioStyle = AUDIO_GUIDE_INSTRUCTIONS[language] || AUDIO_GUIDE_INSTRUCTIONS.ko;
   
@@ -426,11 +307,11 @@ ${JSON.stringify(AUDIO_GUIDE_EXAMPLE, null, 2)}
 /**
  * 한국어 최종 가이드 생성 프롬프트 (index.ts 호환용)
  */
-export function createKoreanFinalPrompt(
+export const createKoreanFinalPrompt = (
   locationName: string,
-  researchData: ResearchData,
+  researchData: any,
   userProfile?: UserProfile
-): string {
+): string => {
   const langConfig = LANGUAGE_CONFIGS.ko;
   const audioStyle = AUDIO_GUIDE_INSTRUCTIONS.ko;
   // 위치 유형 분석 및 전문 가이드 설정
@@ -468,7 +349,7 @@ ${JSON.stringify(researchData, null, 2)}
 
 ${userContext}
 
-## 🎯 최종 가이드 작성 지침
+## 📐 최종 가이드 작성 지침
 
 ### 1. **리서치 데이터 활용**
 - 제공된 모든 정보를 자연스럽게 스토리텔링에 녹여내기
@@ -522,11 +403,11 @@ sceneDescription → coreNarrative → humanStories가
 /**
  * 구조 생성용 프롬프트 (overview + route만)
  */
-export function createStructurePrompt(
+export const createStructurePrompt = (
   locationName: string,
   language: string = 'ko',
   userProfile?: UserProfile
-): string {
+): string => {
   const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.ko;
   const userContext = userProfile ? `
 👤 사용자 맞춤 정보:
@@ -610,14 +491,14 @@ ${userContext}
 /**
  * 챕터 상세 생성용 프롬프트
  */
-export function createChapterPrompt(
+export const createChapterPrompt = (
   locationName: string,
   chapterIndex: number,
   chapterTitle: string,
   existingGuide: any,
   language: string = 'ko',
   userProfile?: UserProfile
-): string {
+): string => {
   const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.ko;
 
   return `🎙️ "${locationName}" 챕터 ${chapterIndex + 1}: "${chapterTitle}" 완전한 오디오 가이드 생성
@@ -679,15 +560,28 @@ ${JSON.stringify(existingGuide, null, 2)}
 }
 
 // 기타 유틸리티 함수들
-export function getTTSLanguage(language: string): string {
-  const langCode = language?.slice(0, 2);
-  return LANGUAGE_CONFIGS[langCode]?.ttsLang || 'en-US';
-}
-
 export const REALTIME_GUIDE_KEYS: Record<string, string> = {
   ko: '실시간가이드',
   en: 'RealTimeGuide',
   ja: 'リアルタイムガイド',
   zh: '实时导览',
   es: 'GuíaEnTiempoReal'
+};
+
+export const createKoreanStructurePrompt = (
+  locationName: string,
+  language: string = 'ko',
+  userProfile?: UserProfile
+): string => {
+  return createStructurePrompt(locationName, language, userProfile);
+};
+export const createKoreanChapterPrompt = (
+  locationName: string,
+  chapterIndex: number,
+  chapterTitle: string,
+  existingGuide: any,
+  language: string = 'ko',
+  userProfile?: UserProfile
+): string => {
+  return createChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
 };

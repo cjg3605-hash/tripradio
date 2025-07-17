@@ -1,152 +1,493 @@
-import { 
-  LOCATION_TYPE_CONFIGS, 
-  LANGUAGE_CONFIGS,
-  analyzeLocationType,
-  generateTypeSpecificExample
-} from './index';
 import { UserProfile } from '@/types/guide';
+import { 
+  LANGUAGE_CONFIGS, 
+  LOCATION_TYPE_CONFIGS, 
+  analyzeLocationType,
+  getRecommendedSpotCount 
+} from './index';
 
-export function createChineseGuidePrompt(
+// Chinese Audio Guide Instructions
+export const CHINESE_AUDIO_GUIDE_INSTRUCTIONS = {
+  style: `您是一位**专业导游和文化遗产专家**，专门从事沉浸式音频体验。您的专业领域包括：
+- **故事大师**：将历史事实转化为引人入胜的叙述
+- **文化诠释者**：用引人入胜的解释连接过去和现在  
+- **音频内容专家**：创建针对语音传递优化的脚本
+- **当地专家**：深度了解地区历史、建筑和传统
+- **教育娱乐者**：在保持准确性的同时让学习变得有趣
+
+您的使命是创建音频导览，让人感觉像有一位知识渊博的朋友陪伴游客，分享迷人的故事和隐秘的见解，将普通的观光转变为难忘的体验。`,
+  
+  format: `**输出格式要求：**
+
+### 1. **仅返回纯JSON**
+- 仅返回有效的JSON，不要任何介绍、解释或代码块（\`\`\`）
+- 完美遵循JSON语法（逗号、引号、括号）
+- 键名必须与示例100%相同（不要翻译）
+
+### 2. **真实地点结构**
+根据每个旅游目的地或地点的**实际参观顺序和空间布局**配置route.steps。
+
+**🎯 标题格式："具体地点名称 - 其特色/意义"**
+
+**✅ 各种标题示例：**
+- "大雄宝殿 - 佛祖慈悲的圣域"
+- "钟楼 - 守护神圣时光的卫士"  
+- "观景台 - 超越想象的城市景观"
+- "中央庭院 - 古代智慧的心脏"
+
+### 3. **3个字段的完美连接 🚨 核心增强**
+
+**✅ 正确结构：**
+\`\`\`
+sceneDescription: 背景 + 观察 → 自然好奇心问题
+coreNarrative: 好奇心的答案 + 历史背景 → 人物故事预告  
+humanStories: 实际人物故事 → 感人结论
+nextDirection: （分离处理）仅移动指导
+\`\`\`
+
+**🚨 自然流畅连接 - 非常重要！**
+- 针对每个地点使用独特而自然的连接词
+- 避免可预测的模板，使用适合情况的多样化表达
+- 听起来像真实导游自发自然地讲话
+
+**❌ 避免模板式表达：**
+- "您是否想过这个地方有什么秘密？"
+- "让我告诉您这背后的迷人故事..."
+- "您知道，这里的人们有一个惊人的故事"
+
+**✅ 推荐自然表达：**
+- "这里特别有趣的是..."
+- "您可能很好奇..."
+- "这里有些可能会让您惊讶的事..."
+- "如果您仔细看，会发现..."`,
+
+  qualityStandards: `**质量标准（最重要！）：**
+- **内容越多越好。绝不要吝惜细节。** 包括次要建筑细节、隐藏符号、历史背景、相关人物的有趣轶事、幕后故事等，全面包含信息。
+- **友好健谈的语调：** 不是僵硬的解释，而是像朋友或最好的导游在身边热情解释的风格。
+- **完美叙述：** 将所有信息连接成一个巨大的故事。
+
+**📍 章节构成基本要求：**
+- **生成至少5-7个章节**：为每个主要观察点设置独立章节
+- **按参观路线顺序组织**：从入口到出口的高效单程路线
+- **🚨 关键：route.steps和realTimeGuide.chapters必须强制同步 🚨**
+  * route.steps数组和realTimeGuide.chapters数组的元素数量**必须完全匹配**
+  * 每个step的title和对应chapter的title**必须完全相同**
+  * steps的顺序和chapters的顺序**必须完全匹配**
+  * 违反此规则将导致系统错误！
+- **每个字段的最低写作标准**：
+  * sceneDescription: 超过200字符，刺激五感的生动描述
+  * coreNarrative: 超过300字符，历史事实和意义的详细解释
+  * humanStories: 超过200字符，具体的人物轶事和插曲
+  * nextDirection: 超过100字符，清晰的路线指导和距离
+- **绝对禁止空内容**：所有字段必须填写真实内容`
+};
+
+// Chinese example structure
+export const CHINESE_AUDIO_GUIDE_EXAMPLE = {
+  "content": {
+    "overview": {
+      "title": "故宫博物院概览",
+      "summary": "拥有600年历史的明清两代皇宫，是世界上现存规模最大、保存最完整的古代宫殿建筑群。",
+      "narrativeTheme": "穿越六百年时光，感受帝王威严与宫廷文化的辉煌",
+      "keyFacts": [
+        {
+          "title": "皇家宫殿",
+          "description": "明清两朝24位皇帝的居住地，见证了中华帝制的兴衰"
+        },
+        {
+          "title": "建筑瑰宝", 
+          "description": "9999.5间房屋，体现了中国古代建筑艺术的最高水平"
+        }
+      ],
+      "visitInfo": {
+        "duration": "完整游览需要3-4小时",
+        "difficulty": "轻松步行，部分台阶",
+        "season": "春秋最佳，避开夏季高峰"
+      }
+    },
+    "route": {
+      "steps": [
+        {
+          "step": 1,
+          "location": "午门",
+          "title": "午门 - 紫禁城威严的第一印象"
+        },
+        {
+          "step": 2, 
+          "location": "太和殿",
+          "title": "太和殿 - 天下第一殿的帝王威仪"
+        }
+      ]
+    },
+    "realTimeGuide": {
+      "chapters": [
+        {
+          "id": 0,
+          "title": "午门 - 紫禁城威严的第一印象",
+          "sceneDescription": "站在这座雄伟的午门前，您面对的是明清两朝皇帝威严的象征。这座高大的城门楼，红墙黄瓦在阳光下熠熠生辉，五个门洞分别代表着不同的等级秩序。您是否注意到，中间的门洞比两边的要高大许多？这其中蕴含着什么深意呢？",
+          "coreNarrative": "这个设计确实大有学问。中间最大的门洞叫做'御路'，只有皇帝才能通行，象征着天子的至高无上。左右稍小的门洞供皇族使用，而最外侧的两个门洞则是大臣们的通道。这种'五门制'体现了中国古代严格的等级制度。午门建于明永乐十八年，历经600年风雨，见证了无数重大历史时刻。最著名的莫过于'午门斩首'的传说，不过这其实是个误解...",
+          "humanStories": "真实的午门其实见证了更多温情的故事。清朝康熙年间，有位叫张廷玉的大学士，每天清晨都要从午门进宫办公。他年事已高时，康熙皇帝特许他坐轿进宫，不必下轿步行。这在当时是极大的恩宠，因为按规制，所有人进入午门都必须步行以示对皇权的尊敬。张廷玉感激涕零，直到去世都记得这份君恩。这样的人情味，让威严的午门多了一丝温暖。",
+          "nextDirection": "穿过午门，继续向北步行约100米，您将看到太和门。在前往的路上，请注意脚下的金砖和两侧的汉白玉栏杆，这些都是皇家建筑的精华体现。"
+        }
+      ]
+    }
+  }
+};
+
+/**
+ * Create Chinese autonomous guide prompt
+ */
+export const createChineseGuidePrompt = (
   locationName: string,
   userProfile?: UserProfile
-): string {
+): string => {
+  return createAutonomousGuidePrompt(locationName, 'zh', userProfile);
+};
+
+/**
+ * Enhanced autonomous research-based AI audio guide generation prompt
+ */
+export const createAutonomousGuidePrompt = (
+  locationName: string,
+  language: string = 'zh',
+  userProfile?: UserProfile
+): string => {
+  const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.zh;
+  const audioStyle = CHINESE_AUDIO_GUIDE_INSTRUCTIONS;
+  
+  // Location type analysis and specialist guide setup
   const locationType = analyzeLocationType(locationName);
   const typeConfig = LOCATION_TYPE_CONFIGS[locationType];
 
   const userContext = userProfile ? `
-👤 用户资料:
-- 兴趣: ${userProfile.interests?.join(', ') || '一般'}
-- 年龄段: ${userProfile.ageGroup || '成人'}
-- 知识水平: ${userProfile.knowledgeLevel || '中级'}
-- 同行者: ${userProfile.companions || '独自'}
-` : '👤 一般游客对象';
+👤 用户定制信息：
+- 兴趣爱好：${userProfile.interests?.join('、') || '一般'}
+- 年龄群体：${userProfile.ageGroup || '成人'}
+- 知识水平：${userProfile.knowledgeLevel || '中级'}
+- 同行人员：${userProfile.companions || '独自'}
+` : '👤 一般游客群体';
 
   const specialistContext = typeConfig ? `
-🎯 专业分野导览设置:
-- 检测出的位置类型: ${locationType}
-- 专家角色: ${typeConfig.expertRole}
-- 重点分野: ${typeConfig.focusAreas.join(', ')}
-- 特别要求: ${typeConfig.specialRequirements}
-- 推荐章节构成: ${typeConfig.chapterStructure}
+🎯 专业导览设置：
+- 检测到的地点类型：${locationType}
+- 专家角色：${typeConfig.expertRole}
+- 重点领域：${typeConfig.focusAreas.join('、')}
+- 特殊要求：${typeConfig.specialRequirements}
 ` : '';
 
-  return `# ${locationName} 音频导览生成任务
+  const prompt = `# 🎙️ "${locationName}" 沉浸式音频导览生成任务
 
-## 🎭 您的专业角色
-您是**世界上最热情、最健谈的${typeConfig?.expertRole || '旅游导游'}**。
-您的使命是让游客感觉就像与您一起行走，聆听所有秘密故事。
-
-## 🎯 目标
-生成一个**非常详细和冗长的中文音频导览** JSON对象，涵盖'${locationName}'的每个细节和幕后故事，确保游客了解所有应该知道的内容。
-
-**输出语言**: 中文 (zh)
-
-${userContext}
+## 🎭 您的角色
+${audioStyle.style}
 
 ${specialistContext}
 
-## 📐 输出格式
-您必须绝对遵循以下规则，仅返回纯JSON对象。
-- 不要包含JSON之外的任何文本，如介绍、正文、结论、注释或代码块(\`\`\`)。
-- 所有字符串必须用引号包围，JSON语法必须100%完美遵守，如不在对象和数组的最后一个元素后添加逗号。
-- JSON结构和键名必须与下面的示例完全相同。绝对不要翻译或更改键名。
-- **JSON语法错误被视为致命失败。**
-
-最终结果结构示例:
-\`\`\`json
-${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
-\`\`\`
-
-## 🎯 质量标准（最重要！）
-- **内容越多越好。永远不要吝惜任何细节。** 全面包含所有信息：建筑细节、隐藏符号、历史背景、相关人物的有趣轶事、幕后故事等。
-- **友好健谈的语调:** 使用对话式语调，就像朋友或最好的导游在旁边热情解释，而不是僵硬的说明。
-- **完美的故事叙述:** 将所有信息像一个巨大的故事一样连接起来。
-- **现场描述-历史-人物统合叙述:** 在各章节内自然地混合现场的生动描述、历史背景、人物故事，就像健谈的专业导游在现场讲述一样。
-
-## 📍 章节构成必需要求
-- **最少生成5-7个章节**: 主要观览点各自构成单独章节
-- **按观览动线顺序排列**: 从入口到出口的高效一笔画路线
-- **🚨 CRITICAL: route.steps与realTimeGuide.chapters同步化必需 🚨**
-  * route.steps数组与realTimeGuide.chapters数组的个数**必须完全一致**
-  * 各step的title与对应chapter的title**必须完全相同**
-  * step顺序与chapter顺序**必须完全一致**
-  * 违反此规则将导致系统错误！
-- **各字段最小撰写标准**:
-  * sceneDescription: 200字以上，刺激五感的生动现场描写
-  * coreNarrative: 300字以上，历史事实和意义、技术特征的详细说明
-  * humanStories: 200字以上，具体的人物轶事和感动情节
-  * nextDirection: 100字以上，明确的移动路线和距离、观察要点指引
-- **绝对禁止空内容**: 所有字段必须填写实际内容
-- **统合叙述方式**: 在各字段内自然地混合现场描写→历史背景→人物故事→技术细节，如专业导游的生动解说。
-
-## 📝 具体要求事项
-用中文为"${locationName}"生成完整的音频导览JSON。
-
-**重要检查清单:**
-✅ 在realTimeGuide.chapters数组中包含最少5-7个章节
-✅ 🚨 CRITICAL: route.steps和realTimeGuide.chapters个数及title完全一致 🚨
-✅ 各章节的所有字段都用强化的最少字数充实撰写
-✅ 按观览动线的顺次章节配置（入口→主要观览地→出口）
-✅ JSON语法100%正确性确保
-
-**绝对不要做的事:**
-❌ 使用空字符串("")禁止
-❌ 使用"以后撰写"等占位符禁止
-❌ 使用简单重复内容禁止
-❌ 包含JSON对象外文本禁止
-❌ route.steps和realTimeGuide.chapters不一致绝对禁止
-❌ 各字段最少字数未达标禁止`;
-}
-
-export function createChineseFinalPrompt(
-  locationName: string,
-  researchData: any,
-  userProfile?: UserProfile
-): string {
-  const userContext = userProfile ? `
-👤 用户资料:
-- 兴趣: ${userProfile.interests?.join(', ') || '一般'}
-- 年龄段: ${userProfile.ageGroup || '成人'}
-- 知识水平: ${userProfile.knowledgeLevel || '中级'}
-- 同行者: ${userProfile.companions || '独自'}
-` : '👤 一般游客对象';
-
-  return `# 🖋️ "${locationName}" 最终音频导览完成任务
-
-## 🎯 您的角色和使命
-您是**最终音频导览作家AI**。
-您的目标是基于提供的研究数据，为游客完成一个完美的中文音频导览JSON对象。
-
-**生成语言**: 中文 (zh)
+## 🎯 任务
+为"${locationName}"生成**沉浸式${langConfig.name}音频导览**JSON。
 
 ${userContext}
 
-## 📚 提供的研究数据
-基于此数据编写所有脚本。
+${audioStyle.format}
 
-\`\`\`json
+### 4. **丰富原创内容**
+- 严格遵守最低内容要求（见上述标准）
+- 体现地点独特特色的原创描述
+- 引人入胜的故事叙述而非平淡解释
+- 历史事实 + 人文情感 + 现场沉浸感
+
+### 5. **动态章节配置**
+- **根据地点规模和特色生成适当数量的章节**
+- **小型地点：3-4个，中型：5-6个，大型综合设施：7-8个**
+- **🔴 关键：route.steps和realTimeGuide.chapters数量及标题完美匹配**
+
+## 💡 音频导览写作示例
+
+**❌ 不好的示例（割裂式、模板式）**：
+- sceneDescription："故宫是明清宫殿。高度为20米。"
+- coreNarrative："建于1420年。许多皇帝在这里居住。"
+- humanStories："康熙皇帝住在这里。进行过修复工程。"
+
+**✅ 改进的自然示例**：
+- sceneDescription："故宫作为明清两朝皇宫，承载着近600年的历史沧桑，其雄伟的建筑群在蓝天白云的映衬下显得格外庄严肃穆。当您步入这座世界上最大的古代宫殿建筑群时，首先映入眼帘的是那一排排红墙黄瓦，在阳光照射下金光闪闪，仿佛在诉说着昔日皇家的威严与辉煌。您是否想过，为什么古代的建筑师要把宫殿建得如此宏大壮观？"
+- coreNarrative："这个问题的答案要追溯到明成祖朱棣迁都北京的那个历史时刻。公元1406年，朱棣下令在元大都的基础上修建这座全新的皇宫，目的不仅仅是为了居住，更是要通过建筑的宏伟来彰显新王朝的强大国力和皇权的至高无上。历时14年的建设过程中，动用了全国最优秀的工匠和最珍贵的材料，每一块砖瓦都承载着匠人们的心血。但这座宫殿真正的魅力，不仅在于它的建筑之美..."
+- humanStories："更在于那些曾在这里生活过的人们的故事。比如清朝的慈禧太后，她虽然以专权著称，但实际上也有着女人的柔情一面。据宫廷档案记载，她每天早晨都会在御花园中喂养她心爱的猫咪，那些猫咪都有着华丽的名字，生活待遇甚至比一些宫女还要好。这样的生活细节，让我们看到了历史人物更加真实和立体的一面，也让这座古老的宫殿多了一份人情味。"
+
+${audioStyle.qualityStandards}
+
+## 📐 最终JSON结构：
+${JSON.stringify(CHINESE_AUDIO_GUIDE_EXAMPLE, null, 2)}
+
+## ✅ 最终检查清单
+- [ ] 所有文本均用${langConfig.name}编写
+- [ ] route.steps和realTimeGuide.chapters完美匹配
+- [ ] 3个字段自然连接成8-9分钟故事
+- [ ] nextDirection单独处理移动指导
+- [ ] 自然原创叙述而非模板表达
+- [ ] 100%准确的JSON语法
+
+**🔴 核心增强总结 🔴**
+1. **仅连接3个字段**：nextDirection单独处理
+2. **自然连接**：适合情况的多样化表达而非模板
+3. **原创叙述**：体现地点特色的独特描述
+4. **完全分离**：移动指导仅在nextDirection中
+
+**现在就为"${locationName}"生成自然迷人的音频导览，仅返回纯JSON格式！**`;
+
+  return prompt;
+};
+
+/**
+ * Chinese final guide generation prompt (compatible with index.ts)
+ */
+export const createChineseFinalPrompt = (
+  locationName: string,
+  researchData: any,
+  userProfile?: UserProfile
+): string => {
+  const langConfig = LANGUAGE_CONFIGS.zh;
+  const audioStyle = CHINESE_AUDIO_GUIDE_INSTRUCTIONS;
+  
+  // Location type analysis and specialist guide setup
+  const locationType = analyzeLocationType(locationName);
+  const typeConfig = LOCATION_TYPE_CONFIGS[locationType];
+
+  const userContext = userProfile ? `
+👤 用户定制信息：
+- 兴趣爱好：${userProfile.interests?.join('、') || '一般'}
+- 年龄群体：${userProfile.ageGroup || '成人'}
+- 知识水平：${userProfile.knowledgeLevel || '中级'}
+- 同行人员：${userProfile.companions || '独自'}
+` : '👤 一般游客群体';
+
+  const specialistContext = typeConfig ? `
+🎯 专业领域导览设置：
+- 检测到的地点类型：${locationType}
+- 专家角色：${typeConfig.expertRole}
+- 重点领域：${typeConfig.focusAreas.join('、')}
+- 特殊要求：${typeConfig.specialRequirements}
+` : '';
+
+  const prompt = `# 🎙️ "${locationName}" 最终音频导览生成
+
+## 🎭 您的角色
+${audioStyle.style}
+
+${specialistContext}
+
+## 📚 基于研究数据的导览创作
+基于下面提供的详细研究数据，创作更加准确和丰富的音频导览。
+
+### 研究数据：
 ${JSON.stringify(researchData, null, 2)}
-\`\`\`
 
-## 📐 最终JSON输出格式
-必须返回与下面示例完全相同结构、相同键、相同类型的JSON。
-- 绝对不要包含代码块（例：\`\`\`json ... \`\`\`）。
-- 不要包含说明、指导文句、注释等任何附加文本。
-- 必须遵守JSON语法（引号、逗号、大括号/中括号等）。
+${userContext}
 
-示例:
-${JSON.stringify({ 
-  content: { 
-    overview: {}, 
-    route: { steps: [] }, 
-    realTimeGuide: { chapters: [] } 
-  } 
-}, null, 2)}
+## 🎯 最终导览创作指南
 
-## 🎯 质量标准
-基于研究数据，以韩国最高水准的文化观光解说士的质量编写脚本。
-**分量无限制**，包含与名胜相关的**所有背景知识、隐藏故事、历史事实**，提供最详细和深入的内容。
-**名胜内所有细节场所一个不漏地包含**，制作游客可以选择想听的地方的完整导览。
-**观览动线设计为从入场到退场最高效的一笔画动线，确保游客不必要地返回或二次移动。**
-丰富的故事叙述和生动的描写是必需的。`;
+### 1. **研究数据利用**
+- 将所有提供的信息自然地融入故事叙述中
+- 准确反映历史事实、日期和人物信息
+- 积极利用研究中发现的有趣轶事或隐藏故事
+
+### 2. **音频脚本质量**
+- 将研究数据的刻板信息转化为友好的口语化风格
+- 用简单有趣的方式解释专业内容
+- 戏剧性构成以保持听众参与度
+
+### 3. **增强内容**
+- 基于研究数据使每个章节更加详细
+- 准确包含具体数字、日期和人物姓名
+- 用研究获得的洞察强化故事叙述
+
+### 4. **最低内容量（中文标准）**
+- sceneDescription：500+字符（基于研究的详细描述）
+- coreNarrative：700+字符（包含准确历史事实）
+- humanStories：600+字符（研究过的人物故事）
+- nextDirection：250+字符（具体路线指导）
+
+### 5. **字段连接基本规则**
+- sceneDescription结尾：问题或好奇心引发（"您知道吗...?"）
+- coreNarrative开头：以回答那个问题开始（"其实..."）
+- coreNarrative结尾：预告下一个故事（"但更令人惊讶的是..."）
+- humanStories开头：自然接续（"没错，就在那时..."）
+
+## 📐 最终JSON结构：
+${JSON.stringify(CHINESE_AUDIO_GUIDE_EXAMPLE, null, 2)}
+
+## ✅ 质量检查清单
+- [ ] 反映研究数据中的所有重要信息
+- [ ] 历史事实和日期的准确性
+- [ ] 自然的故事叙述流程
+- [ ] 作为音频听取时不无聊的构成
+- [ ] 每章节8-10分钟的丰富内容
+- [ ] 3个字段作为一个脚本无缝连接
+
+**🔴 必须遵守事项 🔴**
+每个章节是一个人连续讲话10分钟！
+sceneDescription → coreNarrative → humanStories必须
+像流水一样自然衔接。
+绝对不要将每个字段写成独立部分！
+
+**完美利用研究数据为"${locationName}"创造最佳音频导览！**`;
+
+  return prompt;
+};
+
+/**
+ * Structure generation prompt (overview + route only)
+ */
+export const createChineseStructurePrompt = (
+  locationName: string,
+  language: string = 'zh',
+  userProfile?: UserProfile
+): string => {
+  const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.zh;
+  const userContext = userProfile ? `
+👤 用户定制信息：
+- 兴趣爱好：${userProfile.interests?.join('、') || '一般'}
+- 年龄群体：${userProfile.ageGroup || '成人'}
+` : '👤 一般游客群体';
+
+  // Location type analysis and recommended spot count info
+  const locationType = analyzeLocationType(locationName);
+  const typeConfig = LOCATION_TYPE_CONFIGS[locationType] || LOCATION_TYPE_CONFIGS.general;
+  const spotCount = getRecommendedSpotCount(locationName);
+
+  return `# 🏗️ "${locationName}" 导览基本结构生成
+
+## 🎯 任务
+为"${locationName}"生成**基本结构（概览+路线）**。
+实时导览章节仅包含标题，不生成详细内容。
+
+${userContext}
+
+## 🎯 地点分析信息
+- 检测到的地点类型：${locationType}
+- 推荐景点数量：${spotCount.default}
+- 最佳景点范围：${spotCount.min}-${spotCount.max}个
+- 推荐默认值：${spotCount.default}个
+
+## 📋 输出格式
+仅返回纯JSON。不要代码块或解释，仅JSON。
+
+**景点数量决策指南：**
+- **小型单一建筑/商店**：3-4个景点
+- **中型旅游目的地**：5-6个景点  
+- **大型综合设施/宫殿**：7-8个景点
+- **自然公园/步行道**：按主要观景点4-6个
+- **美食游览区域**：根据食物种类5-8个
+
+### 结构示例（景点数量根据地点调整）：
+{
+  "content": {
+    "overview": {
+      "title": "${locationName}概览",
+      "summary": "简要摘要（200字符以内）",
+      "narrativeTheme": "核心主题一行",
+      "keyFacts": [
+        { "title": "关键信息1", "description": "描述" },
+        { "title": "关键信息2", "description": "描述" }
+      ],
+      "visitInfo": {
+        "duration": "适当的游览时间",
+        "difficulty": "难度等级",
+        "season": "最佳季节"
+      }
+    },
+    "route": {
+      "steps": [
+        { "step": 1, "location": "入口", "title": "景点1标题" },
+        { "step": 2, "location": "主要景点1", "title": "景点2标题" },
+        { "step": 3, "location": "主要景点2", "title": "景点3标题" }
+        // ... 根据地点特色的适当数量景点
+      ]
+    },
+    "realTimeGuide": {
+      "chapters": [
+        { "id": 0, "title": "景点1标题" },
+        { "id": 1, "title": "景点2标题" },
+        { "id": 2, "title": "景点3标题" }
+        // ... 与route.steps数量完全相同
+      ]
+    }
+  }
 }
+
+**重要事项**： 
+- route.steps和realTimeGuide.chapters的标题必须完全相同
+- **考虑地点规模和特色配置适当数量的景点**（3-8个范围内）
+- 入口 → 主要景点 → 结束/出口的自然动线
+- 章节仅包含标题，无详细内容
+- 仅返回纯JSON，无解释或代码块`;
+};
+
+/**
+ * Chapter detail generation prompt
+ */
+export const createChineseChapterPrompt = (
+  locationName: string,
+  chapterIndex: number,
+  chapterTitle: string,
+  existingGuide: any,
+  language: string = 'zh',
+  userProfile?: UserProfile
+): string => {
+  const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.zh;
+
+  return `🎙️ "${locationName}" 第${chapterIndex + 1}章："${chapterTitle}" 完整音频导览生成
+
+🎯 任务
+作为专业导游，您需要为在"${chapterTitle}"景点的游客编写**完整详细的**音频导览脚本。
+
+📚 现有导览上下文
+${JSON.stringify(existingGuide, null, 2)}
+
+🚨 **绝对重要 - 完整内容必需**
+- 在narrative字段中编写**最少1600-1800字符的完整内容**（绝不要简短编写！）
+- 将现场描述+历史背景+人物故事整合为**一个自然故事**
+- AI绝不能使用"...更多详细内容将..."等不完整表达
+- **编写完整丰富的实际导览水平内容**
+
+📝 编写结构（作为一个narrative自然连接）
+1. **现场描述**（400-500字符）：游客实际能看到和感受到的生动场景
+2. **历史背景**（600-700字符）：这个地方的历史、建筑特色、文化意义
+3. **人物故事**（300-400字符）：实际历史人物或经过验证的轶事
+4. **下一步移动指导**（100-200字符）：具体路线和下一个地点预告
+
+🎭 风格指南
+- 友好的口语化语调（"这里值得注意的是"、"有趣的事实是"、"听听这个故事"等）
+- 既有教育性又有娱乐性的故事叙述
+- 像朋友在身边解释一样的亲切感
+- **每个部分自然延续成一个完整故事**
+
+🚫 **绝对禁止事项**
+- 绝不使用"您好"、"大家！"、"是的，大家！"等问候语（从第1章开始）
+- 禁止"...稍后会更详细介绍..."、"...即将有更详细内容..."等不完整表达
+- 禁止简短写作 - **必须有1600-1800字符的丰富内容**
+
+✅ **推荐开头表达**
+- "在这个地方..."、"这里值得注意的是..."、"有趣的是..."
+- "就在您面前..."、"在这个地方..."
+- "现在我们..."、"继续..."、"接下来我们将遇到..."
+
+✅ 必需输出格式
+**重要：仅输出纯JSON。无代码块或解释！**
+
+{
+  "chapter": {
+    "id": ${chapterIndex},
+    "title": "${chapterTitle}",
+    "narrative": "在这个地方，首先映入眼帘的是... [详细编写400-500字符的生动现场描述] ...但为什么这个地方如此特别呢？就在[时期]时[详细解释600-700字符的历史背景和意义] ...在这段历史中有着真正感人的人物故事。[丰富叙述400-500字符的实际历史人物或经过验证的轶事] ...现在，将这些有意义的故事铭记在心，让我们前往下一个地点。[200-300字符的具体移动路线和下一个地点预告]（总计1800-2000字符的完整故事）",
+    "nextDirection": "从这里向[具体方向]移动约[距离/时间]，您将看到[下一个地点名称]。在前往的路上，请注意[周边景点或特色]。在下一个地点，您可以体验到[期待的内容]。"
+  }
+}
+
+🚨 绝对遵守要求 🚨
+- **narrative字段必须是1800-2000字符（最少1800字符！）**
+- 不要介绍或解释，直接开始JSON
+- 绝对禁止代码块标记  
+- 语法完美的JSON格式
+- 绝不使用不完整内容或"稍后补充"等表达
+
+立即为"${chapterTitle}"章节生成**完整丰富的**音频导览！`;
+};
