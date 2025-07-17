@@ -103,8 +103,12 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
       setCurrentChapter(chapterIndex);
       setIsPlaying(true);
 
+      const guideId = guide.metadata?.originalLocationName || 
+                      guide.overview?.title || 
+                      'unknown_guide';
+
       console.log('🎵 챕터 오디오 요청:', { 
-        guideId: guide.metadata.originalLocationName,
+        guideId: guideId,
         chapterIndex,
         textLength: textToSpeak.length,
         language 
@@ -112,7 +116,7 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
 
       // DB 확인 → 없으면 TTS 생성 (분할 처리 포함) → DB 저장 → URL 반환
       const audioUrl = await getOrCreateChapterAudio(
-        guide.metadata.originalLocationName,
+        guideId,
         chapterIndex,
         textToSpeak,
         language
