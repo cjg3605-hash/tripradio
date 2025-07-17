@@ -32,8 +32,16 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
 
   // 컴포넌트 언마운트 시 오디오 정리
   useEffect(() => {
+    const handleJumpToChapter = (event: Event) => {
+        const customEvent = event as CustomEvent<{ chapterId: number }>;
+        const { chapterId } = customEvent.detail;
+        setCurrentChapter(chapterId);
+        // 기존 오디오 정지
+        stopAndCleanupAudio();
+    };
+    window.addEventListener('jumpToChapter', handleJumpToChapter as EventListener);
     return () => {
-      stopAndCleanupAudio();
+        window.removeEventListener('jumpToChapter', handleJumpToChapter as EventListener);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -243,6 +243,25 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         );
     }
 
+    const handleStepClick = (stepTitle: string) => {
+        // realTimeGuide chapters에서 동일한 title을 가진 챕터 찾기
+        const targetChapter = guideData.realTimeGuide?.chapters?.find(
+            chapter => chapter.title === stepTitle
+        );
+        
+        if (targetChapter) {
+            // 실시간가이드 섹션으로 스크롤
+            const guideSection = document.getElementById('realtime-guide-section');
+            if (guideSection) {
+                guideSection.scrollIntoView({ behavior: 'smooth' });
+            }
+            // 챕터 변경 이벤트 발생
+            window.dispatchEvent(new CustomEvent('jumpToChapter', { 
+                detail: { chapterId: targetChapter.id } 
+            }));
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-50">
             <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
@@ -322,7 +341,14 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                                             <span className="text-blue-600 font-semibold text-sm">{step.step || index + 1}</span>
                                         </div>
                                         <div className="flex-1">
-                                            <h4 className="font-medium text-gray-900 mb-2">{step.title}</h4>
+                                            <h4 className="font-medium text-gray-900 mb-2">
+                                                <button 
+                                                    onClick={() => handleStepClick(step.title)}
+                                                    className="text-left hover:text-blue-600 hover:underline cursor-pointer transition-colors w-full"
+                                                >
+                                                    {step.title}
+                                                </button>
+                                            </h4>
                                             {step.description && (
                                                 <p className="text-gray-600 text-sm">{step.description}</p>
                                             )}
@@ -340,7 +366,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                 </div>
 
                 {/* 실시간 가이드 섹션 */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
+                <div id="realtime-guide-section" className="bg-white rounded-lg shadow-sm p-6">
                     <div className="flex items-center mb-6">
                         <Headphones className="w-5 h-5 text-blue-600 mr-2" />
                         <h2 className="text-2xl font-bold text-gray-900">실시간 오디오 가이드</h2>
