@@ -1,7 +1,12 @@
 // 전 세계 모든 장소를 위한 범용 AI 오디오 가이드 생성 프롬프트 시스템 (개선된 버전)
 
 import { UserProfile } from '@/types/guide';
-import { LANGUAGE_CONFIGS, LOCATION_TYPE_CONFIGS, analyzeLocationType, getRecommendedSpotCount } from './index';
+import { 
+  LANGUAGE_CONFIGS, 
+  LOCATION_TYPE_CONFIGS, 
+  analyzeLocationType, 
+  getRecommendedSpotCount 
+} from './index';
 
 // 오디오 가이드 예시 - 자연스럽게 이어지는 구조 (개선된 실용 예시)
 const AUDIO_GUIDE_EXAMPLE = {
@@ -169,8 +174,59 @@ export const createKoreanGuidePrompt = (
   locationName: string,
   userProfile?: UserProfile
 ): string => {
-  return createAutonomousGuidePrompt(locationName, 'ko', userProfile);
-}
+  const langConfig = LANGUAGE_CONFIGS.ko;
+  const locationType = analyzeLocationType(locationName);
+  const typeConfig = LOCATION_TYPE_CONFIGS[locationType];
+
+  const userContext = userProfile ? `
+👤 사용자 맞춤 정보:
+- 관심사: ${userProfile.interests?.join(', ') || '일반'}
+- 연령대: ${userProfile.ageGroup || '성인'}
+- 지식수준: ${userProfile.knowledgeLevel || '중급'}
+- 동행자: ${userProfile.companions || '혼자'}
+` : '👤 일반 관광객 대상';
+
+  const specialistContext = typeConfig ? `
+🎯 전문 분야 가이드 설정:
+- 감지된 위치 유형: ${locationType}
+- 전문가 역할: ${typeConfig.expertRole}
+- 중점 분야: ${typeConfig.focusAreas.join(', ')}
+- 특별 요구사항: ${typeConfig.specialRequirements}
+` : '';
+
+  const prompt = `# 🎙️ "${locationName}" 한국어 오디오 가이드 생성
+
+## 🎭 당신의 역할
+당신은 **단 한 명의 최고의 스토리텔러**입니다. 
+한국어로 자연스럽고 매력적인 오디오 가이드를 생성하세요.
+
+${specialistContext}
+
+${userContext}
+
+## 📋 출력 형식 요구사항
+
+### 1. **순수 JSON만 반환**
+- 서론, 설명, 코드블록(\`\`\`) 없이 오직 JSON만
+- 완벽한 JSON 문법 준수 (쉼표, 따옴표, 괄호)
+- 키 이름은 예시와 100% 동일하게 (번역 금지)
+
+### 2. **자연스러운 한국어 스토리텔링**
+- 친근한 구어체 사용
+- 교육적이면서도 재미있는 구성
+- 역사적 사실과 인간적 감정이 조화
+
+### 3. **완전한 오디오 가이드 구조**
+- overview: 장소 전체 개관
+- route: 관람 순서와 동선
+- realTimeGuide: 각 지점별 상세 가이드
+
+${JSON.stringify(AUDIO_GUIDE_EXAMPLE, null, 2)}
+
+**"${locationName}"의 자연스럽고 매력적인 한국어 오디오 가이드를 순수 JSON으로만 반환하세요!**`;
+
+  return prompt;
+};
 
 /**
  * 개선된 자율 리서치 기반 AI 오디오 가이드 생성 프롬프트
@@ -560,28 +616,5 @@ ${JSON.stringify(existingGuide, null, 2)}
 }
 
 // 기타 유틸리티 함수들
-export const REALTIME_GUIDE_KEYS: Record<string, string> = {
-  ko: '실시간가이드',
-  en: 'RealTimeGuide',
-  ja: 'リアルタイムガイド',
-  zh: '实时导览',
-  es: 'GuíaEnTiempoReal'
-};
-
-export const createKoreanStructurePrompt = (
-  locationName: string,
-  language: string = 'ko',
-  userProfile?: UserProfile
-): string => {
-  return createStructurePrompt(locationName, language, userProfile);
-};
-export const createKoreanChapterPrompt = (
-  locationName: string,
-  chapterIndex: number,
-  chapterTitle: string,
-  existingGuide: any,
-  language: string = 'ko',
-  userProfile?: UserProfile
-): string => {
-  return createChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
-};
+export const createKoreanStructurePrompt = createStructurePrompt;
+export const createKoreanChapterPrompt = createChapterPrompt;
