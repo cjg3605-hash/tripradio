@@ -87,7 +87,7 @@ export default function Home() {
         
         {/* Hero Typography */}
         <div className={`
-  text-center max-w-4xl mx-auto mb-12 transform transition-all duration-1500 ease-out
+  text-center min-h-screen pt-8 pb-16 px-4 transform transition-all duration-1000
   ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}
 `}>
           {/* Dynamic Subtitle */}
@@ -109,7 +109,7 @@ export default function Home() {
           </div>
 
           {/* Elegant Separator */}
-          <div className="flex items-center justify-center gap-8 mb-16">
+          <div className="flex items-center justify-center gap-8 mb-8">
             <div 
               className="w-16 h-px bg-black origin-left"
               style={{
