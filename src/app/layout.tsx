@@ -6,6 +6,8 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import AdSenseScript from '@/components/ads/AdSenseScript';
 import AutoAdSense from '@/components/ads/AutoAdSense';
 import ClientLayout from '@/components/layout/ClientLayout';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -28,18 +30,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="ko" className={`${inter.variable} ${notoSansKr.variable}`}>
       <head>
         <AdSenseScript />
       </head>
       <body className="font-sans">
-        <SessionProvider>
+        <SessionProvider session={session}>
           <LanguageProvider>
             <ClientLayout>
               {children}
@@ -50,4 +54,4 @@ export default function RootLayout({
       </body>
     </html>
   );
-} 
+}
