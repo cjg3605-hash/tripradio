@@ -353,7 +353,7 @@ export function generateJsonLd(
  * 사이트맵 URL 생성
  */
 export function generateSitemapUrls(guides: Array<{ name: string; slug: string }>) {
-  const urls: Array<{ url: string; lastModified: Date; changeFrequency: string; priority: number }> = [];
+  const urls: Array<{ url: string; lastModified: Date; changeFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never' | 'always' | 'hourly'; priority: number }> = [];
   
   // 기본 페이지들
   Object.entries(BASE_DOMAINS).forEach(([lang, domain]) => {
