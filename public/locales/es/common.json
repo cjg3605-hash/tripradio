@@ -2,17 +2,32 @@
   "header": {
     "title": "Guía AI",
     "language": "Idioma",
-    "login": "Iniciar Sesión",
-    "logout": "Cerrar Sesión",
-    "history": "Historial de Búsqueda"
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "history": "Historial de búsqueda",
+    "profile": "Perfil",
+    "settings": "Configuración"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "guides": "Guías",
+    "favorites": "Favoritos",
+    "about": "Acerca de",
+    "contact": "Contacto"
   },
   "home": {
-    "title": "Viajes extraordinarios guiados por IA",
-    "subtitle": "La IA genera guías de viaje personalizadas en tiempo real para ti",
-    "searchPlaceholder": "¿Dónde te gustaría explorar?",
+    "title": "Tours de Guía con IA",
+    "subtitle": "La IA genera guías de viaje personalizadas en tiempo real",
+    "searchPlaceholder": "¿A dónde te gustaría ir?",
     "searchButton": "Generar Guía",
     "popularDestinations": "Destinos Populares",
-    "description": "Guía rápida: 1. Busca un lugar  2. Genera guía AI  3. Escucha o lee al instante"
+    "description": "Descubre guías de viaje únicas generadas por IA en tiempo real",
+    "features": {
+      "realTime": "Guía en Tiempo Real",
+      "personalized": "Recomendaciones Personalizadas",
+      "multiLanguage": "Soporte Multiidioma",
+      "offline": "Uso Sin Conexión"
+    }
   },
   "guide": {
     "overview": "Resumen del Tour",
@@ -20,20 +35,49 @@
     "realTimeGuide": "Guía de Audio en Tiempo Real",
     "play": "Reproducir",
     "pause": "Pausar",
+    "stop": "Detener",
+    "next": "Siguiente",
+    "previous": "Anterior",
     "startingLocation": "Ubicación de Inicio",
     "viewOnGoogleMaps": "Ver en Google Maps",
-    "keyFacts": "Datos Clave",
+    "keyFacts": "Información Clave",
     "duration": "Duración",
     "difficulty": "Dificultad",
     "season": "Mejor Temporada",
-    "nextMove": "Siguiente: Ir a"
+    "nextMove": "Próximo Destino",
+    "downloadAudio": "Descargar Audio",
+    "share": "Compartir"
+  },
+  "search": {
+    "recentSearches": "Búsquedas Recientes",
+    "suggestions": "Sugerencias",
+    "noResults": "No se encontraron resultados",
+    "searching": "Buscando...",
+    "clear": "Limpiar"
+  },
+  "errors": {
+    "networkError": "Por favor, verifica tu conexión de red",
+    "serverError": "Ocurrió un error del servidor",
+    "notFound": "Página no encontrada",
+    "retry": "Reintentar"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "back": "Atrás",
+    "close": "Cerrar",
+    "yes": "Sí",
+    "no": "No"
   },
   "languages": {
-    "ko": "한국어",
-    "en": "English",
-    "ja": "日本語",
-    "zh": "中文",
+    "ko": "Coreano",
+    "en": "Inglés",
+    "ja": "Japonés",
+    "zh": "Chino",
     "es": "Español"
-  },
-  "minutes": "minutos"
+  }
 }

@@ -107,7 +107,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
           timestamp: Date.now(),
           guideData
         };
-        guideHistory.addEntry(historyEntry);
+        guideHistory.saveGuide(locationName, guideData, {});
       }
     } catch (error) {
       console.warn('히스토리 저장 실패:', error);

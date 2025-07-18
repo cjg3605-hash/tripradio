@@ -4,36 +4,80 @@
     "language": "言語",
     "login": "ログイン",
     "logout": "ログアウト",
-    "history": "検索履歴"
+    "history": "検索履歴",
+    "profile": "プロフィール",
+    "settings": "設定"
+  },
+  "navigation": {
+    "home": "ホーム",
+    "guides": "ガイド",
+    "favorites": "お気に入り",
+    "about": "について",
+    "contact": "お問い合わせ"
   },
   "home": {
-    "title": "世界のどこでも、AIが案内する特別な旅",
-    "subtitle": "歴史と文化が息づく名所をAIガイドと一緒に探検しましょう",
-    "searchPlaceholder": "どちらへお出かけになりたいですか？",
+    "title": "AIと一緒の旅行ガイド",
+    "subtitle": "AIがリアルタイムで個人向けの旅行ガイドを生成します",
+    "searchPlaceholder": "どちらに行きたいですか？",
     "searchButton": "ガイド生成",
-    "popularDestinations": "人気の旅行先",
-    "description": "使い方: 1. 名所を検索  2. AIガイド生成  3. 音声/テキストで体験"
+    "popularDestinations": "人気の目的地",
+    "description": "AIがリアルタイムで生成するユニークな旅行ガイドをお楽しみください",
+    "features": {
+      "realTime": "リアルタイムガイド",
+      "personalized": "パーソナライズされた推奨",
+      "multiLanguage": "多言語サポート",
+      "offline": "オフライン使用"
+    }
   },
   "guide": {
     "overview": "ツアー概要",
-    "route": "推奨見学順序",
+    "route": "推奨ルート",
     "realTimeGuide": "リアルタイム音声ガイド",
     "play": "再生",
     "pause": "一時停止",
+    "stop": "停止",
+    "next": "次",
+    "previous": "前",
     "startingLocation": "開始地点",
-    "viewOnGoogleMaps": "Google マップで見る", 
+    "viewOnGoogleMaps": "Googleマップで見る",
     "keyFacts": "重要情報",
     "duration": "所要時間",
     "difficulty": "難易度",
-    "season": "推奨シーズン",
-    "nextMove": "次へ移動"
+    "season": "おすすめ季節",
+    "nextMove": "次の目的地",
+    "downloadAudio": "音声ダウンロード",
+    "share": "共有"
+  },
+  "search": {
+    "recentSearches": "最近の検索",
+    "suggestions": "提案",
+    "noResults": "検索結果がありません",
+    "searching": "検索中...",
+    "clear": "クリア"
+  },
+  "errors": {
+    "networkError": "ネットワーク接続を確認してください",
+    "serverError": "サーバーエラーが発生しました",
+    "notFound": "ページが見つかりません",
+    "retry": "再試行"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "delete": "削除",
+    "edit": "編集",
+    "back": "戻る",
+    "close": "閉じる",
+    "yes": "はい",
+    "no": "いいえ"
   },
   "languages": {
-    "ko": "한국어",
-    "en": "English",
+    "ko": "韓国語",
+    "en": "英語",
     "ja": "日本語",
-    "zh": "中文",
-    "es": "Español"
-  },
-  "minutes": "分"
+    "zh": "中国語",
+    "es": "スペイン語"
+  }
 } 

@@ -2,7 +2,7 @@
 // 🌍 다국어 가이드 DB 관리 시스템
 
 import { supabase } from '@/lib/supabaseClient';
-import { SupportedLanguage } from '@/contexts/LanguageContext';
+import type { SupportedLanguage } from '@/contexts/LanguageContext';
 import { createAutonomousGuidePrompt } from './ai/prompts';
 
 interface MultiLangGuideData {
@@ -10,6 +10,13 @@ interface MultiLangGuideData {
   language: SupportedLanguage;
   guideData: any;
   userProfile?: any;
+}
+
+interface SmartLanguageSwitchResult {
+  success: boolean;
+  data?: any;
+  source: 'cache' | 'generated';
+  error?: any;
 }
 
 /**
@@ -140,7 +147,7 @@ export class MultiLanguageGuideManager {
     locationName: string,
     targetLanguage: SupportedLanguage,
     userProfile?: any
-  ): Promise<{ success: boolean; data?: any; source: 'cache' | 'generated'; error?: any }> {
+  ): Promise<SmartLanguageSwitchResult> {
     
     try {
       console.log(`🔄 스마트 언어 전환: ${locationName} → ${targetLanguage}`);
@@ -173,12 +180,20 @@ export class MultiLanguageGuideManager {
           source: 'generated' 
         };
       } else {
-        return { success: false, error: newGuide.error };
+        return { 
+          success: false, 
+          source: 'generated',
+          error: newGuide.error 
+        };
       }
 
     } catch (error) {
       console.error('❌ 스마트 언어 전환 실패:', error);
-      return { success: false, error };
+      return { 
+        success: false, 
+        source: 'generated',
+        error 
+      };
     }
   }
 
@@ -280,238 +295,5 @@ export class MultiLanguageGuideManager {
     } catch (error) {
       return { total: 0, languages: [] };
     }
-  }
-}
-
-// ===================================
-
-// src/hooks/useMultiLanguageGuide.ts
-// 🌍 다국어 가이드 React Hook
-
-import { useState, useEffect, useCallback } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { MultiLanguageGuideManager } from '@/lib/multilang-guide-manager';
-
-interface UseMultiLanguageGuideOptions {
-  locationName: string;
-  userProfile?: any;
-  autoLoadOnLanguageChange?: boolean;
-}
-
-export function useMultiLanguageGuide({
-  locationName,
-  userProfile,
-  autoLoadOnLanguageChange = true
-}: UseMultiLanguageGuideOptions) {
-  
-  const [guideData, setGuideData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [source, setSource] = useState<'cache' | 'generated' | null>(null);
-  const [availableLanguages, setAvailableLanguages] = useState<string[]>([]);
-  
-  const { currentLanguage } = useLanguage();
-
-  // 🔍 가이드 로드
-  const loadGuide = useCallback(async (forceRegenerate = false) => {
-    if (!locationName) return;
-    
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      if (forceRegenerate) {
-        // 강제 재생성
-        const result = await MultiLanguageGuideManager.generateAndSaveGuide(
-          locationName,
-          currentLanguage,
-          userProfile
-        );
-        
-        if (result.success) {
-          setGuideData(result.data);
-          setSource('generated');
-        } else {
-          setError(result.error?.message || '가이드 생성 실패');
-        }
-      } else {
-        // 스마트 전환 (캐시 우선)
-        const result = await MultiLanguageGuideManager.smartLanguageSwitch(
-          locationName,
-          currentLanguage,
-          userProfile
-        );
-        
-        if (result.success) {
-          setGuideData(result.data);
-          setSource(result.source);
-        } else {
-          setError(result.error?.message || '가이드 로드 실패');
-        }
-      }
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '알 수 없는 오류');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [locationName, currentLanguage, userProfile]);
-
-  // 🌍 사용 가능한 언어 목록 조회
-  const loadAvailableLanguages = useCallback(async () => {
-    if (!locationName) return;
-    
-    try {
-      const versions = await MultiLanguageGuideManager.getAllLanguageVersions(locationName);
-      setAvailableLanguages(Object.keys(versions));
-    } catch (error) {
-      console.error('언어 목록 조회 실패:', error);
-    }
-  }, [locationName]);
-
-  // 언어 변경시 자동 로드
-  useEffect(() => {
-    if (autoLoadOnLanguageChange) {
-      loadGuide();
-    }
-  }, [currentLanguage, loadGuide, autoLoadOnLanguageChange]);
-
-  // 사용 가능한 언어 목록 로드
-  useEffect(() => {
-    loadAvailableLanguages();
-  }, [loadAvailableLanguages]);
-
-  return {
-    guideData,
-    isLoading,
-    error,
-    source, // 캐시인지 새로 생성인지
-    availableLanguages,
-    loadGuide,
-    reloadGuide: () => loadGuide(false),
-    regenerateGuide: () => loadGuide(true),
-    loadAvailableLanguages
-  };
-}
-
-// ===================================
-
-// src/app/api/guide/multilang/route.ts
-// 🌍 다국어 가이드 API 엔드포인트
-
-import { NextRequest, NextResponse } from 'next/server';
-import { MultiLanguageGuideManager } from '@/lib/multilang-guide-manager';
-import { SupportedLanguage } from '@/contexts/LanguageContext';
-
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const locationName = searchParams.get('location');
-    const language = searchParams.get('language') as SupportedLanguage;
-    const action = searchParams.get('action'); // 'get' | 'switch' | 'all'
-
-    if (!locationName) {
-      return NextResponse.json(
-        { success: false, error: '위치명이 필요합니다' },
-        { status: 400 }
-      );
-    }
-
-    switch (action) {
-      case 'all':
-        // 모든 언어 버전 조회
-        const allVersions = await MultiLanguageGuideManager.getAllLanguageVersions(locationName);
-        return NextResponse.json({
-          success: true,
-          data: allVersions,
-          availableLanguages: Object.keys(allVersions)
-        });
-
-      case 'switch':
-        // 언어 전환
-        if (!language) {
-          return NextResponse.json(
-            { success: false, error: '언어가 필요합니다' },
-            { status: 400 }
-          );
-        }
-
-        const switchResult = await MultiLanguageGuideManager.smartLanguageSwitch(
-          locationName,
-          language
-        );
-
-        return NextResponse.json({
-          success: switchResult.success,
-          data: switchResult.data,
-          source: switchResult.source,
-          error: switchResult.error
-        });
-
-      default:
-        // 기본 조회
-        const getResult = await MultiLanguageGuideManager.getGuideByLanguage(
-          locationName,
-          language || 'ko'
-        );
-
-        return NextResponse.json({
-          success: getResult.exists,
-          data: getResult.data,
-          error: getResult.error
-        });
-    }
-
-  } catch (error) {
-    console.error('❌ 다국어 가이드 API 오류:', error);
-    return NextResponse.json(
-      { success: false, error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { locationName, language, userProfile, forceRegenerate = false } = body;
-
-    if (!locationName || !language) {
-      return NextResponse.json(
-        { success: false, error: '위치명과 언어가 필요합니다' },
-        { status: 400 }
-      );
-    }
-
-    let result;
-    if (forceRegenerate) {
-      // 강제 재생성
-      result = await MultiLanguageGuideManager.generateAndSaveGuide(
-        locationName,
-        language,
-        userProfile
-      );
-    } else {
-      // 스마트 전환
-      result = await MultiLanguageGuideManager.smartLanguageSwitch(
-        locationName,
-        language,
-        userProfile
-      );
-    }
-
-    return NextResponse.json({
-      success: result.success,
-      data: result.data,
-      source: 'source' in result ? result.source : 'generated',
-      error: result.error
-    });
-
-  } catch (error) {
-    console.error('❌ 다국어 가이드 생성 API 오류:', error);
-    return NextResponse.json(
-      { success: false, error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    );
   }
 }

@@ -1,39 +1,83 @@
 {
   "header": {
-    "title": "AI导览",
+    "title": "AI导游",
     "language": "语言",
     "login": "登录",
     "logout": "退出",
-    "history": "搜索历史"
+    "history": "搜索历史",
+    "profile": "个人资料",
+    "settings": "设置"
+  },
+  "navigation": {
+    "home": "首页",
+    "guides": "导游",
+    "favorites": "收藏",
+    "about": "关于",
+    "contact": "联系"
   },
   "home": {
-    "title": "AI陪伴的精彩导览之旅",
-    "subtitle": "让AI实时为您生成个性化旅行指南",
-    "searchPlaceholder": "您想去哪里探索？",
-    "searchButton": "生成导览",
+    "title": "AI智能旅游导览",
+    "subtitle": "AI实时生成个性化旅游指南",
+    "searchPlaceholder": "您想去哪里？",
+    "searchButton": "生成导游",
     "popularDestinations": "热门目的地",
-    "description": "使用方法：1. 搜索景点  2. 生成AI导览  3. 听或阅读内容"
+    "description": "体验AI实时生成的独特旅游指南",
+    "features": {
+      "realTime": "实时导览",
+      "personalized": "个性化推荐",
+      "multiLanguage": "多语言支持",
+      "offline": "离线使用"
+    }
   },
   "guide": {
-    "overview": "导览概览",
-    "route": "推荐参观路线",
+    "overview": "导览概述",
+    "route": "推荐路线",
     "realTimeGuide": "实时语音导览",
     "play": "播放",
     "pause": "暂停",
+    "stop": "停止",
+    "next": "下一个",
+    "previous": "上一个",
     "startingLocation": "起始位置",
-    "viewOnGoogleMaps": "在Google地图中查看",
+    "viewOnGoogleMaps": "在谷歌地图中查看",
     "keyFacts": "关键信息",
     "duration": "所需时间",
     "difficulty": "难度",
     "season": "推荐季节",
-    "nextMove": "下一步：前往"
+    "nextMove": "下一个目的地",
+    "downloadAudio": "下载音频",
+    "share": "分享"
+  },
+  "search": {
+    "recentSearches": "最近搜索",
+    "suggestions": "建议",
+    "noResults": "未找到结果",
+    "searching": "搜索中...",
+    "clear": "清除"
+  },
+  "errors": {
+    "networkError": "请检查网络连接",
+    "serverError": "服务器错误",
+    "notFound": "页面未找到",
+    "retry": "重试"
+  },
+  "common": {
+    "loading": "加载中...",
+    "save": "保存",
+    "cancel": "取消",
+    "confirm": "确认",
+    "delete": "删除",
+    "edit": "编辑",
+    "back": "返回",
+    "close": "关闭",
+    "yes": "是",
+    "no": "否"
   },
   "languages": {
-    "ko": "한국어",
-    "en": "English",
-    "ja": "日本語",
+    "ko": "韩语",
+    "en": "英语",
+    "ja": "日语",
     "zh": "中文",
-    "es": "Español"
-  },
-  "minutes": "分钟"
+    "es": "西班牙语"
+  }
 }
