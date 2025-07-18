@@ -102,13 +102,13 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
             <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center shadow-md">
               <Volume2 className="w-4 h-4 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900 hidden sm:block">
+            <span className="text-xl font-bold text-gray-900">
               NAVI:GUIDE
             </span>
           </Link>
 
           {/* Right side - Language selector, History, Auth */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             {/* Language Selector */}
             <div className="relative" ref={languageMenuRef}>
               <button
