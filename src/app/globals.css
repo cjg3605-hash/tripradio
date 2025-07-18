@@ -3,6 +3,96 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 기본 폰트 변수 */
+:root {
+  --font-inter: 'Inter', sans-serif;
+  --font-noto-sans-kr: 'Noto Sans KR', sans-serif;
+  --font-noto-sans-jp: 'Noto Sans JP', sans-serif;
+  --font-noto-sans-sc: 'Noto Sans SC', sans-serif;
+  --font-roboto: 'Roboto', sans-serif;
+  --current-font: var(--font-noto-sans-kr);
+}
+
+/* 언어별 폰트 클래스 */
+[lang="ko"] {
+  --current-font: var(--font-noto-sans-kr);
+}
+[lang="en"] {
+  --current-font: var(--font-inter);
+}
+[lang="ja"] {
+  --current-font: var(--font-noto-sans-jp);
+}
+[lang="zh"] {
+  --current-font: var(--font-noto-sans-sc);
+}
+[lang="es"] {
+  --current-font: var(--font-roboto);
+}
+
+/* RTL 언어 지원 */
+[dir="rtl"] {
+  text-align: right;
+}
+[dir="rtl"] .flex {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .ml-auto {
+  margin-left: 0;
+  margin-right: auto;
+}
+[dir="rtl"] .mr-auto {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+/* 언어별 특별한 스타일링 */
+.language-ko {
+  line-height: 1.7;
+}
+.language-ja {
+  line-height: 1.8;
+}
+.language-zh {
+  line-height: 1.6;
+}
+.language-en, .language-es {
+  line-height: 1.6;
+}
+
+/* 폰트 로딩 최적화 */
+.font-loading {
+  font-display: swap;
+  visibility: hidden;
+}
+.font-loaded {
+  visibility: visible;
+}
+
+/* 다국어 텍스트 정렬 */
+.text-balance {
+  text-wrap: balance;
+}
+.text-pretty {
+  text-wrap: pretty;
+}
+
+/* 언어별 버튼 스타일 */
+.language-selector {
+  transition: all 0.2s ease-in-out;
+}
+.language-selector:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 반응형 폰트 크기 */
+@media (max-width: 768px) {
+  .language-ko, .language-ja, .language-zh {
+    font-size: 0.95rem;
+  }
+}
+
 /* Ultra Modern CSS Variables */
 :root {
   /* Monochrome Design System */
