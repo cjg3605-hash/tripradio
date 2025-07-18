@@ -211,12 +211,12 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
             ) : (
               // 로그인 안된 사용자 - 경로 수정: /login → /auth/signin
               <button
-                onClick={() => router.push('/auth/signin')}
-                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <LogIn className="w-4 h-4" />
-                <span className="text-sm font-medium">로그인</span>
-              </button>
+  onClick={() => router.push('/login')}
+  className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+>
+  <LogIn className="w-4 h-4" />
+  <span className="text-sm font-medium whitespace-nowrap">로그인</span>
+</button>
             )}
           </div>
         </div>
