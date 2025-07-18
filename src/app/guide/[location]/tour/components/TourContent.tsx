@@ -45,18 +45,18 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // 텍스트 포맷팅 함수 (단락구분 및 들여쓰기)
+  // 가장 안전한 방법 - 원본 텍스트의 줄바꿈 구조 유지
   const formatText = (text: string) => {
     if (!text) return '';
     
-    // 문장 끝과 줄바꿈을 기준으로 단락 분리
-    const paragraphs = text.split(/\n\n|\.\s+(?=[A-Z가-힣])/g)
+    // 연속된 줄바꿈(2개 이상)을 단락 구분으로 사용
+    const paragraphs = text.split(/\n\s*\n/)
       .filter(paragraph => paragraph.trim().length > 0)
-      .map(paragraph => paragraph.trim());
-
+      .map(paragraph => paragraph.trim().replace(/\n/g, ' '));
+  
     return paragraphs.map((paragraph, index) => (
       <p key={index} className="mb-4" style={{ textIndent: '1em' }}>
-        {paragraph.endsWith('.') ? paragraph : paragraph + '.'}
+        {paragraph}
       </p>
     ));
   };

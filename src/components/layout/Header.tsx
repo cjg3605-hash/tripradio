@@ -67,196 +67,77 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Click outside detection
+  // Close menus when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    function handleClickOutside(event: MouseEvent) {
       if (languageMenuRef.current && !languageMenuRef.current.contains(event.target as Node)) {
         setIsLanguageMenuOpen(false);
       }
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
         setIsProfileMenuOpen(false);
       }
-    };
+    }
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSignIn = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`
-        }
-      });
-      if (error) throw error;
-    } catch (error) {
-      console.error('로그인 오류:', error);
-    }
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+    setIsProfileMenuOpen(false);
   };
 
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      setIsProfileMenuOpen(false);
-      router.push('/');
-    } catch (error) {
-      console.error('로그아웃 오류:', error);
-    }
+  const handleLanguageChange = (langCode: string) => {
+    setLanguage(langCode as any);
+    setIsLanguageMenuOpen(false);
   };
 
   const currentLang = SUPPORTED_LANGUAGES.find(lang => lang.code === currentLanguage) || SUPPORTED_LANGUAGES[0];
 
   return (
-    <header className={`
-      fixed top-0 w-full z-50 transition-all duration-500
-      ${scrolled 
-        ? 'bg-white/90 backdrop-blur-xl shadow-lg shadow-black/5' 
-        : 'bg-white/95 backdrop-blur-sm'
-      }
-    `}>
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          
-          {/* Logo Section - Enhanced */}
-          <Link 
-            href="/" 
-            className="flex items-center gap-4 group transition-all duration-300 hover:scale-105"
-          >
-            <div className="relative">
-              {/* Logo Icon */}
-              <div className="w-12 h-12 bg-black rounded-2xl shadow-lg transition-all duration-300 group-hover:shadow-xl group-hover:rotate-3">
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-black rounded-2xl" />
-                <div className="absolute inset-1 bg-white rounded-xl flex items-center justify-center">
-                  <Volume2 className="w-6 h-6 text-black" />
-                </div>
-              </div>
+    <header className={`sticky top-0 z-50 transition-all duration-300 ${
+      scrolled 
+        ? 'bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm' 
+        : 'bg-white border-b border-gray-200'
+    }`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* 좌측: 로고와 NAVI GUIDE */}
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center">
+              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <Volume2 className="w-5 h-5 text-gray-600" />
+              </button>
               
-              {/* Glow effect */}
-              <div className="absolute inset-0 w-12 h-12 bg-black/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
-            </div>
-            
-            {/* Brand Text */}
-            <span className="text-2xl font-extralight text-black tracking-tight font-mono group-hover:tracking-wide transition-all duration-300">
-            NAVI GUIDE
-            </span>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
-            
-            {/* Language Selector */}
-            <div className="relative" ref={languageMenuRef}>
-              <button
-                onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-                className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:text-black rounded-xl hover:bg-gray-50 transition-all duration-200 group"
-              >
-                <Globe className="w-5 h-5 transition-transform group-hover:scale-110" />
-                <span className="text-sm font-medium">{currentLang.flag} {currentLang.nativeName}</span>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isLanguageMenuOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {/* Language Dropdown */}
-              {isLanguageMenuOpen && (
-                <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-2xl shadow-black/10 border border-gray-100 py-2 z-50 animate-fadeIn">
-                  {SUPPORTED_LANGUAGES.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => {
-                        setLanguage(lang.code as any);
-                        setIsLanguageMenuOpen(false);
-                      }}
-                      className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 flex items-center gap-3 transition-colors duration-200 ${
-                        currentLanguage === lang.code ? 'text-black bg-gray-100 font-medium' : 'text-gray-700'
-                      }`}
-                    >
-                      <span className="text-lg">{lang.flag}</span>
-                      <span>{lang.nativeName}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* User Profile/Login */}
-            {user === undefined ? (
-              <div className="w-11 h-11 rounded-2xl bg-gray-200 animate-pulse" />
-            ) : user ? (
-              <div className="relative" ref={profileMenuRef}>
-                <button
-                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center gap-2 p-2 rounded-xl hover:bg-gray-50 transition-all duration-200 group"
-                >
-                  <div className="w-11 h-11 rounded-2xl bg-gray-100 flex items-center justify-center group-hover:bg-gray-200 transition-colors">
-                    <User className="w-6 h-6 text-gray-600" />
-                  </div>
-                </button>
-
-                {/* Profile Dropdown */}
-                {isProfileMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl shadow-black/10 border border-gray-100 py-2 z-50 animate-fadeIn">
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {user.user_metadata?.full_name || user.email}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                    </div>
-                    <button
-                      onClick={handleSignOut}
-                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors duration-200"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      로그아웃
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <button
-                onClick={handleSignIn}
-                className="flex items-center gap-3 px-5 py-2.5 text-gray-600 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-xl transition-all duration-200 font-medium"
-              >
-                <LogIn className="w-5 h-5" />
-                <span>로그인</span>
-              </button>
-            )}
-
-            {/* History Sidebar Button */}
-            {onSidebarToggle && (
-              <button
-                onClick={onSidebarToggle}
-                className="p-2.5 text-gray-700 hover:text-black hover:bg-gray-50 rounded-xl transition-all duration-200"
-              >
-                <History className="w-5 h-5" />
-              </button>
-            )}
+              {/* NAVI GUIDE - 스피커에 70% 더 가깝게, 단어 간격 반으로 축소 */}
+              <h1 className="text-xl font-bold text-gray-900 ml-1" style={{ letterSpacing: '-0.5px' }}>
+                NAVI<span className="ml-1">GUIDE</span>
+              </h1>
+            </Link>
           </div>
 
-          {/* Mobile Navigation */}
-          <div className="md:hidden flex items-center space-x-3">
-            
-            {/* Language (Mobile) */}
+          {/* 우측: 네비게이션 버튼들 */}
+          <div className="flex items-center gap-1 -mr-2">
+            {/* 언어 선택 */}
             <div className="relative" ref={languageMenuRef}>
               <button
                 onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-                className="p-2.5 text-gray-700 hover:bg-gray-50 rounded-xl transition-colors duration-200"
+                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <Globe className="w-5 h-5" />
+                <Globe className="w-4 h-4" />
+                <span className="text-sm font-medium">{currentLang.flag}</span>
+                <ChevronDown className="w-3 h-3" />
               </button>
 
               {isLanguageMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl shadow-black/10 border border-gray-100 py-2 z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                   {SUPPORTED_LANGUAGES.map((lang) => (
                     <button
                       key={lang.code}
-                      onClick={() => {
-                        setLanguage(lang.code as any);
-                        setIsLanguageMenuOpen(false);
-                      }}
-                      className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-50 flex items-center gap-3 ${
-                        currentLanguage === lang.code ? 'text-black bg-gray-100' : 'text-gray-700'
+                      onClick={() => handleLanguageChange(lang.code)}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-3 ${
+                        currentLanguage === lang.code ? 'bg-gray-50 text-indigo-600' : 'text-gray-700'
                       }`}
                     >
                       <span>{lang.flag}</span>
@@ -267,96 +148,58 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
               )}
             </div>
 
-            {/* User (Mobile) */}
-            {user === undefined ? (
-              <div className="w-9 h-9 rounded-xl bg-gray-200 animate-pulse" />
-            ) : user ? (
-              <button
-                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="p-1.5 rounded-xl hover:bg-gray-50 transition-colors duration-200"
-              >
-                <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center">
-                  <User className="w-5 h-5 text-gray-600" />
-                </div>
-              </button>
-            ) : (
-              <button
-                onClick={handleSignIn}
-                className="p-2.5 text-gray-600 hover:bg-gray-50 rounded-xl transition-colors duration-200"
-              >
-                <LogIn className="w-5 h-5" />
-              </button>
-            )}
+            {/* 검색 기록 */}
+            <button
+              onClick={onSidebarToggle}
+              className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <History className="w-4 h-4" />
+            </button>
 
-            {/* History (Mobile) */}
-            {onSidebarToggle && (
-              <button
-                onClick={onSidebarToggle}
-                className="p-2.5 text-gray-700 hover:bg-gray-50 rounded-xl transition-colors duration-200"
+            {/* 로그인/프로필 */}
+            {user === undefined ? (
+              // 로딩 중
+              <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
+            ) : user ? (
+              // 로그인된 상태
+              <div className="relative" ref={profileMenuRef}>
+                <button
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <User className="w-4 h-4" />
+                </button>
+
+                {isProfileMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                    <Link
+                      href="/mypage"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                    >
+                      마이페이지
+                    </Link>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      로그아웃
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              // 로그인 안된 상태
+              <Link
+                href="/auth/signin"
+                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <History className="w-5 h-5" />
-              </button>
+                <LogIn className="w-4 h-4" />
+              </Link>
             )}
           </div>
         </div>
-        
-        {/* Mobile Profile Menu */}
-        {isProfileMenuOpen && user && (
-          <div className="md:hidden bg-white border-t border-gray-100 py-4 px-4 animate-slideDown">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center">
-                <User className="w-6 h-6 text-gray-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-gray-900 truncate">
-                  {user.user_metadata?.full_name || user.email}
-                </p>
-                <p className="text-sm text-gray-500 truncate">{user.email}</p>
-              </div>
-            </div>
-            <button
-              onClick={handleSignOut}
-              className="w-full text-left py-3 text-gray-700 flex items-center gap-3 hover:text-black transition-colors duration-200"
-            >
-              <LogOut className="w-4 h-4" />
-              로그아웃
-            </button>
-          </div>
-        )}
       </div>
-
-      {/* Custom CSS */}
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
-        
-        .animate-slideDown {
-          animation: slideDown 0.3s ease-out;
-        }
-      `}</style>
     </header>
   );
 }
