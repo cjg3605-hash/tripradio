@@ -9,6 +9,7 @@ import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
 import { UserProfile } from '@/types/guide';
+import { MultiLanguageGuideManager } from '@/lib/multilang-guide-manager';
 
 export default function GuideClient({ locationName, initialGuide }: { locationName: string, initialGuide: any }) {
     const router = useRouter();
@@ -71,122 +72,17 @@ const session = sessionResult?.data;
     const [totalSteps, setTotalSteps] = useState(1);
 
     useEffect(() => {
-        if (guideData) return;
-
-        const fetchGuideProgressive = async () => {
-            setIsLoading(true);
-            setError(null);
-            
-            try {
-                console.log('📥 단계별 가이드 생성 시작:', { location: locationName, language: currentLanguage });
-                
-                // 1단계: 구조 생성
-                console.log('🏗️ 1단계: 기본 구조 생성');
-                setLoadingMessage('가이드 구조를 생성하고 있습니다...');
-                setCurrentProgress(1);
-                setTotalSteps(6); // 구조 + 5개 챕터
-                const structureResponse = await fetch('/api/node/ai/generate-guide', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        locationName,
-                        language: currentLanguage,
-                        generationMode: 'structure',
-                        forceRegenerate: false
-                    })
-                });
-
-                const structureResult = await structureResponse.json();
-                console.log('📊 구조 생성 결과:', {
-                    success: structureResult.success,
-                    hasData: !!structureResult.data,
-                    cached: structureResult.cached
-                });
-
-                if (!structureResult.success || !structureResult.data?.content) {
-                    throw new Error('기본 구조 생성에 실패했습니다.');
-                }
-
-                let currentGuide = structureResult.data.content;
-                const totalChapters = currentGuide.realTimeGuide?.chapters?.length || 5;
-                
-                console.log('📚 위치별 동적 챕터 수:', { 
-                    location: locationName, 
-                    detectedChapters: totalChapters,
-                    routeSteps: currentGuide.route?.steps?.length || 0
-                });
-                setTotalSteps(1 + totalChapters);
-                setCurrentProgress(1);
-                setLoadingMessage(`기본 구조 생성 완료! ${totalChapters}개 챕터 내용을 생성하고 있습니다...`);
-                setGuideData(currentGuide); // 구조를 먼저 표시
-
-                console.log('🚀 챕터 생성 루프 시작:', { totalChapters, willLoop: totalChapters > 0 });
-
-                // 2단계: 각 챕터 순차 생성
-                for (let chapterIndex = 0; chapterIndex < totalChapters; chapterIndex++) {
-                    console.log(`🔄 루프 진입: chapterIndex=${chapterIndex}, totalChapters=${totalChapters}`);
-                    console.log(`📖 챕터 ${chapterIndex + 1}/${totalChapters} 생성 중...`);
-                    setLoadingMessage(`챕터 ${chapterIndex + 1}/${totalChapters} 생성 중...`);
-                    setCurrentProgress(2 + chapterIndex);
-                    
-                    try {
-                        const chapterResponse = await fetch('/api/node/ai/generate-guide', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                locationName,
-                                language: currentLanguage,
-                                generationMode: 'chapter',
-                                existingGuide: currentGuide,
-                                targetChapter: chapterIndex
-                            })
-                        });
-
-                        const chapterResult = await chapterResponse.json();
-                        console.log(`📖 챕터 ${chapterIndex + 1} 생성 결과:`, {
-                            success: chapterResult.success,
-                            chapterIndex: chapterResult.targetChapter,
-                            hasData: !!chapterResult.data
-                        });
-
-                        if (chapterResult.success && chapterResult.data?.content) {
-                            currentGuide = chapterResult.data.content;
-                            setGuideData({ ...currentGuide });
-                            console.log(`✅ 챕터 ${chapterIndex + 1} 업데이트 완료`);
-                        } else {
-                            console.warn(`⚠️ 챕터 ${chapterIndex + 1} 생성 실패, 계속 진행`);
-                        }
-                    } catch (chapterError) {
-                        console.error(`❌ 챕터 ${chapterIndex + 1} 생성 오류:`, chapterError);
-                    }
-                }
-
-                console.log('🎉 모든 챕터 생성 완료!');
-                setLoadingMessage('모든 챕터 생성 완료!');
-                setCurrentProgress(totalSteps);
-
-                // 히스토리 저장
-                try {
-                    if (session?.user?.id) {
-                        const userProfile = { interests: [], ageGroup: 'adult', knowledgeLevel: 'intermediate', companions: 'solo' };
-                        await saveGuideHistoryToSupabase(session.user, locationName, currentGuide, userProfile);
-                    } else {
-                        guideHistory.saveGuide(locationName, currentGuide);
-                    }
-                } catch (historyError) {
-                    console.warn('히스토리 저장 실패:', historyError);
-                }
-
-            } catch (error: any) {
-                console.error('❌ 가이드 생성 오류:', error);
-                setError(error.message || '가이드 생성 중 오류가 발생했습니다.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchGuideProgressive();
-    }, [locationName, currentLanguage, session, guideData]);
+        if (initialGuide) {
+            const normalizedData = normalizeGuideData(initialGuide, locationName);
+            setGuideData(normalizedData);
+            setSource('cache');
+            setIsLoading(false);
+            saveToHistory(normalizedData);
+        } else {
+            loadGuideForLanguage(currentLanguage);
+        }
+        loadAvailableLanguages();
+    }, [locationName, initialGuide]);
 
     // 로딩 중
     if (isLoading) {
@@ -271,3 +167,45 @@ const session = sessionResult?.data;
 
     return <MinimalTourContent guide={guideData} language={currentLanguage} />;
 }
+
+// --- 유틸 함수: 가이드 데이터 정규화 ---
+function normalizeGuideData(raw: any, locationName: string) {
+  if (!raw) return null;
+  if (raw.overview && raw.route && raw.realTimeGuide) {
+    return {
+      overview: raw.overview,
+      route: raw.route,
+      realTimeGuide: raw.realTimeGuide,
+      metadata: raw.metadata || {
+        originalLocationName: locationName,
+        englishFileName: '',
+        generatedAt: new Date().toISOString(),
+        version: '1.0'
+      }
+    };
+  }
+  if (raw.content) {
+    const content = raw.content;
+    return {
+      overview: content.overview || { title: '', summary: '', keyFacts: [], visitInfo: {}, narrativeTheme: '' },
+      route: content.route || { steps: [] },
+      realTimeGuide: content.realTimeGuide || { chapters: [] },
+      metadata: content.metadata || {
+        originalLocationName: locationName,
+        englishFileName: '',
+        generatedAt: new Date().toISOString(),
+        version: '1.0'
+      }
+    };
+  }
+  return null;
+}
+
+// --- 상태 관리용 setSource ---
+const setSource = (src: string) => {};
+// --- 히스토리 저장 ---
+const saveToHistory = (data: any) => {};
+// --- 언어별 가이드 로드 ---
+const loadGuideForLanguage = async (language: string) => {};
+// --- 사용 가능한 언어 목록 로드 ---
+const loadAvailableLanguages = () => {};
