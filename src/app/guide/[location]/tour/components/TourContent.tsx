@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, MutableRefObject } from 'react';
-import { Play, Pause, ChevronLeft, ChevronRight, MoreVertical, Bookmark, Menu, ChevronDown, ChevronUp } from 'lucide-react';
+import { Play, Pause, ChevronLeft, ChevronRight, MoreVertical, Bookmark, Menu, ChevronDown, ChevronUp, ArrowUp } from 'lucide-react';
 import { GuideData } from '@/types/guide';
 import { getOrCreateChapterAudio } from '@/lib/tts-gcs';
 
@@ -16,6 +16,7 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [expandedChapters, setExpandedChapters] = useState<number[]>([]);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const totalChapters = guide.realTimeGuide?.chapters?.length || 0;
@@ -28,6 +29,37 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
     chapter.coreNarrative ||
     chapter.humanStories
   );
+
+  // 스크롤 이벤트 처리
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // 맨 위로 스크롤
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // 텍스트 포맷팅 함수 (단락구분 및 들여쓰기)
+  const formatText = (text: string) => {
+    if (!text) return '';
+    
+    // 문장 끝과 줄바꿈을 기준으로 단락 분리
+    const paragraphs = text.split(/\n\n|\.\s+(?=[A-Z가-힣])/g)
+      .filter(paragraph => paragraph.trim().length > 0)
+      .map(paragraph => paragraph.trim());
+
+    return paragraphs.map((paragraph, index) => (
+      <p key={index} className="mb-4" style={{ textIndent: '1em' }}>
+        {paragraph.endsWith('.') ? paragraph : paragraph + '.'}
+      </p>
+    ));
+  };
 
   // 오디오 정리
   const stopAndCleanupAudio = () => {
@@ -197,10 +229,10 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
         </div>
       </div>
 
-      {/* 메인 콘텐츠 */}
-      <div className="max-w-4xl mx-auto px-4">
+      {/* 메인 콘텐츠 - 좌우 여백 제거 */}
+      <div className="w-full">
         {/* 메인 카드 - 추천관람순서 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-none md:rounded-2xl shadow-sm border-0 md:border border-gray-200 overflow-hidden">
           {/* 기하학적 헤더 */}
           <div className="relative h-32 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden flex items-center justify-center">
             {/* 기하학적 요소 */}
@@ -224,15 +256,15 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
               <div className="absolute inset-2 bg-white rounded-full opacity-20"></div>
             </div>
 
-            {/* 장소명 타이틀 - 중앙에 배치 */}
-            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 z-10">
+            {/* 장소명 타이틀 - 중앙에 배치, 크기 30% 축소 */}
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 z-10">
               {guide.metadata?.originalLocationName || guide.overview?.title || '가이드'}
             </h2>
           </div>
 
-          {/* 콘텐츠 영역 */}
-          <div className="p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">추천관람순서</h3>
+          {/* 콘텐츠 영역 - 좌우 여백 반으로 축소 */}
+          <div className="p-4 md:p-6">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">추천관람순서</h3>
             
             <div className="space-y-3">
               {guide.realTimeGuide?.chapters?.map((chap, index) => (
@@ -276,9 +308,11 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
                     <div className="px-4 pb-4 border-t border-gray-200">
                       <div className="mt-4 prose prose-sm max-w-none">
                         <div className="text-gray-700 leading-relaxed" style={{ fontSize: '0.7em', lineHeight: '1.6' }}>
-                          {chap.narrative || 
-                           [chap.sceneDescription, chap.coreNarrative, chap.humanStories]
-                             .filter(Boolean).join(' ')}
+                          {chap.narrative ? 
+                            formatText(chap.narrative) :
+                            formatText([chap.sceneDescription, chap.coreNarrative, chap.humanStories]
+                              .filter(Boolean).join(' '))
+                          }
                         </div>
                       </div>
                     </div>
@@ -289,6 +323,16 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
           </div>
         </div>
       </div>
+
+      {/* 스크롤 투 탑 버튼 */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 w-12 h-12 bg-black hover:bg-gray-800 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300 z-50"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 };
