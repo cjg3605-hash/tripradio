@@ -241,11 +241,7 @@ export function generateGuideMetadata(
           alt: `${guideName} Guide`,
         },
       ],
-      article: {
-        authors: ['NAVI AI'],
-        section: 'Travel Guides',
-        tags: [guideName, 'AI Guide', 'Travel', 'Tourism'],
-      },
+  
     },
     twitter: {
       card: 'summary_large_image',
@@ -353,8 +349,7 @@ export function generateJsonLd(
  * 사이트맵 URL 생성
  */
 export function generateSitemapUrls(guides: Array<{ name: string; slug: string }>) {
-  const urls: Array<{ url: string; lastModified: Date; changeFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never' | 'always' | 'hourly'; priority: number }> = [];
-  
+  const urls: Array<{ url: string; lastModified: Date; changeFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never' | 'always' | 'hourly'; priority: number }> = [];  
   // 기본 페이지들
   Object.entries(BASE_DOMAINS).forEach(([lang, domain]) => {
     // 홈페이지
