@@ -135,6 +135,7 @@ export default function Home() {
             <p className="text-[clamp(1rem,2.5vw,1.25rem)] font-light text-gray-600 tracking-wide leading-relaxed max-w-lg mx-auto">
             가이드없이 자유롭게,<br />
               <span className="text-black font-medium">여행은 깊이있게</span>
+              <span className="text-gray-500 text-[0.85em] mt-2 block">AI가 찾아낸 가장 완벽한 가이드해설</span>
             </p>
           </div>
         </div>
