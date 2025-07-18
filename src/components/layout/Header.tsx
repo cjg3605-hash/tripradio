@@ -23,8 +23,8 @@ interface HeaderProps {
 const SUPPORTED_LANGUAGES = [
   { code: 'ko', name: 'Korean', nativeName: '한국어', flag: '🇰🇷' },
   { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
-  { code: 'ja', name: 'Japanese', nativeName: '日本語', flag: '🇯🇵' },
-  { code: 'zh', name: 'Chinese', nativeName: '中文', flag: '🇨🇳' },
+  { code: 'ja', name: 'Japanese', nativeName: '日본語', flag: '🇯🇵' },
+  { code: 'zh', name: 'Chinese', nativeName: '중문', flag: '🇨🇳' },
   { code: 'es', name: 'Spanish', nativeName: 'Español', flag: '🇪🇸' }
 ];
 
@@ -209,9 +209,9 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
                 )}
               </div>
             ) : (
-              // 로그인 안된 사용자
+              // 로그인 안된 사용자 - 경로 수정: /login → /auth/signin
               <button
-                onClick={() => router.push('/login')}
+                onClick={() => router.push('/auth/signin')}
                 className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <LogIn className="w-4 h-4" />

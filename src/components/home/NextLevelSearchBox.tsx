@@ -217,7 +217,7 @@ export default function NextLevelSearchBox() {
                   onClick={() => handleSuggestionClick(suggestion)}
                   className={`
                     w-full px-6 py-4 text-left transition-all duration-200
-                    border-b border-gray-50 last:border-b-0 group
+                    group
                     ${selectedIndex === index 
                       ? 'bg-gray-50 border-l-4 border-l-black' 
                       : 'hover:bg-gray-50'
