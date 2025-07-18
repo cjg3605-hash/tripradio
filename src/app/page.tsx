@@ -3,61 +3,43 @@
 import { useState, useEffect } from 'react';
 import NextLevelSearchBox from '@/components/home/NextLevelSearchBox';
 
-export default function Home() {
+export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [currentWord, setCurrentWord] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  
-  const words = ['도슨트', '여행지식', '가이드북', '스토리텔러'];
+  const [currentWord, setCurrentWord] = useState(0);
+
+  const words = ['스토리텔러', '오디오가이드', '여행동반자'];
 
   useEffect(() => {
     setIsLoaded(true);
+    
     const interval = setInterval(() => {
       setCurrentWord((prev) => (prev + 1) % words.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+    }, 3000);
 
-  // Subtle mouse tracking for parallax
+    return () => clearInterval(interval);
+  }, [words.length]);
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100,
-      });
+      setMousePosition({ x: e.clientX, y: e.clientY });
     };
-    
+
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   return (
-    <main className="min-h-screen bg-white relative overflow-hidden">
-      
-      {/* Ultra Subtle Grid Background */}
-      <div className="absolute inset-0 opacity-[0.015] pointer-events-none">
-        <div 
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(0,0,0,1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0,0,0,1) 1px, transparent 1px)
-            `,
-            backgroundSize: '32px 32px',
-            transform: `translate(${mousePosition.x * 0.01}px, ${mousePosition.y * 0.01}px)`
-          }}
-        />
-      </div>
-
-      {/* Floating Geometric Elements */}
+    <main className="relative overflow-hidden">
+      {/* Geometric Background Elements */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* Primary accent dot */}
+        {/* Large floating circle */}
         <div 
-          className="absolute w-2 h-2 bg-black rounded-full opacity-30 transition-transform duration-1000"
+          className="absolute w-96 h-96 border border-black/5 rounded-full transition-transform duration-1000"
           style={{
-            top: '15%',
-            right: '12%',
-            transform: `translate(${mousePosition.x * 0.02}px, ${mousePosition.y * 0.02}px)`
+            top: '10%',
+            right: '10%',
+            transform: `translate(${mousePosition.x * -0.02}px, ${mousePosition.y * -0.02}px)`
           }}
         />
         
@@ -83,13 +65,13 @@ export default function Home() {
       </div>
 
       {/* Main Content */}
-      <section className="relative z-10 flex flex-col items-center justify-center min-h-[70vh] px-6 pt-24">
+      <section className="relative z-10 flex flex-col items-center justify-center px-6 pt-16">
         
         {/* Hero Typography */}
         <div className={`
-  min-h-screen pt-4 pb-16 px-4 transform transition-all duration-1000
-  ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}
-`}>
+          pb-16 px-4 transform transition-all duration-1000
+          ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}
+        `}>
          {/* Dynamic Subtitle */}
 <div className="h-20 flex items-center justify-center mb-4">
   <h2 className="text-[clamp(1.5rem,4vw,2.5rem)] font-light text-black tracking-wide">
@@ -195,55 +177,41 @@ export default function Home() {
 
         {/* Popular Examples */}
         <div className={`
-  text-center transform transition-all duration-1500 ease-out
-  ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
-`}>
-  <p className="text-sm text-gray-400 font-light tracking-wide mb-4">
-    인기 검색어
-  </p>
-  <div className="flex flex-wrap justify-center gap-3 max-w-2xl mx-auto">
-    {['경복궁', '부산 해운대', '제주도 성산일출봉', '명동 카페거리', '강릉 커피거리'].map((place, index) => (
-      <span 
-        key={index}
-        className="px-4 py-2 text-sm text-gray-500 bg-gray-50 rounded-full hover:bg-gray-100 hover:text-gray-700 transition-all duration-200 cursor-pointer"
-        style={{
-          animationDelay: `${1.2 + index * 0.1}s`
-        }}
-      >
-        {place}
-      </span>
-    ))}
-  </div>
-</div>
-
+          text-center transform transition-all duration-1500 ease-out
+          ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
+        `}>
+        </div>
       </section>
 
-      {/* Bottom Accent */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-        <div className="w-px h-16 bg-black opacity-10" />
-      </div>
-
-      {/* Custom CSS Animations */}
+      {/* CSS Animations */}
       <style jsx>{`
         @keyframes fadeInUp {
-          from {
+          0% {
             opacity: 0;
             transform: translateY(20px);
           }
-          to {
+          100% {
             opacity: 1;
             transform: translateY(0);
           }
         }
-        
+
         @keyframes expandRight {
-          from { transform: scaleX(0); }
-          to { transform: scaleX(1); }
+          0% {
+            transform: scaleX(0);
+          }
+          100% {
+            transform: scaleX(1);
+          }
         }
-        
+
         @keyframes expandLeft {
-          from { transform: scaleX(0); }
-          to { transform: scaleX(1); }
+          0% {
+            transform: scaleX(0);
+          }
+          100% {
+            transform: scaleX(1);
+          }
         }
       `}</style>
     </main>

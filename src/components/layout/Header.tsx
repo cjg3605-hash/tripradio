@@ -10,12 +10,11 @@ import {
   User, 
   History, 
   ChevronDown,
-  Volume2,
-  Speaker
+  Volume2
 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage, type SupportedLanguage } from '@/contexts/LanguageContext';
 
 interface HeaderProps {
   onSidebarToggle?: () => void;
@@ -70,35 +69,39 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
 
   // Close menus when clicking outside
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    const handleClickOutside = (event: MouseEvent) => {
       if (languageMenuRef.current && !languageMenuRef.current.contains(event.target as Node)) {
         setIsLanguageMenuOpen(false);
       }
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
         setIsProfileMenuOpen(false);
       }
-    }
+    };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
-    setIsProfileMenuOpen(false);
+  const handleLanguageChange = (langCode: string) => {
+    // SupportedLanguage 타입인지 검증
+    if (['ko', 'en', 'ja', 'zh', 'es'].includes(langCode)) {
+      setLanguage(langCode as SupportedLanguage);
+      setIsLanguageMenuOpen(false);
+    }
   };
 
-  const handleLanguageChange = (langCode: string) => {
-    setLanguage(langCode as any);
-    setIsLanguageMenuOpen(false);
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setIsProfileMenuOpen(false);
+    router.push('/');
   };
 
   const currentLang = SUPPORTED_LANGUAGES.find(lang => lang.code === currentLanguage) || SUPPORTED_LANGUAGES[0];
 
   return (
-    <header className={`sticky top-0 z-50 transition-all duration-300 ${
-      scrolled 
+    <header className={`
+      sticky top-0 z-50 transition-all duration-300
+      ${scrolled 
         ? 'bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm' 
         : 'bg-white border-b border-gray-200'
     }`}>
@@ -107,12 +110,12 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
           {/* 좌측: 로고와 NAVI GUIDE */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Speaker className="w-5 h-5 text-gray-600" />
-              </button>
+              <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center hover:bg-gray-800 transition-colors">
+                <Volume2 className="w-5 h-5 text-white" />
+              </div>
               
               {/* NAVI GUIDE - 스피커에 70% 더 가깝게, 단어 간격 반으로 축소 */}
-              <h1 className="text-xl font-bold text-gray-900 ml-1" style={{ letterSpacing: '-0.5px' }}>
+              <h1 className="text-xl font-bold text-gray-900 ml-3" style={{ letterSpacing: '-0.5px' }}>
                 NAVI<span className="ml-1">GUIDE</span>
               </h1>
             </Link>
@@ -162,41 +165,58 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
               // 로딩 중
               <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
             ) : user ? (
-              // 로그인된 상태
+              // 로그인된 사용자
               <div className="relative" ref={profileMenuRef}>
                 <button
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                   className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <User className="w-4 h-4" />
+                  {user.user_metadata?.avatar_url ? (
+                    <img 
+                      src={user.user_metadata.avatar_url} 
+                      alt="Profile" 
+                      className="w-6 h-6 rounded-full"
+                    />
+                  ) : (
+                    <User className="w-4 h-4" />
+                  )}
+                  <ChevronDown className="w-3 h-3" />
                 </button>
 
                 {isProfileMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                    <Link
-                      href="/mypage"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setIsProfileMenuOpen(false)}
+                    <div className="px-4 py-2 text-sm text-gray-500 border-b border-gray-100">
+                      {user.email}
+                    </div>
+                    <button
+                      onClick={() => {
+                        router.push('/mypage');
+                        setIsProfileMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
                     >
+                      <User className="w-4 h-4" />
                       마이페이지
-                    </Link>
+                    </button>
                     <button
                       onClick={handleSignOut}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
                     >
+                      <LogOut className="w-4 h-4" />
                       로그아웃
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              // 로그인 안된 상태
-              <Link
-                href="/auth/signin"
+              // 로그인 안된 사용자
+              <button
+                onClick={() => router.push('/login')}
                 className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <LogIn className="w-4 h-4" />
-              </Link>
+                <span className="text-sm font-medium">로그인</span>
+              </button>
             )}
           </div>
         </div>
