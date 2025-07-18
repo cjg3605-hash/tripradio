@@ -1,14 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import NextLevelSearchBox from '@/components/home/NextLevelSearchBox';
 
 export default function HomePage() {
+  const { t } = useLanguage();
   const [isLoaded, setIsLoaded] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [currentWord, setCurrentWord] = useState(0);
 
-  const words = ['스토리텔러', '오디오투어', '여행동반자' , '도슨트'];
+  // 번역된 단어들로 변경
+  const words = [
+    t.home.features?.realTime || '실시간가이드',
+    t.navigation.guides || '가이드',
+    t.home.features?.personalized || '맞춤형추천',
+    '도슨트'
+  ];
 
   useEffect(() => {
     setIsLoaded(true);
@@ -70,67 +78,37 @@ export default function HomePage() {
         {/* Hero Typography */}
         <div className={`
           pb-16 px-4 transform transition-all duration-1000
-          ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}
+          ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
         `}>
-         {/* Dynamic Subtitle */}
-          <div className="h-20 flex items-center justify-center mb-4">
-            <h2 className="text-[clamp(1.5rem,4vw,2.5rem)] font-light text-black tracking-wide flex items-center">
-              내 손안의 
-              <span className="relative inline-block ml-2 md:ml-4 min-w-[140px] md:min-w-[240px] text-left md:text-center">
-                <span 
-                  key={currentWord}
-                  className="absolute inset-0 transition-all duration-800 ease-out"
-                  style={{
-                    animation: 'fadeInUp 0.8s ease-out'
-                  }}
-                >
-                  {words[currentWord]}
-                </span>
-              </span>
-            </h2>
+          <h1 className="text-5xl md:text-6xl font-light leading-tight text-center text-black mb-6">
+            {t.home.title}
+          </h1>
+          
+          {/* Animated word display */}
+          <div className="text-center mb-6">
+            <div className="text-lg md:text-xl font-medium text-gray-900 h-8 flex items-center justify-center">
+              <span className="animate-pulse">{words[currentWord]}</span>
+            </div>
           </div>
 
-          {/* Elegant Separator */}
-          <div className="flex items-center justify-center gap-8 mb-8">
-            <div 
-              className="w-16 h-px bg-black origin-left"
-              style={{
-                animation: 'expandRight 1.5s ease-out 0.5s both'
-              }}
-            />
-            <div 
-              className="w-2 h-2 bg-black rounded-full"
-              style={{
-                animation: 'pulse 2s ease-in-out infinite 1s'
-              }}
-            />
-            <div 
-              className="w-16 h-px bg-black origin-right"
-              style={{
-                animation: 'expandLeft 1.5s ease-out 0.5s both'
-              }}
-            />
+          <p className="text-lg md:text-xl text-gray-600 text-center max-w-2xl mx-auto font-light leading-relaxed">
+            {t.home.subtitle}
+          </p>
+          
+          <div className="mt-8 text-center">
+            <p className="text-sm text-gray-500 font-light">
+              {t.home.description}
+            </p>
           </div>
-
-          {/* Tagline */}
-          <div className="mb-8">
-  <p className="text-[clamp(1rem,2.5vw,1.25rem)] font-light text-gray-600 tracking-wide leading-relaxed max-w-lg mx-auto">
-    가이드없이 자유롭게,<br />
-    <span className="text-black font-medium">여행은 깊이있게</span>
-    <span className="text-gray-500 text-[0.85em] mt-2 block whitespace-nowrap">AI가 찾아낸 가장 완벽한 가이드해설</span>
-  </p>
-</div>
         </div>
 
-        {/* Next-Level Search */}
-        <div className="w-full max-w-2xl mx-auto mb-8">
-          <NextLevelSearchBox />
-        </div>
+        {/* Search Box */}
+        <NextLevelSearchBox />
 
-        {/* Minimal Feature Preview */}
+        {/* Features Section */}
         <div className={`
-          grid grid-cols-1 md:grid-cols-3 gap-12 max-w-4xl mx-auto
-          transform transition-all duration-1000 delay-700
+          grid grid-cols-1 md:grid-cols-3 gap-16 mt-32 max-w-4xl mx-auto px-4
+          transform transition-all duration-1500 ease-out
           ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
         `}>
           
@@ -141,7 +119,9 @@ export default function HomePage() {
                 <div className="w-3 h-3 bg-black rounded-full" />
               </div>
             </div>
-            <h3 className="text-lg font-light text-black mb-3 tracking-wide">장소 입력</h3>
+            <h3 className="text-lg font-light text-black mb-3 tracking-wide">
+              {t.home.searchPlaceholder ? '장소 입력' : '장소 입력'}
+            </h3>
             <p className="text-sm text-gray-500 font-light leading-relaxed">
               궁금한 곳의<br />이름을 입력하세요
             </p>
@@ -152,7 +132,9 @@ export default function HomePage() {
             <div className="w-20 h-20 mx-auto mb-6 bg-black rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
               <div className="w-10 h-px bg-white" />
             </div>
-            <h3 className="text-lg font-light text-black mb-3 tracking-wide">AI 생성</h3>
+            <h3 className="text-lg font-light text-black mb-3 tracking-wide">
+              {t.home.features?.realTime || 'AI 생성'}
+            </h3>
             <p className="text-sm text-gray-500 font-light leading-relaxed">
               실시간으로<br />맞춤 가이드 생성
             </p>
@@ -168,7 +150,9 @@ export default function HomePage() {
                 <div className="w-2 h-2 bg-white rounded-full" />
               </div>
             </div>
-            <h3 className="text-lg font-light text-black mb-3 tracking-wide">오디오 재생</h3>
+            <h3 className="text-lg font-light text-black mb-3 tracking-wide">
+              {t.guide.realTimeGuide || '오디오 재생'}
+            </h3>
             <p className="text-sm text-gray-500 font-light leading-relaxed">
               음성으로 생생한<br />현장 해설
             </p>
@@ -178,67 +162,28 @@ export default function HomePage() {
         {/* Popular Examples */}
         <div className={`
           text-center transform transition-all duration-1500 ease-out
-          ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}
+          ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
         `}>
-          <div className="pt-20 pb-8">
-            <p className="text-gray-400 text-sm font-light tracking-wider mb-6">
-              인기 여행지로 바로 시작하기
-            </p>
+          <div className="mt-32 mb-16">
+            <h2 className="text-2xl md:text-3xl font-light text-black mb-8">
+              {t.home.popularDestinations || '인기 여행지'}
+            </h2>
             <div className="flex flex-wrap justify-center gap-3 max-w-2xl mx-auto">
-              {['경복궁', '부산 감천마을', '제주 성산일출봉', '경주 불국사', '인사동'].map((place, index) => (
-                <button
+              {[
+                '경복궁', '제주도', '부산 해운대', '강릉 커피거리', 
+                '전주 한옥마을', '속초 중앙시장', '여수 밤바다'
+              ].map((place) => (
+                <span
                   key={place}
-                  className={`
-                    px-6 py-3 text-sm font-light border border-gray-200 rounded-full
-                    hover:border-black hover:bg-black hover:text-white
-                    transition-all duration-300 ease-out
-                    ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
-                  `}
-                  style={{
-                    transitionDelay: `${1.2 + index * 0.1}s`
-                  }}
-                  onClick={() => window.location.href = `/guide/${encodeURIComponent(place)}`}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 cursor-pointer transition-colors duration-200"
                 >
                   {place}
-                </button>
+                </span>
               ))}
             </div>
           </div>
         </div>
-
       </section>
-
-      {/* Custom Keyframe Animations */}
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes expandRight {
-          from {
-            transform: scaleX(0);
-          }
-          to {
-            transform: scaleX(1);
-          }
-        }
-
-        @keyframes expandLeft {
-          from {
-            transform: scaleX(0);
-          }
-          to {
-            transform: scaleX(1);
-          }
-        }
-      `}</style>
     </main>
   );
 }

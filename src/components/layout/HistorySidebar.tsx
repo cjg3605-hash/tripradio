@@ -14,6 +14,7 @@ import {
 import { guideHistory } from '@/lib/cache/localStorage';
 import { fetchGuideHistoryFromSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface HistoryEntry {
   fileName: string;
@@ -28,6 +29,7 @@ interface HistorySidebarProps {
 }
 
 export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
+  const { t } = useLanguage();
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -148,7 +150,7 @@ const session = sessionResult?.data;
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <div className="flex items-center gap-2">
               <History className="w-5 h-5 text-indigo-600" />
-              <h2 className="text-lg font-semibold text-gray-900">검색 기록</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{t.header.history}</h2>
             </div>
             <button
               onClick={onClose}
@@ -164,7 +166,7 @@ const session = sessionResult?.data;
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="기록 검색..."
+                placeholder={t.search.recentSearches}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -177,7 +179,7 @@ const session = sessionResult?.data;
             {isLoading ? (
               <div className="p-4 text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-2"></div>
-                <p className="text-gray-500">기록 불러오는 중...</p>
+                <p className="text-gray-500">{t.common.loading}</p>
               </div>
             ) : filteredHistory.length === 0 ? (
               <div className="p-4 text-center">
