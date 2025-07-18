@@ -5,7 +5,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  hashedPassword?: string; // Supabase Auth 사용 시 선택적
+  hashedPassword: string; // 필수 필드로 변경 (undefined 제거)
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -78,8 +78,8 @@ export async function getUserByEmail(email: string): Promise<User | null> {
       return null;
     }
 
-    if (!data) {
-      return null;
+    if (!data || !data.password) {
+      return null; // password가 없으면 null 반환
     }
 
     // User 인터페이스 형태로 변환
@@ -114,8 +114,8 @@ export async function getUserById(id: string): Promise<User | null> {
       return null;
     }
 
-    if (!data) {
-      return null;
+    if (!data || !data.password) {
+      return null; // password가 없으면 null 반환
     }
 
     // User 인터페이스 형태로 변환
@@ -161,9 +161,8 @@ export async function updateUser(id: string, updates: Partial<Pick<User, 'name' 
       .select()
       .single();
 
-    if (error) {
-      console.error('사용자 정보 업데이트 실패:', error);
-      return null;
+    if (!data || !data.password) {
+      return null; // password가 없으면 null 반환
     }
 
     const user: User = {

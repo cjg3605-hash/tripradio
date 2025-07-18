@@ -36,6 +36,11 @@ export const authOptions: NextAuthOptions = {
             throw new Error('존재하지 않는 계정입니다.');
           }
 
+          // 타입 안전성 체크 추가
+          if (!user.hashedPassword) {
+            throw new Error('계정 정보에 오류가 있습니다.');
+          }
+
           // 패스워드 검증
           const isValid = await verifyPassword(credentials.password, user.hashedPassword);
           if (!isValid) {
@@ -83,4 +88,4 @@ export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === 'development',
 }
 
-export default authOptions 
+export default authOptions
