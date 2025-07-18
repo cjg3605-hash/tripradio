@@ -209,9 +209,9 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
                 )}
               </div>
             ) : (
-              // 로그인 안된 사용자 - 경로 수정: /login → /auth/signin
+              // 로그인 안된 사용자 - 올바른 경로로 수정
               <button
-  onClick={() => router.push('/login')}
+  onClick={() => router.push('/auth/signin')}
   className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
 >
   <LogIn className="w-4 h-4" />
