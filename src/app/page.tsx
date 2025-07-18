@@ -91,7 +91,7 @@ export default function Home() {
   ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}
 `}>
          {/* Dynamic Subtitle */}
-<div className="h-20 flex items-center justify-center mb-3">
+<div className="h-20 flex items-center justify-center mb-4">
   <h2 className="text-[clamp(1.5rem,4vw,2.5rem)] font-light text-black tracking-wide">
     내 손안의 
     <span className="relative inline-block ml-4 min-w-[200px] text-left">
@@ -108,19 +108,36 @@ export default function Home() {
             </h2>
           </div>
 
-         {/* Elegant Separator */}
-<div className="flex items-center justify-center gap-8 mb-6">
-  {/* separator 내용 */}
-</div>
+          {/* Elegant Separator */}
+          <div className="flex items-center justify-center gap-8 mb-8">
+            <div 
+              className="w-16 h-px bg-black origin-left"
+              style={{
+                animation: 'expandRight 1.5s ease-out 0.5s both'
+              }}
+            />
+            <div 
+              className="w-2 h-2 bg-black rounded-full"
+              style={{
+                animation: 'pulse 2s ease-in-out infinite 1s'
+              }}
+            />
+            <div 
+              className="w-16 h-px bg-black origin-right"
+              style={{
+                animation: 'expandLeft 1.5s ease-out 0.5s both'
+              }}
+            />
+          </div>
 
-{/* Tagline */}
-<div className="mb-8">
-  <p className="text-[clamp(1rem,2.5vw,1.25rem)] font-light text-gray-600 tracking-wide leading-relaxed max-w-lg mx-auto">
-  가이드없이 자유롭게,<br />
-    <span className="text-black font-medium">여행은 깊이있게</span><br />
-    <span className="text-gray-500 text-[0.85em] mt-2 block">AI가 찾아낸 가장 완벽한 가이드해설</span>
-  </p>
-</div>
+          {/* Tagline */}
+          <div className="mb-8">
+            <p className="text-[clamp(1rem,2.5vw,1.25rem)] font-light text-gray-600 tracking-wide leading-relaxed max-w-lg mx-auto">
+            가이드없이 자유롭게,<br />
+              <span className="text-black font-medium">여행은 깊이있게</span>
+              <span className="text-gray-500 text-[0.85em] mt-2 block">AI가 찾아낸 가장 완벽한 가이드해설</span>
+            </p>
+          </div>
         </div>
 
         {/* Next-Level Search */}
