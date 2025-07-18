@@ -1,7 +1,4 @@
-// ===================================================
-// 🔐 기존 파일 교체: src/app/api/auth/register/route.ts
-// ===================================================
-
+// src/app/api/auth/register/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
 import bcrypt from 'bcryptjs';
@@ -45,7 +42,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 🔐 이메일 인증 확인
+    // 이메일 인증 확인
     const { data: verification, error: verificationError } = await supabase
       .from('email_verifications')
       .select('*')
@@ -62,7 +59,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 인증 코드 만료 시간 확인 (추가 보안)
+    // 인증 코드 만료 시간 확인
     const now = new Date();
     const verifiedAt = new Date(verification.verified_at || verification.created_at);
     const timeDiff = now.getTime() - verifiedAt.getTime();
@@ -99,15 +96,15 @@ export async function POST(request: NextRequest) {
       id,
       email: email.toLowerCase().trim(),
       name: name.trim(),
-      password: hashedPassword, // 기존 테이블의 password 컬럼 사용
-      email_verified: true, // 인증 완료
+      password: hashedPassword,
+      email_verified: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
 
     console.log('사용자 데이터 생성 시도:', { ...userData, password: '[HIDDEN]' });
 
-    // 🗄️ Supabase users 테이블에 저장
+    // Supabase users 테이블에 저장
     const { data: newUser, error: insertError } = await supabase
       .from('users')
       .insert([userData])
@@ -131,7 +128,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 🧹 사용된 인증 코드 삭제 (보안)
+    // 사용된 인증 코드 삭제 (보안)
     await supabase
       .from('email_verifications')
       .delete()

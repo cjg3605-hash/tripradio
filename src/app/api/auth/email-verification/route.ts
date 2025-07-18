@@ -1,4 +1,7 @@
-// src/app/api/auth/email-verification/route.ts
+// ===================================================
+// 📧 새 파일 생성: src/app/api/auth/email-verification/route.ts
+// ===================================================
+
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
 import nodemailer from 'nodemailer';
@@ -13,12 +16,10 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// 인증 코드 전송
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { email, action, verificationCode } = body;
-    
-    console.log('이메일 인증 요청:', { email, action, hasVerificationCode: !!verificationCode });
+    const { email, action } = await request.json();
     
     if (!email) {
       return NextResponse.json(
@@ -36,9 +37,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 인증 코드 전송
     if (action === 'send_code') {
-      // 기존 사용자 확인
+      // 회원가입용: 이메일 중복 체크
       const { data: existingUser } = await supabase
         .from('users')
         .select('email')
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       }
 
       // 6자리 인증 코드 생성
-      const newVerificationCode = crypto.randomInt(100000, 999999).toString();
+      const verificationCode = crypto.randomInt(100000, 999999).toString();
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10분 후 만료
 
       // 기존 인증 코드 삭제 후 새로 생성
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
         .from('email_verifications')
         .insert([{
           email,
-          verification_code: newVerificationCode,
+          verification_code: verificationCode,
           expires_at: expiresAt.toISOString(),
           verified: false,
           created_at: new Date().toISOString()
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
             <div style="background: #f8f9fa; padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
               <h2 style="color: #333; margin-bottom: 15px;">인증 코드</h2>
               <div style="font-size: 32px; font-weight: bold; color: #007bff; letter-spacing: 8px; margin: 20px 0;">
-                ${newVerificationCode}
+                ${verificationCode}
               </div>
               <p style="color: #666; margin-top: 15px;">위 코드를 회원가입 페이지에 입력해주세요.</p>
             </div>
@@ -134,8 +134,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 인증 코드 확인
     if (action === 'verify_code') {
+      const { verificationCode } = await request.json();
+      
       if (!verificationCode) {
         return NextResponse.json(
           { error: '인증 코드를 입력해주세요.' },
@@ -153,7 +154,6 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (error || !verification) {
-        console.error('인증 코드 확인 실패:', error);
         return NextResponse.json(
           { error: '잘못된 인증 코드입니다.' },
           { status: 400 }
