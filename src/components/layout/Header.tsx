@@ -89,9 +89,9 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
 
   return (
     <header className={`
-      sticky top-0 z-50 w-full border-b border-white/10 transition-all duration-300
+      sticky top-0 z-50 w-full border-b border-gray-200 shadow-sm transition-all duration-300
       ${scrolled 
-        ? 'bg-white/80 backdrop-blur-lg shadow-sm' 
+        ? 'bg-white/95 backdrop-blur-lg shadow-md' 
         : 'bg-white'
       }
     `}>

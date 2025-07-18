@@ -143,8 +143,8 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
 
   // 언어 변경시 자동 로드
   useEffect(() => {
-    if (!initialGuide || source === 'generated') {
-      // 초기 로드가 아니고, 이미 생성된 경우에만 언어 전환
+    // 언어 변경시 항상 새로 로드
+    if (currentLanguage && !isLoading) {
       loadGuideForLanguage(currentLanguage);
     }
   }, [currentLanguage]);
