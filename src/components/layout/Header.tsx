@@ -11,7 +11,7 @@ import {
   History, 
   ChevronDown,
   Volume2,
-  Menu
+  Speaker
 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
@@ -108,7 +108,7 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Menu className="w-5 h-5 text-gray-600" />
+                <Speaker className="w-5 h-5 text-gray-600" />
               </button>
               
               {/* NAVI GUIDE - 스피커에 70% 더 가깝게, 단어 간격 반으로 축소 */}
