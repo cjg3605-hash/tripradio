@@ -136,6 +136,18 @@ interface Translations {
     yes: string;
     no: string;
   };
+  date: {
+    today: string;
+    yesterday: string;
+    daysAgo: string;
+    weeksAgo: string;
+    invalidDate: string;
+  };
+  profile: {
+    mypage: string;
+    account: string;
+    preferences: string;
+  };
   languages: Record<SupportedLanguage, string>;
 }
 
@@ -215,6 +227,18 @@ const DEFAULT_TRANSLATIONS: Translations = {
     yes: '예',
     no: '아니오'
   },
+  date: {
+    today: '오늘',
+    yesterday: '어제',
+    daysAgo: '{days}일 전',
+    weeksAgo: '{weeks}주 전',
+    invalidDate: '잘못된 날짜'
+  },
+  profile: {
+    mypage: '마이페이지',
+    account: '계정 관리',
+    preferences: '환경설정'
+  },
   languages: {
     ko: '한국어',
     en: 'English',
@@ -252,10 +276,9 @@ const detectBrowserLanguage = (): SupportedLanguage => {
     : 'ko';
 };
 
-// 번역 데이터 로드 함수 (캐시 및 에러 처리 강화)
+// 번역 데이터 로드 함수 (통합 파일 방식으로 최적화)
 async function loadTranslations(language: SupportedLanguage): Promise<Translations> {
   try {
-    // 캐시 키 생성
     const cacheKey = `translations-${language}`;
     
     // 세션 스토리지에서 캐시 확인
@@ -272,29 +295,40 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
       }
     }
 
-    // 새로 로드
-    const response = await fetch(`/locales/${language}/common.json`, {
+    // 통합 번역 파일에서 로드
+    const response = await fetch('/locales/translations.json', {
       cache: 'force-cache' // 브라우저 캐시 활용
     });
     
     if (!response.ok) {
-      console.warn(`${language} 번역 파일 로드 실패, 기본값 사용`);
+      console.warn('통합 번역 파일 로드 실패, 기본값 사용');
       return DEFAULT_TRANSLATIONS;
     }
     
-    const translations = await response.json();
+    const allTranslations = await response.json();
+    const translations = allTranslations[language] || allTranslations['ko']; // fallback to Korean
+    
+    // 안전성 보장 - search 객체가 반드시 존재하도록
+    const safeTranslations = {
+      ...DEFAULT_TRANSLATIONS,
+      ...translations,
+      search: {
+        ...DEFAULT_TRANSLATIONS.search,
+        ...(translations?.search || {})
+      }
+    };
     
     // 세션 스토리지에 캐시 저장
     if (typeof window !== 'undefined') {
       try {
-        sessionStorage.setItem(cacheKey, JSON.stringify(translations));
+        sessionStorage.setItem(cacheKey, JSON.stringify(safeTranslations));
       } catch (storageError) {
         console.warn('세션 스토리지 저장 실패:', storageError);
       }
     }
     
     console.log(`✅ ${language} 번역 파일 로드 완료`);
-    return translations;
+    return safeTranslations;
     
   } catch (error) {
     console.error(`${language} 번역 로드 오류:`, error);
@@ -302,10 +336,18 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
   }
 }
 
-// Provider 컴포넌트 (개선됨)
+// Provider 컴포넌트 (안전성 강화)
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('ko');
-  const [translations, setTranslations] = useState<Translations>(DEFAULT_TRANSLATIONS);
+  const [translations, setTranslations] = useState<Translations>(() => {
+    // 안전한 초기값으로 시작
+    return {
+      ...DEFAULT_TRANSLATIONS,
+      search: {
+        ...DEFAULT_TRANSLATIONS.search
+      }
+    };
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
 
@@ -318,7 +360,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const currentConfig = SUPPORTED_LANGUAGES.find(lang => lang.code === currentLanguage) || SUPPORTED_LANGUAGES[0];
   const isRTL = currentConfig.dir === 'rtl';
 
-  // 언어 변경 함수 (개선됨)
+  // 언어 변경 함수 (안전성 강화)
   const setLanguage = async (language: SupportedLanguage) => {
     setIsLoading(true);
     try {
@@ -346,7 +388,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       console.log(`✅ 언어 변경 완료: ${language}`);
     } catch (error) {
       console.error('언어 변경 실패:', error);
-      setTranslations(DEFAULT_TRANSLATIONS);
+      // 완전한 fallback 보장
+      setTranslations({
+        ...DEFAULT_TRANSLATIONS,
+        search: { ...DEFAULT_TRANSLATIONS.search }
+      });
     } finally {
       setIsLoading(false);
     }
@@ -408,7 +454,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Custom Hook (개선됨)
+// Custom Hook (안전성 강화)
 export function useLanguage() {
   const context = useContext(LanguageContext);
   if (context === undefined) {

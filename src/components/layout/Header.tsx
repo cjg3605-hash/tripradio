@@ -35,7 +35,7 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
   const languageMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const { currentLanguage, setLanguage } = useLanguage();
+  const { currentLanguage, setLanguage, t } = useLanguage();
   
   // NextAuth 세션 사용
   const sessionResult = useSession();
@@ -148,7 +148,7 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
               className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <History className="w-4 h-4" />
-              <span className="text-sm font-medium whitespace-nowrap hidden sm:block">기록</span>
+              <span className="text-sm font-medium whitespace-nowrap hidden sm:block">{t.header.history}</span>
             </button>
 
             {/* Authentication */}
@@ -187,14 +187,14 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
                     >
                       <User className="w-4 h-4" />
-                      마이페이지
+                      {t.profile.mypage}
                     </button>
                     <button
                       onClick={handleSignOut}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
                     >
                       <LogOut className="w-4 h-4" />
-                      로그아웃
+                      {t.header.logout}
                     </button>
                   </div>
                 )}
@@ -206,7 +206,7 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
                 className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <LogIn className="w-4 h-4" />
-                <span className="text-sm font-medium whitespace-nowrap">로그인</span>
+                <span className="text-sm font-medium whitespace-nowrap">{t.header.login}</span>
               </button>
             )}
           </div>
