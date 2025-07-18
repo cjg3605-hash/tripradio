@@ -6,7 +6,7 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import AdSenseScript from '@/components/ads/AdSenseScript';
 import AutoAdSense from '@/components/ads/AutoAdSense';
 import ClientLayout from '@/components/layout/ClientLayout';
-import { getServerSession } from 'next-auth/next';
+import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
 const inter = Inter({

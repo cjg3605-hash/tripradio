@@ -30,18 +30,15 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          // 사용자 조회
           const user = await getUserByEmail(credentials.email);
           if (!user) {
             throw new Error('존재하지 않는 계정입니다.');
           }
 
-          // 타입 안전성 체크 추가
           if (!user.hashedPassword) {
             throw new Error('계정 정보에 오류가 있습니다.');
           }
 
-          // 패스워드 검증
           const isValid = await verifyPassword(credentials.password, user.hashedPassword);
           if (!isValid) {
             throw new Error('비밀번호가 올바르지 않습니다.');
@@ -63,6 +60,9 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
     updateAge: 24 * 60 * 60, // 24 hours
+  },
+  jwt: {
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
     signIn: '/auth/signin',
@@ -112,9 +112,16 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async signIn({ user, account, profile }) {
-      console.log('User signed in:', user.email, 'via', account?.provider)
-      // JWT 기반이므로 별도 저장 불필요
+      console.log('User signed in:', user.email, 'via', account?.provider);
     },
+    async signOut({ token, session }) {
+      console.log('User signed out');
+    },
+    async session({ session, token }) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Session verified:', session.user?.email);
+      }
+    }
   },
   debug: process.env.NODE_ENV === 'development',
 }
