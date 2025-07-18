@@ -10,7 +10,8 @@ import {
   User, 
   History, 
   ChevronDown,
-  Volume2
+  Volume2,
+  Menu
 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
