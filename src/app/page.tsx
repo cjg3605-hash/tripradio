@@ -73,16 +73,16 @@ export default function HomePage() {
           ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}
         `}>
          {/* Dynamic Subtitle */}
-<div className="h-20 flex items-center justify-center mb-4">
-  <h2 className="text-[clamp(1.5rem,4vw,2.5rem)] font-light text-black tracking-wide">
-    내 손안의 
-    <span className="relative inline-block ml-4 min-w-[200px] text-left">
-      <span 
-        key={currentWord}
-        className="absolute inset-0 transition-all duration-800 ease-out"
-        style={{
-          animation: 'fadeInUp 0.8s ease-out'
-        }}
+          <div className="h-20 flex items-center justify-center mb-4">
+            <h2 className="text-[clamp(1.5rem,4vw,2.5rem)] font-light text-black tracking-wide flex items-center">
+              내 손안의 
+              <span className="relative inline-block ml-2 md:ml-4 min-w-[140px] md:min-w-[240px] text-left md:text-center">
+                <span 
+                  key={currentWord}
+                  className="absolute inset-0 transition-all duration-800 ease-out"
+                  style={{
+                    animation: 'fadeInUp 0.8s ease-out'
+                  }}
                 >
                   {words[currentWord]}
                 </span>
@@ -178,38 +178,63 @@ export default function HomePage() {
         {/* Popular Examples */}
         <div className={`
           text-center transform transition-all duration-1500 ease-out
-          ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
+          ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}
         `}>
+          <div className="pt-20 pb-8">
+            <p className="text-gray-400 text-sm font-light tracking-wider mb-6">
+              인기 여행지로 바로 시작하기
+            </p>
+            <div className="flex flex-wrap justify-center gap-3 max-w-2xl mx-auto">
+              {['경복궁', '부산 감천마을', '제주 성산일출봉', '경주 불국사', '인사동'].map((place, index) => (
+                <button
+                  key={place}
+                  className={`
+                    px-6 py-3 text-sm font-light border border-gray-200 rounded-full
+                    hover:border-black hover:bg-black hover:text-white
+                    transition-all duration-300 ease-out
+                    ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
+                  `}
+                  style={{
+                    transitionDelay: `${1.2 + index * 0.1}s`
+                  }}
+                  onClick={() => window.location.href = `/guide/${encodeURIComponent(place)}`}
+                >
+                  {place}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
+
       </section>
 
-      {/* CSS Animations */}
+      {/* Custom Keyframe Animations */}
       <style jsx>{`
         @keyframes fadeInUp {
-          0% {
+          from {
             opacity: 0;
             transform: translateY(20px);
           }
-          100% {
+          to {
             opacity: 1;
             transform: translateY(0);
           }
         }
 
         @keyframes expandRight {
-          0% {
+          from {
             transform: scaleX(0);
           }
-          100% {
+          to {
             transform: scaleX(1);
           }
         }
 
         @keyframes expandLeft {
-          0% {
+          from {
             transform: scaleX(0);
           }
-          100% {
+          to {
             transform: scaleX(1);
           }
         }
