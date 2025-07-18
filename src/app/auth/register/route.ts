@@ -1,6 +1,5 @@
 // ===================================================
-// 🔐 이메일 인증 연동 회원가입 API
-// src/app/api/auth/register/route.ts
+// 🔐 기존 파일 교체: src/app/api/auth/register/route.ts
 // ===================================================
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -10,6 +9,8 @@ import bcrypt from 'bcryptjs';
 export async function POST(request: NextRequest) {
   try {
     const { email, name, password, verificationCode } = await request.json();
+
+    console.log('회원가입 요청 수신:', { email, name, hasPassword: !!password, hasVerificationCode: !!verificationCode });
 
     // 입력값 검증
     if (!email || !name || !password || !verificationCode) {
@@ -54,6 +55,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (verificationError || !verification) {
+      console.error('이메일 인증 확인 실패:', verificationError);
       return NextResponse.json(
         { error: '이메일 인증이 완료되지 않았습니다.' },
         { status: 400 }
@@ -97,11 +99,13 @@ export async function POST(request: NextRequest) {
       id,
       email: email.toLowerCase().trim(),
       name: name.trim(),
-      password: hashedPassword,
+      password: hashedPassword, // 기존 테이블의 password 컬럼 사용
       email_verified: true, // 인증 완료
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
+
+    console.log('사용자 데이터 생성 시도:', { ...userData, password: '[HIDDEN]' });
 
     // 🗄️ Supabase users 테이블에 저장
     const { data: newUser, error: insertError } = await supabase

@@ -1,6 +1,5 @@
 // ===================================================
-// 📧 이메일 인증 회원가입 시스템 - API Route
-// src/app/api/auth/email-verification/route.ts
+// 📧 새 파일 생성: src/app/api/auth/email-verification/route.ts
 // ===================================================
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -12,8 +11,8 @@ import crypto from 'crypto';
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.GMAIL_USER, // Gmail 계정
-    pass: process.env.GMAIL_APP_PASSWORD, // 앱 비밀번호
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
   },
 });
 
@@ -89,7 +88,7 @@ export async function POST(request: NextRequest) {
         html: `
           <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #333; margin-bottom: 10px;">AI 가이드</h1>
+              <h1 style="color: #333; margin-bottom: 10px;">🤖 AI 가이드</h1>
               <p style="color: #666; font-size: 16px;">회원가입 인증 코드</p>
             </div>
             
@@ -109,7 +108,7 @@ export async function POST(request: NextRequest) {
             
             <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
               <p>이 이메일을 요청하지 않으셨다면 무시하셔도 됩니다.</p>
-              <p style="margin-top: 10px;">© 2024 AI 가이드. All rights reserved.</p>
+              <p style="margin-top: 10px;">© 2025 AI 가이드. All rights reserved.</p>
             </div>
           </div>
         `,
