@@ -13,7 +13,8 @@ import { UserProfile } from '@/types/guide';
 export default function GuideClient({ locationName, initialGuide }: { locationName: string, initialGuide: any }) {
     const router = useRouter();
     const { currentLanguage } = useLanguage();
-    const { data: session } = useSession();
+    const sessionResult = useSession();
+const session = sessionResult?.data;
 
     const [guideData, setGuideData] = useState<GuideData | null>(() => {
         if (!initialGuide) return null;

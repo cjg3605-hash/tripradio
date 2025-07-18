@@ -101,7 +101,9 @@ const safeDeleteFromStorage = (id: string): void => {
 };
 
 export default function MyPage() {
-  const { data: session, status } = useSession();
+  const sessionResult = useSession();
+const session = sessionResult?.data;
+const status = sessionResult?.status || 'loading';
   const router = useRouter();
   const [historyEntries, setHistoryEntries] = useState<GuideHistoryEntry[]>([]);
   const [fileHistoryEntries, setFileHistoryEntries] = useState<FileGuideEntry[]>([]);

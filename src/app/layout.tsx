@@ -35,7 +35,14 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  // 안전한 세션 가져오기 (에러 처리 포함)
+  let session = null;
+  try {
+    session = await getServerSession(authOptions);
+  } catch (error) {
+    console.error('서버 세션 가져오기 실패:', error);
+    // 세션 가져오기에 실패해도 앱은 계속 실행
+  }
 
   return (
     <html lang="ko" className={`${inter.variable} ${notoSansKr.variable}`}>
