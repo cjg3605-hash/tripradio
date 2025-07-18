@@ -14,12 +14,14 @@ export async function POST(request: NextRequest) {
     console.log('요청 데이터:', { email, action, hasVerificationCode: !!verificationCode });
     
     // 환경변수 확인
-    console.log('환경변수 확인:', {
-      GMAIL_USER: !!process.env.GMAIL_USER,
-      GMAIL_APP_PASSWORD: !!process.env.GMAIL_APP_PASSWORD,
-      SUPABASE_URL: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-      SUPABASE_ANON_KEY: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    });
+    console.log('환경변수 상세 확인:');
+    console.log('GMAIL_USER 존재:', !!process.env.GMAIL_USER);
+    console.log('GMAIL_USER 값:', process.env.GMAIL_USER ? 'SET' : 'NOT_SET');
+    console.log('GMAIL_APP_PASSWORD 존재:', !!process.env.GMAIL_APP_PASSWORD);
+    console.log('GMAIL_APP_PASSWORD 값:', process.env.GMAIL_APP_PASSWORD ? 'SET' : 'NOT_SET');
+    console.log('SUPABASE_URL:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.log('SUPABASE_ANON_KEY:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    console.log('모든 환경변수:', Object.keys(process.env).filter(key => key.includes('GMAIL')));
     
     if (!email) {
       console.log('이메일 누락');
