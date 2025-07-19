@@ -40,3 +40,21 @@ next-env.d.ts
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code 관련 파일들
+.claude/
+.claude.json
+CLAUDE.md
+claude.json
+claude_*
+.claude_*
+
+# Claude Desktop 설정
+claude_desktop_config.json
+
+# SuperClaude 프레임워크 (별도 프로젝트)
+SuperClaude/
+
+# 기타 Claude 관련 임시 파일들
+*claude*
+*Claude*
