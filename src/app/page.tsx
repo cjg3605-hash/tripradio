@@ -21,11 +21,12 @@ export default function HomePage() {
   const [currentWord, setCurrentWord] = useState(0);
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const [suggestions] = useState([
+  const [suggestions, setSuggestions] = useState([
     { name: '경복궁', location: '서울 종로구' },
     { name: '부산 해운대', location: '부산 해운대구' },
     { name: '제주도 성산일출봉', location: '제주 서귀포시' }
   ]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   
   // 기능 상태
@@ -76,6 +77,47 @@ export default function HomePage() {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
+
+  // 자동완성 API 호출
+  const fetchSuggestions = async (searchQuery: string) => {
+    if (searchQuery.length < 2) {
+      setSuggestions([
+        { name: '경복궁', location: '서울 종로구' },
+        { name: '부산 해운대', location: '부산 해운대구' },
+        { name: '제주도 성산일출봉', location: '제주 서귀포시' }
+      ]);
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+    try {
+      const response = await fetch(`/api/locations/search?q=${encodeURIComponent(searchQuery)}&lang=${currentLanguage}`);
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        setSuggestions(data.data.slice(0, 5)); // 최대 5개 제안
+      } else {
+        console.warn('자동완성 API 응답 오류:', data.error);
+        // 기본 제안 유지
+      }
+    } catch (error) {
+      console.error('자동완성 API 호출 실패:', error);
+      // 에러 시 기본 제안 유지
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
+  // 디바운스된 검색 함수
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (query.trim() && isFocused) {
+        fetchSuggestions(query.trim());
+      }
+    }, 300); // 300ms 디바운스
+
+    return () => clearTimeout(timeoutId);
+  }, [query, currentLanguage, isFocused]);
 
   // 검색 실행
   const handleSearch = async () => {
@@ -288,46 +330,53 @@ export default function HomePage() {
                     </svg>
                   )}
                 </button>
-                
-                {query.length > 0 && (
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-100 rounded-b-3xl overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-black to-gray-600 transition-all duration-300 ease-out"
-                      style={{ width: `${Math.min((query.length / 15) * 100, 100)}%` }}
-                    />
-                  </div>
-                )}
               </div>
 
               {/* Suggestions Dropdown */}
-              {suggestions.length > 0 && isFocused && query.length > 0 && (
+              {isFocused && query.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-10">
-                  {suggestions.filter(s => s.name.toLowerCase().includes(query.toLowerCase())).map((suggestion, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setQuery(suggestion.name);
-                        handleSearch();
-                      }}
-                      className="w-full px-6 py-4 text-left transition-all duration-200 group hover:bg-gray-50"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-gray-900 group-hover:text-black">
-                            {suggestion.name}
-                          </div>
-                          <div className="text-sm text-gray-500 mt-1">
-                            {suggestion.location}
-                          </div>
-                        </div>
-                        <div className="opacity-0 translate-x-2 group-hover:opacity-60 group-hover:translate-x-0 transition-all duration-200">
-                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
+                  {isLoadingSuggestions ? (
+                    <div className="px-6 py-4 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-gray-300 border-t-black rounded-full animate-spin"></div>
+                        <span className="text-sm text-gray-500">검색 중...</span>
                       </div>
-                    </button>
-                  ))}
+                    </div>
+                  ) : suggestions.length > 0 ? (
+                    suggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          setQuery(suggestion.name);
+                          setIsFocused(false);
+                          setTimeout(() => handleSearch(), 100);
+                        }}
+                        className="w-full px-6 py-4 text-left transition-all duration-200 group hover:bg-gray-50"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-gray-900 group-hover:text-black">
+                              {suggestion.name}
+                            </div>
+                            {suggestion.location && (
+                              <div className="text-sm text-gray-500 mt-1">
+                                {suggestion.location}
+                              </div>
+                            )}
+                          </div>
+                          <div className="opacity-0 translate-x-2 group-hover:opacity-60 group-hover:translate-x-0 transition-all duration-200">
+                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </div>
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-6 py-4 text-center text-sm text-gray-500">
+                      검색 결과가 없습니다
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -335,31 +384,33 @@ export default function HomePage() {
         </section>
 
         {/* Features Section - 3개 원형 아이콘 */}
-        <section className="relative z-10 py-3">
+        <section className="relative z-10 py-8">
           <div className="max-w-6xl mx-auto px-6">
-            <div className="flex justify-center items-center gap-6 mb-16">
+            {/* 데스크톱: 가로 배열, 모바일: 세로 배열 */}
+            <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-8 md:gap-12 mb-16">
               
               {/* 장소 입력 */}
-              <div className="text-center relative z-10">
-                <div className="w-20 h-20 rounded-full flex items-center justify-center bg-black text-white mb-4 shadow-lg">
+              <div className="text-center relative z-10 flex-1 max-w-xs">
+                <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center bg-black text-white mb-4 shadow-lg">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-                <div>
+                <div className="h-20 flex flex-col justify-center">
                   <div className="text-lg font-bold text-black mb-1">장소 입력</div>
-                  <div className="text-sm text-gray-500">궁금한 곳의</div>
-                  <div className="text-sm text-gray-500">이름을 입력하세요</div>
+                  <div className="text-sm text-gray-500 leading-relaxed">
+                    궁금한 곳의<br />이름을 입력하세요
+                  </div>
                 </div>
               </div>
 
               {/* AI 생성 */}
-              <div className="text-center relative z-10">
+              <div className="text-center relative z-10 flex-1 max-w-xs">
                 <button 
                   onClick={handleAIGeneration}
                   disabled={!query.trim() || isGenerating}
-                  className={`w-20 h-20 rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 bg-black text-white ${
+                  className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 bg-black text-white ${
                     isGenerating ? 'animate-pulse' : ''
                   } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
                 >
@@ -371,19 +422,20 @@ export default function HomePage() {
                     </svg>
                   )}
                 </button>
-                <div>
+                <div className="h-20 flex flex-col justify-center">
                   <div className="text-lg font-bold text-black mb-1">AI 생성</div>
-                  <div className="text-sm text-gray-500">실시간으로</div>
-                  <div className="text-sm text-gray-500">맞춤 가이드 생성</div>
+                  <div className="text-sm text-gray-500 leading-relaxed">
+                    실시간으로<br />맞춤 가이드 생성
+                  </div>
                 </div>
               </div>
 
               {/* 오디오 재생 */}
-              <div className="text-center relative z-20">
+              <div className="text-center relative z-10 flex-1 max-w-xs">
                 <button 
                   onClick={handleAudioPlayback}
                   disabled={!query.trim()}
-                  className={`w-20 h-20 rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 bg-black text-white ${
+                  className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 bg-black text-white ${
                     audioPlaying ? 'animate-pulse' : ''
                   } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
                 >
@@ -397,9 +449,11 @@ export default function HomePage() {
                     </svg>
                   )}
                 </button>
-                <div>
-                  <div className="text-lg font-bold text-black mb-1 whitespace-nowrap">오디오 재생</div>
-                  <div className="text-sm text-gray-500">음성으로 생생한 현장 해설</div>
+                <div className="h-20 flex flex-col justify-center">
+                  <div className="text-lg font-bold text-black mb-1">오디오 재생</div>
+                  <div className="text-sm text-gray-500 leading-relaxed">
+                    음성으로 생생한<br />현장 해설
+                  </div>
                 </div>
               </div>
             </div>
