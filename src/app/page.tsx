@@ -197,7 +197,7 @@ export default function HomePage() {
             ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
           `}>
             {/* Main Title */}
-            <h1 className="text-2xl md:text-3xl font-thin tracking-[-0.02em] text-black leading-[0.85] mb-8">
+            <h1 className="text-2xl md:text-3xl font-thin tracking-[-0.02em] text-black mb-8">
               <div>
                 {/* 상단: 내손안의 (왼쪽 정렬) */}
                 <div className="mb-4 text-left">
@@ -208,15 +208,15 @@ export default function HomePage() {
                 
                 {/* 하단 중앙: 회전하는 단어들 */}
                 <div className="flex justify-center">
-                  <div className="overflow-hidden" style={{ height: '1.5em', lineHeight: '1.5em' }}>
+                  <div className="overflow-hidden" style={{ height: '32px', lineHeight: '32px' }}>
                     <span 
                       className="inline-block transition-transform duration-1000 ease-out font-bold text-2xl"
                       style={{
-                        transform: `translateY(-${currentWord * 100}%)`
+                        transform: `translateY(-${currentWord * 32}px)`
                       }}
                     >
                       {words.map((word, index) => (
-                        <span key={index} className="block" style={{ height: '1.5em', lineHeight: '1.5em' }}>
+                        <span key={index} className="block" style={{ height: '32px', lineHeight: '32px' }}>
                           {word}
                         </span>
                       ))}
@@ -227,7 +227,7 @@ export default function HomePage() {
             </h1>
 
             {/* Decorative Element */}
-            <div className="flex items-center justify-center gap-8 mb-12">
+            <div className="flex items-center justify-center gap-8 mb-12 relative z-0">
               <div className="w-12 h-px bg-black opacity-30"></div>
               <div className="w-1 h-1 bg-black rounded-full opacity-50"></div>
               <div className="w-1 h-1 bg-black rounded-full opacity-30"></div>
@@ -349,7 +349,7 @@ export default function HomePage() {
             <div className="flex justify-center items-center gap-6 mb-16">
               
               {/* 장소 입력 */}
-              <div className="text-center">
+              <div className="text-center relative z-10">
                 <div className="w-20 h-20 rounded-full flex items-center justify-center bg-black mb-4 shadow-lg">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -364,7 +364,7 @@ export default function HomePage() {
               </div>
 
               {/* AI 생성 */}
-              <div className="text-center">
+              <div className="text-center relative z-10">
                 <button 
                   onClick={handleAIGeneration}
                   disabled={!query.trim() || isGenerating}
@@ -388,7 +388,7 @@ export default function HomePage() {
               </div>
 
               {/* 오디오 재생 */}
-              <div className="text-center relative">
+              <div className="text-center relative z-10">
                 <button 
                   onClick={handleAudioPlayback}
                   disabled={!query.trim()}
