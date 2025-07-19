@@ -6,7 +6,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
 import { Globe, User, ChevronDown, LogIn, LogOut, Menu, X } from 'lucide-react';
 
-export default function Header() {
+export default function Header({ onSidebarToggle }: { onSidebarToggle?: () => void }) {
   const router = useRouter();
   const { data: session, status } = useSession();
   const { currentLanguage, currentConfig, setLanguage, t } = useLanguage();
@@ -72,6 +72,12 @@ export default function Header() {
                 className="text-gray-600 hover:text-black transition-colors font-medium"
               >
                 {t.navigation.guides}
+              </button>
+              <button
+                onClick={onSidebarToggle}
+                className="text-gray-600 hover:text-black transition-colors font-medium"
+              >
+                {t.header.history}
               </button>
               <button
                 onClick={() => router.push('/about')}
@@ -217,4 +223,4 @@ export default function Header() {
       </div>
     </header>
   );
- }
+}
