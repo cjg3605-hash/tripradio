@@ -59,7 +59,7 @@ export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
   },
 ];
 
-// 번역 데이터 타입
+// 완전한 번역 데이터 타입
 interface Translations {
   header: {
     title: string;
@@ -147,11 +147,51 @@ interface Translations {
     mypage: string;
     account: string;
     preferences: string;
+    dashboard: string;
+    guides: string;
+    settings: string;
+  };
+  mypage: {
+    title: string;
+    description: string;
+    totalGuides: string;
+    completedTours: string;
+    savedGuides: string;
+    recentGuides: string;
+    noGuides: string;
+    accountInfo: string;
+    dataManagement: string;
+    clearAllHistory: string;
+    joinDate: string;
+  };
+  auth: {
+    signin: string;
+    signup: string;
+    signout: string;
+    email: string;
+    password: string;
+    name: string;
+    confirmPassword: string;
+    emailVerification: string;
+    verificationCode: string;
+    sendCode: string;
+    resendCode: string;
+    forgotPassword: string;
+    loginWithGoogle: string;
+    alreadyHaveAccount: string;
+    noAccount: string;
+  };
+  buttons: {
+    submit: string;
+    continue: string;
+    goBack: string;
+    tryAgain: string;
+    viewDetails: string;
   };
   languages: Record<SupportedLanguage, string>;
 }
 
-// 기본 번역 데이터 (한국어)
+// 기본 번역 데이터 (완전한 한국어)
 const DEFAULT_TRANSLATIONS: Translations = {
   header: {
     title: 'NAVI',
@@ -238,7 +278,47 @@ const DEFAULT_TRANSLATIONS: Translations = {
   profile: {
     mypage: '마이페이지',
     account: '계정 관리',
-    preferences: '환경설정'
+    preferences: '환경설정',
+    dashboard: '대시보드',
+    guides: '나의 가이드',
+    settings: '설정'
+  },
+  mypage: {
+    title: '마이페이지',
+    description: '나만의 AI 가이드 기록을 확인하고 관리하세요',
+    totalGuides: '생성한 가이드',
+    completedTours: '완료한 투어',
+    savedGuides: '저장된 가이드',
+    recentGuides: '최근 가이드',
+    noGuides: '아직 생성한 가이드가 없습니다',
+    accountInfo: '계정 정보',
+    dataManagement: '데이터 관리',
+    clearAllHistory: '모든 가이드 기록 삭제',
+    joinDate: '가입일'
+  },
+  auth: {
+    signin: '로그인',
+    signup: '회원가입',
+    signout: '로그아웃',
+    email: '이메일',
+    password: '비밀번호',
+    name: '이름',
+    confirmPassword: '비밀번호 확인',
+    emailVerification: '이메일 인증',
+    verificationCode: '인증 코드',
+    sendCode: '인증 코드 전송',
+    resendCode: '인증 코드 재전송',
+    forgotPassword: '비밀번호 찾기',
+    loginWithGoogle: '구글로 로그인',
+    alreadyHaveAccount: '이미 계정이 있으신가요?',
+    noAccount: '계정이 없으신가요?'
+  },
+  buttons: {
+    submit: '제출',
+    continue: '계속',
+    goBack: '돌아가기',
+    tryAgain: '다시 시도',
+    viewDetails: '자세히 보기'
   },
   languages: {
     ko: '한국어',
@@ -295,26 +375,78 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
       }
     }
 
-    // 통합 번역 파일에서 로드
+    // 통합 번역 파일에서 로드 (파일명: translations.json)
     const response = await fetch('/locales/translations.json', {
       cache: 'force-cache'
     });
     
     if (!response.ok) {
-      console.warn('통합 번역 파일 로드 실패, 기본값 사용');
+      console.warn('번역 파일 로드 실패, 기본값 사용');
       return DEFAULT_TRANSLATIONS;
     }
     
     const allTranslations = await response.json();
     const translations = allTranslations[language] || allTranslations['ko'];
     
-    // 안전성 보장
-    const safeTranslations = {
+    // 안전성 보장 (모든 새로운 필드들 포함)
+    const safeTranslations: Translations = {
       ...DEFAULT_TRANSLATIONS,
       ...translations,
+      header: {
+        ...DEFAULT_TRANSLATIONS.header,
+        ...(translations?.header || {})
+      },
+      navigation: {
+        ...DEFAULT_TRANSLATIONS.navigation,
+        ...(translations?.navigation || {})
+      },
+      home: {
+        ...DEFAULT_TRANSLATIONS.home,
+        ...(translations?.home || {}),
+        features: {
+          ...DEFAULT_TRANSLATIONS.home.features,
+          ...(translations?.home?.features || {})
+        }
+      },
+      guide: {
+        ...DEFAULT_TRANSLATIONS.guide,
+        ...(translations?.guide || {})
+      },
       search: {
         ...DEFAULT_TRANSLATIONS.search,
         ...(translations?.search || {})
+      },
+      errors: {
+        ...DEFAULT_TRANSLATIONS.errors,
+        ...(translations?.errors || {})
+      },
+      common: {
+        ...DEFAULT_TRANSLATIONS.common,
+        ...(translations?.common || {})
+      },
+      date: {
+        ...DEFAULT_TRANSLATIONS.date,
+        ...(translations?.date || {})
+      },
+      profile: {
+        ...DEFAULT_TRANSLATIONS.profile,
+        ...(translations?.profile || {})
+      },
+      mypage: {
+        ...DEFAULT_TRANSLATIONS.mypage,
+        ...(translations?.mypage || {})
+      },
+      auth: {
+        ...DEFAULT_TRANSLATIONS.auth,
+        ...(translations?.auth || {})
+      },
+      buttons: {
+        ...DEFAULT_TRANSLATIONS.buttons,
+        ...(translations?.buttons || {})
+      },
+      languages: {
+        ...DEFAULT_TRANSLATIONS.languages,
+        ...(translations?.languages || {})
       }
     };
     
@@ -344,6 +476,15 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       ...DEFAULT_TRANSLATIONS,
       search: {
         ...DEFAULT_TRANSLATIONS.search
+      },
+      mypage: {
+        ...DEFAULT_TRANSLATIONS.mypage
+      },
+      auth: {
+        ...DEFAULT_TRANSLATIONS.auth
+      },
+      buttons: {
+        ...DEFAULT_TRANSLATIONS.buttons
       }
     };
   });
@@ -389,7 +530,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       console.error('언어 변경 실패:', error);
       setTranslations({
         ...DEFAULT_TRANSLATIONS,
-        search: { ...DEFAULT_TRANSLATIONS.search }
+        search: { ...DEFAULT_TRANSLATIONS.search },
+        mypage: { ...DEFAULT_TRANSLATIONS.mypage },
+        auth: { ...DEFAULT_TRANSLATIONS.auth },
+        buttons: { ...DEFAULT_TRANSLATIONS.buttons }
       });
     } finally {
       setIsLoading(false);

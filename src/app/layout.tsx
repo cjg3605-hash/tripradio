@@ -1,226 +1,164 @@
-'use client';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import SessionProvider from '@/components/providers/SessionProvider';
+import ClientLayout from '@/components/layout/ClientLayout';
 
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
-import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
-import { Globe, User, ChevronDown, LogIn, LogOut, Menu, X } from 'lucide-react';
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter'
+});
 
-export default function Header({ onSidebarToggle }: { onSidebarToggle?: () => void }) {
-  const router = useRouter();
-  const { data: session, status } = useSession();
-  const { currentLanguage, currentConfig, setLanguage, t } = useLanguage();
-  
-  const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
-  const languageMenuRef = useRef<HTMLDivElement>(null);
-  const profileMenuRef = useRef<HTMLDivElement>(null);
-
-  // 외부 클릭시 메뉴 닫기
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (languageMenuRef.current && !languageMenuRef.current.contains(event.target as Node)) {
-        setIsLanguageMenuOpen(false);
+export const metadata: Metadata = {
+  title: {
+    default: 'NAVI-GUIDE - AI 여행 가이드',
+    template: '%s | NAVI-GUIDE'
+  },
+  description: 'AI가 실시간으로 생성하는 개인 맞춤형 여행 가이드',
+  keywords: ['AI', '여행', '가이드', '관광', '투어', '여행지', '도슨트'],
+  authors: [{ name: 'NAVI-GUIDE Team' }],
+  creator: 'NAVI-GUIDE',
+  publisher: 'NAVI-GUIDE',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://navi-guide.com'),
+  openGraph: {
+    type: 'website',
+    locale: 'ko_KR',
+    url: '/',
+    siteName: 'NAVI-GUIDE',
+    title: 'NAVI-GUIDE - AI 여행 가이드',
+    description: 'AI가 실시간으로 생성하는 개인 맞춤형 여행 가이드',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'NAVI-GUIDE'
       }
-      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
-        setIsProfileMenuOpen(false);
-      }
-    };
+    ]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@naviguide',
+    title: 'NAVI-GUIDE - AI 여행 가이드',
+    description: 'AI가 실시간으로 생성하는 개인 맞춤형 여행 가이드',
+    images: ['/og-image.jpg']
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+    other: {
+      'naver-site-verification': process.env.NAVER_SITE_VERIFICATION || '',
+    }
+  },
+  category: 'travel',
+  classification: 'travel guide',
+  referrer: 'origin-when-cross-origin',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+  },
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      {
+        rel: 'mask-icon',
+        url: '/safari-pinned-tab.svg',
+        color: '#000000',
+      },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'NAVI-GUIDE',
+  },
+  other: {
+    'msapplication-TileColor': '#000000',
+    'theme-color': '#ffffff',
+  },
+};
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleLanguageChange = async (langCode: string) => {
-    await setLanguage(langCode as any);
-    setIsLanguageMenuOpen(false);
-  };
- 
-  const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' });
-    setIsProfileMenuOpen(false);
-  };
- 
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          
-          {/* 로고 */}
-          <div className="flex items-center">
-            <button
-              onClick={() => router.push('/')}
-              className="text-2xl font-bold text-black hover:text-gray-800 transition-colors"
-            >
-              {t.header.title}
-            </button>
-          </div>
- 
-          {/* 데스크톱 네비게이션 */}
-          <div className="hidden md:flex items-center space-x-8">
-            <nav className="flex items-center space-x-6">
-              <button
-                onClick={() => router.push('/')}
-                className="text-gray-600 hover:text-black transition-colors font-medium"
-              >
-                {t.navigation.home}
-              </button>
-              <button
-                onClick={() => router.push('/guides')}
-                className="text-gray-600 hover:text-black transition-colors font-medium"
-              >
-                {t.navigation.guides}
-              </button>
-              <button
-                onClick={onSidebarToggle}
-                className="text-gray-600 hover:text-black transition-colors font-medium"
-              >
-                {t.header.history}
-              </button>
-              <button
-                onClick={() => router.push('/about')}
-                className="text-gray-600 hover:text-black transition-colors font-medium"
-              >
-                {t.navigation.about}
-              </button>
-            </nav>
-          </div>
- 
-          {/* 우측 메뉴 */}
-          <div className="flex items-center gap-4">
-            
-            {/* 언어 선택기 */}
-            <div className="relative" ref={languageMenuRef}>
-              <button
-                onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Globe className="w-4 h-4" />
-                <span className="text-lg">{currentConfig.flag}</span>
-                <ChevronDown className="w-3 h-3" />
-              </button>
- 
-              {isLanguageMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                  {SUPPORTED_LANGUAGES.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => handleLanguageChange(lang.code)}
-                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-3 transition-colors ${
-                        currentLanguage === lang.code ? 'bg-gray-50 text-black' : 'text-gray-700'
-                      }`}
-                    >
-                      <span className="text-lg">{lang.flag}</span>
-                      <span>{lang.nativeName}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
- 
-            {/* 사용자 메뉴 */}
-            {status === 'loading' ? (
-              <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
-            ) : session?.user ? (
-              <div className="relative" ref={profileMenuRef}>
-                <button
-                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  {session.user.image ? (
-                    <img 
-                      src={session.user.image} 
-                      alt="Profile" 
-                      className="w-6 h-6 rounded-full"
-                    />
-                  ) : (
-                    <User className="w-4 h-4" />
-                  )}
-                  <ChevronDown className="w-3 h-3" />
-                </button>
- 
-                {isProfileMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                    <div className="px-4 py-2 text-sm text-gray-500 border-b border-gray-100">
-                      {session.user.email}
-                    </div>
-                    <button
-                      onClick={() => {
-                        router.push('/mypage');
-                        setIsProfileMenuOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
-                    >
-                      <User className="w-4 h-4" />
-                      {t.profile.mypage}
-                    </button>
-                    <button
-                      onClick={handleSignOut}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      {t.header.logout}
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <button
-                onClick={() => router.push('/auth/signin')}
-                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <LogIn className="w-4 h-4" />
-                <span className="text-sm font-medium whitespace-nowrap">{t.header.login}</span>
-              </button>
-            )}
- 
-            {/* 모바일 메뉴 버튼 */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
- 
-        {/* 모바일 메뉴 */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4">
-            <nav className="flex flex-col space-y-4">
-              <button
-                onClick={() => {
-                  router.push('/');
-                  setIsMobileMenuOpen(false);
-                }}
-                className="text-left text-gray-600 hover:text-black transition-colors font-medium"
-              >
-                {t.navigation.home}
-              </button>
-              <button
-                onClick={() => {
-                  router.push('/guides');
-                  setIsMobileMenuOpen(false);
-                }}
-                className="text-left text-gray-600 hover:text-black transition-colors font-medium"
-              >
-                {t.navigation.guides}
-              </button>
-              <button
-                onClick={() => {
-                  router.push('/about');
-                  setIsMobileMenuOpen(false);
-                }}
-                className="text-left text-gray-600 hover:text-black transition-colors font-medium"
-              >
-                {t.navigation.about}
-              </button>
-            </nav>
-          </div>
+    <html lang="ko" suppressHydrationWarning>
+      <head>
+        {/* DNS Prefetch for Performance */}
+        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+        
+        {/* Preconnect for Critical Resources */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        
+        {/* Theme Color for Mobile Browsers */}
+        <meta name="theme-color" content="#ffffff" />
+        <meta name="msapplication-TileColor" content="#000000" />
+        
+        {/* Prevent FOUC (Flash of Unstyled Content) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const theme = localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', theme);
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
+      <body className={`${inter.variable} antialiased`}>
+        <SessionProvider>
+          <LanguageProvider>
+            <ClientLayout>
+              {children}
+            </ClientLayout>
+          </LanguageProvider>
+        </SessionProvider>
+        
+        {/* Performance Monitoring */}
+        {process.env.NODE_ENV === 'production' && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                if ('serviceWorker' in navigator) {
+                  window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js');
+                  });
+                }
+              `,
+            }}
+          />
         )}
-      </div>
-    </header>
+      </body>
+    </html>
   );
 }
