@@ -58,7 +58,8 @@
       "suggestions": "추천 검색어",
       "noResults": "검색 결과가 없습니다",
       "searching": "검색 중...",
-      "clear": "지우기"
+      "clear": "지우기",
+      "enterLocation": "먼저 장소를 입력해주세요"
     },
     "errors": {
       "networkError": "네트워크 연결을 확인해주세요",
@@ -197,7 +198,8 @@
       "suggestions": "Suggestions",
       "noResults": "No results found",
       "searching": "Searching...",
-      "clear": "Clear"
+      "clear": "Clear",
+      "enterLocation": "Please enter a location first"
     },
     "errors": {
       "networkError": "Please check your network connection",
@@ -336,7 +338,8 @@
       "suggestions": "提案",
       "noResults": "検索結果がありません",
       "searching": "検索中...",
-      "clear": "クリア"
+      "clear": "クリア",
+      "enterLocation": "まず場所を入力してください"
     },
     "errors": {
       "networkError": "ネットワーク接続を確認してください",
@@ -475,7 +478,8 @@
       "suggestions": "建议",
       "noResults": "未找到结果",
       "searching": "搜索中...",
-      "clear": "清除"
+      "clear": "清除",
+      "enterLocation": "请先输入地点"
     },
     "errors": {
       "networkError": "请检查网络连接",
@@ -614,7 +618,8 @@
       "suggestions": "Sugerencias",
       "noResults": "No se encontraron resultados",
       "searching": "Buscando...",
-      "clear": "Limpiar"
+      "clear": "Limpiar",
+      "enterLocation": "Por favor, ingrese primero una ubicación"
     },
     "errors": {
       "networkError": "Por favor, verifica tu conexión de red",

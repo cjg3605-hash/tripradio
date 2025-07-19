@@ -504,3 +504,21 @@ export async function OPTIONS() {
     headers
   });
 }
+
+// GET 메서드 추가 (디버깅용)
+export async function GET() {
+  return new Response(
+    JSON.stringify({ 
+      success: false, 
+      error: 'GET 메서드는 지원하지 않습니다. POST 메서드를 사용해주세요.',
+      allowedMethods: ['POST', 'OPTIONS']
+    }),
+    { 
+      status: 405, 
+      headers: {
+        ...headers,
+        'Allow': 'POST, OPTIONS'
+      }
+    }
+  );
+}

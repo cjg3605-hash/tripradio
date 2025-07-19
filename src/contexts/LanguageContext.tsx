@@ -120,6 +120,7 @@ interface Translations {
     noResults: string;
     searching: string;
     clear: string;
+    enterLocation: string;
   };
   errors: {
     networkError: string;
@@ -254,7 +255,8 @@ const DEFAULT_TRANSLATIONS: Translations = {
     suggestions: '추천 검색어',
     noResults: '검색 결과가 없습니다',
     searching: '검색 중...',
-    clear: '지우기'
+    clear: '지우기',
+    enterLocation: '먼저 장소를 입력해주세요'
   },
   errors: {
     networkError: '네트워크 연결을 확인해주세요',

@@ -144,36 +144,65 @@ export default function HomePage() {
   // AI 가이드 생성
   const handleAIGeneration = async () => {
     if (!query.trim()) {
-      alert('먼저 장소를 입력해주세요.');
+      alert(t?.search?.enterLocation || '먼저 장소를 입력해주세요.');
       return;
     }
 
     setIsGenerating(true);
     try {
-      const response = await fetch('/api/node/ai/generate-guide', {
+      console.log('🚀 AI 가이드 생성 요청 시작:', {
+        url: '/api/ai/generate-guide-with-gemini',
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        location: query.trim(),
+        language: currentLanguage,
+        library: 'Gemini 완전 라이브러리'
+      });
+
+      // 완전한 Gemini 라이브러리 사용으로 변경
+      const response = await fetch('/api/ai/generate-guide-with-gemini', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({
-          locationName: query.trim(),
-          language: currentLanguage,
+          location: query.trim(),
           userProfile: {
+            language: currentLanguage,
             interests: ['문화', '역사'],
             knowledgeLevel: '중급',
             ageGroup: '30대',
-            preferredStyle: '친근함'
+            preferredStyle: '친근함',
+            tourDuration: 90,
+            companions: 'solo'
           }
         }),
       });
 
+      console.log('📡 응답 수신:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
       if (response.ok) {
+        const data = await response.json();
+        console.log('✅ 가이드 생성 성공:', data);
         router.push(`/guide/${encodeURIComponent(query.trim())}/tour`);
       } else {
-        const errorData = await response.json();
-        alert(errorData.error || '가이드 생성에 실패했습니다.');
+        const errorData = await response.json().catch(() => ({ 
+          error: `HTTP ${response.status}: ${response.statusText}` 
+        }));
+        console.error('❌ 가이드 생성 실패:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData
+        });
+        alert(errorData.error || `가이드 생성에 실패했습니다 (${response.status})`);
       }
     } catch (error) {
-      console.error('AI 생성 오류:', error);
-      alert('가이드 생성 중 오류가 발생했습니다.');
+      console.error('❌ AI 생성 오류:', error);
+      alert('가이드 생성 중 네트워크 오류가 발생했습니다.');
     } finally {
       setIsGenerating(false);
     }
@@ -182,7 +211,7 @@ export default function HomePage() {
   // 오디오 재생
   const handleAudioPlayback = () => {
     if (!query.trim()) {
-      alert('먼저 장소를 입력해주세요.');
+      alert(t?.search?.enterLocation || '먼저 장소를 입력해주세요.');
       return;
     }
 
@@ -334,7 +363,7 @@ export default function HomePage() {
 
               {/* Suggestions Dropdown */}
               {isFocused && query.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-10">
+                <div className="absolute top-full left-0 right-0 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-10">
                   {isLoadingSuggestions ? (
                     <div className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-2">
@@ -386,72 +415,86 @@ export default function HomePage() {
         {/* Features Section - 3개 원형 아이콘 */}
         <section className="relative z-10 py-8">
           <div className="max-w-6xl mx-auto px-6">
-            {/* 데스크톱: 가로 배열, 모바일: 세로 배열 */}
-            <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-8 md:gap-12 mb-16">
+            {/* 모든 화면에서 가로 배열 */}
+            <div className="flex flex-row justify-center items-start gap-2 sm:gap-4 md:gap-8 mb-16">
               
               {/* 장소 입력 */}
-              <div className="text-center relative z-10 flex-1 max-w-xs">
-                <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center bg-black text-white mb-4 shadow-lg">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="text-center relative z-10 flex-1 max-w-32 sm:max-w-xs">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center bg-black text-white mb-3 sm:mb-4 shadow-lg">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-                <div className="h-20 flex flex-col justify-center">
-                  <div className="text-lg font-bold text-black mb-1">장소 입력</div>
-                  <div className="text-sm text-gray-500 leading-relaxed">
+                <div className="h-16 sm:h-20 flex flex-col justify-center">
+                  <div className="text-sm sm:text-lg font-bold text-black mb-1">장소 입력</div>
+                  <div className="text-xs sm:text-sm text-gray-500 leading-relaxed">
                     궁금한 곳의<br />이름을 입력하세요
                   </div>
                 </div>
               </div>
 
+              {/* 화살표 1 */}
+              <div className="flex items-center justify-center pt-6 sm:pt-8">
+                <svg className="w-4 h-4 sm:w-6 sm:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+
               {/* AI 생성 */}
-              <div className="text-center relative z-10 flex-1 max-w-xs">
+              <div className="text-center relative z-10 flex-1 max-w-32 sm:max-w-xs">
                 <button 
                   onClick={handleAIGeneration}
                   disabled={!query.trim() || isGenerating}
-                  className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 bg-black text-white ${
+                  className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-3 sm:mb-4 bg-black text-white ${
                     isGenerating ? 'animate-pulse' : ''
                   } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
                 >
                   {isGenerating ? (
-                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   ) : (
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   )}
                 </button>
-                <div className="h-20 flex flex-col justify-center">
-                  <div className="text-lg font-bold text-black mb-1">AI 생성</div>
-                  <div className="text-sm text-gray-500 leading-relaxed">
+                <div className="h-16 sm:h-20 flex flex-col justify-center">
+                  <div className="text-sm sm:text-lg font-bold text-black mb-1">AI 생성</div>
+                  <div className="text-xs sm:text-sm text-gray-500 leading-relaxed">
                     실시간으로<br />맞춤 가이드 생성
                   </div>
                 </div>
               </div>
 
+              {/* 화살표 2 */}
+              <div className="flex items-center justify-center pt-6 sm:pt-8">
+                <svg className="w-4 h-4 sm:w-6 sm:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+
               {/* 오디오 재생 */}
-              <div className="text-center relative z-10 flex-1 max-w-xs">
+              <div className="text-center relative z-10 flex-1 max-w-32 sm:max-w-xs">
                 <button 
                   onClick={handleAudioPlayback}
                   disabled={!query.trim()}
-                  className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 bg-black text-white ${
+                  className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-3 sm:mb-4 bg-black text-white ${
                     audioPlaying ? 'animate-pulse' : ''
                   } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
                 >
                   {audioPlaying ? (
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
                     </svg>
                   ) : (
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M8 5v14l11-7z"/>
                     </svg>
                   )}
                 </button>
-                <div className="h-20 flex flex-col justify-center">
-                  <div className="text-lg font-bold text-black mb-1">오디오 재생</div>
-                  <div className="text-sm text-gray-500 leading-relaxed">
+                <div className="h-16 sm:h-20 flex flex-col justify-center">
+                  <div className="text-sm sm:text-lg font-bold text-black mb-1">오디오 재생</div>
+                  <div className="text-xs sm:text-sm text-gray-500 leading-relaxed">
                     음성으로 생생한<br />현장 해설
                   </div>
                 </div>

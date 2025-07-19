@@ -69,7 +69,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
             >
               <Globe className="w-4 h-4" />
               <span>{currentConfig?.flag || '🇰🇷'}</span>
-              <span>KR</span>
+              <span>{currentLanguage.toUpperCase()}</span>
               <ChevronDown className="w-3 h-3" />
             </button>
 
@@ -125,13 +125,13 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     }}
                     className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    마이페이지
+                    {t.profile.mypage}
                   </button>
                   <button
                     onClick={handleSignOut}
                     className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    로그아웃
+                    {t.auth.signout}
                   </button>
                 </div>
               )}
@@ -142,7 +142,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
               className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
             >
               <LogIn className="w-4 h-4" />
-              <span>로그인</span>
+              <span>{t.auth.signin}</span>
             </button>
           )}
         </div>
@@ -183,7 +183,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="hidden sm:inline">기록</span>
+            <span className="hidden sm:inline">{t.header.history}</span>
           </button>
 
           {/* 로그인 상태 */}
@@ -219,13 +219,13 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     }}
                     className="w-full text-left px-2 py-1 text-xs text-gray-700 hover:bg-gray-100"
                   >
-                    마이페이지
+                    {t.profile.mypage}
                   </button>
                   <button
                     onClick={handleSignOut}
                     className="w-full text-left px-2 py-1 text-xs text-gray-700 hover:bg-gray-100"
                   >
-                    로그아웃
+                    {t.auth.signout}
                   </button>
                 </div>
               )}
@@ -236,7 +236,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
               className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 hover:bg-gray-100 rounded-lg"
             >
               <LogIn className="w-3 h-3" />
-              <span className="hidden sm:inline">로그인</span>
+              <span className="hidden sm:inline">{t.auth.signin}</span>
             </button>
           )}
         </div>
