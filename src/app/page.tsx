@@ -198,9 +198,9 @@ export default function HomePage() {
           `}>
             {/* Main Title */}
             <h1 className="text-2xl md:text-3xl font-thin tracking-[-0.02em] text-black leading-[0.85] mb-8">
-              <div className="text-center">
-                {/* 상단: 내손안의 */}
-                <div className="mb-4">
+              <div>
+                {/* 상단: 내손안의 (왼쪽 정렬) */}
+                <div className="mb-4 text-left">
                   <span className="block font-extralight text-2xl md:text-3xl">
                     {t?.home?.brandTitle || '내 손안의'}
                   </span>
@@ -236,21 +236,16 @@ export default function HomePage() {
             </div>
 
             {/* Subtitle */}
-            <div className="text-center space-y-4 mb-16">
-              <div className="flex items-center justify-center gap-6">
-                <p className="text-xl md:text-2xl text-gray-700 font-light tracking-wide">
-                  {currentLanguage === 'ko' ? '가이드없이 자유롭게,' : t?.home?.subtitle}
-                </p>
-                <div className="w-8 h-px bg-gray-300"></div>
-                <p className="text-xl md:text-2xl text-gray-700 font-light tracking-wide">
-                  {currentLanguage === 'ko' ? '여행은 깊이있게' : t?.home?.subtitle2}
-                </p>
-              </div>
-              <div className="pt-6">
-                <p className="text-base text-gray-500 font-light tracking-wide">
-                  {currentLanguage === 'ko' ? 'AI가 찾아낸 가장 완벽한 가이드해설' : t?.home?.description}
-                </p>
-              </div>
+            <div className="text-center space-y-2 mb-12">
+              <p className="text-lg md:text-xl text-gray-500 font-light tracking-wide">
+                {currentLanguage === 'ko' ? '가이드없이 자유롭게,' : t?.home?.subtitle}
+              </p>
+              <p className="text-xl md:text-2xl text-gray-700 font-light tracking-wide">
+                {currentLanguage === 'ko' ? '여행은 깊이있게' : t?.home?.subtitle2}
+              </p>
+              <p className="text-2xl md:text-3xl text-black font-light tracking-wide">
+                {currentLanguage === 'ko' ? 'AI가 찾아낸 가장 완벽한 가이드해설' : t?.home?.description}
+              </p>
             </div>
           </div>
 
