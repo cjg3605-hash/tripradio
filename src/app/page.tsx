@@ -197,11 +197,11 @@ export default function HomePage() {
             ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
           `}>
             {/* Main Title */}
-            <h1 className="text-4xl md:text-5xl font-thin tracking-[-0.02em] text-black leading-[0.85] mb-8">
+            <h1 className="text-2xl md:text-3xl font-thin tracking-[-0.02em] text-black leading-[0.85] mb-8">
               <div className="flex items-center justify-between max-w-4xl mx-auto">
                 {/* 왼쪽: 내손안의 */}
                 <div className="text-left">
-                  <span className="block font-extralight text-5xl md:text-6xl">
+                  <span className="block font-extralight text-2xl md:text-3xl">
                     {t?.home?.brandTitle || '내 손안의'}
                   </span>
                 </div>
@@ -210,7 +210,7 @@ export default function HomePage() {
                 <div className="text-right">
                   <div className="overflow-hidden" style={{ height: '1.2em' }}>
                     <span 
-                      className="inline-block transition-transform duration-1000 ease-out font-light text-5xl md:text-6xl"
+                      className="inline-block transition-transform duration-1000 ease-out font-light text-2xl md:text-3xl"
                       style={{
                         transform: `translateY(-${currentWord * 100}%)`
                       }}
