@@ -10,11 +10,11 @@ export default function HomePage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [currentWord, setCurrentWord] = useState(0);
 
-  // 번역된 단어들로 변경
+  // 디자인과 매칭되는 애니메이션 단어들
   const words = [
     t.home.features?.realTime || '실시간가이드',
-    t.navigation.guides || '가이드',
     t.home.features?.personalized || '맞춤형추천',
+    t.home.features?.multiLanguage || '다국어지원',
     '도슨트'
   ];
 
@@ -75,31 +75,34 @@ export default function HomePage() {
       {/* Main Content */}
       <section className="relative z-10 flex flex-col items-center justify-center px-6 pt-16">
         
-        {/* Hero Typography */}
+        {/* Hero Typography - 완전한 "내손안의 도슨트" 디자인 복구 */}
         <div className={`
           pb-16 px-4 transform transition-all duration-1000
           ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
         `}>
-          <h1 className="text-5xl md:text-6xl font-light leading-tight text-center text-black mb-6">
-            {t.home.title}
-          </h1>
-          
-          {/* Animated word display */}
-          <div className="text-center mb-6">
-            <div className="text-lg md:text-xl font-medium text-gray-900 h-8 flex items-center justify-center">
-              <span className="animate-pulse">{words[currentWord]}</span>
+          <h1 className="text-5xl md:text-7xl font-extralight tracking-tight text-black leading-tight mb-8">
+            <div className="relative">
+              <span className="block">{t.home.brandTitle || '내손안의'}</span>
+              <span className="block overflow-hidden h-20">
+                <span 
+                  className="inline-block transition-transform duration-700 ease-in-out"
+                  style={{
+                    transform: `translateY(-${currentWord * 100}%)`
+                  }}
+                >
+                  {words.map((word, index) => (
+                    <span key={index} className="flex h-20 items-center">
+                      {word}
+                    </span>
+                  ))}
+                </span>
+              </span>
             </div>
-          </div>
+          </h1>
 
-          <p className="text-lg md:text-xl text-gray-600 text-center max-w-2xl mx-auto font-light leading-relaxed">
+          <p className="text-lg md:text-xl text-gray-600 text-center max-w-2xl mx-auto font-light leading-relaxed mb-16">
             {t.home.subtitle}
           </p>
-          
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-500 font-light">
-              {t.home.description}
-            </p>
-          </div>
         </div>
 
         {/* Search Box */}
@@ -120,7 +123,7 @@ export default function HomePage() {
               </div>
             </div>
             <h3 className="text-lg font-light text-black mb-3 tracking-wide">
-              {t.home.searchPlaceholder ? '장소 입력' : '장소 입력'}
+              {t.home.searchPlaceholder || '장소 입력'}
             </h3>
             <p className="text-sm text-gray-500 font-light leading-relaxed">
               궁금한 곳의<br />이름을 입력하세요

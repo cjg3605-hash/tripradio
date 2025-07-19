@@ -1,4 +1,3 @@
-// src/contexts/LanguageContext.tsx
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
@@ -6,17 +5,17 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 // 지원 언어 타입
 export type SupportedLanguage = 'ko' | 'en' | 'ja' | 'zh' | 'es';
 
-// 언어 설정 인터페이스 (RTL 지원 추가)
+// 언어 설정 인터페이스
 export interface LanguageConfig {
   code: SupportedLanguage;
   name: string;
   flag: string;
   nativeName: string;
-  dir: 'ltr' | 'rtl'; // 텍스트 방향
-  fontFamily?: string; // 전용 폰트
+  dir: 'ltr' | 'rtl';
+  fontFamily?: string;
 }
 
-// 지원 언어 목록 (완전한 설정)
+// 지원 언어 목록
 export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
   { 
     code: 'ko', 
@@ -40,7 +39,7 @@ export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
     flag: '🇯🇵', 
     nativeName: '日本語',
     dir: 'ltr',
-    fontFamily: 'var(--font-noto-sans-jp)' // 추후 추가 필요
+    fontFamily: 'var(--font-noto-sans-jp)'
   },
   { 
     code: 'zh', 
@@ -48,7 +47,7 @@ export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
     flag: '🇨🇳', 
     nativeName: '中文',
     dir: 'ltr',
-    fontFamily: 'var(--font-noto-sans-sc)' // 추후 추가 필요
+    fontFamily: 'var(--font-noto-sans-sc)'
   },
   { 
     code: 'es', 
@@ -60,7 +59,7 @@ export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
   },
 ];
 
-// 번역 데이터 타입 (확장됨)
+// 번역 데이터 타입
 interface Translations {
   header: {
     title: string;
@@ -79,6 +78,7 @@ interface Translations {
     contact: string;
   };
   home: {
+    brandTitle: string;
     title: string;
     subtitle: string;
     searchPlaceholder: string;
@@ -151,10 +151,10 @@ interface Translations {
   languages: Record<SupportedLanguage, string>;
 }
 
-// 기본 번역 데이터 (한국어 - fallback용)
+// 기본 번역 데이터 (한국어)
 const DEFAULT_TRANSLATIONS: Translations = {
   header: {
-    title: 'AI 가이드',
+    title: 'NAVI',
     language: '언어',
     login: '로그인',
     logout: '로그아웃',
@@ -170,17 +170,18 @@ const DEFAULT_TRANSLATIONS: Translations = {
     contact: '문의'
   },
   home: {
-    title: 'AI와 함께하는 가이드 투어',
+    brandTitle: '내손안의',
+    title: '내손안의 도슨트',
     subtitle: '개인 맞춤형 여행 가이드를 AI가 실시간으로 생성해드립니다',
     searchPlaceholder: '어디로 떠나고 싶으신가요?',
     searchButton: '가이드 생성',
     popularDestinations: '인기 여행지',
     description: 'AI가 실시간으로 생성하는 독특한 여행 가이드를 만나보세요',
     features: {
-      realTime: '실시간 가이드',
-      personalized: '맞춤형 추천',
-      multiLanguage: '다국어 지원',
-      offline: '오프라인 사용'
+      realTime: '실시간가이드',
+      personalized: '맞춤형추천',
+      multiLanguage: '다국어지원',
+      offline: '오프라인사용'
     }
   },
   guide: {
@@ -248,7 +249,7 @@ const DEFAULT_TRANSLATIONS: Translations = {
   }
 };
 
-// Context 타입 (브라우저 언어 감지 추가)
+// Context 타입
 interface LanguageContextType {
   currentLanguage: SupportedLanguage;
   currentConfig: LanguageConfig;
@@ -269,14 +270,13 @@ const detectBrowserLanguage = (): SupportedLanguage => {
   const browserLang = navigator.language.toLowerCase();
   const langCode = browserLang.split('-')[0];
   
-  // 지원하는 언어인지 확인
   const supportedCodes = SUPPORTED_LANGUAGES.map(lang => lang.code);
   return supportedCodes.includes(langCode as SupportedLanguage) 
     ? langCode as SupportedLanguage 
     : 'ko';
 };
 
-// 번역 데이터 로드 함수 (통합 파일 방식으로 최적화)
+// 번역 데이터 로드 함수
 async function loadTranslations(language: SupportedLanguage): Promise<Translations> {
   try {
     const cacheKey = `translations-${language}`;
@@ -297,7 +297,7 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
 
     // 통합 번역 파일에서 로드
     const response = await fetch('/locales/translations.json', {
-      cache: 'force-cache' // 브라우저 캐시 활용
+      cache: 'force-cache'
     });
     
     if (!response.ok) {
@@ -306,9 +306,9 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
     }
     
     const allTranslations = await response.json();
-    const translations = allTranslations[language] || allTranslations['ko']; // fallback to Korean
+    const translations = allTranslations[language] || allTranslations['ko'];
     
-    // 안전성 보장 - search 객체가 반드시 존재하도록
+    // 안전성 보장
     const safeTranslations = {
       ...DEFAULT_TRANSLATIONS,
       ...translations,
@@ -336,11 +336,10 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
   }
 }
 
-// Provider 컴포넌트 (안전성 강화)
+// Provider 컴포넌트
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('ko');
   const [translations, setTranslations] = useState<Translations>(() => {
-    // 안전한 초기값으로 시작
     return {
       ...DEFAULT_TRANSLATIONS,
       search: {
@@ -360,7 +359,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const currentConfig = SUPPORTED_LANGUAGES.find(lang => lang.code === currentLanguage) || SUPPORTED_LANGUAGES[0];
   const isRTL = currentConfig.dir === 'rtl';
 
-  // 언어 변경 함수 (안전성 강화)
+  // 언어 변경 함수
   const setLanguage = async (language: SupportedLanguage) => {
     setIsLoading(true);
     try {
@@ -388,7 +387,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       console.log(`✅ 언어 변경 완료: ${language}`);
     } catch (error) {
       console.error('언어 변경 실패:', error);
-      // 완전한 fallback 보장
       setTranslations({
         ...DEFAULT_TRANSLATIONS,
         search: { ...DEFAULT_TRANSLATIONS.search }
@@ -405,13 +403,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const initializeLanguage = async () => {
       let initialLanguage: SupportedLanguage = 'ko';
       
-      // 1. localStorage에서 저장된 언어 확인
+      // localStorage에서 저장된 언어 확인
       if (typeof window !== 'undefined') {
         const savedLanguage = localStorage.getItem('preferred-language') as SupportedLanguage;
         if (savedLanguage && SUPPORTED_LANGUAGES.some(lang => lang.code === savedLanguage)) {
           initialLanguage = savedLanguage;
         } else {
-          // 2. 브라우저 언어 감지
+          // 브라우저 언어 감지
           initialLanguage = detectBrowserLanguage();
         }
       }
@@ -454,7 +452,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Custom Hook (안전성 강화)
+// Custom Hook
 export function useLanguage() {
   const context = useContext(LanguageContext);
   if (context === undefined) {
@@ -463,7 +461,7 @@ export function useLanguage() {
   return context;
 }
 
-// 번역 함수 헬퍼 (중첩된 키 지원)
+// 번역 함수 헬퍼
 export function getTranslation(translations: Translations, key: string): string {
   const keys = key.split('.');
   let value: any = translations;
@@ -473,7 +471,7 @@ export function getTranslation(translations: Translations, key: string): string 
       value = value[k];
     } else {
       console.warn(`번역 키를 찾을 수 없습니다: ${key}`);
-      return key; // 키 자체를 반환
+      return key;
     }
   }
   
@@ -482,19 +480,6 @@ export function getTranslation(translations: Translations, key: string): string 
 
 // 언어별 URL 생성 헬퍼
 export function getLocalizedUrl(path: string, language: SupportedLanguage): string {
-  if (language === 'ko') return path; // 기본 언어는 접두사 없음
+  if (language === 'ko') return path;
   return `/${language}${path}`;
-}
-
-// 언어 감지 후크
-export function useBrowserLanguage(): SupportedLanguage {
-  const [detectedLanguage, setDetectedLanguage] = useState<SupportedLanguage>('ko');
-  
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setDetectedLanguage(detectBrowserLanguage());
-    }
-  }, []);
-  
-  return detectedLanguage;
 }
