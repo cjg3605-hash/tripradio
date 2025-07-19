@@ -91,6 +91,8 @@ interface Translations {
       personalized: string;
       multiLanguage: string;
       offline: string;
+      storyteller: string;
+      docent: string;
     };
   };
   guide: {
@@ -223,7 +225,9 @@ const DEFAULT_TRANSLATIONS: Translations = {
       realTime: '실시간가이드',
       personalized: '맞춤형추천',
       multiLanguage: '다국어지원',
-      offline: '오프라인사용'
+      offline: '오프라인사용',
+      storyteller: '스토리텔러',
+      docent: '도슨트'
     }
   },
   guide: {

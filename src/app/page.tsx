@@ -34,10 +34,10 @@ export default function HomePage() {
 
   // 회전하는 단어들
   const words = [
-    '스토리텔러',
+    t?.home?.features?.storyteller || '스토리텔러',
     t?.home?.features?.personalized || '맞춤형추천',
     t?.home?.features?.multiLanguage || '다국어지원',
-    '도슨트'
+    t?.home?.features?.docent || '도슨트'
   ];
 
   // 회전하는 플레이스홀더
@@ -159,9 +159,9 @@ export default function HomePage() {
       {/* Main Content */}
       <main className="relative overflow-hidden">
         {/* Geometric Background Elements */}
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none z-0">
           <div 
-            className="absolute w-96 h-96 border border-black/5 rounded-full transition-transform duration-1000"
+            className="absolute w-96 h-96 border border-black/5 rounded-full transition-transform duration-1000 z-0"
             style={{
               top: '10%',
               right: '10%',
@@ -170,20 +170,11 @@ export default function HomePage() {
           />
           
           <div 
-            className="absolute w-20 h-px bg-black opacity-15 transition-transform duration-700"
+            className="absolute w-20 h-px bg-black opacity-15 transition-transform duration-700 z-0"
             style={{
               top: '35%',
               left: '8%',
               transform: `translate(${mousePosition.x * -0.01}px, ${mousePosition.y * 0.01}px)`
-            }}
-          />
-          
-          <div 
-            className="absolute w-1 h-1 bg-black opacity-20 rotate-45 transition-transform duration-500"
-            style={{
-              bottom: '30%',
-              right: '20%',
-              transform: `translate(${mousePosition.x * 0.015}px, ${mousePosition.y * -0.01}px) rotate(45deg)`
             }}
           />
         </div>
@@ -236,7 +227,7 @@ export default function HomePage() {
             </div>
 
             {/* Subtitle */}
-            <div className="text-center space-y-2 mb-3">
+            <div className="text-center space-y-2 mb-1">
               <p className="text-base text-gray-500 font-light tracking-wide">
                 {currentLanguage === 'ko' ? '가이드없이 자유롭게,' : t?.home?.subtitle}
               </p>
@@ -344,13 +335,13 @@ export default function HomePage() {
         </section>
 
         {/* Features Section - 3개 원형 아이콘 */}
-        <section className="relative z-10 py-8">
+        <section className="relative z-10 py-3">
           <div className="max-w-6xl mx-auto px-6">
             <div className="flex justify-center items-center gap-6 mb-16">
               
               {/* 장소 입력 */}
               <div className="text-center relative z-10">
-                <div className="w-20 h-20 rounded-full flex items-center justify-center bg-black mb-4 shadow-lg">
+                <div className="w-20 h-20 rounded-full flex items-center justify-center bg-black text-white mb-4 shadow-lg">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -368,7 +359,7 @@ export default function HomePage() {
                 <button 
                   onClick={handleAIGeneration}
                   disabled={!query.trim() || isGenerating}
-                  className={`w-20 h-20 rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 bg-black ${
+                  className={`w-20 h-20 rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 bg-black text-white ${
                     isGenerating ? 'animate-pulse' : ''
                   } ${!query.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
@@ -392,7 +383,7 @@ export default function HomePage() {
                 <button 
                   onClick={handleAudioPlayback}
                   disabled={!query.trim()}
-                  className={`w-20 h-20 rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 bg-black ${
+                  className={`w-20 h-20 rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 bg-black text-white ${
                     audioPlaying ? 'animate-pulse' : ''
                   } ${!query.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >

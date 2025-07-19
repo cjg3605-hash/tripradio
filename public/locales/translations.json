@@ -29,7 +29,9 @@
         "realTime": "실시간가이드",
         "personalized": "맞춤형추천",
         "multiLanguage": "다국어지원",
-        "offline": "오프라인사용"
+        "offline": "오프라인사용",
+        "storyteller": "스토리텔러",
+        "docent": "도슨트"
       }
     },
     "guide": {
@@ -166,7 +168,9 @@
         "realTime": "Real-time Guide",
         "personalized": "Personalized",
         "multiLanguage": "Multi-language",
-        "offline": "Offline Use"
+        "offline": "Offline Use",
+        "storyteller": "Storyteller",
+        "docent": "Docent"
       }
     },
     "guide": {
@@ -303,7 +307,9 @@
         "realTime": "リアルタイムガイド",
         "personalized": "パーソナライズ",
         "multiLanguage": "多言語対応",
-        "offline": "オフライン使用"
+        "offline": "オフライン使用",
+        "storyteller": "ストーリーテラー",
+        "docent": "ドーセント"
       }
     },
     "guide": {
@@ -440,7 +446,9 @@
         "realTime": "实时导览",
         "personalized": "个性化",
         "multiLanguage": "多语言",
-        "offline": "离线使用"
+        "offline": "离线使用",
+        "storyteller": "故事讲述者",
+        "docent": "导览员"
       }
     },
     "guide": {
@@ -577,7 +585,9 @@
         "realTime": "Guía en Tiempo Real",
         "personalized": "Personalizado",
         "multiLanguage": "Multiidioma",
-        "offline": "Uso Sin Conexión"
+        "offline": "Uso Sin Conexión",
+        "storyteller": "Narrador",
+        "docent": "Guía"
       }
     },
     "guide": {
