@@ -15,8 +15,10 @@ interface Suggestion {
 export default function HomePage() {
   // 상태 관리
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [currentWord, setCurrentWord] = useState(0);
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   
   // 검색 관련 상태
   const [query, setQuery] = useState('');
@@ -81,8 +83,27 @@ export default function HomePage() {
     }
   ];
 
+  // 클라이언트 사이드 마운트 체크
+  useEffect(() => {
+    setIsMounted(true);
+    
+    // 초기 윈도우 크기 설정
+    const updateWindowSize = () => {
+      if (typeof window !== 'undefined') {
+        setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+      }
+    };
+    
+    updateWindowSize();
+    window.addEventListener('resize', updateWindowSize);
+    
+    return () => window.removeEventListener('resize', updateWindowSize);
+  }, []);
+
   // 페이지 로드 애니메이션
   useEffect(() => {
+    if (!isMounted) return;
+    
     setIsLoaded(true);
     
     const wordInterval = setInterval(() => {
@@ -97,10 +118,12 @@ export default function HomePage() {
       clearInterval(wordInterval);
       clearInterval(placeholderInterval);
     };
-  }, [words.length, placeholders.length]);
+  }, [isMounted, words.length, placeholders.length]);
 
-  // 최적화된 마우스 추적 (기존 유지)
+  // 최적화된 마우스 추적 (클라이언트 사이드만)
   useEffect(() => {
+    if (!isMounted) return;
+    
     let animationFrameId: number;
     
     const handleMouseMove = (e: MouseEvent) => {
@@ -120,10 +143,12 @@ export default function HomePage() {
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, []);
+  }, [isMounted]);
 
-  // 실시간 검색 제안 (FIXED: 모든 코드 경로에서 반환값 제공)
+  // 실시간 검색 제안
   useEffect(() => {
+    if (!isMounted) return;
+    
     if (query.length >= 2) {
       setIsTyping(true);
       const timer = setTimeout(async () => {
@@ -143,12 +168,11 @@ export default function HomePage() {
     } else {
       setSuggestions([]);
       setIsTyping(false);
-      // 명시적으로 undefined 반환 (모든 코드 경로에서 반환값 제공)
       return undefined;
     }
-  }, [query, currentLanguage]);
+  }, [query, currentLanguage, isMounted]);
 
-  // 키보드 네비게이션 (기존 유지)
+  // 키보드 네비게이션
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -208,6 +232,23 @@ export default function HomePage() {
     router.push(`/guide/${encodeURIComponent(destination.name)}`);
   };
 
+  // 서버 사이드 렌더링 중에는 기본 UI만 표시
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
+            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
+              스마트한 여행
+            </span>
+            <br />
+            <span>AI 도슨트</span>
+          </h1>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* 배경 오버레이 */}
@@ -228,8 +269,8 @@ export default function HomePage() {
           <div 
             className="absolute w-80 h-80 bg-purple-100/20 rounded-full blur-2xl transition-all duration-1000 ease-out"
             style={{
-              right: (window.innerWidth - mousePosition.x) * 0.05,
-              bottom: (window.innerHeight - mousePosition.y) * 0.05,
+              right: windowSize.width ? (windowSize.width - mousePosition.x) * 0.05 : 0,
+              bottom: windowSize.height ? (windowSize.height - mousePosition.y) * 0.05 : 0,
             }}
           />
         </div>
