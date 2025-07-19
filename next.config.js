@@ -7,7 +7,7 @@ const withPWA = require('next-pwa')({
 });
 
 const nextConfig = {
-  output: 'export',
+  // output: 'export', // NextAuth와 충돌하므로 제거
   trailingSlash: true,
   images: {
     unoptimized: true
@@ -15,14 +15,13 @@ const nextConfig = {
   experimental: {
     esmExternals: 'loose'
   },
-  // SSG 빌드 시 세션 관련 에러 무시
   typescript: {
     ignoreBuildErrors: false,
   },
   eslint: {
     ignoreDuringBuilds: false,
   },
-  // 빌드 시 useSession 관련 페이지를 동적으로 처리
+  // 빌드 ID 생성
   generateBuildId: async () => {
     return 'build-' + Date.now();
   }
