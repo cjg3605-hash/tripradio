@@ -16,16 +16,13 @@ export default function SessionProvider({ children, session }: SessionProviderPr
     setIsClient(true);
   }, []);
 
-  // 클라이언트에서만 SessionProvider 렌더링
-  if (!isClient) {
-    return <>{children}</>;
-  }
-
+  // SSR/SSG 중에는 항상 SessionProvider로 감싸서 렌더링
+  // 이렇게 하면 prerendering 시에도 useSession이 안전하게 작동
   return (
     <NextAuthSessionProvider 
       session={session}
-      refetchInterval={5 * 60} // 5분마다 재검증
-      refetchOnWindowFocus={true}
+      refetchInterval={isClient ? 5 * 60 : 0} // 클라이언트에서만 자동 갱신
+      refetchOnWindowFocus={isClient}
       refetchWhenOffline={false}
     >
       {children}
