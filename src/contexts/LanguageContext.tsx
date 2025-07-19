@@ -81,6 +81,7 @@ interface Translations {
     brandTitle: string;
     title: string;
     subtitle: string;
+    subtitle2: string;
     searchPlaceholder: string;
     searchButton: string;
     popularDestinations: string;
@@ -213,6 +214,7 @@ const DEFAULT_TRANSLATIONS: Translations = {
     brandTitle: '내손안의',
     title: '내손안의 도슨트',
     subtitle: '개인 맞춤형 여행 가이드를 AI가 실시간으로 생성해드립니다',
+    subtitle2: '여행은 깊이있게',
     searchPlaceholder: '어디로 떠나고 싶으신가요?',
     searchButton: '가이드 생성',
     popularDestinations: '인기 여행지',
