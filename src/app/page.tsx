@@ -122,7 +122,7 @@ export default function HomePage() {
     };
   }, []);
 
-  // 실시간 검색 제안 (기존 유지)
+  // 실시간 검색 제안 (FIXED: 모든 코드 경로에서 반환값 제공)
   useEffect(() => {
     if (query.length >= 2) {
       setIsTyping(true);
@@ -143,6 +143,8 @@ export default function HomePage() {
     } else {
       setSuggestions([]);
       setIsTyping(false);
+      // 명시적으로 undefined 반환 (모든 코드 경로에서 반환값 제공)
+      return undefined;
     }
   }, [query, currentLanguage]);
 
@@ -201,240 +203,234 @@ export default function HomePage() {
     }, 200);
   };
 
-  const handlePopularClick = (destination: string) => {
-    setQuery(destination);
+  const handlePopularDestinationClick = (destination: { name: string }) => {
     setIsSubmitting(true);
-    router.push(`/guide/${encodeURIComponent(destination)}`);
+    router.push(`/guide/${encodeURIComponent(destination.name)}`);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 relative overflow-hidden">
+    <>
+      {/* 배경 오버레이 */}
+      {isFocused && (
+        <div className="fixed inset-0 bg-black/5 backdrop-blur-sm z-40 transition-all duration-500" />
+      )}
       
-      {/* Background decorations */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-10 w-64 h-64 bg-blue-200 rounded-full filter blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-80 h-80 bg-purple-200 rounded-full filter blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-100 rounded-full filter blur-3xl animate-pulse delay-500"></div>
-      </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 overflow-hidden">
+        {/* 배경 장식 요소 */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div 
+            className="absolute w-96 h-96 bg-blue-100/30 rounded-full blur-3xl transition-all duration-1000 ease-out"
+            style={{
+              left: mousePosition.x * 0.1,
+              top: mousePosition.y * 0.1,
+            }}
+          />
+          <div 
+            className="absolute w-80 h-80 bg-purple-100/20 rounded-full blur-2xl transition-all duration-1000 ease-out"
+            style={{
+              right: (window.innerWidth - mousePosition.x) * 0.05,
+              bottom: (window.innerHeight - mousePosition.y) * 0.05,
+            }}
+          />
+        </div>
 
-      {/* Mouse follower effect */}
-      <div 
-        className="fixed w-6 h-6 bg-blue-400/20 rounded-full pointer-events-none transition-transform duration-75 ease-out z-0"
-        style={{
-          left: mousePosition.x - 12,
-          top: mousePosition.y - 12,
-          transform: `scale(${isFocused ? 2 : 1})`,
-        }}
-      />
-
-      {/* Main content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Hero Section */}
-        <div className="pt-16 pb-8 text-center">
-          
-          {/* Brand title with improved mobile sizing */}
-          <div className={`transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                내 손 안의
-              </span>
-            </h1>
+        <div className="relative z-10">
+          {/* 메인 컨테이너 */}
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             
-            {/* Animated word rotation */}
-            <div className="mb-6 h-12 sm:h-14 flex items-center justify-center">
-              <div className="relative">
-                {words.map((word, index) => (
+            {/* 히어로 섹션 */}
+            <div className="pt-20 sm:pt-32 pb-16 sm:pb-20 text-center">
+              
+              {/* 메인 타이틀 */}
+              <div className={`mb-8 sm:mb-12 transition-all duration-1000 ease-out ${
+                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}>
+                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
+                  <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
+                    스마트한 여행
+                  </span>
+                  <br />
+                  <span className="inline-flex items-center">
+                    <span className="mr-3 sm:mr-4">AI </span>
+                    <span 
+                      key={currentWord}
+                      className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-pulse"
+                    >
+                      {words[currentWord]}
+                    </span>
+                  </span>
+                </h1>
+                
+                <p className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                  어디든지 입력하면, AI가 개인 맞춤형 음성 가이드를 
+                  <br className="hidden sm:inline" />
+                  <span className="text-blue-600 font-medium"> 실시간으로 생성</span>해드립니다
+                </p>
+              </div>
+
+              {/* 검색 박스 */}
+              <div className={`relative mb-12 sm:mb-16 transition-all duration-1000 ease-out delay-200 ${
+                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}>
+                
+                {/* 검색 카드 */}
+                <div className={`max-w-2xl mx-auto transform transition-all duration-700 ease-out ${
+                  isFocused 
+                    ? 'scale-105 translate-y-[-8px]' 
+                    : 'scale-100 translate-y-0'
+                }`}>
+                  
+                  {/* Input Container */}
+                  <div className={`relative bg-white rounded-2xl sm:rounded-3xl transition-all duration-500 ${
+                    isFocused 
+                      ? 'shadow-2xl shadow-black/15 ring-1 ring-blue-500/30' 
+                      : 'shadow-xl shadow-black/10 hover:shadow-2xl'
+                  }`}>
+                    
+                    {/* Main Input */}
+                    <div className="flex items-center">
+                      <Search className="absolute left-4 sm:left-6 w-5 h-5 text-gray-400 z-10" />
+                      <input
+                        ref={inputRef}
+                        type="text"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
+                        placeholder={placeholders[placeholderIndex]}
+                        disabled={isSubmitting}
+                        className={`w-full pl-12 sm:pl-16 pr-24 sm:pr-32 py-4 sm:py-5 md:py-6 text-base sm:text-lg md:text-xl font-light text-black bg-transparent rounded-2xl sm:rounded-3xl focus:outline-none transition-all duration-300 placeholder-gray-400 ${
+                          isSubmitting ? 'cursor-not-allowed opacity-50' : ''
+                        }`}
+                      />
+                      
+                      {/* Search Button */}
+                      <button
+                        onClick={handleSearch}
+                        disabled={!query.trim() || isSubmitting}
+                        className="absolute right-2 sm:right-3 px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-xl sm:rounded-2xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 text-sm sm:text-base font-medium"
+                      >
+                        {isSubmitting ? (
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <>
+                            <span className="hidden sm:inline">가이드 생성</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Search Suggestions */}
+                    {isFocused && (suggestions.length > 0 || isTyping) && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl sm:rounded-2xl shadow-2xl border border-gray-100 py-2 max-h-64 overflow-y-auto z-60">
+                        {isTyping ? (
+                          <div className="flex items-center justify-center py-4">
+                            <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin mr-2" />
+                            <span className="text-gray-500 text-sm">검색 중...</span>
+                          </div>
+                        ) : (
+                          suggestions.map((suggestion, index) => (
+                            <button
+                              key={`${suggestion.name}-${index}`}
+                              onClick={() => handleSuggestionClick(suggestion)}
+                              className={`w-full text-left px-4 sm:px-6 py-3 hover:bg-gray-50 transition-colors duration-150 flex items-center justify-between group ${
+                                selectedIndex === index ? 'bg-blue-50' : ''
+                              }`}
+                            >
+                              <div>
+                                <div className="font-medium text-gray-900">{suggestion.name}</div>
+                                <div className="text-sm text-gray-500">{suggestion.location}</div>
+                              </div>
+                              <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* 인기 여행지 */}
+              <div className={`mb-16 sm:mb-20 transition-all duration-1000 ease-out delay-300 ${
+                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}>
+                <h3 className="text-lg sm:text-xl font-medium text-gray-700 mb-6">인기 여행지</h3>
+                <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+                  {popularDestinations.map((destination, index) => (
+                    <button
+                      key={destination.name}
+                      onClick={() => handlePopularDestinationClick(destination)}
+                      disabled={isSubmitting}
+                      className={`group flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 bg-white rounded-full shadow-md hover:shadow-lg border border-gray-100 hover:border-blue-200 transition-all duration-200 ${
+                        isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
+                      }`}
+                    >
+                      <span className="text-lg sm:text-xl">{destination.emoji}</span>
+                      <span className="font-medium text-gray-800 text-sm sm:text-base">{destination.name}</span>
+                      <span className="text-xs text-gray-500 hidden sm:inline">#{destination.category}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 기능 소개 섹션 */}
+            <div className={`pb-20 sm:pb-32 transition-all duration-1000 ease-out delay-500 ${
+              isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`}>
+              <div className="text-center mb-12 sm:mb-16">
+                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                  AI가 만드는 
+                  <span className="text-blue-600"> 특별한 여행</span>
+                </h2>
+                <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+                  전문 도슨트의 해설을 AI 기술로 재현하여, 언제 어디서나 개인 맞춤형 가이드를 제공합니다
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+                {features.map((feature, index) => (
                   <div
-                    key={index}
-                    className={`absolute inset-0 flex items-center justify-center text-xl sm:text-2xl md:text-3xl font-medium text-gray-700 transition-all duration-500 ${
-                      currentWord === index 
-                        ? 'opacity-100 scale-100 translate-y-0' 
-                        : 'opacity-0 scale-95 translate-y-2'
+                    key={feature.title}
+                    className={`group bg-white rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transform ${
+                      isLoaded ? `animate-fade-in-up` : 'opacity-0'
                     }`}
+                    style={{ animationDelay: `${600 + index * 100}ms` }}
                   >
-                    {word}
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-xl flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-blue-200 transition-colors duration-300">
+                      <feature.icon className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">{feature.title}</h3>
+                    <p className="text-gray-600 text-sm sm:text-base leading-relaxed">{feature.description}</p>
                   </div>
                 ))}
               </div>
             </div>
-
-            {/* Subtitle */}
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-              AI가 실시간으로 생성하는 개인 맞춤형 여행 가이드<br />
-              <span className="text-blue-600 font-medium">어디든 떠나보세요!</span>
-            </p>
-          </div>
-
-          {/* Search Section */}
-          <div className={`relative max-w-3xl mx-auto transition-all duration-1000 delay-300 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            
-            {/* Background overlay on focus */}
-            {isFocused && (
-              <div className="fixed inset-0 bg-black/5 backdrop-blur-sm z-40 transition-all duration-500" />
-            )}
-            
-            {/* Search Container */}
-            <div className={`relative z-50 transition-all duration-700 ease-out ${
-              isFocused 
-                ? 'scale-105 translate-y-[-8px]' 
-                : 'scale-100 translate-y-0'
-            }`}>
-              
-              {/* Input Container */}
-              <div className={`relative bg-white rounded-2xl sm:rounded-3xl transition-all duration-500 ${
-                isFocused 
-                  ? 'shadow-2xl shadow-black/15 ring-1 ring-blue-500/30' 
-                  : 'shadow-xl shadow-black/10 hover:shadow-2xl'
-              }`}>
-                
-                {/* Main Input */}
-                <div className="flex items-center">
-                  <Search className="absolute left-4 sm:left-6 w-5 h-5 text-gray-400 z-10" />
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                    placeholder={placeholders[placeholderIndex]}
-                    disabled={isSubmitting}
-                    className={`w-full pl-12 sm:pl-16 pr-24 sm:pr-32 py-4 sm:py-5 md:py-6 text-base sm:text-lg md:text-xl font-light text-black bg-transparent rounded-2xl sm:rounded-3xl focus:outline-none transition-all duration-300 placeholder-gray-400 ${
-                      isSubmitting ? 'cursor-not-allowed opacity-50' : ''
-                    }`}
-                  />
-                  
-                  {/* Search Button */}
-                  <button
-                    onClick={handleSearch}
-                    disabled={!query.trim() || isSubmitting}
-                    className="absolute right-2 sm:right-3 px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-xl sm:rounded-2xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 text-sm sm:text-base font-medium"
-                  >
-                    {isSubmitting ? (
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        <span className="hidden sm:inline">가이드 생성</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {/* Search Suggestions */}
-                {isFocused && (suggestions.length > 0 || isTyping) && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl sm:rounded-2xl shadow-2xl border border-gray-100 py-2 max-h-64 overflow-y-auto z-60">
-                    {isTyping ? (
-                      <div className="px-6 py-4 text-center text-gray-500">
-                        <div className="flex items-center justify-center gap-2">
-                          <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
-                          <span>검색중...</span>
-                        </div>
-                      </div>
-                    ) : (
-                      suggestions.map((suggestion, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleSuggestionClick(suggestion)}
-                          className={`w-full px-4 sm:px-6 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 ${
-                            selectedIndex === index ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
-                          }`}
-                        >
-                          <MapPin className="w-4 h-4 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium truncate">{suggestion.name}</div>
-                            <div className="text-sm text-gray-500 truncate">{suggestion.location}</div>
-                          </div>
-                        </button>
-                      ))
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Popular Destinations */}
-        <div className={`py-12 transition-all duration-1000 delay-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-8">
-            인기 여행지
-          </h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {popularDestinations.map((destination, index) => (
-              <button
-                key={index}
-                onClick={() => handlePopularClick(destination.name)}
-                className="group p-4 sm:p-6 bg-white rounded-xl hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-blue-200 hover:scale-105"
-              >
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl mb-3">{destination.emoji}</div>
-                  <div className="text-base sm:text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                    {destination.name}
-                  </div>
-                  <div className="text-sm text-gray-500 mb-3">
-                    {destination.category}
-                  </div>
-                  <div className="flex items-center justify-center">
-                    <Play className="w-4 h-4 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Features Section */}
-        <div className={`py-12 transition-all duration-1000 delay-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-              왜 NAVI-GUIDE인가요?
-            </h2>
-            <p className="text-base sm:text-lg text-gray-600">
-              AI 기술로 더 스마트하고 개인화된 여행 경험을 제공합니다
-            </p>
-          </div>
-          
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <div
-                  key={index}
-                  className="text-center p-6 bg-white rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-300 hover:scale-105"
-                >
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Icon className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                  <p className="text-sm text-gray-600">{feature.description}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* CTA Section */}
-        <div className={`text-center py-12 transition-all duration-1000 delay-900 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 sm:p-12 text-white">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-4">
-              지금 바로 시작해보세요!
-            </h2>
-            <p className="text-base sm:text-lg opacity-90 mb-6">
-              어떤 여행지든 검색해보세요. AI가 특별한 가이드를 만들어드립니다.
-            </p>
-            <button
-              onClick={() => inputRef.current?.focus()}
-              className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-600 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 hover:scale-105"
-            >
-              <Search className="w-5 h-5" />
-              여행지 검색하기
-            </button>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* 애니메이션 스타일 */}
+      <style jsx>{`
+        @keyframes fade-in-up {
+          from {
+            opacity: 0;
+            transform: translateY(2rem);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fade-in-up {
+          animation: fade-in-up 0.6s ease-out forwards;
+          opacity: 0;
+        }
+      `}</style>
+    </>
   );
 }
