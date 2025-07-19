@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Search, MapPin, Globe, Headphones, Sparkles, ArrowRight, ChevronRight } from 'lucide-react';
+import Header from '@/components/layout/Header';
 
 // 검색 제안 인터페이스
 interface Suggestion {
@@ -13,283 +13,458 @@ interface Suggestion {
 }
 
 export default function HomePage() {
+  const router = useRouter();
+  const { currentLanguage, t } = useLanguage();
+  
+  // 상태 관리
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [currentWord, setCurrentWord] = useState(0);
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [currentWord, setCurrentWord] = useState(0);
+  const [suggestions] = useState([
+    { name: '경복궁', location: '서울 종로구' },
+    { name: '부산 해운대', location: '부산 해운대구' },
+    { name: '제주도 성산일출봉', location: '제주 서귀포시' }
+  ]);
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
   
-  const { currentLanguage, t } = useLanguage();
-  const router = useRouter();
-  const inputRef = useRef<HTMLInputElement>(null);
+  // 기능 상태
+  const [isRecording, setIsRecording] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   // 회전하는 단어들
   const words = [
-    '여행동반자',
-    'AI 도슨트', 
-    '맞춤형 추천',
-    '다국어 지원'
+    '스토리텔러',
+    t?.home?.features?.personalized || '맞춤형추천',
+    t?.home?.features?.multiLanguage || '다국어지원',
+    '도슨트'
   ];
 
-  // 기능 소개
-  const features = [
-    { 
-      icon: Headphones, 
-      title: 'AI 음성 가이드', 
-      description: '전문 도슨트의 해설을 AI 음성으로' 
-    },
-    { 
-      icon: Globe, 
-      title: '다국어 지원', 
-      description: '한국어, 영어, 일본어 등 지원' 
-    },
-    { 
-      icon: MapPin, 
-      title: '맞춤형 루트', 
-      description: '당신의 취향에 맞는 여행 코스' 
-    },
-    { 
-      icon: Sparkles, 
-      title: '실시간 생성', 
-      description: '현장에서 바로 생성되는 가이드' 
-    }
+  // 회전하는 플레이스홀더
+  const placeholders = [
+    '강릉 커피거리',
+    '경복궁',
+    '부산 해운대',
+    '제주도 성산일출봉',
+    '명동 카페거리'
   ];
 
-  // 단어 회전 애니메이션
   useEffect(() => {
+    setIsLoaded(true);
+    
+    // 단어 회전
     const wordInterval = setInterval(() => {
       setCurrentWord((prev) => (prev + 1) % words.length);
     }, 3000);
 
-    return () => clearInterval(wordInterval);
+    // 플레이스홀더 회전
+    const placeholderInterval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+    }, 3000);
+
+    return () => {
+      clearInterval(wordInterval);
+      clearInterval(placeholderInterval);
+    };
+  }, [words.length, placeholders.length]);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // 검색 제안 API 호출
-  useEffect(() => {
-    if (query.length >= 2) {
-      setIsTyping(true);
-      const timer = setTimeout(async () => {
-        try {
-          const response = await fetch(`/api/locations/search?q=${encodeURIComponent(query)}&lang=${currentLanguage}`);
-          if (response.ok) {
-            const data = await response.json();
-            setSuggestions(data.success ? data.data.slice(0, 5) : []);
-          }
-        } catch (error) {
-          console.error('검색 제안 오류:', error);
-          setSuggestions([]);
-        } finally {
-          setIsTyping(false);
-        }
-      }, 300);
-
-      return () => clearTimeout(timer);
-    } else {
-      setSuggestions([]);
-      setIsTyping(false);
-      setSelectedIndex(-1);
-      return undefined;
-    }
-  }, [query, currentLanguage]);
-
-  // 검색 처리
-  const handleSearch = async (searchQuery: string) => {
-    const trimmedQuery = searchQuery.trim();
-    if (!trimmedQuery || isSubmitting) return;
-
-    setIsSubmitting(true);
+  // 검색 실행
+  const handleSearch = async () => {
+    if (!query.trim()) return;
+    
+    setIsGenerating(true);
     try {
-      router.push(`/search?q=${encodeURIComponent(trimmedQuery)}&lang=${currentLanguage}`);
+      router.push(`/guide/${encodeURIComponent(query.trim())}`);
     } catch (error) {
       console.error('검색 오류:', error);
-      setIsSubmitting(false);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSearch(query);
-  };
-
-  const handleSuggestionClick = (suggestion: Suggestion) => {
-    handleSearch(suggestion.name);
-  };
-
-  // 키보드 네비게이션
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (suggestions.length === 0) return;
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setSelectedIndex(prev => 
-          prev < suggestions.length - 1 ? prev + 1 : prev
-        );
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
-        break;
-      case 'Enter':
-        e.preventDefault();
-        if (selectedIndex >= 0) {
-          handleSuggestionClick(suggestions[selectedIndex]);
-        } else {
-          handleSubmit(e);
-        }
-        break;
-      case 'Escape':
-        setSuggestions([]);
-        setSelectedIndex(-1);
-        inputRef.current?.blur();
-        break;
+    if (e.key === 'Enter') {
+      handleSearch();
     }
   };
 
-  const handleFocus = () => {
-    setIsFocused(true);
+  // 음성 입력 기능 (MediaRecorder API 사용)
+  const handleVoiceInput = async () => {
+    if (isRecording) {
+      // 녹음 중지
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+      }
+      setIsRecording(false);
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        
+        // 여기서 실제 음성 인식 API 호출
+        // 프로젝트에 음성 인식 API가 있다면 연동
+        setQuery('음성으로 입력된 텍스트'); // 임시 처리
+        
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error('음성 입력 오류:', error);
+      alert('마이크 접근 권한이 필요합니다.');
+    }
   };
 
-  const handleBlur = () => {
+  // AI 가이드 생성
+  const handleAIGeneration = async () => {
+    if (!query.trim()) {
+      alert('먼저 장소를 입력해주세요.');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const response = await fetch('/api/node/ai/generate-guide', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          locationName: query.trim(),
+          language: currentLanguage,
+          userProfile: {
+            interests: ['문화', '역사'],
+            knowledgeLevel: '중급',
+            ageGroup: '30대',
+            preferredStyle: '친근함'
+          }
+        }),
+      });
+
+      if (response.ok) {
+        router.push(`/guide/${encodeURIComponent(query.trim())}/tour`);
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || '가이드 생성에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('AI 생성 오류:', error);
+      alert('가이드 생성 중 오류가 발생했습니다.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // 오디오 재생
+  const handleAudioPlayback = () => {
+    if (!query.trim()) {
+      alert('먼저 장소를 입력해주세요.');
+      return;
+    }
+
+    setAudioPlaying(!audioPlaying);
+    
     setTimeout(() => {
-      setIsFocused(false);
-      setSelectedIndex(-1);
-    }, 200);
+      router.push(`/guide/${encodeURIComponent(query.trim())}/tour`);
+    }, 1000);
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* 메인 히어로 섹션 */}
-      <div className="flex flex-col items-center justify-center min-h-[80vh] px-4">
-        {/* 브랜드 타이틀 - 원래 캡쳐 텍스트 */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-6xl font-light text-gray-600 mb-2">
-            내 손안의
-          </h1>
-          <h2 className="text-3xl md:text-5xl font-normal text-black mb-4">
-            <span 
-              key={currentWord}
-              className="inline-block transition-all duration-500"
-            >
-              {words[currentWord]}
-            </span>
-          </h2>
-          <p className="text-xl font-medium text-black mb-2">
-            가이드없이 자유롭게!
-          </p>
-          <p className="text-lg text-black mb-6">
-            여행은 길이있게
-          </p>
-          <p className="text-base text-gray-600 max-w-lg mx-auto">
-            AI가 찾아낸 가장 알맞은 가이드해설
-          </p>
+    <div className="min-h-screen bg-white font-sans">
+      {/* Header */}
+      <Header />
+
+      {/* Background Overlay when focused */}
+      {isFocused && (
+        <div className="fixed inset-0 bg-black/5 backdrop-blur-sm z-40 transition-all duration-500" />
+      )}
+
+      {/* Main Content */}
+      <main className="relative overflow-hidden">
+        {/* Geometric Background Elements */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div 
+            className="absolute w-96 h-96 border border-black/5 rounded-full transition-transform duration-1000"
+            style={{
+              top: '10%',
+              right: '10%',
+              transform: `translate(${mousePosition.x * -0.02}px, ${mousePosition.y * -0.02}px)`
+            }}
+          />
+          
+          <div 
+            className="absolute w-20 h-px bg-black opacity-15 transition-transform duration-700"
+            style={{
+              top: '35%',
+              left: '8%',
+              transform: `translate(${mousePosition.x * -0.01}px, ${mousePosition.y * 0.01}px)`
+            }}
+          />
+          
+          <div 
+            className="absolute w-1 h-1 bg-black opacity-20 rotate-45 transition-transform duration-500"
+            style={{
+              bottom: '30%',
+              right: '20%',
+              transform: `translate(${mousePosition.x * 0.015}px, ${mousePosition.y * -0.01}px) rotate(45deg)`
+            }}
+          />
         </div>
 
-        {/* 검색 영역 */}
-        <div className="w-full max-w-2xl relative">
-          <form onSubmit={handleSubmit} className="relative">
-            <div className="relative">
-              <input
-                ref={inputRef}
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                placeholder="부산 해운대"
-                className="w-full px-6 py-4 text-lg bg-gray-50 border border-gray-200 rounded-full 
-                         focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent
-                         transition-all duration-200"
-                disabled={isSubmitting}
-              />
-              <button
-                type="submit"
-                disabled={!query.trim() || isSubmitting}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 
-                         w-12 h-12 bg-blue-600 text-white rounded-full 
-                         flex items-center justify-center hover:bg-blue-700 
-                         disabled:opacity-50 disabled:cursor-not-allowed
-                         transition-all duration-200"
-              >
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </div>
-          </form>
-
-          {/* 검색 제안 */}
-          {(suggestions.length > 0 || isTyping) && isFocused && (
-            <div className="absolute w-full mt-2 bg-white border border-gray-200 rounded-2xl shadow-lg z-10">
-              {isTyping ? (
-                <div className="flex items-center justify-center py-4">
-                  <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin mr-2" />
-                  <span className="text-gray-500 text-sm">검색 중...</span>
-                </div>
-              ) : (
-                suggestions.map((suggestion, index) => (
-                  <button
-                    key={suggestion.id || suggestion.name}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    className={`w-full px-4 py-3 text-left hover:bg-gray-50 first:rounded-t-2xl last:rounded-b-2xl
-                             flex items-center justify-between group transition-colors duration-150
-                             ${index === selectedIndex ? 'bg-blue-50' : ''}`}
+        {/* Hero Section */}
+        <section className="relative z-10 flex flex-col items-center justify-center px-6 pt-12 pb-20">
+          
+          {/* Hero Typography */}
+          <div className={`
+            pb-20 px-4 transform transition-all duration-1000
+            ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
+          `}>
+            {/* Main Title */}
+            <h1 className="text-7xl md:text-9xl font-thin tracking-[-0.02em] text-black leading-[0.85] mb-8 text-center">
+              <div className="relative">
+                <span className="block font-extralight">
+                  {t?.home?.brandTitle || '내 손안의'}
+                </span>
+                <span className="block overflow-hidden" style={{ height: '1.1em' }}>
+                  <span 
+                    className="inline-block transition-transform duration-1000 ease-out font-light"
+                    style={{
+                      transform: `translateY(-${currentWord * 100}%)`
+                    }}
                   >
-                    <div>
-                      <div className="font-medium text-gray-900">{suggestion.name}</div>
-                      {suggestion.location && (
-                        <div className="text-sm text-gray-500">{suggestion.location}</div>
-                      )}
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
-                  </button>
-                ))
+                    {words.map((word, index) => (
+                      <span key={index} className="flex items-center justify-center" style={{ height: '1.1em' }}>
+                        {word}
+                      </span>
+                    ))}
+                  </span>
+                </span>
+              </div>
+            </h1>
+
+            {/* Divider */}
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <div className="w-16 h-px bg-black"></div>
+              <div className="w-2 h-2 bg-black rounded-full"></div>
+              <div className="w-16 h-px bg-black"></div>
+            </div>
+
+            {/* Subtitle */}
+            <div className="text-center space-y-3 mb-12">
+              <p className="text-xl md:text-2xl text-gray-700 font-light tracking-wide">
+                {t?.home?.subtitle || '가이드없이 자유롭게,'}
+              </p>
+              <p className="text-xl md:text-2xl text-gray-700 font-light tracking-wide">
+                {t?.home?.subtitle2 || '여행은 깊이있게'}
+              </p>
+              <div className="pt-4">
+                <p className="text-base text-gray-500 font-light tracking-wide">
+                  {t?.home?.description || 'AI가 찾아낸 가장 완벽한 가이드해설'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Search Box */}
+          <div className="relative z-50 w-full max-w-2xl mx-auto">
+            <div className={`
+              relative transition-all duration-700 ease-out
+              ${isFocused 
+                ? 'scale-105 translate-y-[-8px]' 
+                : 'scale-100 translate-y-0'
+              }
+            `}>
+              <div className={`
+                relative bg-white rounded-3xl transition-all duration-500
+                ${isFocused 
+                  ? 'shadow-2xl shadow-black/15 ring-1 ring-black/5' 
+                  : 'shadow-xl shadow-black/10'
+                }
+              `}>
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+                  placeholder={placeholders[placeholderIndex]}
+                  className="w-full px-8 py-6 text-xl font-light text-black bg-transparent rounded-3xl focus:outline-none transition-all duration-300 placeholder-gray-400"
+                />
+                
+                <button
+                  onClick={handleSearch}
+                  disabled={!query.trim() || isGenerating}
+                  className={`
+                    absolute right-4 top-1/2 transform -translate-y-1/2
+                    w-14 h-14 rounded-2xl transition-all duration-300
+                    flex items-center justify-center group
+                    ${query.trim() && !isGenerating
+                      ? 'bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95' 
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    }
+                  `}
+                >
+                  {isGenerating ? (
+                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <svg className="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  )}
+                </button>
+                
+                {query.length > 0 && (
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-100 rounded-b-3xl overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-black to-gray-600 transition-all duration-300 ease-out"
+                      style={{ width: `${Math.min((query.length / 15) * 100, 100)}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Suggestions Dropdown */}
+              {suggestions.length > 0 && isFocused && query.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-10">
+                  {suggestions.filter(s => s.name.toLowerCase().includes(query.toLowerCase())).map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setQuery(suggestion.name);
+                        handleSearch();
+                      }}
+                      className="w-full px-6 py-4 text-left transition-all duration-200 group hover:bg-gray-50"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-gray-900 group-hover:text-black">
+                            {suggestion.name}
+                          </div>
+                          <div className="text-sm text-gray-500 mt-1">
+                            {suggestion.location}
+                          </div>
+                        </div>
+                        <div className="opacity-0 translate-x-2 group-hover:opacity-60 group-hover:translate-x-0 transition-all duration-200">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+        </section>
 
-      {/* 기능 소개 섹션 */}
-      <div className="max-w-6xl mx-auto px-4 pb-16">
-        <div className="text-center mb-12">
-          <h3 className="text-2xl font-light text-gray-800 mb-4">
-            AI가 만드는 특별한 여행 경험
-          </h3>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            최첨단 AI 기술로 당신만을 위한 개인 맞춤형 가이드를 실시간으로 생성합니다
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feature, index) => {
-            const IconComponent = feature.icon;
-            return (
-              <div key={index} className="text-center group">
-                <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4 
-                              group-hover:bg-blue-100 transition-colors duration-200">
-                  <IconComponent className="w-8 h-8 text-blue-600" />
+        {/* Features Section - 3개 원형 아이콘 */}
+        <section className="relative z-10 py-16">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="flex justify-center items-center gap-12 mb-16">
+              
+              {/* 음성 입력 */}
+              <div className="text-center">
+                <button 
+                  onClick={handleVoiceInput}
+                  className={`w-20 h-20 rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 ${
+                    isRecording ? 'bg-red-500 animate-pulse' : 'bg-black'
+                  }`}
+                >
+                  {isRecording ? (
+                    <div className="w-4 h-4 bg-white rounded-full animate-pulse"></div>
+                  ) : (
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                    </svg>
+                  )}
+                </button>
+                <div>
+                  <div className="text-lg font-bold text-black mb-1">음성 입력</div>
+                  <div className="text-sm text-gray-500">궁금한 곳의</div>
+                  <div className="text-sm text-gray-500">이름을 입력하세요</div>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">{feature.title}</h4>
-                <p className="text-sm text-gray-600 leading-relaxed">{feature.description}</p>
               </div>
-            );
-          })}
-        </div>
-      </div>
 
-      {/* 하단 앱 정보 */}
-      <div className="text-center pb-16 px-4">
-        <div className="max-w-md mx-auto">
-          <div className="text-sm text-gray-500 mb-2">
-            🎧 navi-guide ai sight vercel app
+              {/* AI 생성 */}
+              <div className="text-center">
+                <button 
+                  onClick={handleAIGeneration}
+                  disabled={!query.trim() || isGenerating}
+                  className={`w-20 h-20 rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 ${
+                    isGenerating ? 'bg-blue-500 animate-pulse' : 'bg-black'
+                  } ${!query.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {isGenerating ? (
+                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  )}
+                </button>
+                <div>
+                  <div className="text-lg font-bold text-black mb-1">AI 생성</div>
+                  <div className="text-sm text-gray-500">실시간으로</div>
+                  <div className="text-sm text-gray-500">맞춤 가이드 생성</div>
+                </div>
+              </div>
+
+              {/* 오디오 재생 */}
+              <div className="text-center">
+                <button 
+                  onClick={handleAudioPlayback}
+                  disabled={!query.trim()}
+                  className={`w-20 h-20 rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 ${
+                    audioPlaying ? 'bg-green-500 animate-pulse' : 'bg-black'
+                  } ${!query.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {audioPlaying ? (
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                    </svg>
+                  ) : (
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                  )}
+                </button>
+                <div>
+                  <div className="text-lg font-bold text-black mb-1">오디오 재생</div>
+                  <div className="text-sm text-gray-500">음성으로 생생한</div>
+                  <div className="text-sm text-gray-500">현장 해설</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="text-xs text-gray-400">
-            공급한 공간의 이름을 입력하세요
-          </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 }
