@@ -198,16 +198,16 @@ export default function HomePage() {
           `}>
             {/* Main Title */}
             <h1 className="text-2xl md:text-3xl font-thin tracking-[-0.02em] text-black leading-[0.85] mb-8">
-              <div className="flex items-center justify-between max-w-4xl mx-auto">
-                {/* 왼쪽: 내손안의 */}
-                <div className="text-left">
+              <div className="text-center">
+                {/* 상단: 내손안의 */}
+                <div className="mb-4">
                   <span className="block font-extralight text-2xl md:text-3xl">
                     {t?.home?.brandTitle || '내 손안의'}
                   </span>
                 </div>
                 
-                {/* 오른쪽: 스토리텔러 (회전) */}
-                <div className="text-right">
+                {/* 하단 중앙: 회전하는 단어들 */}
+                <div className="flex justify-center">
                   <div className="overflow-hidden" style={{ height: '1.2em' }}>
                     <span 
                       className="inline-block transition-transform duration-1000 ease-out font-light text-2xl md:text-3xl"
@@ -216,7 +216,7 @@ export default function HomePage() {
                       }}
                     >
                       {words.map((word, index) => (
-                        <span key={index} className="flex items-center justify-end" style={{ height: '1.2em' }}>
+                        <span key={index} className="flex items-center justify-center" style={{ height: '1.2em' }}>
                           {word}
                         </span>
                       ))}
@@ -239,16 +239,16 @@ export default function HomePage() {
             <div className="text-center space-y-4 mb-16">
               <div className="flex items-center justify-center gap-6">
                 <p className="text-xl md:text-2xl text-gray-700 font-light tracking-wide">
-                  {t?.home?.subtitle || '가이드없이 자유롭게,'}
+                  {currentLanguage === 'ko' ? '가이드없이 자유롭게,' : t?.home?.subtitle}
                 </p>
                 <div className="w-8 h-px bg-gray-300"></div>
                 <p className="text-xl md:text-2xl text-gray-700 font-light tracking-wide">
-                  {t?.home?.subtitle2 || '여행은 깊이있게'}
+                  {currentLanguage === 'ko' ? '여행은 깊이있게' : t?.home?.subtitle2}
                 </p>
               </div>
               <div className="pt-6">
                 <p className="text-base text-gray-500 font-light tracking-wide">
-                  {t?.home?.description || 'AI가 찾아낸 가장 완벽한 가이드해설'}
+                  {currentLanguage === 'ko' ? 'AI가 찾아낸 가장 완벽한 가이드해설' : t?.home?.description}
                 </p>
               </div>
             </div>

@@ -213,12 +213,12 @@ const DEFAULT_TRANSLATIONS: Translations = {
   home: {
     brandTitle: '내손안의',
     title: '내손안의 도슨트',
-    subtitle: '개인 맞춤형 여행 가이드를 AI가 실시간으로 생성해드립니다',
+    subtitle: '가이드없이 자유롭게,',
     subtitle2: '여행은 깊이있게',
     searchPlaceholder: '어디로 떠나고 싶으신가요?',
     searchButton: '가이드 생성',
     popularDestinations: '인기 여행지',
-    description: 'AI가 실시간으로 생성하는 독특한 여행 가이드를 만나보세요',
+    description: 'AI가 찾아낸 가장 완벽한 가이드해설',
     features: {
       realTime: '실시간가이드',
       personalized: '맞춤형추천',
