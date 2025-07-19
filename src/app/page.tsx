@@ -90,6 +90,7 @@ export default function HomePage() {
       setSuggestions([]);
       setIsTyping(false);
       setSelectedIndex(-1);
+      return undefined;
     }
   }, [query, currentLanguage]);
 
