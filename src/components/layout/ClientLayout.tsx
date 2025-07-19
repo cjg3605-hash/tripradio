@@ -9,9 +9,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   return (
     <>
-      <Header onSidebarToggle={() => setIsHistoryOpen(true)} />
+      <Header onHistoryOpen={() => setIsHistoryOpen(true)} />
       <HistorySidebar isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
       {children}
     </>
   );
-} 
+}
