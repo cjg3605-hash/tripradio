@@ -154,10 +154,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white font-sans">
 
-      {/* Background Overlay when focused */}
-      {isFocused && (
-        <div className="fixed inset-0 bg-black/5 backdrop-blur-sm z-40 transition-all duration-500" />
-      )}
+
 
       {/* Main Content */}
       <main className="relative overflow-hidden">
@@ -200,44 +197,56 @@ export default function HomePage() {
             ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
           `}>
             {/* Main Title */}
-            <h1 className="text-4xl md:text-5xl font-thin tracking-[-0.02em] text-black leading-[0.85] mb-8 text-center">
-              <div className="relative">
-                <span className="block font-extralight">
-                  {t?.home?.brandTitle || '내 손안의'}
-                </span>
-                <span className="block overflow-hidden" style={{ height: '1.1em' }}>
-                  <span 
-                    className="inline-block transition-transform duration-1000 ease-out font-light"
-                    style={{
-                      transform: `translateY(-${currentWord * 100}%)`
-                    }}
-                  >
-                    {words.map((word, index) => (
-                      <span key={index} className="flex items-center justify-center" style={{ height: '1.1em' }}>
-                        {word}
-                      </span>
-                    ))}
+            <h1 className="text-4xl md:text-5xl font-thin tracking-[-0.02em] text-black leading-[0.85] mb-8">
+              <div className="flex items-center justify-between max-w-4xl mx-auto">
+                {/* 왼쪽: 내손안의 */}
+                <div className="text-left">
+                  <span className="block font-extralight text-5xl md:text-6xl">
+                    {t?.home?.brandTitle || '내 손안의'}
                   </span>
-                </span>
+                </div>
+                
+                {/* 오른쪽: 스토리텔러 (회전) */}
+                <div className="text-right">
+                  <div className="overflow-hidden" style={{ height: '1.2em' }}>
+                    <span 
+                      className="inline-block transition-transform duration-1000 ease-out font-light text-5xl md:text-6xl"
+                      style={{
+                        transform: `translateY(-${currentWord * 100}%)`
+                      }}
+                    >
+                      {words.map((word, index) => (
+                        <span key={index} className="flex items-center justify-end" style={{ height: '1.2em' }}>
+                          {word}
+                        </span>
+                      ))}
+                    </span>
+                  </div>
+                </div>
               </div>
             </h1>
 
-            {/* Divider */}
-            <div className="flex items-center justify-center gap-4 mb-8">
-              <div className="w-16 h-px bg-black"></div>
-              <div className="w-2 h-2 bg-black rounded-full"></div>
-              <div className="w-16 h-px bg-black"></div>
+            {/* Decorative Element */}
+            <div className="flex items-center justify-center gap-8 mb-12">
+              <div className="w-12 h-px bg-black opacity-30"></div>
+              <div className="w-1 h-1 bg-black rounded-full opacity-50"></div>
+              <div className="w-1 h-1 bg-black rounded-full opacity-30"></div>
+              <div className="w-1 h-1 bg-black rounded-full opacity-20"></div>
+              <div className="w-12 h-px bg-black opacity-30"></div>
             </div>
 
             {/* Subtitle */}
-            <div className="text-center space-y-3 mb-12">
-              <p className="text-xl md:text-2xl text-gray-700 font-light tracking-wide">
-                {t?.home?.subtitle || '가이드없이 자유롭게,'}
-              </p>
-              <p className="text-xl md:text-2xl text-gray-700 font-light tracking-wide">
-                {t?.home?.subtitle2 || '여행은 깊이있게'}
-              </p>
-              <div className="pt-4">
+            <div className="text-center space-y-4 mb-16">
+              <div className="flex items-center justify-center gap-6">
+                <p className="text-xl md:text-2xl text-gray-700 font-light tracking-wide">
+                  {t?.home?.subtitle || '가이드없이 자유롭게,'}
+                </p>
+                <div className="w-8 h-px bg-gray-300"></div>
+                <p className="text-xl md:text-2xl text-gray-700 font-light tracking-wide">
+                  {t?.home?.subtitle2 || '여행은 깊이있게'}
+                </p>
+              </div>
+              <div className="pt-6">
                 <p className="text-base text-gray-500 font-light tracking-wide">
                   {t?.home?.description || 'AI가 찾아낸 가장 완벽한 가이드해설'}
                 </p>
@@ -281,7 +290,7 @@ export default function HomePage() {
                     flex items-center justify-center group
                     ${query.trim() && !isGenerating
                       ? 'bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95' 
-                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 opacity-50 cursor-not-allowed'
                     }
                   `}
                 >
@@ -346,8 +355,8 @@ export default function HomePage() {
               
               {/* 장소 입력 */}
               <div className="text-center">
-                <div className="w-20 h-20 rounded-full flex items-center justify-center bg-gray-100 mb-4">
-                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-20 h-20 rounded-full flex items-center justify-center bg-black mb-4 shadow-lg">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
