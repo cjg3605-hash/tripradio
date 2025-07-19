@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, MutableRefObject } from 'react';
-import { Play, Pause, ChevronLeft, ChevronRight, MoreVertical, Bookmark, Menu, ChevronDown, ChevronUp, ArrowUp } from 'lucide-react';
+import { Play, Pause, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, ArrowUp } from 'lucide-react';
 import { GuideData } from '@/types/guide';
 import { getOrCreateChapterAudio } from '@/lib/tts-gcs';
 
@@ -207,28 +207,6 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 모던 헤더 */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <Menu className="w-5 h-5 text-gray-600" />
-            </button>
-            
-            <h1 className="text-xl font-bold text-gray-900">NAVI GUIDE</h1>
-            
-            <div className="flex items-center gap-2">
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Bookmark className="w-5 h-5 text-gray-600" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <MoreVertical className="w-5 h-5 text-gray-600" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* 메인 콘텐츠 - 좌우 여백 제거 */}
       <div className="w-full">
         {/* 메인 카드 - 추천관람순서 */}

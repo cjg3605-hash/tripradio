@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
-import Header from '@/components/layout/Header';
 
 // 검색 제안 인터페이스
 interface Suggestion {
@@ -30,12 +29,8 @@ export default function HomePage() {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   
   // 기능 상태
-  const [isRecording, setIsRecording] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
-  
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
 
   // 회전하는 단어들
   const words = [
@@ -102,45 +97,7 @@ export default function HomePage() {
     }
   };
 
-  // 음성 입력 기능 (MediaRecorder API 사용)
-  const handleVoiceInput = async () => {
-    if (isRecording) {
-      // 녹음 중지
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-        mediaRecorderRef.current.stop();
-      }
-      setIsRecording(false);
-      return;
-    }
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
-      };
-
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        
-        // 여기서 실제 음성 인식 API 호출
-        // 프로젝트에 음성 인식 API가 있다면 연동
-        setQuery('음성으로 입력된 텍스트'); // 임시 처리
-        
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-    } catch (error) {
-      console.error('음성 입력 오류:', error);
-      alert('마이크 접근 권한이 필요합니다.');
-    }
-  };
 
   // AI 가이드 생성
   const handleAIGeneration = async () => {
@@ -196,8 +153,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      {/* Header */}
-      <Header />
 
       {/* Background Overlay when focused */}
       {isFocused && (
@@ -245,7 +200,7 @@ export default function HomePage() {
             ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
           `}>
             {/* Main Title */}
-            <h1 className="text-7xl md:text-9xl font-thin tracking-[-0.02em] text-black leading-[0.85] mb-8 text-center">
+            <h1 className="text-4xl md:text-5xl font-thin tracking-[-0.02em] text-black leading-[0.85] mb-8 text-center">
               <div className="relative">
                 <span className="block font-extralight">
                   {t?.home?.brandTitle || '내 손안의'}
@@ -389,24 +344,16 @@ export default function HomePage() {
           <div className="max-w-6xl mx-auto px-6">
             <div className="flex justify-center items-center gap-12 mb-16">
               
-              {/* 음성 입력 */}
+              {/* 장소 입력 */}
               <div className="text-center">
-                <button 
-                  onClick={handleVoiceInput}
-                  className={`w-20 h-20 rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 ${
-                    isRecording ? 'bg-red-500 animate-pulse' : 'bg-black'
-                  }`}
-                >
-                  {isRecording ? (
-                    <div className="w-4 h-4 bg-white rounded-full animate-pulse"></div>
-                  ) : (
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                    </svg>
-                  )}
-                </button>
+                <div className="w-20 h-20 rounded-full flex items-center justify-center bg-gray-100 mb-4">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
                 <div>
-                  <div className="text-lg font-bold text-black mb-1">음성 입력</div>
+                  <div className="text-lg font-bold text-black mb-1">장소 입력</div>
                   <div className="text-sm text-gray-500">궁금한 곳의</div>
                   <div className="text-sm text-gray-500">이름을 입력하세요</div>
                 </div>
