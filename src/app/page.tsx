@@ -201,7 +201,7 @@ export default function HomePage() {
               <div>
                 {/* 상단: 내손안의 (왼쪽 정렬) */}
                 <div className="mb-4 text-left">
-                  <span className="block font-extralight text-2xl md:text-3xl">
+                  <span className="block font-bold text-2xl">
                     {t?.home?.brandTitle || '내 손안의'}
                   </span>
                 </div>
@@ -210,7 +210,7 @@ export default function HomePage() {
                 <div className="flex justify-center">
                   <div className="overflow-hidden" style={{ height: '1.2em' }}>
                     <span 
-                      className="inline-block transition-transform duration-1000 ease-out font-light text-2xl md:text-3xl"
+                      className="inline-block transition-transform duration-1000 ease-out font-bold text-2xl"
                       style={{
                         transform: `translateY(-${currentWord * 100}%)`
                       }}
@@ -236,14 +236,14 @@ export default function HomePage() {
             </div>
 
             {/* Subtitle */}
-            <div className="text-center space-y-2 mb-12">
-              <p className="text-lg md:text-xl text-gray-500 font-light tracking-wide">
+            <div className="text-center space-y-2 mb-6">
+              <p className="text-base text-gray-500 font-light tracking-wide">
                 {currentLanguage === 'ko' ? '가이드없이 자유롭게,' : t?.home?.subtitle}
               </p>
-              <p className="text-xl md:text-2xl text-gray-700 font-light tracking-wide">
+              <p className="text-lg text-gray-700 font-light tracking-wide">
                 {currentLanguage === 'ko' ? '여행은 깊이있게' : t?.home?.subtitle2}
               </p>
-              <p className="text-2xl md:text-3xl text-black font-light tracking-wide">
+              <p className="text-xl text-black font-light tracking-wide">
                 {currentLanguage === 'ko' ? 'AI가 찾아낸 가장 완벽한 가이드해설' : t?.home?.description}
               </p>
             </div>
@@ -346,7 +346,7 @@ export default function HomePage() {
         {/* Features Section - 3개 원형 아이콘 */}
         <section className="relative z-10 py-16">
           <div className="max-w-6xl mx-auto px-6">
-            <div className="flex justify-center items-center gap-12 mb-16">
+            <div className="flex justify-center items-center gap-6 mb-16">
               
               {/* 장소 입력 */}
               <div className="text-center">
@@ -369,7 +369,7 @@ export default function HomePage() {
                   onClick={handleAIGeneration}
                   disabled={!query.trim() || isGenerating}
                   className={`w-20 h-20 rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 ${
-                    isGenerating ? 'bg-blue-500 animate-pulse' : 'bg-black'
+                    isGenerating ? 'bg-black animate-pulse' : 'bg-black'
                   } ${!query.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {isGenerating ? (
@@ -393,7 +393,7 @@ export default function HomePage() {
                   onClick={handleAudioPlayback}
                   disabled={!query.trim()}
                   className={`w-20 h-20 rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 ${
-                    audioPlaying ? 'bg-green-500 animate-pulse' : 'bg-black'
+                    audioPlaying ? 'bg-black animate-pulse' : 'bg-black'
                   } ${!query.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {audioPlaying ? (
@@ -407,9 +407,8 @@ export default function HomePage() {
                   )}
                 </button>
                 <div>
-                  <div className="text-lg font-bold text-black mb-1">오디오 재생</div>
-                  <div className="text-sm text-gray-500">음성으로 생생한</div>
-                  <div className="text-sm text-gray-500">현장 해설</div>
+                  <div className="text-lg font-bold text-black mb-1 whitespace-nowrap">오디오 재생</div>
+                  <div className="text-sm text-gray-500">음성으로 생생한 현장 해설</div>
                 </div>
               </div>
             </div>
