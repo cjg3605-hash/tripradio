@@ -361,7 +361,7 @@ export default function HomePage() {
                   disabled={!query.trim() || isGenerating}
                   className={`w-20 h-20 rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 bg-black text-white ${
                     isGenerating ? 'animate-pulse' : ''
-                  } ${!query.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
                 >
                   {isGenerating ? (
                     <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -379,13 +379,13 @@ export default function HomePage() {
               </div>
 
               {/* 오디오 재생 */}
-              <div className="text-center relative z-10">
+              <div className="text-center relative z-20">
                 <button 
                   onClick={handleAudioPlayback}
                   disabled={!query.trim()}
                   className={`w-20 h-20 rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-4 bg-black text-white ${
                     audioPlaying ? 'animate-pulse' : ''
-                  } ${!query.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
                 >
                   {audioPlaying ? (
                     <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
