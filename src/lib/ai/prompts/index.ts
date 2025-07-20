@@ -1,7 +1,8 @@
 // src/lib/ai/prompts/index.ts - 완전히 새로운 최소화된 인덱스 라우터
 
 import { UserProfile } from '@/types/guide';
-import { LanguageConfig, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
+// LanguageConfig는 타입으로만 import
+import type { LanguageConfig } from '@/contexts/LanguageContext';
 
 // ===============================
 // 🔧 인터페이스 정의
@@ -20,12 +21,54 @@ export interface LocationTypeConfig {
 // 🔧 공통 설정들 (모든 언어가 공유)
 // ===============================
 
-// 기존 SUPPORTED_LANGUAGES를 Record로 변환하여 타입 충돌 해결
-export const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = 
-  SUPPORTED_LANGUAGES.reduce((acc, lang) => {
-    acc[lang.code] = lang;
-    return acc;
-  }, {} as Record<string, LanguageConfig>);
+// 서버 사이드에서 사용 가능한 언어 설정 (클라이언트 의존성 제거)
+export const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = {
+  ko: { 
+    code: 'ko', 
+    name: '한국어', 
+    flag: '🇰🇷', 
+    nativeName: '한국어',
+    dir: 'ltr',
+    fontFamily: 'var(--font-noto-sans-kr)',
+    ttsLang: 'ko-KR'
+  },
+  en: { 
+    code: 'en', 
+    name: 'English', 
+    flag: '🇺🇸', 
+    nativeName: 'English',
+    dir: 'ltr',
+    fontFamily: 'var(--font-inter)',
+    ttsLang: 'en-US'
+  },
+  ja: { 
+    code: 'ja', 
+    name: '日本語', 
+    flag: '🇯🇵', 
+    nativeName: '日本語',
+    dir: 'ltr',
+    fontFamily: 'var(--font-noto-sans-jp)',
+    ttsLang: 'ja-JP'
+  },
+  zh: { 
+    code: 'zh', 
+    name: '中文', 
+    flag: '🇨🇳', 
+    nativeName: '中文',
+    dir: 'ltr',
+    fontFamily: 'var(--font-noto-sans-sc)',
+    ttsLang: 'zh-CN'
+  },
+  es: { 
+    code: 'es', 
+    name: 'Español', 
+    flag: '🇪🇸', 
+    nativeName: 'Español',
+    dir: 'ltr',
+    fontFamily: 'var(--font-inter)',
+    ttsLang: 'es-ES'
+  }
+};
 
 const REALTIME_GUIDE_KEYS: Record<string, string> = {
   ko: '실시간가이드',
@@ -522,7 +565,7 @@ export function getLanguageConfig(language: string): LanguageConfig {
  * 지원되는 언어 목록 가져오기
  */
 export function getSupportedLanguages(): LanguageConfig[] {
-  return SUPPORTED_LANGUAGES;
+  return Object.values(LANGUAGE_CONFIGS);
 }
 
 /**
