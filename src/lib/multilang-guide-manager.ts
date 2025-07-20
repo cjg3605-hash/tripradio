@@ -180,7 +180,10 @@ export class MultiLangGuideManager {
         };
       } else {
         console.error(`❌ ${targetLanguage} 가이드 생성 실패:`, generateResult.error);
-        return generateResult;
+        return {
+          success: false,
+          error: generateResult.error
+        };
       }
 
     } catch (error) {
@@ -199,7 +202,7 @@ export class MultiLangGuideManager {
     locationName: string, 
     language: string, 
     userProfile?: any
-  ): Promise<{ success: boolean; data?: any; error?: any }> {
+  ): Promise<{ success: boolean; data?: any; error?: any; source?: string }> {
     
     try {
       console.log(`🤖 ${language} 가이드 생성 시작:`, locationName);
