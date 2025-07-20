@@ -11,7 +11,11 @@ interface PageProps {
 }
 
 function normalizeString(str: string): string {
-  return str.trim().toLowerCase().replace(/\s+/g, ' ');
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/[^\w\s가-힣]/g, ''); // 특수문자 제거, 한글 유지
 }
 
 export default async function GuidePage({ params, searchParams }: PageProps) {
@@ -27,13 +31,13 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
   try {
     const { data, error } = await supabase
       .from('guides')
-      .select('guide_data')
+      .select('content')
       .eq('locationname', normLocation)
       .eq('language', requestedLang.toLowerCase())
       .maybeSingle();
     
-    if (!error && data && data.guide_data) {
-      initialGuide = data.guide_data;
+    if (!error && data && data.content) {
+      initialGuide = data.content;
       console.log(`✅ 서버에서 ${requestedLang} 가이드 발견:`, locationName);
     } else {
       console.log(`📭 서버에서 ${requestedLang} 가이드 없음:`, locationName);

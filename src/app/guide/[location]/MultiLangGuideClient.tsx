@@ -110,7 +110,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
       
       if (forceRegenerate) {
         // 강제 재생성
-        result = await MultiLangGuideManager.generateAndSaveGuide(
+        result = await MultiLangGuideManager.forceRegenerateGuide(
           locationName,
           language
         );

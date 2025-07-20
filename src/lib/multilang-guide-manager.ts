@@ -193,7 +193,7 @@ export class MultiLangGuideManager {
   }
 
   /**
-   * 🤖 새로운 가이드 생성 및 저장
+   * 🤖 새로운 가이드 생성 및 저장 (강제 재생성용)
    */
   static async generateAndSaveGuide(
     locationName: string, 
@@ -203,6 +203,19 @@ export class MultiLangGuideManager {
     
     try {
       console.log(`🤖 ${language} 가이드 생성 시작:`, locationName);
+
+      // ⚠️ 중복 체크: 기존 가이드가 있으면 반환 (강제 재생성이 아닌 경우)
+      const existingGuide = await this.getGuideByLanguage(locationName, language);
+      if (existingGuide.success) {
+        console.log(`✅ 기존 ${language} 가이드 발견 - 중복 생성 방지`);
+        return {
+          success: true,
+          data: existingGuide.data,
+          source: 'cache'
+        };
+      }
+
+      console.log(`🎨 ${language} 가이드가 없음 - 새로 생성`);
 
       // API 라우트를 통해 AI 가이드 생성 요청
       const response = await fetch('/api/ai/generate-multilang-guide', {
@@ -247,6 +260,65 @@ export class MultiLangGuideManager {
 
     } catch (error) {
       console.error(`❌ ${language} 가이드 생성 실패:`, error);
+      return { success: false, error };
+    }
+  }
+
+  /**
+   * 🔄 강제 재생성 (기존 가이드 무시하고 새로 생성)
+   */
+  static async forceRegenerateGuide(
+    locationName: string, 
+    language: string, 
+    userProfile?: any
+  ): Promise<{ success: boolean; data?: any; error?: any }> {
+    
+    try {
+      console.log(`🔄 ${language} 가이드 강제 재생성:`, locationName);
+
+      // API 라우트를 통해 AI 가이드 생성 요청
+      const response = await fetch('/api/ai/generate-multilang-guide', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          locationName: locationName,
+          language: language,
+          userProfile: userProfile
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API 호출 실패: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'AI 가이드 생성 실패');
+      }
+
+      const guideData = result.data;
+      console.log(`📥 ${language} AI 가이드 재생성 수신: ${JSON.stringify(guideData).length}자`);
+
+      // DB에 저장 (덮어쓰기)
+      const saveResult = await this.saveGuideByLanguage({
+        locationName,
+        language,
+        guideData,
+        userProfile
+      });
+
+      if (saveResult.success) {
+        console.log(`✅ ${language} 가이드 강제 재생성 완료`);
+        return { success: true, data: guideData };
+      } else {
+        return { success: false, error: saveResult.error };
+      }
+
+    } catch (error) {
+      console.error(`❌ ${language} 가이드 강제 재생성 실패:`, error);
       return { success: false, error };
     }
   }
