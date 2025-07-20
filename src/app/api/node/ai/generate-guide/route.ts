@@ -99,178 +99,203 @@ class OptimizedGuideManager {
     chapterData: any
   ): Promise<{ success: boolean; error?: any; data?: any }> {
     try {
-      console.log('🔄 원자적 챕터 업데이트 시작:', {
-        locationName,
-        language,
-        chapterIndex,
-        hasNarrative: !!chapterData.narrative,
-        narrativeLength: chapterData.narrative?.length || 0
-      });
+      const normLocation = normalize(locationName);
+      const key = `${normLocation}_${language}`;
 
-      // 1. 기존 데이터 조회
+      // 기존 가이드 조회
       const { data: existing, error: fetchError } = await supabase
         .from('guides')
         .select('content')
-        .eq('locationname', locationName.toLowerCase().trim())
-        .eq('language', language.toLowerCase().trim())
+        .eq('location_key', key)
         .single();
 
-      if (fetchError || !existing) {
-        return { success: false, error: fetchError || '기존 가이드를 찾을 수 없습니다.' };
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
       }
 
-      // 2. 챕터 인덱스 유효성 검증
-      const totalChapters = existing.content?.realTimeGuide?.chapters?.length || 0;
-      if (chapterIndex < 0 || chapterIndex >= totalChapters) {
-        return { 
-          success: false, 
-          error: `잘못된 챕터 인덱스: ${chapterIndex}/${totalChapters}` 
-        };
+      if (!existing?.content) {
+        throw new Error('기존 가이드를 찾을 수 없습니다');
       }
 
-      // 3. 챕터 데이터 업데이트
+      // 챕터 업데이트
       const updatedContent = { ...existing.content };
       if (!updatedContent.realTimeGuide) {
         updatedContent.realTimeGuide = { chapters: [] };
       }
-
-      updatedContent.realTimeGuide.chapters[chapterIndex] = {
-        ...updatedContent.realTimeGuide.chapters[chapterIndex],
-        ...chapterData
-      };
-
-      // 4. 원자적 업데이트
-      const { error: updateError } = await supabase
-        .from('guides')
-        .update({
-          content: updatedContent
-        })
-        .eq('locationname', locationName.toLowerCase().trim())
-        .eq('language', language.toLowerCase().trim());
-
-      if (updateError) {
-        return { success: false, error: updateError };
+      if (!updatedContent.realTimeGuide.chapters) {
+        updatedContent.realTimeGuide.chapters = [];
       }
 
-      console.log('✅ 원자적 챕터 업데이트 완료');
+      // 챕터 배열 확장 (필요시)
+      while (updatedContent.realTimeGuide.chapters.length <= chapterIndex) {
+        updatedContent.realTimeGuide.chapters.push({
+          id: updatedContent.realTimeGuide.chapters.length,
+          title: `챕터 ${updatedContent.realTimeGuide.chapters.length + 1}`,
+          content: []
+        });
+      }
+
+      // 챕터 데이터 업데이트
+      updatedContent.realTimeGuide.chapters[chapterIndex] = {
+        ...updatedContent.realTimeGuide.chapters[chapterIndex],
+        ...chapterData,
+        id: chapterIndex
+      };
+
+      // 데이터베이스 업데이트
+      const { error: updateError } = await supabase
+        .from('guides')
+        .update({ 
+          content: updatedContent,
+          updated_at: new Date().toISOString()
+        })
+        .eq('location_key', key);
+
+      if (updateError) throw updateError;
+
       return { success: true, data: updatedContent };
 
     } catch (error) {
-      console.error('❌ 원자적 업데이트 실패:', error);
-      return { success: false, error };
-    }
-  }
-
-  // 📊 가이드 존재 여부 및 메타데이터 조회
-  async getGuideMetadata(
-    locationName: string,
-    language: string
-  ): Promise<{ exists: boolean; chapterCount: number; hasContent: boolean; data?: any }> {
-    try {
-      const { data, error } = await supabase
-        .from('guides')
-        .select('content')
-        .eq('locationname', locationName.toLowerCase().trim())
-        .eq('language', language.toLowerCase().trim())
-        .single();
-
-      if (error || !data) {
-        return { exists: false, chapterCount: 0, hasContent: false };
-      }
-
-      const chapters = data.content?.realTimeGuide?.chapters || [];
-      const chapterCount = Array.isArray(chapters) ? chapters.length : 0;
-      
-      // 챕터에 실제 내용이 있는지 확인
-      const hasContent = Array.isArray(chapters) && chapters.some((ch: any) => 
-        ch.narrative || ch.sceneDescription || ch.coreNarrative
-      );
-
-      return {
-        exists: true,
-        chapterCount,
-        hasContent,
-        data: data.content
+      console.error('❌ 챕터 업데이트 실패:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : '알 수 없는 오류' 
       };
-
-    } catch (error) {
-      console.error('❌ 메타데이터 조회 실패:', error);
-      return { exists: false, chapterCount: 0, hasContent: false };
     }
   }
 
-  // 💾 완전한 가이드 저장 (upsert 방식)
+  // 🎯 완전한 가이드 저장
   async saveCompleteGuide(
     locationName: string,
     language: string,
     guideData: any
-  ): Promise<{ success: boolean; error?: any; isNew: boolean }> {
+  ): Promise<{ success: boolean; error?: any; isNew?: boolean }> {
     try {
-      console.log('💾 완전한 가이드 저장 시작');
+      const normLocation = normalize(locationName);
+      const key = `${normLocation}_${language}`;
 
-      const { data, error } = await supabase
+      // 기존 가이드 확인
+      const { data: existing, error: fetchError } = await supabase
         .from('guides')
-        .upsert([{
-          locationname: locationName.toLowerCase().trim(),
-          language: language.toLowerCase().trim(),
-          content: guideData
-        }], {
-          onConflict: 'locationname,language',
-          ignoreDuplicates: false
-        })
-        .select('*')
+        .select('id')
+        .eq('location_key', key)
         .single();
 
-      if (error) {
-        return { success: false, error, isNew: false };
+      const isNew = !existing;
+
+      if (isNew) {
+        // 새로운 가이드 생성
+        const { error: insertError } = await supabase
+          .from('guides')
+          .insert({
+            location_key: key,
+            location_name: locationName,
+            language: language,
+            content: guideData,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+
+        if (insertError) throw insertError;
+      } else {
+        // 기존 가이드 업데이트
+        const { error: updateError } = await supabase
+          .from('guides')
+          .update({ 
+            content: guideData,
+            updated_at: new Date().toISOString()
+          })
+          .eq('location_key', key);
+
+        if (updateError) throw updateError;
       }
 
-      const isNew = true; // 단순화
-      
-      console.log('✅ 가이드 저장 완료:', { isNew });
       return { success: true, isNew };
 
     } catch (error) {
-      return { success: false, error, isNew: false };
+      console.error('❌ 가이드 저장 실패:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : '알 수 없는 오류' 
+      };
+    }
+  }
+
+  // 🎯 가이드 메타데이터 조회
+  async getGuideMetadata(
+    locationName: string,
+    language: string
+  ): Promise<{ exists: boolean; hasContent: boolean; chapterCount: number; data?: any }> {
+    try {
+      const normLocation = normalize(locationName);
+      const key = `${normLocation}_${language}`;
+
+      const { data, error } = await supabase
+        .from('guides')
+        .select('content')
+        .eq('location_key', key)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (!data?.content) {
+        return { exists: false, hasContent: false, chapterCount: 0 };
+      }
+
+      const chapterCount = data.content.realTimeGuide?.chapters?.length || 0;
+      const hasContent = !!(data.content.overview && data.content.route && data.content.realTimeGuide);
+
+      return { 
+        exists: true, 
+        hasContent, 
+        chapterCount, 
+        data: data.content 
+      };
+
+    } catch (error) {
+      console.error('❌ 메타데이터 조회 실패:', error);
+      return { exists: false, hasContent: false, chapterCount: 0 };
     }
   }
 }
 
-// 🚀 메인 API 핸들러
-export async function POST(req: NextRequest) {
-  const guideManager = OptimizedGuideManager.getInstance();
-  
+// POST 메서드 핸들러
+export async function POST(request: NextRequest) {
   try {
-    let requestBody;
-    try {
-      requestBody = await req.json();
-    } catch (error) {
-      return new Response(
-        JSON.stringify({ success: false, error: '잘못된 JSON 형식입니다.' }),
-        { status: 400, headers }
-      );
-    }
+    console.log('🚀 최적화된 가이드 생성 API 시작');
 
+    const body = await request.json();
     const { 
       locationName, 
       language = 'ko', 
-      userProfile, 
+      userProfile,
       forceRegenerate = false,
-      generationMode = 'auto',
-      existingGuide = null,
-      targetChapter = null,
-      maxChapters
-    } = requestBody;
+      generationMode = 'autonomous',
+      targetChapter = null
+    } = body;
 
-    if (!locationName || typeof locationName !== 'string') {
+    // 입력 검증
+    if (!locationName?.trim()) {
       return new Response(
-        JSON.stringify({ success: false, error: '유효한 위치 정보가 필요합니다.' }),
+        JSON.stringify({ success: false, error: '위치 이름을 입력해주세요.' }),
         { status: 400, headers }
       );
     }
 
+    const guideManager = OptimizedGuideManager.getInstance();
     const normLocation = normalize(locationName);
     const normLang = normalize(language);
+
+    // 기존 가이드 확인
+    let existingGuide: any = null;
+    if (generationMode === 'chapter') {
+      const metadata = await guideManager.getGuideMetadata(normLocation, normLang);
+      if (metadata.exists && metadata.data) {
+        existingGuide = metadata.data;
+      }
+    }
 
     // 🔍 1. 성능 최적화된 캐시 확인
     if (!forceRegenerate) {
@@ -290,7 +315,7 @@ export async function POST(req: NextRequest) {
           }
 
           const existingChapter = metadata.data?.realTimeGuide?.chapters?.[targetChapter];
-          if (existingChapter?.narrative) {
+          if (existingChapter?.sceneDescription) {
             console.log('✅ 챕터 내용이 이미 존재 - 기존 데이터 반환');
             
             return NextResponse.json({
@@ -315,12 +340,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 🤖 2. AI 가이드 생성 - 수정된 버전
+    // 🤖 2. AI 가이드 생성
     console.log('🤖 AI 가이드 생성 시작 - 모드:', generationMode);
 
     let prompt: string;
 
-    // 생성 모드에 따른 프롬프트 선택 (올바른 await 사용)
+    // 생성 모드에 따른 프롬프트 선택 (await 사용)
     if (generationMode === 'structure') {
       prompt = await createStructurePrompt(locationName, language, userProfile);
     } else if (generationMode === 'chapter' && existingGuide && targetChapter !== null) {
@@ -335,63 +360,72 @@ export async function POST(req: NextRequest) {
       const genAI = getGeminiClient();
       const config = {
         temperature: 0.3,
-        maxOutputTokens: generationMode === 'chapter' ? 8192 : 32768,
-        topK: 40,
-        topP: 0.9
+        maxOutputTokens: generationMode === 'chapter' ? 4000 : 8000,
+        topP: 0.8,
+        topK: 40
       };
-      const model = genAI.getGenerativeModel({
-        model: 'gemini-2.5-flash-lite-preview-06-17',
+
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-pro",
         generationConfig: config
       });
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const responseText = await response.text();
-      // 🚨 반환값 검증
-      if (responseText === undefined || responseText === null || typeof responseText !== 'string') {
-        throw new Error('AI 응답이 올바르지 않습니다: undefined 또는 null 응답');
+
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          console.log(`🔄 AI 생성 시도 ${attempt}/3`);
+          
+          const result = await model.generateContent(prompt);
+          const response = await result.response;
+          const text = response.text();
+
+          if (!text?.trim()) {
+            throw new Error('빈 응답');
+          }
+
+          return text;
+        } catch (error) {
+          console.error(`❌ 시도 ${attempt} 실패:`, error);
+          
+          if (attempt === 3) {
+            throw new Error(`3회 시도 후 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+          }
+          
+          // 재시도 전 대기
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
       }
-      if (responseText.trim().length === 0) {
-        throw new Error('AI로부터 빈 응답을 받았습니다.');
-      }
-      const hasJsonStructure = responseText.includes('{') && responseText.includes('}');
-      if (!hasJsonStructure) {
-        throw new Error('JSON 구조가 없는 응답을 받았습니다.');
-      }
-      return responseText;
+      
+      throw new Error('모든 재시도 실패');
     };
 
-    // 재시도 로직 (최대 3번) - 타입 안전성 보장
-    let responseText: string | undefined = undefined;
-    let lastError: Error | null = null;
+    const aiResponse = await generateWithRetry();
 
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        console.log(`🔄 AI 응답 시도 ${attempt}/3`);
-        responseText = await generateWithRetry(); // 이제 확실히 string
-        console.log(`✅ 시도 ${attempt}에서 성공`);
-        break;
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-        console.warn(`⚠️ 시도 ${attempt} 실패:`, lastError.message);
-        if (attempt === 3) {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              error: `AI 응답 생성 실패 (3번 시도 후): ${lastError.message}`
-            }),
-            { status: 500, headers }
-          );
-        }
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+    // 🔍 3. JSON 응답 검증 및 파싱
+    let parsed: { success: boolean; data?: any; error?: string };
+    
+    try {
+      // AI 응답에서 JSON 추출
+      const jsonMatch = aiResponse.match(/\{.*\}/s);
+      if (!jsonMatch) {
+        throw new Error('JSON 형식을 찾을 수 없습니다');
       }
+      
+      const jsonData = JSON.parse(jsonMatch[0]);
+      parsed = { success: true, data: jsonData };
+    } catch (error) {
+      parsed = { 
+        success: false, 
+        error: error instanceof Error ? error.message : '파싱 실패' 
+      };
     }
 
-    // 🔍 3. JSON 파싱 및 검증
-    const parsed = validateJsonResponse(responseText);
-    if (!parsed.success) {
-      console.error('❌ JSON 파싱 실패:', parsed.error);
+    if (!parsed.success || !parsed.data) {
       return new Response(
-        JSON.stringify(createErrorResponse(parsed.error, 'JSON_PARSE_ERROR')),
+        JSON.stringify({ 
+          success: false, 
+          error: `AI 응답 파싱 실패: ${parsed.error}`,
+          rawResponse: aiResponse.substring(0, 500)
+        }),
         { status: 500, headers }
       );
     }
@@ -413,8 +447,8 @@ export async function POST(req: NextRequest) {
 
       // 원자적 챕터 업데이트
       saveResult = await guideManager.updateChapterAtomic(
-        normLocation,
-        normLang,
+        locationName,
+        language,
         targetChapter,
         newChapter
       );
@@ -436,8 +470,8 @@ export async function POST(req: NextRequest) {
       finalData = normalizeGuideData(parsed.data, language);
       
       saveResult = await guideManager.saveCompleteGuide(
-        normLocation,
-        normLang,
+        locationName,
+        language,
         finalData
       );
 
