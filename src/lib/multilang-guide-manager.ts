@@ -205,18 +205,16 @@ export class MultiLangGuideManager {
     try {
       console.log(`🤖 ${language} 가이드 생성 시작:`, locationName);
 
-      // API 라우트를 통해 가이드 생성 요청
-      const response = await fetch('/api/ai/generate-guide-with-gemini', {
+      // API 라우트를 통해 AI 가이드 생성 요청
+      const response = await fetch('/api/ai/generate-multilang-guide', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          location: locationName,
-          userProfile: {
-            ...userProfile,
-            language: language
-          }
+          locationName: locationName,
+          language: language,
+          userProfile: userProfile
         })
       });
 
