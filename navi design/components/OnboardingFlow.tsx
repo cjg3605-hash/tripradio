@@ -54,7 +54,7 @@ const tourStyles = [
 export default function OnboardingFlow() {
   const { setUserPreferences, setIsOnboarded, setCurrentScreen } = useApp();
   const [step, setStep] = useState(0);
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>('ko');
+  const [selectedLanguage, setSelectedLanguage] = useState<Language | ''>('');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [selectedTourStyle, setSelectedTourStyle] = useState('');
 
@@ -66,7 +66,7 @@ export default function OnboardingFlow() {
       setStep(step + 1);
     } else {
       const preferences: UserPreferences = {
-        language: selectedLanguage,
+        language: selectedLanguage as Language,
         interests: selectedInterests,
         ageGroup: 'adult',
         knowledgeLevel: 'intermediate',

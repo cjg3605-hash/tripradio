@@ -17,12 +17,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   
   try {
     const body = await req.json();
-    const { action, email, code } = body;
+    const { action, email, verificationCode } = body;
 
-    console.log('요청 데이터:', { action, email: email ? '***@***.***' : undefined, code: code ? '******' : undefined });
+    console.log('요청 데이터:', { action, email: email ? '***@***.***' : undefined, verificationCode: verificationCode ? '******' : undefined });
 
     // === 인증 코드 발송 ===
-    if (action === 'send') {
+    if (action === 'send_code') {
       // 이메일 유효성 검사
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!email || !emailRegex.test(email)) {
@@ -212,8 +212,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     // === 인증 코드 확인 ===
-    if (action === 'verify') {
-      if (!email || !code) {
+    if (action === 'verify_code') {
+      if (!email || !verificationCode) {
         return NextResponse.json(
           { error: '이메일과 인증 코드를 모두 입력해주세요.' },
           { status: 400 }
@@ -227,7 +227,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           .from('email_verifications')
           .select('*')
           .eq('email', email)
-          .eq('verification_code', code)
+          .eq('verification_code', verificationCode)
           .eq('verified', false)
           .single();
 
@@ -266,7 +266,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             verified_at: new Date().toISOString() 
           })
           .eq('email', email)
-          .eq('verification_code', code);
+          .eq('verification_code', verificationCode);
 
         if (updateError) {
           console.error('인증 상태 업데이트 실패:', updateError);

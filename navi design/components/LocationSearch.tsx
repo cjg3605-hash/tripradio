@@ -266,7 +266,7 @@ export default function LocationSearch() {
             <div className="space-y-3 text-left border border-border rounded-lg p-4">
               <p className="text-sm font-medium">당신의 취향에 맞춰 맞춤화 중:</p>
               <div className="flex flex-wrap gap-2">
-                {userPreferences?.interests.slice(0, 3).map((interest) => (
+                {(userPreferences?.interests ?? []).slice(0, 3).map((interest) => (
                   <Badge key={interest} variant="outline" className="text-xs border-border">
                     {interest}
                   </Badge>

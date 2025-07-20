@@ -112,7 +112,7 @@ export default function HomeScreen() {
 
   const getPersonalizedGreeting = () => {
     const hour = new Date().getHours();
-    const { language } = userPreferences || { language: 'ko' };
+    const language = userPreferences?.language ?? 'ko';
     
     const greetings = {
       ko: hour < 12 ? '좋은 아침이에요' : hour < 18 ? '안녕하세요' : '좋은 저녁이에요',
@@ -120,9 +120,9 @@ export default function HomeScreen() {
       ja: hour < 12 ? 'おはようございます' : hour < 18 ? 'こんにちは' : 'こんばんは',
       zh: hour < 12 ? '早上好' : hour < 18 ? '下午好' : '晚上好',
       es: hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches'
-    };
+    } as const;
     
-    return greetings[language] || greetings.ko;
+    return greetings[language as keyof typeof greetings] || greetings.ko;
   };
 
   return (
