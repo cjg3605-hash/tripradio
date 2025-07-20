@@ -8,7 +8,7 @@ import { getOrCreateChapterAudio } from '@/lib/tts-gcs';
 interface TourContentProps {
   guide: GuideData;
   language: string;
-  chapterRefs?: MutableRefObject<(HTMLDivElement | null)[]>;
+  chapterRefs?: MutableRefObject<(HTMLElement | null)[]>;
 }
 
 const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: TourContentProps) => {
