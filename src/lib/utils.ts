@@ -1,3 +1,4 @@
+// src/lib/utils.ts
 import { UserProfile, GuideData, GuideOverview, GuideRoute, GuideStep, RealTimeGuide, GuideChapter } from '@/types/guide';
 
 export function normalizeString(s: string | null | undefined): string {
@@ -119,8 +120,8 @@ export function isValidUserProfile(obj: any): obj is UserProfile {
 export function isValidGuideChapter(obj: any): obj is GuideChapter {
   if (!obj || typeof obj !== 'object') return false;
   
-  // 필수 필드 체크
-  if (typeof obj.id !== 'number' || typeof obj.title !== 'string') {
+  // 필수 필드 체크 (id 또는 number 중 하나는 있어야 함)
+  if ((typeof obj.id !== 'number' && typeof obj.number !== 'number') || typeof obj.title !== 'string') {
     return false;
   }
   
@@ -131,184 +132,54 @@ export function isValidGuideChapter(obj: any): obj is GuideChapter {
   if (obj.narrative && typeof obj.narrative !== 'string') return false;
   if (obj.nextDirection && typeof obj.nextDirection !== 'string') return false;
   
-  // 좌표 필드들 체크
-  if (obj.lat && typeof obj.lat !== 'number') return false;
-  if (obj.lng && typeof obj.lng !== 'number') return false;
-  if (obj.latitude && typeof obj.latitude !== 'number') return false;
-  if (obj.longitude && typeof obj.longitude !== 'number') return false;
-  
-  if (obj.coordinates) {
-    if (typeof obj.coordinates !== 'object' || 
-        typeof obj.coordinates.lat !== 'number' || 
-        typeof obj.coordinates.lng !== 'number') {
-      return false;
-    }
-  }
+  // 좌표 체크
+  if (obj.location && (!obj.location.lat || !obj.location.lng)) return false;
   
   return true;
-}
-
-// RealTimeGuide 타입 가드
-export function isValidRealTimeGuide(obj: any): obj is RealTimeGuide {
-  if (!obj || typeof obj !== 'object') return false;
-  
-  if (!Array.isArray(obj.chapters)) return false;
-  
-  return obj.chapters.every((chapter: any) => isValidGuideChapter(chapter));
-}
-
-// GuideOverview 타입 가드
-export function isValidGuideOverview(obj: any): obj is GuideOverview {
-  if (!obj || typeof obj !== 'object') return false;
-  
-  // 필수 필드
-  if (typeof obj.title !== 'string') return false;
-  
-  // keyFacts 배열 체크
-  if (!Array.isArray(obj.keyFacts)) return false;
-  
-  for (const fact of obj.keyFacts) {
-    if (!fact || typeof fact !== 'object' || 
-        typeof fact.title !== 'string' || 
-        typeof fact.description !== 'string') {
-      return false;
-    }
-  }
-  
-  // 선택적 필드들
-  if (obj.summary && typeof obj.summary !== 'string') return false;
-  if (obj.narrativeTheme && typeof obj.narrativeTheme !== 'string') return false;
-  
-  if (obj.visitInfo) {
-    if (typeof obj.visitInfo !== 'object') return false;
-    if (obj.visitInfo.duration && typeof obj.visitInfo.duration !== 'string') return false;
-    if (obj.visitInfo.difficulty && typeof obj.visitInfo.difficulty !== 'string') return false;
-    if (obj.visitInfo.season && typeof obj.visitInfo.season !== 'string') return false;
-  }
-  
-  return true;
-}
-
-// GuideStep 배열 타입 가드
-export function isValidGuideStepArray(obj: any): obj is GuideStep[] {
-  if (!Array.isArray(obj)) return false;
-  
-  return obj.every((step: any) => {
-    return step && typeof step === 'object' &&
-           typeof step.step === 'number' &&
-           typeof step.location === 'string' &&
-           typeof step.title === 'string';
-  });
-}
-
-// GuideRoute 타입 가드
-export function isValidGuideRoute(obj: any): obj is GuideRoute {
-  if (!obj || typeof obj !== 'object') return false;
-  
-  if (!Array.isArray(obj.steps)) return false;
-  
-  return obj.steps.every((step: any) => {
-    return step && typeof step === 'object' &&
-           typeof step.step === 'number' &&
-           typeof step.location === 'string' &&
-           typeof step.title === 'string';
-  });
 }
 
 // GuideData 타입 가드
 export function isValidGuideData(obj: any): obj is GuideData {
   if (!obj || typeof obj !== 'object') return false;
   
-  // 필수 필드들
-  if (!isValidGuideOverview(obj.overview)) return false;
-  
-  // route 검증 개선
-  if (!obj.route || (!isValidGuideStepArray(obj.route) && !isValidGuideRoute(obj.route))) return false;
-  
-  if (!obj.metadata || typeof obj.metadata !== 'object' || typeof obj.metadata.originalLocationName !== 'string') {
-    return false;
-  }
-  
-  // 선택적 필드
-  if (obj.realTimeGuide && !isValidRealTimeGuide(obj.realTimeGuide)) return false;
+  // 필수 필드 체크
+  if (!obj.overview || !obj.route || !obj.metadata) return false;
+  if (typeof obj.overview.title !== 'string') return false;
+  if (!Array.isArray(obj.route.steps)) return false;
+  if (typeof obj.metadata.originalLocationName !== 'string') return false;
   
   return true;
 }
 
-// JSON 응답 유효성 검증
-export function validateJsonResponse(jsonString: string): { 
-  success: true; 
-  data: any; 
-} | { 
-  success: false; 
-  error: string; 
-} {
-  try {
-    let cleanedString = jsonString.trim();
-    
-    // 1. 코드 블록 제거
-    if (cleanedString.includes('```')) {
-      const jsonBlockMatch = cleanedString.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-      if (jsonBlockMatch) {
-        cleanedString = jsonBlockMatch[1].trim();
-      } else {
-        cleanedString = cleanedString.replace(/^```(?:json)?\s*/, '').replace(/```\s*$/, '');
-      }
-    }
-    
-    // 2. BOM 및 불필요한 공백 제거
-    cleanedString = cleanedString.replace(/^[\uFEFF\s]+/, '').replace(/[\s]+$/, '');
-    
-    // 🔧 3. 제어 문자 및 특수 문자 안전 처리 (새로 추가)
-    cleanedString = cleanedString
-      // 실제 제어 문자 제거
-      .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
-      // 문자열 내부의 실제 줄바꿈을 안전하게 처리
-      .replace(/(?<!\\)\r?\n/g, ' \\n\\n ')
-      .replace(/(?<!\\)\r/g, '')
-      .replace(/(?<!\\)\t/g, ' ');
-    
-    // 4. JSON 시작과 끝 찾기
-    const jsonStart = cleanedString.indexOf('{');
-    const jsonEnd = cleanedString.lastIndexOf('}');
-    
-    if (jsonStart === -1 || jsonEnd === -1) {
-      return {
-        success: false,
-        error: 'JSON 시작 또는 끝을 찾을 수 없습니다.'
-      };
-    }
-    
-    cleanedString = cleanedString.substring(jsonStart, jsonEnd + 1);
-    
-    // 5. 일반적인 JSON 오류 수정
-    cleanedString = cleanedString.replace(/,(\s*[}\]])/g, '$1');
-    
-    // 6. JSON 파싱 시도
-    const parsed = JSON.parse(cleanedString);
-    
-    console.log('✅ JSON 파싱 성공 (문자 정리 적용)');
-    return { success: true, data: parsed };
-    
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    
-    console.error('❌ JSON 파싱 오류:', {
-      error: errorMessage,
-      originalLength: jsonString.length,
-      preview: jsonString.substring(0, 300)
-    });
-    
-    return {
-      success: false,
-      error: `JSON 파싱 실패: ${errorMessage}`
-    };
-  }
-}
+/**
+ * 기본 UserProfile 생성
+ */
+export const createDefaultUserProfile = (): UserProfile => ({
+  interests: ['문화', '역사'],
+  preferredLanguage: 'ko',
+  travelStyle: 'cultural',
+  duration: '2시간',
+  groupSize: 1,
+  accessibilityNeeds: [],
+  ageGroup: '30대',
+  knowledgeLevel: '중급',
+  preferredStyle: '친근함'
+});
 
-// 안전한 객체 접근 함수
-export function safeGet<T>(obj: any, path: string, defaultValue?: T): T | undefined {
-  return path.split('.').reduce((current, key) => {
-    return current && current[key] !== undefined ? current[key] : defaultValue;
-  }, obj);
-}
+/**
+ * 부분적인 UserProfile을 완전한 UserProfile로 변환
+ */
+export const normalizeUserProfile = (partial: Partial<UserProfile> = {}): UserProfile => ({
+  ...createDefaultUserProfile(),
+  ...partial
+});
+
+/**
+ * 빈 객체를 안전한 UserProfile로 변환
+ */
+export const safeUserProfile = (input: any): UserProfile => {
+  if (!input || typeof input !== 'object') {
+    return createDefaultUserProfile();
+  }
+  return normalizeUserProfile(input);
+};

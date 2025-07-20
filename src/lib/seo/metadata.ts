@@ -1,6 +1,6 @@
-// 3. src/lib/seo/metadata.ts (viewport 관련 수정)
-// ========================================
+// src/lib/seo/metadata.ts
 import type { Metadata, Viewport } from 'next';
+import { MetadataRoute } from 'next';
 
 export type SupportedLanguage = 'ko' | 'en' | 'ja' | 'zh' | 'es';
 
@@ -172,7 +172,6 @@ export function generateBaseMetadata(
         'facebook-domain-verification': process.env.FACEBOOK_VERIFICATION_ID || '',
       },
     },
-    // viewport는 제거됨 - 별도 export 필요
   };
 }
 
@@ -242,7 +241,6 @@ export function generateGuideMetadata(
       description,
       images: guideData?.imageUrl ? [guideData.imageUrl] : undefined,
     },
-    // viewport는 별도로 처리
   };
 }
 
@@ -254,3 +252,143 @@ export const defaultViewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
 };
+
+/**
+ * 사이트맵 URL 생성 (빌드 오류 해결)
+ */
+export function generateSitemapUrls(guides: Array<{ name: string; slug?: string }>): MetadataRoute.Sitemap {
+  const baseUrl = 'https://navi-guide.com';
+  const languages: SupportedLanguage[] = ['ko', 'en', 'ja', 'zh', 'es'];
+  const now = new Date();
+  
+  const urls: MetadataRoute.Sitemap = [
+    // 메인 페이지들
+    {
+      url: baseUrl,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 1,
+      alternates: {
+        languages: {
+          ko: `${baseUrl}`,
+          en: `${BASE_DOMAINS.en}`,
+          ja: `${BASE_DOMAINS.ja}`,
+          zh: `${BASE_DOMAINS.zh}`,
+          es: `${BASE_DOMAINS.es}`,
+        }
+      }
+    },
+    // 가이드 목록 페이지
+    {
+      url: `${baseUrl}/guides`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    // 검색 페이지
+    {
+      url: `${baseUrl}/search`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    }
+  ];
+
+  // 각 가이드에 대한 URL 생성
+  guides.forEach(guide => {
+    const guidePath = guide.slug || encodeURIComponent(guide.name);
+    
+    languages.forEach(lang => {
+      const domain = BASE_DOMAINS[lang];
+      urls.push({
+        url: `${domain}/guide/${guidePath}`,
+        lastModified: now,
+        changeFrequency: 'weekly',
+        priority: 0.7,
+        alternates: {
+          languages: Object.fromEntries(
+            languages.map(l => [l, `${BASE_DOMAINS[l]}/guide/${guidePath}`])
+          )
+        }
+      });
+    });
+  });
+
+  return urls;
+}
+
+/**
+ * JSON-LD 구조화 데이터 생성
+ */
+export function generateJsonLd(
+  type: 'WebSite' | 'Article' | 'TouristAttraction',
+  data: any,
+  language: SupportedLanguage = 'ko'
+) {
+  const config = SEO_CONFIGS[language];
+  const domain = BASE_DOMAINS[language];
+
+  const baseStructure = {
+    '@context': 'https://schema.org',
+    '@type': type,
+  };
+
+  switch (type) {
+    case 'WebSite':
+      return {
+        ...baseStructure,
+        name: config.title,
+        description: config.description,
+        url: domain,
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: `${domain}/search?q={search_term_string}`
+          },
+          'query-input': 'required name=search_term_string'
+        }
+      };
+
+    case 'TouristAttraction':
+      return {
+        ...baseStructure,
+        name: data.name,
+        description: data.description,
+        image: data.imageUrl,
+        address: data.address,
+        geo: data.coordinates ? {
+          '@type': 'GeoCoordinates',
+          latitude: data.coordinates.lat,
+          longitude: data.coordinates.lng
+        } : undefined,
+        touristType: 'tourist attraction',
+        isAccessibleForFree: data.isFree
+      };
+
+    case 'Article':
+      return {
+        ...baseStructure,
+        headline: data.title,
+        description: data.description,
+        author: {
+          '@type': 'Organization',
+          name: 'NAVI AI Guide'
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'NAVI',
+          logo: {
+            '@type': 'ImageObject',
+            url: `${domain}/logo.png`
+          }
+        },
+        datePublished: data.publishedAt,
+        dateModified: data.updatedAt,
+        image: data.imageUrl
+      };
+
+    default:
+      return baseStructure;
+  }
+}

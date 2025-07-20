@@ -1,35 +1,50 @@
-// 파일 경로: src/app/guide/[location]/layout.tsx
-// 이 파일을 새로 생성하세요!
+// src/app/guide/[location]/page.tsx
+import MultiLangGuideClient from './MultiLangGuideClient';
+import { supabase } from '@/lib/supabaseClient';
 
-import { generateGuideMetadata } from '@/lib/seo/metadata';
-import { Viewport } from 'next';
+export const revalidate = 0;
 
-interface GuideLayoutProps {
-  children: React.ReactNode;
+interface PageProps {
   params: { location: string };
+  searchParams: { lang?: string };
 }
 
-// viewport를 별도 export로 분리
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 5,
-};
+function normalizeString(str: string): string {
+  return str.trim().toLowerCase().replace(/\s+/g, ' ');
+}
 
-// metadata 생성 (viewport 제외)
-export async function generateMetadata({ params }: { params: { location: string } }) {
-  const locationName = decodeURIComponent(params.location);
+export default async function GuidePage({ params, searchParams }: PageProps) {
+  const locationName = decodeURIComponent(params.location || '');
+  const requestedLang = searchParams.lang || 'ko';
+  const normLocation = normalizeString(locationName);
   
-  return generateGuideMetadata(locationName, 'ko', {
-    description: `${locationName}의 상세한 AI 오디오 가이드입니다.`,
-    duration: '약 1-2시간',
-  });
-}
-
-export default function GuideLayout({ children }: GuideLayoutProps) {
+  console.log(`🔍 서버 사이드 가이드 조회: ${locationName} (${requestedLang})`);
+  
+  // 서버에서 요청된 언어의 가이드 조회
+  let initialGuide: any = null;
+  
+  try {
+    const { data, error } = await supabase
+      .from('guides')
+      .select('guide_data')
+      .eq('locationname', normLocation)
+      .eq('language', requestedLang.toLowerCase())
+      .maybeSingle();
+    
+    if (!error && data && data.guide_data) {
+      initialGuide = data.guide_data;
+      console.log(`✅ 서버에서 ${requestedLang} 가이드 발견:`, locationName);
+    } else {
+      console.log(`📭 서버에서 ${requestedLang} 가이드 없음:`, locationName);
+    }
+  } catch (e) {
+    console.error('❌ 서버 사이드 가이드 조회 오류:', e);
+  }
+  
   return (
-    <div className="guide-layout">
-      {children}
-    </div>
+    <MultiLangGuideClient 
+      locationName={locationName} 
+      initialGuide={initialGuide}
+    />
   );
 }

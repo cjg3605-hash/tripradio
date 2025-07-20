@@ -1,11 +1,18 @@
+// src/types/guide.ts
 export interface UserProfile {
   interests?: string[];
+  preferredLanguage?: string;
+  travelStyle?: 'cultural' | 'adventure' | 'relaxed' | 'educational';
+  duration?: string;
+  groupSize?: number;
+  accessibilityNeeds?: string[];
+  // 기존 호환성 유지
   ageGroup?: string;
   knowledgeLevel?: string;
   companions?: string;
-  tourDuration?: number;      // 투어 소요 시간 (분)
-  preferredStyle?: string;    // 선호하는 가이드 스타일
-  language?: string;          // 언어 설정
+  tourDuration?: number;
+  preferredStyle?: string;
+  language?: string;
 }
 
 export interface GuideOverview {
@@ -15,34 +22,72 @@ export interface GuideOverview {
   keyFacts: {
     title: string;
     description: string;
-  }[];
+  }[] | string[];
   visitingTips?: string[];
   historicalBackground?: string;
   visitInfo?: {
     duration?: string;
     difficulty?: string;
     season?: string;
+    openingHours?: string;
+    admissionFee?: string;
+    website?: string;
+    phone?: string;
+    address?: string;
   };
 }
 
 export interface GuideStep {
-  step: number;
-  location: string;
+  step?: number;
+  stepNumber?: number;
+  location?: string;
   title: string;
   description?: string;
   duration?: string;
+  estimatedTime?: string;
+  keyHighlights?: string[];
 }
 
 export interface GuideRoute {
   steps: GuideStep[];
 }
 
+export interface RouteStep {
+  stepNumber: number;
+  title: string;
+  description: string;
+  location: {
+    lat: number;
+    lng: number;
+  };
+  estimatedTime: string;
+  keyHighlights: string[];
+}
+
+export interface PointOfInterest {
+  name: string;
+  description: string;
+  location: {
+    lat: number;
+    lng: number;
+  };
+  category: string;
+}
+
 export interface GuideChapter {
-  id: number;
+  id?: number;
+  number?: number;
   title: string;
   description?: string;
+  content?: string;
   duration?: number | string;
   audioUrl?: string;
+  keyPoints?: string[];
+  location?: {
+    lat: number;
+    lng: number;
+  };
+  nearbyPois?: PointOfInterest[];
   /**
    * Unified continuous narrative for the chapter (≈ 1700-2100 chars)
    * 하나의 연속된 오디오 가이드 스토리 (새로운 방식)
@@ -73,10 +118,6 @@ export interface GuideChapter {
     lng: number;
   };
   realTimeScript?: string;
-  location?: {
-    name?: string;
-    [key: string]: any;
-  };
   [key: string]: any;
 }
 
@@ -90,11 +131,12 @@ export interface GuideMetadata {
   englishFileName?: string;
   generatedAt?: string;
   version?: string;
+  language?: string;
 }
 
 export interface GuideData {
   overview: GuideOverview;
-  route: GuideRoute;  // 프롬프트 JSON 양식에 맞게 수정
+  route: GuideRoute;
   realTimeGuide?: RealTimeGuide;
   metadata: GuideMetadata;
 }
@@ -105,4 +147,44 @@ export interface ApiResponse {
   error?: string;
   cached?: 'file' | 'new' | 'error';
   version?: string;
-} 
+}
+
+// 다국어 관리용 타입
+export interface MultiLanguageGuide {
+  locationName: string;
+  languages: {
+    [key: string]: {
+      data: GuideData;
+      lastUpdated: string;
+      version: string;
+    };
+  };
+}
+
+// API 응답 타입
+export interface GuideApiResponse {
+  success: boolean;
+  data?: GuideData;
+  error?: string;
+  source?: 'cache' | 'generated' | 'database';
+}
+
+// 데이터베이스 스키마 타입
+export interface GuideRecord {
+  id?: number;
+  locationname: string;
+  language: string;
+  guide_data: GuideData;
+  user_profile?: UserProfile;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// 언어별 설정 타입
+export interface LanguageConfig {
+  code: string;
+  name: string;
+  nativeName: string;
+  direction: 'ltr' | 'rtl';
+  enabled: boolean;
+}

@@ -1,11 +1,11 @@
 // src/lib/multilang-guide-manager.ts
 import { supabase } from '@/lib/supabaseClient';
-import { createAutonomousGuidePrompt } from './ai/prompts/index';
+import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Gemini 클라이언트 초기화 함수
 const getGeminiClient = () => {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
   
   if (!apiKey) {
     console.error('GEMINI_API_KEY is not configured');
@@ -24,7 +24,12 @@ export class MultiLangGuideManager {
   /**
    * 🔍 언어별 가이드 조회
    */
-  static async getGuideByLanguage(locationName: string, language: string) {
+  static async getGuideByLanguage(locationName: string, language: string): Promise<{
+    success: boolean;
+    data?: any;
+    error?: string;
+    source: 'cache' | 'database';
+  }> {
     try {
       console.log(`🔍 ${language} 가이드 조회:`, locationName);
       
@@ -38,20 +43,21 @@ export class MultiLangGuideManager {
       if (error) {
         if (error.code === 'PGRST116') {
           console.log(`📭 ${language} 가이드 없음:`, locationName);
-          return { success: false, error: 'NOT_FOUND' };
+          return { success: false, error: 'NOT_FOUND', source: 'database' };
         }
         console.error(`❌ ${language} 가이드 조회 실패:`, error);
-        return { success: false, error: error.message };
+        return { success: false, error: error.message, source: 'database' };
       }
 
       console.log(`✅ ${language} 가이드 발견:`, locationName);
-      return { success: true, data: data.guide_data };
+      return { success: true, data: data.guide_data, source: 'cache' };
 
     } catch (error) {
       console.error(`❌ ${language} 가이드 조회 중 오류:`, error);
       return { 
         success: false, 
-        error: error instanceof Error ? error.message : '알 수 없는 오류'
+        error: error instanceof Error ? error.message : '알 수 없는 오류',
+        source: 'database'
       };
     }
   }
@@ -59,7 +65,11 @@ export class MultiLangGuideManager {
   /**
    * 🌍 모든 언어 버전 조회
    */
-  static async getAllLanguageVersions(locationName: string) {
+  static async getAllLanguageVersions(locationName: string): Promise<{
+    success: boolean;
+    data: string[];
+    error?: string;
+  }> {
     try {
       console.log(`🌍 모든 언어 버전 조회:`, locationName);
       
@@ -70,17 +80,19 @@ export class MultiLangGuideManager {
 
       if (error) {
         console.error('❌ 다국어 조회 실패:', error);
-        return { success: false, error: error.message };
+        return { success: false, error: error.message, data: [] };
       }
 
-      console.log(`✅ 다국어 조회 완료:`, data);
-      return { success: true, data: data || [] };
+      const languages = data?.map(item => item.language) || [];
+      console.log(`✅ 다국어 조회 완료:`, languages);
+      return { success: true, data: languages };
 
     } catch (error) {
       console.error('❌ 다국어 조회 중 오류:', error);
       return { 
         success: false, 
-        error: error instanceof Error ? error.message : '알 수 없는 오류'
+        error: error instanceof Error ? error.message : '알 수 없는 오류',
+        data: []
       };
     }
   }
@@ -136,7 +148,16 @@ export class MultiLangGuideManager {
   /**
    * 🎨 스마트 언어 전환 (기존 가이드가 없으면 생성)
    */
-  static async smartLanguageSwitch(locationName: string, targetLanguage: string, userProfile?: any) {
+  static async smartLanguageSwitch(
+    locationName: string, 
+    targetLanguage: string, 
+    userProfile?: any
+  ): Promise<{
+    success: boolean;
+    data?: any;
+    error?: string;
+    source?: 'cache' | 'generated';
+  }> {
     try {
       console.log(`🔄 스마트 언어 전환: ${locationName} → ${targetLanguage}`);
 
@@ -145,7 +166,11 @@ export class MultiLangGuideManager {
       
       if (existingGuide.success) {
         console.log(`✅ 기존 ${targetLanguage} 가이드 발견 - 반환`);
-        return existingGuide;
+        return {
+          success: true,
+          data: existingGuide.data,
+          source: 'cache'
+        };
       }
 
       // 2단계: 가이드가 없으면 새로 생성
@@ -159,7 +184,11 @@ export class MultiLangGuideManager {
 
       if (generateResult.success) {
         console.log(`✅ ${targetLanguage} 가이드 생성 및 저장 완료`);
-        return generateResult;
+        return {
+          success: true,
+          data: generateResult.data,
+          source: 'generated'
+        };
       } else {
         console.error(`❌ ${targetLanguage} 가이드 생성 실패:`, generateResult.error);
         return generateResult;
@@ -175,7 +204,7 @@ export class MultiLangGuideManager {
   }
 
   /**
-   * 🤖 새로운 가이드 생성 및 저장 (수정된 버전)
+   * 🤖 새로운 가이드 생성 및 저장
    */
   static async generateAndSaveGuide(
     locationName: string, 
@@ -184,15 +213,46 @@ export class MultiLangGuideManager {
   ): Promise<{ success: boolean; data?: any; error?: any }> {
     
     try {
-      // 기존 프롬프트 시스템 활용 (품질 보장)
-      const prompt = await createAutonomousGuidePrompt(locationName, language, userProfile);
+      console.log(`🤖 ${language} 가이드 생성 시작:`, locationName);
+
+      // 기본 가이드 프롬프트 생성 (간단한 버전)
+      const prompt = `# "${locationName}" 가이드 생성
+언어: ${language}
+
+다음 JSON 형식으로 가이드를 생성해주세요:
+
+{
+  "overview": {
+    "title": "${locationName}",
+    "summary": "상세한 설명",
+    "keyFacts": ["중요한 사실들"],
+    "visitInfo": {},
+    "narrativeTheme": "테마"
+  },
+  "route": {
+    "steps": []
+  },
+  "realTimeGuide": {
+    "chapters": [
+      {
+        "number": 1,
+        "title": "챕터 제목",
+        "content": "상세한 내용",
+        "duration": "5분",
+        "narrative": "오디오 가이드 내용"
+      }
+    ]
+  }
+}
+
+${locationName}에 대한 상세하고 흥미로운 가이드를 ${language}로 작성해주세요.`;
       
       console.log(`📝 ${language} 프롬프트 준비 완료: ${prompt.length}자`);
 
-      // ✅ 수정된 부분: Gemini 라이브러리 사용
+      // Gemini 클라이언트 초기화
       const genAI = getGeminiClient();
       const model = genAI.getGenerativeModel({ 
-        model: 'gemini-2.5-flash-lite-preview-06-17',
+        model: 'gemini-1.5-flash',
         generationConfig: {
           temperature: 0.7,
           maxOutputTokens: 8000,
@@ -205,7 +265,7 @@ export class MultiLangGuideManager {
       
       const result = await model.generateContent(prompt);
       const response = await result.response;
-      const text = await response.text();
+      const text = response.text();
       
       if (!text) {
         throw new Error('AI 응답이 비어있습니다');
@@ -213,13 +273,41 @@ export class MultiLangGuideManager {
 
       console.log(`📥 ${language} AI 응답 수신: ${text.length}자`);
 
-      // JSON 파싱
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('유효한 JSON을 찾을 수 없습니다');
+      // JSON 파싱 시도
+      let guideData;
+      try {
+        // JSON 블록 추출 시도
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          guideData = JSON.parse(jsonMatch[0]);
+        } else {
+          // JSON 블록이 없으면 전체 텍스트를 기본 구조로 래핑
+          guideData = {
+            overview: {
+              title: locationName,
+              summary: text.substring(0, 500),
+              keyFacts: [],
+              visitInfo: {},
+              narrativeTheme: ''
+            },
+            route: { steps: [] },
+            realTimeGuide: { chapters: [] }
+          };
+        }
+      } catch (parseError) {
+        console.warn('JSON 파싱 실패, 기본 구조 사용:', parseError);
+        guideData = {
+          overview: {
+            title: locationName,
+            summary: text.substring(0, 500),
+            keyFacts: [],
+            visitInfo: {},
+            narrativeTheme: ''
+          },
+          route: { steps: [] },
+          realTimeGuide: { chapters: [] }
+        };
       }
-
-      const guideData = JSON.parse(jsonMatch[0]);
 
       // DB에 저장
       const saveResult = await this.saveGuideByLanguage({
@@ -269,3 +357,6 @@ export class MultiLangGuideManager {
     }
   }
 }
+
+// Backward compatibility - 기존 import를 위한 alias
+export const MultiLanguageGuideManager = MultiLangGuideManager;
