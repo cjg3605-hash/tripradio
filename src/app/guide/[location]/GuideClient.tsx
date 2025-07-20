@@ -56,6 +56,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                 historicalBackground: sourceData.overview?.historicalBackground,
                 visitInfo: sourceData.overview?.visitInfo || {}
             },
+            mustVisitSpots: sourceData.mustVisitSpots || '', // 필수 관람 포인트 추가
             route: {
                 steps: Array.isArray(sourceData.route?.steps) ? sourceData.route.steps : []
             },
@@ -219,7 +220,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                 <div className="max-w-md w-full mx-auto p-8">
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
                         <div className="w-12 h-12 border-2 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
-                        <h2 className="text-xl font-bold text-gray-900 mb-2">가이드 생성 중</h2>
+                        <h2 className="text-xl font-medium text-gray-900 mb-2">가이드 생성 중</h2>
                         <p className="text-gray-600 text-sm">잠시만 기다려주세요...</p>
                     </div>
                 </div>
@@ -235,7 +236,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                         <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <span className="text-red-600 text-xl">⚠️</span>
                         </div>
-                        <h2 className="text-xl font-bold text-gray-900 mb-2">오류 발생</h2>
+                        <h2 className="text-xl font-medium text-gray-900 mb-2">오류 발생</h2>
                         <p className="text-gray-600 text-sm mb-4">{error}</p>
                         <button
                             onClick={() => router.push('/')}
@@ -254,7 +255,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="max-w-md w-full mx-auto p-8">
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
-                        <h2 className="text-xl font-bold text-gray-900 mb-2">가이드를 찾을 수 없습니다</h2>
+                        <h2 className="text-xl font-medium text-gray-900 mb-2">가이드를 찾을 수 없습니다</h2>
                         <p className="text-gray-600 text-sm mb-4">요청하신 가이드 데이터를 불러올 수 없습니다.</p>
                         <button
                             onClick={() => router.push('/')}

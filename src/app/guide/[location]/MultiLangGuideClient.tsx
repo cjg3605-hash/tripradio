@@ -271,7 +271,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
         <div className="max-w-4xl mx-auto px-4 py-16">
           <div className="text-center">
             <div className="text-6xl mb-4">😕</div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            <h1 className="text-2xl font-medium text-gray-900 mb-4">
               {currentLanguage === 'ko' ? '가이드를 찾을 수 없습니다' : 'Guide not found'}
             </h1>
             <p className="text-gray-600 mb-6">
@@ -383,7 +383,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
       {/* 키보드 단축키 안내 (개발 환경) */}
       {process.env.NODE_ENV === 'development' && (
         <div className="fixed bottom-4 left-4 bg-black bg-opacity-75 text-white text-xs p-3 rounded max-w-xs">
-          <div className="font-bold mb-2">키보드 단축키</div>
+          <div className="font-medium mb-2">키보드 단축키</div>
           <div>R: 재생성</div>
           <div>D: 다운로드</div>
           <div>←/→: 챕터 이동</div>

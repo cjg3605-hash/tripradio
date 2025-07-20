@@ -262,29 +262,20 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
                 <h2 className="font-medium">개요</h2>
               </div>
               
-              <div className="space-y-4">
-                {/* 위치 */}
+              <div className="space-y-3">
+                {/* 위치 - 라벨 없이 내용만 */}
                 {guide.overview.location && (
-                  <div>
-                    <h3 className="text-sm font-medium text-foreground mb-1">위치</h3>
-                    <p className="text-muted-foreground">{guide.overview.location}</p>
-                  </div>
+                  <p className="text-muted-foreground">{guide.overview.location}</p>
                 )}
                 
-                {/* 주요 특징 */}
+                {/* 주요 특징 - 라벨 없이 내용만 */}
                 {guide.overview.keyFeatures && (
-                  <div>
-                    <h3 className="text-sm font-medium text-foreground mb-1">주요 특징</h3>
-                    <p className="text-muted-foreground">{guide.overview.keyFeatures}</p>
-                  </div>
+                  <p className="text-muted-foreground">{guide.overview.keyFeatures}</p>
                 )}
                 
-                {/* 배경 */}
+                {/* 배경 - 라벨 없이 내용만 */}
                 {guide.overview.background && (
-                  <div>
-                    <h3 className="text-sm font-medium text-foreground mb-1">배경</h3>
-                    <p className="text-muted-foreground">{guide.overview.background}</p>
-                  </div>
+                  <p className="text-muted-foreground">{guide.overview.background}</p>
                 )}
                 
                 {/* 기존 summary가 있으면 표시 (호환성) */}
@@ -293,6 +284,22 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
                     {guide.overview.summary}
                   </p>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* 필수 관람 포인트 */}
+          {guide.mustVisitSpots && (
+            <div className="bg-card rounded-lg p-6 border">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 border-2 border-foreground rounded-full flex items-center justify-center">
+                  <span className="text-lg">🎯</span>
+                </div>
+                <h2 className="font-medium">필수 관람 포인트</h2>
+              </div>
+              
+              <div className="text-muted-foreground">
+                {guide.mustVisitSpots}
               </div>
             </div>
           )}

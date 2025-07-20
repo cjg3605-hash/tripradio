@@ -151,6 +151,7 @@ export interface GuideMetadata {
 
 export interface GuideData {
   overview: GuideOverview;
+  mustVisitSpots?: string; // 필수 관람 포인트 해시태그
   route: GuideRoute;
   realTimeGuide?: RealTimeGuide;
   metadata: GuideMetadata;
