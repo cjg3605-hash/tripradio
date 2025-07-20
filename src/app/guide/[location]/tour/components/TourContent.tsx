@@ -59,9 +59,31 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
   const totalChapters = guide.realTimeGuide?.chapters?.length || 0;
   const currentChapter = guide.realTimeGuide?.chapters?.[currentChapterIndex];
 
-  // 필수 필드 확인
-  if (!currentChapter?.id || !currentChapter?.title) {
-    return <div>챕터 데이터를 불러오는 중...</div>;
+  // 🔥 핵심 수정: 조건문 순서 변경
+  // 1. 먼저 currentChapter가 null인지 체크
+  if (!currentChapter) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">챕터 데이터를 로드하는 중...</h2>
+          <p className="text-gray-600">잠시만 기다려주세요.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. 그 다음에 필수 필드 체크
+  if (!currentChapter.id || !currentChapter.title) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">챕터 데이터가 불완전합니다</h2>
+          <p className="text-gray-600">필수 정보가 누락되었습니다.</p>
+        </div>
+      </div>
+    );
   }
 
   // 안전한 필드 접근 (기본값 제공)
@@ -75,7 +97,7 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
     hasRealTimeGuide: !!guide.realTimeGuide,
     chaptersLength: guide.realTimeGuide?.chapters?.length,
     currentChapterIndex,
-    currentChapter: currentChapter ? {
+    currentChapter: {
       id: currentChapter.id,
       title: currentChapter.title,
       hasNarrative: !!currentChapter.narrative,
@@ -83,21 +105,8 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
       hasCoreNarrative: !!currentChapter.coreNarrative,
       hasHumanStories: !!currentChapter.humanStories,
       hasNextDirection: !!currentChapter.nextDirection
-    } : null
+    }
   });
-
-  // 안전한 챕터 접근
-  if (!currentChapter) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">챕터 데이터를 로드하는 중...</h2>
-          <p className="text-gray-600">잠시만 기다려주세요.</p>
-        </div>
-      </div>
-    );
-  }
 
   // ===== 2. 타입 안전성 확보 =====
   // currentChapter가 이제 GuideChapter 객체로 올바르게 인식됨
