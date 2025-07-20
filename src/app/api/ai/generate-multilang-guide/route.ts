@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
 
 export const runtime = 'nodejs';
 
@@ -37,37 +38,8 @@ export async function POST(request: NextRequest) {
 
     console.log(`🤖 ${language} 가이드 생성 시작:`, locationName);
 
-    // 기본 가이드 프롬프트 생성 (간단한 버전)
-    const prompt = `# "${locationName}" 가이드 생성
-언어: ${language}
-
-다음 JSON 형식으로 가이드를 생성해주세요:
-
-{
-  "overview": {
-    "title": "${locationName}",
-    "summary": "상세한 설명",
-    "keyFacts": ["중요한 사실들"],
-    "visitInfo": {},
-    "narrativeTheme": "테마"
-  },
-  "route": {
-    "steps": []
-  },
-  "realTimeGuide": {
-    "chapters": [
-      {
-        "number": 1,
-        "title": "챕터 제목",
-        "content": "상세한 내용",
-        "duration": "5분",
-        "narrative": "오디오 가이드 내용"
-      }
-    ]
-  }
-}
-
-${locationName}에 대한 상세하고 흥미로운 가이드를 ${language}로 작성해주세요.`;
+    // 언어별 정교한 프롬프트 생성
+    const prompt = await createAutonomousGuidePrompt(locationName, language, userProfile);
     
     console.log(`📝 ${language} 프롬프트 준비 완료: ${prompt.length}자`);
 
