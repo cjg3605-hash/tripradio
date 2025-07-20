@@ -1,24 +1,5 @@
 // src/lib/multilang-guide-manager.ts
 import { supabase } from '@/lib/supabaseClient';
-import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-// Gemini 클라이언트 초기화 함수
-const getGeminiClient = () => {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-  
-  if (!apiKey) {
-    console.error('GEMINI_API_KEY is not configured');
-    throw new Error('Server configuration error: Missing API key');
-  }
-  
-  try {
-    return new GoogleGenerativeAI(apiKey);
-  } catch (error) {
-    console.error('Failed to initialize Gemini AI:', error);
-    throw new Error('Failed to initialize AI service');
-  }
-};
 
 export class MultiLangGuideManager {
   /**
@@ -33,10 +14,19 @@ export class MultiLangGuideManager {
     try {
       console.log(`🔍 ${language} 가이드 조회:`, locationName);
       
+      // 위치명 정규화 (한글 처리 개선)
+      const normalizedLocation = locationName
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, ' ')
+        .replace(/[^\w\s가-힣]/g, ''); // 특수문자 제거, 한글 유지
+      
+      console.log(`📍 정규화된 위치명: "${locationName}" → "${normalizedLocation}"`);
+      
       const { data, error } = await supabase
         .from('guides')
         .select('*')
-        .eq('locationname', locationName.toLowerCase().trim())
+        .eq('locationname', normalizedLocation)
         .eq('language', language)
         .single();
 
@@ -215,99 +205,33 @@ export class MultiLangGuideManager {
     try {
       console.log(`🤖 ${language} 가이드 생성 시작:`, locationName);
 
-      // 기본 가이드 프롬프트 생성 (간단한 버전)
-      const prompt = `# "${locationName}" 가이드 생성
-언어: ${language}
-
-다음 JSON 형식으로 가이드를 생성해주세요:
-
-{
-  "overview": {
-    "title": "${locationName}",
-    "summary": "상세한 설명",
-    "keyFacts": ["중요한 사실들"],
-    "visitInfo": {},
-    "narrativeTheme": "테마"
-  },
-  "route": {
-    "steps": []
-  },
-  "realTimeGuide": {
-    "chapters": [
-      {
-        "number": 1,
-        "title": "챕터 제목",
-        "content": "상세한 내용",
-        "duration": "5분",
-        "narrative": "오디오 가이드 내용"
-      }
-    ]
-  }
-}
-
-${locationName}에 대한 상세하고 흥미로운 가이드를 ${language}로 작성해주세요.`;
-      
-      console.log(`📝 ${language} 프롬프트 준비 완료: ${prompt.length}자`);
-
-      // Gemini 클라이언트 초기화
-      const genAI = getGeminiClient();
-      const model = genAI.getGenerativeModel({ 
-        model: 'gemini-1.5-flash',
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 8000,
-          topK: 40,
-          topP: 0.9,
-        }
+      // API 라우트를 통해 가이드 생성 요청
+      const response = await fetch('/api/ai/generate-guide-with-gemini', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          location: locationName,
+          userProfile: {
+            ...userProfile,
+            language: language
+          }
+        })
       });
 
-      console.log(`🤖 ${language} 가이드 생성 중...`);
-      
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-      
-      if (!text) {
-        throw new Error('AI 응답이 비어있습니다');
+      if (!response.ok) {
+        throw new Error(`API 호출 실패: ${response.status}`);
       }
 
-      console.log(`📥 ${language} AI 응답 수신: ${text.length}자`);
-
-      // JSON 파싱 시도
-      let guideData;
-      try {
-        // JSON 블록 추출 시도
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          guideData = JSON.parse(jsonMatch[0]);
-        } else {
-          // JSON 블록이 없으면 전체 텍스트를 기본 구조로 래핑
-          guideData = {
-            overview: {
-              title: locationName,
-              summary: text.substring(0, 500),
-              keyFacts: [],
-              visitInfo: {},
-              narrativeTheme: ''
-            },
-            route: { steps: [] },
-            realTimeGuide: { chapters: [] }
-          };
-        }
-      } catch (parseError) {
-        console.warn('JSON 파싱 실패, 기본 구조 사용:', parseError);
-        guideData = {
-          overview: {
-            title: locationName,
-            summary: text.substring(0, 500),
-            keyFacts: [],
-            visitInfo: {},
-            narrativeTheme: ''
-          },
-          route: { steps: [] },
-          realTimeGuide: { chapters: [] }
-        };
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'AI 가이드 생성 실패');
       }
+
+      const guideData = result.data;
+      console.log(`📥 ${language} AI 가이드 수신: ${JSON.stringify(guideData).length}자`);
 
       // DB에 저장
       const saveResult = await this.saveGuideByLanguage({
