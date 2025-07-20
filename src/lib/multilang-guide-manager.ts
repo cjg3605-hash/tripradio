@@ -40,7 +40,7 @@ export class MultiLangGuideManager {
       }
 
       console.log(`✅ ${language} 가이드 발견:`, locationName);
-      return { success: true, data: data.guide_data, source: 'cache' };
+      return { success: true, data: data.content, source: 'cache' };
 
     } catch (error) {
       console.error(`❌ ${language} 가이드 조회 중 오류:`, error);
@@ -109,8 +109,7 @@ export class MultiLangGuideManager {
         .upsert({
           locationname: locationName.toLowerCase().trim(),
           language: language,
-          guide_data: guideData,
-          user_profile: userProfile || {},
+          content: guideData,
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'locationname,language'
