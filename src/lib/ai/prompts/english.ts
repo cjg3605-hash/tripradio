@@ -86,8 +86,10 @@ nextDirection: (Separate) Movement guidance only
 export const ENGLISH_AUDIO_GUIDE_EXAMPLE = {
   "content": {
     "overview": {
-      "title": "Westminster Abbey Overview",
-      "summary": "A magnificent Gothic abbey with over 1,000 years of royal history, where kings and queens have been crowned and literary giants rest in peace.",
+      "title": "Westminster Abbey",
+      "location": "London, England",
+      "keyFeatures": "A magnificent Gothic abbey with over 1,000 years of royal history, where kings and queens have been crowned and literary giants rest in peace",
+      "background": "Founded by Edward the Confessor in 1045, this royal church has been the coronation site for English monarchs since 1066, witnessing nearly a millennium of English history and serving as the final resting place for countless historical figures",
       "narrativeTheme": "Where English history comes alive through stone and ceremony",
       "keyFacts": [
         {
@@ -124,9 +126,7 @@ export const ENGLISH_AUDIO_GUIDE_EXAMPLE = {
         {
           "id": 0,
           "title": "Great West Door - Gateway to Royal History",
-          "sceneDescription": "Standing before these massive oak doors, you're looking at the threshold where countless monarchs have passed into history. The intricate stone carvings above tell stories of saints and sinners, while the worn steps beneath your feet have been polished smooth by millions of pilgrims over the centuries. Can you imagine the weight of history that these doors have witnessed?",
-          "coreNarrative": "These doors have indeed seen some of the most pivotal moments in English history. Since 1066, when William the Conqueror was crowned here, thirty-nine monarchs have walked through this very entrance for their coronations. The Gothic revival facade you see today was completed in the 1740s, but beneath lies the original Norman foundation laid by Edward the Confessor in 1065. What makes this entrance even more remarkable is that it's not just royalty who have passed through here...",
-          "humanStories": "One of the most touching stories involves Queen Elizabeth II's coronation in 1953. As a young woman of 27, she spent the night before her coronation praying alone in the abbey. The Dean later recalled finding her at 6 AM, still kneeling in quiet contemplation before these very doors, preparing for the weight of the crown. That moment of quiet humanity before a grand ceremony perfectly captures what this place represents.",
+          "narrative": "Standing before these massive oak doors, you're looking at the threshold where countless monarchs have passed into history. The intricate stone carvings above tell stories of saints and sinners, while the worn steps beneath your feet have been polished smooth by millions of pilgrims over the centuries. Can you imagine the weight of history that these doors have witnessed? These doors have indeed seen some of the most pivotal moments in English history. Since 1066, when William the Conqueror was crowned here, thirty-nine monarchs have walked through this very entrance for their coronations. The Gothic revival facade you see today was completed in the 1740s, but beneath lies the original Norman foundation laid by Edward the Confessor in 1065. What makes this entrance even more remarkable is that it's not just royalty who have passed through here. One of the most touching stories involves Queen Elizabeth II's coronation in 1953. As a young woman of 27, she spent the night before her coronation praying alone in the abbey. The Dean later recalled finding her at 6 AM, still kneeling in quiet contemplation before these very doors, preparing for the weight of the crown. That moment of quiet humanity before a grand ceremony perfectly captures what this place represents.",
           "nextDirection": "Walk through the Great West Door and proceed 30 meters straight ahead into the Nave. Notice the soaring ceiling above as you enter the heart of the abbey."
         }
       ]

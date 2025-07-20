@@ -249,16 +249,6 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
               <h1 className="text-2xl font-medium mb-2">
                 {guide.metadata?.originalLocationName || guide.overview?.title || '가이드'}
               </h1>
-              <div className="flex items-center justify-center gap-4 text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  <span>{guide.overview?.visitInfo?.duration || '2-3시간'}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Route className="w-4 h-4" />
-                  <span>{guide.overview?.visitInfo?.difficulty || '쉬움'}</span>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -271,9 +261,39 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
                 </div>
                 <h2 className="font-medium">개요</h2>
               </div>
-              <p className="text-muted-foreground leading-relaxed">
-                {guide.overview.summary || '이곳의 특별한 매력을 소개합니다.'}
-              </p>
+              
+              <div className="space-y-4">
+                {/* 위치 */}
+                {guide.overview.location && (
+                  <div>
+                    <h3 className="text-sm font-medium text-foreground mb-1">위치</h3>
+                    <p className="text-muted-foreground">{guide.overview.location}</p>
+                  </div>
+                )}
+                
+                {/* 주요 특징 */}
+                {guide.overview.keyFeatures && (
+                  <div>
+                    <h3 className="text-sm font-medium text-foreground mb-1">주요 특징</h3>
+                    <p className="text-muted-foreground">{guide.overview.keyFeatures}</p>
+                  </div>
+                )}
+                
+                {/* 배경 */}
+                {guide.overview.background && (
+                  <div>
+                    <h3 className="text-sm font-medium text-foreground mb-1">배경</h3>
+                    <p className="text-muted-foreground">{guide.overview.background}</p>
+                  </div>
+                )}
+                
+                {/* 기존 summary가 있으면 표시 (호환성) */}
+                {guide.overview.summary && !guide.overview.location && !guide.overview.keyFeatures && !guide.overview.background && (
+                  <p className="text-muted-foreground leading-relaxed">
+                    {guide.overview.summary}
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
@@ -319,11 +339,6 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
                         
                         <div className="flex-1">
                           <h3 className="font-medium mb-1">{chapter.title}</h3>
-                          {chapter.nextDirection && (
-                            <p className="text-sm text-muted-foreground">
-                              {chapter.nextDirection}
-                            </p>
-                          )}
                         </div>
                       </div>
                       
@@ -367,6 +382,23 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
                               .filter(Boolean).join(' '))
                           }
                         </div>
+                        
+                        {/* 다음 이동 안내 */}
+                        {chapter.nextDirection && (
+                          <div className="mt-6 p-4 bg-muted/30 rounded-lg border-l-4 border-foreground">
+                            <div className="flex items-start gap-3">
+                              <div className="w-6 h-6 border-2 border-foreground rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <Route className="w-3 h-3" />
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-medium mb-1">다음 이동 안내</h4>
+                                <p className="text-sm text-muted-foreground leading-relaxed">
+                                  {chapter.nextDirection}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                         
                         {/* 디버깅 정보 (개발 모드에서만) */}
                         {process.env.NODE_ENV === 'development' && (

@@ -19,6 +19,10 @@ export interface GuideOverview {
   title: string;
   summary?: string;
   narrativeTheme?: string;
+  // 새로운 개요 필드들
+  location?: string;
+  keyFeatures?: string;
+  background?: string;
   keyFacts: {
     title: string;
     description: string;

@@ -103,13 +103,36 @@ export async function POST(request: NextRequest) {
           });
         }
         
+        // 🔥 새로운 개요 양식 정규화
+        if (guideData.overview) {
+          // 새로운 필드들이 없으면 기존 summary를 사용
+          if (!guideData.overview.location && !guideData.overview.keyFeatures && !guideData.overview.background) {
+            // 기존 summary가 있으면 그대로 유지 (호환성)
+            if (guideData.overview.summary) {
+              console.log(`📝 ${language} 기존 개요 구조 유지`);
+            } else {
+              // 기본 개요 구조 생성
+              guideData.overview = {
+                ...guideData.overview,
+                location: `${locationName}의 정확한 위치`,
+                keyFeatures: `${locationName}의 주요 특징`,
+                background: `${locationName}의 역사적 배경`
+              };
+            }
+          } else {
+            console.log(`✅ ${language} 새로운 개요 양식 적용`);
+          }
+        }
+        
         console.log(`✅ ${language} 가이드 정규화 완료: ${guideData.realTimeGuide?.chapters?.length || 0}개 챕터`);
       } else {
         // JSON 블록이 없으면 전체 텍스트를 기본 구조로 래핑
         guideData = {
           overview: {
             title: locationName,
-            summary: text.substring(0, 500),
+            location: `${locationName}의 정확한 위치`,
+            keyFeatures: `${locationName}의 주요 특징`,
+            background: `${locationName}의 역사적 배경`,
             keyFacts: [],
             visitInfo: {},
             narrativeTheme: ''
@@ -123,7 +146,9 @@ export async function POST(request: NextRequest) {
       guideData = {
         overview: {
           title: locationName,
-          summary: text.substring(0, 500),
+          location: `${locationName}의 정확한 위치`,
+          keyFeatures: `${locationName}의 주요 특징`,
+          background: `${locationName}의 역사적 배경`,
           keyFacts: [],
           visitInfo: {},
           narrativeTheme: ''
