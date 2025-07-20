@@ -15,7 +15,7 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
   const [currentChapter, setCurrentChapter] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
-  const [expandedChapters, setExpandedChapters] = useState<number[]>([]);
+  const [expandedChapters, setExpandedChapters] = useState<number[]>([0]);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -165,20 +165,10 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
 
   return (
     <div className="min-h-screen bg-white">
-      {/* 미니멀 헤더 섹션 */}
+      {/* 미니멀 헤더 섹션 - 기하학적 요소 없이 */}
       <div className="relative">
-        {/* 클린한 헤더 배경 - 미니멀 기하학적 요소 */}
-        <div className="relative bg-white border-b border-gray-100 overflow-hidden">
-          {/* 서브틀한 기하학적 배경 요소 */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-0 right-0 w-96 h-96 opacity-5">
-              <div className="w-full h-full border-2 border-black rounded-full transform rotate-12"></div>
-            </div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 opacity-3">
-              <div className="w-full h-full bg-gray-900 transform rotate-45 rounded-lg"></div>
-            </div>
-          </div>
-
+        {/* 클린한 헤더 배경 */}
+        <div className="relative bg-white border-b border-gray-100">
           {/* 미니멀 타이틀 섹션 */}
           <div className="relative z-10 px-6 py-16 md:py-24">
             <div className="max-w-4xl mx-auto text-center">
@@ -344,7 +334,8 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
 
               {/* 챕터 리스트 - 스크롤 최적화 레이아웃 */}
               <div className="space-y-0">
-                {guide.realTimeGuide?.chapters?.map((chap, index) => (
+                {guide.realTimeGuide?.chapters?.length ? (
+                  guide.realTimeGuide.chapters.map((chap, index) => (
                   <article
                     key={index}
                     ref={(el) => {
@@ -416,7 +407,7 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
                     {/* 챕터 내용 - 스크롤 친화적 텍스트 */}
                     {expandedChapters.includes(index) && (
                       <div className="pb-12 border-t border-gray-100">
-                        <div className="pt-12 pl-18">
+                        <div className="pt-12 pl-8 md:pl-16">
                           <div className="max-w-3xl space-y-6">
                             <div className="text-gray-700 text-lg leading-relaxed font-light">
                               {chap.narrative ? 
@@ -425,12 +416,35 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
                                   .filter(Boolean).join(' '))
                               }
                             </div>
+                            
+                            {/* 디버깅: 챕터 데이터 확인 */}
+                            {process.env.NODE_ENV === 'development' && (
+                              <div className="text-xs text-gray-400 bg-gray-50 p-4 rounded">
+                                <p>Debug - Chapter {index + 1}:</p>
+                                <p>Title: {chap.title}</p>
+                                <p>Narrative: {chap.narrative ? '있음' : '없음'}</p>
+                                <p>Scene: {chap.sceneDescription ? '있음' : '없음'}</p>
+                                <p>Core: {chap.coreNarrative ? '있음' : '없음'}</p>
+                                <p>Stories: {chap.humanStories ? '있음' : '없음'}</p>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
                     )}
                   </article>
-                ))}
+                  ))
+                ) : (
+                  <div className="text-center py-16">
+                    <div className="space-y-4">
+                      <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto flex items-center justify-center">
+                        <AlertTriangle className="w-8 h-8 text-gray-400" />
+                      </div>
+                      <h3 className="text-xl font-light text-gray-900">챕터를 찾을 수 없습니다</h3>
+                      <p className="text-gray-600">가이드 데이터를 다시 생성해주세요.</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </section>
           </div>

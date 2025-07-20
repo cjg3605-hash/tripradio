@@ -291,87 +291,6 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
         </div>
       )}
 
-      {/* 헤더 컨트롤 */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => router.back()}
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                ← 뒤로가기
-              </button>
-              <h1 className="text-lg font-semibold text-gray-800 truncate max-w-md">
-                {guideData.overview.title}
-              </h1>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              {/* 언어 표시 */}
-              <div className="flex items-center space-x-2">
-                <span className="text-xs text-gray-500">언어:</span>
-                <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
-                  {currentLanguage.toUpperCase()}
-                </span>
-              </div>
-
-              {/* 소스 표시 */}
-              {source && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">소스:</span>
-                  <span className={`px-2 py-1 text-xs rounded-full font-medium ${
-                    source === 'cache' ? 'bg-green-100 text-green-800' :
-                    source === 'generated' ? 'bg-blue-100 text-blue-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {source === 'cache' ? '캐시됨' : 
-                     source === 'generated' ? '새로 생성' : source}
-                  </span>
-                </div>
-              )}
-
-              {/* 재생성 버튼 */}
-              <button
-                onClick={handleRegenerateGuide}
-                disabled={isRegenerating}
-                className="px-3 py-1.5 text-sm bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
-              >
-                {isRegenerating ? (
-                  <>
-                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-green-700"></div>
-                    <span>재생성 중...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>🔄</span>
-                    <span>{currentLanguage === 'ko' ? '재생성' : 'Regenerate'}</span>
-                  </>
-                )}
-              </button>
-
-              {/* 다운로드 버튼 */}
-              <button
-                onClick={() => {
-                  const dataStr = JSON.stringify(guideData, null, 2);
-                  const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                  const url = URL.createObjectURL(dataBlob);
-                  const link = document.createElement('a');
-                  link.href = url;
-                  link.download = `${locationName}_guide_${currentLanguage}.json`;
-                  link.click();
-                  URL.revokeObjectURL(url);
-                }}
-                className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors flex items-center space-x-1"
-                title="가이드 다운로드"
-              >
-                <span>💾</span>
-                <span className="hidden sm:inline">다운로드</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* 가용 언어 표시 (2개 이상인 경우) */}
       {availableLanguages.length > 1 && (
@@ -422,43 +341,6 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
         />
       </div>
 
-      {/* 하단 정보 */}
-      <div className="bg-white border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-500 space-y-2 sm:space-y-0">
-            <div className="flex items-center space-x-4">
-              <span>
-                생성일: {guideData.metadata.generatedAt ? 
-                  new Date(guideData.metadata.generatedAt).toLocaleDateString('ko-KR') : 
-                  '알 수 없음'
-                }
-              </span>
-              <span>•</span>
-              <span>
-                버전: {guideData.metadata.version || '1.0'}
-              </span>
-              <span>•</span>
-              <span>
-                챕터: {guideData.realTimeGuide?.chapters?.length || 0}개
-              </span>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              {session?.user && (
-                <>
-                  <span>
-                    사용자: {session.user.name || session.user.email}
-                  </span>
-                  <span>•</span>
-                </>
-              )}
-              <span>
-                AI 여행 가이드 powered by Gemini
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* 키보드 단축키 안내 (개발 환경) */}
       {process.env.NODE_ENV === 'development' && (
