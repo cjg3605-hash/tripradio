@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, MutableRefObject } from 'react';
 import { Play, Pause, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, ArrowUp, Eye, AlertTriangle, Clock, MapPin } from 'lucide-react';
-import { GuideData } from '@/types/guide';
+import { GuideData, GuideChapter } from '@/types/guide';
 import { getOrCreateChapterAudio } from '@/lib/tts-gcs';
 
 interface TourContentProps {
@@ -10,6 +10,43 @@ interface TourContentProps {
   language: string;
   chapterRefs?: MutableRefObject<(HTMLElement | null)[]>;
 }
+
+// 안전한 챕터 표시 컴포넌트
+const SafeChapterDisplay = ({ chapter }: { chapter: GuideChapter }) => {
+  if (!chapter || !chapter.title) {
+    return <div className="text-gray-500">챕터 정보를 불러오는 중...</div>;
+  }
+
+  return (
+    <div>
+      <h3 className="text-xl font-semibold text-gray-900 mb-4">{chapter.title}</h3>
+      {chapter.sceneDescription && (
+        <div className="mb-4">
+          <h4 className="text-sm font-medium text-gray-700 mb-2">장면 설명</h4>
+          <p className="text-gray-600">{chapter.sceneDescription}</p>
+        </div>
+      )}
+      {chapter.coreNarrative && (
+        <div className="mb-4">
+          <h4 className="text-sm font-medium text-gray-700 mb-2">핵심 내용</h4>
+          <p className="text-gray-600">{chapter.coreNarrative}</p>
+        </div>
+      )}
+      {chapter.humanStories && (
+        <div className="mb-4">
+          <h4 className="text-sm font-medium text-gray-700 mb-2">인물 이야기</h4>
+          <p className="text-gray-600">{chapter.humanStories}</p>
+        </div>
+      )}
+      {chapter.nextDirection && (
+        <div className="mb-4">
+          <h4 className="text-sm font-medium text-gray-700 mb-2">다음 방향</h4>
+          <p className="text-gray-600">{chapter.nextDirection}</p>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: TourContentProps) => {
   const [currentChapter, setCurrentChapter] = useState(0);
@@ -21,6 +58,29 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
 
   const totalChapters = guide.realTimeGuide?.chapters?.length || 0;
   const chapter = guide.realTimeGuide?.chapters?.[currentChapter];
+
+  // 디버깅을 위한 로깅
+  console.log('🔍 현재 데이터 구조:', {
+    hasGuideData: !!guide,
+    chaptersCount: guide?.realTimeGuide?.chapters?.length || 0,
+    currentChapterExists: !!chapter,
+    chapterFields: chapter ? Object.keys(chapter) : [],
+    chapterId: chapter?.id,
+    chapterTitle: chapter?.title
+  });
+
+  // 안전한 챕터 접근
+  if (!chapter) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">챕터 데이터를 로드하는 중...</h2>
+          <p className="text-gray-600">잠시만 기다려주세요.</p>
+        </div>
+      </div>
+    );
+  }
 
   // 콘텐츠가 있는지 확인
   const hasContent = chapter && (

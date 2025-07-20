@@ -127,6 +127,8 @@ export interface GuideChapter {
    */
   nextDirection?: string;
   realTimeScript?: string;
+  
+  // 확장성을 위한 인덱스 시그니처 추가
   [key: string]: any;
 }
 

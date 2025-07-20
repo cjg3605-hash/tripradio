@@ -17,46 +17,113 @@ interface Props {
   initialGuide?: any;
 }
 
-// 가이드 데이터 정규화 함수
+// 🚨 완전히 개선된 가이드 데이터 정규화 함수 - 실제 데이터 구조 기반
 const normalizeGuideData = (data: any, locationName: string): GuideData => {
+  console.log('🔍 정규화 시작 - 원본 데이터:', {
+    hasContent: !!data.content,
+    hasOverview: !!data.overview,
+    hasRoute: !!data.route,
+    hasRealTimeGuide: !!data.realTimeGuide,
+    keys: Object.keys(data || {})
+  });
+
   if (!data) {
     throw new Error('가이드 데이터가 없습니다.');
   }
 
-  // 기본 구조 확인 및 생성
+  // 1단계: 실제 데이터 소스 결정
+  let sourceData = data;
+  
+  // content 래핑 구조 처리
+  if (data.content && typeof data.content === 'object') {
+    sourceData = data.content;
+    console.log('📦 content 필드에서 데이터 추출');
+  }
+  
+  // 2단계: 기본 구조 생성
   const normalizedData: GuideData = {
     overview: {
-      title: data.overview?.title || data.title || locationName,
-      summary: data.overview?.summary || data.summary,
-      narrativeTheme: data.overview?.narrativeTheme,
-      keyFacts: data.overview?.keyFacts || [],
-      visitingTips: data.overview?.visitingTips,
-      historicalBackground: data.overview?.historicalBackground,
-      visitInfo: data.overview?.visitInfo
+      title: sourceData.overview?.title || sourceData.title || locationName,
+      summary: sourceData.overview?.summary || sourceData.summary || '',
+      narrativeTheme: sourceData.overview?.narrativeTheme || sourceData.narrativeTheme || '',
+      keyFacts: Array.isArray(sourceData.overview?.keyFacts) 
+        ? sourceData.overview.keyFacts 
+        : Array.isArray(sourceData.keyFacts) 
+        ? sourceData.keyFacts 
+        : [],
+      visitingTips: sourceData.overview?.visitingTips || sourceData.visitingTips,
+      historicalBackground: sourceData.overview?.historicalBackground || sourceData.historicalBackground,
+      visitInfo: sourceData.overview?.visitInfo || sourceData.visitInfo || {}
     },
     route: {
-      steps: data.route?.steps || data.steps || []
+      steps: Array.isArray(sourceData.route?.steps) 
+        ? sourceData.route.steps 
+        : Array.isArray(sourceData.steps) 
+        ? sourceData.steps 
+        : []
     },
     realTimeGuide: {
-      chapters: data.realTimeGuide?.chapters || data.chapters || [],
-      ...data.realTimeGuide
+      chapters: Array.isArray(sourceData.realTimeGuide?.chapters) 
+        ? sourceData.realTimeGuide.chapters 
+        : Array.isArray(sourceData.chapters) 
+        ? sourceData.chapters 
+        : [],
+      ...sourceData.realTimeGuide
     },
     metadata: {
       originalLocationName: locationName,
-      generatedAt: data.metadata?.generatedAt || new Date().toISOString(),
-      version: data.metadata?.version || '1.0',
-      language: data.metadata?.language || 'ko',
-      ...data.metadata
+      generatedAt: sourceData.metadata?.generatedAt || new Date().toISOString(),
+      version: sourceData.metadata?.version || '1.0',
+      language: sourceData.metadata?.language || 'ko',
+      ...sourceData.metadata
     }
   };
 
-  // 챕터 ID 정규화
+  // 3단계: 챕터 ID 정규화 (완전 수정)
   if (normalizedData.realTimeGuide?.chapters) {
-    normalizedData.realTimeGuide.chapters = normalizedData.realTimeGuide.chapters.map((chapter, index) => ({
-      ...chapter,
-      id: chapter.id !== undefined ? chapter.id : index
-    }));
+    normalizedData.realTimeGuide.chapters = normalizedData.realTimeGuide.chapters.map((chapter, index) => {
+      // 기존 ID가 있으면 유지, 없으면 index 사용
+      const chapterId = chapter.id !== undefined ? chapter.id : index;
+      
+      return {
+        ...chapter,
+        id: chapterId,
+        // 타이틀 보장
+        title: chapter.title || `챕터 ${chapterId + 1}`,
+        // 좌표 정규화 (여러 형태 지원)
+        location: chapter.location || 
+                 chapter.coordinates || 
+                 (chapter.lat && chapter.lng ? { lat: chapter.lat, lng: chapter.lng } : undefined) ||
+                 (chapter.latitude && chapter.longitude ? { lat: chapter.latitude, lng: chapter.longitude } : undefined)
+      };
+    });
   }
+
+  // 4단계: route.steps와 realTimeGuide.chapters 동기화
+  if (normalizedData.route.steps.length !== (normalizedData.realTimeGuide?.chapters?.length || 0)) {
+    console.warn('⚠️ steps와 chapters 개수 불일치, 동기화 시도');
+    
+    // chapters가 더 많으면 steps를 맞춤
+    if ((normalizedData.realTimeGuide?.chapters?.length || 0) > normalizedData.route.steps.length) {
+      const missingSteps = normalizedData.realTimeGuide?.chapters?.slice(normalizedData.route.steps.length) || [];
+      missingSteps.forEach((chapter, idx) => {
+        normalizedData.route.steps.push({
+          step: normalizedData.route.steps.length + 1,
+          title: chapter.title,
+          location: chapter.sceneDescription || chapter.location?.toString() || '',
+          description: chapter.description || chapter.coreNarrative || '',
+          duration: chapter.duration?.toString() || '15분'
+        });
+      });
+    }
+  }
+
+  console.log('✅ 데이터 정규화 완료:', {
+    overviewTitle: normalizedData.overview.title,
+    stepsCount: normalizedData.route.steps.length,
+    chaptersCount: normalizedData.realTimeGuide?.chapters?.length || 0,
+    hasAllChapterIds: normalizedData.realTimeGuide?.chapters?.every(c => c.id !== undefined) || false
+  });
 
   return normalizedData;
 };

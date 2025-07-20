@@ -320,7 +320,7 @@ export async function POST(request: NextRequest) {
             
             return NextResponse.json({
               success: true,
-              data: { content: metadata.data },
+              data: metadata.data,
               cached: 'hit',
               language,
               message: '챕터 내용이 이미 존재합니다.'
@@ -332,7 +332,7 @@ export async function POST(request: NextRequest) {
           
           return NextResponse.json({
             success: true,
-            data: { content: metadata.data },
+            data: metadata.data,
             cached: 'hit',
             language
           });
@@ -490,7 +490,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: { content: finalData },
+      data: finalData,
       cached: generationMode === 'chapter' ? 'updated' : (saveResult?.isNew ? 'new' : 'existing'),
       language,
       generationMode,
