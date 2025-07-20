@@ -5,7 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 // 지원 언어 타입
 export type SupportedLanguage = 'ko' | 'en' | 'ja' | 'zh' | 'es';
 
-// 언어 설정 인터페이스
+// 언어 설정 인터페이스 (ttsLang 필드 추가)
 export interface LanguageConfig {
   code: SupportedLanguage;
   name: string;
@@ -13,9 +13,10 @@ export interface LanguageConfig {
   nativeName: string;
   dir: 'ltr' | 'rtl';
   fontFamily?: string;
+  ttsLang: string; // TTS용 언어 코드 추가
 }
 
-// 지원 언어 목록
+// 지원 언어 목록 (ttsLang 추가)
 export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
   { 
     code: 'ko', 
@@ -23,7 +24,8 @@ export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
     flag: '🇰🇷', 
     nativeName: '한국어',
     dir: 'ltr',
-    fontFamily: 'var(--font-noto-sans-kr)'
+    fontFamily: 'var(--font-noto-sans-kr)',
+    ttsLang: 'ko-KR'
   },
   { 
     code: 'en', 
@@ -31,7 +33,8 @@ export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
     flag: '🇺🇸', 
     nativeName: 'English',
     dir: 'ltr',
-    fontFamily: 'var(--font-inter)'
+    fontFamily: 'var(--font-inter)',
+    ttsLang: 'en-US'
   },
   { 
     code: 'ja', 
@@ -39,7 +42,8 @@ export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
     flag: '🇯🇵', 
     nativeName: '日本語',
     dir: 'ltr',
-    fontFamily: 'var(--font-noto-sans-jp)'
+    fontFamily: 'var(--font-noto-sans-jp)',
+    ttsLang: 'ja-JP'
   },
   { 
     code: 'zh', 
@@ -47,7 +51,8 @@ export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
     flag: '🇨🇳', 
     nativeName: '中文',
     dir: 'ltr',
-    fontFamily: 'var(--font-noto-sans-sc)'
+    fontFamily: 'var(--font-noto-sans-sc)',
+    ttsLang: 'zh-CN'
   },
   { 
     code: 'es', 
@@ -55,7 +60,8 @@ export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
     flag: '🇪🇸', 
     nativeName: 'Español',
     dir: 'ltr',
-    fontFamily: 'var(--font-inter)'
+    fontFamily: 'var(--font-inter)',
+    ttsLang: 'es-ES'
   },
 ];
 
@@ -87,103 +93,100 @@ interface Translations {
     popularDestinations: string;
     description: string;
     features: {
-      realTime: string;
-      personalized: string;
+      personalizedGuides: string;
+      audioNarration: string;
+      offlineAccess: string;
       multiLanguage: string;
-      offline: string;
-      storyteller: string;
-      docent: string;
     };
   };
   guide: {
-    overview: string;
-    route: string;
-    realTimeGuide: string;
-    play: string;
-    pause: string;
-    stop: string;
-    next: string;
-    previous: string;
-    startingLocation: string;
-    viewOnGoogleMaps: string;
-    keyFacts: string;
+    loading: string;
+    error: string;
+    chapters: string;
     duration: string;
     difficulty: string;
-    season: string;
-    nextMove: string;
-    downloadAudio: string;
-    share: string;
+    nextChapter: string;
+    previousChapter: string;
+    playAudio: string;
+    pauseAudio: string;
+    mapView: string;
+    listView: string;
   };
   search: {
-    recentSearches: string;
-    suggestions: string;
-    noResults: string;
+    placeholder: string;
     searching: string;
-    clear: string;
-    enterLocation: string;
+    noResults: string;
+    tryAgain: string;
+    suggestions: string;
+    recentSearches: string;
   };
   errors: {
     networkError: string;
     serverError: string;
     notFound: string;
-    retry: string;
+    unauthorized: string;
+    forbidden: string;
+    generalError: string;
   };
   common: {
     loading: string;
-    save: string;
+    error: string;
+    success: string;
+    warning: string;
+    info: string;
     cancel: string;
     confirm: string;
+    save: string;
     delete: string;
     edit: string;
-    back: string;
     close: string;
-    yes: string;
-    no: string;
   };
   date: {
     today: string;
     yesterday: string;
-    daysAgo: string;
-    weeksAgo: string;
-    invalidDate: string;
+    tomorrow: string;
+    thisWeek: string;
+    lastWeek: string;
+    thisMonth: string;
+    lastMonth: string;
   };
   profile: {
-    mypage: string;
-    account: string;
+    name: string;
+    email: string;
     preferences: string;
-    dashboard: string;
-    guides: string;
-    settings: string;
+    language: string;
+    notifications: string;
+    privacy: string;
+    account: string;
+    logout: string;
+    mypage: string;
   };
   mypage: {
     title: string;
-    description: string;
+    overview: string;
+    guides: string;
+    settings: string;
+    recentGuides: string;
+    favoriteGuides: string;
     totalGuides: string;
     completedTours: string;
-    savedGuides: string;
-    recentGuides: string;
-    noGuides: string;
-    accountInfo: string;
-    dataManagement: string;
-    clearAllHistory: string;
-    joinDate: string;
+    savedLocations: string;
   };
   auth: {
-    signin: string;
-    signup: string;
-    signout: string;
+    login: string;
+    register: string;
     email: string;
     password: string;
-    name: string;
     confirmPassword: string;
-    emailVerification: string;
-    verificationCode: string;
-    sendCode: string;
-    resendCode: string;
     forgotPassword: string;
+    rememberMe: string;
     loginWithGoogle: string;
+    loginWithFacebook: string;
+    createAccount: string;
     alreadyHaveAccount: string;
     noAccount: string;
+    signin: string;
+    signout: string;
   };
   buttons: {
     submit: string;
@@ -192,17 +195,23 @@ interface Translations {
     tryAgain: string;
     viewDetails: string;
   };
-  languages: Record<SupportedLanguage, string>;
+  languages: {
+    ko: string;
+    en: string;
+    ja: string;
+    zh: string;
+    es: string;
+  };
 }
 
-// 기본 번역 데이터 (완전한 한국어)
+// 기본 번역 데이터 (한국어)
 const DEFAULT_TRANSLATIONS: Translations = {
   header: {
-    title: 'NAVI',
+    title: 'AI 가이드',
     language: '언어',
     login: '로그인',
     logout: '로그아웃',
-    history: '검색 기록',
+    history: '히스토리',
     profile: '프로필',
     settings: '설정'
   },
@@ -211,115 +220,112 @@ const DEFAULT_TRANSLATIONS: Translations = {
     guides: '가이드',
     favorites: '즐겨찾기',
     about: '소개',
-    contact: '문의'
+    contact: '연락처'
   },
   home: {
-    brandTitle: '내손안의',
-    title: '내손안의 도슨트',
-    subtitle: '가이드없이 자유롭게,',
-    subtitle2: '여행은 깊이있게',
-    searchPlaceholder: '어디로 떠나고 싶으신가요?',
-    searchButton: '가이드 생성',
+    brandTitle: 'AI 여행 가이드',
+    title: 'AI와 함께하는 스마트 여행',
+    subtitle: '개인 맞춤형 가이드로 새로운 여행을 경험하세요',
+    subtitle2: '어디든 검색하고 즉시 전문 가이드를 만나보세요',
+    searchPlaceholder: '여행지를 검색하세요...',
+    searchButton: '검색',
     popularDestinations: '인기 여행지',
-    description: 'AI가 찾아낸 가장 완벽한 가이드해설',
+    description: 'AI 기술로 생성되는 개인화된 여행 가이드',
     features: {
-      realTime: '실시간가이드',
-      personalized: '맞춤형추천',
-      multiLanguage: '다국어지원',
-      offline: '오프라인사용',
-      storyteller: '스토리텔러',
-      docent: '도슨트'
+      personalizedGuides: '개인 맞춤 가이드',
+      audioNarration: '음성 해설',
+      offlineAccess: '오프라인 접근',
+      multiLanguage: '다국어 지원'
     }
   },
   guide: {
-    overview: '투어 개요',
-    route: '추천 관람순서',
-    realTimeGuide: '실시간 오디오 가이드',
-    play: '재생',
-    pause: '일시정지',
-    stop: '정지',
-    next: '다음',
-    previous: '이전',
-    startingLocation: '시작 위치',
-    viewOnGoogleMaps: '구글맵에서 보기',
-    keyFacts: '핵심 정보',
+    loading: '가이드 로딩 중...',
+    error: '가이드를 불러올 수 없습니다',
+    chapters: '챕터',
     duration: '소요시간',
     difficulty: '난이도',
-    season: '추천 계절',
-    nextMove: '다음으로 이동',
-    downloadAudio: '오디오 다운로드',
-    share: '공유하기'
+    nextChapter: '다음 챕터',
+    previousChapter: '이전 챕터',
+    playAudio: '오디오 재생',
+    pauseAudio: '오디오 일시정지',
+    mapView: '지도 보기',
+    listView: '목록 보기'
   },
   search: {
-    recentSearches: '최근 검색',
-    suggestions: '추천 검색어',
-    noResults: '검색 결과가 없습니다',
+    placeholder: '검색어를 입력하세요',
     searching: '검색 중...',
-    clear: '지우기',
-    enterLocation: '먼저 장소를 입력해주세요'
+    noResults: '검색 결과가 없습니다',
+    tryAgain: '다시 시도',
+    suggestions: '추천 검색어',
+    recentSearches: '최근 검색'
   },
   errors: {
-    networkError: '네트워크 연결을 확인해주세요',
+    networkError: '네트워크 오류가 발생했습니다',
     serverError: '서버 오류가 발생했습니다',
     notFound: '페이지를 찾을 수 없습니다',
-    retry: '다시 시도'
+    unauthorized: '인증이 필요합니다',
+    forbidden: '접근 권한이 없습니다',
+    generalError: '오류가 발생했습니다'
   },
   common: {
     loading: '로딩 중...',
-    save: '저장',
+    error: '오류',
+    success: '성공',
+    warning: '경고',
+    info: '정보',
     cancel: '취소',
     confirm: '확인',
+    save: '저장',
     delete: '삭제',
     edit: '편집',
-    back: '뒤로',
-    close: '닫기',
-    yes: '예',
-    no: '아니오'
+    close: '닫기'
   },
   date: {
     today: '오늘',
     yesterday: '어제',
-    daysAgo: '{days}일 전',
-    weeksAgo: '{weeks}주 전',
-    invalidDate: '잘못된 날짜'
+    tomorrow: '내일',
+    thisWeek: '이번 주',
+    lastWeek: '지난 주',
+    thisMonth: '이번 달',
+    lastMonth: '지난 달'
   },
   profile: {
-    mypage: '마이페이지',
-    account: '계정 관리',
-    preferences: '환경설정',
-    dashboard: '대시보드',
-    guides: '나의 가이드',
-    settings: '설정'
+    name: '이름',
+    email: '이메일',
+    preferences: '설정',
+    language: '언어',
+    notifications: '알림',
+    privacy: '개인정보',
+    account: '계정',
+    logout: '로그아웃',
+    mypage: '마이페이지'
   },
   mypage: {
     title: '마이페이지',
-    description: '나만의 AI 가이드 기록을 확인하고 관리하세요',
-    totalGuides: '생성한 가이드',
-    completedTours: '완료한 투어',
-    savedGuides: '저장된 가이드',
+    overview: '개요',
+    guides: '가이드',
+    settings: '설정',
     recentGuides: '최근 가이드',
-    noGuides: '아직 생성한 가이드가 없습니다',
-    accountInfo: '계정 정보',
-    dataManagement: '데이터 관리',
-    clearAllHistory: '모든 가이드 기록 삭제',
-    joinDate: '가입일'
+    favoriteGuides: '즐겨찾기 가이드',
+    totalGuides: '전체 가이드',
+    completedTours: '완료된 투어',
+    savedLocations: '저장된 장소'
   },
   auth: {
-    signin: '로그인',
-    signup: '회원가입',
-    signout: '로그아웃',
+    login: '로그인',
+    register: '회원가입',
     email: '이메일',
     password: '비밀번호',
-    name: '이름',
     confirmPassword: '비밀번호 확인',
-    emailVerification: '이메일 인증',
-    verificationCode: '인증 코드',
-    sendCode: '인증 코드 전송',
-    resendCode: '인증 코드 재전송',
     forgotPassword: '비밀번호 찾기',
-    loginWithGoogle: '구글로 로그인',
+    rememberMe: '로그인 상태 유지',
+    loginWithGoogle: 'Google로 로그인',
+    loginWithFacebook: 'Facebook으로 로그인',
+    createAccount: '계정 만들기',
     alreadyHaveAccount: '이미 계정이 있으신가요?',
-    noAccount: '계정이 없으신가요?'
+    noAccount: '계정이 없으신가요?',
+    signin: '로그인',
+    signout: '로그아웃'
   },
   buttons: {
     submit: '제출',
@@ -493,106 +499,74 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       },
       buttons: {
         ...DEFAULT_TRANSLATIONS.buttons
+      },
+      languages: {
+        ...DEFAULT_TRANSLATIONS.languages
       }
     };
   });
-  const [isLoading, setIsLoading] = useState(true);
-  const [isClient, setIsClient] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // 클라이언트 사이드 확인
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // 현재 언어 설정 정보
+  // 현재 언어 설정 가져오기
   const currentConfig = SUPPORTED_LANGUAGES.find(lang => lang.code === currentLanguage) || SUPPORTED_LANGUAGES[0];
   const isRTL = currentConfig.dir === 'rtl';
 
   // 언어 변경 함수
   const setLanguage = async (language: SupportedLanguage) => {
+    if (language === currentLanguage) return;
+    
     setIsLoading(true);
     try {
       const newTranslations = await loadTranslations(language);
       setTranslations(newTranslations);
       setCurrentLanguage(language);
       
-      // 클라이언트 사이드에서만 localStorage 접근
-      if (isClient && typeof window !== 'undefined') {
+      // 로컬 스토리지에 저장
+      if (typeof window !== 'undefined') {
         localStorage.setItem('preferred-language', language);
-        
-        // HTML dir 속성 업데이트
-        const config = SUPPORTED_LANGUAGES.find(lang => lang.code === language);
-        if (config) {
-          document.documentElement.dir = config.dir;
-          document.documentElement.lang = language;
-          
-          // 폰트 패밀리 업데이트
-          if (config.fontFamily) {
-            document.documentElement.style.setProperty('--current-font', config.fontFamily);
-          }
-        }
       }
       
-      console.log(`✅ 언어 변경 완료: ${language}`);
+      console.log(`언어 변경됨: ${language}`);
     } catch (error) {
-      console.error('언어 변경 실패:', error);
-      setTranslations({
-        ...DEFAULT_TRANSLATIONS,
-        search: { ...DEFAULT_TRANSLATIONS.search },
-        mypage: { ...DEFAULT_TRANSLATIONS.mypage },
-        auth: { ...DEFAULT_TRANSLATIONS.auth },
-        buttons: { ...DEFAULT_TRANSLATIONS.buttons }
-      });
+      console.error('언어 변경 오류:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 초기 언어 설정 및 번역 로드
+  // 초기 언어 설정
   useEffect(() => {
-    if (!isClient) return;
-
     const initializeLanguage = async () => {
-      let initialLanguage: SupportedLanguage = 'ko';
+      if (typeof window === 'undefined') return;
       
-      // localStorage에서 저장된 언어 확인
-      if (typeof window !== 'undefined') {
-        const savedLanguage = localStorage.getItem('preferred-language') as SupportedLanguage;
-        if (savedLanguage && SUPPORTED_LANGUAGES.some(lang => lang.code === savedLanguage)) {
-          initialLanguage = savedLanguage;
-        } else {
-          // 브라우저 언어 감지
-          initialLanguage = detectBrowserLanguage();
-        }
+      // 저장된 언어 확인
+      const savedLanguage = localStorage.getItem('preferred-language') as SupportedLanguage;
+      
+      let initialLanguage: SupportedLanguage;
+      if (savedLanguage && SUPPORTED_LANGUAGES.some(lang => lang.code === savedLanguage)) {
+        initialLanguage = savedLanguage;
+      } else {
+        initialLanguage = detectBrowserLanguage();
       }
-
-      await setLanguage(initialLanguage);
+      
+      if (initialLanguage !== currentLanguage) {
+        await setLanguage(initialLanguage);
+      } else {
+        // 초기 번역 로드
+        const initialTranslations = await loadTranslations(currentLanguage);
+        setTranslations(initialTranslations);
+      }
     };
 
     initializeLanguage();
-  }, [isClient]);
-
-  // DOM 업데이트 (언어 변경시)
-  useEffect(() => {
-    if (!isClient) return;
-    
-    const config = SUPPORTED_LANGUAGES.find(lang => lang.code === currentLanguage);
-    if (config) {
-      document.documentElement.dir = config.dir;
-      document.documentElement.lang = currentLanguage;
-      
-      if (config.fontFamily) {
-        document.documentElement.style.setProperty('--current-font', config.fontFamily);
-      }
-    }
-  }, [currentLanguage, isClient]);
+  }, []);
 
   const contextValue: LanguageContextType = {
     currentLanguage,
     currentConfig,
     setLanguage,
     t: translations,
-    isLoading: isLoading && isClient,
+    isLoading,
     isRTL,
     detectBrowserLanguage
   };
@@ -604,34 +578,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Custom Hook
-export function useLanguage() {
+// Hook
+export const useLanguage = (): LanguageContextType => {
   const context = useContext(LanguageContext);
   if (context === undefined) {
     throw new Error('useLanguage must be used within a LanguageProvider');
   }
   return context;
-}
-
-// 번역 함수 헬퍼
-export function getTranslation(translations: Translations, key: string): string {
-  const keys = key.split('.');
-  let value: any = translations;
-  
-  for (const k of keys) {
-    if (value && typeof value === 'object' && k in value) {
-      value = value[k];
-    } else {
-      console.warn(`번역 키를 찾을 수 없습니다: ${key}`);
-      return key;
-    }
-  }
-  
-  return typeof value === 'string' ? value : key;
-}
-
-// 언어별 URL 생성 헬퍼
-export function getLocalizedUrl(path: string, language: SupportedLanguage): string {
-  if (language === 'ko') return path;
-  return `/${language}${path}`;
-}
+};

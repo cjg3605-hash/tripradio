@@ -1,6 +1,10 @@
 // src/lib/utils.ts
 import { UserProfile, GuideData, GuideOverview, GuideRoute, GuideStep, RealTimeGuide, GuideChapter } from '@/types/guide';
 
+export const cn = (...inputs: (string | undefined | null | boolean)[]) => {
+  return inputs.filter(Boolean).join(' ');
+};
+
 export function normalizeString(s: string | null | undefined): string {
   return decodeURIComponent(s || '').trim().toLowerCase();
 }
@@ -116,12 +120,12 @@ export function isValidUserProfile(obj: any): obj is UserProfile {
   return true;
 }
 
-// GuideChapter 타입 가드
+// GuideChapter 타입 가드 (개선됨)
 export function isValidGuideChapter(obj: any): obj is GuideChapter {
   if (!obj || typeof obj !== 'object') return false;
   
-  // 필수 필드 체크 (id 또는 number 중 하나는 있어야 함)
-  if ((typeof obj.id !== 'number' && typeof obj.number !== 'number') || typeof obj.title !== 'string') {
+  // id는 필수 필드
+  if (typeof obj.id !== 'number' || typeof obj.title !== 'string') {
     return false;
   }
   
@@ -132,8 +136,17 @@ export function isValidGuideChapter(obj: any): obj is GuideChapter {
   if (obj.narrative && typeof obj.narrative !== 'string') return false;
   if (obj.nextDirection && typeof obj.nextDirection !== 'string') return false;
   
-  // 좌표 체크
-  if (obj.location && (!obj.location.lat || !obj.location.lng)) return false;
+  // 좌표 검증 개선 (여러 형태 지원하되 하나라도 유효하면 OK)
+  const hasValidLocation = obj.location?.lat && obj.location?.lng;
+  const hasValidCoords = obj.coordinates?.lat && obj.coordinates?.lng;
+  const hasValidLatLng = obj.lat && obj.lng;
+  const hasValidLatitudeLongitude = obj.latitude && obj.longitude;
+  
+  // 좌표가 있다면 최소 하나는 유효해야 함
+  if ((obj.location || obj.coordinates || obj.lat || obj.latitude) && 
+      !(hasValidLocation || hasValidCoords || hasValidLatLng || hasValidLatitudeLongitude)) {
+    return false;
+  }
   
   return true;
 }
@@ -183,3 +196,121 @@ export const safeUserProfile = (input: any): UserProfile => {
   }
   return normalizeUserProfile(input);
 };
+
+/**
+ * GuideChapter에서 좌표 추출 (여러 형태 지원)
+ */
+export const extractCoordinates = (chapter: GuideChapter): { lat: number; lng: number } | null => {
+  // 우선순위: location > coordinates > lat/lng > latitude/longitude
+  if (chapter.location?.lat && chapter.location?.lng) {
+    return { lat: chapter.location.lat, lng: chapter.location.lng };
+  }
+  
+  if (chapter.coordinates?.lat && chapter.coordinates?.lng) {
+    return { lat: chapter.coordinates.lat, lng: chapter.coordinates.lng };
+  }
+  
+  if (chapter.lat && chapter.lng) {
+    return { lat: chapter.lat, lng: chapter.lng };
+  }
+  
+  if (chapter.latitude && chapter.longitude) {
+    return { lat: chapter.latitude, lng: chapter.longitude };
+  }
+  
+  return null;
+};
+
+/**
+ * GuideChapter 좌표 정규화 (권장 location 형태로 변환)
+ */
+export const normalizeChapterCoordinates = (chapter: GuideChapter): GuideChapter => {
+  const coords = extractCoordinates(chapter);
+  
+  if (!coords) {
+    return chapter;
+  }
+  
+  return {
+    ...chapter,
+    location: coords,
+    // deprecated 필드들은 유지하되 location을 우선시
+  };
+};
+
+/**
+ * 안전한 숫자 변환
+ */
+export const safeNumber = (value: any, defaultValue: number = 0): number => {
+  const num = Number(value);
+  return isNaN(num) ? defaultValue : num;
+};
+
+/**
+ * 안전한 문자열 변환
+ */
+export const safeString = (value: any, defaultValue: string = ''): string => {
+  if (value === null || value === undefined) {
+    return defaultValue;
+  }
+  return String(value);
+};
+
+/**
+ * 배열인지 확인하고 안전하게 반환
+ */
+export const safeArray = <T>(value: any, defaultValue: T[] = []): T[] => {
+  return Array.isArray(value) ? value : defaultValue;
+};
+
+/**
+ * 객체인지 확인하고 안전하게 반환
+ */
+export const safeObject = <T extends Record<string, any>>(
+  value: any, 
+  defaultValue: T = {} as T
+): T => {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : defaultValue;
+};
+
+/**
+ * URL slug 생성 (한글 지원)
+ */
+export const createSlug = (text: string): string => {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[\s\W-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+};
+
+/**
+ * 깊은 복사
+ */
+export const deepClone = <T>(obj: T): T => {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof Date) return new Date(obj.getTime()) as unknown as T;
+  if (obj instanceof Array) return obj.map(item => deepClone(item)) as unknown as T;
+  if (typeof obj === 'object') {
+    const clonedObj = {} as T;
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        clonedObj[key] = deepClone(obj[key]);
+      }
+    }
+    return clonedObj;
+  }
+  return obj;
+};
+
+/**
+ * JSON 응답 검증 및 파싱
+ */
+export function validateJsonResponse(responseText: string): any {
+  try {
+    const parsed = JSON.parse(responseText);
+    return parsed;
+  } catch (error) {
+    throw new Error(`Invalid JSON response: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}

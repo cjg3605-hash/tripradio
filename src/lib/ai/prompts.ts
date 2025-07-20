@@ -79,11 +79,8 @@ interface GuideContent {
 
 // UserProfile은 types/guide.ts에서 import됨
 
-interface LanguageConfig {
-  code: string;
-  name: string;
-  ttsLang: string;
-}
+// LanguageConfig는 LanguageContext에서 import하여 사용
+import { LanguageConfig, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
 
 interface LanguageHeader {
   role: string;
@@ -100,14 +97,12 @@ interface LocationTypeConfig {
   chapterStructure: string;
 }
 
-// 언어 설정
-const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = {
-  ko: { code: 'ko', name: '한국어', ttsLang: 'ko-KR' },
-  en: { code: 'en', name: 'English', ttsLang: 'en-US' },
-  ja: { code: 'ja', name: '日本語', ttsLang: 'ja-JP' },
-  zh: { code: 'zh', name: '中文', ttsLang: 'zh-CN' },
-  es: { code: 'es', name: 'Español', ttsLang: 'es-ES' }
-};
+// 언어 설정 - LanguageContext에서 import한 SUPPORTED_LANGUAGES 사용
+const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = 
+  SUPPORTED_LANGUAGES.reduce((acc, lang) => {
+    acc[lang.code] = lang;
+    return acc;
+  }, {} as Record<string, LanguageConfig>);
 
 // 언어별 실시간 가이드 키 매핑
 export const REALTIME_GUIDE_KEYS: Record<string, string> = {

@@ -1,70 +1,46 @@
-// src/app/api/auth/email-verification/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
+import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 
-export async function POST(request: NextRequest) {
+// Supabase 클라이언트 초기화
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+// Gmail 설정
+const gmailUser = process.env.GMAIL_USER;
+const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
+
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  console.log('===== 이메일 인증 API 시작 =====');
+  
   try {
-    console.log('===== 이메일 인증 API 호출 시작 =====');
-    
-    const body = await request.json();
-    const { email, action, verificationCode } = body;
-    
-    console.log('요청 데이터:', { email, action, hasVerificationCode: !!verificationCode });
-    
-    // 환경변수 확인
-    console.log('환경변수 상세 확인:');
-    console.log('GMAIL_USER 존재:', !!process.env.GMAIL_USER);
-    console.log('GMAIL_USER 값:', process.env.GMAIL_USER ? 'SET' : 'NOT_SET');
-    console.log('GMAIL_APP_PASSWORD 존재:', !!process.env.GMAIL_APP_PASSWORD);
-    console.log('GMAIL_APP_PASSWORD 값:', process.env.GMAIL_APP_PASSWORD ? 'SET' : 'NOT_SET');
-    console.log('SUPABASE_URL:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
-    console.log('SUPABASE_ANON_KEY:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-    console.log('모든 환경변수:', Object.keys(process.env).filter(key => key.includes('GMAIL')));
-    
-    if (!email) {
-      console.log('이메일 누락');
-      return NextResponse.json(
-        { error: '이메일을 입력해주세요.' },
-        { status: 400 }
-      );
-    }
+    const body = await req.json();
+    const { action, email, code } = body;
 
-    // 이메일 형식 검증
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      console.log('잘못된 이메일 형식:', email);
-      return NextResponse.json(
-        { error: '올바른 이메일 형식을 입력해주세요.' },
-        { status: 400 }
-      );
-    }
+    console.log('요청 데이터:', { action, email: email ? '***@***.***' : undefined, code: code ? '******' : undefined });
 
-    // 인증 코드 전송
-    if (action === 'send_code') {
-      console.log('인증 코드 전송 시작');
-      
-      // Supabase 연결 테스트
-      try {
-        console.log('Supabase 연결 테스트 중...');
-        const { data: testData, error: testError } = await supabase
-          .from('users')
-          .select('count')
-          .limit(1);
-        
-        if (testError) {
-          console.error('Supabase 연결 실패:', testError);
-          return NextResponse.json(
-            { error: `데이터베이스 연결 실패: ${testError.message}` },
-            { status: 500 }
-          );
-        }
-        console.log('Supabase 연결 성공');
-      } catch (connectionError) {
-        console.error('Supabase 연결 오류:', connectionError);
+    // === 인증 코드 발송 ===
+    if (action === 'send') {
+      // 이메일 유효성 검사
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        console.log('유효하지 않은 이메일:', email);
         return NextResponse.json(
-          { error: '데이터베이스 연결 중 오류가 발생했습니다.' },
+          { error: '유효한 이메일 주소를 입력해주세요.' },
+          { status: 400 }
+        );
+      }
+
+      // Gmail 환경변수 확인
+      if (!gmailUser || !gmailAppPassword) {
+        console.error('Gmail 환경변수 누락:', { 
+          gmailUser: !!gmailUser, 
+          gmailAppPassword: !!gmailAppPassword 
+        });
+        return NextResponse.json(
+          { error: 'Gmail 설정이 누락되었습니다. 관리자에게 문의해주세요.' },
           { status: 500 }
         );
       }
@@ -158,7 +134,8 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        console.log('이메일 전송 시작...');
+        console.log('Gmail 전송 준비 중...');
+        
         const transporter = nodemailer.createTransport({
           service: 'gmail',
           auth: {
@@ -170,91 +147,94 @@ export async function POST(request: NextRequest) {
         const mailOptions = {
           from: process.env.GMAIL_USER,
           to: email,
-          subject: '[AI 가이드] 회원가입 인증 코드',
+          subject: '[AI 여행 가이드] 이메일 인증 코드',
           html: `
-            <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
               <div style="text-align: center; margin-bottom: 30px;">
-                <h1 style="color: #333; margin-bottom: 10px;">🤖 AI 가이드</h1>
-                <p style="color: #666; font-size: 16px;">회원가입 인증 코드</p>
+                <h1 style="color: #3B82F6; margin: 0;">AI 여행 가이드</h1>
+                <p style="color: #666; margin: 5px 0;">이메일 인증 코드</p>
               </div>
               
-              <div style="background: #f8f9fa; padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
-                <h2 style="color: #333; margin-bottom: 15px;">인증 코드</h2>
-                <div style="font-size: 32px; font-weight: bold; color: #007bff; letter-spacing: 8px; margin: 20px 0;">
+              <div style="background: #f8fafc; padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
+                <h2 style="color: #1e293b; margin-bottom: 20px;">인증 코드</h2>
+                <div style="font-size: 36px; font-weight: bold; color: #3B82F6; letter-spacing: 8px; margin: 20px 0;">
                   ${newVerificationCode}
                 </div>
-                <p style="color: #666; margin-top: 15px;">위 코드를 회원가입 페이지에 입력해주세요.</p>
+                <p style="color: #666; margin: 0;">위 코드를 회원가입 페이지에 입력해주세요</p>
               </div>
               
-              <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-                <p style="color: #856404; margin: 0; font-size: 14px;">
-                  ⚠️ 이 코드는 <strong>10분 후</strong> 만료됩니다.
-                </p>
+              <div style="color: #666; font-size: 14px; line-height: 1.6;">
+                <p><strong>주의사항:</strong></p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                  <li>이 코드는 <strong>10분 후 만료</strong>됩니다</li>
+                  <li>코드를 다른 사람과 공유하지 마세요</li>
+                  <li>본인이 요청하지 않았다면 이 이메일을 무시해주세요</li>
+                </ul>
               </div>
               
-              <div style="text-align: center; color: #666; font-size: 12px; margin-top: 30px;">
-                <p>이 이메일을 요청하지 않으셨다면 무시하셔도 됩니다.</p>
-                <p style="margin-top: 10px;">© 2025 AI 가이드. All rights reserved.</p>
+              <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 12px;">
+                <p>이 메일은 자동 발송되었습니다. 문의사항이 있으시면 고객센터로 연락해주세요.</p>
               </div>
             </div>
           `,
         };
 
-        await transporter.sendMail(mailOptions);
-        console.log('이메일 전송 성공');
-        
+        const result = await transporter.sendMail(mailOptions);
+        console.log('✅ 이메일 발송 성공:', result.messageId);
+
         return NextResponse.json(
           { 
             success: true,
-            message: '인증 코드가 이메일로 전송되었습니다.',
-            expiresIn: 600
+            message: '인증 코드가 발송되었습니다. 이메일을 확인해주세요.',
+            expiresAt: expiresAt.toISOString()
           },
           { status: 200 }
         );
+
       } catch (emailError) {
-        console.error('이메일 전송 실패:', emailError);
-        const errorMessage = emailError instanceof Error ? emailError.message : '알 수 없는 오류';
+        console.error('이메일 발송 실패:', emailError);
+        
+        // 이메일 발송 실패시 DB에서 인증 코드 삭제
+        try {
+          await supabase
+            .from('email_verifications')
+            .delete()
+            .eq('email', email);
+        } catch (cleanupError) {
+          console.error('정리 작업 실패:', cleanupError);
+        }
+
         return NextResponse.json(
-          { error: `이메일 전송 실패: ${errorMessage}` },
+          { error: '이메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.' },
           { status: 500 }
         );
       }
     }
 
-    // 인증 코드 확인
-    if (action === 'verify_code') {
-      console.log('인증 코드 확인 시작');
-      
-      if (!verificationCode) {
-        console.log('인증 코드 누락');
+    // === 인증 코드 확인 ===
+    if (action === 'verify') {
+      if (!email || !code) {
         return NextResponse.json(
-          { error: '인증 코드를 입력해주세요.' },
+          { error: '이메일과 인증 코드를 모두 입력해주세요.' },
           { status: 400 }
         );
       }
 
       try {
-        console.log('인증 코드 조회 중...');
-        const { data: verification, error } = await supabase
+        console.log('인증 코드 확인 중...');
+        
+        const { data: verification, error: verifyError } = await supabase
           .from('email_verifications')
           .select('*')
           .eq('email', email)
-          .eq('verification_code', verificationCode)
+          .eq('verification_code', code)
           .eq('verified', false)
           .single();
 
-        if (error) {
-          console.error('인증 코드 조회 오류:', error);
+        if (verifyError || !verification) {
+          console.log('인증 코드 불일치 또는 없음:', verifyError?.message);
           return NextResponse.json(
-            { error: '잘못된 인증 코드입니다.' },
-            { status: 400 }
-          );
-        }
-
-        if (!verification) {
-          console.log('인증 코드를 찾을 수 없음');
-          return NextResponse.json(
-            { error: '잘못된 인증 코드입니다.' },
+            { error: '인증 코드가 올바르지 않습니다.' },
             { status: 400 }
           );
         }
@@ -264,22 +244,29 @@ export async function POST(request: NextRequest) {
         const expiresAt = new Date(verification.expires_at);
         
         if (now > expiresAt) {
-          console.log('인증 코드 만료');
+          console.log('인증 코드 만료:', { now, expiresAt });
+          
+          // 만료된 코드 삭제
+          await supabase
+            .from('email_verifications')
+            .delete()
+            .eq('email', email);
+
           return NextResponse.json(
-            { error: '인증 코드가 만료되었습니다. 새 코드를 요청해주세요.' },
+            { error: '인증 코드가 만료되었습니다. 새로운 코드를 요청해주세요.' },
             { status: 400 }
           );
         }
 
         // 인증 완료 처리
-        console.log('인증 완료 처리 중...');
         const { error: updateError } = await supabase
           .from('email_verifications')
           .update({ 
-            verified: true,
-            verified_at: new Date().toISOString()
+            verified: true, 
+            verified_at: new Date().toISOString() 
           })
-          .eq('id', verification.id);
+          .eq('email', email)
+          .eq('verification_code', code);
 
         if (updateError) {
           console.error('인증 상태 업데이트 실패:', updateError);

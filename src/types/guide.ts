@@ -75,18 +75,35 @@ export interface PointOfInterest {
 }
 
 export interface GuideChapter {
-  id?: number;
-  number?: number;
+  id: number; // 필수 필드로 통일
   title: string;
   description?: string;
   content?: string;
   duration?: number | string;
   audioUrl?: string;
   keyPoints?: string[];
+  
+  // 권장되는 좌표 필드
   location?: {
     lat: number;
     lng: number;
   };
+  
+  // 기존 호환성을 위해 유지하되 deprecated 표시
+  /** @deprecated use location.lat instead */
+  lat?: number;
+  /** @deprecated use location.lng instead */
+  lng?: number;
+  /** @deprecated use location.lat instead */
+  latitude?: number;
+  /** @deprecated use location.lng instead */
+  longitude?: number;
+  /** @deprecated use location instead */
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+  
   nearbyPois?: PointOfInterest[];
   /**
    * Unified continuous narrative for the chapter (≈ 1700-2100 chars)
@@ -109,14 +126,6 @@ export interface GuideChapter {
    * Concrete navigation instructions guiding the visitor to the next stop (≥ 200-300 chars)
    */
   nextDirection?: string;
-  lat?: number;
-  lng?: number;
-  latitude?: number;
-  longitude?: number;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
   realTimeScript?: string;
   [key: string]: any;
 }
@@ -180,11 +189,5 @@ export interface GuideRecord {
   updated_at?: string;
 }
 
-// 언어별 설정 타입
-export interface LanguageConfig {
-  code: string;
-  name: string;
-  nativeName: string;
-  direction: 'ltr' | 'rtl';
-  enabled: boolean;
-}
+// 언어별 설정 타입은 LanguageContext에서 import하도록 변경됨
+// export interface LanguageConfig는 src/contexts/LanguageContext.tsx에서 관리

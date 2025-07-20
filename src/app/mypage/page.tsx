@@ -16,7 +16,14 @@ import {
   LogOut,
   Download,
   Eye,
-  ChevronRight
+  ChevronRight,
+  Star,
+  Globe,
+  Calendar,
+  Archive,
+  FileText,
+  Upload,
+  Heart
 } from 'lucide-react';
 
 // 타입 정의
@@ -27,6 +34,8 @@ interface GuideHistoryEntry {
   language: string;
   tourDuration?: number;
   status?: 'completed' | 'in-progress' | 'saved';
+  chapters?: number;
+  lastVisited?: string;
 }
 
 interface FileGuideEntry {
@@ -35,6 +44,7 @@ interface FileGuideEntry {
   uploadedAt: string;
   fileSize: number;
   type: 'pdf' | 'text' | 'docx';
+  status: 'processing' | 'ready' | 'error';
 }
 
 interface LocalGuideEntry {
@@ -43,25 +53,48 @@ interface LocalGuideEntry {
   location: string;
   createdAt: string;
   chapters: number;
+  language: string;
+  lastAccessed?: string;
+  isFavorite?: boolean;
 }
 
-type TabType = 'overview' | 'guides' | 'settings';
+interface UserStats {
+  totalGuides: number;
+  completedTours: number;
+  favoriteLocations: number;
+  totalDuration: number;
+  languagesUsed: string[];
+  mostVisitedType: string;
+}
 
-// 로컬 가이드 조회 함수
+type TabType = 'overview' | 'guides' | 'favorites' | 'files' | 'settings';
+
+// 로컬 가이드 조회 함수 (개선)
 const getAllLocalGuides = (): LocalGuideEntry[] => {
   try {
     const keys = Object.keys(localStorage);
-    const guideKeys = keys.filter(key => key.startsWith('ai_guide_') || key.startsWith('guide-cache:'));
+    const guideKeys = keys.filter(key => 
+      key.startsWith('ai_guide_') || 
+      key.startsWith('guide-cache:') || 
+      key.startsWith('multilang-guide:')
+    );
     
     return guideKeys.map(key => {
       try {
         const data = JSON.parse(localStorage.getItem(key) || '{}');
+        const metadata = data.metadata || {};
+        const overview = data.overview || {};
+        const realTimeGuide = data.realTimeGuide || {};
+        
         return {
           id: key,
-          title: data.overview?.title || data.metadata?.originalLocationName || 'Unknown Guide',
-          location: data.metadata?.originalLocationName || 'Unknown Location',
-          createdAt: data.metadata?.generatedAt || new Date().toISOString(),
-          chapters: data.realTimeGuide?.chapters?.length || 0
+          title: overview.title || metadata.originalLocationName || 'Unknown Guide',
+          location: metadata.originalLocationName || 'Unknown Location',
+          language: metadata.language || 'ko',
+          createdAt: metadata.generatedAt || new Date().toISOString(),
+          chapters: realTimeGuide.chapters?.length || 0,
+          lastAccessed: localStorage.getItem(`${key}_last_accessed`) || undefined,
+          isFavorite: localStorage.getItem(`${key}_favorite`) === 'true'
         };
       } catch {
         return null;
@@ -72,396 +105,671 @@ const getAllLocalGuides = (): LocalGuideEntry[] => {
   }
 };
 
+// 사용자 통계 계산
+const calculateUserStats = (guides: LocalGuideEntry[]): UserStats => {
+  const languagesUsed = [...new Set(guides.map(g => g.language))];
+  const totalChapters = guides.reduce((sum, g) => sum + g.chapters, 0);
+  const favoriteCount = guides.filter(g => g.isFavorite).length;
+  
+  // 가장 많이 사용된 언어
+  const languageCounts = guides.reduce((acc, guide) => {
+    acc[guide.language] = (acc[guide.language] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  
+  const mostUsedLanguage = Object.entries(languageCounts)
+    .sort(([,a], [,b]) => b - a)[0]?.[0] || 'ko';
+
+  return {
+    totalGuides: guides.length,
+    completedTours: guides.filter(g => g.lastAccessed).length,
+    favoriteLocations: favoriteCount,
+    totalDuration: totalChapters * 8, // 챕터당 평균 8분 가정
+    languagesUsed,
+    mostVisitedType: mostUsedLanguage
+  };
+};
+
 // 안전한 localStorage 삭제 함수
 const safeDeleteFromStorage = (id: string): void => {
   try {
-    if (id.startsWith('guide-cache:') || id.startsWith('ai_guide_')) {
+    if (id.startsWith('guide-cache:') || id.startsWith('ai_guide_') || id.startsWith('multilang-guide:')) {
       localStorage.removeItem(id);
-    } else {
-      // guideHistory 관련 삭제는 직접 localStorage에서 처리
-      const historyKey = 'guide_history';
-      const existingHistory = localStorage.getItem(historyKey);
-      if (existingHistory) {
-        const parsed = JSON.parse(existingHistory);
-        if (Array.isArray(parsed)) {
-          const filtered = parsed.filter((item: any) => item.id !== id);
-          localStorage.setItem(historyKey, JSON.stringify(filtered));
-        }
-      }
+      localStorage.removeItem(`${id}_last_accessed`);
+      localStorage.removeItem(`${id}_favorite`);
+      console.log('가이드 삭제 완료:', id);
     }
   } catch (error) {
-    console.error('Storage deletion error:', error);
+    console.error('가이드 삭제 실패:', error);
+  }
+};
+
+// 즐겨찾기 토글
+const toggleFavorite = (id: string): void => {
+  try {
+    const currentFavorite = localStorage.getItem(`${id}_favorite`) === 'true';
+    localStorage.setItem(`${id}_favorite`, (!currentFavorite).toString());
+  } catch (error) {
+    console.error('즐겨찾기 토글 실패:', error);
+  }
+};
+
+// 마지막 접근 시간 업데이트
+const updateLastAccessed = (id: string): void => {
+  try {
+    localStorage.setItem(`${id}_last_accessed`, new Date().toISOString());
+  } catch (error) {
+    console.error('접근 시간 업데이트 실패:', error);
   }
 };
 
 export default function MyPage() {
-  const sessionResult = useSession();
-  const session = sessionResult?.data;
-  const status = sessionResult?.status || 'loading';
   const router = useRouter();
-  const { t } = useLanguage(); // 번역 훅 추가
+  const { data: session, status } = useSession();
+  const { currentLanguage, t } = useLanguage();
   
-  const [historyEntries, setHistoryEntries] = useState<GuideHistoryEntry[]>([]);
-  const [fileHistoryEntries, setFileHistoryEntries] = useState<FileGuideEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
-  const [offlineGuides, setOfflineGuides] = useState<any[]>([]);
   const [localGuides, setLocalGuides] = useState<LocalGuideEntry[]>([]);
-  const [isAnimated, setIsAnimated] = useState(false);
+  const [fileGuides, setFileGuides] = useState<FileGuideEntry[]>([]);
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<'date' | 'name' | 'chapters'>('date');
+  const [filterLanguage, setFilterLanguage] = useState<string>('all');
 
-  // 페이지 로드 애니메이션
+  // 데이터 로드
   useEffect(() => {
-    const timer = setTimeout(() => setIsAnimated(true), 100);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // 인증 체크
-  useEffect(() => {
-    if (status === 'loading') return;
-    if (!session) {
-      router.push('/auth/signin');
-      return;
-    }
-  }, [session, status, router]);
-
-  // 데이터 로딩
-  useEffect(() => {
-    async function loadHistory() {
+    const loadData = async () => {
       setIsLoading(true);
       try {
-        // localStorage에서 직접 로드
-        const historyKey = 'guide_history';
-        const existingHistory = localStorage.getItem(historyKey);
-        if (existingHistory) {
-          const parsed = JSON.parse(existingHistory);
-          if (Array.isArray(parsed)) {
-            const sortedHistory = parsed.sort((a, b) => {
-              return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-            });
-            setHistoryEntries(sortedHistory);
-          }
-        }
+        const guides = getAllLocalGuides();
+        const stats = calculateUserStats(guides);
+        
+        setLocalGuides(guides);
+        setUserStats(stats);
+        
+        // 파일 가이드는 향후 구현
+        setFileGuides([]);
       } catch (error) {
-        console.error('History loading error:', error);
-        setHistoryEntries([]);
+        console.error('데이터 로드 실패:', error);
       } finally {
         setIsLoading(false);
       }
-    }
-    loadHistory();
-  }, [session]);
+    };
 
-  useEffect(() => {
-    const guides = JSON.parse(localStorage.getItem('myGuides') || '[]');
-    setOfflineGuides(guides);
-    setLocalGuides(getAllLocalGuides());
-  }, [session]);
+    loadData();
+  }, []);
 
-  const handleDeleteHistory = (id: string): void => {
-    if (!confirm(t.mypage.clearAllHistory + '?')) return;
-
-    try {
-      safeDeleteFromStorage(id);
-      setHistoryEntries(prev => prev.filter(entry => entry.id !== id));
-      setLocalGuides(prev => prev.filter(guide => guide.id !== id));
-    } catch (error) {
-      console.error('삭제 중 오류:', error);
-      alert('삭제 중 오류가 발생했습니다.');
-    }
-  };
-
-  const handleClearAllHistory = (): void => {
-    if (!confirm(t.mypage.clearAllHistory + '? 이 작업은 되돌릴 수 없습니다.')) return;
-
-    try {
-      // 모든 관련 localStorage 항목 삭제
-      const keys = Object.keys(localStorage);
-      keys.forEach(key => {
-        if (key.startsWith('ai_guide_') || key.startsWith('guide-cache:') || key === 'guide_history') {
-          localStorage.removeItem(key);
-        }
-      });
-
-      setHistoryEntries([]);
-      setLocalGuides([]);
-      setOfflineGuides([]);
-      alert('모든 가이드 기록이 삭제되었습니다.');
-    } catch (error) {
-      console.error('전체 삭제 중 오류:', error);
-      alert('삭제 중 오류가 발생했습니다.');
-    }
-  };
-
-  const handleLogout = async (): Promise<void> => {
-    try {
-      await signOut({ callbackUrl: '/' });
-    } catch (error) {
-      console.error('로그아웃 오류:', error);
-    }
-  };
-
-  const formatDate = (dateString: string): string => {
-    try {
-      return new Date(dateString).toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch {
-      return t.date.invalidDate;
-    }
-  };
-
-  const totalGuides = historyEntries.length + localGuides.length;
-  const completedGuides = historyEntries.filter(entry => entry.status === 'completed').length;
-  const savedGuides = localGuides.length;
-
+  // 인증 확인
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-gray-300 border-t-black rounded-full animate-spin"></div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
+  if (status === 'unauthenticated') {
+    router.push('/auth/login');
+    return null;
+  }
+
+  // 필터링 및 정렬
+  const filteredGuides = localGuides
+    .filter(guide => {
+      const matchesSearch = guide.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           guide.location.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesLanguage = filterLanguage === 'all' || guide.language === filterLanguage;
+      return matchesSearch && matchesLanguage;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.title.localeCompare(b.title);
+        case 'chapters':
+          return b.chapters - a.chapters;
+        case 'date':
+        default:
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+    });
+
+  const favoriteGuides = filteredGuides.filter(guide => guide.isFavorite);
+
+  // 가이드 삭제 핸들러
+  const handleDeleteGuide = (id: string) => {
+    if (confirm('이 가이드를 삭제하시겠습니까?')) {
+      safeDeleteFromStorage(id);
+      setLocalGuides(prev => prev.filter(guide => guide.id !== id));
+      
+      // 통계 업데이트
+      const updatedGuides = localGuides.filter(guide => guide.id !== id);
+      setUserStats(calculateUserStats(updatedGuides));
+    }
+  };
+
+  // 가이드 보기 핸들러
+  const handleViewGuide = (guide: LocalGuideEntry) => {
+    updateLastAccessed(guide.id);
+    router.push(`/guide/${encodeURIComponent(guide.location)}`);
+  };
+
+  // 즐겨찾기 토글 핸들러
+  const handleToggleFavorite = (id: string) => {
+    toggleFavorite(id);
+    setLocalGuides(prev => 
+      prev.map(guide => 
+        guide.id === id 
+          ? { ...guide, isFavorite: !guide.isFavorite }
+          : guide
+      )
+    );
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return '오늘';
+    if (diffDays === 2) return '어제';
+    if (diffDays <= 7) return `${diffDays}일 전`;
+    if (diffDays <= 30) return `${Math.ceil(diffDays / 7)}주 전`;
+    
+    return date.toLocaleDateString('ko-KR');
+  };
+
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+      return `${hours}시간 ${mins}분`;
+    }
+    return `${mins}분`;
+  };
+
+  // 탭 컨텐츠 렌더링
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {/* 통계 카드들 */}
+            <div className="bg-white rounded-lg p-6 shadow-sm border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">총 가이드</p>
+                  <p className="text-2xl font-bold text-gray-900">{userStats?.totalGuides || 0}</p>
+                </div>
+                <div className="p-3 bg-blue-100 rounded-full">
+                  <Folder className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                {userStats?.languagesUsed.length || 0}개 언어로 생성
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg p-6 shadow-sm border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">완료한 투어</p>
+                  <p className="text-2xl font-bold text-gray-900">{userStats?.completedTours || 0}</p>
+                </div>
+                <div className="p-3 bg-green-100 rounded-full">
+                  <Play className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                총 {formatDuration(userStats?.totalDuration || 0)}
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg p-6 shadow-sm border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">즐겨찾기</p>
+                  <p className="text-2xl font-bold text-gray-900">{userStats?.favoriteLocations || 0}</p>
+                </div>
+                <div className="p-3 bg-red-100 rounded-full">
+                  <Heart className="h-6 w-6 text-red-600" />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                자주 방문하는 장소들
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg p-6 shadow-sm border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">주 사용 언어</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {userStats?.mostVisitedType?.toUpperCase() || 'KO'}
+                  </p>
+                </div>
+                <div className="p-3 bg-purple-100 rounded-full">
+                  <Globe className="h-6 w-6 text-purple-600" />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                {userStats?.languagesUsed.join(', ') || '없음'}
+              </p>
+            </div>
+          </div>
+        );
+
+      case 'guides':
+        return (
+          <div>
+            {/* 검색 및 필터 */}
+            <div className="mb-6 space-y-4 md:space-y-0 md:flex md:items-center md:space-x-4">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder="가이드 검색..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="date">최신순</option>
+                <option value="name">이름순</option>
+                <option value="chapters">챕터순</option>
+              </select>
+              <select
+                value={filterLanguage}
+                onChange={(e) => setFilterLanguage(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">모든 언어</option>
+                <option value="ko">한국어</option>
+                <option value="en">English</option>
+                <option value="ja">日本語</option>
+                <option value="zh">中文</option>
+                <option value="es">Español</option>
+              </select>
+            </div>
+
+            {/* 가이드 목록 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredGuides.map((guide) => (
+                <div key={guide.id} className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="font-semibold text-gray-900 line-clamp-2">{guide.title}</h3>
+                      <button
+                        onClick={() => handleToggleFavorite(guide.id)}
+                        className={`p-1 rounded-full transition-colors ${
+                          guide.isFavorite 
+                            ? 'text-red-500 hover:text-red-600' 
+                            : 'text-gray-400 hover:text-red-500'
+                        }`}
+                      >
+                        <Heart className={`h-4 w-4 ${guide.isFavorite ? 'fill-current' : ''}`} />
+                      </button>
+                    </div>
+                    
+                    <div className="space-y-2 text-sm text-gray-600 mb-4">
+                      <div className="flex items-center">
+                        <MapPin className="h-4 w-4 mr-2" />
+                        {guide.location}
+                      </div>
+                      <div className="flex items-center">
+                        <Clock className="h-4 w-4 mr-2" />
+                        {guide.chapters}개 챕터 • {formatDuration(guide.chapters * 8)}
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        {formatDate(guide.createdAt)}
+                      </div>
+                      <div className="flex items-center">
+                        <Globe className="h-4 w-4 mr-2" />
+                        {guide.language.toUpperCase()}
+                      </div>
+                    </div>
+
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleViewGuide(guide)}
+                        className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center justify-center"
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        보기
+                      </button>
+                      <button
+                        onClick={() => handleDeleteGuide(guide.id)}
+                        className="p-2 text-gray-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50"
+                      >
+                        <Trash className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {filteredGuides.length === 0 && (
+              <div className="text-center py-12">
+                <Folder className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">가이드가 없습니다</h3>
+                <p className="text-gray-600 mb-4">새로운 가이드를 생성해보세요!</p>
+                <button
+                  onClick={() => router.push('/')}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  가이드 생성하기
+                </button>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'favorites':
+        return (
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {favoriteGuides.map((guide) => (
+                <div key={guide.id} className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="font-semibold text-gray-900 line-clamp-2">{guide.title}</h3>
+                      <Star className="h-5 w-5 text-yellow-500 fill-current" />
+                    </div>
+                    
+                    <div className="space-y-2 text-sm text-gray-600 mb-4">
+                      <div className="flex items-center">
+                        <MapPin className="h-4 w-4 mr-2" />
+                        {guide.location}
+                      </div>
+                      <div className="flex items-center">
+                        <Clock className="h-4 w-4 mr-2" />
+                        {guide.chapters}개 챕터
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => handleViewGuide(guide)}
+                      className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center justify-center"
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      보기
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {favoriteGuides.length === 0 && (
+              <div className="text-center py-12">
+                <Heart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">즐겨찾기한 가이드가 없습니다</h3>
+                <p className="text-gray-600">마음에 드는 가이드를 즐겨찾기로 추가해보세요!</p>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'files':
+        return (
+          <div>
+            {/* 파일 업로드 영역 */}
+            <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-6">
+              <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">파일에서 가이드 생성</h3>
+              <p className="text-gray-600 mb-4">PDF, Word, 텍스트 파일을 업로드하여 가이드를 생성할 수 있습니다</p>
+              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                파일 선택
+              </button>
+              <p className="text-xs text-gray-500 mt-2">지원 형식: PDF, DOCX, TXT (최대 10MB)</p>
+            </div>
+
+            {/* 파일 가이드 목록 */}
+            <div className="space-y-4">
+              {fileGuides.map((file) => (
+                <div key={file.id} className="bg-white rounded-lg shadow-sm border p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="p-2 bg-gray-100 rounded-lg">
+                        <FileText className="h-6 w-6 text-gray-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900">{file.fileName}</h3>
+                        <p className="text-sm text-gray-600">
+                          {(file.fileSize / 1024 / 1024).toFixed(2)}MB • {formatDate(file.uploadedAt)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        file.status === 'ready' ? 'bg-green-100 text-green-800' :
+                        file.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {file.status === 'ready' ? '완료' :
+                         file.status === 'processing' ? '처리중' : '오류'}
+                      </span>
+                      {file.status === 'ready' && (
+                        <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+                          <Eye className="h-4 w-4" />
+                        </button>
+                      )}
+                      <button className="p-2 text-gray-400 hover:text-red-600 rounded-lg">
+                        <Trash className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {fileGuides.length === 0 && (
+              <div className="text-center py-12">
+                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">업로드된 파일이 없습니다</h3>
+                <p className="text-gray-600">첫 번째 파일을 업로드해보세요!</p>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'settings':
+        return (
+          <div className="max-w-2xl">
+            <div className="bg-white rounded-lg shadow-sm border">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900">계정 설정</h3>
+                <p className="text-sm text-gray-600">프로필 정보를 관리하세요</p>
+              </div>
+              
+              <div className="p-6 space-y-6">
+                {/* 프로필 정보 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">이름</label>
+                  <input
+                    type="text"
+                    value={session?.user?.name || ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="이름을 입력하세요"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+                  <input
+                    type="email"
+                    value={session?.user?.email || ''}
+                    disabled
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">이메일은 변경할 수 없습니다</p>
+                </div>
+
+                {/* 언어 설정 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">기본 언어</label>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="ko">한국어</option>
+                    <option value="en">English</option>
+                    <option value="ja">日本語</option>
+                    <option value="zh">中文</option>
+                    <option value="es">Español</option>
+                  </select>
+                </div>
+
+                {/* 알림 설정 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">알림 설정</label>
+                  <div className="space-y-3">
+                    <label className="flex items-center">
+                      <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" defaultChecked />
+                      <span className="ml-2 text-sm text-gray-700">새로운 기능 알림</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" defaultChecked />
+                      <span className="ml-2 text-sm text-gray-700">가이드 생성 완료 알림</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                      <span className="ml-2 text-sm text-gray-700">마케팅 이메일 수신</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* 데이터 관리 */}
+                <div className="border-t border-gray-200 pt-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">데이터 관리</label>
+                  <div className="space-y-3">
+                    <button className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-gray-900">데이터 내보내기</div>
+                          <div className="text-sm text-gray-600">모든 가이드 데이터를 JSON 형태로 다운로드</div>
+                        </div>
+                        <Download className="h-5 w-5 text-gray-400" />
+                      </div>
+                    </button>
+                    
+                    <button className="w-full text-left px-4 py-3 border border-red-300 rounded-lg hover:bg-red-50 transition-colors text-red-600">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium">모든 데이터 삭제</div>
+                          <div className="text-sm text-red-500">저장된 모든 가이드와 설정을 삭제합니다</div>
+                        </div>
+                        <Trash className="h-5 w-5" />
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 저장 버튼 */}
+                <div className="flex space-x-3 pt-6">
+                  <button className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                    변경사항 저장
+                  </button>
+                  <button className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                    취소
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 계정 관리 */}
+            <div className="bg-white rounded-lg shadow-sm border mt-6">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900">계정 관리</h3>
+              </div>
+              
+              <div className="p-6">
+                <button
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  className="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center justify-center"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  로그아웃
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* 헤더 */}
-        <div className={`
-          mb-8 transform transition-all duration-700 ease-out delay-100
-          ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
-        `}>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{t.mypage.title}</h1>
-          <p className="text-gray-600">{t.mypage.description}</p>
+      {/* 헤더 */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => router.push('/')}
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                ← 홈으로
+              </button>
+              <h1 className="text-xl font-semibold text-gray-900">마이페이지</h1>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                  <User className="h-4 w-4 text-white" />
+                </div>
+                <span className="text-sm font-medium text-gray-900">
+                  {session?.user?.name || '사용자'}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 탭 네비게이션 */}
-        <div className={`
-          mb-8 transform transition-all duration-700 ease-out delay-200
-          ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
-        `}>
-          <div className="flex bg-white rounded-2xl p-2 shadow-sm">
-            {([
-              { id: 'overview' as const, label: t.profile.dashboard, icon: TrendingUp },
-              { id: 'guides' as const, label: t.profile.guides, icon: Folder },
-              { id: 'settings' as const, label: t.profile.settings, icon: Settings }
-            ] as const).map(({ id, label, icon: Icon }) => (
+        <div className="border-b border-gray-200 mb-8">
+          <nav className="-mb-px flex space-x-8">
+            {[
+              { id: 'overview', label: '개요', icon: TrendingUp },
+              { id: 'guides', label: '내 가이드', icon: Folder },
+              { id: 'favorites', label: '즐겨찾기', icon: Heart },
+              { id: 'files', label: '파일 가이드', icon: Upload },
+              { id: 'settings', label: '설정', icon: Settings }
+            ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
-                onClick={() => setActiveTab(id)}
-                className={`
-                  flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-xl
-                  transition-all duration-300 ease-out
-                  ${activeTab === id 
-                    ? 'bg-black text-white shadow-lg transform scale-[1.02]' 
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }
-                `}
+                onClick={() => setActiveTab(id as TabType)}
+                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors ${
+                  activeTab === id
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
               >
-                <Icon className="w-4 h-4" />
-                <span className="font-medium text-sm">{label}</span>
+                <Icon className="h-4 w-4" />
+                <span>{label}</span>
               </button>
             ))}
-          </div>
+          </nav>
         </div>
 
         {/* 탭 컨텐츠 */}
-        <div className={`
-          transition-all duration-700 ease-out delay-300
-          ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}
-        `}>
-          {activeTab === 'overview' && (
-            <div className="space-y-6">
-              {/* 통계 카드 */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-3xl font-bold text-black">{totalGuides}</div>
-                      <div className="text-sm text-gray-600 mt-1">{t.mypage.totalGuides}</div>
-                    </div>
-                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
-                      <Folder className="w-6 h-6 text-black" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-3xl font-bold text-black">{completedGuides}</div>
-                      <div className="text-sm text-gray-600 mt-1">{t.mypage.completedTours}</div>
-                    </div>
-                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
-                      <Play className="w-6 h-6 text-black" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-3xl font-bold text-black">{savedGuides}</div>
-                      <div className="text-sm text-gray-600 mt-1">{t.mypage.savedGuides}</div>
-                    </div>
-                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
-                      <Download className="w-6 h-6 text-black" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 최근 가이드 */}
-              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                  <h3 className="text-lg font-semibold text-gray-900">{t.mypage.recentGuides}</h3>
-                </div>
-                <div className="divide-y divide-gray-100">
-                  {isLoading ? (
-                    <div className="p-6 text-center text-gray-500">{t.common.loading}</div>
-                  ) : historyEntries.slice(0, 5).length === 0 ? (
-                    <div className="p-6 text-center text-gray-500">{t.mypage.noGuides}</div>
-                  ) : (
-                    historyEntries.slice(0, 5).map((entry) => (
-                      <div key={entry.id} className="p-4 hover:bg-gray-50 transition-colors">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900">{entry.locationName}</h4>
-                            <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
-                              <div className="flex items-center space-x-1">
-                                <Clock className="w-3 h-3" />
-                                <span>{formatDate(entry.createdAt)}</span>
-                              </div>
-                              <div className="flex items-center space-x-1">
-                                <MapPin className="w-3 h-3" />
-                                <span>{entry.language}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => handleDeleteHistory(entry.id)}
-                              className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                            >
-                              <Trash className="w-4 h-4" />
-                            </button>
-                            <div className="w-8 h-8 flex items-center justify-center text-gray-400">
-                              <ChevronRight className="w-4 h-4" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'guides' && (
-            <div className="space-y-6">
-              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                  <h3 className="text-lg font-semibold text-gray-900">{t.mypage.savedGuides}</h3>
-                </div>
-                <div className="divide-y divide-gray-100">
-                  {localGuides.length === 0 ? (
-                    <div className="p-6 text-center text-gray-500">{t.mypage.noGuides}</div>
-                  ) : (
-                    localGuides.map((guide) => (
-                      <div key={guide.id} className="p-4 hover:bg-gray-50 transition-colors">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900">{guide.title}</h4>
-                            <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
-                              <div className="flex items-center space-x-1">
-                                <Clock className="w-3 h-3" />
-                                <span>{formatDate(guide.createdAt)}</span>
-                              </div>
-                              <div className="flex items-center space-x-1">
-                                <Eye className="w-3 h-3" />
-                                <span>{guide.chapters} chapters</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => handleDeleteHistory(guide.id)}
-                              className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                            >
-                              <Trash className="w-4 h-4" />
-                            </button>
-                            <div className="w-8 h-8 flex items-center justify-center text-gray-400">
-                              <ChevronRight className="w-4 h-4" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'settings' && (
-            <div className="space-y-6">
-              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                  <h3 className="text-lg font-semibold text-gray-900">{t.mypage.accountInfo}</h3>
-                </div>
-                <div className="p-6 space-y-4">
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                    <span className="text-gray-600">{t.auth.email}</span>
-                    <span className="font-medium text-gray-900">{session?.user?.email}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                    <span className="text-gray-600">{t.auth.name}</span>
-                    <span className="font-medium text-gray-900">{session?.user?.name || '설정 안됨'}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-3">
-                    <span className="text-gray-600">{t.mypage.joinDate}</span>
-                    <span className="font-medium text-gray-900">2024년 12월</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                  <h3 className="text-lg font-semibold text-gray-900">{t.mypage.dataManagement}</h3>
-                </div>
-                <div className="p-6 space-y-4">
-                  <button
-                    onClick={handleClearAllHistory}
-                    className="w-full flex items-center justify-center space-x-2 py-3 px-4 text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition-colors duration-200"
-                  >
-                    <Trash className="w-4 h-4" />
-                    <span className="font-medium">{t.mypage.clearAllHistory}</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                  <h3 className="text-lg font-semibold text-gray-900">{t.profile.account}</h3>
-                </div>
-                <div className="p-6">
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center justify-center space-x-2 py-3 px-4 text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors duration-200"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span className="font-medium">{t.header.logout}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2 text-gray-600">로딩 중...</span>
+          </div>
+        ) : (
+          renderTabContent()
+        )}
       </div>
     </div>
   );

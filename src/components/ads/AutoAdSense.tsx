@@ -37,6 +37,12 @@ const AutoAdSense = () => {
         return;
       }
 
+      // Publisher ID 확인
+      if (!process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID) {
+        console.warn('⚠️ AdSense Publisher ID가 설정되지 않았습니다.');
+        return;
+      }
+
       try {
         // 자동 광고 초기화
         (window.adsbygoogle = window.adsbygoogle || []).push({
@@ -52,9 +58,17 @@ const AutoAdSense = () => {
       } catch (error) {
         console.error('❌ AdSense 자동 광고 초기화 실패:', error);
       }
+    } else if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 개발 환경에서는 AdSense를 로드하지 않습니다.');
     }
   }, []);
 
+  // 개발 환경에서는 아무것도 렌더링하지 않음
+  if (process.env.NODE_ENV === 'development') {
+    return null;
+  }
+
+  // 프로덕션 환경에서도 컴포넌트 자체는 렌더링하지 않음 (스크립트만 로드)
   return null;
 };
 

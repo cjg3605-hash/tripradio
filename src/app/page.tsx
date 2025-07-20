@@ -35,10 +35,10 @@ export default function HomePage() {
 
   // 회전하는 단어들
   const words = [
-    t?.home?.features?.storyteller || '스토리텔러',
-    t?.home?.features?.personalized || '맞춤형추천',
+    t?.home?.features?.personalizedGuides || '맞춤형추천',
+    t?.home?.features?.audioNarration || '음성해설',
     t?.home?.features?.multiLanguage || '다국어지원',
-    t?.home?.features?.docent || '도슨트'
+    t?.home?.features?.offlineAccess || '오프라인'
   ];
 
   // 회전하는 플레이스홀더
@@ -144,7 +144,7 @@ export default function HomePage() {
   // AI 가이드 생성
   const handleAIGeneration = async () => {
     if (!query.trim()) {
-      alert(t?.search?.enterLocation || '먼저 장소를 입력해주세요.');
+      alert('먼저 장소를 입력해주세요.');
       return;
     }
 
@@ -211,7 +211,7 @@ export default function HomePage() {
   // 오디오 재생
   const handleAudioPlayback = () => {
     if (!query.trim()) {
-      alert(t?.search?.enterLocation || '먼저 장소를 입력해주세요.');
+      alert('먼저 장소를 입력해주세요.');
       return;
     }
 
