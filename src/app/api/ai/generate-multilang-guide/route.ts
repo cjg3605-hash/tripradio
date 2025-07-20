@@ -74,6 +74,36 @@ export async function POST(request: NextRequest) {
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         guideData = JSON.parse(jsonMatch[0]);
+        
+        // 🔥 핵심: 3개 필드를 narrative로 통합하는 정규화
+        if (guideData.realTimeGuide?.chapters) {
+          guideData.realTimeGuide.chapters = guideData.realTimeGuide.chapters.map((chapter: any) => {
+            // narrative가 있으면 그대로 사용
+            if (chapter.narrative) {
+              return chapter;
+            }
+            
+            // narrative가 없으면 3개 필드를 합쳐서 narrative로 생성
+            const sceneDescription = chapter.sceneDescription || '';
+            const coreNarrative = chapter.coreNarrative || '';
+            const humanStories = chapter.humanStories || '';
+            
+            const combinedNarrative = [sceneDescription, coreNarrative, humanStories]
+              .filter(Boolean)
+              .join(' ');
+            
+            return {
+              ...chapter,
+              narrative: combinedNarrative || chapter.title || '',
+              // 3개 필드는 제거 (narrative로 통합됨)
+              sceneDescription: undefined,
+              coreNarrative: undefined,
+              humanStories: undefined
+            };
+          });
+        }
+        
+        console.log(`✅ ${language} 가이드 정규화 완료: ${guideData.realTimeGuide?.chapters?.length || 0}개 챕터`);
       } else {
         // JSON 블록이 없으면 전체 텍스트를 기본 구조로 래핑
         guideData = {
