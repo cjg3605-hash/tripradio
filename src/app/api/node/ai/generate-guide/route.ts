@@ -48,41 +48,35 @@ function normalizeGuideData(raw: any, language?: string) {
   console.log('🔍 원본 데이터 구조 확인:', {
     hasContent: !!raw.content,
     contentType: typeof raw.content,
-    keys: raw.content ? Object.keys(raw.content) : [],
-    raw: JSON.stringify(raw, null, 2).substring(0, 500) + '...'
+    directKeys: Object.keys(raw || {}),
+    contentKeys: raw.content ? Object.keys(raw.content) : []
   });
 
-  // raw가 직접 가이드 데이터인 경우
-  if (raw.overview || raw.route || raw.realTimeGuide) {
-    console.log('📋 직접 가이드 데이터 형식 감지');
-    return {
-      overview: raw.overview || '개요 정보가 없습니다.',
-      route: raw.route || { steps: [], tips: [], duration: '정보 없음' },
-      realTimeGuide: raw.realTimeGuide || { chapters: [] }
-    };
+  // AI가 생성한 실제 데이터 구조 확인
+  let sourceData = raw;
+  
+  // raw.content가 있으면 그것을 사용, 없으면 raw 직접 사용
+  if (raw.content && typeof raw.content === 'object') {
+    sourceData = raw.content;
+    console.log('📦 content 필드에서 데이터 추출');
+  } else if (raw.overview || raw.route || raw.realTimeGuide) {
+    sourceData = raw;
+    console.log('📦 직접 구조에서 데이터 추출');
+  } else {
+    console.error('❌ 올바른 가이드 구조를 찾을 수 없음:', raw);
+    throw new Error('AI가 생성한 가이드 데이터 구조가 올바르지 않습니다');
   }
 
-  // raw.content가 있는 경우
-  if (!raw.content || typeof raw.content !== 'object') {
-    console.log('⚠️ content 필드가 없거나 올바르지 않음, 기본값 반환');
-    return {
-      overview: '개요 정보가 없습니다.',
-      route: { steps: [], tips: [], duration: '정보 없음' },
-      realTimeGuide: { chapters: [] }
-    };
-  }
-
-  const { overview, route, realTimeGuide } = raw.content;
-  console.log('✅ content에서 데이터 추출:', {
-    hasOverview: !!overview,
-    hasRoute: !!route,
-    hasRealTimeGuide: !!realTimeGuide
-  });
-
+  // ✅ 실제 AI 데이터에서 필요한 부분만 추출 (더미 데이터 없음)
   return {
-    overview: overview || '개요 정보가 없습니다.',
-    route: route || { steps: [], tips: [], duration: '정보 없음' },
-    realTimeGuide: realTimeGuide || { chapters: [] }
+    overview: sourceData.overview || { 
+      title: '가이드', 
+      summary: '', 
+      keyFacts: [], 
+      visitInfo: {} 
+    },
+    route: sourceData.route || { steps: [] },
+    realTimeGuide: sourceData.realTimeGuide || { chapters: [] }
   };
 }
 
@@ -339,78 +333,61 @@ export async function POST(req: NextRequest) {
     // 재시도 로직이 포함된 AI 응답 생성
     const generateWithRetry = async (): Promise<string> => {
       const genAI = getGeminiClient();
-      
       const config = {
         temperature: 0.3,
         maxOutputTokens: generationMode === 'chapter' ? 8192 : 32768,
         topK: 40,
         topP: 0.9
       };
-      
       const model = genAI.getGenerativeModel({
         model: 'gemini-2.5-flash-lite-preview-06-17',
         generationConfig: config
       });
-
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const responseText = await response.text();
-      
-      if (!responseText || responseText.trim().length === 0) {
+      // 🚨 반환값 검증
+      if (responseText === undefined || responseText === null || typeof responseText !== 'string') {
+        throw new Error('AI 응답이 올바르지 않습니다: undefined 또는 null 응답');
+      }
+      if (responseText.trim().length === 0) {
         throw new Error('AI로부터 빈 응답을 받았습니다.');
       }
-      
-      // 응답 품질 검증
       const hasJsonStructure = responseText.includes('{') && responseText.includes('}');
       if (!hasJsonStructure) {
         throw new Error('JSON 구조가 없는 응답을 받았습니다.');
       }
-      
       return responseText;
     };
 
-    // 재시도 로직 (최대 3번)
-    let responseText: string | undefined;
+    // 재시도 로직 (최대 3번) - 타입 안전성 보장
+    let responseText: string | undefined = undefined;
     let lastError: Error | null = null;
 
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
         console.log(`🔄 AI 응답 시도 ${attempt}/3`);
-        responseText = await generateWithRetry();
+        responseText = await generateWithRetry(); // 이제 확실히 string
         console.log(`✅ 시도 ${attempt}에서 성공`);
         break;
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
         console.warn(`⚠️ 시도 ${attempt} 실패:`, lastError.message);
-        
-        if (attempt < 3) {
-          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        if (attempt === 3) {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: `AI 응답 생성 실패 (3번 시도 후): ${lastError.message}`
+            }),
+            { status: 500, headers }
+          );
         }
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
       }
     }
 
-    if (!responseText && lastError) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: `AI 응답 생성 실패 (3번 시도 후): ${lastError.message}` 
-        }),
-        { status: 500, headers }
-      );
-    }
-
     // 🔍 3. JSON 파싱 및 검증
-    if (!responseText) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'AI 응답 생성에 실패했습니다.' 
-        }),
-        { status: 500, headers }
-      );
-    }
-
-    const parsed = validateJsonResponse(responseText); // 이제 responseText는 확실히 string
+    const parsed = validateJsonResponse(responseText);
     if (!parsed.success) {
       console.error('❌ JSON 파싱 실패:', parsed.error);
       return new Response(

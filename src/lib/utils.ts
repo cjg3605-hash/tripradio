@@ -304,14 +304,22 @@ export const deepClone = <T>(obj: T): T => {
 };
 
 /**
- * JSON 응답 검증 및 파싱
+ * JSON 응답 검증 및 파싱 (개선된 버전)
  */
-export function validateJsonResponse(responseText: string): any {
+export function validateJsonResponse(responseText: string | undefined): { success: boolean; data?: any; error?: string } {
+  if (!responseText || typeof responseText !== 'string') {
+    return { success: false, error: '응답 텍스트가 올바르지 않습니다.' };
+  }
+  
   try {
     const parsed = JSON.parse(responseText);
-    return parsed;
+    return { success: true, data: parsed };
+     
   } catch (error) {
-    throw new Error(`Invalid JSON response: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    return { 
+      success: false, 
+      error: `JSON 파싱 실패: ${error instanceof Error ? error.message : 'Unknown error'}`
+    };
   }
 }
 
