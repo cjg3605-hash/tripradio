@@ -75,6 +75,14 @@ export async function POST(request: NextRequest) {
       if (jsonMatch) {
         guideData = JSON.parse(jsonMatch[0]);
         
+        // 🔥 디버깅: 챕터 제목 확인
+        if (guideData.realTimeGuide?.chapters) {
+          console.log(`🔍 ${language} 챕터 제목 확인:`);
+          guideData.realTimeGuide.chapters.forEach((chapter: any, index: number) => {
+            console.log(`  챕터 ${index + 1}: "${chapter.title}"`);
+          });
+        }
+        
         // 🔥 핵심: 3개 필드를 narrative로 통합하는 정규화
         if (guideData.realTimeGuide?.chapters) {
           guideData.realTimeGuide.chapters = guideData.realTimeGuide.chapters.map((chapter: any) => {

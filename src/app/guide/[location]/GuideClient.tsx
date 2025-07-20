@@ -44,6 +44,11 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         const normalizedData: GuideData = {
             overview: {
                 title: sourceData.overview?.title || locationName,
+                // 새로운 개요 필드들
+                location: sourceData.overview?.location || '',
+                keyFeatures: sourceData.overview?.keyFeatures || '',
+                background: sourceData.overview?.background || '',
+                // 기존 필드들 (호환성)
                 summary: sourceData.overview?.summary || '',
                 narrativeTheme: sourceData.overview?.narrativeTheme || '',
                 keyFacts: Array.isArray(sourceData.overview?.keyFacts) ? sourceData.overview.keyFacts : [],
