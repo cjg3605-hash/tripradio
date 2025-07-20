@@ -70,11 +70,21 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
 
   // 🔧 챕터 ID 정규화 (타입 요구사항 충족)
   if (normalizedData.realTimeGuide?.chapters) {
-    normalizedData.realTimeGuide.chapters = normalizedData.realTimeGuide.chapters.map((chapter, index) => ({
-      ...chapter,
-      id: chapter.id !== undefined ? chapter.id : index,
-      title: chapter.title || `챕터 ${index + 1}`
-    }));
+    normalizedData.realTimeGuide.chapters = normalizedData.realTimeGuide.chapters.map((chapter, index) => {
+      // 챕터 데이터 정규화: 3개 필드를 narrative로 통합
+      const normalizedChapter = {
+        ...chapter,
+        id: chapter.id !== undefined ? chapter.id : index,
+        title: chapter.title || `챕터 ${index + 1}`,
+        // narrative가 있으면 사용, 없으면 3개 필드 합치기
+        narrative: chapter.narrative || 
+          [chapter.sceneDescription, chapter.coreNarrative, chapter.humanStories]
+            .filter(Boolean).join(' '),
+        nextDirection: chapter.nextDirection || ''
+      };
+      
+      return normalizedChapter;
+    });
   }
 
   return normalizedData;

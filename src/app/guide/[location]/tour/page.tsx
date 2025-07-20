@@ -21,6 +21,79 @@ const MinimalTourContent = dynamic(() => import('./components/TourContent'), {
   )
 });
 
+// 🔥 핵심: 정규화 함수 추가
+const normalizeGuideData = (data: any, locationName: string) => {
+  if (!data) {
+    throw new Error('가이드 데이터가 없습니다.');
+  }
+
+  // 🔥 핵심: content 래핑 구조 올바른 처리
+  let sourceData = data;
+  
+  // data.content가 있으면 그것을 사용 (가장 일반적인 케이스)
+  if (data.content && typeof data.content === 'object') {
+    sourceData = data.content;
+    console.log(' content 필드에서 데이터 추출');
+  }
+  // data가 직접 overview, route, realTimeGuide를 가지면 직접 사용
+  else if (data.overview || data.route || data.realTimeGuide) {
+    sourceData = data;
+    console.log(' 직접 구조에서 데이터 추출');
+  }
+  else {
+    console.error('❌ 올바른 가이드 구조를 찾을 수 없음:', Object.keys(data));
+    throw new Error('올바른 가이드 데이터 구조가 아닙니다.');
+  }
+
+  //  정규화된 GuideData 생성
+  const normalizedData = {
+    overview: {
+      title: sourceData.overview?.title || locationName,
+      summary: sourceData.overview?.summary || '',
+      narrativeTheme: sourceData.overview?.narrativeTheme || '',
+      keyFacts: Array.isArray(sourceData.overview?.keyFacts) ? sourceData.overview.keyFacts : [],
+      visitingTips: sourceData.overview?.visitingTips,
+      historicalBackground: sourceData.overview?.historicalBackground,
+      visitInfo: sourceData.overview?.visitInfo || {}
+    },
+    route: {
+      steps: Array.isArray(sourceData.route?.steps) ? sourceData.route.steps : []
+    },
+    realTimeGuide: {
+      chapters: Array.isArray(sourceData.realTimeGuide?.chapters) ? sourceData.realTimeGuide.chapters : [],
+      ...sourceData.realTimeGuide
+    },
+    metadata: {
+      originalLocationName: locationName,
+      generatedAt: sourceData.metadata?.generatedAt || new Date().toISOString(),
+      version: sourceData.metadata?.version || '1.0',
+      language: sourceData.metadata?.language || 'ko',
+      ...sourceData.metadata
+    }
+  };
+
+  //  챕터 ID 정규화 (타입 요구사항 충족)
+  if (normalizedData.realTimeGuide?.chapters) {
+    normalizedData.realTimeGuide.chapters = normalizedData.realTimeGuide.chapters.map((chapter, index) => {
+      // 챕터 데이터 정규화: 3개 필드를 narrative로 통합
+      const normalizedChapter = {
+        ...chapter,
+        id: chapter.id !== undefined ? chapter.id : index,
+        title: chapter.title || `챕터 ${index + 1}`,
+        // narrative가 있으면 사용, 없으면 3개 필드 합치기
+        narrative: chapter.narrative || 
+          [chapter.sceneDescription, chapter.coreNarrative, chapter.humanStories]
+            .filter(Boolean).join(' '),
+        nextDirection: chapter.nextDirection || ''
+      };
+      
+      return normalizedChapter;
+    });
+  }
+
+  return normalizedData;
+};
+
 export default function TourPage() {
   const params = useParams();
   const { currentLanguage } = useLanguage();
@@ -61,7 +134,9 @@ export default function TourPage() {
         const data = await response.json();
         const content = data?.content;
         if (content) {
-          setGuideContent(content);
+          //  핵심: 정규화된 데이터로 설정
+          const normalizedContent = normalizeGuideData(content, locationName);
+          setGuideContent(normalizedContent);
         } else {
           console.error('❌ Failed to extract guide content from response:', data);
           setError(data.error || 'Failed to load guide data.');

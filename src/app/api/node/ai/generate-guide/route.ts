@@ -445,12 +445,22 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // 🔥 AI 응답 정규화: 3개 필드를 narrative로 통합
+      const normalizedChapter = {
+        id: newChapter.id,
+        title: newChapter.title,
+        narrative: newChapter.narrative || 
+          [newChapter.sceneDescription, newChapter.coreNarrative, newChapter.humanStories]
+            .filter(Boolean).join(' '),
+        nextDirection: newChapter.nextDirection || ''
+      };
+
       // 원자적 챕터 업데이트
       saveResult = await guideManager.updateChapterAtomic(
         locationName,
         language,
         targetChapter,
-        newChapter
+        normalizedChapter
       );
 
       if (!saveResult.success) {

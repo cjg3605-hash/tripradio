@@ -73,8 +73,8 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
     );
   }
 
-  // 2. 그 다음에 필수 필드 체크
-  if (!currentChapter.id || !currentChapter.title) {
+  // 2. 그 다음에 필수 필드 체크 - id가 0일 수도 있으므로 타입 체크로 변경
+  if (currentChapter.id === undefined || currentChapter.id === null || !currentChapter.title) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
