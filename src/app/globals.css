@@ -117,6 +117,39 @@
   --font-size-xl: clamp(1.25rem, 4vw, 1.5rem);
   --font-size-2xl: clamp(1.5rem, 5vw, 2rem);
   --font-size-3xl: clamp(2rem, 6vw, 3rem);
+
+  /* Design System Enhancement */
+  --button-radius: 1rem;        /* 16px - 통일된 버튼 모서리 */
+  --card-radius: 0.75rem;       /* 12px - 통일된 카드 모서리 */
+  --input-radius: 1.5rem;       /* 24px - 통일된 입력 필드 모서리 */
+  
+  /* Touch Target Standards */
+  --touch-target-min: 2.75rem; /* 44px 최소 터치 영역 */
+  --touch-target-comfortable: 3rem; /* 48px 권장 터치 영역 */
+  
+  /* Shadow System */
+  --shadow-soft: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-strong: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Global Design System Classes */
+.touch-target { min-width: var(--touch-target-min); min-height: var(--touch-target-min); }
+.button-radius { border-radius: var(--button-radius); }
+.card-radius { border-radius: var(--card-radius); }
+.input-radius { border-radius: var(--input-radius); }
+
+@keyframes reverse-spin {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.animate-reverse-spin {
+  animation: reverse-spin 2s linear infinite;
   --font-size-4xl: clamp(3rem, 8vw, 4rem);
   --font-size-5xl: clamp(4rem, 10vw, 6rem);
   --font-size-6xl: clamp(6rem, 15vw, 10rem);

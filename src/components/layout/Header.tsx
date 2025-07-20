@@ -56,7 +56,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
           </div>
           <button 
             onClick={() => router.push('/')}
-            className="text-lg font-bold text-black"
+            className="text-lg font-bold text-black py-2 px-1 touch-target"
           >
             NAVI : GUIDE
           </button>
@@ -119,10 +119,10 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     className="w-5 h-5 rounded-full"
                   />
                 ) : (
-                  <User className="w-4 h-4" />
+                  <User className="w-5 h-5" />
                 )}
                 <span>{session.user.name || session.user.email}</span>
-                <ChevronDown className="w-3 h-3" />
+                <ChevronDown className="w-4 h-4" />
               </button>
 
               {isProfileMenuOpen && (

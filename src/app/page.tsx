@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import GuideGenerating from '@/components/guide/GuideGenerating';
 
 // 검색 제안 인터페이스
 interface Suggestion {
@@ -222,6 +223,25 @@ export default function HomePage() {
     }, 1000);
   };
 
+  // 가이드 생성 중일 때 새로운 컴포넌트 표시
+  if (isGenerating) {
+    return (
+      <GuideGenerating
+        locationName={query}
+        onCancel={() => setIsGenerating(false)}
+        onComplete={() => {
+          setIsGenerating(false);
+          router.push(`/guide/${encodeURIComponent(query.trim())}`);
+        }}
+        userPreferences={{
+          interests: ['문화', '역사', '건축'],
+          ageGroup: '30대',
+          language: currentLanguage
+        }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white font-sans">
 
@@ -427,7 +447,7 @@ export default function HomePage() {
                   </svg>
                 </div>
                 <div className="h-16 sm:h-20 flex flex-col justify-center">
-                  <div className="text-sm sm:text-lg font-bold text-black mb-1">장소 입력</div>
+                  <div className="text-sm sm:text-lg font-medium text-black mb-1">장소 입력</div>
                   <div className="text-xs sm:text-sm text-gray-500 leading-relaxed">
                     궁금한 곳의<br />이름을 입력하세요
                   </div>
@@ -459,7 +479,7 @@ export default function HomePage() {
                   )}
                 </button>
                 <div className="h-16 sm:h-20 flex flex-col justify-center">
-                  <div className="text-sm sm:text-lg font-bold text-black mb-1">AI 생성</div>
+                  <div className="text-sm sm:text-lg font-medium text-black mb-1">AI 생성</div>
                   <div className="text-xs sm:text-sm text-gray-500 leading-relaxed">
                     실시간으로<br />맞춤 가이드 생성
                   </div>
@@ -493,7 +513,7 @@ export default function HomePage() {
                   )}
                 </button>
                 <div className="h-16 sm:h-20 flex flex-col justify-center">
-                  <div className="text-sm sm:text-lg font-bold text-black mb-1">오디오 재생</div>
+                  <div className="text-sm sm:text-lg font-medium text-black mb-1">오디오 재생</div>
                   <div className="text-xs sm:text-sm text-gray-500 leading-relaxed">
                     음성으로 생생한<br />현장 해설
                   </div>

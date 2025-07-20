@@ -35,7 +35,7 @@ const LoadingWithAd: React.FC<LoadingWithAdProps> = ({
           <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-cyan-400 rounded-full animate-spin-slow mx-auto" aria-hidden="true"></div>
         </div>
         
-        <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-2">
+        <h2 className="text-xl md:text-2xl font-medium text-gray-900 mb-2">
           {message}{dots}
         </h2>
         
