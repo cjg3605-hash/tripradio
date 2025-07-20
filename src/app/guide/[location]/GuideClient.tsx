@@ -9,6 +9,7 @@ import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
 import { UserProfile } from '@/types/guide';
+import GuideLoading from '@/components/ui/GuideLoading';
 
 export default function GuideClient({ locationName, initialGuide }: { locationName: string, initialGuide: any }) {
     const router = useRouter();
@@ -217,13 +218,12 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     if (isLoading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="max-w-md w-full mx-auto p-8">
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
-                        <div className="w-12 h-12 border-2 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
-                        <h2 className="text-xl font-medium text-gray-900 mb-2">가이드 생성 중</h2>
-                        <p className="text-gray-600 text-sm">잠시만 기다려주세요...</p>
-                    </div>
-                </div>
+                <GuideLoading 
+                    type="generating"
+                    message={`"${locationName}" 가이드 준비 중`}
+                    subMessage="AI가 맞춤형 가이드를 생성하고 있어요..."
+                    showProgress={true}
+                />
             </div>
         );
     }

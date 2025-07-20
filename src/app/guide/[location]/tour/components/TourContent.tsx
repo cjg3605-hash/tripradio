@@ -21,6 +21,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { GuideData, GuideChapter } from '@/types/guide';
+import GuideLoading from '@/components/ui/GuideLoading';
 import { getOrCreateChapterAudio } from '@/lib/tts-gcs';
 
 interface TourContentProps {
@@ -198,15 +199,12 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
   if (!guide.realTimeGuide?.chapters?.length) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-6 max-w-sm">
-          <div className="w-32 h-32 border-4 border-border rounded-full flex items-center justify-center mx-auto">
-            <BookOpen className="w-16 h-16 text-muted-foreground" />
-          </div>
-          <div>
-            <h2 className="text-xl font-medium mb-2">가이드를 불러오는 중</h2>
-            <p className="text-muted-foreground">잠시만 기다려주세요...</p>
-          </div>
-        </div>
+        <GuideLoading 
+          type="loading"
+          message="가이드를 불러오는 중"
+          subMessage="저장된 가이드 데이터를 가져오고 있어요..."
+          showProgress={true}
+        />
       </div>
     );
   }

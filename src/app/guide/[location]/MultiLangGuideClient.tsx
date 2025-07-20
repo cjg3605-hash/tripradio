@@ -11,6 +11,7 @@ import { useSession } from 'next-auth/react';
 import { UserProfile } from '@/types/guide';
 import { MultiLangGuideManager } from '@/lib/multilang-guide-manager';
 import { safeUserProfile } from '@/lib/utils';
+import GuideLoading from '@/components/ui/GuideLoading';
 
 interface Props {
   locationName: string;
@@ -251,15 +252,12 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">
-            {currentLanguage === 'ko' ? '가이드를 불러오는 중...' : 'Loading guide...'}
-          </p>
-          <p className="text-sm text-gray-500 mt-2">
-            {locationName}
-          </p>
-        </div>
+        <GuideLoading 
+          type="fetching"
+          message={currentLanguage === 'ko' ? `"${locationName}" 가이드 불러오는 중` : `Loading "${locationName}" guide`}
+          subMessage={currentLanguage === 'ko' ? '다국어 가이드 데이터를 준비하고 있어요...' : 'Preparing multilingual guide data...'}
+          showProgress={true}
+        />
       </div>
     );
   }

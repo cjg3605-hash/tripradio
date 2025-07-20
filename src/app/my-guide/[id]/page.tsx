@@ -3,19 +3,19 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useLanguage } from '@/contexts/LanguageContext';
+import GuideLoading from '@/components/ui/GuideLoading';
 
 // MinimalTourContent를 동적 import (서버 fetch 방지)
 const MinimalTourContent = dynamic(() => import("../../guide/[location]/tour/components/TourContent"), { 
   ssr: false,
   loading: () => (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="max-w-md w-full mx-auto p-8">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
-          <div className="w-12 h-12 border-2 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">가이드 로딩 중</h2>
-          <p className="text-gray-600 text-sm">저장된 가이드를 불러오는 중입니다...</p>
-        </div>
-      </div>
+      <GuideLoading 
+        type="loading"
+        message="저장된 가이드 로딩 중"
+        subMessage="가이드를 불러오고 있어요..."
+        showProgress={true}
+      />
     </div>
   )
 });
@@ -126,13 +126,12 @@ export default function MyGuidePage({ params }: { params: { id: string } }) {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full mx-auto p-8">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
-            <div className="w-12 h-12 border-2 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">로딩 중</h2>
-            <p className="text-gray-600 text-sm">저장된 가이드를 불러오는 중입니다...</p>
-          </div>
-        </div>
+        <GuideLoading 
+          type="loading"
+          message="마이 가이드 로딩 중"
+          subMessage="저장된 가이드를 불러오고 있어요..."
+          showProgress={true}
+        />
       </div>
     );
   }
