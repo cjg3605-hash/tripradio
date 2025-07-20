@@ -314,3 +314,46 @@ export function validateJsonResponse(responseText: string): any {
     throw new Error(`Invalid JSON response: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
+
+/**
+ * 안전한 언어 코드 정규화 (서버/클라이언트 모두 사용 가능)
+ */
+export function safeLanguageCode(lang: any): string {
+  if (!lang || typeof lang !== 'string') {
+    return 'ko';
+  }
+  
+  const supportedLanguages = ['ko', 'en', 'ja', 'zh', 'es'];
+  const normalizedLang = lang.toLowerCase().slice(0, 2);
+  
+  return supportedLanguages.includes(normalizedLang) ? normalizedLang : 'ko';
+}
+
+/**
+ * 안전한 객체 JSON 직렬화 (순환 참조 방지)
+ */
+export function safeJsonStringify(obj: any, space?: number): string {
+  const seen = new WeakSet();
+  
+  try {
+    return JSON.stringify(obj, (key, value) => {
+      // undefined, function, symbol 등을 안전하게 처리
+      if (value === undefined || typeof value === 'function' || typeof value === 'symbol') {
+        return null;
+      }
+      
+      // 순환 참조 방지
+      if (typeof value === 'object' && value !== null) {
+        if (seen.has(value)) {
+          return '[Circular]';
+        }
+        seen.add(value);
+      }
+      
+      return value;
+    }, space);
+  } catch (error) {
+    console.error('JSON stringify error:', error);
+    return JSON.stringify({ error: 'Serialization failed' });
+  }
+}

@@ -364,7 +364,7 @@ const detectBrowserLanguage = (): SupportedLanguage => {
   const browserLang = navigator.language.toLowerCase();
   const langCode = browserLang.split('-')[0];
   
-  const supportedCodes = SUPPORTED_LANGUAGES.map(lang => lang.code);
+  const supportedCodes = SUPPORTED_LANGUAGES.map(lang => lang?.code).filter(Boolean);
   return supportedCodes.includes(langCode as SupportedLanguage) 
     ? langCode as SupportedLanguage 
     : 'ko';
@@ -507,9 +507,17 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  // 현재 언어 설정 가져오기
-  const currentConfig = SUPPORTED_LANGUAGES.find(lang => lang.code === currentLanguage) || SUPPORTED_LANGUAGES[0];
-  const isRTL = currentConfig.dir === 'rtl';
+  // 현재 언어 설정 가져오기 (안전한 접근)
+  const currentConfig = SUPPORTED_LANGUAGES.find(lang => lang?.code === currentLanguage) || SUPPORTED_LANGUAGES[0] || {
+    code: 'ko',
+    name: '한국어',
+    flag: '🇰🇷',
+    nativeName: '한국어',
+    dir: 'ltr',
+    fontFamily: 'var(--font-noto-sans-kr)',
+    ttsLang: 'ko-KR'
+  };
+  const isRTL = currentConfig?.dir === 'rtl';
 
   // 언어 변경 함수
   const setLanguage = async (language: SupportedLanguage) => {

@@ -50,13 +50,13 @@ export class SimpleTTS {
     const voices = this.synthesis.getVoices();
     const targetLang = this.getVoiceLanguage(language);
     
-    // 정확한 언어 매치 찾기
-    let voice = voices.find(v => v.lang === targetLang);
+    // 정확한 언어 매치 찾기 (lang 속성이 있는 음성만)
+    let voice = voices.find(v => v?.lang === targetLang);
     
     // 정확한 매치가 없으면 언어 코드로 시작하는 것 찾기
     if (!voice) {
       const langCode = targetLang.split('-')[0];
-      voice = voices.find(v => v.lang.startsWith(langCode));
+      voice = voices.find(v => v?.lang?.startsWith(langCode));
     }
     
     // 그래도 없으면 기본 음성 사용

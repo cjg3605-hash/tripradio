@@ -1,12 +1,13 @@
-// src/app/guide/[location]/page.tsx
+// src/app/guide/[location]/layout.tsx
 import MultiLangGuideClient from './MultiLangGuideClient';
 import { supabase } from '@/lib/supabaseClient';
+import { safeLanguageCode } from '@/lib/utils';
 
 export const revalidate = 0;
 
 interface PageProps {
   params: { location: string };
-  searchParams: { lang?: string };
+  searchParams?: { lang?: string };
 }
 
 function normalizeString(str: string): string {
@@ -15,7 +16,7 @@ function normalizeString(str: string): string {
 
 export default async function GuidePage({ params, searchParams }: PageProps) {
   const locationName = decodeURIComponent(params.location || '');
-  const requestedLang = searchParams.lang || 'ko';
+  const requestedLang = safeLanguageCode(searchParams?.lang);
   const normLocation = normalizeString(locationName);
   
   console.log(`🔍 서버 사이드 가이드 조회: ${locationName} (${requestedLang})`);
