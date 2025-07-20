@@ -1,79 +1,30 @@
 // src/lib/multilang-guide-manager.ts
-// 🌍 다국어 가이드 DB 관리 시스템
-
 import { supabase } from '@/lib/supabaseClient';
-import type { SupportedLanguage } from '@/contexts/LanguageContext';
-import { createAutonomousGuidePrompt } from './ai/prompts';
+import { createAutonomousGuidePrompt } from './ai/prompts/index';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-interface MultiLangGuideData {
-  locationName: string;
-  language: SupportedLanguage;
-  guideData: any;
-  userProfile?: any;
-}
-
-interface SmartLanguageSwitchResult {
-  success: boolean;
-  data?: any;
-  source: 'cache' | 'generated';
-  error?: any;
-}
-
-/**
- * 🎯 언어별 가이드 저장/조회 관리자
- */
-export class MultiLanguageGuideManager {
+// Gemini 클라이언트 초기화 함수
+const getGeminiClient = () => {
+  const apiKey = process.env.GEMINI_API_KEY;
   
-  /**
-   * 📝 언어별 가이드 저장 (기존 DB 구조 활용)
-   */
-  static async saveGuideByLanguage({
-    locationName,
-    language,
-    guideData,
-    userProfile
-  }: MultiLangGuideData): Promise<{ success: boolean; error?: any }> {
-    
-    try {
-      console.log(`💾 ${language} 가이드 저장:`, locationName);
-      
-      // 기존 guides 테이블 구조 그대로 사용
-      const { data, error } = await supabase
-        .from('guides')
-        .upsert([{
-          locationname: locationName.toLowerCase().trim(),
-          language: language.toLowerCase(), // 언어 코드만 변경
-          content: guideData,
-          user_profile: userProfile,
-          updated_at: new Date().toISOString()
-        }], {
-          onConflict: 'locationname,language' // 복합 키로 중복 방지
-        })
-        .select('id')
-        .single();
-
-      if (error) {
-        console.error(`❌ ${language} 가이드 저장 실패:`, error);
-        return { success: false, error };
-      }
-
-      console.log(`✅ ${language} 가이드 저장 완료:`, data.id);
-      return { success: true };
-
-    } catch (error) {
-      console.error(`❌ ${language} 가이드 저장 중 오류:`, error);
-      return { success: false, error };
-    }
+  if (!apiKey) {
+    console.error('GEMINI_API_KEY is not configured');
+    throw new Error('Server configuration error: Missing API key');
   }
+  
+  try {
+    return new GoogleGenerativeAI(apiKey);
+  } catch (error) {
+    console.error('Failed to initialize Gemini AI:', error);
+    throw new Error('Failed to initialize AI service');
+  }
+};
 
+export class MultiLangGuideManager {
   /**
    * 🔍 언어별 가이드 조회
    */
-  static async getGuideByLanguage(
-    locationName: string, 
-    language: SupportedLanguage
-  ): Promise<{ exists: boolean; data?: any; error?: any }> {
-    
+  static async getGuideByLanguage(locationName: string, language: string) {
     try {
       console.log(`🔍 ${language} 가이드 조회:`, locationName);
       
@@ -81,128 +32,154 @@ export class MultiLanguageGuideManager {
         .from('guides')
         .select('*')
         .eq('locationname', locationName.toLowerCase().trim())
-        .eq('language', language.toLowerCase())
+        .eq('language', language)
         .single();
 
       if (error) {
         if (error.code === 'PGRST116') {
-          // 데이터 없음 (정상)
           console.log(`📭 ${language} 가이드 없음:`, locationName);
-          return { exists: false };
+          return { success: false, error: 'NOT_FOUND' };
         }
         console.error(`❌ ${language} 가이드 조회 실패:`, error);
-        return { exists: false, error };
+        return { success: false, error: error.message };
       }
 
-      console.log(`✅ ${language} 가이드 발견:`, data.id);
-      return { exists: true, data: data.content };
+      console.log(`✅ ${language} 가이드 발견:`, locationName);
+      return { success: true, data: data.guide_data };
 
     } catch (error) {
       console.error(`❌ ${language} 가이드 조회 중 오류:`, error);
-      return { exists: false, error };
-    }
-  }
-
-  /**
-   * 🌍 해당 위치의 모든 언어 버전 조회
-   */
-  static async getAllLanguageVersions(
-    locationName: string
-  ): Promise<{ [key in SupportedLanguage]?: any }> {
-    
-    try {
-      console.log(`🌍 모든 언어 버전 조회:`, locationName);
-      
-      const { data, error } = await supabase
-        .from('guides')
-        .select('language, content')
-        .eq('locationname', locationName.toLowerCase().trim());
-
-      if (error) {
-        console.error('❌ 다국어 조회 실패:', error);
-        return {};
-      }
-
-      // 언어별로 정리
-      const result: { [key in SupportedLanguage]?: any } = {};
-      data?.forEach(item => {
-        if (['ko', 'en', 'ja', 'zh', 'es'].includes(item.language)) {
-          result[item.language as SupportedLanguage] = item.content;
-        }
-      });
-
-      console.log(`✅ 다국어 조회 완료:`, Object.keys(result));
-      return result;
-
-    } catch (error) {
-      console.error('❌ 다국어 조회 중 오류:', error);
-      return {};
-    }
-  }
-
-  /**
-   * 🚀 스마트 언어 전환 (캐시 우선)
-   */
-  static async smartLanguageSwitch(
-    locationName: string,
-    targetLanguage: SupportedLanguage,
-    userProfile?: any
-  ): Promise<SmartLanguageSwitchResult> {
-    
-    try {
-      console.log(`🔄 스마트 언어 전환: ${locationName} → ${targetLanguage}`);
-      
-      // 1. 캐시 확인 (DB에서 기존 데이터)
-      const cached = await this.getGuideByLanguage(locationName, targetLanguage);
-      
-      if (cached.exists && cached.data) {
-        console.log(`⚡ 캐시된 ${targetLanguage} 가이드 반환`);
-        return { 
-          success: true, 
-          data: cached.data, 
-          source: 'cache' 
-        };
-      }
-
-      // 2. 캐시 미스 - 새로 생성
-      console.log(`🎨 새로운 ${targetLanguage} 가이드 생성 중...`);
-      
-      const newGuide = await this.generateAndSaveGuide(
-        locationName, 
-        targetLanguage, 
-        userProfile
-      );
-
-      if (newGuide.success) {
-        return { 
-          success: true, 
-          data: newGuide.data, 
-          source: 'generated' 
-        };
-      } else {
-        return { 
-          success: false, 
-          source: 'generated',
-          error: newGuide.error 
-        };
-      }
-
-    } catch (error) {
-      console.error('❌ 스마트 언어 전환 실패:', error);
       return { 
         success: false, 
-        source: 'generated',
-        error 
+        error: error instanceof Error ? error.message : '알 수 없는 오류'
       };
     }
   }
 
   /**
-   * 🎨 새 가이드 생성 및 저장
+   * 🌍 모든 언어 버전 조회
+   */
+  static async getAllLanguageVersions(locationName: string) {
+    try {
+      console.log(`🌍 모든 언어 버전 조회:`, locationName);
+      
+      const { data, error } = await supabase
+        .from('guides')
+        .select('language, updated_at')
+        .eq('locationname', locationName.toLowerCase().trim());
+
+      if (error) {
+        console.error('❌ 다국어 조회 실패:', error);
+        return { success: false, error: error.message };
+      }
+
+      console.log(`✅ 다국어 조회 완료:`, data);
+      return { success: true, data: data || [] };
+
+    } catch (error) {
+      console.error('❌ 다국어 조회 중 오류:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : '알 수 없는 오류'
+      };
+    }
+  }
+
+  /**
+   * 💾 언어별 가이드 저장
+   */
+  static async saveGuideByLanguage({
+    locationName,
+    language,
+    guideData,
+    userProfile
+  }: {
+    locationName: string;
+    language: string;
+    guideData: any;
+    userProfile?: any;
+  }) {
+    try {
+      console.log(`💾 ${language} 가이드 저장 시작:`, locationName);
+
+      const { data, error } = await supabase
+        .from('guides')
+        .upsert({
+          locationname: locationName.toLowerCase().trim(),
+          language: language,
+          guide_data: guideData,
+          user_profile: userProfile || {},
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'locationname,language'
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error(`❌ ${language} 가이드 저장 실패:`, error);
+        return { success: false, error: error.message };
+      }
+
+      console.log(`✅ ${language} 가이드 저장 완료:`, locationName);
+      return { success: true, data };
+
+    } catch (error) {
+      console.error(`❌ ${language} 가이드 저장 중 오류:`, error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : '알 수 없는 오류'
+      };
+    }
+  }
+
+  /**
+   * 🎨 스마트 언어 전환 (기존 가이드가 없으면 생성)
+   */
+  static async smartLanguageSwitch(locationName: string, targetLanguage: string, userProfile?: any) {
+    try {
+      console.log(`🔄 스마트 언어 전환: ${locationName} → ${targetLanguage}`);
+
+      // 1단계: 기존 가이드 확인
+      const existingGuide = await this.getGuideByLanguage(locationName, targetLanguage);
+      
+      if (existingGuide.success) {
+        console.log(`✅ 기존 ${targetLanguage} 가이드 발견 - 반환`);
+        return existingGuide;
+      }
+
+      // 2단계: 가이드가 없으면 새로 생성
+      console.log(`🎨 새로운 ${targetLanguage} 가이드 생성 중...`);
+      
+      const generateResult = await this.generateAndSaveGuide(
+        locationName, 
+        targetLanguage, 
+        userProfile
+      );
+
+      if (generateResult.success) {
+        console.log(`✅ ${targetLanguage} 가이드 생성 및 저장 완료`);
+        return generateResult;
+      } else {
+        console.error(`❌ ${targetLanguage} 가이드 생성 실패:`, generateResult.error);
+        return generateResult;
+      }
+
+    } catch (error) {
+      console.error(`❌ 스마트 언어 전환 실패:`, error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : '알 수 없는 오류'
+      };
+    }
+  }
+
+  /**
+   * 🤖 새로운 가이드 생성 및 저장 (수정된 버전)
    */
   static async generateAndSaveGuide(
-    locationName: string,
-    language: SupportedLanguage,
+    locationName: string, 
+    language: string, 
     userProfile?: any
   ): Promise<{ success: boolean; data?: any; error?: any }> {
     
@@ -212,34 +189,29 @@ export class MultiLanguageGuideManager {
       
       console.log(`📝 ${language} 프롬프트 준비 완료: ${prompt.length}자`);
 
-      // Gemini API 호출
-      const response = await fetch(`${process.env.GEMINI_API_BASE_URL}/v1beta/models/gemini-pro:generateContent`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': process.env.GEMINI_API_KEY!,
-        },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 8000,
-            topK: 40,
-            topP: 0.9,
-          },
-        }),
+      // ✅ 수정된 부분: Gemini 라이브러리 사용
+      const genAI = getGeminiClient();
+      const model = genAI.getGenerativeModel({ 
+        model: 'gemini-2.5-flash-lite-preview-06-17',
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 8000,
+          topK: 40,
+          topP: 0.9,
+        }
       });
 
-      if (!response.ok) {
-        throw new Error(`Gemini API 오류: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      console.log(`🤖 ${language} 가이드 생성 중...`);
+      
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = await response.text();
       
       if (!text) {
         throw new Error('AI 응답이 비어있습니다');
       }
+
+      console.log(`📥 ${language} AI 응답 수신: ${text.length}자`);
 
       // JSON 파싱
       const jsonMatch = text.match(/\{[\s\S]*\}/);

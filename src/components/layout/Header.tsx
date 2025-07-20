@@ -49,13 +49,16 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
     <header className="bg-white border-b border-gray-200">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* 로고 */}
-        <div className="flex items-center gap-2">
-          <Volume2 className="w-5 h-5 text-black" />
+        <div className="flex items-center gap-3">
+          {/* 스피커 아이콘을 원형 테두리로 감싸기 */}
+          <div className="w-10 h-10 border-2 border-gray-300 rounded-full flex items-center justify-center">
+            <Volume2 className="w-5 h-5 text-black" />
+          </div>
           <button 
             onClick={() => router.push('/')}
             className="text-lg font-bold text-black"
           >
-            NAVI GUIDE
+            NAVI : GUIDE
           </button>
         </div>
 
@@ -65,11 +68,11 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
           <div className="relative" ref={languageMenuRef}>
             <button
               onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-              className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 text-sm text-gray-700"
+              className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
             >
               <Globe className="w-4 h-4" />
               <span>{currentConfig?.flag || '🇰🇷'}</span>
-              <span>{currentLanguage.toUpperCase()}</span>
+              <span>{currentConfig?.name || '한국어'}</span>
               <ChevronDown className="w-3 h-3" />
             </button>
 
@@ -79,7 +82,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                   <button
                     key={lang.code}
                     onClick={() => handleLanguageChange(lang.code)}
-                    className="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2 text-sm"
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
                   >
                     <span>{lang.flag}</span>
                     <span>{lang.name}</span>
@@ -89,35 +92,41 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
             )}
           </div>
 
+          {/* 히스토리 버튼 */}
+          <button
+            onClick={onHistoryOpen}
+            className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{t?.header?.history || '히스토리'}</span>
+          </button>
+
           {/* 로그인 상태 */}
-          {session?.user ? (
+          {status === 'loading' ? (
+            <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
+          ) : session?.user ? (
             <div className="relative" ref={profileMenuRef}>
               <button
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-100 text-sm text-gray-700"
+                className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
               >
                 {session.user.image ? (
                   <img 
                     src={session.user.image} 
-                    alt="Profile" 
+                    alt="프로필" 
                     className="w-5 h-5 rounded-full"
                   />
                 ) : (
                   <User className="w-4 h-4" />
                 )}
+                <span>{session.user.name || session.user.email}</span>
                 <ChevronDown className="w-3 h-3" />
               </button>
 
               {isProfileMenuOpen && (
-                <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                  <div className="px-3 py-2 text-sm text-gray-500 border-b border-gray-100">
-                    <div className="font-medium text-gray-900">
-                      {session.user.name || 'User'}
-                    </div>
-                    <div className="text-xs truncate">
-                      {session.user.email}
-                    </div>
-                  </div>
+                <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-40 z-50">
                   <button
                     onClick={() => {
                       router.push('/mypage');
@@ -125,13 +134,13 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     }}
                     className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    {t.profile.mypage}
+                    {t?.profile?.mypage || '마이페이지'}
                   </button>
                   <button
                     onClick={handleSignOut}
                     className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    {t.auth.signout}
+                    {t?.auth?.signout || '로그아웃'}
                   </button>
                 </div>
               )}
@@ -142,7 +151,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
               className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
             >
               <LogIn className="w-4 h-4" />
-              <span>{t.auth.signin}</span>
+              <span>{t?.auth?.signin || '로그인'}</span>
             </button>
           )}
         </div>
@@ -183,7 +192,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="hidden sm:inline">{t.header.history}</span>
+            <span className="hidden sm:inline">{t?.header?.history || '히스토리'}</span>
           </button>
 
           {/* 로그인 상태 */}
@@ -196,22 +205,17 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                 {session.user.image ? (
                   <img 
                     src={session.user.image} 
-                    alt="Profile" 
+                    alt="프로필" 
                     className="w-4 h-4 rounded-full"
                   />
                 ) : (
                   <User className="w-3 h-3" />
                 )}
-                <ChevronDown className="w-2 h-2" />
+                <span className="hidden sm:inline">{session.user.name || session.user.email}</span>
               </button>
 
               {isProfileMenuOpen && (
-                <div className="absolute right-0 mt-1 w-32 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                  <div className="px-2 py-1 text-xs text-gray-500 border-b border-gray-100">
-                    <div className="font-medium text-gray-900 truncate">
-                      {session.user.name || 'User'}
-                    </div>
-                  </div>
+                <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-32 z-50">
                   <button
                     onClick={() => {
                       router.push('/mypage');
@@ -219,13 +223,13 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     }}
                     className="w-full text-left px-2 py-1 text-xs text-gray-700 hover:bg-gray-100"
                   >
-                    {t.profile.mypage}
+                    {t?.profile?.mypage || '마이페이지'}
                   </button>
                   <button
                     onClick={handleSignOut}
                     className="w-full text-left px-2 py-1 text-xs text-gray-700 hover:bg-gray-100"
                   >
-                    {t.auth.signout}
+                    {t?.auth?.signout || '로그아웃'}
                   </button>
                 </div>
               )}
@@ -233,16 +237,14 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
           ) : (
             <button
               onClick={() => router.push('/auth/signin')}
-              className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 hover:bg-gray-100 rounded-lg"
+              className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-xs text-gray-700"
             >
               <LogIn className="w-3 h-3" />
-              <span className="hidden sm:inline">{t.auth.signin}</span>
+              <span className="hidden sm:inline">{t?.auth?.signin || '로그인'}</span>
             </button>
           )}
         </div>
       </div>
-
-
     </header>
   );
 }

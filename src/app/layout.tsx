@@ -1,4 +1,5 @@
-import type { Metadata } from 'next';
+// src/app/layout.tsx (최종 수정 버전)
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { LanguageProvider } from '@/contexts/LanguageContext';
@@ -11,6 +12,14 @@ const inter = Inter({
   variable: '--font-inter'
 });
 
+// ✅ viewport 별도 export
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
+
+// ✅ metadata에서 viewport 제거됨
 export const metadata: Metadata = {
   title: {
     default: 'NAVI-GUIDE - AI 여행 가이드',
@@ -70,11 +79,6 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-  },
   manifest: '/manifest.json',
   icons: {
     icon: [
@@ -116,26 +120,10 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//fonts.gstatic.com" />
         
         {/* Preconnect for Critical Resources */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        
-        {/* Theme Color for Mobile Browsers */}
-        <meta name="theme-color" content="#ffffff" />
-        <meta name="msapplication-TileColor" content="#000000" />
-        
-        {/* Prevent FOUC (Flash of Unstyled Content) */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                const theme = localStorage.getItem('theme') || 'light';
-                document.documentElement.setAttribute('data-theme', theme);
-              } catch (e) {}
-            `,
-          }}
-        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
       </head>
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
         <SessionProvider>
           <LanguageProvider>
             <ClientLayout>
@@ -143,21 +131,6 @@ export default function RootLayout({
             </ClientLayout>
           </LanguageProvider>
         </SessionProvider>
-        
-        {/* Performance Monitoring */}
-        {process.env.NODE_ENV === 'production' && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-                if ('serviceWorker' in navigator) {
-                  window.addEventListener('load', function() {
-                    navigator.serviceWorker.register('/sw.js');
-                  });
-                }
-              `,
-            }}
-          />
-        )}
       </body>
     </html>
   );
