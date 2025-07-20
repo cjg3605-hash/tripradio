@@ -16,57 +16,46 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     const sessionResult = useSession();
     const session = sessionResult?.data;
 
-    // 완전한 데이터 정규화 함수
+    // 🔥 핵심 수정: content 래핑 구조 올바른 처리
     const normalizeGuideData = (data: any, locationName: string): GuideData => {
-        console.log('🔍 정규화 시작 - 원본 데이터:', {
-            hasContent: !!data.content,
-            hasOverview: !!data.overview,
-            hasRoute: !!data.route,
-            hasRealTimeGuide: !!data.realTimeGuide,
-            keys: Object.keys(data || {})
-        });
-
         if (!data) {
             throw new Error('가이드 데이터가 없습니다.');
         }
 
-        // 1단계: 실제 데이터 소스 결정
+        // 🔥 핵심 수정: content 래핑 구조 올바른 처리
         let sourceData = data;
         
-        // content 래핑 구조 처리
+        // data.content가 있으면 그것을 사용 (가장 일반적인 케이스)
         if (data.content && typeof data.content === 'object') {
             sourceData = data.content;
             console.log('📦 content 필드에서 데이터 추출');
         }
-        
-        // 2단계: 기본 구조 생성
+        // data가 직접 overview, route, realTimeGuide를 가지면 직접 사용
+        else if (data.overview || data.route || data.realTimeGuide) {
+            sourceData = data;
+            console.log('📦 직접 구조에서 데이터 추출');
+        }
+        else {
+            console.error('❌ 올바른 가이드 구조를 찾을 수 없음:', Object.keys(data));
+            throw new Error('올바른 가이드 데이터 구조가 아닙니다.');
+        }
+
+        // 🎯 정규화된 GuideData 생성
         const normalizedData: GuideData = {
             overview: {
-                title: sourceData.overview?.title || sourceData.title || locationName,
-                summary: sourceData.overview?.summary || sourceData.summary || '',
-                narrativeTheme: sourceData.overview?.narrativeTheme || sourceData.narrativeTheme || '',
-                keyFacts: Array.isArray(sourceData.overview?.keyFacts) 
-                    ? sourceData.overview.keyFacts 
-                    : Array.isArray(sourceData.keyFacts) 
-                    ? sourceData.keyFacts 
-                    : [],
-                visitingTips: sourceData.overview?.visitingTips || sourceData.visitingTips,
-                historicalBackground: sourceData.overview?.historicalBackground || sourceData.historicalBackground,
-                visitInfo: sourceData.overview?.visitInfo || sourceData.visitInfo || {}
+                title: sourceData.overview?.title || locationName,
+                summary: sourceData.overview?.summary || '',
+                narrativeTheme: sourceData.overview?.narrativeTheme || '',
+                keyFacts: Array.isArray(sourceData.overview?.keyFacts) ? sourceData.overview.keyFacts : [],
+                visitingTips: sourceData.overview?.visitingTips,
+                historicalBackground: sourceData.overview?.historicalBackground,
+                visitInfo: sourceData.overview?.visitInfo || {}
             },
             route: {
-                steps: Array.isArray(sourceData.route?.steps) 
-                    ? sourceData.route.steps 
-                    : Array.isArray(sourceData.steps) 
-                    ? sourceData.steps 
-                    : []
+                steps: Array.isArray(sourceData.route?.steps) ? sourceData.route.steps : []
             },
             realTimeGuide: {
-                chapters: Array.isArray(sourceData.realTimeGuide?.chapters) 
-                    ? sourceData.realTimeGuide.chapters 
-                    : Array.isArray(sourceData.chapters) 
-                    ? sourceData.chapters 
-                    : [],
+                chapters: Array.isArray(sourceData.realTimeGuide?.chapters) ? sourceData.realTimeGuide.chapters : [],
                 ...sourceData.realTimeGuide
             },
             metadata: {
@@ -78,47 +67,14 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
             }
         };
 
-        // 3단계: 챕터 ID 정규화
+        // 🔧 챕터 ID 정규화 (타입 요구사항 충족)
         if (normalizedData.realTimeGuide?.chapters) {
-            normalizedData.realTimeGuide.chapters = normalizedData.realTimeGuide.chapters.map((chapter, index) => {
-                const chapterId = chapter.id !== undefined ? chapter.id : index;
-                
-                return {
-                    ...chapter,
-                    id: chapterId,
-                    title: chapter.title || `챕터 ${chapterId + 1}`,
-                    location: chapter.location || 
-                             chapter.coordinates || 
-                             (chapter.lat && chapter.lng ? { lat: chapter.lat, lng: chapter.lng } : undefined) ||
-                             (chapter.latitude && chapter.longitude ? { lat: chapter.latitude, lng: chapter.longitude } : undefined)
-                };
-            });
+            normalizedData.realTimeGuide.chapters = normalizedData.realTimeGuide.chapters.map((chapter, index) => ({
+                ...chapter,
+                id: chapter.id !== undefined ? chapter.id : index,
+                title: chapter.title || `챕터 ${index + 1}`
+            }));
         }
-
-        // 4단계: route.steps와 realTimeGuide.chapters 동기화
-        if (normalizedData.route.steps.length !== (normalizedData.realTimeGuide?.chapters?.length || 0)) {
-            console.warn('⚠️ steps와 chapters 개수 불일치, 동기화 시도');
-            
-            if ((normalizedData.realTimeGuide?.chapters?.length || 0) > normalizedData.route.steps.length) {
-                const missingSteps = normalizedData.realTimeGuide?.chapters?.slice(normalizedData.route.steps.length) || [];
-                missingSteps.forEach((chapter, idx) => {
-                    normalizedData.route.steps.push({
-                        step: normalizedData.route.steps.length + 1,
-                        title: chapter.title,
-                        location: chapter.sceneDescription || chapter.location?.toString() || '',
-                        description: chapter.description || chapter.coreNarrative || '',
-                        duration: chapter.duration?.toString() || '15분'
-                    });
-                });
-            }
-        }
-
-        console.log('✅ 데이터 정규화 완료:', {
-            overviewTitle: normalizedData.overview.title,
-            stepsCount: normalizedData.route.steps.length,
-            chaptersCount: normalizedData.realTimeGuide?.chapters?.length || 0,
-            hasAllChapterIds: normalizedData.realTimeGuide?.chapters?.every(c => c.id !== undefined) || false
-        });
 
         return normalizedData;
     };
@@ -127,6 +83,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         if (!initialGuide) return null;
         
         try {
+            // 🔥 핵심: initialGuide를 정규화 함수로 처리
             return normalizeGuideData(initialGuide, locationName);
         } catch (error) {
             console.error('초기 데이터 정규화 실패:', error);
@@ -189,8 +146,21 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                     throw new Error(data.error || '가이드 생성에 실패했습니다.');
                 }
 
-                // 정규화된 데이터 설정
-                const normalizedGuideData = normalizeGuideData(data.data, locationName);
+                // 🔥 핵심: data.data가 실제 가이드 데이터
+                const guideResponse = data.data;
+
+                // ===== 6. 데이터 구조 디버깅 로그 추가 =====
+                console.log('🔍 데이터 구조 분석:', {
+                    originalDataKeys: Object.keys(data || {}),
+                    hasDataField: !!data.data,
+                    dataFieldKeys: data.data ? Object.keys(data.data) : [],
+                    hasContentField: !!(data.data?.content),
+                    contentKeys: data.data?.content ? Object.keys(data.data.content) : [],
+                    finalSourceKeys: Object.keys(guideResponse || {})
+                });
+
+                // 정규화 함수에 위임
+                const normalizedGuideData = normalizeGuideData(guideResponse, locationName);
                 setGuideData(normalizedGuideData);
                 setSource('generated');
 

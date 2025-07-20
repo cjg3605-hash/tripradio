@@ -49,7 +49,7 @@ const SafeChapterDisplay = ({ chapter }: { chapter: GuideChapter }) => {
 };
 
 const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: TourContentProps) => {
-  const [currentChapter, setCurrentChapter] = useState(0);
+  const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [expandedChapters, setExpandedChapters] = useState<number[]>([0]);
@@ -57,20 +57,37 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const totalChapters = guide.realTimeGuide?.chapters?.length || 0;
-  const chapter = guide.realTimeGuide?.chapters?.[currentChapter];
+  const currentChapter = guide.realTimeGuide?.chapters?.[currentChapterIndex];
 
-  // 디버깅을 위한 로깅
-  console.log('🔍 현재 데이터 구조:', {
-    hasGuideData: !!guide,
-    chaptersCount: guide?.realTimeGuide?.chapters?.length || 0,
-    currentChapterExists: !!chapter,
-    chapterFields: chapter ? Object.keys(chapter) : [],
-    chapterId: chapter?.id,
-    chapterTitle: chapter?.title
+  // 필수 필드 확인
+  if (!currentChapter?.id || !currentChapter?.title) {
+    return <div>챕터 데이터를 불러오는 중...</div>;
+  }
+
+  // 안전한 필드 접근 (기본값 제공)
+  const sceneDescription = currentChapter.sceneDescription || '';
+  const coreNarrative = currentChapter.coreNarrative || '';
+  const humanStories = currentChapter.humanStories || '';
+  const nextDirection = currentChapter.nextDirection || '';
+
+  // ===== 3. 데이터 구조 디버깅 추가 =====
+  console.log('🔍 TourContent 데이터 구조:', {
+    hasRealTimeGuide: !!guide.realTimeGuide,
+    chaptersLength: guide.realTimeGuide?.chapters?.length,
+    currentChapterIndex,
+    currentChapter: currentChapter ? {
+      id: currentChapter.id,
+      title: currentChapter.title,
+      hasNarrative: !!currentChapter.narrative,
+      hasSceneDescription: !!currentChapter.sceneDescription,
+      hasCoreNarrative: !!currentChapter.coreNarrative,
+      hasHumanStories: !!currentChapter.humanStories,
+      hasNextDirection: !!currentChapter.nextDirection
+    } : null
   });
 
   // 안전한 챕터 접근
-  if (!chapter) {
+  if (!currentChapter) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -82,12 +99,13 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
     );
   }
 
-  // 콘텐츠가 있는지 확인
-  const hasContent = chapter && (
-    chapter.narrative ||
-    chapter.sceneDescription ||
-    chapter.coreNarrative ||
-    chapter.humanStories
+  // ===== 2. 타입 안전성 확보 =====
+  // currentChapter가 이제 GuideChapter 객체로 올바르게 인식됨
+  const hasContent = currentChapter && (
+    currentChapter.narrative ||
+    currentChapter.sceneDescription ||
+    currentChapter.coreNarrative ||
+    currentChapter.humanStories
   );
 
   // 스크롤 이벤트 처리
@@ -150,12 +168,12 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
     if (!chap) return;
 
     // 다른 챕터 재생 중이면 정지
-    if (currentChapter !== chapterIndex) {
+    if (currentChapterIndex !== chapterIndex) {
       stopAndCleanupAudio();
-      setCurrentChapter(chapterIndex);
+      setCurrentChapterIndex(chapterIndex);
     }
 
-    if (isPlaying && currentChapter === chapterIndex) {
+    if (isPlaying && currentChapterIndex === chapterIndex) {
       stopAndCleanupAudio();
       return;
     }
@@ -170,7 +188,7 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
 
     try {
       setIsPlaying(true);
-      setCurrentChapter(chapterIndex);
+      setCurrentChapterIndex(chapterIndex);
 
       // 가이드 ID 생성
       const guideId = `${guide.metadata?.originalLocationName || 'guide'}_${language}`.replace(/[^a-zA-Z0-9_]/g, '_');
@@ -211,7 +229,7 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
   const goToChapter = (index: number) => {
     if (index >= 0 && index < totalChapters) {
       stopAndCleanupAudio();
-      setCurrentChapter(index);
+      setCurrentChapterIndex(index);
       
       // 챕터 참조가 있으면 해당 위치로 스크롤
       if (chapterRefs.current[index]) {
@@ -404,7 +422,7 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
                       }
                     }}
                     className={`group border-b border-gray-100 last:border-b-0 transition-all duration-500 ${
-                      currentChapter === index ? 'bg-gray-50' : 'hover:bg-gray-50/50'
+                      currentChapterIndex === index ? 'bg-gray-50' : 'hover:bg-gray-50/50'
                     }`}
                   >
                     {/* 챕터 헤더 - 클린한 레이아웃 */}
@@ -416,7 +434,7 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
                         <div className="flex items-start space-x-6 flex-1">
                           {/* 챕터 번호 - 미니멀 원형 */}
                           <div className={`w-12 h-12 border-2 flex items-center justify-center text-sm font-medium transition-all duration-300 ${
-                            currentChapter === index 
+                            currentChapterIndex === index 
                               ? 'border-gray-900 bg-gray-900 text-white' 
                               : 'border-gray-300 text-gray-600 group-hover:border-gray-900'
                           }`}>
@@ -443,12 +461,12 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
                               handlePlayPause(index);
                             }}
                             className={`w-14 h-14 border-2 flex items-center justify-center transition-all duration-300 hover:scale-105 ${
-                              isPlaying && currentChapter === index
+                              isPlaying && currentChapterIndex === index
                                 ? 'border-gray-900 bg-gray-900 text-white'
                                 : 'border-gray-300 text-gray-600 hover:border-gray-900 hover:text-gray-900'
                             }`}
                           >
-                            {isPlaying && currentChapter === index ? 
+                            {isPlaying && currentChapterIndex === index ? 
                               <Pause className="w-5 h-5" /> : 
                               <Play className="w-5 h-5 ml-0.5" />
                             }

@@ -490,7 +490,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: finalData,
+      data: { content: finalData },
       cached: generationMode === 'chapter' ? 'updated' : (saveResult?.isNew ? 'new' : 'existing'),
       language,
       generationMode,
