@@ -236,7 +236,7 @@ const MinimalTourContent = ({ guide, language, chapterRefs = { current: [] } }: 
 
             {/* 장소명 타이틀 - 중앙에 배치, 크기 30% 축소 */}
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 z-10">
-              {guide.metadata?.originalLocationName || guide.overview?.title || '가이드'}
+            {guide.overview.summary || '이곳의 특별한 매력을 소개합니다.'}
             </h2>
           </div>
 
