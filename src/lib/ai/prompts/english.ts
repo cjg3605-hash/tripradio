@@ -258,6 +258,7 @@ export const createEnglishGuidePrompt = (
   const langConfig = LANGUAGE_CONFIGS.en;
   const locationType = analyzeLocationType(locationName);
   const typeConfig = LOCATION_TYPE_CONFIGS[locationType];
+  const audioStyle = ENGLISH_AUDIO_GUIDE_INSTRUCTIONS;
 
   const userContext = userProfile ? `
 👤 User Customization Info:
