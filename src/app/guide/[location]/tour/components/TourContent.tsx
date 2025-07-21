@@ -22,7 +22,6 @@ import {
 } from 'lucide-react';
 import { GuideData, GuideChapter } from '@/types/guide';
 import GuideLoading from '@/components/ui/GuideLoading';
-import { getOrCreateChapterAudio } from '@/lib/tts-gcs';
 
 interface TourContentProps {
   guide: GuideData;
@@ -147,14 +146,24 @@ const TourContent = ({ guide, language, chapterRefs = { current: [] } }: TourCon
       // 가이드 ID 생성
       const guideId = `${guide.metadata?.originalLocationName || 'guide'}_${language}`.replace(/[^a-zA-Z0-9_]/g, '_');
       
-      // TTS 오디오 생성 및 재생
-      const audioUrl = await getOrCreateChapterAudio(
-        guideId, 
-        chapterIndex, 
-        textToSpeak, 
-        language === 'ko' ? 'ko-KR' : 'en-US',
-        1.0
-      );
+      // API 라우트를 통한 TTS 오디오 생성
+      const response = await fetch('/api/ai/generate-tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: textToSpeak,
+          guide_id: guideId,
+          locationName: guide.metadata?.originalLocationName || 'guide',
+          language: language === 'ko' ? 'ko-KR' : 'en-US'
+        })
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.error || 'TTS 생성 실패');
+      }
+      
+      const audioUrl = data.url;
 
       const audio = new Audio(audioUrl);
       setCurrentAudio(audio);
