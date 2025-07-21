@@ -304,24 +304,98 @@ export function createAutonomousGuidePrompt(
 ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
 \`\`\``,
       qualityStandards: `**품질 기준 (가장 중요!):**
-- **분량은 많을수록 좋습니다. 절대 내용을 아끼지 마세요.** 사소한 건축 디테일, 숨겨진 상징, 역사적 배경, 관련 인물들의 재미있는 일화, 비하인드 스토리 등 모든 정보를 총망라하여 알려주세요.
-- **친근하고 수다스러운 톤앤매너:** 딱딱한 설명이 아닌, 옆에서 친구나 최고의 가이드가 열정적으로 설명해주는 듯한 말투를 사용하세요.
-- **완벽한 스토리텔링:** 모든 정보를 하나의 거대한 이야기처럼 연결하세요.
+- **🚨 절대 사용 금지 표현들 🚨**
+  * "여러분", "상상해보세요", "놀라운 이야기", "경이로운", "숨을 고르고"
+  * "잠시", "곧 만나게 될", "펼쳐지는", "직접 경험하게", "놀라운 세계"
+  * "이곳", "여기" 같은 모호한 지시어 (반드시 구체적 장소명 사용)
+  * 장소명 없는 일반적 호칭이나 감탄사
+- **위치 유형별 맞춤형 정보 밀도 100% 원칙**:
+
+**🏛️ 건축/역사 장소**: 연도+건축기법+재료+크기+인물명 필수
+  * 예: "경복궁 근정전은 1395년 태조 이성계가 건립한 높이 24.75m의 2층 목조건물로, 다포계 공포양식과 주심포 구조를 사용했습니다"
+
+**🍜 음식/맛집 장소**: 음식명+재료+조리법+역사+맛특징 필수  
+  * 예: "명동교자의 왕만두는 1명이 하루 300개 한정으로 직접 빚는 두께 2mm 밀가루 피에 돼지고기와 부추를 8:2 비율로 넣어 1968년부터 전통 육수로 끓여낸 시그니처 메뉴입니다"
+
+**🌿 자연/생태 장소**: 지질학적 형성과정+생태계+계절변화+환경데이터 필수
+  * 예: "설악산 울산바위는 1억년 전 중생대 백악기에 형성된 화강암 덩어리로, 높이 873m에서 서식하는 고산식물 47종과 천연기념물 산양 15마리가 서식하며, 연평균 기온이 평지보다 6도 낮은 아고산대 기후를 보입니다"
+
+**🏢 현대/도시 장소**: 건축기술+디자인컨셉+기능+수치+사회적의미 필수
+  * 예: "롯데월드타워는 높이 554.5m의 123층 건물로, 바람 저항을 줄이는 테이퍼드 디자인과 지진 대응 TSD 시스템을 적용하여 2017년 완공된 동북아시아 최고층 복합건물입니다"
+
+**🛍️ 쇼핑/상업 장소**: 상권역사+대표상품+가격대+특색점포+경제규모 필수
+  * 예: "동대문 패션타운은 1970년대 평화시장에서 시작된 24시간 도매상권으로, 하루 평균 40만명이 방문하여 연 매출 15조원을 기록하며, 새벽 2시부터 열리는 도매시장에서 전국 소매점의 60%가 물건을 공급받습니다"
 
 **📍 챕터 구성 필수 요구사항:**
-- **최소 5-7개 챕터 생성**: 주요 관람 포인트마다 별도 챕터 구성
+- **🚨 반드시 정확히 5-7개 챕터 생성 🚨**: 주요 관람 포인트마다 별도 챕터 구성 (4개 이하나 8개 이상은 절대 금지)
 - **관람 동선 순서대로 배치**: 입구부터 출구까지 효율적인 한붓그리기 경로
+- **챕터 수 검증**: realTimeGuide.chapters 배열의 길이가 정확히 5-7 사이여야 함
 - **🚨 CRITICAL: route.steps와 realTimeGuide.chapters 동기화 필수 🚨**
   * route.steps 배열과 realTimeGuide.chapters 배열의 개수가 **반드시 정확히 일치**해야 함
   * 각 step의 title과 해당 chapter의 title이 **완전히 동일**해야 함
   * step 순서와 chapter 순서가 **정확히 일치**해야 함
   * 이 규칙을 위반하면 시스템 오류가 발생합니다!
-- **각 필드별 최소 작성 기준**:
-  * sceneDescription: 200자 이상, 5감을 자극하는 생생한 묘사
-  * coreNarrative: 300자 이상, 역사적 사실과 의미 상세 설명
-  * humanStories: 200자 이상, 구체적인 인물 일화와 에피소드
-  * nextDirection: 100자 이상, 명확한 이동 경로와 거리 안내
-- **절대 빈 내용 금지**: 모든 필드는 반드시 실제 내용으로 채워야 함`
+- **위치 유형별 필드 작성 기준 (챕터당 1500자 목표)**:
+
+**🏛️ 건축/역사 필드 요구사항**:
+  * sceneDescription: 건축 양식+재료+크기+색깔+장식요소 세부 묘사
+  * coreNarrative: 건축 연도+건축가+건축기법+역사적 배경+문화적 의미
+  * humanStories: 건축가/왕/장인 실존인물+구체적 일화+당대 사회상
+  * nextDirection: 정확한 거리+건축 구조 기준 방향+다음 건물의 특징
+
+**🍜 음식/맛집 필드 요구사항**:
+  * sceneDescription: 주방모습+조리과정+향기+소리+시각적 특징
+  * coreNarrative: 음식 역사+조리법+재료+창업년도+대표메뉴+가격
+  * humanStories: 요리사/창업자 실명+요리 개발과정+맛의 비밀+가족사
+  * nextDirection: 정확한 거리+주변 음식점+특색 메뉴 안내
+
+**🌿 자연/생태 필드 요구사항**:
+  * sceneDescription: 계절별 풍경+날씨+생태계 소리+냄새+촉감
+  * coreNarrative: 지질 형성과정+기후+생태계+보존 상태+과학적 가치
+  * humanStories: 생태학자/보존활동가 실명+연구성과+보존 노력+발견 일화
+  * nextDirection: 정확한 거리+지형 기준 방향+생태 관찰 포인트
+
+**🏢 현대/도시 필드 요구사항**:
+  * sceneDescription: 건축 디자인+첨단 기술+야경+인파+도시 경관
+  * coreNarrative: 건축 기술+디자인 컨셉+사회적 기능+경제적 의미+미래 가치
+  * humanStories: 건축가/기획자 실명+설계 철학+건설 과정+기술적 도전
+  * nextDirection: 정확한 거리+지하철/교통 연계+다음 랜드마크
+- **위치 유형별 필수 정보 체크리스트**:
+
+**🏛️ 건축/역사 체크리스트**:
+  ✅ 건축 연도와 건축가명 포함되었는가?
+  ✅ 건축 기법과 사용된 재료가 구체적으로 명시되었는가?
+  ✅ 건물의 정확한 크기(높이, 넓이 등) 포함되었는가?
+  ✅ 역사적 인물의 실명과 구체적 일화가 있는가?
+  ✅ 현재 방문객이 실제로 볼 수 있는 부분을 정확히 설명했는가?
+
+**🍜 음식/맛집 체크리스트**:
+  ✅ 대표 메뉴명과 정확한 가격이 포함되었는가?
+  ✅ 주요 재료와 조리법이 구체적으로 설명되었는가?
+  ✅ 창업년도와 창업자/요리사 실명이 있는가?
+  ✅ 맛의 특징과 다른 곳과의 차별점이 명확한가?
+  ✅ 영업시간과 주문 방법 등 실용적 정보가 있는가?
+
+**🌿 자연/생태 체크리스트**:
+  ✅ 지질학적 형성 시기와 과정이 포함되었는가?
+  ✅ 서식하는 동식물의 구체적 종류와 수량이 있는가?
+  ✅ 기후 데이터(온도, 강수량 등)가 포함되었는가?
+  ✅ 계절별 변화와 관찰 포인트가 명시되었는가?
+  ✅ 보존 활동과 관련 연구자의 실명이 있는가?
+
+**🏢 현대/도시 체크리스트**:
+  ✅ 건물 높이와 층수 등 정확한 규모가 포함되었는가?
+  ✅ 건축 기술과 디자인 컨셉이 구체적으로 설명되었는가?
+  ✅ 완공년도와 건축가/설계사 정보가 있는가?
+  ✅ 사회적 기능과 경제적 의미가 명확한가?
+  ✅ 교통 접근성과 주변 시설 정보가 포함되었는가?
+
+**🛍️ 쇼핑/상업 체크리스트**:
+  ✅ 상권 형성 시기와 발전 과정이 포함되었는가?
+  ✅ 대표 상품과 가격대가 구체적으로 명시되었는가?
+  ✅ 하루 방문객 수와 매출 규모 등 경제 데이터가 있는가?
+  ✅ 특색 있는 점포와 브랜드가 구체적으로 소개되었는가?
+  ✅ 영업시간과 쇼핑 팁 등 실용적 정보가 포함되었는가?`
     },
     en: {
       role: typeConfig 
@@ -338,24 +412,67 @@ ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 
 ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
 \`\`\``,
       qualityStandards: `**Quality Standards (Most Important!)**
-- **Longer is better. Do not hold back on content.** Include every piece of information: minor architectural details, hidden symbols, historical context, fun anecdotes about people involved, behind-the-scenes stories, etc.
-- **Friendly and Chatty Tone:** Use a conversational style, as if a friend or the best guide is passionately explaining things.
-- **Perfect Storytelling:** Connect all information into one cohesive narrative.
+- **🚨 ABSOLUTELY FORBIDDEN Expressions 🚨**
+  * "Imagine", "wonderful world", "amazing stories", "you will experience", "take a breath"
+  * "here", "this place" without specific location names
+  * Generic greetings or exclamations without location context
+  * Abstract expressions that could apply to any tourist site
+- **Location Type-Specific 100% Information Density Rules**:
+
+**🏛️ Architecture/Historical Sites**: Year+architectural technique+material+size+person name required
+  * Example: "Gyeongbokgung's Geunjeongjeon Hall was built in 1395 by King Taejo as a 24.75m-tall two-story wooden structure using multi-bracket sistema and jusimspo framework"
+
+**🍜 Food/Culinary Sites**: Food name+ingredients+cooking method+history+taste characteristics required  
+  * Example: "Myeongdong Kyoja's king dumplings are handmade daily by one chef limited to 300 pieces, using 2mm-thick wheat flour skin filled with pork and chives in 8:2 ratio, boiled in traditional broth since 1968"
+
+**🌿 Nature/Ecological Sites**: Geological formation+ecosystem+seasonal changes+environmental data required
+  * Example: "Seoraksan's Ulsanbawi Rock formed 100 million years ago during Cretaceous period as granite mass, hosts 47 alpine plant species and 15 endangered mountain goats at 873m elevation with average temperature 6°C lower than lowlands"
+
+**🏢 Modern/Urban Sites**: Architectural technology+design concept+function+specifications+social significance required
+  * Example: "Lotte World Tower stands 554.5m tall with 123 floors, featuring wind-resistant tapered design and earthquake-responsive TSD system, completed in 2017 as Northeast Asia's tallest mixed-use building"
+
+**🛍️ Shopping/Commercial Sites**: Commercial history+signature products+price range+unique stores+economic scale required
+  * Example: "Dongdaemun Fashion Town originated from Pyeonghwa Market in 1970s as 24-hour wholesale district, serves 400,000 daily visitors generating 15 trillion won annually, supplies 60% of nationwide retail stores from 2 AM wholesale markets"
 
 **📍 Chapter Composition Requirements:**
-- **Generate at least 5-7 chapters**: Create separate chapters for each major viewing point
+- **🚨 Generate EXACTLY 5-7 chapters 🚨**: Create separate chapters for each major viewing point (4 or fewer, 8 or more is strictly forbidden)
 - **Follow visitor route order**: Efficient one-way path from entrance to exit
+- **Chapter count validation**: realTimeGuide.chapters array length must be exactly between 5-7
 - **🚨 CRITICAL: route.steps and realTimeGuide.chapters synchronization REQUIRED 🚨**
   * route.steps array and realTimeGuide.chapters array count must **match exactly**
   * Each step's title and corresponding chapter's title must be **completely identical**
   * Step order and chapter order must **match exactly**
   * Violating this rule will cause system errors!
-- **Minimum content requirements for each field**:
-  * sceneDescription: 200+ characters, vivid descriptions engaging all 5 senses
-  * coreNarrative: 300+ characters, detailed historical facts and significance
-  * humanStories: 200+ characters, specific personal anecdotes and episodes
-  * nextDirection: 100+ characters, clear movement instructions with distances
-- **NO EMPTY CONTENT**: Every field must be filled with actual substantial content`
+- **Location Type-Specific Field Requirements (1500+ characters per chapter)**:
+
+**🏛️ Architecture/Historical Field Requirements**:
+  * sceneDescription: Architectural style+materials+dimensions+colors+decorative elements detailed description
+  * coreNarrative: Construction year+architect+building techniques+historical background+cultural significance
+  * humanStories: Architect/ruler/craftsman real names+specific anecdotes+contemporary social context
+  * nextDirection: Exact distance+architectural structure-based directions+next building features
+
+**🍜 Food/Culinary Field Requirements**:
+  * sceneDescription: Kitchen scenes+cooking process+aromas+sounds+visual characteristics
+  * coreNarrative: Food history+recipes+ingredients+establishment year+signature dishes+prices
+  * humanStories: Chef/founder real names+recipe development+cooking secrets+family history
+  * nextDirection: Exact distance+nearby restaurants+specialty menu guidance
+
+**🌿 Nature/Ecological Field Requirements**:
+  * sceneDescription: Seasonal landscapes+weather+ecosystem sounds+scents+tactile sensations
+  * coreNarrative: Geological formation process+climate+ecosystem+conservation status+scientific value
+  * humanStories: Ecologist/conservationist real names+research achievements+conservation efforts+discovery anecdotes
+  * nextDirection: Exact distance+terrain-based directions+ecological observation points
+
+**🏢 Modern/Urban Field Requirements**:
+  * sceneDescription: Architectural design+advanced technology+night views+crowds+urban landscape
+  * coreNarrative: Construction technology+design concept+social function+economic significance+future value
+  * humanStories: Architect/planner real names+design philosophy+construction process+technical challenges
+  * nextDirection: Exact distance+subway/transportation connections+next landmark
+- **Validation Checklist (apply to every sentence)**:
+  * Could this sentence be used at any other tourist site? (If yes, rewrite required)
+  * Does it include specific location or part names?
+  * Are there measurable information (numbers, sizes, years)?
+  * Can visitors verify this content on-site?`
     },
     ja: {
       role: typeConfig 
@@ -384,11 +501,11 @@ ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 
   * 各 step の title と対応する chapter の title が**完全に同一**である必要があります
   * step 順序と chapter 順序が**正確に一致**する必要があります
   * この規則に違反するとシステムエラーが発生します！
-- **各フィールド別最小作成基準**:
-  * sceneDescription: 200文字以上、5感を刺激する生き生きとした描写
-  * coreNarrative: 300文字以上、歴史的事実と意味の詳細説明
-  * humanStories: 200文字以上、具体的な人物の逸話とエピソード
-  * nextDirection: 100文字以上、明確な移動経路と距離案内
+- **各フィールド別最小作成基準 (チャプター当たり1500文字目標)**:
+  * sceneDescription: 400-500文字以上、5感を刺激する生き生きとした描写
+  * coreNarrative: 800-1000文字以上、歴史的事実と意味の詳細説明
+  * humanStories: 300-400文字以上、具体的な人物の逸話とエピソード
+  * nextDirection: 200-300文字以上、明確な移動経路と距離案内
 - **絶対に空の内容禁止**: すべてのフィールドは必ず実際の内容で満たす必要があります`
     },
     zh: {
@@ -418,11 +535,11 @@ ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 
   * 各 step 的 title 与对应 chapter 的 title **必须完全相同**
   * step 顺序与 chapter 顺序**必须完全一致**
   * 违反此规则将导致系统错误！
-- **各字段最小撰写标准**:
-  * sceneDescription: 200字以上，刺激五感的生动描写
-  * coreNarrative: 300字以上，历史事实和意义的详细说明
-  * humanStories: 200字以上，具体的人物轶事和情节
-  * nextDirection: 100字以上，明确的移动路线和距离指引
+- **各字段最小撰写标准 (每章节1500字目标)**:
+  * sceneDescription: 400-500字以上，刺激五感的生动描写
+  * coreNarrative: 800-1000字以上，历史事实和意义的详细说明
+  * humanStories: 300-400字以上，具体的人物轶事和情节
+  * nextDirection: 200-300字以上，明确的移动路线和距离指引
 - **绝对禁止空内容**: 所有字段必须填写实际内容`
     },
     es: {
@@ -452,11 +569,11 @@ ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 
   * El title de cada step y el title del chapter correspondiente **deben ser completamente idénticos**
   * El orden de los steps y el orden de los chapters **deben coincidir exactamente**
   * ¡Violar esta regla causará errores del sistema!
-- **Estándares mínimos de escritura por campo**:
-  * sceneDescription: Más de 200 caracteres, descripción vívida que estimule los 5 sentidos
-  * coreNarrative: Más de 300 caracteres, explicación detallada de hechos históricos y significado
-  * humanStories: Más de 200 caracteres, anécdotas específicas de personas y episodios
-  * nextDirection: Más de 100 caracteres, guía clara de ruta de movimiento y distancia
+- **Estándares mínimos de escritura por campo (1500+ caracteres por capítulo)**:
+  * sceneDescription: 400-500+ caracteres, descripción vívida que estimule los 5 sentidos
+  * coreNarrative: 800-1000+ caracteres, explicación detallada de hechos históricos y significado
+  * humanStories: 300-400+ caracteres, anécdotas específicas de personas y episodios
+  * nextDirection: 200-300+ caracteres, guía clara de ruta de movimiento y distancia
 - **Prohibido absolutamente contenido vacío**: Todos los campos deben estar llenos con contenido real`
     }
   };
@@ -477,17 +594,20 @@ ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 
 ${currentLangConfig.name}로 "${locationName}"에 대한 완전한 오디오 가이드 JSON을 생성하세요.
 
 **중요 체크리스트:**
-✅ realTimeGuide.chapters 배열에 최소 5-7개 챕터 포함
+✅ 🚨 realTimeGuide.chapters 배열에 정확히 5-7개 챕터 포함 (필수!) 🚨
 ✅ 🚨 CRITICAL: route.steps와 realTimeGuide.chapters 개수 및 title 완전 일치 🚨
 ✅ 각 챕터의 sceneDescription, coreNarrative, humanStories, nextDirection 모든 필드가 실제 내용으로 충실히 작성됨
 ✅ 관람 동선에 따른 순차적 챕터 배치 (입구→주요 관람지→출구)
-✅ 각 필드별 최소 글자 수 충족
+✅ 각 필드별 최소 글자 수 충족 (챕터당 1500자 목표)
 ✅ JSON 문법 100% 정확성 확보
 
 **절대 하지 말 것:**
-❌ 빈 문자열 ("") 사용 금지
-❌ "추후 작성" 같은 플레이스홀더 사용 금지  
-❌ 단순 반복 내용 사용 금지
+❌ 4개 이하 또는 8개 이상 챕터 생성 절대 금지
+❌ 일반적 호칭 ("여러분", "상상해보세요" 등) 사용 금지
+❌ 모호한 지시어 ("이곳", "여기" 등) 사용 금지
+❌ 장소명 없는 감탄사나 일반적 멘트 사용 금지
+❌ 수치나 고유명사 없는 추상적 문장 사용 금지
+❌ 다른 관광지에서도 쓸 수 있는 일반적 표현 사용 금지
 ❌ JSON 외부 텍스트 포함 금지
 ❌ route.steps와 realTimeGuide.chapters 불일치 절대 금지`
     },
@@ -501,17 +621,20 @@ ${currentLangConfig.name}로 "${locationName}"에 대한 완전한 오디오 가
 Generate a complete audio guide JSON for "${locationName}" in ${currentLangConfig.name}.
 
 **Important Checklist:**
-✅ Include at least 5-7 chapters in realTimeGuide.chapters array
+✅ 🚨 Include EXACTLY 5-7 chapters in realTimeGuide.chapters array (mandatory!) 🚨
 ✅ 🚨 CRITICAL: route.steps and realTimeGuide.chapters count and titles must match exactly 🚨
 ✅ All chapter fields (sceneDescription, coreNarrative, humanStories, nextDirection) must be filled with actual content
 ✅ Sequential chapter arrangement following visitor route (entrance→main attractions→exit)
-✅ Meet minimum character requirements for each field
+✅ Meet minimum character requirements for each field (1500+ characters per chapter)
 ✅ Ensure 100% JSON syntax accuracy
 
 **Absolutely DO NOT:**
-❌ Use empty strings ("") 
-❌ Use placeholders like "to be written later"
-❌ Use simple repetitive content
+❌ Generate 4 or fewer chapters, or 8 or more chapters (strictly forbidden)
+❌ Use generic addresses ("imagine", "you will experience", etc.)
+❌ Use vague indicators ("here", "this place", etc.)
+❌ Use exclamations or generic comments without location context
+❌ Use abstract sentences without numbers or proper nouns
+❌ Use generic expressions that could apply to any tourist site
 ❌ Include text outside JSON object
 ❌ Allow route.steps and realTimeGuide.chapters mismatch`
     }

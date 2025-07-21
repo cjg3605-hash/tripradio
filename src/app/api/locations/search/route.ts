@@ -289,7 +289,7 @@ export async function GET(request: NextRequest) {
             model: modelName,
             generationConfig: {
               temperature: 0.3,
-              maxOutputTokens: 2048,
+              maxOutputTokens: 16384, // 대폭 증가: 2048 → 16384
             }
           });
           usedModel = modelName;

@@ -107,7 +107,7 @@ export async function generatePersonalizedGuide(
     const generationConfig = {
       temperature: 0.7,
       topP: 0.95,
-      maxOutputTokens: 4096,
+      maxOutputTokens: 16384, // 대폭 증가: 4096 → 16384
       // @ts-ignore - topK is supported by the API but not in types
       topK: 40
     };

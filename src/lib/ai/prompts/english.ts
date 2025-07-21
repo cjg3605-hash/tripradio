@@ -6,6 +6,117 @@ import {
   getRecommendedSpotCount 
 } from './index';
 
+/**
+ * 🎯 Location-specific expert requirements for English guides
+ */
+function getLocationSpecificRequirements(locationType: string): string {
+  switch (locationType) {
+    case 'palace':
+      return `**🏰 Palace Architecture Expertise:**
+- **Royal Hierarchy**: Throne room → audience halls → private quarters layout and significance
+- **Royal Life**: Specific ceremonies, daily routines, seasonal court events
+- **Political History**: Major historical decisions and events at this location
+- **Craftsmanship**: Construction techniques, decorative arts, engineering excellence
+- **Symbolic Systems**: Royal emblems, ceremonial spaces, power representation`;
+
+    case 'religious':
+      return `**🙏 Religious Architecture Expertise:**
+- **Sacred Symbolism**: Architectural elements and their spiritual meanings
+- **Religious Philosophy**: Core teachings, practices, and spiritual traditions
+- **Artistic Heritage**: Religious art, sculptures, stained glass, iconography
+- **Liturgical Spaces**: Worship practices, ceremonial functions, sacred rituals
+- **Spiritual Experience**: Meditation, prayer methods, contemplative practices`;
+
+    case 'historical':
+      return `**📚 Historical Site Expertise:**
+- **Historical Facts**: Verified dates, events, figures with documentary evidence
+- **Character Stories**: Specific achievements and actions of historical figures
+- **Social Context**: Economic, cultural, and political conditions of the era
+- **Artifact Significance**: Archaeological finds, their dating, and cultural importance
+- **Contemporary Relevance**: Lessons and insights for modern understanding`;
+
+    case 'nature':
+      return `**🌿 Natural Environment Expertise:**
+- **Geological Formation**: Millions of years of geological processes and rock formations
+- **Ecosystem Dynamics**: Species interactions, food webs, biodiversity patterns
+- **Climate Characteristics**: Microclimate, seasonal changes, weather patterns
+- **Conservation Value**: Endangered species, habitat protection, ecological importance
+- **Sustainability**: Environmental protection and responsible tourism practices`;
+
+    case 'culinary':
+      return `**🍽️ Culinary Culture Expertise:**
+- **Cooking Science**: Fermentation, aging, cooking techniques, and scientific principles
+- **Ingredient Quality**: Origin, standards, nutritional properties, seasonal availability
+- **Traditional Methods**: Time-honored recipes, preservation techniques, cultural practices
+- **Flavor Profiles**: Balance of tastes, regional variations, signature characteristics
+- **Food History**: Origins, evolution, cultural significance, regional adaptations`;
+
+    case 'cultural':
+      return `**🎨 Arts & Culture Expertise:**
+- **Art History**: Artistic movements, periods, and the artist's place in art history
+- **Work Analysis**: Techniques, materials, composition, color theory, professional interpretation
+- **Cultural Context**: Social, political, economic conditions influencing the artwork
+- **Aesthetic Theory**: Beauty standards, artistic philosophy, appreciation methods
+- **Contemporary Value**: How historical art inspires and influences modern culture`;
+
+    case 'commercial':
+      return `**🛍️ Commercial Culture Expertise:**
+- **Market History**: Development of trade districts, economic background, commercial evolution
+- **Local Specialties**: Raw materials, production methods, quality standards, unique features
+- **Trade Systems**: Traditional and modern distribution, supply chain evolution
+- **Community Life**: Impact of commerce on local lifestyle, cultural practices
+- **Economic Impact**: Regional economic contribution, employment, business ecosystem`;
+
+    case 'modern':
+      return `**🏗️ Modern Architecture Expertise:**
+- **Structural Engineering**: Advanced construction technology, earthquake resistance, innovative methods
+- **Design Philosophy**: Architect's concept, design intent, aesthetic principles
+- **Green Technology**: Energy efficiency, sustainable construction, environmental considerations
+- **Urban Planning**: Role as landmark, contribution to city development, urban integration
+- **Future Vision**: Architectural innovation, smart city concepts, technological advancement`;
+
+    default:
+      return `**🎯 Comprehensive Tourism Expertise:**
+- **Multi-faceted Approach**: Balanced coverage of historical, cultural, natural, economic aspects
+- **Practical Information**: Transportation, facilities, visitor services, accessibility
+- **Regional Character**: Unique features distinguishing this location from others
+- **Engaging Stories**: Memorable anecdotes, human interest stories, cultural insights
+- **Overall Value**: Comprehensive understanding of the location's significance and appeal`;
+  }
+}
+
+/**
+ * 🎯 Quality validation criteria by location type
+ */
+function getQualityRequirementsByType(locationType: string): string {
+  switch (locationType) {
+    case 'palace':
+      return `- **Architectural Data**: Building dimensions, construction dates, number of pillars, area measurements
+- **Royal Figures**: Specific monarch names, reign periods, major accomplishments
+- **Technical Terms**: Accurate architectural terminology, construction techniques`;
+    case 'religious':
+      return `- **Religious Terms**: Proper names for sacred spaces, architectural elements, ceremonial objects
+- **Foundation History**: Founding dates, founders, renovation history, significant events
+- **Religious Practices**: Specific worship methods, service times, ceremonial procedures`;
+    case 'historical':
+      return `- **Historical Dates**: Precise chronology, event dates, accurate timelines
+- **Historical Figures**: Real people with documented achievements and contributions
+- **Artifact Details**: Excavation dates, materials, dimensions, classification numbers`;
+    case 'nature':
+      return `- **Geological Data**: Formation periods, rock types, geological structures, age of formations
+- **Ecological Statistics**: Species counts, area measurements, elevation, biodiversity indices
+- **Environmental Data**: Average temperatures, precipitation, humidity, climate patterns`;
+    case 'culinary':
+      return `- **Culinary Specifications**: Cooking times, temperatures, ingredient ratios, preparation methods
+- **Nutritional Content**: Calories, key nutrients, health benefits, dietary considerations
+- **Historical Origins**: Food origins, regional variations, cultural evolution`;
+    default:
+      return `- **Measurable Data**: Years, sizes, quantities, and other quantifiable information
+- **Verifiable Facts**: Information based on official records, documented sources
+- **Professional Terms**: Accurate terminology and concepts specific to the field`;
+  }
+}
+
 // English Audio Guide Instructions
 export const ENGLISH_AUDIO_GUIDE_INSTRUCTIONS = {
   style: `You are a **Professional Tourist Guide and Cultural Heritage Expert** specializing in immersive audio experiences. Your expertise includes:
@@ -50,21 +161,24 @@ nextDirection: (Separate) Movement guidance only
 - Avoid predictable templates, use varied expressions suitable for situations
 - Sound like a real guide speaking spontaneously and naturally
 
-**❌ Avoid Template-like Expressions:**
-- "Have you ever wondered what secrets this place holds?"
-- "Let me tell you the fascinating story behind this..."
-- "You know, there's an amazing tale about the people here"
+**🚨 ABSOLUTELY FORBIDDEN Expressions:**
+- "Imagine", "wonderful world", "amazing stories", "you will experience", "take a breath"
+- "here", "this place" without specific location names
+- Generic greetings or exclamations without location context
+- "Have you ever wondered", "Let me tell you", "amazing tale"
 
-**✅ Recommended Natural Expressions:**
-- "What's particularly interesting here is..."
-- "You might be curious to know that..."
-- "Here's something that might surprise you..."
-- "If you look closely, you'll notice..."`,
+**✅ REQUIRED Specific Information Patterns:**
+- "{Specific location name}'s {specific feature} measures {specific number}"
+- "In {year}, {person name} performed {verifiable action} at {specific location}"
+- "{Material/technique} used in {specific part} demonstrates {technical fact}"
+- "Located at {direction/position}, {specific name} shows {historical background}"`,
 
   qualityStandards: `**Quality Standards (Most Important!):**
-- **More content is better. Never skimp on details.** Include minor architectural details, hidden symbols, historical background, interesting anecdotes about related people, behind-the-scenes stories - comprehensive information.
-- **Friendly and conversational tone:** Not rigid explanations, but a style like a friend or the best guide passionately explaining beside you.
-- **Perfect storytelling:** Connect all information like one giant story.
+- **🚨 FORBIDDEN: Generic expressions that apply to any tourist site**
+- **100% Information Density: Every sentence MUST include:**
+  * Specific numbers, proper nouns, physical characteristics, historical facts, or technical information
+- **Validation Check: Could this sentence be used at any other site? (If yes, rewrite required)**
+- **Required Structure**: Specific location name + measurable information + verifiable facts
 
 **📍 Essential Chapter Composition Requirements:**
 - **Generate at least 5-7 chapters**: Set up separate chapters for each main observation point
@@ -74,11 +188,11 @@ nextDirection: (Separate) Movement guidance only
   * The title of each step and corresponding chapter title **must be completely identical**
   * The order of steps and chapters **must match exactly**
   * Violating this rule will cause system errors!
-- **Minimum writing standards per field**:
-  * sceneDescription: Over 200 characters, vivid description stimulating all 5 senses
-  * coreNarrative: Over 300 characters, detailed explanation of historical facts and significance
-  * humanStories: Over 200 characters, specific anecdotes of people and episodes
-  * nextDirection: Over 100 characters, clear route guidance and distance
+- **Minimum writing standards per field (1500+ characters per chapter)**:
+  * sceneDescription: 400-500+ characters, vivid description stimulating all 5 senses
+  * coreNarrative: 800-1000+ characters, detailed explanation of historical facts and significance
+  * humanStories: 300-400+ characters, specific anecdotes of people and episodes
+  * nextDirection: 200-300+ characters, clear route guidance and distance
 - **Absolutely prohibited empty content**: All fields must be filled with real content`
 };
 
@@ -142,9 +256,6 @@ export const createEnglishGuidePrompt = (
   userProfile?: UserProfile
 ): string => {
   const langConfig = LANGUAGE_CONFIGS.en;
-  const audioStyle = ENGLISH_AUDIO_GUIDE_INSTRUCTIONS;
-  
-  // Location type analysis and specialist guide setup
   const locationType = analyzeLocationType(locationName);
   const typeConfig = LOCATION_TYPE_CONFIGS[locationType];
 
@@ -157,24 +268,49 @@ export const createEnglishGuidePrompt = (
 ` : '👤 General tourist audience';
 
   const specialistContext = typeConfig ? `
-🎯 Specialist Guide Setup:
+🎯 Expert Guide Configuration:
 - Detected location type: ${locationType}
 - Expert role: ${typeConfig.expertRole}
 - Focus areas: ${typeConfig.focusAreas.join(', ')}
 - Special requirements: ${typeConfig.specialRequirements}
 ` : '';
 
-  const prompt = `# 🎙️ "${locationName}" Immersive Audio Guide Generation Mission
+  const prompt = `# 🎙️ "${locationName}" Professional English Audio Guide Generation
 
 ## 🎭 Your Role
-${audioStyle.style}
+You are a **${typeConfig?.expertRole || 'Professional Tourism Expert'}**.
+Provide the highest quality guide with specialized expertise for ${locationName}.
 
 ${specialistContext}
 
-## 🎯 Mission
-Generate an **immersive ${langConfig.name} audio guide** JSON for "${locationName}".
+## 🎯 Location-Specific Expert Requirements
+
+### 📍 **${locationType.toUpperCase()} Professional Standards**
+${getLocationSpecificRequirements(locationType)}
 
 ${userContext}
+
+## 📋 Output Format Requirements
+
+### 1. **Pure JSON Only**
+- Return ONLY valid JSON without any introduction, explanation, or code blocks
+- Perfect JSON syntax compliance (commas, quotes, brackets)
+- Key names must be 100% identical to examples
+
+### 🚀 **Quality Enhancement Core Principles**
+- **Expertise**: ${typeConfig?.expertRole || 'Comprehensive expert'} level depth and insight
+- **Accuracy**: Only verifiable, specific facts and measurements
+- **Uniqueness**: Distinctive features that set this location apart
+- **Storytelling**: Compelling narratives, not dry information
+
+### 🔍 **${locationType.toUpperCase()} Quality Validation Criteria**
+${getQualityRequirementsByType(locationType)}
+
+### 🚨 **Strictly Prohibited**
+- **Generic phrases**: "Imagine", "wonderful", "amazing", "you will experience"
+- **Vague references**: "here", "this place" (must use specific location names)
+- **Unverifiable content**: Speculation, assumptions, personal opinions
+- **Empty content**: Information that merely fills space without substance
 
 ${audioStyle.format}
 

@@ -360,13 +360,13 @@ export async function POST(request: NextRequest) {
       const genAI = getGeminiClient();
       const config = {
         temperature: 0.3,
-        maxOutputTokens: generationMode === 'chapter' ? 4000 : 8000,
+        maxOutputTokens: generationMode === 'chapter' ? 8000 : 16384, // 대폭 증가
         topP: 0.8,
         topK: 40
       };
 
       const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-pro",
+        model: "gemini-2.5-flash-lite-preview-06-17",
         generationConfig: config
       });
 

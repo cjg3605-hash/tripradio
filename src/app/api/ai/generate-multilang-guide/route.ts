@@ -46,10 +46,10 @@ export async function POST(request: NextRequest) {
     // Gemini 클라이언트 초기화
     const genAI = getGeminiClient();
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash-lite-preview-06-17',
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 8000,
+        maxOutputTokens: 16384, // 대폭 증가: 8000 → 16384
         topK: 40,
         topP: 0.9,
       }

@@ -6,6 +6,117 @@ import {
   getRecommendedSpotCount 
 } from './index';
 
+/**
+ * 🎯 Requisitos especializados por tipo de ubicación para guías en español
+ */
+function getLocationSpecificRequirements(locationType: string): string {
+  switch (locationType) {
+    case 'palace':
+      return `**🏰 Estándares de Arquitectura Palaciega:**
+- **Jerarquía Arquitectónica**: Salón del trono → salas de audiencia → aposentos privados
+- **Vida Palatina**: Ceremonias específicas, rutinas diarias, eventos estacionales
+- **Historia Política**: Decisiones históricas importantes y eventos en este lugar
+- **Artesanía**: Técnicas constructivas, artes decorativas, excelencia ingenieril
+- **Sistemas Simbólicos**: Emblemas reales, espacios ceremoniales, representación del poder`;
+
+    case 'religious':
+      return `**🙏 Estándares de Arquitectura Religiosa:**
+- **Simbolismo Sagrado**: Elementos arquitectónicos y sus significados espirituales
+- **Filosofía Religiosa**: Enseñanzas centrales, prácticas, tradiciones espirituales
+- **Patrimonio Artístico**: Arte religioso, esculturas, vidrieras, iconografía
+- **Espacios Litúrgicos**: Prácticas de culto, funciones ceremoniales, rituales sagrados
+- **Experiencia Espiritual**: Meditación, métodos de oración, prácticas contemplativas`;
+
+    case 'historical':
+      return `**📚 Estándares de Sitios Históricos:**
+- **Hechos Históricos**: Fechas, eventos, figuras verificadas con evidencia documental
+- **Historias de Personajes**: Logros y acciones específicas de figuras históricas
+- **Contexto Social**: Condiciones económicas, culturales y políticas de la época
+- **Significado de Artefactos**: Hallazgos arqueológicos, datación, importancia cultural
+- **Relevancia Contemporánea**: Lecciones y perspectivas para la comprensión moderna`;
+
+    case 'nature':
+      return `**🌿 Estándares de Entorno Natural:**
+- **Formación Geológica**: Millones de años de procesos geológicos y formación rocosa
+- **Dinámicas Ecosistémicas**: Interacciones entre especies, redes alimentarias, biodiversidad
+- **Características Climáticas**: Microclima, cambios estacionales, patrones meteorológicos
+- **Valor de Conservación**: Especies en peligro, protección de hábitats, importancia ecológica
+- **Sostenibilidad**: Protección ambiental y prácticas de turismo responsable`;
+
+    case 'culinary':
+      return `**🍽️ Estándares de Cultura Culinaria:**
+- **Ciencia Culinaria**: Fermentación, añejamiento, técnicas de cocina, principios científicos
+- **Calidad de Ingredientes**: Origen, estándares, propiedades nutricionales, disponibilidad estacional
+- **Métodos Tradicionales**: Recetas ancestrales, técnicas de conservación, prácticas culturales
+- **Perfiles de Sabor**: Balance de sabores, variaciones regionales, características distintivas
+- **Historia Gastronómica**: Orígenes, evolución, significado cultural, adaptaciones regionales`;
+
+    case 'cultural':
+      return `**🎨 Estándares de Arte y Cultura:**
+- **Historia del Arte**: Movimientos artísticos, períodos, posición del artista en la historia
+- **Análisis de Obras**: Técnicas, materiales, composición, teoría del color, interpretación profesional
+- **Contexto Cultural**: Condiciones sociales, políticas y económicas que influyeron en la obra
+- **Teoría Estética**: Estándares de belleza, filosofía artística, métodos de apreciación
+- **Valor Contemporáneo**: Cómo el arte histórico inspira e influye en la cultura moderna`;
+
+    case 'commercial':
+      return `**🛍️ Estándares de Cultura Comercial:**
+- **Historia del Mercado**: Desarrollo de distritos comerciales, antecedentes económicos, evolución
+- **Especialidades Locales**: Materias primas, métodos de producción, estándares de calidad
+- **Sistemas Comerciales**: Distribución tradicional y moderna, evolución de la cadena de suministro
+- **Vida Comunitaria**: Impacto del comercio en el estilo de vida local, prácticas culturales
+- **Impacto Económico**: Contribución económica regional, empleo, ecosistema empresarial`;
+
+    case 'modern':
+      return `**🏗️ Estándares de Arquitectura Moderna:**
+- **Ingeniería Estructural**: Tecnología de construcción avanzada, diseño antisísmico, métodos innovadores
+- **Filosofía de Diseño**: Concepto del arquitecto, intención de diseño, principios estéticos
+- **Tecnología Verde**: Eficiencia energética, construcción sostenible, consideraciones ambientales
+- **Planificación Urbana**: Papel como hito, contribución al desarrollo urbano, integración urbana
+- **Visión Futura**: Innovación arquitectónica, conceptos de ciudad inteligente, avance tecnológico`;
+
+    default:
+      return `**🎯 Estándares de Turismo Integral:**
+- **Enfoque Multifacético**: Cobertura equilibrada de aspectos históricos, culturales, naturales, económicos
+- **Información Práctica**: Transporte, instalaciones, servicios al visitante, accesibilidad
+- **Carácter Regional**: Características únicas que distinguen este lugar de otros
+- **Historias Atractivas**: Anécdotas memorables, interés humano, perspectivas culturales
+- **Valor Integral**: Comprensión completa del significado y atractivo del lugar`;
+  }
+}
+
+/**
+ * 🎯 Criterios de validación de calidad por tipo de ubicación
+ */
+function getQualityRequirementsByType(locationType: string): string {
+  switch (locationType) {
+    case 'palace':
+      return `- **Datos Arquitectónicos**: Dimensiones de edificios, fechas de construcción, número de pilares, medidas de área
+- **Figuras Reales**: Nombres específicos de monarcas, períodos de reinado, logros principales
+- **Términos Técnicos**: Terminología arquitectónica precisa, técnicas de construcción`;
+    case 'religious':
+      return `- **Términos Religiosos**: Nombres propios de espacios sagrados, elementos arquitectónicos, objetos ceremoniales
+- **Historia Fundacional**: Fechas de fundación, fundadores, historia de renovaciones, eventos significativos
+- **Prácticas Religiosas**: Métodos específicos de culto, horarios de servicios, procedimientos ceremoniales`;
+    case 'historical':
+      return `- **Fechas Históricas**: Cronología precisa, fechas de eventos, líneas de tiempo exactas
+- **Figuras Históricas**: Personas reales con logros y contribuciones documentadas
+- **Detalles de Artefactos**: Fechas de excavación, materiales, dimensiones, números de clasificación`;
+    case 'nature':
+      return `- **Datos Geológicos**: Períodos de formación, tipos de rocas, estructuras geológicas, edad de formaciones
+- **Estadísticas Ecológicas**: Conteos de especies, medidas de área, elevación, índices de biodiversidad
+- **Datos Ambientales**: Temperaturas promedio, precipitación, humedad, patrones climáticos`;
+    case 'culinary':
+      return `- **Especificaciones Culinarias**: Tiempos de cocción, temperaturas, proporciones de ingredientes, métodos de preparación
+- **Contenido Nutricional**: Calorías, nutrientes principales, beneficios para la salud, consideraciones dietéticas
+- **Orígenes Históricos**: Orígenes de los alimentos, variaciones regionales, evolución cultural`;
+    default:
+      return `- **Datos Medibles**: Años, tamaños, cantidades y otra información cuantificable
+- **Hechos Verificables**: Información basada en registros oficiales, fuentes documentadas
+- **Términos Profesionales**: Terminología y conceptos precisos específicos del campo`;
+  }
+}
+
 // Spanish Audio Guide Instructions
 export const SPANISH_AUDIO_GUIDE_INSTRUCTIONS = {
   style: `Usted es un **Guía Turístico Profesional y Experto en Patrimonio Cultural** especializado en experiencias de audio inmersivas. Su experiencia incluye:
@@ -62,9 +173,13 @@ nextDirection: (Separado) Solo orientación de movimiento
 - "Si observan de cerca, notarán..."`,
 
   qualityStandards: `**Estándares de Calidad (¡Lo Más Importante!):**
-- **Más contenido es mejor. Nunca escatimen en detalles.** Incluir detalles arquitectónicos menores, símbolos ocultos, antecedentes históricos, anécdotas interesantes de personas relacionadas, historias entre bastidores, etc., información integral.
-- **Tono amigable y conversacional:** No explicaciones rígidas, sino un estilo como si un amigo o el mejor guía estuviera explicando apasionadamente al lado.
-- **Narración perfecta:** Conectar toda la información como una historia gigante.
+- **🚨 Expresiones ABSOLUTAMENTE PROHIBIDAS 🚨**
+  * "Imaginen", "mundo maravilloso", "historias asombrosas", "experimentarán", "respiren profundo"
+  * "aquí", "este lugar" sin nombres específicos de ubicación
+  * Saludos genéricos o exclamaciones sin contexto de ubicación
+- **100% Regla de Densidad de Información: Cada oración DEBE incluir al menos:**
+  * Números específicos, nombres propios, características físicas, hechos históricos, información técnica
+- **Estructura de oración requerida**: "{Nombre específico del lugar}'s {característica específica} es {hecho/número específico}"
 
 **📍 Requisitos Esenciales de Composición de Capítulos:**
 - **Generar al menos 5-7 capítulos**: Configurar capítulos separados para cada punto de observación principal
@@ -74,11 +189,11 @@ nextDirection: (Separado) Solo orientación de movimiento
   * El title de cada step y el title del chapter correspondiente **deben ser completamente idénticos**
   * El orden de los steps y el orden de los chapters **deben coincidir exactamente**
   * ¡Violar esta regla causará errores del sistema!
-- **Estándares mínimos de escritura por campo**:
-  * sceneDescription: Más de 200 caracteres, descripción vívida que estimule los 5 sentidos
-  * coreNarrative: Más de 300 caracteres, explicación detallada de hechos históricos y significado
-  * humanStories: Más de 200 caracteres, anécdotas específicas de personas y episodios
-  * nextDirection: Más de 100 caracteres, guía clara de ruta de movimiento y distancia
+- **Estándares mínimos de escritura por campo (1500+ caracteres por capítulo)**:
+  * sceneDescription: 400-500+ caracteres, descripción vívida que estimule los 5 sentidos
+  * coreNarrative: 800-1000+ caracteres, explicación detallada de hechos históricos y significado
+  * humanStories: 300-400+ caracteres, anécdotas específicas de personas y episodios
+  * nextDirection: 200-300+ caracteres, guía clara de ruta de movimiento y distancia
 - **Absolutamente prohibido contenido vacío**: Todos los campos deben estar llenos con contenido real`
 };
 
@@ -141,7 +256,98 @@ export const createSpanishGuidePrompt = (
   locationName: string,
   userProfile?: UserProfile
 ): string => {
-  return createAutonomousGuidePrompt(locationName, 'es', userProfile);
+  const langConfig = LANGUAGE_CONFIGS.es;
+  const locationType = analyzeLocationType(locationName);
+  const typeConfig = LOCATION_TYPE_CONFIGS[locationType];
+
+  const userContext = userProfile ? `
+👤 Información de Personalización del Usuario:
+- Intereses: ${userProfile.interests?.join(', ') || 'General'}
+- Grupo de Edad: ${userProfile.ageGroup || 'Adulto'}
+- Nivel de Conocimiento: ${userProfile.knowledgeLevel || 'Intermedio'}
+- Acompañantes: ${userProfile.companions || 'Solo'}
+` : '👤 Audiencia turística general';
+
+  const specialistContext = typeConfig ? `
+🎯 Configuración de Guía Especialista:
+- Tipo de ubicación detectado: ${locationType}
+- Rol de experto: ${typeConfig.expertRole}
+- Áreas de enfoque: ${typeConfig.focusAreas.join(', ')}
+- Requisitos especiales: ${typeConfig.specialRequirements}
+` : '';
+
+  const prompt = `# 🎙️ "${locationName}" Generación de Guía de Audio Profesional en Español
+
+## 🎭 Su Rol
+Usted es un **${typeConfig?.expertRole || 'Guía Turístico Profesional'}**.
+Proporcione la más alta calidad de guía con experiencia especializada para ${locationName}.
+
+${specialistContext}
+
+## 🎯 Requisitos de Información Especializada por Ubicación
+
+### 📍 **Estándares Profesionales ${locationType.toUpperCase()}**
+${getLocationSpecificRequirements(locationType)}
+
+${userContext}
+
+## 📋 Requisitos de Formato de Salida
+
+### 1. **Solo JSON Puro**
+- Devolver SOLO JSON válido sin introducción, explicación o bloques de código
+- Cumplimiento perfecto de sintaxis JSON (comas, comillas, corchetes)
+- Los nombres de las claves deben ser 100% idénticos a los ejemplos
+
+### 🚀 **Principios Fundamentales de Mejora de Calidad**
+- **Experiencia**: Profundidad y perspicacia a nivel de ${typeConfig?.expertRole || 'experto integral'}
+- **Precisión**: Solo hechos específicos verificables y mediciones
+- **Singularidad**: Características distintivas que distinguen esta ubicación
+- **Narrativa**: Relatos convincentes, no información seca
+
+### 🔍 **Criterios de Validación de Calidad ${locationType.toUpperCase()}**
+${getQualityRequirementsByType(locationType)}
+
+### 🚨 **Estrictamente Prohibido**
+- **Frases genéricas**: "Imaginen", "maravilloso", "asombroso", "experimentarán"
+- **Referencias vagas**: "aquí", "este lugar" (debe usar nombres de ubicación específicos)
+- **Contenido no verificable**: Especulación, suposiciones, opiniones personales
+- **Contenido vacío**: Información que solo llena espacio sin sustancia
+
+### 2. **Estructura de Ubicación Real**
+Configurar route.steps basado en el **orden de visita real y diseño espacial** de cada destino turístico o ubicación.
+
+### 3. **Conexión Perfecta de 3 Campos 🚨 Mejora Central**
+
+**🚨 Conectividad de Flujo Natural - ¡Muy Importante!**
+- Usar conectores únicos y naturales apropiados para cada ubicación
+- Evitar plantillas predecibles, usar expresiones variadas adecuadas para situaciones
+- Sonar como un guía real hablando de forma espontánea y natural
+
+**🚨 Expresiones ABSOLUTAMENTE PROHIBIDAS:**
+- "Imaginen", "mundo maravilloso", "historias asombrosas", "experimentarán", "respiren profundo"
+- "aquí", "este lugar" sin nombres específicos de ubicación
+- Saludos genéricos o exclamaciones sin contexto de ubicación
+
+**✅ Expresiones Naturales Recomendadas:**
+- "Lo que es particularmente interesante aquí es..."
+- "Tal vez tengan curiosidad de saber que..."
+- "Aquí hay algo que podría sorprenderles..."
+- "Si observan de cerca, notarán..."
+
+### 4. **Contenido Rico y Original**
+- Estricta adherencia a los requisitos mínimos de contenido
+- Descripciones originales que capturen el carácter único de la ubicación
+- Narración fascinante en lugar de explicaciones mundanas
+- Hechos históricos + emociones humanas + inmersión en el sitio
+
+### 5. **Configuración Dinámica de Capítulos**
+- **Generar número apropiado de capítulos basado en la escala y características de la ubicación**
+- **Ubicaciones pequeñas: 3-4, Medianas: 5-6, Complejos grandes: 7-8**
+- **🔴 CRÍTICO: Coincidencia perfecta entre conteo y títulos de route.steps y realTimeGuide.chapters**
+
+**¡Generen la guía de audio natural y cautivadora para "${locationName}" en formato JSON puro ahora mismo!**`;
+
+  return prompt;
 };
 
 /**

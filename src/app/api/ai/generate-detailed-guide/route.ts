@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
               model: 'gemini-2.5-flash-lite-preview-06-17',
       generationConfig: {
         temperature: 0.3,
-        maxOutputTokens: 2048
+        maxOutputTokens: 16384 // 대폭 증가: 2048 → 16384
       }
     });
 
