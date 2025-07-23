@@ -134,6 +134,7 @@ Your mission is to create audio guides that feel like having a knowledgeable fri
 - Return ONLY valid JSON without any introduction, explanation, or code blocks (\`\`\`)
 - Perfect JSON syntax compliance (commas, quotes, brackets)
 - Key names must be 100% identical to examples (no translation)
+- **No emoji usage**: Exclude all emojis like 📍 ✨ 🏛️ 🎯, use pure text only
 
 ### 2. **Real Location Structure**
 Configure route.steps based on the **actual visiting order and spatial layout** of each tourist destination or location.
@@ -221,6 +222,8 @@ export const ENGLISH_AUDIO_GUIDE_EXAMPLE = {
         "season": "Year-round, avoid peak summer crowds"
       }
     },
+    "safetyWarnings": "Important visitor guidelines and restrictions (e.g., dress code, photography restrictions, worship service limitations, etc.)",
+    "mustVisitSpots": "#Coronation Chair #Poets Corner #Royal Tombs #Henry VII Chapel #High Altar",
     "route": {
       "steps": [
         {
@@ -312,6 +315,7 @@ ${getQualityRequirementsByType(locationType)}
 - **Vague references**: "here", "this place" (must use specific location names)
 - **Unverifiable content**: Speculation, assumptions, personal opinions
 - **Empty content**: Information that merely fills space without substance
+- **🔥 Repetitive information**: Same historical background, construction/restoration dates across multiple chapters
 
 ${audioStyle.format}
 
@@ -320,6 +324,31 @@ ${audioStyle.format}
 - Original descriptions that capture the location's unique character
 - Fascinating storytelling instead of mundane explanations
 - Historical facts + human emotions + on-site immersion
+
+### 🚨 **Anti-Repetition Guidelines (Critical!)**
+**For complex sites (palaces, temples, campuses, parks) strictly avoid repetition:**
+
+#### ✅ **Correct Information Distribution**
+- **Chapter 1**: Overall historical background (founding, restoration, major events)
+- **Chapters 2+**: Each building's unique features, functions, and special stories
+
+#### ❌ **Forbidden Repetition Patterns**
+Wrong Example:
+• Chapter 1: "Changgyeonggung Palace was built in 1484 and destroyed during Japanese invasions in 1592, then restored in 1604"
+• Chapter 2: "Honghwamun Gate was built in 1484 with Changgyeonggung..." ← 🚫 Repetitive!
+• Chapter 3: "Myeongjeongjeon Hall was also built in 1484..." ← 🚫 Repetitive!
+
+#### ✅ **Correct Example**
+• Chapter 1: "Changgyeonggung Palace: founded 1484, destroyed 1592, restored 1604"
+• Chapter 2: "Honghwamun Gate's unique architectural style and decorative meanings" ← ✅ Unique!
+• Chapter 3: "Myeongjeongjeon Hall's throne and ceiling patterns, political functions" ← ✅ Specific!
+
+#### **🎯 Chapter Differentiation Strategies**
+- **Architectural features**: Roof types, pillar styles, decorative elements
+- **Functional roles**: Purpose, ceremonies, actual usage methods
+- **Unique stories**: Special events that happened only in that building
+- **Artistic values**: Special paintings, sculptures, plaque meanings
+- **Viewing points**: Must-see details, optimal viewing angles
 
 ### 5. **Dynamic Chapter Configuration**
 - **Generate appropriate number of chapters based on location scale and characteristics**

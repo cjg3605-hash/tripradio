@@ -68,6 +68,7 @@ const normalizeGuideData = (data: any, locationName: string) => {
       chapters: Array.isArray(sourceData.realTimeGuide?.chapters) ? sourceData.realTimeGuide.chapters : [],
       ...sourceData.realTimeGuide
     },
+    mustVisitSpots: sourceData.mustVisitSpots || '', // 필수관람포인트 추가
     metadata: {
       originalLocationName: locationName,
       generatedAt: sourceData.metadata?.generatedAt || new Date().toISOString(),

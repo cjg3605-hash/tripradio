@@ -76,7 +76,8 @@ function normalizeGuideData(raw: any, language?: string) {
       visitInfo: {} 
     },
     route: sourceData.route || { steps: [] },
-    realTimeGuide: sourceData.realTimeGuide || { chapters: [] }
+    realTimeGuide: sourceData.realTimeGuide || { chapters: [] },
+    mustVisitSpots: sourceData.mustVisitSpots || '' // 필수관람포인트 추가
   };
 }
 
