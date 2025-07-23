@@ -379,151 +379,216 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
             </div>
           </div>
 
-          {/* 개요 - Premium BigTech Design */}
+          {/* 개요 - 글로벌 프리미엄 디자인 시스템 */}
           {guide.overview && (
-            <div className="group relative">
-              {/* 🎨 Airbnb/Uber 스타일: 프리미엄 카드 */}
-              <div className="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white via-slate-50/30 to-slate-50/20 backdrop-blur-sm transition-all duration-300 hover:border-slate-300/60 hover:shadow-2xl hover:shadow-slate-200/40">
-                {/* 헤더 섹션 - Tesla/Apple 스타일 */}
-                <div className="relative px-6 pt-6 pb-4">
+            <div className="relative mb-8">
+              {/* Main Container - Minimal Monochrome Card */}
+              <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
+                
+                {/* Header Section - Ultra Minimal */}
+                <div className="px-6 pt-6 pb-5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="flex-shrink-0 w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg">
+                      <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
                         <Info className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h2 className="text-xl font-bold text-slate-900 tracking-tight">개요</h2>
-                        <p className="text-sm text-slate-600 font-medium mt-1">핵심 정보 요약</p>
+                        <h2 className="text-2xl font-bold text-black tracking-tight">개요</h2>
+                        <p className="text-sm text-black/60 font-medium mt-0.5">Essential Information</p>
                       </div>
                     </div>
-                    {/* Spotify/Discord 스타일 미니 인디케이터 */}
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-                      <div className="w-2 h-2 bg-slate-600 rounded-full"></div>
-                      <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
+                    {/* Status Indicator - Minimal Dots */}
+                    <div className="flex gap-1.5">
+                      <div className="w-2 h-2 bg-black/20 rounded-full"></div>
+                      <div className="w-2 h-2 bg-black rounded-full"></div>
+                      <div className="w-2 h-2 bg-black/20 rounded-full"></div>
                     </div>
                   </div>
                 </div>
-                
-                {/* 콘텐츠 영역 - Notion 스타일 정보 카드 */}
-                <div className="px-6 pb-6 space-y-4">
-                  {/* 위치 정보 */}
-                  {guide.overview.location && (
-                    <div className="group/item p-4 bg-white/60 hover:bg-white/80 rounded-xl border border-slate-100 transition-all duration-200 hover:shadow-md">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-5 h-5 bg-slate-600 rounded-lg flex items-center justify-center mt-0.5">
-                          <MapPin className="w-3 h-3 text-white" />
+
+                {/* Quick Info Grid - Mobile First */}
+                <div className="px-6 pb-4">
+                  <div className="grid grid-cols-1 gap-3">
+                    
+                    {/* Tier 1: Immediate Recognition - 3초 정보 */}
+                    <div className="p-4 bg-black/3 rounded-2xl border border-black/5">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
+                          <MapPin className="w-4 h-4 text-white" />
                         </div>
-                        <p className="text-slate-700 leading-relaxed font-medium">{guide.overview.location}</p>
+                        <span className="text-xs font-bold text-black/60 uppercase tracking-wider">Location & Access</span>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        {guide.overview.location && (
+                          <div className="flex items-center gap-3">
+                            <div className="w-1 h-4 bg-black rounded-full"></div>
+                            <p className="text-sm font-semibold text-black">{guide.overview.location}</p>
+                          </div>
+                        )}
+                        
+                        {/* Practical Info Row */}
+                        <div className="flex flex-wrap gap-4 mt-3">
+                          {guide.overview.visitInfo?.duration && (
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-black/60" />
+                              <span className="text-sm font-medium text-black">{guide.overview.visitInfo.duration}</span>
+                            </div>
+                          )}
+                          {guide.overview.visitInfo?.difficulty && (
+                            <div className="flex items-center gap-2">
+                              <Users className="w-4 h-4 text-black/60" />
+                              <span className="text-sm font-medium text-black">{guide.overview.visitInfo.difficulty}</span>
+                            </div>
+                          )}
+                          {guide.overview.visitInfo?.season && (
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4 text-black/60" />
+                              <span className="text-sm font-medium text-black">{guide.overview.visitInfo.season}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  )}
-                  
-                  {/* 주요 특징 */}
-                  {guide.overview.keyFeatures && (
-                    <div className="group/item p-4 bg-slate-50/80 hover:bg-slate-100/80 rounded-xl border border-slate-100 transition-all duration-200 hover:shadow-md">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-5 h-5 bg-slate-700 rounded-lg flex items-center justify-center mt-0.5">
-                          <Eye className="w-3 h-3 text-white" />
+
+                    {/* Tier 2: Key Features - 7초 정보 */}
+                    {guide.overview.keyFeatures && (
+                      <div className="p-4 bg-black/2 rounded-2xl border border-black/5">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
+                            <Eye className="w-4 h-4 text-white" />
+                          </div>
+                          <span className="text-xs font-bold text-black/60 uppercase tracking-wider">Key Features</span>
                         </div>
-                        <p className="text-slate-700 leading-relaxed font-medium">{guide.overview.keyFeatures}</p>
+                        <p className="text-sm font-medium text-black leading-relaxed">{guide.overview.keyFeatures}</p>
                       </div>
-                    </div>
-                  )}
-                  
-                  {/* 역사적 배경 */}
-                  {guide.overview.background && (
-                    <div className="group/item p-4 bg-slate-50/80 hover:bg-slate-100/80 rounded-xl border border-slate-100 transition-all duration-200 hover:shadow-md">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-5 h-5 bg-slate-800 rounded-lg flex items-center justify-center mt-0.5">
-                          <BookOpen className="w-3 h-3 text-white" />
+                    )}
+
+                    {/* Tier 3: Historical Context - 선택적 확장 */}
+                    {guide.overview.background && (
+                      <div className="p-4 bg-black/1 rounded-2xl border border-black/5">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
+                            <BookOpen className="w-4 h-4 text-white" />
+                          </div>
+                          <span className="text-xs font-bold text-black/60 uppercase tracking-wider">Historical Context</span>
                         </div>
-                        <p className="text-slate-700 leading-relaxed font-medium">{guide.overview.background}</p>
+                        <p className="text-sm font-medium text-black/80 leading-relaxed">{guide.overview.background}</p>
                       </div>
-                    </div>
-                  )}
-                  
-                  {/* 기존 summary 호환성 */}
-                  {guide.overview.summary && !guide.overview.location && !guide.overview.keyFeatures && !guide.overview.background && (
-                    <div className="p-4 bg-white/80 rounded-xl border border-slate-200 shadow-sm">
-                      <p className="text-slate-700 leading-relaxed">{guide.overview.summary}</p>
-                    </div>
-                  )}
-                  
-                  {/* 방문 정보 (visitInfo) */}
-                  {guide.overview.visitInfo && (
-                    <div className="grid grid-cols-1 gap-3">
-                      {guide.overview.visitInfo.duration && (
-                        <div className="group/item p-3 bg-white/60 hover:bg-white/80 rounded-xl border border-slate-100 transition-all duration-200 hover:shadow-md">
-                          <div className="flex items-center gap-3">
-                            <div className="flex-shrink-0 w-5 h-5 bg-slate-600 rounded-lg flex items-center justify-center">
-                              <Clock className="w-3 h-3 text-white" />
-                            </div>
-                            <p className="text-sm text-slate-700 font-medium">{guide.overview.visitInfo.duration}</p>
-                          </div>
-                        </div>
-                      )}
-                      {guide.overview.visitInfo.difficulty && (
-                        <div className="group/item p-3 bg-white/60 hover:bg-white/80 rounded-xl border border-slate-100 transition-all duration-200 hover:shadow-md">
-                          <div className="flex items-center gap-3">
-                            <div className="flex-shrink-0 w-5 h-5 bg-slate-700 rounded-lg flex items-center justify-center">
-                              <Users className="w-3 h-3 text-white" />
-                            </div>
-                            <p className="text-sm text-slate-700 font-medium">{guide.overview.visitInfo.difficulty}</p>
-                          </div>
-                        </div>
-                      )}
-                      {guide.overview.visitInfo.season && (
-                        <div className="group/item p-3 bg-white/60 hover:bg-white/80 rounded-xl border border-slate-100 transition-all duration-200 hover:shadow-md">
-                          <div className="flex items-center gap-3">
-                            <div className="flex-shrink-0 w-5 h-5 bg-slate-800 rounded-lg flex items-center justify-center">
-                              <Calendar className="w-3 h-3 text-white" />
-                            </div>
-                            <p className="text-sm text-slate-700 font-medium">{guide.overview.visitInfo.season}</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                    )}
+
+                    {/* Legacy Support - 기존 summary */}
+                    {guide.overview.summary && !guide.overview.location && !guide.overview.keyFeatures && !guide.overview.background && (
+                      <div className="p-4 bg-black/2 rounded-2xl border border-black/5">
+                        <p className="text-sm font-medium text-black leading-relaxed">{guide.overview.summary}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                
-                {/* 하단 그라데이션 보더 - Apple 스타일 */}
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-300/60 to-transparent"></div>
+
+                {/* Bottom Accent Line - Ultra Minimal */}
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent"></div>
               </div>
             </div>
           )}
 
-          {/* [주의!] 안전 주의사항 - BigTech Design System */}
+          {/* 필수 관람 포인트 - 모바일 최적화 */}
           {(() => {
-            console.log('⚠️ BigTech 디자인 시스템 - safetyWarnings 확인:', {
-              safetyWarnings: guide.safetyWarnings,
-              타입: typeof guide.safetyWarnings,
-              길이: guide.safetyWarnings?.length,
-              전체가이드객체키: Object.keys(guide)
-            });
-            
-            // 🔧 안전 주의사항 처리 (string 타입만 지원)
+            const mustVisitContent = guide.mustVisitSpots || '';
+            return mustVisitContent && mustVisitContent.trim().length > 0;
+          })() && (
+            <div className="relative mb-8">
+              <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
+                
+                {/* Header */}
+                <div className="px-6 pt-6 pb-5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
+                        <Sparkles className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold text-black tracking-tight">필수 관람 포인트</h2>
+                        <p className="text-sm text-black/60 font-medium mt-0.5">Must-See Highlights</p>
+                      </div>
+                    </div>
+                    {/* Counter */}
+                    <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                      <span className="text-xs font-bold text-white">
+                        {(guide.mustVisitSpots || '').split(/[,\n]|#/).filter(spot => spot && spot.trim()).length - 1}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tags Container - Mobile Optimized */}
+                <div className="px-6 pb-6">
+                  <div className="flex flex-wrap gap-3">
+                    {(guide.mustVisitSpots || '').split(/[,\n]|#/).filter(spot => spot && spot.trim()).map((spot, index) => {
+                      const cleanSpot = spot.trim().replace(/^#+/, '');
+                      if (!cleanSpot || index === 0) return null;
+                      
+                      return (
+                        <div
+                          key={`highlight-${index}-${cleanSpot}`}
+                          className="group relative overflow-hidden"
+                        >
+                          <div className="relative px-5 py-3 bg-black rounded-2xl shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95 cursor-pointer">
+                            <div className="flex items-center gap-2">
+                              <span className="text-white font-semibold text-sm">
+                                #{cleanSpot}
+                              </span>
+                              <div className="w-1 h-1 bg-white/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            </div>
+                            
+                            {/* Hover Shine Effect */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Fallback for Non-Hashtag Format */}
+                  {guide.mustVisitSpots && !guide.mustVisitSpots.includes('#') && (
+                    <div className="mt-4 p-4 bg-black/3 border border-black/5 rounded-2xl">
+                      <p className="text-sm font-medium text-black leading-relaxed">{guide.mustVisitSpots}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bottom Accent */}
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent"></div>
+              </div>
+            </div>
+          )}
+
+          {/* 주의사항 - 글로벌 Safety-First 디자인 */}
+          {(() => {
             const safetyContent = guide.safetyWarnings || '';
-            
             return safetyContent && safetyContent.trim().length > 0;
           })() && (
-            <div className="group relative">
-              {/* 🎨 Apple/Meta 스타일: 경고 카드 */}
-              <div className="relative overflow-hidden rounded-2xl border border-slate-200/50 bg-gradient-to-br from-slate-50/80 to-slate-100/60 backdrop-blur-sm transition-all duration-300 hover:border-slate-300/60 hover:shadow-lg">
-                {/* 상단 아이콘 바 */}
-                <div className="flex items-center gap-3 px-6 pt-6 pb-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-slate-700 rounded-xl flex items-center justify-center shadow-sm">
-                    <AlertTriangle className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h2 className="text-lg font-semibold text-slate-900 tracking-tight">주의사항</h2>
-                    <p className="text-xs text-slate-700/80 font-medium mt-0.5">방문 전 꼭 확인하세요</p>
-                  </div>
-                  {/* Google 스타일 미니 인디케이터 */}
-                  <div className="w-2 h-2 bg-slate-500 rounded-full opacity-60"></div>
-                </div>
+            <div className="relative mb-8">
+              <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
                 
-                {/* 콘텐츠 영역 */}
+                {/* Header */}
+                <div className="px-6 pt-6 pb-5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
+                        <AlertTriangle className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold text-black tracking-tight">주의사항</h2>
+                        <p className="text-sm text-black/60 font-medium mt-0.5">Safety Guidelines</p>
+                      </div>
+                    </div>
+                    {/* Priority Indicator */}
+                    <div className="w-3 h-3 bg-black rounded-full opacity-80"></div>
+                  </div>
+                </div>
+
+                {/* Safety Items - Mobile Optimized List */}
                 <div className="px-6 pb-6">
                   <div className="space-y-3">
                     {(() => {
@@ -534,113 +599,29 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
                         if (!cleanWarning) return null;
                         
                         return (
-                          <div key={`safety-${index}`} className="flex items-start gap-3 group/item hover:bg-white/40 rounded-xl p-3 transition-colors duration-200">
-                            {/* Microsoft 스타일 불릿 */}
-                            <div className="flex-shrink-0 w-1.5 h-1.5 bg-slate-600 rounded-full mt-2.5 group-hover/item:bg-slate-700 transition-colors"></div>
-                            <p className="text-slate-900/90 text-sm leading-relaxed font-medium">
-                              {cleanWarning}
-                            </p>
+                          <div key={`safety-${index}`} className="group relative">
+                            <div className="flex items-start gap-4 p-4 bg-black/2 hover:bg-black/4 rounded-2xl border border-black/5 transition-all duration-200">
+                              {/* Bullet Point - Ultra Minimal */}
+                              <div className="flex-shrink-0 w-2 h-2 bg-black rounded-full mt-2 group-hover:scale-110 transition-transform"></div>
+                              
+                              {/* Content */}
+                              <p className="text-sm font-medium text-black leading-relaxed">
+                                {cleanWarning}
+                              </p>
+                            </div>
                           </div>
                         );
                       });
                     })()}
                   </div>
                 </div>
-                
-                {/* 하단 그라데이션 보더 (Apple 스타일) */}
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-300/60 to-transparent"></div>
+
+                {/* Bottom Accent */}
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent"></div>
               </div>
             </div>
           )}
 
-          {/* 필수 관람 포인트 - BigTech Interactive Design */}
-          {(() => {
-            console.log('🎯 BigTech 필수 관람 포인트 확인:', {
-              mustVisitSpots: guide.mustVisitSpots,
-              타입: typeof guide.mustVisitSpots,
-              길이: guide.mustVisitSpots?.length,
-              전체가이드객체: Object.keys(guide)
-            });
-            return guide.mustVisitSpots && typeof guide.mustVisitSpots === 'string' && guide.mustVisitSpots.trim();
-          })() && (
-            <div className="group relative">
-              {/* 🎨 Notion/Linear 스타일: 인터랙티브 카드 */}
-              <div className="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-gradient-to-br from-slate-50/80 to-slate-100/40 backdrop-blur-sm transition-all duration-300 hover:border-slate-300/60 hover:shadow-xl hover:shadow-slate-100/20">
-                {/* 헤더 섹션 */}
-                <div className="flex items-center justify-between px-6 pt-6 pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-slate-800 rounded-xl flex items-center justify-center shadow-sm">
-                      <Sparkles className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-semibold text-slate-900 tracking-tight">필수 관람 포인트</h2>
-                      <p className="text-xs text-slate-600 font-medium mt-0.5">놓치면 안 될 핵심 명소</p>
-                    </div>
-                  </div>
-                  {/* Stripe 스타일 카운터 */}
-                  <div className="px-3 py-1 bg-slate-100 rounded-full">
-                    <span className="text-xs font-bold text-slate-700">
-                      {(guide.mustVisitSpots || '').split(/[,\n]|#/).filter(spot => spot && spot.trim()).length - 1}개
-                    </span>
-                  </div>
-                </div>
-                
-                {/* 태그 컨테이너 */}
-                <div className="px-6 pb-6">
-                  <div className="flex flex-wrap gap-3">
-                    {(guide.mustVisitSpots || '').split(/[,\n]|#/).filter(spot => spot && spot.trim()).map((spot, index) => {
-                      const cleanSpot = spot.trim().replace(/^#+/, '');
-                      if (!cleanSpot || index === 0) return null; // 첫 번째는 보통 빈 문자열
-                      
-                      // 🎨 모노크롬 스타일 태그
-                      const monochromeStyles = [
-                        'bg-slate-800',
-                        'bg-slate-700', 
-                        'bg-slate-900',
-                        'bg-slate-600',
-                        'bg-slate-800'
-                      ];
-                      const monochromeStyle = monochromeStyles[index % monochromeStyles.length];
-                      
-                      return (
-                        <div
-                          key={`spot-${index}-${cleanSpot}`}
-                          className="group/tag relative overflow-hidden"
-                        >
-                          <div className={`
-                            relative px-4 py-2.5 ${monochromeStyle} rounded-xl 
-                            shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-black/20
-                            transform transition-all duration-300 hover:scale-105 hover:-translate-y-0.5
-                            cursor-pointer border border-slate-300/20
-                          `}>
-                            <div className="flex items-center gap-2">
-                              <span className="text-white font-semibold text-sm">
-                                #{cleanSpot}
-                              </span>
-                              <div className="w-1 h-1 bg-white/60 rounded-full opacity-0 group-hover/tag:opacity-100 transition-opacity"></div>
-                            </div>
-                            
-                            {/* 호버 시 글로우 효과 */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover/tag:translate-x-[100%] transition-transform duration-500"></div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  
-                  {/* 원본 텍스트 백업 */}
-                  {guide.mustVisitSpots && !guide.mustVisitSpots.includes('#') && (
-                    <div className="mt-4 p-4 bg-white/60 border border-slate-200 rounded-xl text-slate-700 text-sm leading-relaxed">
-                      {guide.mustVisitSpots}
-                    </div>
-                  )}
-                </div>
-                
-                {/* Apple 스타일 하단 시그니처 */}
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-200/60 to-transparent"></div>
-              </div>
-            </div>
-          )}
 
           {/* 챕터 리스트 */}
           <div className="space-y-4">
