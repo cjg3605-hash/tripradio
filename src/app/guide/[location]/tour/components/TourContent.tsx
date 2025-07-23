@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { GuideData, GuideChapter } from '@/types/guide';
 import GuideLoading from '@/components/ui/GuideLoading';
-import BigTechDesignOptimizer from '@/components/design/BigTechDesignOptimizer';
+// import BigTechDesignOptimizer from '@/components/design/BigTechDesignOptimizer';
 
 interface TourContentProps {
   guide: GuideData;
@@ -40,7 +40,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   const [expandedChapters, setExpandedChapters] = useState<number[]>([0]);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [componentKey, setComponentKey] = useState(0); // 컴포넌트 완전 리렌더링용
-  const [showDesignSimulator, setShowDesignSimulator] = useState(false); // BigTech 디자인 시뮬레이터
+  // const [showDesignSimulator, setShowDesignSimulator] = useState(false); // BigTech 디자인 시뮬레이터
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const internalChapterRefs = useRef<(HTMLElement | null)[]>([]);
 
@@ -502,16 +502,8 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
               전체가이드객체키: Object.keys(guide)
             });
             
-            // 🔧 다양한 타입 처리 (string, object, array)
-            let safetyContent = '';
-            if (typeof guide.safetyWarnings === 'string') {
-              safetyContent = guide.safetyWarnings;
-            } else if (guide.safetyWarnings && typeof guide.safetyWarnings === 'object') {
-              // Object나 Array인 경우 JSON을 파싱해서 텍스트로 변환
-              safetyContent = Array.isArray(guide.safetyWarnings) 
-                ? guide.safetyWarnings.join('\n')
-                : JSON.stringify(guide.safetyWarnings).replace(/[{}",]/g, ' ').trim();
-            }
+            // 🔧 안전 주의사항 처리 (string 타입만 지원)
+            const safetyContent = guide.safetyWarnings || '';
             
             return safetyContent && safetyContent.trim().length > 0;
           })() && (
@@ -535,14 +527,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
                 <div className="px-6 pb-6">
                   <div className="space-y-3">
                     {(() => {
-                      let safetyContent = '';
-                      if (typeof guide.safetyWarnings === 'string') {
-                        safetyContent = guide.safetyWarnings;
-                      } else if (guide.safetyWarnings && typeof guide.safetyWarnings === 'object') {
-                        safetyContent = Array.isArray(guide.safetyWarnings) 
-                          ? guide.safetyWarnings.join('\n')
-                          : JSON.stringify(guide.safetyWarnings).replace(/[{}",]/g, ' ').trim();
-                      }
+                      const safetyContent = guide.safetyWarnings || '';
                       
                       return safetyContent.split('\n').filter(w => w.trim()).map((warning, index) => {
                         const cleanWarning = warning.trim().replace(/^[•·-]\s*/, '');
@@ -812,23 +797,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
         <div className="h-24" />
       </div>
 
-      {/* 🎨 BigTech 디자인 시뮬레이터 토글 버튼 */}
-      <button
-        onClick={() => setShowDesignSimulator(!showDesignSimulator)}
-        className="fixed bottom-8 left-8 w-14 h-14 bg-slate-900 hover:bg-slate-800 text-white flex items-center justify-center transition-all duration-300 z-50 shadow-lg rounded-full"
-        title="BigTech 디자인 시뮬레이터"
-      >
-        <Eye className="w-5 h-5" />
-      </button>
-
-      {/* 🚀 BigTech 디자인 시뮬레이터 */}
-      <BigTechDesignOptimizer
-        contentType="overview"
-        showSimulation={showDesignSimulator}
-        onPatternSelect={(pattern) => {
-          console.log('🎨 선택된 BigTech 패턴:', pattern);
-        }}
-      />
+      {/* BigTech 디자인 시뮬레이터 임시 제거 (빌드 오류 해결) */}
 
       {/* 스크롤 투 탑 버튼 */}
       {showScrollTop && (

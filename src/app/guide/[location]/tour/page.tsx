@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/contexts/LanguageContext';
+import QualityFeedback from '@/components/QualityFeedback';
 
 // 동적 임포트로 클라이언트 전용 컴포넌트 로드
 const MinimalTourContent = dynamic(() => import('./components/TourContent'), {
@@ -33,17 +34,25 @@ const normalizeGuideData = (data: any, locationName: string) => {
   // data.content가 있으면 그것을 사용 (가장 일반적인 케이스)
   if (data.content && typeof data.content === 'object') {
     sourceData = data.content;
-    console.log(' content 필드에서 데이터 추출');
+    console.log('📦 content 필드에서 데이터 추출');
   }
   // data가 직접 overview, route, realTimeGuide를 가지면 직접 사용
   else if (data.overview || data.route || data.realTimeGuide) {
     sourceData = data;
-    console.log(' 직접 구조에서 데이터 추출');
+    console.log('📦 직접 구조에서 데이터 추출');
   }
   else {
     console.error('❌ 올바른 가이드 구조를 찾을 수 없음:', Object.keys(data));
     throw new Error('올바른 가이드 데이터 구조가 아닙니다.');
   }
+
+  // 🔍 mustVisitSpots 데이터 추적
+  console.log('🎯 normalizeGuideData에서 sourceData 확인:', {
+    hasSourceData: !!sourceData,
+    sourceDataKeys: Object.keys(sourceData || {}),
+    sourceMustVisitSpots: sourceData?.mustVisitSpots,
+    keyHighlights: sourceData?.keyHighlights
+  });
 
   //  정규화된 GuideData 생성
   const normalizedData = {
@@ -68,7 +77,7 @@ const normalizeGuideData = (data: any, locationName: string) => {
       chapters: Array.isArray(sourceData.realTimeGuide?.chapters) ? sourceData.realTimeGuide.chapters : [],
       ...sourceData.realTimeGuide
     },
-    mustVisitSpots: sourceData.mustVisitSpots || '', // 필수관람포인트 추가
+    mustVisitSpots: sourceData.mustVisitSpots || sourceData.keyHighlights || sourceData.highlights || '', // 필수관람포인트 추가 (백업 필드들 포함)
     metadata: {
       originalLocationName: locationName,
       generatedAt: sourceData.metadata?.generatedAt || new Date().toISOString(),
@@ -97,6 +106,14 @@ const normalizeGuideData = (data: any, locationName: string) => {
     });
   }
 
+  // 🔍 최종 정규화 결과 확인
+  console.log('🎯 normalizeGuideData 최종 결과:', {
+    hasMustVisitSpots: !!normalizedData.mustVisitSpots,
+    mustVisitSpots: normalizedData.mustVisitSpots,
+    mustVisitSpotsType: typeof normalizedData.mustVisitSpots,
+    mustVisitSpotsLength: normalizedData.mustVisitSpots?.length
+  });
+
   return normalizedData;
 };
 
@@ -107,6 +124,8 @@ export default function TourPage() {
   const [guideContent, setGuideContent] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [guideId, setGuideId] = useState<string>('');
+  const [key, setKey] = useState<number>(0); // 강제 리렌더링용
 
   const locationName = params.location ? decodeURIComponent(params.location as string) : '';
 
@@ -129,7 +148,12 @@ export default function TourPage() {
         const response = await fetch('/api/node/ai/generate-guide', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ locationName, language: 'ko', userProfile }),
+          body: JSON.stringify({ 
+            locationName, 
+            language: 'ko', 
+            userProfile,
+            forceRegenerate: true // mustVisitSpots가 추가된 새 프롬프트로 재생성
+          }),
         });
 
         if (!response.ok) {
@@ -139,10 +163,25 @@ export default function TourPage() {
 
         const data = await response.json();
         const content = data?.content;
+        
+        // 🔍 API 응답 데이터 디버깅
+        console.log('🔍 API 전체 응답:', data);
+        console.log('🔍 content 데이터:', content);
+        console.log('🔍 content의 mustVisitSpots:', content?.mustVisitSpots);
+        
         if (content) {
           //  핵심: 정규화된 데이터로 설정
           const normalizedContent = normalizeGuideData(content, locationName);
+          console.log('🔍 정규화된 데이터:', normalizedContent);
+          console.log('🔍 정규화된 mustVisitSpots:', normalizedContent.mustVisitSpots);
           setGuideContent(normalizedContent);
+          
+          // 품질 피드백을 위한 고유 ID 생성
+          const uniqueId = `${locationName}_${currentLanguage}_${Date.now()}`;
+          setGuideId(uniqueId);
+          
+          // 강제 리렌더링을 위한 key 업데이트
+          setKey(prev => prev + 1);
         } else {
           console.error('❌ Failed to extract guide content from response:', data);
           setError(data.error || 'Failed to load guide data.');
@@ -216,5 +255,28 @@ export default function TourPage() {
     );
   }
 
-  return <MinimalTourContent guide={guideContent} language={currentLanguage} />;
+  const handleFeedbackSubmit = (feedback: any) => {
+    console.log('📝 품질 피드백 받음:', feedback);
+    // 피드백 처리 로직은 QualityFeedback 컴포넌트에서 API 호출로 처리됨
+  };
+
+  return (
+    <>
+      <MinimalTourContent 
+        key={key}
+        guide={guideContent} 
+        language={currentLanguage} 
+      />
+      
+      {/* 🎯 품질 피드백 시스템 통합 */}
+      {guideContent && guideId && (
+        <QualityFeedback
+          key={`feedback-${key}`}
+          guideId={guideId}
+          locationName={locationName}
+          onFeedbackSubmit={handleFeedbackSubmit}
+        />
+      )}
+    </>
+  );
 }

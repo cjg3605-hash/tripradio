@@ -42,6 +42,15 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
     throw new Error('올바른 가이드 데이터 구조가 아닙니다.');
   }
 
+  // 🔍 mustVisitSpots 데이터 추적
+  console.log('🎯 MultiLangGuideClient에서 sourceData 확인:', {
+    hasSourceData: !!sourceData,
+    sourceDataKeys: Object.keys(sourceData || {}),
+    sourceMustVisitSpots: sourceData?.mustVisitSpots,
+    keyHighlights: sourceData?.keyHighlights,
+    highlights: sourceData?.highlights
+  });
+
   // 🎯 정규화된 GuideData 생성
   const normalizedData: GuideData = {
     overview: {
@@ -65,6 +74,8 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
       chapters: Array.isArray(sourceData.realTimeGuide?.chapters) ? sourceData.realTimeGuide.chapters : [],
       ...sourceData.realTimeGuide
     },
+    safetyWarnings: sourceData.safetyWarnings || '', // 안전 주의사항 추가
+    mustVisitSpots: sourceData.mustVisitSpots || sourceData.keyHighlights || sourceData.highlights || '', // 필수관람포인트 추가
     metadata: {
       originalLocationName: locationName,
       generatedAt: sourceData.metadata?.generatedAt || new Date().toISOString(),
@@ -92,6 +103,14 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
       return normalizedChapter;
     });
   }
+
+  // 🔍 최종 정규화 결과 확인
+  console.log('🎯 MultiLangGuideClient 최종 정규화 결과:', {
+    hasMustVisitSpots: !!normalizedData.mustVisitSpots,
+    mustVisitSpots: normalizedData.mustVisitSpots,
+    mustVisitSpotsType: typeof normalizedData.mustVisitSpots,
+    mustVisitSpotsLength: normalizedData.mustVisitSpots?.length
+  });
 
   return normalizedData;
 };

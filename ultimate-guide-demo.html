@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltimateTourGuide AI v3.0 - 페트라</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #fafafa;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* 상태 표시바 */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 20px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .ai-badge {
+            background: #000;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        /* 헤더 */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .back-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .satisfaction-indicator {
+            font-size: 12px;
+            color: #007AFF;
+            font-weight: 600;
+        }
+
+        /* 장소 섹션 */
+        .location-section {
+            text-align: center;
+            padding: 32px 20px;
+            background: white;
+        }
+
+        .location-icon {
+            width: 80px;
+            height: 80px;
+            border: 3px solid #1a1a1a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+        }
+
+        .location-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .location-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* AI 개인화 표시 */
+        .personalization-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f8f8f8;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .ai-dot {
+            width: 6px;
+            height: 6px;
+            background: #007AFF;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* 개요 섹션 */
+        .overview-section {
+            margin: 24px 20px;
+            padding: 24px;
+            background: white;
+            border: 1px solid #f0f0f0;
+            border-radius: 12px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .section-icon {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #1a1a1a;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .overview-content {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* 필수 관람 포인트 */
+        .must-visit-section {
+            margin: 24px 20px;
+            padding: 24px;
+            background: #fafafa;
+            border-radius: 12px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .highlight-marker {
+            font-size: 20px;
+            margin-right: 8px;
+        }
+
+        /* 챕터 섹션 */
+        .chapters-section {
+            margin: 24px 20px;
+        }
+
+        .chapters-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .chapters-icon {
+            width: 32px;
+            height: 32px;
+            border: 2px solid #1a1a1a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .chapters-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .chapter-count {
+            background: #f0f0f0;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 개별 챕터 */
+        .chapter-item {
+            background: white;
+            border: 1px solid #f0f0f0;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .chapter-item.active {
+            border-color: #1a1a1a;
+            background: #fafafa;
+        }
+
+        .chapter-header {
+            padding: 20px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .chapter-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chapter-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .chapter-number {
+            width: 48px;
+            height: 48px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .chapter-item.active .chapter-number {
+            border-color: #1a1a1a;
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .chapter-info {
+            flex: 1;
+        }
+
+        .chapter-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .chapter-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .ai-optimized {
+            background: #e8f4fd;
+            color: #007AFF;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+
+        .chapter-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .play-btn {
+            width: 48px;
+            height: 48px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .play-btn:hover {
+            border-color: #1a1a1a;
+        }
+
+        .play-btn.playing {
+            border-color: #1a1a1a;
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .expand-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .chapter-item.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        /* 챕터 내용 */
+        .chapter-content {
+            display: none;
+            border-top: 1px solid #f0f0f0;
+            padding: 20px;
+            background: white;
+        }
+
+        .chapter-item.expanded .chapter-content {
+            display: block;
+        }
+
+        .content-text {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+
+        .next-direction {
+            margin-top: 20px;
+            padding: 16px;
+            background: #fafafa;
+            border-radius: 8px;
+            border-left: 4px solid #1a1a1a;
+        }
+
+        .next-direction-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .next-direction-title {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .next-direction-text {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* AI 최적화 표시 */
+        .ai-optimization {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: #f8f8f8;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .optimization-badge {
+            background: #007AFF;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+        }
+
+        /* 전체 재생 버튼 */
+        .play-all-section {
+            margin: 24px 20px;
+            padding: 24px;
+            border: 2px solid #1a1a1a;
+            border-radius: 12px;
+            background: white;
+        }
+
+        .play-all-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .play-all-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .play-all-meta {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .play-all-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* 만족도 보장 섹션 */
+        .satisfaction-guarantee {
+            margin: 24px 20px 40px;
+            padding: 20px;
+            background: #e8f4fd;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .guarantee-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #007AFF;
+            margin-bottom: 8px;
+        }
+
+        .guarantee-text {
+            font-size: 12px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .satisfaction-score {
+            font-size: 24px;
+            font-weight: 700;
+            color: #007AFF;
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 상태 표시바 -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <div class="ai-badge">AI v3.0</div>
+            <span>🔋100%</span>
+        </div>
+
+        <!-- 헤더 -->
+        <div class="header">
+            <button class="back-btn">←</button>
+            <div class="header-title">실시간 AI 가이드</div>
+            <div class="satisfaction-indicator">99.12%</div>
+        </div>
+
+        <!-- 장소 섹션 -->
+        <div class="location-section">
+            <div class="location-icon">🏛️</div>
+            <h1 class="location-title">페트라</h1>
+            <p class="location-subtitle">요단 고대 도시 • 세계 7대 불가사의</p>
+            <div class="personalization-status">
+                <div class="ai-dot"></div>
+                <span>당신의 성격(개방형)에 맞춘 창의적 해설</span>
+            </div>
+        </div>
+
+        <!-- 개요 섹션 -->
+        <div class="overview-section">
+            <div class="section-header">
+                <div class="section-icon">ℹ️</div>
+                <h2 class="section-title">개요</h2>
+            </div>
+            <div class="overview-content">
+                <p>요단 남부 사막에 위치한 고대 나바테아 왕국의 수도로, 기원전 6세기부터 번영한 교역의 중심지입니다.</p>
+                <br>
+                <p>붉은 사암을 깎아 만든 정교한 건축물들과 정교한 수로 시스템으로 유명하며, 1985년 유네스코 세계문화유산으로 지정되었습니다.</p>
+                <br>
+                <p>영화 '인디아나 존스'의 촬영지로도 널리 알려져 있어, 모험과 신비로움이 가득한 고대 문명의 보고입니다.</p>
+            </div>
+        </div>
+
+        <!-- 필수 관람 포인트 -->
+        <div class="must-visit-section">
+            <div class="section-header">
+                <span class="highlight-marker">🎯</span>
+                <h2 class="section-title">필수 관람 포인트</h2>
+            </div>
+            <div class="overview-content">
+                알 카즈네(보물고) → 스트리트 오브 파사드 → 로얄 톰스 → 그레이트 템플 → 모나스터리 순으로 관람하시면 페트라의 역사적 발전과정을 시간순으로 체험할 수 있습니다. 특히 일몰 시간(오후 5-6시)에 알 카즈네를 방문하면 붉은 사암이 황금빛으로 물드는 장관을 감상할 수 있습니다.
+            </div>
+        </div>
+
+        <!-- 챕터 섹션 -->
+        <div class="chapters-section">
+            <div class="chapters-header">
+                <div class="chapters-icon">🗺️</div>
+                <h2 class="chapters-title">관람 순서</h2>
+                <div class="chapter-count">6개 챕터</div>
+            </div>
+
+            <!-- 인트로 챕터 -->
+            <div class="chapter-item expanded active">
+                <div class="chapter-header" onclick="toggleChapter(0)">
+                    <div class="chapter-main">
+                        <div class="chapter-left">
+                            <div class="chapter-number">00</div>
+                            <div class="chapter-info">
+                                <div class="chapter-title">페트라 입장 - 시간여행의 시작</div>
+                                <div class="chapter-meta">
+                                    <span>약 4분</span>
+                                    <span class="ai-optimized">문화심리 최적화</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chapter-controls">
+                            <button class="play-btn playing">⏸️</button>
+                            <span class="expand-icon">⌄</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chapter-content">
+                    <div class="content-text">
+                        <p>안녕하세요! 지금부터 2,000년 전 고대 나바테아인들의 눈으로 페트라를 바라보는 특별한 여행을 시작하겠습니다.</p>
+                        <br>
+                        <p>이곳은 단순한 관광지가 아닙니다. 사막의 장미빛 도시, 동서양을 잇는 실크로드의 중심이자, 인간의 창의성이 자연과 만나 빚어낸 기적 같은 공간입니다.</p>
+                        <br>
+                        <p>앞으로 여러분이 보시게 될 모든 것들은 현지 베두인족의 구전과 최신 고고학 발견을 바탕으로, 여러분의 호기심 많은 성향에 맞춰 신비롭고 흥미진진하게 풀어드릴 예정입니다.</p>
+                    </div>
+                    <div class="next-direction">
+                        <div class="next-direction-header">
+                            <span>🚶</span>
+                            <span class="next-direction-title">다음 이동 안내</span>
+                        </div>
+                        <div class="next-direction-text">
+                            입구에서 시크(Siq) 협곡 입구까지 약 900미터 걸어가세요. 양쪽으로 높은 사암 절벽이 점점 좁아지는 것을 느끼시면서, 2,000년 전 대상들의 마음으로 걸어보세요.
+                        </div>
+                    </div>
+                    <div class="ai-optimization">
+                        <span class="optimization-badge">AI 최적화</span>
+                        <span>중동 문화 존중 표현 +50% | 개방형 성격 맞춤 창의적 해설 | 스토리텔링 구조</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 챕터 1 -->
+            <div class="chapter-item">
+                <div class="chapter-header" onclick="toggleChapter(1)">
+                    <div class="chapter-main">
+                        <div class="chapter-left">
+                            <div class="chapter-number">01</div>
+                            <div class="chapter-info">
+                                <div class="chapter-title">시크 협곡 - 신비로운 입구</div>
+                                <div class="chapter-meta">
+                                    <span>약 6분</span>
+                                    <span class="ai-optimized">인지과학 구조화</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chapter-controls">
+                            <button class="play-btn">▶️</button>
+                            <span class="expand-icon">⌄</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chapter-content">
+                    <div class="content-text">
+                        <p>지금 걷고 계신 이 좁은 협곡이 바로 '시크(Siq)'입니다. 아랍어로 '갈라진 곳'이라는 뜻이죠.</p>
+                        <br>
+                        <p>양쪽 벽면을 자세히 보세요. 이것은 인공적으로 만든 것이 아니라, 수백만 년에 걸친 지각 변동으로 자연스럽게 형성된 협곡입니다. 나바테아인들은 이런 자연의 선물을 도시의 천연 요새로 활용했습니다.</p>
+                        <br>
+                        <p>발밑의 돌길을 보시면, 2,000년 전 나바테아인들이 깔았던 원래 도로가 그대로 남아있습니다. 지금도 그 위를 걷고 계신 거예요!</p>
+                    </div>
+                    <div class="next-direction">
+                        <div class="next-direction-header">
+                            <span>👀</span>
+                            <span class="next-direction-title">다음 이동 안내</span>
+                        </div>
+                        <div class="next-direction-text">
+                            협곡이 가장 좁아지는 지점에서 잠시 멈춰 서서, 앞쪽 틈 사이로 보이는 분홍빛 건물의 일부에 주목해보세요. 그것이 바로 알 카즈네의 첫 모습입니다.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 챕터 2 -->
+            <div class="chapter-item">
+                <div class="chapter-header" onclick="toggleChapter(2)">
+                    <div class="chapter-main">
+                        <div class="chapter-left">
+                            <div class="chapter-number">02</div>
+                            <div class="chapter-info">
+                                <div class="chapter-title">알 카즈네 - 보물고의 전설</div>
+                                <div class="chapter-meta">
+                                    <span>약 7분</span>
+                                    <span class="ai-optimized">감정연결 강화</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chapter-controls">
+                            <button class="play-btn">▶️</button>
+                            <span class="expand-icon">⌄</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chapter-content">
+                    <div class="content-text">
+                        <p>드디어 페트라의 상징, 알 카즈네(보물고) 앞에 서셨습니다! 협곡을 벗어나는 순간 눈 앞에 펼쳐지는 이 장관은 정말 숨이 멎을 만큼 아름답죠?</p>
+                        <br>
+                        <p>높이 43미터의 이 거대한 건물은 사실 무덤입니다. 나바테아 왕 아레타스 4세를 위해 기원전 1세기경 건설되었어요. 하지만 베두인족들은 오랫동안 이곳을 '보물고'라고 불렀습니다.</p>
+                        <br>
+                        <p>맨 위 항아리를 보세요. 전설에 따르면 이집트 파라오의 보물이 숨겨져 있다고 해서, 베두인족들이 소총으로 쏘아 보물을 꺼내려 했던 흔적이 지금도 남아있답니다.</p>
+                    </div>
+                    <div class="next-direction">
+                        <div class="next-direction-header">
+                            <span>📸</span>
+                            <span class="next-direction-title">다음 이동 안내</span>
+                        </div>
+                        <div class="next-direction-text">
+                            알 카즈네 오른쪽 계단을 따라 스트리트 오브 파사드로 이동하세요. 길 양쪽으로 늘어선 무덤들의 다양한 건축 양식을 비교해보며 걸어보세요.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 챕터 3 -->
+            <div class="chapter-item">
+                <div class="chapter-header" onclick="toggleChapter(3)">
+                    <div class="chapter-main">
+                        <div class="chapter-left">
+                            <div class="chapter-number">03</div>
+                            <div class="chapter-info">
+                                <div class="chapter-title">스트리트 오브 파사드 - 권력의 거리</div>
+                                <div class="chapter-meta">
+                                    <span>약 5분</span>
+                                    <span class="ai-optimized">비교학습법</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chapter-controls">
+                            <button class="play-btn">▶️</button>
+                            <span class="expand-icon">⌄</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chapter-content">
+                    <div class="content-text">
+                        <p>이곳은 '파사드의 거리'라고 불리는 곳입니다. 양쪽으로 늘어선 40여 개의 무덤들을 보세요. 각각 다른 건축 양식을 가지고 있어요.</p>
+                        <br>
+                        <p>흥미롭게도, 무덤의 크기와 장식의 화려함은 그 주인의 사회적 지위를 나타냅니다. 가장 단순한 것은 일반인의 무덤이고, 기둥과 조각이 많을수록 더 높은 지위의 사람이었죠.</p>
+                        <br>
+                        <p>여기서 나바테아인들의 놀라운 점을 발견할 수 있습니다. 그들은 그리스, 로마, 이집트, 페르시아의 건축 양식을 모두 흡수해 자신들만의 독특한 스타일을 만들어냈어요.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 챕터 4 -->
+            <div class="chapter-item">
+                <div class="chapter-header" onclick="toggleChapter(4)">
+                    <div class="chapter-main">
+                        <div class="chapter-left">
+                            <div class="chapter-number">04</div>
+                            <div class="chapter-info">
+                                <div class="chapter-title">로얄 톰스 - 왕들의 영원한 안식처</div>
+                                <div class="chapter-meta">
+                                    <span>약 6분</span>
+                                    <span class="ai-optimized">역사적 맥락</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chapter-controls">
+                            <button class="play-btn">▶️</button>
+                            <span class="expand-icon">⌄</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chapter-content">
+                    <div class="content-text">
+                        <p>이제 페트라에서 가장 장엄한 왕릉군, 로얄 톰스에 도착했습니다. 절벽 면에 새겨진 이 거대한 무덤들은 나바테아 왕국 최고 권력자들의 마지막 안식처입니다.</p>
+                        <br>
+                        <p>가장 인상적인 것은 '궁전 무덤(Palace Tomb)'입니다. 로마 궁전을 본떠 만들었다고 해서 이런 이름이 붙었어요. 무려 5층 구조로 되어 있죠.</p>
+                        <br>
+                        <p>놀랍게도 이 모든 것이 하나의 거대한 바위 덩어리를 위에서부터 아래로 깎아서 만든 겁니다. 2,000년 전 기술로 어떻게 이런 정밀한 작업이 가능했을까요?</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 챕터 5 -->
+            <div class="chapter-item">
+                <div class="chapter-header" onclick="toggleChapter(5)">
+                    <div class="chapter-main">
+                        <div class="chapter-left">
+                            <div class="chapter-number">05</div>
+                            <div class="chapter-info">
+                                <div class="chapter-title">모나스터리 - 정상의 수도원</div>
+                                <div class="chapter-meta">
+                                    <span>약 8분</span>
+                                    <span class="ai-optimized">성취감 극대화</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chapter-controls">
+                            <button class="play-btn">▶️</button>
+                            <span class="expand-icon">⌄</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chapter-content">
+                    <div class="content-text">
+                        <p>800단의 계단을 오르느라 수고 많으셨습니다! 이제 페트라 최고의 보물, 모나스터리(수도원) 앞에 서 계십니다.</p>
+                        <br>
+                        <p>알 카즈네보다 더 크고 웅장한 이 건물은 높이가 50미터에 달합니다. 비잔틴 시대에 기독교 수도원으로 사용되어서 '모나스터리'라는 이름이 붙었어요.</p>
+                        <br>
+                        <p>여기서 바라보는 요단강 계곡의 전경은 정말 장관입니다. 날씨가 좋으면 멀리 사해까지 볼 수 있어요. 이 광활한 풍경을 보며 2,000년 전 나바테아인들이 느꼈을 자부심을 상상해보세요.</p>
+                    </div>
+                    <div class="next-direction">
+                        <div class="next-direction-header">
+                            <span>🌅</span>
+                            <span class="next-direction-title">마무리 안내</span>
+                        </div>
+                        <div class="next-direction-text">
+                            시간이 허락한다면 이곳에서 일몰을 감상해보세요. 붉은 사암이 황금빛으로 물들며 변해가는 모습은 페트라 여행의 완벽한 마무리가 될 것입니다.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 전체 재생 버튼 -->
+        <div class="play-all-section">
+            <div class="play-all-content">
+                <div class="play-all-info">
+                    <h3>전체 오디오 투어</h3>
+                    <div class="play-all-meta">6개 챕터 • 약 36분 • AI 맞춤 최적화</div>
+                </div>
+                <button class="play-all-btn">
+                    <span>▶️</span>
+                    전체 재생
+                </button>
+            </div>
+        </div>
+
+        <!-- 만족도 보장 섹션 -->
+        <div class="satisfaction-guarantee">
+            <div class="guarantee-title">✅ AI 만족도 보장</div>
+            <div class="satisfaction-score">99.12%</div>
+            <div class="guarantee-text">
+                5억명 AI 관광객 검증 • 문화심리학 최적화<br>
+                개인 성격 맞춤 • 실시간 상황 적응
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentlyPlaying = 0;
+        
+        function toggleChapter(chapterIndex) {
+            const chapterItems = document.querySelectorAll('.chapter-item');
+            const targetChapter = chapterItems[chapterIndex];
+            
+            // 확장/축소 토글
+            targetChapter.classList.toggle('expanded');
+            
+            // 활성화 상태 관리
+            chapterItems.forEach((item, index) => {
+                if (index === chapterIndex) {
+                    item.classList.toggle('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        function playChapter(chapterIndex) {
+            // 재생 상태 관리
+            const playButtons = document.querySelectorAll('.play-btn');
+            const chapterItems = document.querySelectorAll('.chapter-item');
+            
+            // 모든 버튼 초기화
+            playButtons.forEach(btn => {
+                btn.classList.remove('playing');
+                btn.innerHTML = '▶️';
+            });
+            
+            // 현재 챕터 재생 상태
+            if (currentlyPlaying === chapterIndex) {
+                currentlyPlaying = -1; // 정지
+            } else {
+                currentlyPlaying = chapterIndex;
+                playButtons[chapterIndex].classList.add('playing');
+                playButtons[chapterIndex].innerHTML = '⏸️';
+                
+                // 해당 챕터 활성화
+                chapterItems.forEach((item, index) => {
+                    if (index === chapterIndex) {
+                        item.classList.add('active');
+                        item.classList.add('expanded');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
+        }
+
+        // 재생 버튼 클릭 이벤트
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('play-btn')) {
+                e.stopPropagation();
+                const chapterIndex = Array.from(document.querySelectorAll('.play-btn')).indexOf(e.target);
+                playChapter(chapterIndex);
+            }
+        });
+
+        // 인트로 챕터 자동 재생 시뮬레이션
+        window.addEventListener('load', function() {
+            // 3초 후 인트로 챕터 자동 시작
+            setTimeout(() => {
+                playChapter(0);
+            }, 3000);
+        });
+
+        // AI 개인화 시뮬레이션
+        function simulatePersonalization() {
+            const personalizations = [
+                '당신의 성격(개방형)에 맞춘 창의적 해설',
+                '현재 날씨(맑음)에 최적화된 관람 순서',
+                '혼자 여행자를 위한 성찰적 설명',
+                '문화 애호가 수준의 심화 해설'
+            ];
+            
+            const statusElement = document.querySelector('.personalization-status span');
+            let index = 0;
+            
+            setInterval(() => {
+                statusElement.textContent = personalizations[index];
+                index = (index + 1) % personalizations.length;
+            }, 8000);
+        }
+
+        simulatePersonalization();
+
+        // 실시간 만족도 시뮬레이션
+        function simulateSatisfactionScore() {
+            const scoreElement = document.querySelector('.satisfaction-indicator');
+            const guaranteeScore = document.querySelector('.satisfaction-score');
+            let score = 99.12;
+            
+            setInterval(() => {
+                score = 99.12 + (Math.random() - 0.5) * 0.3;
+                scoreElement.textContent = score.toFixed(2) + '%';
+                guaranteeScore.textContent = score.toFixed(2) + '%';
+            }, 5000);
+        }
+
+        simulateSatisfactionScore();
+    </script>
+</body>
+</html>
