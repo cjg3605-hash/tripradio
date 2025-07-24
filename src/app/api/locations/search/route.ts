@@ -17,19 +17,50 @@ interface CacheItem {
 const VALID_LANGUAGES = ['ko', 'en', 'ja', 'zh', 'es'] as const;
 type Language = typeof VALID_LANGUAGES[number];
 
-// Simple in-memory cache implementation
-const cache = new Map<string, any>();
+// 크기 제한이 있는 LRU 캐시 구현
+class LRUCache<T> {
+  private cache = new Map<string, T>();
+  private maxSize = 100; // 최대 100개 항목
+
+  get(key: string): T | null {
+    const value = this.cache.get(key);
+    if (value) {
+      // LRU: 접근한 항목을 맨 뒤로 이동
+      this.cache.delete(key);
+      this.cache.set(key, value);
+      return value;
+    }
+    return null;
+  }
+
+  set(key: string, value: T): void {
+    if (this.cache.has(key)) {
+      this.cache.delete(key);
+    } else if (this.cache.size >= this.maxSize) {
+      // 가장 오래된 항목 제거
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
+    }
+    this.cache.set(key, value);
+  }
+
+  setex(key: string, seconds: number, value: T): void {
+    this.set(key, value);
+    setTimeout(() => this.cache.delete(key), seconds * 1000);
+  }
+}
+
+const cache = new LRUCache<any>();
 const kv = {
   get: async <T>(key: string): Promise<T | null> => {
-    return cache.get(key) || null;
+    return cache.get(key) as T | null;
   },
   set: async (key: string, value: any): Promise<'OK'> => {
     cache.set(key, value);
     return 'OK';
   },
   setex: async (key: string, seconds: number, value: any): Promise<'OK'> => {
-    cache.set(key, value);
-    setTimeout(() => cache.delete(key), seconds * 1000);
+    cache.setex(key, seconds, value);
     return 'OK';
   }
 } as const;

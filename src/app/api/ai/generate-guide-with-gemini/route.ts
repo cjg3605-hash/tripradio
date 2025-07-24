@@ -1,11 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generatePersonalizedGuide } from '@/lib/ai/gemini';
 import { UserProfile } from '@/types/guide';
+import { aiRateLimiter } from '@/lib/rate-limiter';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
+    // 속도 제한 확인
+    const ip = request.headers.get('x-forwarded-for') || 'anonymous';
+    const limitResult = await aiRateLimiter.limit(ip);
+    
+    if (!limitResult.success) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: '요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.',
+          retryAfter: limitResult.reset
+        },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': limitResult.reset?.toString() || '60',
+            'X-RateLimit-Limit': limitResult.limit?.toString() || '5',
+            'X-RateLimit-Remaining': limitResult.remaining?.toString() || '0'
+          }
+        }
+      );
+    }
+
     console.log('🚀 Gemini 라이브러리 기반 가이드 생성 API 호출');
     
     const body = await request.json();
@@ -37,11 +60,16 @@ export async function POST(request: NextRequest) {
       userProfile: safeUserProfile
     });
 
-    // Gemini 라이브러리 호출
-    const guideData = await generatePersonalizedGuide(
-      location.trim(),
-      safeUserProfile
-    );
+    // 30초 타임아웃으로 Gemini 라이브러리 호출
+    const TIMEOUT_MS = 30000;
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('AI 응답 시간 초과')), TIMEOUT_MS);
+    });
+
+    const guideData = await Promise.race([
+      generatePersonalizedGuide(location.trim(), safeUserProfile),
+      timeoutPromise
+    ]);
 
     console.log('✅ 가이드 생성 성공');
 

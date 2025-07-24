@@ -163,18 +163,27 @@ export async function GET(request: NextRequest) {
 
     console.log(`📊 품질 지표 조회: ${locationName || '전체'} (최근 ${period}일)`);
 
-    // 기본 쿼리
+    // 복합 인덱스를 활용한 최적화된 쿼리
     let query = supabase
       .from('quality_feedback')
-      .select('*')
-      .gte('created_at', new Date(Date.now() - parseInt(period) * 24 * 60 * 60 * 1000).toISOString());
+      .select('*');
 
-    // 특정 장소 필터링
+    // 더 효율적인 쿼리 순서 (인덱스 활용)
     if (locationName) {
-      query = query.eq('location_name', locationName);
+      // location_name과 created_at 복합 인덱스 활용
+      query = query
+        .eq('location_name', locationName)
+        .gte('created_at', new Date(Date.now() - parseInt(period) * 24 * 60 * 60 * 1000).toISOString());
+    } else {
+      // 전체 조회시 날짜 조건만
+      query = query
+        .gte('created_at', new Date(Date.now() - parseInt(period) * 24 * 60 * 60 * 1000).toISOString());
     }
 
-    const { data: feedbacks, error } = await query.order('created_at', { ascending: false });
+    // 인덱스를 활용한 정렬 및 대량 데이터 방지를 위한 제한
+    const { data: feedbacks, error } = await query
+      .order('created_at', { ascending: false })
+      .limit(100);
 
     if (error) {
       throw error;

@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { aiCircuitBreaker } from '@/lib/circuit-breaker';
 
 // 환경변수 확인 및 초기화
 if (!process.env.GEMINI_API_KEY) {
@@ -94,11 +95,13 @@ export async function generatePersonalizedGuide(
   };
 
   try {
-    // Gemini API가 없는 경우 더미 데이터 반환
-    if (!genAI) {
-      console.log('🎭 더미 데이터로 가이드 생성:', location);
-      return generateFallbackGuide(location, safeProfile);
-    }
+    // 서킷 브레이커로 AI 호출 보호
+    return await aiCircuitBreaker.call(async () => {
+      // Gemini API가 없는 경우 더미 데이터 반환
+      if (!genAI) {
+        console.log('🎭 더미 데이터로 가이드 생성:', location);
+        return generateFallbackGuide(location, safeProfile);
+      }
 
     const model = genAI.getGenerativeModel({ 
       model: "gemini-2.5-flash-lite-preview-06-17"
@@ -183,9 +186,18 @@ ${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, safeProfile)}`;
       throw new Error(`AI 응답을 파싱할 수 없습니다: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
     }
 
+      return parsedGuide;
+    });
   } catch (error) {
-    console.error('Gemini API 호출 실패:', error);
-    // 에러 발생 시 더미 데이터로 대체하지 않고 에러를 그대로 던짐
+    console.error('❌ 서킷 브레이커 또는 AI 생성 실패:', error);
+    
+    // 서킷 브레이커가 열린 경우 폴백 응답
+    if (error.message.includes('서킷 브레이커')) {
+      console.log('🔄 서킷 브레이커 열림 - 폴백 가이드 생성:', location);
+      return generateFallbackGuide(location, safeProfile);
+    }
+    
+    // 기타 에러는 그대로 던짐
     throw error;
   }
 }

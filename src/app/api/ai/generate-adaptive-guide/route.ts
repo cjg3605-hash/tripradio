@@ -47,12 +47,11 @@ export async function POST(request: NextRequest) {
     const locationStructure = await analyzeLocationAndDesignStructure(locationName, userProfile);
     console.log('✅ 챕터 구조 설계:', locationStructure.optimal_chapter_structure.length + '개 챕터');
 
-    // 📏 3-4단계: 각 챕터별 최적 글자수 계산 및 콘텐츠 생성
-    console.log('📝 3-4단계: 챕터별 최적화 콘텐츠 생성 중...');
-    const generatedChapters: ChapterRequirement[] = [];
+    // 📏 3-4단계: 각 챕터별 최적 글자수 계산 및 콘텐츠 생성 (병렬 처리)
+    console.log('📝 3-4단계: 모든 챕터를 병렬로 생성 중...');
 
-    for (const chapter of locationStructure.optimal_chapter_structure) {
-      console.log(`   📏 ${chapter.title} 처리 중...`);
+    const chapterPromises = locationStructure.optimal_chapter_structure.map(async (chapter) => {
+      console.log(`   📏 ${chapter.title} 처리 시작...`);
       
       // 최적 글자수 계산
       const optimalCharacters = calculateOptimalCharacters(
@@ -61,23 +60,35 @@ export async function POST(request: NextRequest) {
         locationStructure.location_analysis.complexity
       );
 
-      // 개인화된 콘텐츠 생성  
-      const generatedContent = await generatePersonalizedContent(
-        chapter,
-        userProfile,
-        { locationName, locationAnalysis: locationStructure.location_analysis },
-        optimalCharacters
-      );
+      // 타임아웃과 함께 개인화된 콘텐츠 생성
+      const CONTENT_TIMEOUT_MS = 25000;
+      const contentTimeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('콘텐츠 생성 시간 초과')), CONTENT_TIMEOUT_MS);
+      });
 
-      generatedChapters.push({
+      const generatedContent = await Promise.race([
+        generatePersonalizedContent(
+          chapter,
+          userProfile,
+          { locationName, locationAnalysis: locationStructure.location_analysis },
+          optimalCharacters
+        ),
+        contentTimeoutPromise
+      ]);
+
+      console.log(`   ✅ ${chapter.title}: ${generatedContent.length}자 (목표: ${optimalCharacters}자)`);
+
+      return {
         ...chapter,
         optimal_characters: optimalCharacters,
         content: generatedContent,
         actual_characters: generatedContent.length
-      });
+      };
+    });
 
-      console.log(`   ✅ ${chapter.title}: ${generatedContent.length}자 (목표: ${optimalCharacters}자)`);
-    }
+    // 모든 챕터를 병렬로 처리하고 결과 대기
+    const generatedChapters = await Promise.all(chapterPromises);
+    console.log('🏆 모든 챕터 병렬 생성 완료!');
 
     // 만족도 예측
     const satisfactionPrediction = predictSatisfaction(generatedChapters, userProfile, locationStructure.location_analysis);

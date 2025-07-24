@@ -1,8 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateTTSAudio } from '@/lib/tts-gcs';
+import { ttsRateLimiter } from '@/lib/rate-limiter';
 
 export async function POST(req: NextRequest) {
   try {
+    // TTS 속도 제한 확인
+    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+    const limitResult = await ttsRateLimiter.limit(ip);
+    
+    if (!limitResult.success) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'TTS 요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.',
+          retryAfter: limitResult.reset
+        },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': limitResult.reset?.toString() || '60',
+            'X-RateLimit-Limit': limitResult.limit?.toString() || '10',
+            'X-RateLimit-Remaining': limitResult.remaining?.toString() || '0'
+          }
+        }
+      );
+    }
     const { 
       text, 
       guide_id, 
@@ -29,9 +51,17 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // TTS 오디오 생성 (성격 기반 파라미터 지원)
+    // TTS 생성에 20초 타임아웃 추가
     const speakingRate = voiceSettings?.speakingRate || 1.2;
-    const audioBuffer = await generateTTSAudio(text, language, speakingRate, voiceSettings);
+    const TTS_TIMEOUT_MS = 20000;
+    const ttsTimeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('TTS 생성 시간 초과')), TTS_TIMEOUT_MS);
+    });
+
+    const audioBuffer = await Promise.race([
+      generateTTSAudio(text, language, speakingRate, voiceSettings),
+      ttsTimeoutPromise
+    ]);
     
     // ArrayBuffer를 Base64로 인코딩하여 반환
     const base64Audio = Buffer.from(audioBuffer).toString('base64');
