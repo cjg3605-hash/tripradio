@@ -14,7 +14,6 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [selectedLanguageIndex, setSelectedLanguageIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
   
   const { data: session, status } = useSession();
   const { currentLanguage, currentConfig, setLanguage, t } = useLanguage();
@@ -87,16 +86,6 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
     };
   }, [isLanguageMenuOpen, selectedLanguageIndex]);
 
-  // 호버 시 드롭다운 프리뷰 (PC 전용)
-  const handleLanguageHover = () => {
-    if (window.innerWidth >= 768) { // md 브레이크포인트
-      setIsHovered(true);
-    }
-  };
-
-  const handleLanguageLeave = () => {
-    setIsHovered(false);
-  };
 
   const handleLanguageChange = async (langCode: string) => {
     await setLanguage(langCode as any);
@@ -131,8 +120,6 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
           <div 
             className="relative" 
             ref={languageMenuRef}
-            onMouseEnter={handleLanguageHover}
-            onMouseLeave={handleLanguageLeave}
           >
             <button
               ref={languageButtonRef}
@@ -146,7 +133,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
               className={`
                 flex items-center gap-1 px-3 py-2 text-sm rounded-lg transition-all duration-200
                 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1
-                ${isLanguageMenuOpen || isHovered 
+                ${isLanguageMenuOpen 
                   ? 'bg-gray-100 text-gray-900 shadow-sm' 
                   : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                 }
@@ -165,14 +152,6 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
               }`} />
             </button>
 
-            {/* 호버 프리뷰 (PC 전용) */}
-            {isHovered && !isLanguageMenuOpen && (
-              <div className="absolute top-full right-0 mt-1 bg-gray-50 rounded-lg shadow-sm border border-gray-100 py-1 min-w-32 z-40 opacity-60">
-                <div className="px-3 py-1 text-xs text-gray-500 text-center">
-                  {t('common.clickToSelectLanguage') || '클릭하여 언어 선택'}
-                </div>
-              </div>
-            )}
 
             {/* 언어 드롭다운 메뉴 */}
             {isLanguageMenuOpen && (
