@@ -1,25 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOrCreateTTSAndUrl } from '@/lib/tts-gcs';
-import { supabase } from '@/lib/supabaseClient';
+import { generateTTSAudio } from '@/lib/tts-gcs';
 
 export async function POST(req: NextRequest) {
   try {
     const { text, guide_id, locationName, language } = await req.json();
+    
+    console.log('🎵 TTS 요청 수신:', { 
+      textLength: text?.length, 
+      guide_id, 
+      locationName, 
+      language 
+    });
+    
     if (!text || !guide_id || !locationName || !language) {
-      return NextResponse.json({ success: false, error: '필수 값 누락' }, { status: 400 });
+      return NextResponse.json({ 
+        success: false, 
+        error: '필수 값 누락', 
+        missing: { text: !text, guide_id: !guide_id, locationName: !locationName, language: !language }
+      }, { status: 400 });
     }
-    // 1. TTS 파일 생성 및 Storage 업로드
-    const ttsUrl = await getOrCreateTTSAndUrl(text, locationName, language);
 
-    // 2. audio_files DB 저장 (file_path는 Storage 내 경로만 추출)
-    const file_path = ttsUrl.split('.com/')[1];
-    const { error: dbError } = await supabase.from('audio_files').insert([
-      { guide_id, file_path, created_at: new Date().toISOString() }
-    ]);
-    if (dbError) return NextResponse.json({ success: false, error: dbError.message }, { status: 500 });
+    // TTS 오디오 생성 (getOrCreateChapterAudio가 이미 DB 저장도 처리함)
+    const audioBuffer = await generateTTSAudio(text, language, 1.2);
+    
+    // ArrayBuffer를 Base64로 인코딩하여 반환
+    const base64Audio = Buffer.from(audioBuffer).toString('base64');
+    
+    console.log('✅ TTS 생성 완료:', { 
+      guide_id, 
+      audioSize: audioBuffer.byteLength,
+      language 
+    });
 
-    return NextResponse.json({ success: true, url: ttsUrl, file_path });
-  } catch (e) {
-    return NextResponse.json({ success: false, error: e instanceof Error ? e.message : String(e) }, { status: 500 });
+    return NextResponse.json({ 
+      success: true, 
+      audioData: base64Audio,
+      mimeType: 'audio/mpeg',
+      language
+    });
+    
+  } catch (error) {
+    console.error('❌ TTS 생성 실패:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
+    
+    return NextResponse.json({ 
+      success: false, 
+      error: errorMessage,
+      code: 'TTS_GENERATION_FAILED'
+    }, { status: 500 });
   }
 } 

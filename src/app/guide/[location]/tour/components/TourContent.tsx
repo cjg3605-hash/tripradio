@@ -282,7 +282,16 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
         throw new Error(data.error || 'TTS 생성 실패');
       }
       
-      const audioUrl = data.url;
+      // Base64 오디오 데이터를 Blob URL로 변환
+      const audioBlob = new Blob([
+        new Uint8Array(
+          atob(data.audioData)
+            .split('')
+            .map(char => char.charCodeAt(0))
+        )
+      ], { type: data.mimeType || 'audio/mpeg' });
+      
+      const audioUrl = URL.createObjectURL(audioBlob);
 
       const audio = new Audio(audioUrl);
       setCurrentAudio(audio);
@@ -291,12 +300,16 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
       audio.onended = () => {
         setIsPlaying(false);
         setCurrentAudio(null);
+        // Blob URL 메모리 해제
+        URL.revokeObjectURL(audioUrl);
       };
 
-      audio.onerror = () => {
-        console.error('오디오 재생 실패');
+      audio.onerror = (error) => {
+        console.error('오디오 재생 실패:', error);
         setIsPlaying(false);
         setCurrentAudio(null);
+        // Blob URL 메모리 해제
+        URL.revokeObjectURL(audioUrl);
       };
 
       await audio.play();
