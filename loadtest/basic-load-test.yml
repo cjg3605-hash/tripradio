@@ -1,0 +1,85 @@
+# Artillery 로드테스트 설정
+# 생성일: 2025-07-24T20:13:06.143Z
+
+config:
+  target: 'http://localhost:3000'
+  phases:
+    - duration: 60
+      arrivalRate: 1
+      name: '워밍업'
+    - duration: 300
+      arrivalRate: 2
+      name: '부하 증가'
+    - duration: 600
+      arrivalRate: 5
+      name: '피크 부하'
+    - duration: 300
+      arrivalRate: 2
+      name: '부하 감소'
+  http:
+    timeout: 45000
+    pool: 10
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+  variables:
+
+
+scenarios:
+  - name: 'AI 가이드 생성'
+    weight: 70
+    flow:
+      - post:
+          url: '/api/ai/generate-guide-with-gemini'
+          headers:
+            'Content-Type': 'application/json'
+          json:
+            {
+                      "location": "경복궁",
+                      "userProfile": {
+                                "interests": [
+                                          "역사",
+                                          "문화"
+                                ],
+                                "ageGroup": "30대",
+                                "knowledgeLevel": "중급",
+                                "companions": "solo",
+                                "tourDuration": 90,
+                                "preferredStyle": "친근함",
+                                "language": "ko"
+                      }
+            }
+        expect:
+          - statusCode: [200, 201, 429]
+          - hasProperty: 'success'
+        think: 2000
+  - name: '장소 검색'
+    weight: 20
+    flow:
+      - get:
+          url: '/api/locations/search?q={{ $randomString() }}&lang=ko'
+        expect:
+          - statusCode: [200, 201, 429]
+          - hasProperty: 'success'
+        think: 2000
+  - name: 'TTS 생성'
+    weight: 10
+    flow:
+      - post:
+          url: '/api/ai/generate-tts'
+          headers:
+            'Content-Type': 'application/json'
+          json:
+            {
+                      "text": "안녕하세요. 경복궁에 오신 것을 환영합니다.",
+                      "guide_id": "test-guide-123",
+                      "locationName": "경복궁",
+                      "language": "ko",
+                      "voiceSettings": {
+                                "speakingRate": 1.2
+                      }
+            }
+        expect:
+          - statusCode: [200, 201, 429]
+          - hasProperty: 'success'
+        think: 2000

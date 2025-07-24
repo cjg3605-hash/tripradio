@@ -1,0 +1,165 @@
+{
+  "summary": {
+    "totalRequests": 19,
+    "successCount": 19,
+    "errorCount": 0,
+    "successRate": "100%",
+    "avgResponseTime": "3ms",
+    "maxConcurrency": 1,
+    "totalTestTime": "2초"
+  },
+  "details": [
+    {
+      "endpoint": "/api/health",
+      "statusCode": 308,
+      "duration": 28,
+      "timestamp": "2025-07-24T20:15:04.942Z",
+      "success": true,
+      "responseSize": 12
+    },
+    {
+      "endpoint": "/api/health",
+      "statusCode": 308,
+      "duration": 1,
+      "timestamp": "2025-07-24T20:15:04.945Z",
+      "success": true,
+      "responseSize": 12
+    },
+    {
+      "endpoint": "/api/health",
+      "statusCode": 308,
+      "duration": 3,
+      "timestamp": "2025-07-24T20:15:05.058Z",
+      "success": true,
+      "responseSize": 12
+    },
+    {
+      "endpoint": "/api/health",
+      "statusCode": 308,
+      "duration": 2,
+      "timestamp": "2025-07-24T20:15:05.168Z",
+      "success": true,
+      "responseSize": 12
+    },
+    {
+      "endpoint": "/api/health",
+      "statusCode": 308,
+      "duration": 2,
+      "timestamp": "2025-07-24T20:15:05.280Z",
+      "success": true,
+      "responseSize": 12
+    },
+    {
+      "endpoint": "/api/health",
+      "statusCode": 308,
+      "duration": 1,
+      "timestamp": "2025-07-24T20:15:05.390Z",
+      "success": true,
+      "responseSize": 12
+    },
+    {
+      "endpoint": "/api/locations/search?q=경복궁&lang=ko",
+      "statusCode": 308,
+      "duration": 2,
+      "timestamp": "2025-07-24T20:15:05.502Z",
+      "success": true,
+      "responseSize": 60
+    },
+    {
+      "endpoint": "/api/locations/search?q=경복궁&lang=ko",
+      "statusCode": 308,
+      "duration": 3,
+      "timestamp": "2025-07-24T20:15:05.614Z",
+      "success": true,
+      "responseSize": 60
+    },
+    {
+      "endpoint": "/api/locations/search?q=경복궁&lang=ko",
+      "statusCode": 308,
+      "duration": 3,
+      "timestamp": "2025-07-24T20:15:05.725Z",
+      "success": true,
+      "responseSize": 60
+    },
+    {
+      "endpoint": "/api/locations/search?q=경복궁&lang=ko",
+      "statusCode": 308,
+      "duration": 2,
+      "timestamp": "2025-07-24T20:15:05.837Z",
+      "success": true,
+      "responseSize": 60
+    },
+    {
+      "endpoint": "/api/locations/search?q=경복궁&lang=ko",
+      "statusCode": 308,
+      "duration": 2,
+      "timestamp": "2025-07-24T20:15:05.948Z",
+      "success": true,
+      "responseSize": 60
+    },
+    {
+      "endpoint": "/api/locations/search?q=경복궁&lang=ko",
+      "statusCode": 308,
+      "duration": 2,
+      "timestamp": "2025-07-24T20:15:06.060Z",
+      "success": true,
+      "responseSize": 60
+    },
+    {
+      "endpoint": "/api/locations/search?q=경복궁&lang=ko",
+      "statusCode": 308,
+      "duration": 2,
+      "timestamp": "2025-07-24T20:15:06.173Z",
+      "success": true,
+      "responseSize": 60
+    },
+    {
+      "endpoint": "/api/locations/search?q=경복궁&lang=ko",
+      "statusCode": 308,
+      "duration": 2,
+      "timestamp": "2025-07-24T20:15:06.284Z",
+      "success": true,
+      "responseSize": 60
+    },
+    {
+      "endpoint": "/api/locations/search?q=경복궁&lang=ko",
+      "statusCode": 308,
+      "duration": 2,
+      "timestamp": "2025-07-24T20:15:06.396Z",
+      "success": true,
+      "responseSize": 60
+    },
+    {
+      "endpoint": "/api/locations/search?q=경복궁&lang=ko",
+      "statusCode": 308,
+      "duration": 1,
+      "timestamp": "2025-07-24T20:15:06.506Z",
+      "success": true,
+      "responseSize": 60
+    },
+    {
+      "endpoint": "/api/ai/generate-guide-with-gemini",
+      "statusCode": 308,
+      "duration": 1,
+      "timestamp": "2025-07-24T20:15:06.618Z",
+      "success": true,
+      "responseSize": 35
+    },
+    {
+      "endpoint": "/api/ai/generate-guide-with-gemini",
+      "statusCode": 308,
+      "duration": 1,
+      "timestamp": "2025-07-24T20:15:06.728Z",
+      "success": true,
+      "responseSize": 35
+    },
+    {
+      "endpoint": "/api/ai/generate-guide-with-gemini",
+      "statusCode": 308,
+      "duration": 2,
+      "timestamp": "2025-07-24T20:15:06.840Z",
+      "success": true,
+      "responseSize": 35
+    }
+  ]
+}

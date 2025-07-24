@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generatePersonalizedGuide } from '@/lib/ai/gemini';
 import { UserProfile } from '@/types/guide';
 import { aiRateLimiter } from '@/lib/rate-limiter';
+import { compressResponse } from '@/middleware/compression';
+import { trackAIGeneration } from '@/lib/monitoring';
 
 export const runtime = 'nodejs';
 
@@ -66,19 +68,23 @@ export async function POST(request: NextRequest) {
       setTimeout(() => reject(new Error('AI 응답 시간 초과')), TIMEOUT_MS);
     });
 
-    const guideData = await Promise.race([
-      generatePersonalizedGuide(location.trim(), safeUserProfile),
-      timeoutPromise
-    ]);
+    const guideData = await trackAIGeneration(async () => {
+      return await Promise.race([
+        generatePersonalizedGuide(location.trim(), safeUserProfile),
+        timeoutPromise
+      ]);
+    });
 
     console.log('✅ 가이드 생성 성공');
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: guideData,
       location: location.trim(),
       language: safeUserProfile.language
     });
+
+    return await compressResponse(response, request);
 
   } catch (error) {
     console.error('❌ 가이드 생성 실패:', error);
