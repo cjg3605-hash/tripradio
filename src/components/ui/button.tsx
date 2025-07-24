@@ -28,14 +28,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       icon: 'h-10 w-10'
     };
 
-    // Tailwind 기본 색상 클래스들
+    // Tailwind 기본 색상 클래스들 (WCAG AA 색상 대비 개선)
     const tailwindVariantClasses = {
-      default: 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500',
-      outline: 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-indigo-500',
-      ghost: 'text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
-      destructive: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
-      secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-500',
-      link: 'text-indigo-600 hover:text-indigo-500 underline-offset-4 hover:underline focus:ring-indigo-500'
+      default: 'bg-indigo-700 text-white hover:bg-indigo-800 focus:ring-indigo-600 active:bg-indigo-900',
+      outline: 'border border-gray-400 bg-white text-gray-800 hover:bg-gray-100 focus:ring-indigo-600 active:bg-gray-200',
+      ghost: 'text-gray-800 hover:bg-gray-200 focus:ring-gray-600 active:bg-gray-300',
+      destructive: 'bg-red-700 text-white hover:bg-red-800 focus:ring-red-600 active:bg-red-900',
+      secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-600 active:bg-gray-400',
+      link: 'text-indigo-700 hover:text-indigo-800 underline-offset-4 hover:underline focus:ring-indigo-600 active:text-indigo-900'
     };
 
     const tailwindSizeClasses = {
@@ -46,12 +46,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       icon: 'p-2'
     };
     
-    // 일반적인 버튼 클래스 조합
+    // 접근성 개선된 버튼 클래스 조합
     const classes = cn(
       baseClasses,
       tailwindVariantClasses[variant],
       tailwindSizeClasses[size],
-      variant === 'link' ? '' : 'focus:outline-none focus:ring-2 focus:ring-offset-2',
+      // 모든 변형에 접근성 포커스 스타일 적용
+      'focus:outline-none focus:ring-2 focus:ring-offset-2',
+      // 비활성화 상태 접근성 개선
+      'disabled:cursor-not-allowed disabled:opacity-60',
+      // 키보드 활성화 표시 강화
+      'focus-visible:ring-2 focus-visible:ring-offset-2',
       className
     );
 
@@ -67,6 +72,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         className={classes}
         ref={ref}
+        // 접근성 속성 기본값 설정
+        type={props.type || 'button'}
+        role={props.role || 'button'}
+        aria-disabled={props.disabled}
         {...props}
       />
     );

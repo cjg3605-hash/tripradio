@@ -218,21 +218,32 @@ export default function PersonalityDiagnosisModal({ isOpen, onClose, onComplete 
   const currentResponse = responses[currentQuestion?.id];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      aria-describedby="modal-description"
+    >
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* 헤더 */}
         <div className="flex items-center justify-between p-6 border-b">
           <div className="flex items-center space-x-3">
             <Brain className="w-6 h-6 text-purple-600" />
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 
+              id="modal-title"
+              className="text-xl font-bold text-gray-900"
+            >
               개인화 가이드 맞춤 진단
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
+            aria-label="진단 창 닫기"
+            type="button"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -253,7 +264,7 @@ export default function PersonalityDiagnosisModal({ isOpen, onClose, onComplete 
         )}
 
         {/* 컨텐츠 */}
-        <div className="p-6">
+        <div className="p-6" id="modal-description">
           {isProcessing ? (
             // 처리 중 화면
             <div className="text-center py-12">
@@ -327,7 +338,9 @@ export default function PersonalityDiagnosisModal({ isOpen, onClose, onComplete 
 
               <button
                 onClick={handleComplete}
-                className="w-full bg-purple-600 text-white py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors"
+                type="button"
+                aria-label="개인화 설정을 적용하고 진단 완료하기"
+                className="w-full bg-purple-600 text-white py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
               >
                 개인화 설정 적용하기
               </button>
@@ -350,59 +363,70 @@ export default function PersonalityDiagnosisModal({ isOpen, onClose, onComplete 
                 </p>
               </div>
 
-              <div className="space-y-3">
+              <fieldset className="space-y-3">
+                <legend className="sr-only">{currentQuestion.text}</legend>
                 {currentQuestion.options.map((option, index) => (
                   <button
                     key={index}
                     onClick={() => handleResponse(currentQuestion.id, index)}
-                    className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
+                    role="radio"
+                    aria-checked={currentResponse === index}
+                    aria-describedby={`option-${index}-desc`}
+                    className={`w-full p-4 text-left rounded-lg border-2 transition-all focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                       currentResponse === index
                         ? 'border-purple-500 bg-purple-50 text-purple-900'
-                        : 'border-gray-200 hover:border-purple-300 hover:bg-purple-25'
+                        : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
                     }`}
                   >
                     <div className="flex items-center">
-                      <div className={`w-4 h-4 rounded-full border-2 mr-3 ${
-                        currentResponse === index
-                          ? 'border-purple-500 bg-purple-500'
-                          : 'border-gray-300'
-                      }`}>
+                      <div 
+                        className={`w-4 h-4 rounded-full border-2 mr-3 ${
+                          currentResponse === index
+                            ? 'border-purple-500 bg-purple-500'
+                            : 'border-gray-300'
+                        }`}
+                        aria-hidden="true"
+                      >
                         {currentResponse === index && (
                           <div className="w-full h-full rounded-full bg-white transform scale-50"></div>
                         )}
                       </div>
-                      <span className="font-medium">{option}</span>
+                      <span className="font-medium" id={`option-${index}-desc`}>{option}</span>
                     </div>
                   </button>
                 ))}
-              </div>
+              </fieldset>
 
               {/* 네비게이션 버튼들 */}
               <div className="flex justify-between pt-4">
                 <button
                   onClick={goToPrevious}
                   disabled={currentStep === 0}
-                  className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
+                  type="button"
+                  aria-label="이전 질문으로 가기"
+                  className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                     currentStep === 0
                       ? 'text-gray-400 cursor-not-allowed'
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  <ChevronLeft className="w-4 h-4 mr-1" aria-hidden="true" />
                   이전
                 </button>
 
                 <button
                   onClick={goToNext}
                   disabled={currentResponse === undefined}
-                  className={`flex items-center px-6 py-2 rounded-lg font-medium transition-colors ${
+                  type="button"
+                  aria-label={currentStep === OPTIMIZED_QUESTIONS.length - 1 ? '진단 결과 보기' : '다음 질문으로 가기'}
+                  className={`flex items-center px-6 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                     currentResponse !== undefined
                       ? 'bg-purple-600 text-white hover:bg-purple-700'
                       : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   }`}
                 >
                   {currentStep === OPTIMIZED_QUESTIONS.length - 1 ? '결과 보기' : '다음'}
-                  <ChevronRight className="w-4 h-4 ml-1" />
+                  <ChevronRight className="w-4 h-4 ml-1" aria-hidden="true" />
                 </button>
               </div>
             </div>

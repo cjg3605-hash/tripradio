@@ -10,17 +10,19 @@ import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
 import { UserProfile } from '@/types/guide';
 import GuideLoading from '@/components/ui/GuideLoading';
+import { useTranslation } from '@/lib/translations';
 
 export default function GuideClient({ locationName, initialGuide }: { locationName: string, initialGuide: any }) {
     const router = useRouter();
     const { currentLanguage } = useLanguage();
+    const { t } = useTranslation(currentLanguage);
     const sessionResult = useSession();
     const session = sessionResult?.data;
 
     // 🔥 핵심 수정: content 래핑 구조 올바른 처리
     const normalizeGuideData = (data: any, locationName: string): GuideData => {
         if (!data) {
-            throw new Error('가이드 데이터가 없습니다.');
+            throw new Error(t('guide.noGuideData'));
         }
 
         // 🔥 핵심 수정: content 래핑 구조 올바른 처리
@@ -29,16 +31,16 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         // data.content가 있으면 그것을 사용 (가장 일반적인 케이스)
         if (data.content && typeof data.content === 'object') {
             sourceData = data.content;
-            console.log('📦 content 필드에서 데이터 추출');
+            console.log('📦 Extracting data from content field');
         }
         // data가 직접 overview, route, realTimeGuide를 가지면 직접 사용
         else if (data.overview || data.route || data.realTimeGuide) {
             sourceData = data;
-            console.log('📦 직접 구조에서 데이터 추출');
+            console.log('📦 Extracting data from direct structure');
         }
         else {
-            console.error('❌ 올바른 가이드 구조를 찾을 수 없음:', Object.keys(data));
-            throw new Error('올바른 가이드 데이터 구조가 아닙니다.');
+            console.error('❌ Cannot find valid guide structure:', Object.keys(data));
+            throw new Error(t('guide.invalidGuideStructure'));
         }
 
         // 🎯 정규화된 GuideData 생성
@@ -81,7 +83,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                 const normalizedChapter = {
                     ...chapter,
                     id: chapter.id !== undefined ? chapter.id : index,
-                    title: chapter.title || `챕터 ${index + 1}`,
+                    title: chapter.title || t('guide.chapterTitle') + ` ${index + 1}`,
                     // narrative가 있으면 사용, 없으면 3개 필드 합치기
                     narrative: chapter.narrative || 
                         [chapter.sceneDescription, chapter.coreNarrative, chapter.humanStories]
@@ -103,7 +105,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
             // 🔥 핵심: initialGuide를 정규화 함수로 처리
             return normalizeGuideData(initialGuide, locationName);
         } catch (error) {
-            console.error('초기 데이터 정규화 실패:', error);
+            console.error('Initial data normalization failed:', error);
             return null;
         }
     });
@@ -116,13 +118,13 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     useEffect(() => {
         async function loadOrGenerateGuide() {
             if (guideData) {
-                console.log('✅ 초기 가이드 데이터 존재, 로딩 건너뛰기');
+                console.log('✅ Initial guide data exists, skipping loading');
                 setSource('cache');
                 return;
             }
 
             if (!locationName) {
-                setError('위치 이름이 없습니다.');
+                setError(t('guide.noLocationName'));
                 setIsLoading(false);
                 return;
             }
@@ -131,7 +133,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
             setError(null);
 
             try {
-                console.log('🔄 가이드 생성/로드 시작:', locationName);
+                console.log('🔄 Guide generation/loading started:', locationName);
 
                 const userProfile: UserProfile = {
                     interests: ['문화', '역사'],
@@ -153,14 +155,14 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.error || '가이드 생성에 실패했습니다.');
+                    throw new Error(errorData.error || t('guide.generationFailed'));
                 }
 
                 const data = await response.json();
-                console.log('📦 API 응답 데이터:', data);
+                console.log('📦 API response data:', data);
 
                 if (!data.success) {
-                    throw new Error(data.error || '가이드 생성에 실패했습니다.');
+                    throw new Error(data.error || t('guide.generationFailed'));
                 }
 
                 // 🔥 핵심: data.data가 실제 가이드 데이터
@@ -198,15 +200,15 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                     try {
                         await saveGuideHistoryToSupabase(session.user, locationName, normalizedGuideData, userProfile2);
                     } catch (supabaseError) {
-                        console.warn('Supabase 저장 실패:', supabaseError);
+                        console.warn('Supabase save failed:', supabaseError);
                     }
                 }
 
-                console.log('✅ 가이드 로드/생성 완료');
+                console.log('✅ Guide loading/generation completed');
 
             } catch (err) {
-                console.error('❌ 가이드 로드/생성 실패:', err);
-                setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+                console.error('❌ Guide loading/generation failed:', err);
+                setError(err instanceof Error ? err.message : t('errors.unknownError'));
             } finally {
                 setIsLoading(false);
             }
@@ -220,8 +222,8 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <GuideLoading 
                     type="generating"
-                    message={`"${locationName}" 가이드 준비 중`}
-                    subMessage="AI가 맞춤형 가이드를 생성하고 있어요..."
+                    message={t('guide.preparing', { location: locationName })}
+                    subMessage={t('guide.generating')}
                     showProgress={true}
                 />
             </div>
@@ -236,13 +238,13 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                         <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <span className="text-red-600 text-xl">⚠️</span>
                         </div>
-                        <h2 className="text-xl font-medium text-gray-900 mb-2">오류 발생</h2>
+                        <h2 className="text-xl font-medium text-gray-900 mb-2">{t('common.error')}</h2>
                         <p className="text-gray-600 text-sm mb-4">{error}</p>
                         <button
                             onClick={() => router.push('/')}
                             className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
                         >
-                            홈으로 돌아가기
+                            {t('buttons.goHome')}
                         </button>
                     </div>
                 </div>
@@ -255,13 +257,13 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="max-w-md w-full mx-auto p-8">
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
-                        <h2 className="text-xl font-medium text-gray-900 mb-2">가이드를 찾을 수 없습니다</h2>
-                        <p className="text-gray-600 text-sm mb-4">요청하신 가이드 데이터를 불러올 수 없습니다.</p>
+                        <h2 className="text-xl font-medium text-gray-900 mb-2">{t('guide.notFound')}</h2>
+                        <p className="text-gray-600 text-sm mb-4">{t('guide.cannotLoad')}</p>
                         <button
                             onClick={() => router.push('/')}
                             className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
                         >
-                            홈으로 돌아가기
+                            {t('buttons.goHome')}
                         </button>
                     </div>
                 </div>

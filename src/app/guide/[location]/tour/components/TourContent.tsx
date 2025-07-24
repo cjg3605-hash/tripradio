@@ -26,6 +26,7 @@ import {
 import { GuideData, GuideChapter } from '@/types/guide';
 import GuideLoading from '@/components/ui/GuideLoading';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/lib/translations';
 // import BigTechDesignOptimizer from '@/components/design/BigTechDesignOptimizer';
 
 interface TourContentProps {
@@ -35,7 +36,8 @@ interface TourContentProps {
 }
 
 const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
-  const { t } = useLanguage(); // 번역 함수 가져오기
+  const { currentLanguage } = useLanguage();
+  const { t } = useTranslation(currentLanguage);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   // \ub2e8\uc77c \uc624\ub514\uc624 \uc778\uc2a4\ud134\uc2a4 \uad00\ub9ac\ub97c \uc704\ud574 audioRef\ub85c \ud1b5\ud569
@@ -48,7 +50,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
   // 🎯 AI 생성 인트로 챗터 사용 또는 폴백 인트로 생성
   const createIntroChapter = () => {
-    const locationName = guide.metadata?.originalLocationName || guide.overview?.title || '이곳';
+    const locationName = guide.metadata?.originalLocationName || guide.overview?.title || t('guide.thisPlace');
     
     // AI가 이미 인트로 챕터(id: 0)를 생성했는지 확인
     const aiGeneratedIntro = guide.realTimeGuide?.chapters?.find(chapter => chapter.id === 0);
@@ -63,15 +65,14 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
     console.log('🔄 폴백 인트로 챕터 생성');
     return {
       id: 0,
-      title: `${locationName} 여행의 시작`,
-      narrative: `${locationName}에 오신 것을 환영합니다. 
-      
-이곳은 ${guide.overview?.location || '특별한 장소'}로, ${guide.overview?.keyFeatures || guide.overview?.summary || '독특한 매력을 가진 곳'}입니다.
-
-${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장소에서'}는 잊을 수 없는 경험을 하실 수 있을 것입니다.
-
-지금부터 시작되는 여정에서 ${locationName}의 모든 것을 탐험해보세요.`,
-      nextDirection: `이제 ${locationName}의 첫 번째 핵심 공간으로 함께 이동하여 본격적인 투어를 시작해보겠습니다.`
+      title: t('guide.tourStart', { location: locationName }),
+      narrative: t('guide.introNarrative', { 
+        location: locationName,
+        locationInfo: guide.overview?.location || t('guide.specialPlace'),
+        features: guide.overview?.keyFeatures || guide.overview?.summary || t('guide.uniqueCharm'),
+        background: guide.overview?.background || t('guide.richHistory')
+      }),
+      nextDirection: t('guide.startMainTour', { location: locationName })
     };
   };
 
@@ -267,7 +268,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
       });
 
       if (!ttsResult.success) {
-        throw new Error(ttsResult.error || 'TTS 생성 실패');
+        throw new Error(ttsResult.error || t('guide.ttsGenerationFailed'));
       }
 
       console.log('🎭 성격 기반 TTS 적용:', ttsResult.personalityInfo);
@@ -331,15 +332,15 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
       console.error('🚨 TTS 시스템 오류:', error);
       
       // 상세한 에러 분류 및 사용자 친화적 메시지
-      let userMessage = '음성 재생 중 오류가 발생했습니다.';
+      let userMessage = t('guide.audioPlaybackError');
       
       if (error instanceof Error) {
         if (error.message.includes('GEMINI_API_KEY')) {
-          userMessage = '음성 서비스 설정 오류입니다. 관리자에게 문의해주세요.';
-        } else if (error.message.includes('TTS 생성 실패')) {
-          userMessage = '음성 생성에 실패했습니다. 잠시 후 다시 시도해주세요.';
+          userMessage = t('guide.audioServiceError');
+        } else if (error.message.includes(t('guide.ttsGenerationFailed'))) {
+          userMessage = t('guide.audioGenerationRetry');
         } else if (error.message.includes('fetch')) {
-          userMessage = '네트워크 연결을 확인해주세요.';
+          userMessage = t('guide.checkNetworkConnection');
         }
       }
       
@@ -374,8 +375,8 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
       <div className="min-h-screen bg-background flex items-center justify-center">
         <GuideLoading 
           type="loading"
-          message="가이드를 불러오는 중"
-          subMessage="저장된 가이드 데이터를 가져오고 있어요..."
+          message={t('guide.loadingGuide')}
+          subMessage={t('guide.fetchingGuideData')}
           showProgress={true}
         />
       </div>
@@ -395,14 +396,14 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="font-medium">실시간 가이드</h1>
-              <p className="text-sm text-muted-foreground">AI 맞춤형 오디오 가이드</p>
+              <h1 className="font-medium">{t('guide.realTimeGuideTitle')}</h1>
+              <p className="text-sm text-muted-foreground">{t('guide.aiCustomAudioGuide')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <Volume2 className="w-4 h-4" />
-              <span>{totalChapters}개 챕터</span>
+              <span>{totalChapters}{t('guide.chapters')}</span>
             </div>
           </div>
         </div>
@@ -418,7 +419,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
             </div>
             <div>
               <h1 className="text-2xl font-medium mb-2">
-                {guide.metadata?.originalLocationName || guide.overview?.title || '가이드'}
+                {guide.metadata?.originalLocationName || guide.overview?.title || t('guide.guideTitle')}
               </h1>
             </div>
           </div>
@@ -437,7 +438,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
                         <Info className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold text-black tracking-tight">개요</h2>
+                        <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.overview')}</h2>
                         <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.essentialInfo')}</p>
                       </div>
                     </div>
@@ -552,7 +553,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
                         <Sparkles className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold text-black tracking-tight">필수 관람 포인트</h2>
+                        <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.mustSeePoints')}</h2>
                         <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.mustSeeHighlights')}</p>
                       </div>
                     </div>
@@ -623,7 +624,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
                         <AlertTriangle className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold text-black tracking-tight">주의사항</h2>
+                        <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.precautions')}</h2>
                         <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.safetyGuidelines')}</p>
                       </div>
                     </div>
@@ -673,9 +674,9 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
               <div className="w-8 h-8 border-2 border-foreground rounded-full flex items-center justify-center">
                 <Route className="w-5 h-5" />
               </div>
-              <h2 className="text-xl font-medium">관람 순서</h2>
+              <h2 className="text-xl font-medium">{t('guide.viewingOrder')}</h2>
               <div className="px-3 py-1 bg-muted rounded-full text-sm text-muted-foreground">
-                {totalChapters}개 챕터
+                {t('guide.chaptersCount', { count: totalChapters })}
               </div>
             </div>
 
@@ -711,7 +712,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
                             ? 'border-foreground bg-foreground text-background' 
                             : 'border-border text-muted-foreground'
                         }`}>
-                          {index === 0 ? '인트로' : String(index).padStart(2, '0')}
+                          {index === 0 ? t('guide.intro') : String(index).padStart(2, '0')}
                         </div>
                         
                         <div className="flex-1">
@@ -768,7 +769,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
                                 <Route className="w-3 h-3" />
                               </div>
                               <div>
-                                <h4 className="text-sm font-medium mb-1">다음 이동 안내</h4>
+                                <h4 className="text-sm font-medium mb-1">{t('guide.nextMoveGuide')}</h4>
                                 <p className="text-sm text-muted-foreground leading-relaxed">
                                   {chapter.nextDirection}
                                 </p>
@@ -782,12 +783,12 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
                           <div className="text-xs text-muted-foreground bg-muted p-4 rounded-lg">
                             <p>Debug - {index === 0 ? 'Intro Chapter' : `Chapter ${index}`}:</p>
                             <p>Title: {chapter.title}</p>
-                            <p>Narrative: {chapter.narrative ? '있음' : '없음'}</p>
-                            <p>Scene: {chapter.sceneDescription ? '있음' : '없음'}</p>
-                            <p>Core: {chapter.coreNarrative ? '있음' : '없음'}</p>
-                            <p>Stories: {chapter.humanStories ? '있음' : '없음'}</p>
-                            <p>Next Direction: {chapter.nextDirection ? '있음' : '없음'}</p>
-                            {index === 0 && <p className="text-slate-600 font-medium">🎯 자동 생성된 인트로 챕터</p>}
+                            <p>Narrative: {chapter.narrative ? t('common.exists') : t('common.notExists')}</p>
+                            <p>Scene: {chapter.sceneDescription ? t('common.exists') : t('common.notExists')}</p>
+                            <p>Core: {chapter.coreNarrative ? t('common.exists') : t('common.notExists')}</p>
+                            <p>Stories: {chapter.humanStories ? t('common.exists') : t('common.notExists')}</p>
+                            <p>Next Direction: {chapter.nextDirection ? t('common.exists') : t('common.notExists')}</p>
+                            {index === 0 && <p className="text-slate-600 font-medium">🎯 {t('guide.autoGeneratedIntro')}</p>}
                           </div>
                         )}
                       </div>
@@ -802,9 +803,9 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
           <div className="border-2 border-foreground rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-medium mb-1">전체 오디오 투어</h3>
+                <h3 className="font-medium mb-1">{t('guide.entireAudioTour')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  {totalChapters}개 챕터 (인트로 포함) • 약 {Math.round(totalChapters * 4)}분
+                  {t('guide.chaptersWithIntro', { count: totalChapters, minutes: Math.round(totalChapters * 4) })}
                 </p>
               </div>
               <button 
@@ -812,7 +813,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
                 className="px-6 py-3 bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-colors flex items-center gap-2"
               >
                 <Play className="w-5 h-5 fill-current" />
-                전체 재생
+                {t('guide.playAll')}
               </button>
             </div>
           </div>

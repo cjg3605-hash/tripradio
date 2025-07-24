@@ -85,10 +85,15 @@ export default function LanguageSelector({
         <button
           onClick={toggleDropdown}
           disabled={disabled}
+          type="button"
+          aria-expanded={isOpen}
+          aria-haspopup="listbox"
+          aria-label={`언어 선택: 현재 ${selectedLangInfo?.nativeName}. 클릭하여 언어 변경`}
           className={`
             flex items-center space-x-2 px-3 py-2 rounded-md border
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1
             ${disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50 cursor-pointer'}
-            ${isOpen ? 'ring-2 ring-blue-300' : 'ring-1 ring-gray-300'}
+            ${isOpen ? 'ring-2 ring-blue-400' : 'ring-1 ring-gray-300'}
             transition-all duration-200
           `}
         >
@@ -100,14 +105,23 @@ export default function LanguageSelector({
         </button>
         
         {isOpen && (
-          <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg ring-1 ring-gray-300 z-50">
+          <div 
+            className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg ring-1 ring-gray-300 z-50"
+            role="listbox"
+            aria-label="언어 선택 목록"
+          >
             <div className="py-1">
               {supportedLanguages.map(lang => (
                 <button
                   key={lang.code}
                   onClick={() => handleLanguageSelect(lang.code)}
+                  type="button"
+                  role="option"
+                  aria-selected={lang.code === selectedLanguage}
+                  aria-label={`${lang.nativeName} 언어로 변경`}
                   className={`
                     w-full flex items-center space-x-3 px-3 py-2 text-sm hover:bg-gray-50
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset
                     ${lang.code === selectedLanguage ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}
                   `}
                 >
@@ -158,10 +172,15 @@ export default function LanguageSelector({
         <button
           onClick={toggleDropdown}
           disabled={disabled}
+          type="button"
+          aria-expanded={isOpen}
+          aria-haspopup="listbox"
+          aria-label={`언어 선택: 현재 ${selectedLangInfo?.nativeName}. 클릭하여 언어 변경`}
           className={`
             w-full flex items-center justify-between px-4 py-3 rounded-lg border
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1
             ${disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50 cursor-pointer'}
-            ${isOpen ? 'ring-2 ring-blue-300 border-blue-300' : 'border-gray-300'}
+            ${isOpen ? 'ring-2 ring-blue-400 border-blue-400' : 'border-gray-300'}
             transition-all duration-200
           `}
         >
@@ -172,14 +191,23 @@ export default function LanguageSelector({
         </button>
         
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg ring-1 ring-gray-300 z-50 max-h-80 overflow-y-auto">
+          <div 
+            className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg ring-1 ring-gray-300 z-50 max-h-80 overflow-y-auto"
+            role="listbox"
+            aria-label="언어 선택 목록"
+          >
             <div className="py-2">
               {supportedLanguages.map(lang => (
                 <button
                   key={lang.code}
                   onClick={() => handleLanguageSelect(lang.code)}
+                  type="button"
+                  role="option"
+                  aria-selected={lang.code === selectedLanguage}
+                  aria-label={`${lang.nativeName} 언어로 변경`}
                   className={`
                     w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-50
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset
                     ${lang.code === selectedLanguage ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}
                     transition-colors duration-150
                   `}
@@ -196,7 +224,12 @@ export default function LanguageSelector({
                     )}
                   </div>
                   {lang.code === selectedLanguage && (
-                    <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <svg 
+                      className="w-5 h-5 text-blue-600" 
+                      fill="currentColor" 
+                      viewBox="0 0 20 20"
+                      aria-hidden="true"
+                    >
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   )}

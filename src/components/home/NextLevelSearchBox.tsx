@@ -159,10 +159,17 @@ export default function NextLevelSearchBox() {
               onBlur={handleBlur}
               placeholder={placeholders[placeholderIndex]}
               disabled={isSubmitting}
+              // 접근성 속성 추가
+              aria-label="여행지 검색"
+              aria-describedby="search-suggestions"
+              aria-expanded={suggestions.length > 0 && isFocused}
+              aria-autocomplete="list"
+              role="combobox"
+              aria-activedescendant={selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined}
               className={`
                 w-full px-8 py-6 text-xl font-light text-black bg-transparent rounded-3xl
-                focus:outline-none transition-all duration-300
-                placeholder-gray-400
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300
+                placeholder-gray-500
                 ${isSubmitting ? 'cursor-not-allowed opacity-50' : ''}
               `}
             />
@@ -171,13 +178,17 @@ export default function NextLevelSearchBox() {
             <button
               onClick={handleSearch}
               disabled={!query.trim() || isSubmitting}
+              // 접근성 속성 추가
+              aria-label={`${query.trim() ? `'${query}' 검색하기` : '검색어를 입력하세요'}`}
+              type="submit"
               className={`
                 absolute right-4 top-1/2 transform -translate-y-1/2
                 w-14 h-14 rounded-2xl transition-all duration-300
                 flex items-center justify-center group
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                 ${query.trim() && !isSubmitting
                   ? 'bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95' 
-                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                 }
               `}
             >
@@ -210,16 +221,25 @@ export default function NextLevelSearchBox() {
 
           {/* Enhanced Suggestions Dropdown */}
           {suggestions.length > 0 && isFocused && !isSubmitting && (
-            <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-10">
+            <div 
+              id="search-suggestions"
+              className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-10"
+              role="listbox"
+              aria-label="검색 제안"
+            >
               {suggestions.map((suggestion, index) => (
                 <button
                   key={`${suggestion.id || suggestion.name}-${index}`}
+                  id={`suggestion-${index}`}
                   onClick={() => handleSuggestionClick(suggestion)}
+                  role="option"
+                  aria-selected={selectedIndex === index}
+                  aria-label={`${suggestion.name}, ${suggestion.location}`}
                   className={`
                     w-full px-6 py-4 text-left transition-all duration-200
-                    group
+                    group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset
                     ${selectedIndex === index 
-                      ? 'bg-gray-50 border-l-4 border-l-black' 
+                      ? 'bg-blue-50 border-l-4 border-l-blue-500 text-blue-900' 
                       : 'hover:bg-gray-50'
                     }
                   `}
@@ -228,11 +248,13 @@ export default function NextLevelSearchBox() {
                     <div>
                       <div className={`
                         font-medium transition-colors
-                        ${selectedIndex === index ? 'text-black' : 'text-gray-900 group-hover:text-black'}
+                        ${selectedIndex === index ? 'text-blue-900' : 'text-gray-900 group-hover:text-black'}
                       `}>
                         {suggestion.name}
                       </div>
-                      <div className="text-sm text-gray-500 mt-1">
+                      <div className={`text-sm mt-1 ${
+                        selectedIndex === index ? 'text-blue-700' : 'text-gray-500'
+                      }`}>
                         {suggestion.location}
                       </div>
                     </div>
@@ -240,7 +262,15 @@ export default function NextLevelSearchBox() {
                       transition-all duration-200
                       ${selectedIndex === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 group-hover:opacity-60 group-hover:translate-x-0'}
                     `}>
-                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg 
+                        className={`w-4 h-4 ${
+                          selectedIndex === index ? 'text-blue-600' : 'text-gray-400'
+                        }`} 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </div>

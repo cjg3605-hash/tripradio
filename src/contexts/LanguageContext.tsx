@@ -92,11 +92,15 @@ interface Translations {
     searchButton: string;
     popularDestinations: string;
     description: string;
+    searchPlaceholders?: string[];
+    defaultSuggestions?: Array<{ name: string; location: string }>;
     features: {
-      personalizedGuides: string;
-      audioNarration: string;
-      offlineAccess: string;
+      personalized: string;
+      realTime: string;
       multiLanguage: string;
+      offline: string;
+      storyteller: string;
+      docent: string;
     };
   };
   guide: {
@@ -237,11 +241,25 @@ const DEFAULT_TRANSLATIONS: Translations = {
     searchButton: '검색',
     popularDestinations: '인기 여행지',
     description: 'AI 기술로 생성되는 개인화된 여행 가이드',
+    searchPlaceholders: [
+      '강릉 커피거리',
+      '경복궁',
+      '부산 해운대',
+      '제주도 성산일출봉',
+      '명동 카페거리'
+    ],
+    defaultSuggestions: [
+      { name: '경복궁', location: '서울 종로구' },
+      { name: '부산 해운대', location: '부산 해운대구' },
+      { name: '제주도 성산일출봉', location: '제주 서귀포시' }
+    ],
     features: {
-      personalizedGuides: '개인 맞춤 가이드',
-      audioNarration: '음성 해설',
-      offlineAccess: '오프라인 접근',
-      multiLanguage: '다국어 지원'
+      personalized: '맞춤형추천',
+      realTime: '실시간가이드',
+      multiLanguage: '다국어지원',
+      offline: '오프라인사용',
+      storyteller: '스토리텔러',
+      docent: '도슨트'
     }
   },
   guide: {
@@ -498,26 +516,7 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
 // Provider 컴포넌트
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('ko');
-  const [translations, setTranslations] = useState<Translations>(() => {
-    return {
-      ...DEFAULT_TRANSLATIONS,
-      search: {
-        ...DEFAULT_TRANSLATIONS.search
-      },
-      mypage: {
-        ...DEFAULT_TRANSLATIONS.mypage
-      },
-      auth: {
-        ...DEFAULT_TRANSLATIONS.auth
-      },
-      buttons: {
-        ...DEFAULT_TRANSLATIONS.buttons
-      },
-      languages: {
-        ...DEFAULT_TRANSLATIONS.languages
-      }
-    };
-  });
+  const [translations, setTranslations] = useState<Translations>(DEFAULT_TRANSLATIONS);
   const [isLoading, setIsLoading] = useState(false);
 
   // 현재 언어 설정 가져오기 (안전한 접근)
