@@ -22,11 +22,14 @@ export default function HomePage() {
   const [currentWord, setCurrentWord] = useState(0);
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const [suggestions, setSuggestions] = useState([
-    { name: '경복궁', location: '서울 종로구' },
-    { name: '부산 해운대', location: '부산 해운대구' },
-    { name: '제주도 성산일출봉', location: '제주 서귀포시' }
-  ]);
+  const [suggestions, setSuggestions] = useState(() => {
+    const translated = t('home.defaultSuggestions');
+    return Array.isArray(translated) ? translated : [
+      { name: '경복궁', location: '서울 종로구' },
+      { name: '부산 해운대', location: '부산 해운대구' },
+      { name: '제주도 성산일출봉', location: '제주 서귀포시' }
+    ];
+  });
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   
@@ -34,22 +37,25 @@ export default function HomePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
 
-  // 회전하는 단어들
+  // 회전하는 단어들 (번역 키 수정)
   const words = [
-    t('home.features.personalizedGuides') || '맞춤형추천',
-    t('home.features.audioNarration') || '음성해설',
+    t('home.features.personalized') || '맞춤형추천',
+    t('home.features.realTime') || '실시간가이드',
     t('home.features.multiLanguage') || '다국어지원',
-    t('home.features.offlineAccess') || '오프라인'
+    t('home.features.offline') || '오프라인'
   ];
 
-  // 회전하는 플레이스홀더
-  const placeholders = [
-    '강릉 커피거리',
-    '경복궁',
-    '부산 해운대',
-    '제주도 성산일출봉',
-    '명동 카페거리'
-  ];
+  // 회전하는 플레이스홀더 (다국어 지원)
+  const placeholders = (() => {
+    const translated = t('home.searchPlaceholders');
+    return Array.isArray(translated) ? translated : [
+      '강릉 커피거리',
+      '경복궁',
+      '부산 해운대',
+      '제주도 성산일출봉',
+      '명동 카페거리'
+    ];
+  })();
 
   useEffect(() => {
     setIsLoaded(true);
@@ -68,7 +74,7 @@ export default function HomePage() {
       clearInterval(wordInterval);
       clearInterval(placeholderInterval);
     };
-  }, [words.length, placeholders.length]);
+  }, [currentLanguage, words.length, placeholders.length]); // currentLanguage 의존성 추가
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -82,11 +88,14 @@ export default function HomePage() {
   // 자동완성 API 호출
   const fetchSuggestions = async (searchQuery: string) => {
     if (searchQuery.length < 2) {
-      setSuggestions([
-        { name: '경복궁', location: '서울 종로구' },
-        { name: '부산 해운대', location: '부산 해운대구' },
-        { name: '제주도 성산일출봉', location: '제주 서귀포시' }
-      ]);
+      const translated = t('home.defaultSuggestions');
+      setSuggestions(
+        Array.isArray(translated) ? translated : [
+          { name: '경복궁', location: '서울 종로구' },
+          { name: '부산 해운대', location: '부산 해운대구' },
+          { name: '제주도 성산일출봉', location: '제주 서귀포시' }
+        ]
+      );
       return;
     }
 
@@ -320,13 +329,13 @@ export default function HomePage() {
             {/* Subtitle */}
             <div className="text-center space-y-2 mb-1">
               <p className="text-base text-gray-500 font-light tracking-wide">
-                {currentLanguage === 'ko' ? '가이드없이 자유롭게,' : t('home.subtitle')}
+                {t('home.subtitle')}
               </p>
               <p className="text-lg text-gray-700 font-light tracking-wide">
-                {currentLanguage === 'ko' ? '여행은 깊이있게' : t('home.subtitle2')}
+                {t('home.subtitle2')}
               </p>
               <p className="text-base text-black font-light tracking-wide">
-                {currentLanguage === 'ko' ? 'AI가 찾아낸 가장 완벽한 가이드해설' : t('home.description')}
+                {t('home.description')}
               </p>
             </div>
           </div>

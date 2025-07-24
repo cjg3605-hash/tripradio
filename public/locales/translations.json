@@ -25,6 +25,18 @@
       "searchButton": "가이드 생성",
       "popularDestinations": "인기 여행지",
       "description": "AI가 찾아낸 가장 완벽한 가이드해설",
+      "searchPlaceholders": [
+        "강릉 커피거리",
+        "경복궁", 
+        "부산 해운대",
+        "제주도 성산일출봉",
+        "명동 카페거리"
+      ],
+      "defaultSuggestions": [
+        { "name": "경복궁", "location": "서울 종로구" },
+        { "name": "부산 해운대", "location": "부산 해운대구" },
+        { "name": "제주도 성산일출봉", "location": "제주 서귀포시" }
+      ],
       "features": {
         "realTime": "실시간가이드",
         "personalized": "맞춤형추천",
@@ -185,6 +197,18 @@
       "searchButton": "Generate Guide",
       "popularDestinations": "Popular Destinations",
       "description": "The most perfect guide commentary found by AI",
+      "searchPlaceholders": [
+        "Gangneung Coffee Street",
+        "Gyeongbokgung Palace",
+        "Busan Haeundae Beach",
+        "Jeju Seongsan Ilchulbong",
+        "Myeongdong Shopping Street"
+      ],
+      "defaultSuggestions": [
+        { "name": "Gyeongbokgung Palace", "location": "Seoul Jongno-gu" },
+        { "name": "Busan Haeundae Beach", "location": "Busan Haeundae-gu" },
+        { "name": "Jeju Seongsan Ilchulbong", "location": "Jeju Seogwipo-si" }
+      ],
       "features": {
         "realTime": "Real-time Guide",
         "personalized": "Personalized",
@@ -345,6 +369,18 @@
       "searchButton": "ガイド生成",
       "popularDestinations": "人気の目的地",
       "description": "AIが見つけた最も完璧なガイド解説",
+      "searchPlaceholders": [
+        "江陵コーヒー通り",
+        "景福宮",
+        "釜山海雲台",
+        "済州城山日出峰",
+        "明洞ショッピング街"
+      ],
+      "defaultSuggestions": [
+        { "name": "景福宮", "location": "ソウル鍾路区" },
+        { "name": "釜山海雲台", "location": "釜山海雲台区" },
+        { "name": "済州城山日出峰", "location": "済州西帰浦市" }
+      ],
       "features": {
         "realTime": "リアルタイムガイド",
         "personalized": "パーソナライズ",
@@ -505,6 +541,18 @@
       "searchButton": "生成导游",
       "popularDestinations": "热门目的地",
       "description": "AI发现的最完美导游解说",
+      "searchPlaceholders": [
+        "江陵咖啡街",
+        "景福宫",
+        "釜山海云台",
+        "济州城山日出峰",
+        "明洞购物街"
+      ],
+      "defaultSuggestions": [
+        { "name": "景福宫", "location": "首尔钟路区" },
+        { "name": "釜山海云台", "location": "釜山海云台区" },
+        { "name": "济州城山日出峰", "location": "济州西归浦市" }
+      ],
       "features": {
         "realTime": "实时导览",
         "personalized": "个性化",
@@ -665,6 +713,18 @@
       "searchButton": "Generar Guía",
       "popularDestinations": "Destinos Populares",
       "description": "El comentario de guía más perfecto encontrado por IA",
+      "searchPlaceholders": [
+        "Calle del Café de Gangneung",
+        "Palacio Gyeongbokgung",
+        "Playa Haeundae de Busan",
+        "Seongsan Ilchulbong de Jeju",
+        "Calle Comercial de Myeongdong"
+      ],
+      "defaultSuggestions": [
+        { "name": "Palacio Gyeongbokgung", "location": "Seúl Jongno-gu" },
+        { "name": "Playa Haeundae de Busan", "location": "Busan Haeundae-gu" },
+        { "name": "Seongsan Ilchulbong de Jeju", "location": "Jeju Seogwipo-si" }
+      ],
       "features": {
         "realTime": "Guía en Tiempo Real",
         "personalized": "Personalizado",
