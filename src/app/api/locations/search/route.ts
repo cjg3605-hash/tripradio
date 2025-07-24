@@ -39,7 +39,9 @@ class LRUCache<T> {
     } else if (this.cache.size >= this.maxSize) {
       // 가장 오래된 항목 제거
       const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey);
+      }
     }
     this.cache.set(key, value);
   }

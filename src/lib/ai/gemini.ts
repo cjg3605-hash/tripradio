@@ -185,14 +185,13 @@ ${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, safeProfile)}`;
       console.log('실패한 응답 (마지막 500자):', responseText.substring(Math.max(0, responseText.length - 500)));
       throw new Error(`AI 응답을 파싱할 수 없습니다: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
     }
-
-      return parsedGuide;
     });
   } catch (error) {
     console.error('❌ 서킷 브레이커 또는 AI 생성 실패:', error);
     
     // 서킷 브레이커가 열린 경우 폴백 응답
-    if (error.message.includes('서킷 브레이커')) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage.includes('서킷 브레이커')) {
       console.log('🔄 서킷 브레이커 열림 - 폴백 가이드 생성:', location);
       return generateFallbackGuide(location, safeProfile);
     }

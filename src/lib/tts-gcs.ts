@@ -34,8 +34,92 @@ const getChapterAudioFileName = (guideId: string, chapterIndex: number, language
   return `guides/${safeGuideId}/chapter_${chapterIndex}_${language}_${rateStr}x_${hash}.mp3`;
 };
 
-// 세션 메모리 캐시 (한 번만 선언!)
-const sessionAudioCache = new Map<string, string>();
+// 세션 메모리 캐시 (크기 제한 및 TTL 적용)
+class TTSCache {
+  private cache = new Map<string, { url: string; timestamp: number; accessCount: number }>();
+  private readonly maxSize = 100;  // 최대 100개 항목
+  private readonly ttl = 30 * 60 * 1000; // 30분 TTL
+
+  set(key: string, url: string): void {
+    // 캐시 크기 관리
+    if (this.cache.size >= this.maxSize) {
+      this.evictOldest();
+    }
+    
+    this.cache.set(key, {
+      url,
+      timestamp: Date.now(),
+      accessCount: 1
+    });
+  }
+
+  has(key: string): boolean {
+    const entry = this.cache.get(key);
+    if (!entry) return false;
+    
+    // TTL 체크
+    if (Date.now() - entry.timestamp > this.ttl) {
+      this.cache.delete(key);
+      return false;
+    }
+    
+    return true;
+  }
+
+  get(key: string): string | null {
+    const entry = this.cache.get(key);
+    if (!entry) return null;
+    
+    // TTL 체크
+    if (Date.now() - entry.timestamp > this.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+    
+    // 접근 카운트 업데이트
+    entry.accessCount++;
+    return entry.url;
+  }
+
+  private evictOldest(): void {
+    let oldestKey = '';
+    let oldestTime = Date.now();
+    let leastAccessed = Infinity;
+    
+    for (const [key, entry] of this.cache.entries()) {
+      // 가장 적게 접근된 항목을 우선 제거
+      if (entry.accessCount < leastAccessed || 
+          (entry.accessCount === leastAccessed && entry.timestamp < oldestTime)) {
+        oldestKey = key;
+        oldestTime = entry.timestamp;
+        leastAccessed = entry.accessCount;
+      }
+    }
+    
+    if (oldestKey) {
+      this.cache.delete(oldestKey);
+      console.log(`🗑️ 캐시 항목 제거: ${oldestKey}`);
+    }
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  getStats() {
+    return {
+      size: this.cache.size,
+      maxSize: this.maxSize,
+      items: Array.from(this.cache.entries()).map(([key, entry]) => ({
+        key,
+        age: Date.now() - entry.timestamp,
+        accessCount: entry.accessCount
+      }))
+    };
+  }
+}
+
+const sessionAudioCache = new TTSCache();
 
 // 캐시 키 생성
 const getChapterCacheKey = (guideId: string, chapterIndex: number, language: string, speakingRate = 1.2) => {
@@ -103,16 +187,21 @@ export const generateTTSAudio = async (
     speakingRate?: number;
     pitch?: number;
     volumeGainDb?: number;
-  }
+  },
+  abortSignal?: AbortSignal
 ): Promise<ArrayBuffer> => {
   if (!geminiApiKey) {
     throw new Error('GEMINI_API_KEY가 설정되지 않았습니다. 구글 클라우드 콘솔에서 API 키를 확인해주세요.');
   }
+  
   const cleanedText = cleanTtsText(text);
-  const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${geminiApiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
+  
+  // 복원력 있는 fetch 사용
+  const { resilientPost } = await import('./resilient-fetch');
+  
+  const response = await resilientPost(
+    `https://texttospeech.googleapis.com/v1/text:synthesize?key=${geminiApiKey}`,
+    {
       input: { text: cleanedText },
       voice: {
         languageCode: language,
@@ -125,13 +214,15 @@ export const generateTTSAudio = async (
         pitch: voiceSettings?.pitch || 0.0,
         volumeGainDb: voiceSettings?.volumeGainDb || 0.0
       },
-    }),
-  });
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    console.error('TTS API 오류:', response.status, errorData);
-    throw new Error(`TTS API 오류: ${response.status} - ${errorData.error?.message || '알 수 없는 오류'}`);
-  }
+    },
+    {
+      timeout: 30000,        // 30초 타임아웃
+      retries: 2,            // 2회 재시도
+      useCircuitBreaker: true,
+      abortSignal
+    }
+  );
+
   const data = await response.json();
   if (!data.audioContent) {
     throw new Error('TTS 오디오 콘텐츠 생성 실패');

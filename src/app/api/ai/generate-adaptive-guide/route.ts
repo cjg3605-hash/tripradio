@@ -76,13 +76,15 @@ export async function POST(request: NextRequest) {
         contentTimeoutPromise
       ]);
 
-      console.log(`   ✅ ${chapter.title}: ${generatedContent.length}자 (목표: ${optimalCharacters}자)`);
+      // 타입 안전성 확보
+      const contentText = typeof generatedContent === 'string' ? generatedContent : '';
+      console.log(`   ✅ ${chapter.title}: ${contentText.length}자 (목표: ${optimalCharacters}자)`);
 
       return {
         ...chapter,
         optimal_characters: optimalCharacters,
-        content: generatedContent,
-        actual_characters: generatedContent.length
+        content: contentText,
+        actual_characters: contentText.length
       };
     });
 

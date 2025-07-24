@@ -63,7 +63,11 @@ export async function POST(req: NextRequest) {
       ttsTimeoutPromise
     ]);
     
-    // ArrayBuffer를 Base64로 인코딩하여 반환
+    // 타입 안전성 확보 및 ArrayBuffer를 Base64로 인코딩
+    if (!(audioBuffer instanceof ArrayBuffer)) {
+      throw new Error('Invalid audio buffer received from TTS service');
+    }
+    
     const base64Audio = Buffer.from(audioBuffer).toString('base64');
     
     console.log('✅ TTS 생성 완료:', { 
