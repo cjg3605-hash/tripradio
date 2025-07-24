@@ -3,6 +3,7 @@
     "header": {
       "title": "NAVI",
       "language": "언어",
+      "selectLanguage": "언어 선택",
       "login": "로그인",
       "logout": "로그아웃",
       "history": "검색 기록",
@@ -95,7 +96,9 @@
       "back": "뒤로",
       "close": "닫기",
       "yes": "예",
-      "no": "아니오"
+      "no": "아니오",
+      "pressEnterToOpen": "Enter키를 눌러 언어 메뉴를 열 수 있습니다",
+      "clickToSelectLanguage": "클릭하여 언어 선택"
     },
     "date": {
       "today": "오늘",
@@ -175,6 +178,7 @@
     "header": {
       "title": "NAVI",
       "language": "Language",
+      "selectLanguage": "Select Language",
       "login": "Login",
       "logout": "Logout",
       "history": "Search History",
@@ -267,7 +271,9 @@
       "back": "Back",
       "close": "Close",
       "yes": "Yes",
-      "no": "No"
+      "no": "No",
+      "pressEnterToOpen": "Press Enter to open language menu",
+      "clickToSelectLanguage": "Click to select language"
     },
     "date": {
       "today": "Today",
@@ -347,6 +353,7 @@
     "header": {
       "title": "NAVI",
       "language": "言語",
+      "selectLanguage": "言語を選択",
       "login": "ログイン",
       "logout": "ログアウト",
       "history": "検索履歴",
@@ -439,7 +446,9 @@
       "back": "戻る",
       "close": "閉じる",
       "yes": "はい",
-      "no": "いいえ"
+      "no": "いいえ",
+      "pressEnterToOpen": "Enterキーで言語メニューを開く",
+      "clickToSelectLanguage": "クリックして言語を選択"
     },
     "date": {
       "today": "今日",
@@ -519,6 +528,7 @@
     "header": {
       "title": "NAVI",
       "language": "语言",
+      "selectLanguage": "选择语言",
       "login": "登录",
       "logout": "退出",
       "history": "搜索历史",
@@ -611,7 +621,9 @@
       "back": "返回",
       "close": "关闭",
       "yes": "是",
-      "no": "否"
+      "no": "否",
+      "pressEnterToOpen": "按Enter键打开语言菜单",
+      "clickToSelectLanguage": "点击选择语言"
     },
     "date": {
       "today": "今天",
@@ -691,6 +703,7 @@
     "header": {
       "title": "NAVI",
       "language": "Idioma",
+      "selectLanguage": "Seleccionar Idioma",
       "login": "Iniciar sesión",
       "logout": "Cerrar sesión",
       "history": "Historial de búsqueda",
@@ -783,7 +796,9 @@
       "back": "Atrás",
       "close": "Cerrar",
       "yes": "Sí",
-      "no": "No"
+      "no": "No",
+      "pressEnterToOpen": "Presiona Enter para abrir el menú de idiomas",
+      "clickToSelectLanguage": "Haz clic para seleccionar idioma"
     },
     "date": {
       "today": "Hoy",

@@ -13,15 +13,63 @@ interface HeaderProps {
 export default function Header({ onHistoryOpen }: HeaderProps) {
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [selectedLanguageIndex, setSelectedLanguageIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   
   const { data: session, status } = useSession();
   const { currentLanguage, currentConfig, setLanguage, t } = useLanguage();
   const router = useRouter();
   const languageMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const languageButtonRef = useRef<HTMLButtonElement>(null);
 
-  // 외부 클릭시 메뉴 닫기
+  // 현재 언어의 인덱스 찾기
   useEffect(() => {
+    const currentIndex = SUPPORTED_LANGUAGES.findIndex(lang => lang.code === currentLanguage);
+    setSelectedLanguageIndex(currentIndex >= 0 ? currentIndex : 0);
+  }, [currentLanguage]);
+
+  // 키보드 네비게이션 및 외부 클릭 처리
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!isLanguageMenuOpen) {
+        // 언어 버튼에 포커스가 있을 때 Enter/Space로 메뉴 열기
+        if ((event.key === 'Enter' || event.key === ' ') && 
+            document.activeElement === languageButtonRef.current) {
+          event.preventDefault();
+          setIsLanguageMenuOpen(true);
+          return;
+        }
+        return;
+      }
+
+      // 메뉴가 열려있을 때의 키보드 네비게이션
+      switch (event.key) {
+        case 'ArrowDown':
+          event.preventDefault();
+          setSelectedLanguageIndex(prev => 
+            prev < SUPPORTED_LANGUAGES.length - 1 ? prev + 1 : 0
+          );
+          break;
+        case 'ArrowUp':
+          event.preventDefault();
+          setSelectedLanguageIndex(prev => 
+            prev > 0 ? prev - 1 : SUPPORTED_LANGUAGES.length - 1
+          );
+          break;
+        case 'Enter':
+        case ' ':
+          event.preventDefault();
+          handleLanguageChange(SUPPORTED_LANGUAGES[selectedLanguageIndex].code);
+          break;
+        case 'Escape':
+          event.preventDefault();
+          setIsLanguageMenuOpen(false);
+          languageButtonRef.current?.focus();
+          break;
+      }
+    };
+
     const handleClickOutside = (event: MouseEvent) => {
       if (languageMenuRef.current && !languageMenuRef.current.contains(event.target as Node)) {
         setIsLanguageMenuOpen(false);
@@ -31,9 +79,24 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
       }
     };
 
+    document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isLanguageMenuOpen, selectedLanguageIndex]);
+
+  // 호버 시 드롭다운 프리뷰 (PC 전용)
+  const handleLanguageHover = () => {
+    if (window.innerWidth >= 768) { // md 브레이크포인트
+      setIsHovered(true);
+    }
+  };
+
+  const handleLanguageLeave = () => {
+    setIsHovered(false);
+  };
 
   const handleLanguageChange = async (langCode: string) => {
     await setLanguage(langCode as any);
@@ -65,27 +128,88 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
         {/* 데스크톱 네비게이션 */}
         <div className="hidden md:flex items-center gap-1">
           {/* 언어 선택 */}
-          <div className="relative" ref={languageMenuRef}>
+          <div 
+            className="relative" 
+            ref={languageMenuRef}
+            onMouseEnter={handleLanguageHover}
+            onMouseLeave={handleLanguageLeave}
+          >
             <button
+              ref={languageButtonRef}
               onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-              className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setIsLanguageMenuOpen(!isLanguageMenuOpen);
+                }
+              }}
+              className={`
+                flex items-center gap-1 px-3 py-2 text-sm rounded-lg transition-all duration-200
+                focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1
+                ${isLanguageMenuOpen || isHovered 
+                  ? 'bg-gray-100 text-gray-900 shadow-sm' 
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                }
+              `}
+              aria-label={`${t('header.language') || '언어'}: ${currentConfig?.name || '한국어'}. ${t('common.pressEnterToOpen') || 'Enter키를 눌러 언어 메뉴를 열 수 있습니다.'}`}
+              aria-expanded={isLanguageMenuOpen}
+              aria-haspopup="listbox"
             >
               <Globe className="w-4 h-4" />
-              <span>{currentConfig?.flag || '🇰🇷'}</span>
+              <span role="img" aria-label={`${currentConfig?.name || '한국어'} 국기`}>
+                {currentConfig?.flag || '🇰🇷'}
+              </span>
               <span>{currentConfig?.name || '한국어'}</span>
-              <ChevronDown className="w-3 h-3" />
+              <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${
+                isLanguageMenuOpen ? 'rotate-180' : ''
+              }`} />
             </button>
 
+            {/* 호버 프리뷰 (PC 전용) */}
+            {isHovered && !isLanguageMenuOpen && (
+              <div className="absolute top-full right-0 mt-1 bg-gray-50 rounded-lg shadow-sm border border-gray-100 py-1 min-w-32 z-40 opacity-60">
+                <div className="px-3 py-1 text-xs text-gray-500 text-center">
+                  {t('common.clickToSelectLanguage') || '클릭하여 언어 선택'}
+                </div>
+              </div>
+            )}
+
+            {/* 언어 드롭다운 메뉴 */}
             {isLanguageMenuOpen && (
-              <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-32 z-50">
-                {SUPPORTED_LANGUAGES.map((lang) => (
+              <div 
+                className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-32 z-50"
+                role="listbox"
+                aria-label={t('header.selectLanguage') || '언어 선택'}
+              >
+                {SUPPORTED_LANGUAGES.map((lang, index) => (
                   <button
                     key={lang.code}
                     onClick={() => handleLanguageChange(lang.code)}
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                    className={`
+                      w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors duration-150
+                      focus:outline-none focus:ring-2 focus:ring-black focus:ring-inset
+                      ${index === selectedLanguageIndex 
+                        ? 'bg-gray-100 text-gray-900' 
+                        : 'hover:bg-gray-50 hover:text-gray-900 text-gray-700'
+                      }
+                      ${lang.code === currentLanguage 
+                        ? 'font-medium bg-gray-50' 
+                        : ''
+                      }
+                    `}
+                    role="option"
+                    aria-selected={lang.code === currentLanguage}
+                    aria-label={`${lang.name} 언어로 변경`}
                   >
-                    <span>{lang.flag}</span>
+                    <span role="img" aria-label={`${lang.name} 국기`}>
+                      {lang.flag}
+                    </span>
                     <span>{lang.name}</span>
+                    {lang.code === currentLanguage && (
+                      <span className="ml-auto text-xs text-gray-500" aria-label="현재 선택된 언어">
+                        ✓
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -162,22 +286,68 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
           <div className="relative" ref={languageMenuRef}>
             <button
               onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-xs text-gray-700"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setIsLanguageMenuOpen(!isLanguageMenuOpen);
+                }
+              }}
+              className={`
+                flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all duration-200
+                focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1
+                ${isLanguageMenuOpen 
+                  ? 'bg-gray-100 text-gray-900' 
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                }
+              `}
+              aria-label={`${t('header.language') || '언어'}: ${currentConfig?.name || '한국어'}`}
+              aria-expanded={isLanguageMenuOpen}
+              aria-haspopup="listbox"
             >
               <Globe className="w-3 h-3" />
-              <span>{currentConfig?.flag || '🇰🇷'}</span>
+              <span role="img" aria-label={`${currentConfig?.name || '한국어'} 국기`}>
+                {currentConfig?.flag || '🇰🇷'}
+              </span>
+              <ChevronDown className={`w-2 h-2 transition-transform duration-200 ${
+                isLanguageMenuOpen ? 'rotate-180' : ''
+              }`} />
             </button>
 
             {isLanguageMenuOpen && (
-              <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-24 z-50">
-                {SUPPORTED_LANGUAGES.map((lang) => (
+              <div 
+                className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-24 z-50"
+                role="listbox"
+                aria-label={t('header.selectLanguage') || '언어 선택'}
+              >
+                {SUPPORTED_LANGUAGES.map((lang, index) => (
                   <button
                     key={lang.code}
                     onClick={() => handleLanguageChange(lang.code)}
-                    className="w-full text-left px-2 py-1 hover:bg-gray-100 flex items-center gap-1 text-xs"
+                    className={`
+                      w-full text-left px-2 py-1 flex items-center gap-1 text-xs transition-colors duration-150
+                      focus:outline-none focus:ring-2 focus:ring-black focus:ring-inset
+                      ${index === selectedLanguageIndex 
+                        ? 'bg-gray-100 text-gray-900' 
+                        : 'hover:bg-gray-50 hover:text-gray-900 text-gray-700'
+                      }
+                      ${lang.code === currentLanguage 
+                        ? 'font-medium bg-gray-50' 
+                        : ''
+                      }
+                    `}
+                    role="option"
+                    aria-selected={lang.code === currentLanguage}
+                    aria-label={`${lang.name} 언어로 변경`}
                   >
-                    <span>{lang.flag}</span>
+                    <span role="img" aria-label={`${lang.name} 국기`}>
+                      {lang.flag}
+                    </span>
                     <span>{lang.name}</span>
+                    {lang.code === currentLanguage && (
+                      <span className="ml-auto text-xs text-gray-500" aria-label="현재 선택된 언어">
+                        ✓
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
