@@ -111,6 +111,12 @@ interface Translations {
     pauseAudio: string;
     mapView: string;
     listView: string;
+    essentialInfo: string;
+    locationAccess: string;
+    keyFeatures: string;
+    historicalContext: string;
+    mustSeeHighlights: string;
+    safetyGuidelines: string;
   };
   search: {
     placeholder: string;
@@ -249,7 +255,13 @@ const DEFAULT_TRANSLATIONS: Translations = {
     playAudio: '오디오 재생',
     pauseAudio: '오디오 일시정지',
     mapView: '지도 보기',
-    listView: '목록 보기'
+    listView: '목록 보기',
+    essentialInfo: '필수 정보',
+    locationAccess: '위치 및 접근',
+    keyFeatures: '주요 특징',
+    historicalContext: '역사적 배경',
+    mustSeeHighlights: '필수 관람 포인트',
+    safetyGuidelines: '안전 수칙'
   },
   search: {
     placeholder: '검색어를 입력하세요',

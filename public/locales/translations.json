@@ -51,7 +51,13 @@
       "season": "추천 계절",
       "nextMove": "다음으로 이동",
       "downloadAudio": "오디오 다운로드",
-      "share": "공유하기"
+      "share": "공유하기",
+      "essentialInfo": "필수 정보",
+      "locationAccess": "위치 및 접근",
+      "keyFeatures": "주요 특징",
+      "historicalContext": "역사적 배경",
+      "mustSeeHighlights": "필수 관람 포인트",
+      "safetyGuidelines": "안전 수칙"
     },
     "search": {
       "recentSearches": "최근 검색",
@@ -205,7 +211,13 @@
       "season": "Best Season",
       "nextMove": "Next Destination",
       "downloadAudio": "Download Audio",
-      "share": "Share"
+      "share": "Share",
+      "essentialInfo": "Essential Information",
+      "locationAccess": "Location & Access",
+      "keyFeatures": "Key Features",
+      "historicalContext": "Historical Context",
+      "mustSeeHighlights": "Must-See Highlights",
+      "safetyGuidelines": "Safety Guidelines"
     },
     "search": {
       "recentSearches": "Recent Searches",
@@ -359,7 +371,13 @@
       "season": "おすすめ季節",
       "nextMove": "次の目的地",
       "downloadAudio": "音声ダウンロード",
-      "share": "共有"
+      "share": "共有",
+      "essentialInfo": "基本情報",
+      "locationAccess": "場所とアクセス",
+      "keyFeatures": "主な特徴",
+      "historicalContext": "歴史的背景",
+      "mustSeeHighlights": "必見ポイント",
+      "safetyGuidelines": "安全ガイドライン"
     },
     "search": {
       "recentSearches": "最近の検索",
@@ -513,7 +531,13 @@
       "season": "推荐季节",
       "nextMove": "下一个目的地",
       "downloadAudio": "下载音频",
-      "share": "分享"
+      "share": "分享",
+      "essentialInfo": "基本信息",
+      "locationAccess": "位置与交通",
+      "keyFeatures": "主要特色",
+      "historicalContext": "历史背景",
+      "mustSeeHighlights": "必看亮点",
+      "safetyGuidelines": "安全指南"
     },
     "search": {
       "recentSearches": "最近搜索",
@@ -667,7 +691,13 @@
       "season": "Mejor Temporada",
       "nextMove": "Próximo Destino",
       "downloadAudio": "Descargar Audio",
-      "share": "Compartir"
+      "share": "Compartir",
+      "essentialInfo": "Información Esencial",
+      "locationAccess": "Ubicación y Acceso",
+      "keyFeatures": "Características Principales",
+      "historicalContext": "Contexto Histórico",
+      "mustSeeHighlights": "Puntos Destacados Imprescindibles",
+      "safetyGuidelines": "Pautas de Seguridad"
     },
     "search": {
       "recentSearches": "Búsquedas Recientes",

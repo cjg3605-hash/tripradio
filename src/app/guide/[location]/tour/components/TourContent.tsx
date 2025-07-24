@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { GuideData, GuideChapter } from '@/types/guide';
 import GuideLoading from '@/components/ui/GuideLoading';
+import { useLanguage } from '@/contexts/LanguageContext';
 // import BigTechDesignOptimizer from '@/components/design/BigTechDesignOptimizer';
 
 interface TourContentProps {
@@ -34,6 +35,7 @@ interface TourContentProps {
 }
 
 const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
+  const { t } = useLanguage(); // 번역 함수 가져오기
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
@@ -407,7 +409,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
                       </div>
                       <div>
                         <h2 className="text-2xl font-bold text-black tracking-tight">개요</h2>
-                        <p className="text-sm text-black/60 font-medium mt-0.5">Essential Information</p>
+                        <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.essentialInfo')}</p>
                       </div>
                     </div>
                     {/* Status Indicator - Minimal Dots */}
@@ -429,7 +431,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
                         <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
                           <MapPin className="w-4 h-4 text-white" />
                         </div>
-                        <span className="text-xs font-bold text-black/60 uppercase tracking-wider">Location & Access</span>
+                        <span className="text-xs font-bold text-black/60 uppercase tracking-wider">{t('guide.locationAccess')}</span>
                       </div>
                       
                       <div className="space-y-2">
@@ -471,7 +473,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
                           <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
                             <Eye className="w-4 h-4 text-white" />
                           </div>
-                          <span className="text-xs font-bold text-black/60 uppercase tracking-wider">Key Features</span>
+                          <span className="text-xs font-bold text-black/60 uppercase tracking-wider">{t('guide.keyFeatures')}</span>
                         </div>
                         <p className="text-sm font-medium text-black leading-relaxed">{guide.overview.keyFeatures}</p>
                       </div>
@@ -484,7 +486,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
                           <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
                             <BookOpen className="w-4 h-4 text-white" />
                           </div>
-                          <span className="text-xs font-bold text-black/60 uppercase tracking-wider">Historical Context</span>
+                          <span className="text-xs font-bold text-black/60 uppercase tracking-wider">{t('guide.historicalContext')}</span>
                         </div>
                         <p className="text-sm font-medium text-black/80 leading-relaxed">{guide.overview.background}</p>
                       </div>
@@ -522,7 +524,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
                       </div>
                       <div>
                         <h2 className="text-2xl font-bold text-black tracking-tight">필수 관람 포인트</h2>
-                        <p className="text-sm text-black/60 font-medium mt-0.5">Must-See Highlights</p>
+                        <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.mustSeeHighlights')}</p>
                       </div>
                     </div>
                     {/* Counter */}
@@ -593,7 +595,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
                       </div>
                       <div>
                         <h2 className="text-2xl font-bold text-black tracking-tight">주의사항</h2>
-                        <p className="text-sm text-black/60 font-medium mt-0.5">Safety Guidelines</p>
+                        <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.safetyGuidelines')}</p>
                       </div>
                     </div>
                     {/* Priority Indicator */}
