@@ -95,7 +95,16 @@ const mergeAudioBuffers = (buffers: ArrayBuffer[]): ArrayBuffer => {
   return mergedBuffer;
 };
 
-export const generateTTSAudio = async (text: string, language = 'ko-KR', speakingRate = 1.2): Promise<ArrayBuffer> => {
+export const generateTTSAudio = async (
+  text: string, 
+  language = 'ko-KR', 
+  speakingRate = 1.2,
+  voiceSettings?: {
+    speakingRate?: number;
+    pitch?: number;
+    volumeGainDb?: number;
+  }
+): Promise<ArrayBuffer> => {
   if (!geminiApiKey) {
     throw new Error('GEMINI_API_KEY가 설정되지 않았습니다. 구글 클라우드 콘솔에서 API 키를 확인해주세요.');
   }
@@ -112,9 +121,9 @@ export const generateTTSAudio = async (text: string, language = 'ko-KR', speakin
       },
       audioConfig: { 
         audioEncoding: 'MP3',
-        speakingRate: speakingRate,
-        pitch: 0.0,
-        volumeGainDb: 0.0
+        speakingRate: voiceSettings?.speakingRate || speakingRate,
+        pitch: voiceSettings?.pitch || 0.0,
+        volumeGainDb: voiceSettings?.volumeGainDb || 0.0
       },
     }),
   });

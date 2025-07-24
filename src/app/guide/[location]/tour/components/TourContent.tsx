@@ -38,7 +38,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   const { t } = useLanguage(); // 번역 함수 가져오기
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  // \ub2e8\uc77c \uc624\ub514\uc624 \uc778\uc2a4\ud134\uc2a4 \uad00\ub9ac\ub97c \uc704\ud574 audioRef\ub85c \ud1b5\ud569
   const [expandedChapters, setExpandedChapters] = useState<number[]>([0]);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [componentKey, setComponentKey] = useState(0); // 컴포넌트 완전 리렌더링용
@@ -141,11 +141,7 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
     setExpandedChapters([0]);
     setIsPlaying(false);
     
-    // 기존 오디오 정리
-    if (currentAudio) {
-      currentAudio.pause();
-      setCurrentAudio(null);
-    }
+    // 기존 오디오 정리 (단일 인스턴스 관리)
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
@@ -162,27 +158,22 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // 컴포넌트 언마운트 시 오디오 정리
+  // 컴포넌트 언마운트 시 오디오 정리 (단일 인스턴스 관리)
   useEffect(() => {
     return () => {
       try {
-        if (currentAudio) {
-          currentAudio.pause();
-          currentAudio.currentTime = 0;
-          currentAudio.onended = null;
-          currentAudio.onerror = null;
-        }
         if (audioRef.current) {
           audioRef.current.pause();
           audioRef.current.currentTime = 0;
           audioRef.current.onended = null;
           audioRef.current.onerror = null;
+          audioRef.current = null;
         }
       } catch (error) {
         console.warn('컴포넌트 언마운트 시 오디오 정리 오류:', error);
       }
     };
-  }, [currentAudio]);
+  }, []);  // currentAudio 종속성 제거로 단일 인스턴스 초점
 
   // 맨 위로 스크롤
   const scrollToTop = () => {
@@ -204,27 +195,24 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
     ));
   };
 
-  // 오디오 정리
-  const stopAndCleanupAudio = () => {
-    try {
-      if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-        currentAudio.onended = null;
-        currentAudio.onerror = null;
-        setCurrentAudio(null);
+  // 오디오 정리 (단일 인스턴스 관리 + Race Condition 방지)
+  const stopAndCleanupAudio = async () => {
+    return new Promise<void>((resolve) => {
+      try {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+          audioRef.current.onended = null;
+          audioRef.current.onerror = null;
+          audioRef.current = null;
+        }
+      } catch (error) {
+        console.warn('오디오 정리 중 오류:', error);
       }
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-        audioRef.current.onended = null;
-        audioRef.current.onerror = null;
-        audioRef.current = null;
-      }
-    } catch (error) {
-      console.warn('오디오 정리 중 오류:', error);
-    }
-    setIsPlaying(false);
+      setIsPlaying(false);
+      // 짧은 지연을 통해 오디오 정리 완료 보장
+      setTimeout(resolve, 50);
+    });
   };
 
   // 챕터 토글 함수
@@ -241,14 +229,14 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
     const chap = allChapters[chapterIndex];
     if (!chap) return;
 
-    // 다른 챕터 재생 중이면 정지
+    // 다른 챕터 재생 중이면 정지 (비동기 대기)
     if (currentChapterIndex !== chapterIndex) {
-      stopAndCleanupAudio();
+      await stopAndCleanupAudio();
       setCurrentChapterIndex(chapterIndex);
     }
 
     if (isPlaying && currentChapterIndex === chapterIndex) {
-      stopAndCleanupAudio();
+      await stopAndCleanupAudio();
       return;
     }
 
@@ -267,41 +255,40 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
       // 가이드 ID 생성
       const guideId = `${guide.metadata?.originalLocationName || 'guide'}_${language}`.replace(/[^a-zA-Z0-9_]/g, '_');
       
-      // API 라우트를 통한 TTS 오디오 생성
-      const response = await fetch('/api/ai/generate-tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: textToSpeak,
-          guide_id: guideId,
-          locationName: guide.metadata?.originalLocationName || 'guide',
-          language: language === 'ko' ? 'ko-KR' : 'en-US'
-        })
+      // 고급 성격 기반 TTS 사용 (사용자 성격 자동 감지)
+      const { advancedTTSService } = await import('@/lib/advanced-tts-service');
+      
+      const ttsResult = await advancedTTSService.generatePersonalityTTS({
+        text: textToSpeak,
+        language: language === 'ko' ? 'ko-KR' : 'en-US',
+        guide_id: guideId,
+        locationName: guide.metadata?.originalLocationName || 'guide',
+        adaptToMood: true
       });
 
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.error || 'TTS 생성 실패');
+      if (!ttsResult.success) {
+        throw new Error(ttsResult.error || 'TTS 생성 실패');
       }
+
+      console.log('🎭 성격 기반 TTS 적용:', ttsResult.personalityInfo);
       
       // Base64 오디오 데이터를 Blob URL로 변환
       const audioBlob = new Blob([
         new Uint8Array(
-          atob(data.audioData)
+          atob(ttsResult.audioData!)
             .split('')
             .map(char => char.charCodeAt(0))
         )
-      ], { type: data.mimeType || 'audio/mpeg' });
+      ], { type: ttsResult.mimeType || 'audio/mpeg' });
       
       const audioUrl = URL.createObjectURL(audioBlob);
 
       const audio = new Audio(audioUrl);
-      setCurrentAudio(audio);
       audioRef.current = audio;
 
       audio.onended = () => {
         setIsPlaying(false);
-        setCurrentAudio(null);
+        audioRef.current = null;
         // Blob URL 메모리 해제
         URL.revokeObjectURL(audioUrl);
       };
@@ -309,23 +296,65 @@ ${guide.overview?.background || '풍부한 역사와 문화를 간직한 이 장
       audio.onerror = (error) => {
         console.error('오디오 재생 실패:', error);
         setIsPlaying(false);
-        setCurrentAudio(null);
+        audioRef.current = null;
         // Blob URL 메모리 해제
         URL.revokeObjectURL(audioUrl);
       };
 
-      await audio.play();
+      // 안전한 재생을 위한 Promise 체인 (에러 처리 강화)
+      await new Promise<void>((resolve, reject) => {
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              console.log('🎵 성격 기반 TTS 재생 시작');
+              resolve();
+            })
+            .catch((error) => {
+              console.log('🔄 오디오 재생 에러 처리:', error.name, error.message);
+              if (error.name === 'AbortError') {
+                console.log('✅ 오디오 재생이 정상적으로 중단됨 (사용자 액션)');
+                resolve(); // AbortError는 정상적인 중단으로 처리
+              } else if (error.name === 'NotAllowedError') {
+                console.warn('⚠️ 자동 재생이 차단됨 - 사용자 상호작용 필요');
+                resolve(); // 자동재생 정책으로 인한 차단도 정상 처리
+              } else {
+                console.error('❌ 치명적 오디오 재생 오류:', error);
+                reject(error);
+              }
+            });
+        } else {
+          resolve();
+        }
+      });
     } catch (error) {
-      console.error('오디오 생성/재생 실패:', error);
+      console.error('🚨 TTS 시스템 오류:', error);
+      
+      // 상세한 에러 분류 및 사용자 친화적 메시지
+      let userMessage = '음성 재생 중 오류가 발생했습니다.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('GEMINI_API_KEY')) {
+          userMessage = '음성 서비스 설정 오류입니다. 관리자에게 문의해주세요.';
+        } else if (error.message.includes('TTS 생성 실패')) {
+          userMessage = '음성 생성에 실패했습니다. 잠시 후 다시 시도해주세요.';
+        } else if (error.message.includes('fetch')) {
+          userMessage = '네트워크 연결을 확인해주세요.';
+        }
+      }
+      
+      // TODO: 사용자에게 친화적인 에러 메시지 표시 (향후 토스트 알림으로 대체)
+      console.log('📢 사용자 메시지:', userMessage);
+      
       setIsPlaying(false);
-      setCurrentAudio(null);
+      audioRef.current = null;
     }
   };
 
   // 챕터 이동
-  const goToChapter = (index: number) => {
+  const goToChapter = async (index: number) => {
     if (index >= 0 && index < totalChapters) {
-      stopAndCleanupAudio();
+      await stopAndCleanupAudio();
       setCurrentChapterIndex(index);
       
       // 챕터 참조가 있으면 해당 위치로 스크롤
