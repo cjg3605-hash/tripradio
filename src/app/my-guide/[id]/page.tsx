@@ -95,7 +95,7 @@ const normalizeGuideData = (data: any, locationName: string) => {
 
 export default function MyGuidePage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { currentLanguage } = useLanguage();
+  const { currentLanguage, t } = useLanguage();
   const [guide, setGuide] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -128,8 +128,12 @@ export default function MyGuidePage({ params }: { params: { id: string } }) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <GuideLoading 
           type="loading"
-          message="마이 가이드 로딩 중"
-          subMessage="저장된 가이드를 불러오고 있어요..."
+          message={t('common.loading')}
+          subMessage={currentLanguage === 'ko' ? "저장된 가이드를 불러오고 있어요..." :
+                     currentLanguage === 'en' ? "Loading your saved guide..." :
+                     currentLanguage === 'ja' ? "保存されたガイドを読み込んでいます..." :
+                     currentLanguage === 'zh' ? "正在加载您保存的指南..." :
+                     "Cargando tu guía guardada..."}
           showProgress={true}
         />
       </div>
@@ -144,22 +148,36 @@ export default function MyGuidePage({ params }: { params: { id: string } }) {
             <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-red-600 text-xl">!</span>
             </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">가이드를 찾을 수 없습니다</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">
+              {currentLanguage === 'ko' ? "가이드를 찾을 수 없습니다" :
+               currentLanguage === 'en' ? "Guide Not Found" :
+               currentLanguage === 'ja' ? "ガイドが見つかりません" :
+               currentLanguage === 'zh' ? "找不到指南" :
+               "Guía No Encontrada"}
+            </h2>
             <p className="text-gray-600 text-sm mb-6">
-              {error || '요청하신 가이드가 존재하지 않습니다.'}
+              {error || (currentLanguage === 'ko' ? '요청하신 가이드가 존재하지 않습니다.' :
+                        currentLanguage === 'en' ? 'The requested guide does not exist.' :
+                        currentLanguage === 'ja' ? 'リクエストされたガイドは存在しません。' :
+                        currentLanguage === 'zh' ? '请求的指南不存在。' :
+                        'La guía solicitada no existe.')}
             </p>
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => router.push("/")}
                 className="bg-gray-100 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
               >
-                홈으로
+                {currentLanguage === 'ko' ? "홈으로" :
+                 currentLanguage === 'en' ? "Home" :
+                 currentLanguage === 'ja' ? "ホーム" :
+                 currentLanguage === 'zh' ? "首页" :
+                 "Inicio"}
               </button>
               <button
                 onClick={() => router.push("/mypage")}
                 className="bg-black text-white px-6 py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors"
               >
-                내 가이드
+                {t('profile.guides')}
               </button>
             </div>
           </div>

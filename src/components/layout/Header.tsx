@@ -100,7 +100,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>{t?.header?.history || '히스토리'}</span>
+            <span>{t('header.history') || '히스토리'}</span>
           </button>
 
           {/* 로그인 상태 */}
@@ -134,13 +134,13 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     }}
                     className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    {t?.profile?.mypage || '마이페이지'}
+                    {t('profile.mypage') || '마이페이지'}
                   </button>
                   <button
                     onClick={handleSignOut}
                     className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    {t?.auth?.signout || '로그아웃'}
+                    {t('auth.signout') || '로그아웃'}
                   </button>
                 </div>
               )}
@@ -151,7 +151,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
               className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
             >
               <LogIn className="w-4 h-4" />
-              <span>{t?.auth?.signin || '로그인'}</span>
+              <span>{t('auth.signin') || '로그인'}</span>
             </button>
           )}
         </div>
@@ -192,7 +192,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="hidden sm:inline">{t?.header?.history || '히스토리'}</span>
+            <span className="hidden sm:inline">{t('header.history') || '히스토리'}</span>
           </button>
 
           {/* 로그인 상태 */}
@@ -223,13 +223,13 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     }}
                     className="w-full text-left px-2 py-1 text-xs text-gray-700 hover:bg-gray-100"
                   >
-                    {t?.profile?.mypage || '마이페이지'}
+                    {t('profile.mypage') || '마이페이지'}
                   </button>
                   <button
                     onClick={handleSignOut}
                     className="w-full text-left px-2 py-1 text-xs text-gray-700 hover:bg-gray-100"
                   >
-                    {t?.auth?.signout || '로그아웃'}
+                    {t('auth.signout') || '로그아웃'}
                   </button>
                 </div>
               )}
@@ -240,7 +240,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
               className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-xs text-gray-700"
             >
               <LogIn className="w-3 h-3" />
-              <span className="hidden sm:inline">{t?.auth?.signin || '로그인'}</span>
+              <span className="hidden sm:inline">{t('auth.signin') || '로그인'}</span>
             </button>
           )}
         </div>

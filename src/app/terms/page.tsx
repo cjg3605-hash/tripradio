@@ -1,8 +1,38 @@
+"use client";
+import { useLanguage } from '@/contexts/LanguageContext';
+
 export default function TermsPage() {
+  const { t } = useLanguage();
+  
   return (
-    <div className="max-w-2xl mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-4">이용약관</h1>
-      <p>이 페이지는 NAVI-GUIDE의 이용약관 안내용 임시 페이지입니다.</p>
+    <div className="min-h-screen bg-white">
+      <div className="max-w-4xl mx-auto px-4 py-16">
+        {/* 헤더 */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            {t('legal.terms.title')}
+          </h1>
+          <p className="text-lg text-gray-600">
+            {t('legal.terms.description')}
+          </p>
+        </div>
+
+        {/* 콘텐츠 */}
+        <div className="bg-gray-50 rounded-3xl p-8 border border-gray-100">
+          <div className="prose prose-lg max-w-none">
+            <p className="text-gray-700 leading-relaxed mb-6">
+              {t('legal.terms.content')}
+            </p>
+            
+            {/* 업데이트 날짜 */}
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <p className="text-sm text-gray-500">
+                {t('legal.terms.lastUpdated')}: 2024-07-23
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 } 

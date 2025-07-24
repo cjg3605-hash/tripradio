@@ -114,6 +114,20 @@
       "zh": "中文",
       "es": "Español"
     },
+    "legal": {
+      "privacy": {
+        "title": "개인정보처리방침",
+        "description": "NAVI-GUIDE의 개인정보 처리 방침을 안내합니다.",
+        "content": "NAVI-GUIDE는 개인정보보호법에 따라 이용자의 개인정보 보호 및 권익을 보호하고 개인정보와 관련한 이용자의 고충을 원활하게 처리할 수 있도록 다음과 같은 처리방침을 두고 있습니다.",
+        "lastUpdated": "최종 업데이트"
+      },
+      "terms": {
+        "title": "이용약관",
+        "description": "NAVI-GUIDE 서비스 이용약관을 안내합니다.",
+        "content": "본 약관은 NAVI-GUIDE가 제공하는 AI 기반 여행 가이드 서비스의 이용조건 및 절차에 관한 사항을 규정함을 목적으로 합니다.",
+        "lastUpdated": "최종 업데이트"
+      }
+    },
     "auth": {
       "signin": "로그인",
       "signup": "회원가입",
@@ -253,6 +267,20 @@
       "ja": "Japanese",
       "zh": "Chinese",
       "es": "Spanish"
+    },
+    "legal": {
+      "privacy": {
+        "title": "Privacy Policy",
+        "description": "NAVI-GUIDE's privacy policy guidelines.",
+        "content": "NAVI-GUIDE maintains the following privacy policy to protect user personal information and rights in accordance with personal information protection laws and to smoothly handle user complaints related to personal information.",
+        "lastUpdated": "Last Updated"
+      },
+      "terms": {
+        "title": "Terms of Service",
+        "description": "NAVI-GUIDE service terms of use guidelines.",
+        "content": "These terms aim to define the conditions and procedures for using NAVI-GUIDE's AI-based travel guide service.",
+        "lastUpdated": "Last Updated"
+      }
     },
     "auth": {
       "signin": "Sign In",
@@ -394,6 +422,20 @@
       "zh": "中国語",
       "es": "スペイン語"
     },
+    "legal": {
+      "privacy": {
+        "title": "プライバシーポリシー",
+        "description": "NAVI-GUIDEのプライバシーポリシーガイドライン。",
+        "content": "NAVI-GUIDEは個人情報保護法に従い、利用者の個人情報保護と権益を保護し、個人情報に関する利用者の苦情を円滑に処理するため、以下のようなプライバシーポリシーを設けています。",
+        "lastUpdated": "最終更新"
+      },
+      "terms": {
+        "title": "利用規約",
+        "description": "NAVI-GUIDEサービス利用規約のガイドライン。",
+        "content": "本規約は、NAVI-GUIDEが提供するAIベースの旅行ガイドサービスの利用条件と手続きに関する事項を定めることを目的とします。",
+        "lastUpdated": "最終更新"
+      }
+    },
     "auth": {
       "signin": "ログイン",
       "signup": "新規登録",
@@ -534,6 +576,20 @@
       "zh": "中文",
       "es": "西班牙语"
     },
+    "legal": {
+      "privacy": {
+        "title": "隐私政策",
+        "description": "NAVI-GUIDE隐私政策指南。",
+        "content": "NAVI-GUIDE根据个人信息保护法设立以下隐私政策，以保护用户的个人信息保护和权益，并顺利处理与个人信息相关的用户投诉。",
+        "lastUpdated": "最后更新"
+      },
+      "terms": {
+        "title": "使用条款",
+        "description": "NAVI-GUIDE服务使用条款指南。",
+        "content": "本条款旨在规定使用NAVI-GUIDE提供的基于AI的旅游指南服务的条件和程序相关事项。",
+        "lastUpdated": "最后更新"
+      }
+    },
     "auth": {
       "signin": "登录",
       "signup": "注册",
@@ -673,6 +729,20 @@
       "ja": "Japonés",
       "zh": "Chino",
       "es": "Español"
+    },
+    "legal": {
+      "privacy": {
+        "title": "Política de Privacidad",
+        "description": "Directrices de la política de privacidad de NAVI-GUIDE.",
+        "content": "NAVI-GUIDE mantiene la siguiente política de privacidad para proteger la información personal y los derechos de los usuarios de acuerdo con las leyes de protección de información personal y para manejar sin problemas las quejas de los usuarios relacionadas con la información personal.",
+        "lastUpdated": "Última Actualización"
+      },
+      "terms": {
+        "title": "Términos de Servicio",
+        "description": "Directrices de los términos de uso del servicio NAVI-GUIDE.",
+        "content": "Estos términos tienen como objetivo definir las condiciones y procedimientos para usar el servicio de guía de viaje basado en IA de NAVI-GUIDE.",
+        "lastUpdated": "Última Actualización"
+      }
     },
     "auth": {
       "signin": "Iniciar Sesión",

@@ -36,10 +36,10 @@ export default function HomePage() {
 
   // 회전하는 단어들
   const words = [
-    t?.home?.features?.personalizedGuides || '맞춤형추천',
-    t?.home?.features?.audioNarration || '음성해설',
-    t?.home?.features?.multiLanguage || '다국어지원',
-    t?.home?.features?.offlineAccess || '오프라인'
+    t('home.features.personalizedGuides') || '맞춤형추천',
+    t('home.features.audioNarration') || '음성해설',
+    t('home.features.multiLanguage') || '다국어지원',
+    t('home.features.offlineAccess') || '오프라인'
   ];
 
   // 회전하는 플레이스홀더
@@ -284,7 +284,7 @@ export default function HomePage() {
                 {/* 상단: 내손안의 (왼쪽 정렬) */}
                 <div className="mb-4 text-left">
                   <span className="block font-bold text-2xl">
-                    {t?.home?.brandTitle || '내 손안의'}
+                    {t('home.brandTitle') || '내 손안의'}
                   </span>
                 </div>
                 
@@ -320,13 +320,13 @@ export default function HomePage() {
             {/* Subtitle */}
             <div className="text-center space-y-2 mb-1">
               <p className="text-base text-gray-500 font-light tracking-wide">
-                {currentLanguage === 'ko' ? '가이드없이 자유롭게,' : t?.home?.subtitle}
+                {currentLanguage === 'ko' ? '가이드없이 자유롭게,' : t('home.subtitle')}
               </p>
               <p className="text-lg text-gray-700 font-light tracking-wide">
-                {currentLanguage === 'ko' ? '여행은 깊이있게' : t?.home?.subtitle2}
+                {currentLanguage === 'ko' ? '여행은 깊이있게' : t('home.subtitle2')}
               </p>
               <p className="text-base text-black font-light tracking-wide">
-                {currentLanguage === 'ko' ? 'AI가 찾아낸 가장 완벽한 가이드해설' : t?.home?.description}
+                {currentLanguage === 'ko' ? 'AI가 찾아낸 가장 완벽한 가이드해설' : t('home.description')}
               </p>
             </div>
           </div>

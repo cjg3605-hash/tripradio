@@ -348,7 +348,8 @@ interface LanguageContextType {
   currentLanguage: SupportedLanguage;
   currentConfig: LanguageConfig;
   setLanguage: (language: SupportedLanguage) => void;
-  t: Translations;
+  t: (key: string) => string;
+  translations: Translations;
   isLoading: boolean;
   isRTL: boolean;
   detectBrowserLanguage: () => SupportedLanguage;
@@ -569,11 +570,29 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     initializeLanguage();
   }, []);
 
+  // 번역 함수
+  const t = (key: string): string => {
+    const keys = key.split('.');
+    let value: any = translations;
+    
+    for (const k of keys) {
+      if (value && typeof value === 'object' && k in value) {
+        value = value[k];
+      } else {
+        console.warn(`Translation key not found: ${key}`);
+        return key; // 키를 그대로 반환
+      }
+    }
+    
+    return typeof value === 'string' ? value : key;
+  };
+
   const contextValue: LanguageContextType = {
     currentLanguage,
     currentConfig,
     setLanguage,
-    t: translations,
+    t,
+    translations,
     isLoading,
     isRTL,
     detectBrowserLanguage

@@ -51,6 +51,7 @@
   ],
   "exclude": [
     "node_modules",
-    "temp_disabled_components"
+    "temp_disabled_components",
+    "scripts"
   ]
 }
