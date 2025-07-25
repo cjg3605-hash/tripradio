@@ -70,26 +70,43 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
     };
 
     const handleClickOutside = (event: MouseEvent) => {
+      console.log('🎯 Outside click detected:', event.target);
+      
+      // Check if click is on a dropdown item - if so, don't close
+      const clickedElement = event.target as Element;
+      if (clickedElement.closest('.dropdown-item')) {
+        console.log('🎯 Click was on dropdown item, not closing menu');
+        return;
+      }
+      
       if (languageMenuRef.current && !languageMenuRef.current.contains(event.target as Node)) {
+        console.log('🔒 Closing language menu due to outside click');
         setIsLanguageMenuOpen(false);
       }
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        console.log('🔒 Closing profile menu due to outside click');
         setIsProfileMenuOpen(false);
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('click', handleClickOutside);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, [isLanguageMenuOpen, selectedLanguageIndex]);
 
 
   const handleLanguageChange = async (langCode: string) => {
-    await setLanguage(langCode as any);
-    setIsLanguageMenuOpen(false);
+    console.log('🔥 handleLanguageChange called with:', langCode);
+    try {
+      await setLanguage(langCode as any);
+      setIsLanguageMenuOpen(false);
+      console.log('✅ Language changed successfully to:', langCode);
+    } catch (error) {
+      console.error('❌ Language change failed:', error);
+    }
   };
 
   const handleSignOut = async () => {
@@ -183,7 +200,12 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                 {SUPPORTED_LANGUAGES.map((lang, index) => (
                   <button
                     key={lang.code}
-                    onClick={() => handleLanguageChange(lang.code)}
+                    onClick={(e) => {
+                      console.log('🖱️ Desktop dropdown option clicked:', lang.code);
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleLanguageChange(lang.code);
+                    }}
                     className={`
                       dropdown-item w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors duration-150
                       focus:outline-none focus:ring-2 focus:ring-black focus:ring-inset
