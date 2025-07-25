@@ -9,54 +9,78 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'default', size = 'default', asChild = false, ...props }, ref) => {
-    const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background';
+    // 통합 디자인 시스템 기반 버튼 클래스
+    const baseClasses = [
+      'btn-base',
+      'font-sans font-medium',
+      'border-0 outline-none',
+      'transition-all duration-300 ease-out',
+      'touch-target',
+      'gpu-layer',
+      'select-none'
+    ].join(' ');
     
+    // 디자인 시스템 변형 클래스
     const variantClasses = {
-      default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-      destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-      outline: 'border border-input hover:bg-accent hover:text-accent-foreground',
-      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-      ghost: 'hover:bg-accent hover:text-accent-foreground',
-      link: 'underline-offset-4 hover:underline text-primary'
+      default: [
+        'bg-black text-white',
+        'hover:bg-gray-800 hover:shadow-md hover:-translate-y-0.5',
+        'active:bg-gray-900 active:translate-y-0',
+        'focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2'
+      ].join(' '),
+      
+      outline: [
+        'bg-white text-black border-2 border-gray-300',
+        'hover:bg-gray-50 hover:border-gray-400 hover:shadow-sm hover:-translate-y-0.5',
+        'active:bg-gray-100 active:border-gray-500 active:translate-y-0',
+        'focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2'
+      ].join(' '),
+      
+      ghost: [
+        'bg-transparent text-gray-800',
+        'hover:bg-gray-100 hover:text-black hover:-translate-y-0.5',
+        'active:bg-gray-200 active:translate-y-0',
+        'focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2'
+      ].join(' '),
+      
+      destructive: [
+        'bg-red-500 text-white',
+        'hover:bg-red-600 hover:shadow-md hover:-translate-y-0.5',
+        'active:bg-red-700 active:translate-y-0',
+        'focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2'
+      ].join(' '),
+      
+      secondary: [
+        'bg-gray-200 text-gray-900',
+        'hover:bg-gray-300 hover:text-black hover:shadow-sm hover:-translate-y-0.5',
+        'active:bg-gray-400 active:translate-y-0',
+        'focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2'
+      ].join(' '),
+      
+      link: [
+        'bg-transparent text-blue-600 underline-offset-4',
+        'hover:text-blue-700 hover:underline',
+        'active:text-blue-800',
+        'focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2'
+      ].join(' ')
     };
     
+    // 디자인 시스템 크기 클래스
     const sizeClasses = {
-      default: 'h-10 py-2 px-4',
-      xs: 'h-6 px-2 text-xs',
-      sm: 'h-9 px-3 text-sm',
-      lg: 'h-11 px-8',
-      icon: 'h-10 w-10'
-    };
-
-    // Tailwind 기본 색상 클래스들 (WCAG AA 색상 대비 개선)
-    const tailwindVariantClasses = {
-      default: 'bg-indigo-700 text-white hover:bg-indigo-800 focus:ring-indigo-600 active:bg-indigo-900',
-      outline: 'border border-gray-400 bg-white text-gray-800 hover:bg-gray-100 focus:ring-indigo-600 active:bg-gray-200',
-      ghost: 'text-gray-800 hover:bg-gray-200 focus:ring-gray-600 active:bg-gray-300',
-      destructive: 'bg-red-700 text-white hover:bg-red-800 focus:ring-red-600 active:bg-red-900',
-      secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-600 active:bg-gray-400',
-      link: 'text-indigo-700 hover:text-indigo-800 underline-offset-4 hover:underline focus:ring-indigo-600 active:text-indigo-900'
-    };
-
-    const tailwindSizeClasses = {
-      default: 'px-4 py-2 text-sm',
-      xs: 'px-2 py-1 text-xs',
-      sm: 'px-3 py-1.5 text-xs',
-      lg: 'px-6 py-3 text-base',
-      icon: 'p-2'
+      xs: 'px-3 py-1.5 text-xs min-h-8',
+      sm: 'px-4 py-2 text-sm min-h-10',
+      default: 'px-6 py-3 text-base min-h-11',
+      lg: 'px-8 py-4 text-lg min-h-12',
+      icon: 'p-2.5 min-w-11 min-h-11'
     };
     
-    // 접근성 개선된 버튼 클래스 조합
+    // 통합 클래스 조합
     const classes = cn(
       baseClasses,
-      tailwindVariantClasses[variant],
-      tailwindSizeClasses[size],
-      // 모든 변형에 접근성 포커스 스타일 적용
-      'focus:outline-none focus:ring-2 focus:ring-offset-2',
-      // 비활성화 상태 접근성 개선
-      'disabled:cursor-not-allowed disabled:opacity-60',
-      // 키보드 활성화 표시 강화
-      'focus-visible:ring-2 focus-visible:ring-offset-2',
+      variantClasses[variant],
+      sizeClasses[size],
+      // 비활성화 상태 스타일링
+      'disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none',
       className
     );
 

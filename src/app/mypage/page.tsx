@@ -28,6 +28,8 @@ import {
   Sparkles
 } from 'lucide-react';
 import PersonalityDiagnosisModal from '@/components/personality/PersonalityDiagnosisModal';
+import { ResponsiveContainer, PageHeader, Card, Grid, Stack, Flex, EmptyState } from '@/components/layout/ResponsiveContainer';
+import { Button } from '@/components/ui/button';
 
 // 타입 정의
 interface GuideHistoryEntry {
@@ -316,84 +318,83 @@ export default function MyPage() {
     switch (activeTab) {
       case 'overview':
         return (
-          <div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Stack>
+            <Grid cols={4} gap="lg">
             {/* 통계 카드들 */}
-            <div className="bg-white rounded-lg p-6 border border-gray-200">
-              <div className="flex items-center justify-between">
+            <Card hover className="text-center">
+              <Flex direction="col" align="center" gap="md">
+                <div className="p-3 bg-black rounded-full">
+                  <Folder className="h-6 w-6 text-white" />
+                </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">{t('mypage.totalGuides') || '총 가이드'}</p>
-                  <p className="text-2xl font-bold text-black">{userStats?.totalGuides || 0}</p>
+                  <p className="text-fluid-2xl font-bold text-black">{userStats?.totalGuides || 0}</p>
                 </div>
-                <div className="p-3 bg-gray-100 rounded-full">
-                  <Folder className="h-6 w-6 text-black" />
-                </div>
-              </div>
-              <p className="text-xs text-gray-400 mt-2">
-                {userStats?.languagesUsed.length || 0}{t('common.languagesGenerated') || '개 언어로 생성'}
-              </p>
-            </div>
+                <p className="text-xs text-gray-400">
+                  {userStats?.languagesUsed.length || 0}{t('common.languagesGenerated') || '개 언어로 생성'}
+                </p>
+              </Flex>
+            </Card>
 
-            <div className="bg-white rounded-lg p-6 border border-gray-200">
-              <div className="flex items-center justify-between">
+            <Card hover className="text-center">
+              <Flex direction="col" align="center" gap="md">
+                <div className="p-3 bg-black rounded-full">
+                  <Play className="h-6 w-6 text-white" />
+                </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">{t('mypage.completedTours') || '완료한 투어'}</p>
-                  <p className="text-2xl font-bold text-black">{userStats?.completedTours || 0}</p>
+                  <p className="text-fluid-2xl font-bold text-black">{userStats?.completedTours || 0}</p>
                 </div>
-                <div className="p-3 bg-gray-100 rounded-full">
-                  <Play className="h-6 w-6 text-black" />
-                </div>
-              </div>
-              <p className="text-xs text-gray-400 mt-2">
-                {t('common.total') || '총'} {formatDuration(userStats?.totalDuration || 0)}
-              </p>
-            </div>
+                <p className="text-xs text-gray-400">
+                  {t('common.total') || '총'} {formatDuration(userStats?.totalDuration || 0)}
+                </p>
+              </Flex>
+            </Card>
 
-            <div className="bg-white rounded-lg p-6 border border-gray-200">
-              <div className="flex items-center justify-between">
+            <Card hover className="text-center">
+              <Flex direction="col" align="center" gap="md">
+                <div className="p-3 bg-black rounded-full">
+                  <Heart className="h-6 w-6 text-white" />
+                </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">{t('mypage.favoriteGuides') || '즐겨찾기'}</p>
-                  <p className="text-2xl font-bold text-black">{userStats?.favoriteLocations || 0}</p>
+                  <p className="text-fluid-2xl font-bold text-black">{userStats?.favoriteLocations || 0}</p>
                 </div>
-                <div className="p-3 bg-gray-100 rounded-full">
-                  <Heart className="h-6 w-6 text-black" />
-                </div>
-              </div>
-              <p className="text-xs text-gray-400 mt-2">
-                {t('mypage.frequentPlaces') || '자주 방문하는 장소들'}
-              </p>
-            </div>
+                <p className="text-xs text-gray-400">
+                  {t('mypage.frequentPlaces') || '자주 방문하는 장소들'}
+                </p>
+              </Flex>
+            </Card>
 
-            <div className="bg-white rounded-lg p-6 border border-gray-200">
-              <div className="flex items-center justify-between">
+            <Card hover className="text-center">
+              <Flex direction="col" align="center" gap="md">
+                <div className="p-3 bg-black rounded-full">
+                  <Globe className="h-6 w-6 text-white" />
+                </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">{t('mypage.primaryLanguage') || '주 사용 언어'}</p>
-                  <p className="text-2xl font-bold text-black">
+                  <p className="text-fluid-2xl font-bold text-black">
                     {userStats?.mostVisitedType?.toUpperCase() || 'KO'}
                   </p>
                 </div>
-                <div className="p-3 bg-gray-100 rounded-full">
-                  <Globe className="h-6 w-6 text-black" />
-                </div>
-              </div>
-              <p className="text-xs text-gray-400 mt-2">
-                {userStats?.languagesUsed.join(', ') || t('common.none') || '없음'}
-              </p>
-            </div>
-          </div>
+                <p className="text-xs text-gray-400">
+                  {userStats?.languagesUsed.join(', ') || t('common.none') || '없음'}
+                </p>
+              </Flex>
+            </Card>
+          </Grid>
 
           {/* 개인화 진단 섹션 */}
-          <div className="mt-8">
-            <div className="bg-white rounded-lg p-6 border border-gray-200">
-              <div className="flex items-start justify-between">
+          <Card variant="elevated" className="bg-gradient-to-r from-purple-50 to-blue-50">
+              <Flex justify="between" align="start">
                 <div className="flex-1">
-                  <div className="flex items-center mb-3">
+                  <Flex align="center" gap="sm" className="mb-3">
                     <Brain className="w-6 h-6 text-purple-600 mr-2" />
-                    <h3 className="text-lg font-semibold text-black">
+                    <h3 className="text-fluid-lg font-semibold text-black">
                       {t('mypage.personalizedDiagnosis') || '개인화 가이드 맞춤 진단'}
                     </h3>
-                    <Sparkles className="w-5 h-5 text-gray-400 ml-2" />
-                  </div>
+                    <Sparkles className="w-5 h-5 text-purple-400" />
+                  </Flex>
                   
                   {personalityResults ? (
                     <div className="space-y-3">
@@ -471,14 +472,15 @@ export default function MyPage() {
                 </div>
                 
                 <div className="ml-6">
-                  <button
+                  <Button
                     onClick={() => setShowPersonalityModal(true)}
-                    className="bg-black text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition-all duration-200"
+                    variant="default"
+                    size="lg"
                   >
                     {personalityResults ? t('mypage.retakeDiagnosis') || '다시 진단하기' : t('mypage.startDiagnosis') || '진단 시작하기'}
-                  </button>
+                  </Button>
                 </div>
-              </div>
+              </Flex>
               
               {personalityResults && (
                 <div className="mt-4 pt-4 border-t border-gray-200">
@@ -488,10 +490,9 @@ export default function MyPage() {
                   </p>
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-      );
+            </Card>
+          </Stack>
+        );
 
       case 'guides':
         return (
@@ -841,24 +842,41 @@ export default function MyPage() {
     <div className="min-h-screen bg-white">
       {/* 헤더 */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
+        <div className="max-w-7xl mx-auto"
+             style={{
+               padding: '0 var(--space-4)',
+               paddingLeft: 'clamp(var(--space-4), 4vw, var(--space-6))',
+               paddingRight: 'clamp(var(--space-4), 4vw, var(--space-8))'
+             }}>
+          <div className="flex items-center justify-between"
+               style={{ height: 'var(--space-16)' }}>
+            <div className="flex items-center"
+                 style={{ gap: 'var(--space-4)' }}>
               <button
                 onClick={() => router.push('/')}
-                className="text-gray-500 hover:text-black transition-colors"
+                className="btn-base text-gray-500 hover:text-black bg-transparent hover:bg-gray-50 transition-colors"
+                style={{
+                  padding: 'var(--space-2) var(--space-3)',
+                  borderRadius: 'var(--radius-md)'
+                }}
               >
                 ← {t('buttons.goBack') || '홈으로'}
               </button>
-              <h1 className="text-xl font-semibold text-black">{t('mypage.title') || '마이페이지'}</h1>
+              <h1 className="text-fluid-xl font-semibold text-black">{t('mypage.title') || '마이페이지'}</h1>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+            <div className="flex items-center"
+                 style={{ gap: 'var(--space-4)' }}>
+              <div className="flex items-center"
+                   style={{ gap: 'var(--space-2)' }}>
+                <div className="bg-black rounded-full flex items-center justify-center touch-target"
+                     style={{
+                       width: 'var(--space-8)',
+                       height: 'var(--space-8)'
+                     }}>
                   <User className="h-4 w-4 text-white" />
                 </div>
-                <span className="text-sm font-medium text-black">
+                <span className="text-fluid-sm font-medium text-black">
                   {session?.user?.name || t('profile.user') || '사용자'}
                 </span>
               </div>
@@ -867,10 +885,17 @@ export default function MyPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto"
+           style={{
+             padding: 'var(--space-8) var(--space-4)',
+             paddingLeft: 'clamp(var(--space-4), 4vw, var(--space-6))',
+             paddingRight: 'clamp(var(--space-4), 4vw, var(--space-8))'
+           }}>
         {/* 탭 네비게이션 */}
-        <div className="border-b border-gray-200 mb-8">
-          <nav className="-mb-px flex space-x-8">
+        <div className="border-b border-gray-200"
+             style={{ marginBottom: 'var(--space-8)' }}>
+          <nav className="-mb-px flex"
+               style={{ gap: 'var(--space-8)' }}>
             {[
               { id: 'overview', label: t('mypage.overview') || '개요', icon: TrendingUp },
               { id: 'guides', label: t('mypage.guides') || '내 가이드', icon: Folder },
@@ -881,11 +906,15 @@ export default function MyPage() {
               <button
                 key={id}
                 onClick={() => setActiveTab(id as TabType)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors ${
+                className={`btn-base border-b-2 font-medium text-fluid-sm flex items-center bg-transparent transition-colors ${
                   activeTab === id
                     ? 'border-black text-black'
                     : 'border-transparent text-gray-500 hover:text-black hover:border-gray-300'
                 }`}
+                style={{
+                  padding: 'var(--space-2) var(--space-1)',
+                  gap: 'var(--space-2)'
+                }}
               >
                 <Icon className="h-4 w-4" />
                 <span>{label}</span>

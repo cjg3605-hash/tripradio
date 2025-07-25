@@ -270,7 +270,10 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
   // 로딩 상태 표시
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 mobile-touch-optimized"
+           style={{
+             padding: 'var(--space-4)'
+           }}>
         <GuideLoading 
           type="fetching"
           message={currentLanguage === 'ko' ? `"${locationName}" 가이드 불러오는 중` : `Loading "${locationName}" guide`}
@@ -284,21 +287,31 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
   // 에러 상태 (가이드가 없는 경우)
   if (!guideData || error) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 py-16">
+      <div className="min-h-screen bg-gray-50 ios-viewport-fix">
+        <div className="container-responsive"
+             style={{
+               padding: 'var(--space-4) var(--space-4) var(--space-16) var(--space-4)'
+             }}>
           <div className="text-center">
-            <div className="text-6xl mb-4">😕</div>
-            <h1 className="text-2xl font-medium text-gray-900 mb-4">
+            <div className="text-fluid-6xl"
+                 style={{ marginBottom: 'var(--space-4)' }}>😕</div>
+            <h1 className="heading-responsive text-gray-900"
+                style={{ marginBottom: 'var(--space-4)' }}>
               {currentLanguage === 'ko' ? '가이드를 찾을 수 없습니다' : 'Guide not found'}
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="body-responsive text-gray-600"
+               style={{ marginBottom: 'var(--space-6)' }}>
               {error || (currentLanguage === 'ko' ? 
                 '가이드 데이터를 찾을 수 없습니다.' : 'No guide data found.')}
             </p>
             <button
               onClick={handleRegenerateGuide}
               disabled={isRegenerating}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-base btn-mobile-friendly bg-blue-600 text-white hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none mobile-touch-action safari-button-reset transition-compat"
+              style={{
+                padding: 'var(--space-3) var(--space-6)',
+                borderRadius: 'var(--radius-md)'
+              }}
             >
               {isRegenerating ? (
                 <div className="flex items-center">
@@ -317,7 +330,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
 
   // 정상적인 가이드 렌더링
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 ios-viewport-fix safari-scroll-fix">
       {/* 디버그 정보 (개발 환경에서만) */}
       {process.env.NODE_ENV === 'development' && (
         <div className="fixed top-4 right-4 z-50 bg-black bg-opacity-75 text-white text-xs p-2 rounded max-w-xs">
@@ -350,15 +363,15 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
       {/* 가용 언어 표시 (2개 이상인 경우) */}
       {availableLanguages.length > 1 && (
         <div className="bg-blue-50 border-b border-blue-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-            <div className="flex items-center justify-between text-sm">
+          <div className="container-responsive py-2">
+            <div className="flex-stack-mobile text-sm">
               <div className="flex items-center space-x-2">
                 <span className="text-blue-700 font-medium">사용 가능한 언어:</span>
                 <div className="flex space-x-1">
                   {availableLanguages.map(lang => (
                     <span
                       key={lang}
-                      className={`px-2 py-1 rounded text-xs font-medium ${
+                      className={`px-2 py-1 rounded text-xs font-medium mobile-touch-optimized ${
                         lang === currentLanguage 
                           ? 'bg-blue-600 text-white' 
                           : 'bg-blue-100 text-blue-700'
@@ -369,7 +382,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
                   ))}
                 </div>
               </div>
-              <div className="text-blue-600 text-xs">
+              <div className="text-blue-600 text-xs mobile-only">
                 언어 설정에서 변경하면 자동으로 전환됩니다
               </div>
             </div>

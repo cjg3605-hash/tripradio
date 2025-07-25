@@ -27,6 +27,8 @@ import { GuideData, GuideChapter } from '@/types/guide';
 import GuideLoading from '@/components/ui/GuideLoading';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/lib/translations';
+import { ResponsiveContainer, PageHeader, Card, Stack, Flex } from '@/components/layout/ResponsiveContainer';
+import { Button } from '@/components/ui/button';
 // import BigTechDesignOptimizer from '@/components/design/BigTechDesignOptimizer';
 
 interface TourContentProps {
@@ -384,34 +386,25 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   }
 
   return (
-    <div key={`tour-content-${componentKey}`} className="min-h-screen bg-background">
+    <ResponsiveContainer key={`tour-content-${componentKey}`} variant="page" className="min-h-screen">
       {/* Header */}
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button 
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
-              onClick={() => window.history.back()}
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div>
-              <h1 className="font-medium">{t('guide.realTimeGuideTitle')}</h1>
-              <p className="text-sm text-muted-foreground">{t('guide.aiCustomAudioGuide')}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <Volume2 className="w-4 h-4" />
-              <span>{totalChapters}{t('guide.chapters')}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title={t('guide.realTimeGuideTitle')}
+        subtitle={t('guide.aiCustomAudioGuide')}
+        showBackButton={true}
+        onBack={() => window.history.back()}
+        rightElement={
+          <Flex align="center" gap="xs" className="text-sm text-muted-foreground">
+            <Volume2 className="w-4 h-4" />
+            <span>{totalChapters}{t('guide.chapters')}</span>
+          </Flex>
+        }
+      />
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-6 space-y-8">
+        <div className="px-6 py-8">
+          <Stack spacing="lg">
           {/* 장소 정보 */}
           <div className="text-center space-y-4">
             <div className="w-20 h-20 border-4 border-foreground rounded-full flex items-center justify-center mx-auto">
@@ -682,7 +675,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
             <div className="space-y-4">
               {allChapters.map((chapter, index) => (
-                <div
+                <Card
                   key={`chapter-${index}-${chapter.id || index}`}
                   ref={(el) => {
                     try {
@@ -696,17 +689,16 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                       console.warn('챕터 ref 설정 오류:', error);
                     }
                   }}
-                  className={`border border-border rounded-lg overflow-hidden transition-all duration-200 ${
-                    currentChapterIndex === index ? 'border-foreground bg-muted/30' : 'hover:border-foreground/50'
-                  }`}
+                  variant={currentChapterIndex === index ? "selected" : "default"}
+                  className="overflow-hidden transition-all duration-200"
                 >
                   {/* 챕터 헤더 */}
                   <div 
                     className="p-6 cursor-pointer"
                     onClick={() => toggleChapter(index)}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 flex-1">
+                    <Flex align="center" justify="between">
+                      <Flex align="center" gap="md" className="flex-1">
                         <div className={`w-12 h-12 border-2 rounded-full flex items-center justify-center font-medium transition-all duration-300 text-xs ${
                           currentChapterIndex === index 
                             ? 'border-foreground bg-foreground text-background' 
@@ -718,9 +710,9 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                         <div className="flex-1">
                           <h3 className="font-medium mb-1">{chapter.title}</h3>
                         </div>
-                      </div>
+                      </Flex>
                       
-                      <div className="flex items-center gap-3">
+                      <Flex align="center" gap="sm">
                         {/* 재생/정지 버튼 */}
                         <button
                           onClick={(e) => {
@@ -745,14 +737,14 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                         }`}>
                           <ChevronDown className="w-5 h-5 text-muted-foreground" />
                         </div>
-                      </div>
-                    </div>
+                      </Flex>
+                    </Flex>
                   </div>
                   
                   {/* 챕터 내용 */}
                   {expandedChapters.includes(index) && (
                     <div className="border-t border-border p-6">
-                      <div className="space-y-4">
+                      <Stack spacing="md">
                         <div className="text-muted-foreground leading-relaxed">
                           {chapter.narrative ? 
                             formatText(chapter.narrative) :
@@ -791,50 +783,54 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                             {index === 0 && <p className="text-slate-600 font-medium">🎯 {t('guide.autoGeneratedIntro')}</p>}
                           </div>
                         )}
-                      </div>
+                      </Stack>
                     </div>
                   )}
-                </div>
+                </Card>
               ))}
             </div>
           </div>
 
           {/* 전체 재생 버튼 */}
-          <div className="border-2 border-foreground rounded-lg p-6">
-            <div className="flex items-center justify-between">
+          <Card variant="outline">
+            <Flex align="center" justify="between" className="p-6">
               <div>
                 <h3 className="font-medium mb-1">{t('guide.entireAudioTour')}</h3>
                 <p className="text-sm text-muted-foreground">
                   {t('guide.chaptersWithIntro', { count: totalChapters, minutes: Math.round(totalChapters * 4) })}
                 </p>
               </div>
-              <button 
+              <Button 
                 onClick={() => handlePlayPause(0)}
-                className="px-6 py-3 bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-colors flex items-center gap-2"
+                variant="default"
+                size="lg"
               >
-                <Play className="w-5 h-5 fill-current" />
+                <Play className="w-5 h-5 fill-current mr-2" />
                 {t('guide.playAll')}
-              </button>
-            </div>
-          </div>
-        </div>
+              </Button>
+            </Flex>
+          </Card>
+          </Stack>
 
-        {/* Bottom spacing */}
-        <div className="h-24" />
+          {/* Bottom spacing */}
+          <div className="h-24" />
+        </div>
       </div>
 
       {/* BigTech 디자인 시뮬레이터 임시 제거 (빌드 오류 해결) */}
 
       {/* 스크롤 투 탑 버튼 */}
       {showScrollTop && (
-        <button
+        <Button
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 w-14 h-14 bg-background border-2 border-foreground hover:bg-foreground hover:text-background text-foreground flex items-center justify-center transition-all duration-300 z-50 shadow-lg rounded-full"
+          variant="outline"
+          size="icon"
+          className="fixed bottom-8 right-8 w-14 h-14 z-50 shadow-lg rounded-full"
         >
           <ArrowUp className="w-5 h-5" />
-        </button>
+        </Button>
       )}
-    </div>
+    </ResponsiveContainer>
   );
 };
 

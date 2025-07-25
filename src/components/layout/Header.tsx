@@ -99,23 +99,33 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
 
   return (
     <header className="bg-white border-b border-gray-200">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto flex items-center justify-between"
+           style={{
+             padding: 'var(--space-3) var(--space-4)'
+           }}>
         {/* 로고 */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center" style={{ gap: 'var(--space-3)' }}>
           {/* 스피커 아이콘을 원형 테두리로 감싸기 */}
-          <div className="w-10 h-10 border-2 border-gray-300 rounded-full flex items-center justify-center">
+          <div className="border-2 border-gray-300 rounded-full flex items-center justify-center touch-target"
+               style={{
+                 width: 'var(--touch-target-min)',
+                 height: 'var(--touch-target-min)'
+               }}>
             <Volume2 className="w-5 h-5 text-black" />
           </div>
           <button 
             onClick={() => router.push('/')}
-            className="text-lg font-bold text-black py-2 px-1 touch-target"
+            className="btn-base text-fluid-lg font-bold text-black bg-transparent hover:bg-gray-50 transition-all duration-200"
+            style={{
+              padding: 'var(--space-2) var(--space-1)'
+            }}
           >
             NAVI : GUIDE
           </button>
         </div>
 
         {/* 데스크톱 네비게이션 */}
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden md:flex items-center" style={{ gap: 'var(--space-1)' }}>
           {/* 언어 선택 */}
           <div 
             className="relative" 
@@ -131,13 +141,17 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                 }
               }}
               className={`
-                flex items-center gap-1 px-3 py-2 text-sm rounded-lg transition-all duration-200
-                focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1
+                btn-base flex items-center text-fluid-sm transition-all duration-200 ease-out
                 ${isLanguageMenuOpen 
-                  ? 'bg-gray-100 text-gray-900 shadow-sm' 
-                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-gray-100 text-gray-900 shadow-button' 
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 bg-transparent'
                 }
               `}
+              style={{
+                gap: 'var(--space-1)',
+                padding: 'var(--space-3) var(--space-3)',
+                borderRadius: 'var(--radius-md)'
+              }}
               aria-label={`${t('header.language') || '언어'}: ${currentConfig?.name || '한국어'}. ${t('common.pressEnterToOpen') || 'Enter키를 눌러 언어 메뉴를 열 수 있습니다.'}`}
               aria-expanded={isLanguageMenuOpen}
               aria-haspopup="listbox"
@@ -156,7 +170,13 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
             {/* 언어 드롭다운 메뉴 */}
             {isLanguageMenuOpen && (
               <div 
-                className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-32 z-50"
+                className="absolute top-full right-0 bg-white border border-gray-200 shadow-dropdown z-50"
+                style={{
+                  marginTop: 'var(--space-1)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: 'var(--space-1) 0',
+                  minWidth: '8rem'
+                }}
                 role="listbox"
                 aria-label={t('header.selectLanguage') || '언어 선택'}
               >

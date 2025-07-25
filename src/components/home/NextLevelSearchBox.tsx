@@ -141,12 +141,15 @@ export default function NextLevelSearchBox() {
           
           {/* Input Container */}
           <div className={`
-            relative bg-white rounded-3xl transition-all duration-500
+            relative bg-white transition-all duration-500
             ${isFocused 
-              ? 'shadow-2xl shadow-black/15 ring-1 ring-black/5' 
-              : 'shadow-xl shadow-black/10'
+              ? 'shadow-ultra ring-1 ring-black/5' 
+              : 'shadow-premium'
             }
-          `}>
+          `}
+          style={{
+            borderRadius: 'var(--radius-2xl)'
+          }}>
             
             {/* Main Input */}
             <input
@@ -159,7 +162,7 @@ export default function NextLevelSearchBox() {
               onBlur={handleBlur}
               placeholder={placeholders[placeholderIndex]}
               disabled={isSubmitting}
-              // 접근성 속성 추가
+              // 접근성 속성
               aria-label="여행지 검색"
               aria-describedby="search-suggestions"
               aria-expanded={suggestions.length > 0 && isFocused}
@@ -167,30 +170,39 @@ export default function NextLevelSearchBox() {
               role="combobox"
               aria-activedescendant={selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined}
               className={`
-                w-full px-8 py-6 text-xl font-light text-black bg-transparent rounded-3xl
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300
-                placeholder-gray-500
+                input-base w-full bg-transparent
+                px-8 py-6 text-fluid-xl font-light text-black
+                placeholder-gray-500 touch-target-comfortable
+                transition-all duration-300 ease-out
                 ${isSubmitting ? 'cursor-not-allowed opacity-50' : ''}
               `}
+              style={{
+                borderRadius: 'var(--radius-2xl)',
+                fontSize: 'var(--text-xl)'
+              }}
             />
             
             {/* Search Button */}
             <button
               onClick={handleSearch}
               disabled={!query.trim() || isSubmitting}
-              // 접근성 속성 추가
+              // 접근성 속성
               aria-label={`${query.trim() ? `'${query}' 검색하기` : '검색어를 입력하세요'}`}
               type="submit"
               className={`
                 absolute right-4 top-1/2 transform -translate-y-1/2
-                w-14 h-14 rounded-2xl transition-all duration-300
-                flex items-center justify-center group
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                btn-base touch-target flex items-center justify-center group
+                transition-all duration-300 ease-out
                 ${query.trim() && !isSubmitting
-                  ? 'bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95' 
-                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  ? 'bg-black text-white shadow-button-hover hover:shadow-lg hover:scale-105 hover:-translate-y-0.5 active:scale-95 active:translate-y-0' 
+                  : 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none'
                 }
               `}
+              style={{
+                width: 'var(--touch-target-comfortable)',
+                height: 'var(--touch-target-comfortable)',
+                borderRadius: 'var(--radius-lg)'
+              }}
             >
               {isSubmitting ? (
                 <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -223,7 +235,10 @@ export default function NextLevelSearchBox() {
           {suggestions.length > 0 && isFocused && !isSubmitting && (
             <div 
               id="search-suggestions"
-              className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-10"
+              className="absolute top-full left-0 right-0 mt-3 bg-white border border-gray-100 overflow-hidden z-10 shadow-dropdown"
+              style={{
+                borderRadius: 'var(--radius-xl)'
+              }}
               role="listbox"
               aria-label="검색 제안"
             >
@@ -236,13 +251,17 @@ export default function NextLevelSearchBox() {
                   aria-selected={selectedIndex === index}
                   aria-label={`${suggestion.name}, ${suggestion.location}`}
                   className={`
-                    w-full px-6 py-4 text-left transition-all duration-200
-                    group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset
+                    w-full text-left transition-all duration-200 ease-out
+                    group focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset
+                    touch-target-comfortable
                     ${selectedIndex === index 
                       ? 'bg-blue-50 border-l-4 border-l-blue-500 text-blue-900' 
                       : 'hover:bg-gray-50'
                     }
                   `}
+                  style={{
+                    padding: 'var(--space-4) var(--space-6)'
+                  }}
                 >
                   <div className="flex items-center justify-between">
                     <div>

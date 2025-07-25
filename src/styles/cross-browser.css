@@ -1,0 +1,421 @@
+/* ==========================================================================
+   크로스 브라우저 호환성 (Cross-Browser Compatibility)
+   Modern browser support with fallbacks for older browsers
+   ========================================================================== */
+
+/* ======================
+   CSS 초기화 및 정규화 (CSS Reset & Normalization)
+   ====================== */
+
+/* HTML5 요소를 블록 레벨로 설정 (IE9-11) */
+article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
+  display: block;
+}
+
+/* HTML5 오디오/비디오 요소 정규화 */
+audio, canvas, progress, video {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+
+/* ======================
+   브라우저별 벤더 프리픽스 (Vendor Prefixes)
+   ====================== */
+
+/* Flexbox 완전 호환성 */
+.flex-compat {
+  display: -webkit-box;      /* Old iOS 6-, Safari 3.1-6, BB7 */
+  display: -ms-flexbox;      /* IE 10 */
+  display: -webkit-flex;     /* New webkit */
+  display: flex;             /* Modern browsers */
+}
+
+.flex-compat-column {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+
+.flex-compat-center {
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+/* Grid 완전 호환성 */
+.grid-compat {
+  display: -ms-grid;         /* IE 10-11 */
+  display: grid;             /* Modern browsers */
+}
+
+/* Transform 완전 호환성 */
+.transform-compat {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Transition 완전 호환성 */
+.transition-compat {
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+/* Border Radius 완전 호환성 */
+.border-radius-compat {
+  -webkit-border-radius: var(--radius-base);
+  -moz-border-radius: var(--radius-base);
+  border-radius: var(--radius-base);
+}
+
+/* Box Shadow 완전 호환성 */
+.box-shadow-compat {
+  -webkit-box-shadow: var(--shadow-base);
+  -moz-box-shadow: var(--shadow-base);
+  box-shadow: var(--shadow-base);
+}
+
+/* ======================
+   Internet Explorer 11 지원
+   ====================== */
+
+/* IE11 CSS Grid 폴백 */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .grid-responsive {
+    display: block;
+  }
+  
+  .grid-responsive > * {
+    display: inline-block;
+    width: 24%;
+    margin-right: 1%;
+    vertical-align: top;
+  }
+  
+  .grid-responsive > *:nth-child(4n) {
+    margin-right: 0;
+  }
+  
+  /* IE11에서 flexbox 버그 수정 */
+  .flex-compat {
+    display: -ms-flexbox;
+  }
+  
+  .flex-compat > * {
+    -ms-flex: 1 1 auto;
+  }
+}
+
+/* IE11 CSS 변수 폴백 */
+.ie11-fallback {
+  background-color: #ffffff; /* var(--color-white) 폴백 */
+  color: #000000; /* var(--color-black) 폴백 */
+  padding: 16px; /* var(--space-4) 폴백 */
+  border-radius: 12px; /* var(--radius-base) 폴백 */
+}
+
+/* ======================
+   Safari 브라우저 최적화
+   ====================== */
+
+/* Safari iOS 스크롤 버그 수정 */
+.safari-scroll-fix {
+  -webkit-overflow-scrolling: touch;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Safari 폰트 렌더링 최적화 */
+.safari-font-smooth {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Safari에서 버튼 스타일 초기화 */
+.safari-button-reset {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Safari에서 input 스타일 초기화 */
+.safari-input-reset {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 0;
+}
+
+/* Safari에서 텍스트 크기 조정 방지 */
+.safari-text-size-adjust {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* ======================
+   Firefox 브라우저 최적화
+   ====================== */
+
+/* Firefox 특정 스타일 */
+@-moz-document url-prefix() {
+  /* Firefox에서 버튼 outline 제거 */
+  .firefox-button-fix {
+    -moz-appearance: none;
+  }
+  
+  /* Firefox에서 input placeholder 스타일 */
+  .firefox-placeholder {
+    opacity: 1;
+  }
+}
+
+/* Firefox에서 스크롤바 스타일링 */
+@supports (-moz-appearance: none) {
+  .firefox-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gray-400) var(--color-gray-100);
+  }
+}
+
+/* ======================
+   Chrome/Edge 브라우저 최적화
+   ====================== */
+
+/* Chrome/Edge에서 스크롤바 스타일링 */
+.chrome-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.chrome-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-gray-100);
+  border-radius: var(--radius-full);
+}
+
+.chrome-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-gray-400);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-gray-100);
+}
+
+.chrome-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gray-500);
+}
+
+/* Chrome에서 autofill 스타일 제어 */
+.chrome-autofill-reset {
+  -webkit-autofill: none;
+}
+
+.chrome-autofill-reset:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: var(--color-black) !important;
+}
+
+/* ======================
+   모바일 브라우저 최적화
+   ====================== */
+
+/* iOS Safari 뷰포트 버그 수정 */
+.ios-viewport-fix {
+  height: 100vh;
+  height: -webkit-fill-available;
+}
+
+/* 모바일에서 탭 하이라이트 제거 */
+.mobile-tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* 모바일에서 터치 액션 최적화 */
+.mobile-touch-action {
+  touch-action: manipulation;
+}
+
+/* 모바일에서 줌 방지 */
+.mobile-zoom-prevent {
+  touch-action: pan-x pan-y;
+  user-select: none;
+}
+
+/* ======================
+   접근성 향상 (Accessibility Enhancements)
+   ====================== */
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  .high-contrast-border {
+    border: 2px solid currentColor !important;
+  }
+  
+  .high-contrast-outline {
+    outline: 2px solid currentColor !important;
+    outline-offset: 2px !important;
+  }
+}
+
+/* 모션 감소 설정 지원 */
+@media (prefers-reduced-motion: reduce) {
+  .reduced-motion-compat {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .dark-mode-compat {
+    background-color: var(--color-gray-900);
+    color: var(--color-gray-100);
+  }
+}
+
+/* ======================
+   폰트 렌더링 최적화
+   ====================== */
+
+.font-rendering-optimized {
+  /* 모든 브라우저에서 일관된 폰트 렌더링 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'kern' 1;
+  font-kerning: normal;
+}
+
+/* 웹폰트 로딩 최적화 */
+.webfont-optimized {
+  font-display: swap;
+  font-loading: swap;
+}
+
+/* ======================
+   이미지 최적화
+   ====================== */
+
+.img-optimized {
+  /* 이미지 로딩 최적화 */
+  loading: lazy;
+  decoding: async;
+  
+  /* 크로스 브라우저 객체 맞춤 */
+  -o-object-fit: cover;
+  object-fit: cover;
+  
+  /* 이미지 스무딩 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* ======================
+   성능 최적화 힌트
+   ====================== */
+
+.performance-optimized {
+  /* GPU 레이어 생성 */
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  
+  /* 컴포지팅 레이어 분리 */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  
+  /* 페인트 격리 */
+  contain: layout style paint;
+}
+
+/* 중요한 요소에 대한 우선순위 힌트 */
+.priority-hint-high {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* ======================
+   레거시 브라우저 폴백
+   ====================== */
+
+/* CSS Grid를 지원하지 않는 브라우저용 폴백 */
+.no-cssgrid .grid-fallback {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.no-cssgrid .grid-fallback > * {
+  flex: 1 1 300px;
+  margin: 0.5rem;
+}
+
+/* Flexbox를 지원하지 않는 브라우저용 폴백 */
+.no-flexbox .flex-fallback {
+  display: table;
+  width: 100%;
+}
+
+.no-flexbox .flex-fallback > * {
+  display: table-cell;
+  vertical-align: top;
+}
+
+/* CSS 변수를 지원하지 않는 브라우저용 폴백 */
+.no-cssvariables .fallback-colors {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #e5e5e5;
+}
+
+/* ======================
+   인쇄 최적화
+   ====================== */
+
+@media print {
+  .print-optimized {
+    /* 인쇄 시 불필요한 요소 숨김 */
+    nav, footer, .no-print {
+      display: none !important;
+    }
+    
+    /* 인쇄 시 색상 최적화 */
+    * {
+      color: black !important;
+      background: white !important;
+      box-shadow: none !important;
+    }
+    
+    /* 페이지 나누기 제어 */
+    h1, h2, h3 {
+      page-break-after: avoid;
+    }
+    
+    /* 링크 URL 표시 */
+    a[href]:after {
+      content: " (" attr(href) ")";
+    }
+  }
+}
