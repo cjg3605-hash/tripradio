@@ -10,12 +10,10 @@ import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
 import { UserProfile } from '@/types/guide';
 import GuideLoading from '@/components/ui/GuideLoading';
-import { useTranslation } from '@/lib/translations';
 
 export default function GuideClient({ locationName, initialGuide }: { locationName: string, initialGuide: any }) {
     const router = useRouter();
-    const { currentLanguage } = useLanguage();
-    const { t } = useTranslation(currentLanguage);
+    const { currentLanguage, t } = useLanguage();
     const sessionResult = useSession();
     const session = sessionResult?.data;
 
@@ -222,7 +220,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <GuideLoading 
                     type="generating"
-                    message={t('guide.preparing', { location: locationName })}
+                    message={`"${locationName}" ${t('guide.preparing')}`}
                     subMessage={t('guide.generating')}
                     showProgress={true}
                 />

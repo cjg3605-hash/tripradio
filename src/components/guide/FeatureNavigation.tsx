@@ -14,7 +14,6 @@ import {
   Waves
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslation } from '@/lib/translations';
 
 interface FeatureNavigationProps {
   locationName: string;
@@ -31,8 +30,7 @@ const FeatureNavigation: React.FC<FeatureNavigationProps> = ({
   estimatedDuration = 30,
   className = ''
 }) => {
-  const { currentLanguage } = useLanguage();
-  const { t } = useTranslation(currentLanguage);
+  const { currentLanguage, t } = useLanguage();
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
 
   const features = [

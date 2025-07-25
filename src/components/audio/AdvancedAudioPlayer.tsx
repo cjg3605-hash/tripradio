@@ -21,7 +21,6 @@ import {
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { AudioChapter, PlaybackRate, RepeatMode } from '@/types/audio';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslation } from '@/lib/translations';
 
 interface AdvancedAudioPlayerProps {
   chapters: AudioChapter[];
@@ -38,8 +37,7 @@ const AdvancedAudioPlayer: React.FC<AdvancedAudioPlayerProps> = ({
   onPlaybackEnd,
   className = ''
 }) => {
-  const { currentLanguage } = useLanguage();
-  const { t } = useTranslation(currentLanguage);
+  const { currentLanguage, t } = useLanguage();
   const [showPlaylist, setShowPlaylist] = useState(false);
   const [showBookmarks, setShowBookmarks] = useState(false);
   const [showSettings, setShowSettings] = useState(false);

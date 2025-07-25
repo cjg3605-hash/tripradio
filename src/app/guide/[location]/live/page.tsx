@@ -15,7 +15,6 @@ import SimpleAudioPlayer from '@/components/audio/SimpleAudioPlayer';
 import ChapterAudioPlayer from '@/components/audio/ChapterAudioPlayer';
 import MapWithRoute from '@/components/guide/MapWithRoute';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslation } from '@/lib/translations';
 import { AudioChapter } from '@/types/audio';
 
 interface POI {
@@ -31,8 +30,7 @@ interface POI {
 const LiveTourPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
-  const { currentLanguage } = useLanguage();
-  const { t } = useTranslation(currentLanguage);
+  const { currentLanguage, t } = useLanguage();
   
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: 37.5665, lng: 126.9780 }); // Default to Seoul
@@ -170,7 +168,7 @@ const LiveTourPage: React.FC = () => {
               </button>
               <div>
                 <h1 className="text-lg font-medium text-gray-900">
-                  실시간 가이드
+                  {t('guide.realTimeGuideTitle')}
                 </h1>
                 <p className="text-sm text-gray-500">
                   {params.location}
@@ -187,7 +185,7 @@ const LiveTourPage: React.FC = () => {
         {/* 제목 */}
         <div className="text-center">
           <h1 className="text-2xl font-light text-gray-900 mb-2">
-            {params.location} 실시간 가이드
+            {params.location} {t('guide.realTimeGuideTitle')}
           </h1>
           <p className="text-gray-500">
             현재 위치 기반 맞춤 안내
@@ -196,7 +194,7 @@ const LiveTourPage: React.FC = () => {
 
         {/* 개요 */}
         <div className="border-b border-gray-100 pb-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-3">개요</h2>
+          <h2 className="text-lg font-medium text-gray-900 mb-3">{t('guide.overview')}</h2>
           <p className="text-gray-600 leading-relaxed">
             GPS를 기반으로 현재 위치에서 가장 적합한 관람 코스를 실시간으로 안내합니다. 
             각 지점에 도착하면 자동으로 해당 위치의 상세 정보와 오디오 가이드가 제공됩니다.
@@ -205,7 +203,7 @@ const LiveTourPage: React.FC = () => {
 
         {/* 필수관람포인트 */}
         <div className="border-b border-gray-100 pb-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">필수관람포인트</h2>
+          <h2 className="text-lg font-medium text-gray-900 mb-4">{t('guide.mustSeePoints')}</h2>
           <div className="space-y-6">
             {pois.map((poi, index) => (
               <div key={poi.id} className="border border-gray-100 rounded-lg p-4">
@@ -224,7 +222,7 @@ const LiveTourPage: React.FC = () => {
                   <div className="mt-3 pt-3 border-t border-gray-100">
                     <div className="flex items-center gap-2 mb-2">
                       <Headphones className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm font-medium text-gray-700">오디오 가이드</span>
+                      <span className="text-sm font-medium text-gray-700">{t('guide.audioGuide')}</span>
                     </div>
                     <ChapterAudioPlayer
                       chapter={poi.audioChapter}
@@ -239,7 +237,7 @@ const LiveTourPage: React.FC = () => {
 
         {/* 주의사항 */}
         <div className="border-b border-gray-100 pb-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">주의사항</h2>
+          <h2 className="text-lg font-medium text-gray-900 mb-4">{t('guide.precautions')}</h2>
           <div className="space-y-2 text-gray-600">
             <p>• GPS 신호가 약한 지역에서는 위치 정확도가 떨어질 수 있습니다</p>
             <p>• 이어폰 착용을 권장하며, 주변 상황을 주의깊게 살펴보세요</p>
@@ -250,7 +248,7 @@ const LiveTourPage: React.FC = () => {
 
         {/* 관람순서 */}
         <div className="pb-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">관람순서</h2>
+          <h2 className="text-lg font-medium text-gray-900 mb-4">{t('guide.viewingOrder')}</h2>
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="space-y-3">
               <div className="flex items-center gap-3">
@@ -291,7 +289,7 @@ const LiveTourPage: React.FC = () => {
             }}
             className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 transition-colors"
           >
-            실시간 가이드 시작
+            {t('guide.realTimeGuideTitle')} 시작
           </button>
         </div>
 

@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Navigation, Target, Zap, AlertCircle, CheckCircle } from 'lucide-react';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslation } from '@/lib/translations';
 import dynamic from 'next/dynamic';
 
 // 동적 import로 Leaflet 지도 컴포넌트 로드
@@ -33,8 +32,7 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
   pois,
   className = ''
 }) => {
-  const { currentLanguage } = useLanguage();
-  const { t } = useTranslation(currentLanguage);
+  const { currentLanguage, t } = useLanguage();
   const [showAccuracyInfo, setShowAccuracyInfo] = useState(false);
 
   const {

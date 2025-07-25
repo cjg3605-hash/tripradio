@@ -26,7 +26,6 @@ import GuideLoading from '@/components/ui/GuideLoading';
 import AdvancedAudioPlayer from '@/components/audio/AdvancedAudioPlayer';
 import StartLocationMap from '@/components/guide/StartLocationMap';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslation } from '@/lib/translations';
 import { ResponsiveContainer, PageHeader, Card, Stack, Flex } from '@/components/layout/ResponsiveContainer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -38,8 +37,7 @@ interface TourContentProps {
 }
 
 const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
-  const { currentLanguage } = useLanguage();
-  const { t } = useTranslation(currentLanguage);
+  const { currentLanguage, t } = useLanguage();
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [expandedChapters, setExpandedChapters] = useState<number[]>([0]);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -64,14 +62,9 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
     console.log('🔄 폴백 인트로 챕터 생성');
     return {
       id: 0,
-      title: t('guide.tourStart', { location: locationName }),
-      narrative: t('guide.introNarrative', { 
-        location: locationName,
-        locationInfo: guide.overview?.location || t('guide.specialPlace'),
-        features: guide.overview?.keyFeatures || guide.overview?.summary || t('guide.uniqueCharm'),
-        background: guide.overview?.background || t('guide.richHistory')
-      }),
-      nextDirection: t('guide.startMainTour', { location: locationName })
+      title: `${locationName} ${t('guide.tourStart')}`,
+      narrative: `${locationName}에 오신 것을 환영합니다. ${guide.overview?.location || '특별한 장소'}에 위치한 이곳은 ${guide.overview?.keyFeatures || guide.overview?.summary || '독특한 매력'}으로 유명합니다. ${guide.overview?.background || '풍부한 역사'}를 간직한 특별한 장소로 여러분을 안내하겠습니다.`,
+      nextDirection: `이제 ${locationName}의 첫 번째 핵심 공간으로 함께 이동하여 본격적인 투어를 시작해보겠습니다.`
     };
   };
 
@@ -574,7 +567,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
               </div>
               <h2 className="text-xl font-medium">{t('guide.viewingOrder')}</h2>
               <div className="px-3 py-1 bg-muted rounded-full text-sm text-muted-foreground">
-                {t('guide.chaptersCount', { count: totalChapters })}
+                총 {totalChapters}개 챕터
               </div>
             </div>
 

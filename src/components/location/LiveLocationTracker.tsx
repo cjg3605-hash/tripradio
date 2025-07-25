@@ -19,7 +19,6 @@ import {
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { GeofenceEvent } from '@/types/location';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslation } from '@/lib/translations';
 
 interface LiveLocationTrackerProps {
   pois?: Array<{ id: string; name: string; lat: number; lng: number; radius?: number }>;
@@ -38,8 +37,7 @@ const LiveLocationTracker: React.FC<LiveLocationTrackerProps> = ({
   showProgress = true,
   className = ''
 }) => {
-  const { currentLanguage } = useLanguage();
-  const { t } = useTranslation(currentLanguage);
+  const { currentLanguage, t } = useLanguage();
   const [showSettings, setShowSettings] = useState(false);
   const [notifications, setNotifications] = useState<Array<{ id: string; message: string; type: 'info' | 'success' | 'warning' }>>([]);
 
@@ -86,7 +84,7 @@ const LiveLocationTracker: React.FC<LiveLocationTrackerProps> = ({
         if (geofence) {
           addNotification(
             `poi-enter-${geofence.id}`,
-            t('location.arrivedAt', { name: geofence.name }),
+            `${geofence.name}에 도착했습니다`,
             'success'
           );
           onPOIReached?.(geofence.id, geofence.name);
