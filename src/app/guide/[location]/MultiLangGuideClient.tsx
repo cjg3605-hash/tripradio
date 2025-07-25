@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { GuideData } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
 import MinimalTourContent from './tour/components/TourContent';
-import FeatureNavigation from '@/components/guide/FeatureNavigation';
 import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
@@ -391,17 +390,6 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
         </div>
       )}
 
-      {/* 기능 네비게이션 */}
-      <div className="bg-white">
-        <div className="container-responsive py-6">
-          <FeatureNavigation 
-            locationName={locationName}
-            hasAudioContent={!!guideData?.realTimeGuide?.chapters?.length}
-            hasRoute={!!guideData?.route?.steps?.length}
-            estimatedDuration={guideData?.realTimeGuide?.chapters?.length ? guideData.realTimeGuide.chapters.length * 3 : 30}
-          />
-        </div>
-      </div>
 
       {/* 메인 가이드 컨텐츠 */}
       <div className="relative">

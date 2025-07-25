@@ -11,7 +11,7 @@ import {
   Compass
 } from 'lucide-react';
 import LiveLocationTracker from '@/components/location/LiveLocationTracker';
-import AdvancedAudioPlayer from '@/components/audio/AdvancedAudioPlayer';
+import SimpleAudioPlayer from '@/components/audio/SimpleAudioPlayer';
 import MapWithRoute from '@/components/guide/MapWithRoute';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/lib/translations';
@@ -321,7 +321,7 @@ const LiveTourPage: React.FC = () => {
 
         {/* Audio Player (시작 후에만 표시) */}
         {showAudioPlayer && audioChapters.length > 0 && (
-          <AdvancedAudioPlayer
+          <SimpleAudioPlayer
             chapters={audioChapters}
             onChapterChange={handleChapterChange}
             className="w-full"
