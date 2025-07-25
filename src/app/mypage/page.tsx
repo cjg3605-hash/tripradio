@@ -904,28 +904,58 @@ export default function MyPage() {
            }}>
         {/* 탭 네비게이션 */}
         <div className="border-b border-gray-200 mb-8">
-          <nav className="-mb-px flex flex-wrap gap-2 md:gap-8">
-            {[
-              { id: 'overview', label: t('mypage.overview') || '개요', icon: TrendingUp },
-              { id: 'guides', label: t('mypage.guides') || '내 가이드', icon: Folder },
-              { id: 'favorites', label: t('mypage.favoriteGuides') || '즐겨찾기', icon: Heart },
-              { id: 'files', label: t('mypage.fileGuides') || '파일 가이드', icon: Upload },
-              { id: 'settings', label: t('mypage.settings') || '설정', icon: Settings }
-            ].map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => setActiveTab(id as TabType)}
-                className={`btn-base border-b-2 font-medium text-sm md:text-base flex items-center bg-transparent transition-colors min-h-[48px] px-3 py-2 md:px-4 md:py-3 ${
-                  activeTab === id
-                    ? 'border-black text-black'
-                    : 'border-transparent text-gray-500 hover:text-black hover:border-gray-300'
-                }`}
-              >
-                <Icon className="h-5 w-5 md:h-4 md:w-4 mr-2" />
-                <span className="whitespace-nowrap">{label}</span>
-              </button>
-            ))}
-          </nav>
+          <div className="overflow-x-auto scrollbar-hide">
+            <nav className="-mb-px flex gap-2 md:gap-8 min-w-max pb-px">
+              {[
+                { 
+                  id: 'overview', 
+                  label: t('mypage.overview') || '개요', 
+                  shortLabel: t('mypage.overviewShort') || '개요',
+                  icon: TrendingUp 
+                },
+                { 
+                  id: 'guides', 
+                  label: t('mypage.guides') || '내 가이드', 
+                  shortLabel: t('mypage.guidesShort') || '가이드',
+                  icon: Folder 
+                },
+                { 
+                  id: 'favorites', 
+                  label: t('mypage.favoriteGuides') || '즐겨찾기', 
+                  shortLabel: t('mypage.favoritesShort') || '즐겨찾기',
+                  icon: Heart 
+                },
+                { 
+                  id: 'files', 
+                  label: t('mypage.fileGuides') || '파일 가이드', 
+                  shortLabel: t('mypage.filesShort') || '파일',
+                  icon: Upload 
+                },
+                { 
+                  id: 'settings', 
+                  label: t('mypage.settings') || '설정', 
+                  shortLabel: t('mypage.settingsShort') || '설정',
+                  icon: Settings 
+                }
+              ].map(({ id, label, shortLabel, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => setActiveTab(id as TabType)}
+                  className={`btn-base border-b-2 font-medium text-sm md:text-base flex items-center bg-transparent transition-colors min-h-[48px] px-3 py-2 md:px-4 md:py-3 flex-shrink-0 ${
+                    activeTab === id
+                      ? 'border-black text-black'
+                      : 'border-transparent text-gray-500 hover:text-black hover:border-gray-300'
+                  }`}
+                >
+                  <Icon className="h-5 w-5 md:h-4 md:w-4 mr-2 flex-shrink-0" />
+                  <span className="whitespace-nowrap">
+                    <span className="hidden sm:inline">{label}</span>
+                    <span className="inline sm:hidden">{shortLabel}</span>
+                  </span>
+                </button>
+              ))}
+            </nav>
+          </div>
         </div>
 
         {/* 탭 컨텐츠 */}

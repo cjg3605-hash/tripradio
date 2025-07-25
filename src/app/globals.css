@@ -471,6 +471,16 @@ button, a, input, textarea, select {
   color: var(--color-white);
 }
 
+/* Scrollbar Hide Utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
 /* Performance Optimizations */
 .gpu-accelerated {
   transform: translateZ(0);
