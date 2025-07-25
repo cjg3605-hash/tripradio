@@ -385,25 +385,26 @@ export default function MyPage() {
           </Grid>
 
           {/* 개인화 진단 섹션 */}
-          <Card variant="elevated" className="bg-gradient-to-r from-purple-50 to-blue-50 p-6">
+          <Card variant="elevated" className="bg-white border-2 border-gray-200 p-6 shadow-elegant">
               <Flex direction="col" gap="lg" className="md:flex-row md:justify-between md:align-start">
                 <div className="flex-1">
                   <Flex align="center" gap="sm" className="mb-4">
-                    <Brain className="w-7 h-7 text-purple-600" />
+                    <Brain className="w-7 h-7 text-black" />
                     <h3 className="text-xl md:text-2xl font-semibold text-black">
                       {t('mypage.personalizedDiagnosis') || '개인화 가이드 맞춤 진단'}
                     </h3>
-                    <Sparkles className="w-6 h-6 text-purple-400" />
+                    <Sparkles className="w-6 h-6 text-gray-600" />
                   </Flex>
                   
                   {personalityResults ? (
                     <div className="space-y-4">
                       <p className="text-gray-700 text-base leading-relaxed">
                         {t('mypage.diagnosisComplete') || '진단 완료! 당신의 주도적 성격은'} <span className="font-semibold text-black text-lg">
-                          {personalityResults.dominantTrait === 'openness' ? '개방성' :
-                           personalityResults.dominantTrait === 'conscientiousness' ? '성실성' :
-                           personalityResults.dominantTrait === 'extraversion' ? '외향성' :
-                           personalityResults.dominantTrait === 'agreeableness' ? '친화성' : '안정성'}
+                          {personalityResults.dominantTrait === 'openness' ? t('mypage.personalityTraits.openness') || '개방성' :
+                           personalityResults.dominantTrait === 'conscientiousness' ? t('mypage.personalityTraits.conscientiousness') || '성실성' :
+                           personalityResults.dominantTrait === 'extraversion' ? t('mypage.personalityTraits.extraversion') || '외향성' :
+                           personalityResults.dominantTrait === 'agreeableness' ? t('mypage.personalityTraits.agreeableness') || '친화성' : 
+                           t('mypage.personalityTraits.neuroticism') || '신경성'}
                         </span>{t('mypage.diagnosisResult') || '입니다'}
                       </p>
                       <div className="flex flex-col space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-6 text-sm text-gray-600">
@@ -417,36 +418,40 @@ export default function MyPage() {
                         </div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                        <div className="bg-white rounded-lg border border-gray-200 px-4 py-3">
-                          <div className="font-semibold text-black mb-1">{t('mypage.contentDepth') || '설명 깊이'}</div>
-                          <div className="text-gray-600">
-                            {personalityResults.personalizedSettings.contentDepth === 'comprehensive' ? '매우 상세' :
-                             personalityResults.personalizedSettings.contentDepth === 'detailed' ? '상세함' :
-                             personalityResults.personalizedSettings.contentDepth === 'moderate' ? '적당함' : '간단함'}
+                        <div className="bg-gray-50 rounded-lg border border-gray-300 px-4 py-3 hover:bg-gray-100 transition-colors">
+                          <div className="font-semibold text-black mb-1">{t('mypage.contentDepth') || '콘텐츠 깊이'}</div>
+                          <div className="text-gray-700">
+                            {personalityResults.personalizedSettings.contentDepth === 'comprehensive' ? t('mypage.contentDepthLevels.veryDetailed') || '매우 상세' :
+                             personalityResults.personalizedSettings.contentDepth === 'detailed' ? t('mypage.contentDepthLevels.detailed') || '상세' :
+                             personalityResults.personalizedSettings.contentDepth === 'moderate' ? t('mypage.contentDepthLevels.moderate') || '보통' : 
+                             t('mypage.contentDepthLevels.simple') || '간단'}
                           </div>
                         </div>
-                        <div className="bg-white rounded-lg border border-gray-200 px-4 py-3">
+                        <div className="bg-gray-50 rounded-lg border border-gray-300 px-4 py-3 hover:bg-gray-100 transition-colors">
                           <div className="font-semibold text-black mb-1">{t('mypage.guideStyle') || '가이드 스타일'}</div>
-                          <div className="text-gray-600">
-                            {personalityResults.personalizedSettings.narrativeStyle === 'storytelling' ? '스토리텔링' :
-                             personalityResults.personalizedSettings.narrativeStyle === 'academic' ? '학술적' :
-                             personalityResults.personalizedSettings.narrativeStyle === 'conversational' ? '대화형' : '사실적'}
+                          <div className="text-gray-700">
+                            {personalityResults.personalizedSettings.narrativeStyle === 'storytelling' ? t('mypage.guideStyles.storytelling') || '스토리텔링' :
+                             personalityResults.personalizedSettings.narrativeStyle === 'academic' ? t('mypage.guideStyles.academic') || '학술적' :
+                             personalityResults.personalizedSettings.narrativeStyle === 'conversational' ? t('mypage.guideStyles.conversational') || '대화형' : 
+                             t('mypage.guideStyles.practical') || '실용적'}
                           </div>
                         </div>
-                        <div className="bg-white rounded-lg border border-gray-200 px-4 py-3">
+                        <div className="bg-gray-50 rounded-lg border border-gray-300 px-4 py-3 hover:bg-gray-100 transition-colors">
                           <div className="font-semibold text-black mb-1">{t('mypage.interaction') || '상호작용'}</div>
-                          <div className="text-gray-600">
-                            {personalityResults.personalizedSettings.interactionLevel === 'highly_interactive' ? '매우 활발' :
-                             personalityResults.personalizedSettings.interactionLevel === 'interactive' ? '활발함' :
-                             personalityResults.personalizedSettings.interactionLevel === 'moderate' ? '적당함' : '차분함'}
+                          <div className="text-gray-700">
+                            {personalityResults.personalizedSettings.interactionLevel === 'highly_interactive' ? t('mypage.interactionLevels.veryActive') || '매우 활발' :
+                             personalityResults.personalizedSettings.interactionLevel === 'interactive' ? t('mypage.interactionLevels.active') || '활발' :
+                             personalityResults.personalizedSettings.interactionLevel === 'moderate' ? t('mypage.interactionLevels.moderate') || '보통' : 
+                             t('mypage.interactionLevels.passive') || '수동적'}
                           </div>
                         </div>
-                        <div className="bg-white rounded-lg border border-gray-200 px-4 py-3">
-                          <div className="font-semibold text-black mb-1">{t('mypage.emotionalTone') || '감정 톤'}</div>
-                          <div className="text-gray-600">
-                            {personalityResults.personalizedSettings.emotionalTone === 'enthusiastic' ? '열정적' :
-                             personalityResults.personalizedSettings.emotionalTone === 'warm' ? '따뜻함' :
-                             personalityResults.personalizedSettings.emotionalTone === 'professional' ? '전문적' : '중성적'}
+                        <div className="bg-gray-50 rounded-lg border border-gray-300 px-4 py-3 hover:bg-gray-100 transition-colors">
+                          <div className="font-semibold text-black mb-1">{t('mypage.emotionalTone') || '감정적 어조'}</div>
+                          <div className="text-gray-700">
+                            {personalityResults.personalizedSettings.emotionalTone === 'enthusiastic' ? t('mypage.emotionalTones.enthusiastic') || '열정적' :
+                             personalityResults.personalizedSettings.emotionalTone === 'warm' ? t('mypage.emotionalTones.friendly') || '친근한' :
+                             personalityResults.personalizedSettings.emotionalTone === 'professional' ? t('mypage.emotionalTones.professional') || '전문적' : 
+                             t('mypage.emotionalTones.calm') || '차분한'}
                           </div>
                         </div>
                       </div>
@@ -472,21 +477,19 @@ export default function MyPage() {
                 </div>
                 
                 <div className="w-full md:w-auto md:ml-6 mt-4 md:mt-0">
-                  <Button
+                  <button
                     onClick={() => setShowPersonalityModal(true)}
-                    variant="default"
-                    size="lg"
-                    className="w-full md:w-auto min-h-[48px] text-base font-semibold px-8"
+                    className="w-full md:w-auto min-h-[48px] text-base font-semibold px-8 py-3 bg-black text-white hover:bg-gray-800 transition-colors duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                   >
                     {personalityResults ? t('mypage.retakeDiagnosis') || '다시 진단하기' : t('mypage.startDiagnosis') || '진단 시작하기'}
-                  </Button>
+                  </button>
                 </div>
               </Flex>
               
               {personalityResults && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <p className="text-sm text-gray-500 flex items-center">
-                    <Sparkles className="w-4 h-4 text-gray-400 mr-2" />
+                <div className="mt-4 pt-4 border-t border-gray-300">
+                  <p className="text-sm text-gray-600 flex items-center">
+                    <Sparkles className="w-4 h-4 text-black mr-2" />
                     {t('mypage.personalizedGuideActive') || '이제 모든 가이드가 당신의 성격에 맞게 자동으로 개인화됩니다!'}
                   </p>
                 </div>

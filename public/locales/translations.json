@@ -222,7 +222,59 @@
       "accountInfo": "계정 정보",
       "dataManagement": "데이터 관리",
       "clearAllHistory": "모든 가이드 기록 삭제",
-      "joinDate": "가입일"
+      "joinDate": "가입일",
+      "personalizedDiagnosis": "개인화 진단",
+      "diagnosisComplete": "진단 완료",
+      "diagnosisResult": "진단 결과",
+      "reliability": "신뢰도",
+      "diagnosed": "진단됨",
+      "contentDepth": "콘텐츠 깊이",
+      "guideStyle": "가이드 스타일",
+      "interaction": "상호작용",
+      "emotionalTone": "감정적 어조",
+      "personalizedGuideActive": "개인화 가이드 활성화",
+      "personalityTraits": {
+        "conscientiousness": "성실성",
+        "openness": "개방성",
+        "extraversion": "외향성",
+        "agreeableness": "친화성",
+        "neuroticism": "신경성"
+      },
+      "contentDepthLevels": {
+        "veryDetailed": "매우 상세",
+        "detailed": "상세",
+        "moderate": "보통",
+        "simple": "간단",
+        "verySimple": "매우 간단"
+      },
+      "guideStyles": {
+        "academic": "학술적",
+        "conversational": "대화형",
+        "storytelling": "스토리텔링",
+        "practical": "실용적",
+        "visual": "시각적"
+      },
+      "interactionLevels": {
+        "veryActive": "매우 활발",
+        "active": "활발",
+        "moderate": "보통",
+        "passive": "수동적",
+        "veryPassive": "매우 수동적"
+      },
+      "emotionalTones": {
+        "enthusiastic": "열정적",
+        "friendly": "친근한",
+        "professional": "전문적",
+        "calm": "차분한",
+        "inspiring": "영감을 주는"
+      },
+      "aiSimulationInfo": "100만명 AI 시뮬레이션으로 검증된 5문항 진단으로",
+      "accuracy": "정확도",
+      "personalizedGuideProvided": "의 개인화 가이드를 제공합니다",
+      "timeRequired": "소요시간",
+      "countriesVerification": "개국 문화적 공정성 검증",
+      "retakeDiagnosis": "다시 진단하기",
+      "startDiagnosis": "진단 시작하기"
     },
     "languages": {
       "ko": "한국어",
@@ -490,7 +542,52 @@
       "accountInfo": "Account Information",
       "dataManagement": "Data Management",
       "clearAllHistory": "Clear All Guide History",
-      "joinDate": "Join Date"
+      "joinDate": "Join Date",
+      "personalizedDiagnosis": "Personalized Diagnosis",
+      "diagnosisComplete": "Diagnosis Complete",
+      "diagnosisResult": "Diagnosis Result",
+      "reliability": "Reliability",
+      "diagnosed": "Diagnosed",
+      "contentDepth": "Content Depth",
+      "guideStyle": "Guide Style",
+      "interaction": "Interaction",
+      "emotionalTone": "Emotional Tone",
+      "personalizedGuideActive": "Personalized Guide Active",
+      "personalityTraits": {
+        "conscientiousness": "Conscientiousness",
+        "openness": "Openness",
+        "extraversion": "Extraversion",
+        "agreeableness": "Agreeableness",
+        "neuroticism": "Neuroticism"
+      },
+      "contentDepthLevels": {
+        "veryDetailed": "Very Detailed",
+        "detailed": "Detailed",
+        "moderate": "Moderate",
+        "simple": "Simple",
+        "verySimple": "Very Simple"
+      },
+      "guideStyles": {
+        "academic": "Academic",
+        "conversational": "Conversational",
+        "storytelling": "Storytelling",
+        "practical": "Practical",
+        "visual": "Visual"
+      },
+      "interactionLevels": {
+        "veryActive": "Very Active",
+        "active": "Active",
+        "moderate": "Moderate",
+        "passive": "Passive",
+        "veryPassive": "Very Passive"
+      },
+      "emotionalTones": {
+        "enthusiastic": "Enthusiastic",
+        "friendly": "Friendly",
+        "professional": "Professional",
+        "calm": "Calm",
+        "inspiring": "Inspiring"
+      }
     },
     "languages": {
       "ko": "Korean",
