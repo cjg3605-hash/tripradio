@@ -184,7 +184,24 @@
       "pressEnterToOpen": "Enter키를 눌러 언어 메뉴를 열 수 있습니다",
       "clickToSelectLanguage": "클릭하여 언어 선택",
       "exists": "있음",
-      "notExists": "없음"
+      "notExists": "없음",
+      "confirmDelete": "정말 삭제하시겠습니까?",
+      "languagesGenerated": "개 언어로 생성",
+      "total": "총",
+      "none": "없음",
+      "minutes": "분",
+      "chapters": "개 챕터",
+      "sortLatest": "최신순",
+      "sortName": "이름순",
+      "sortChapters": "챕터순",
+      "allLanguages": "모든 언어",
+      "completed": "완료",
+      "processing": "처리중",
+      "error": "오류",
+      "hide": "숨기기",
+      "showAudioPlayer": "오디오 플레이어 표시",
+      "daysAgo": "일 전",
+      "weeksAgo": "주 전"
     },
     "date": {
       "today": "오늘",
@@ -274,7 +291,17 @@
       "timeRequired": "소요시간",
       "countriesVerification": "개국 문화적 공정성 검증",
       "retakeDiagnosis": "다시 진단하기",
-      "startDiagnosis": "진단 시작하기"
+      "startDiagnosis": "진단 시작하기",
+      "primaryLanguage": "주 사용 언어",
+      "frequentPlaces": "자주 방문하는 장소들",
+      "noFavoriteGuides": "즐겨찾기한 가이드가 없습니다",
+      "addFavoriteGuides": "마음에 드는 가이드를 즐겨찾기로 추가해보세요!",
+      "createGuideFromFile": "파일에서 가이드 생성",
+      "uploadFileDescription": "PDF, Word, 텍스트 파일을 업로드하여 가이드를 생성할 수 있습니다",
+      "supportedFormats": "지원 형식: PDF, DOCX, TXT (최대 10MB)",
+      "noUploadedFiles": "업로드된 파일이 없습니다",
+      "uploadFirstFile": "첫 번째 파일을 업로드해보세요!",
+      "personalizedGuideActive": "이제 모든 가이드가 당신의 성격에 맞게 자동으로 개인화됩니다!"
     },
     "languages": {
       "ko": "한국어",
@@ -320,7 +347,41 @@
       "goBack": "돌아가기",
       "goHome": "홈으로 돌아가기",
       "tryAgain": "다시 시도",
-      "viewDetails": "자세히 보기"
+      "viewDetails": "자세히 보기",
+      "createGuide": "가이드 생성하기",
+      "selectFile": "파일 선택",
+      "save": "변경사항 저장"
+    },
+    "search": {
+      "placeholder": "가이드 검색..."
+    },
+    "profile": {
+      "user": "사용자",
+      "name": "이름",
+      "email": "이메일",
+      "language": "기본 언어",
+      "notifications": "알림 설정",
+      "newFeatureNotifications": "새로운 기능 알림",
+      "guideCompleteNotifications": "가이드 생성 완료 알림",
+      "marketingEmails": "마케팅 이메일 수신",
+      "dataManagement": "데이터 관리",
+      "exportData": "데이터 내보내기",
+      "exportDescription": "모든 가이드 데이터를 JSON 형태로 다운로드",
+      "deleteAllData": "모든 데이터 삭제",
+      "deleteDescription": "저장된 모든 가이드와 설정을 삭제합니다",
+      "manageProfile": "프로필 정보를 관리하세요",
+      "enterName": "이름을 입력하세요",
+      "emailNotEditable": "이메일은 변경할 수 없습니다"
+    },
+    "guide": {
+      "noGuides": "가이드가 없습니다",
+      "createNewGuide": "새로운 가이드를 생성해보세요!",
+      "audioGuide": "오디오 가이드"
+    },
+    "features": {
+      "upgradeToLive": "라이브 투어로 업그레이드",
+      "liveTourBenefits": "실시간 위치 추적과 개인화된 가이드를 경험해보세요",
+      "tryLiveTour": "라이브 투어 체험"
     }
   },
   "en": {
@@ -504,7 +565,24 @@
       "pressEnterToOpen": "Press Enter to open language menu",
       "clickToSelectLanguage": "Click to select language",
       "exists": "Exists",
-      "notExists": "Not exists"
+      "notExists": "Not exists",
+      "confirmDelete": "Are you sure you want to delete this?",
+      "languagesGenerated": " languages generated",
+      "total": "Total",
+      "none": "None",
+      "minutes": " minutes",
+      "chapters": " chapters",
+      "sortLatest": "Latest",
+      "sortName": "Name",
+      "sortChapters": "Chapters",
+      "allLanguages": "All Languages",
+      "completed": "Completed",
+      "processing": "Processing",
+      "error": "Error",
+      "hide": "Hide",
+      "showAudioPlayer": "Show Audio Player",
+      "daysAgo": " days ago",
+      "weeksAgo": " weeks ago"
     },
     "date": {
       "today": "Today",
@@ -587,7 +665,24 @@
         "professional": "Professional",
         "calm": "Calm",
         "inspiring": "Inspiring"
-      }
+      },
+      "aiSimulationInfo": "5-question diagnosis verified through 1 million AI simulations with",
+      "accuracy": "accuracy",
+      "personalizedGuideProvided": "personalized guide provided",
+      "timeRequired": "Time required",
+      "countriesVerification": "countries cultural fairness verification",
+      "retakeDiagnosis": "Retake Diagnosis",
+      "startDiagnosis": "Start Diagnosis",
+      "primaryLanguage": "Primary Language",
+      "frequentPlaces": "Frequently visited places",
+      "noFavoriteGuides": "No favorite guides yet",
+      "addFavoriteGuides": "Add your favorite guides to your collection!",
+      "createGuideFromFile": "Create Guide from File",
+      "uploadFileDescription": "Upload PDF, Word, or text files to create guides",
+      "supportedFormats": "Supported formats: PDF, DOCX, TXT (max 10MB)",
+      "noUploadedFiles": "No uploaded files",
+      "uploadFirstFile": "Upload your first file!",
+      "personalizedGuideActive": "All guides will now be automatically personalized to your personality!"
     },
     "languages": {
       "ko": "Korean",
@@ -633,7 +728,41 @@
       "goBack": "Go Back",
       "goHome": "Go Home",
       "tryAgain": "Try Again",
-      "viewDetails": "View Details"
+      "viewDetails": "View Details",
+      "createGuide": "Create Guide",
+      "selectFile": "Select File",
+      "save": "Save Changes"
+    },
+    "search": {
+      "placeholder": "Search guides..."
+    },
+    "profile": {
+      "user": "User",
+      "name": "Name",
+      "email": "Email",
+      "language": "Default Language",
+      "notifications": "Notification Settings",
+      "newFeatureNotifications": "New feature notifications",
+      "guideCompleteNotifications": "Guide creation completion notifications",
+      "marketingEmails": "Marketing emails",
+      "dataManagement": "Data Management",
+      "exportData": "Export Data",
+      "exportDescription": "Download all guide data in JSON format",
+      "deleteAllData": "Delete All Data",
+      "deleteDescription": "Delete all saved guides and settings",
+      "manageProfile": "Manage your profile information",
+      "enterName": "Enter your name",
+      "emailNotEditable": "Email cannot be changed"
+    },
+    "guide": {
+      "noGuides": "No guides available",
+      "createNewGuide": "Create a new guide!",
+      "audioGuide": "Audio Guide"
+    },
+    "features": {
+      "upgradeToLive": "Upgrade to Live Tour",
+      "liveTourBenefits": "Experience real-time location tracking and personalized guides",
+      "tryLiveTour": "Try Live Tour"
     }
   },
   "ja": {

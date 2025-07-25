@@ -5,11 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { 
   MapPin, 
   Headphones, 
-  ArrowLeft, 
-  Settings,
+  ArrowLeft,
   Share2,
   RotateCcw,
-  Download,
   Compass
 } from 'lucide-react';
 import LiveLocationTracker from '@/components/location/LiveLocationTracker';
@@ -156,76 +154,133 @@ const LiveTourPage: React.FC = () => {
   const currentPOI = pois[currentChapter];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="px-4 py-3">
+      <div className="border-b border-gray-100 sticky top-0 z-40 bg-white">
+        <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.back()}
-                className="p-2 text-gray-500 hover:text-gray-700 rounded-lg transition-colors"
-                aria-label={t('common.back')}
+                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="뒤로가기"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <div>
-                <h1 className="font-semibold text-gray-900">
-                  {t('live.liveGuide')} - {params.location}
+                <h1 className="text-lg font-medium text-gray-900">
+                  실시간 가이드
                 </h1>
-                {currentPOI && (
-                  <p className="text-sm text-gray-500">
-                    {currentPOI.name}
-                  </p>
-                )}
+                <p className="text-sm text-gray-500">
+                  {params.location}
+                </p>
               </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleReset}
-                className="p-2 text-gray-500 hover:text-gray-700 rounded-lg transition-colors"
-                aria-label={t('live.reset')}
-              >
-                <RotateCcw className="w-5 h-5" />
-              </button>
-              
-              <button
-                onClick={handleShare}
-                className="p-2 text-gray-500 hover:text-gray-700 rounded-lg transition-colors"
-                aria-label={t('live.share')}
-              >
-                <Share2 className="w-5 h-5" />
-              </button>
-              
-              <button
-                onClick={toggleFullscreen}
-                className="p-2 text-gray-500 hover:text-gray-700 rounded-lg transition-colors"
-                aria-label={t('live.fullscreen')}
-              >
-                <Compass className="w-5 h-5" />
-              </button>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-white' : ''}`}>
-        {isFullscreen && (
-          <button
-            onClick={toggleFullscreen}
-            className="absolute top-4 right-4 z-50 p-2 bg-black bg-opacity-50 text-white rounded-lg"
-            aria-label={t('live.exitFullscreen')}
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-        )}
+      <div className="max-w-4xl mx-auto p-6 space-y-8">
+        
+        {/* 제목 */}
+        <div className="text-center">
+          <h1 className="text-2xl font-light text-gray-900 mb-2">
+            {params.location} 실시간 가이드
+          </h1>
+          <p className="text-gray-500">
+            현재 위치 기반 맞춤 안내
+          </p>
+        </div>
 
-        <div className={`${isFullscreen ? 'h-full' : 'max-w-4xl mx-auto p-4'} space-y-6`}>
-          
-          {/* Location Tracker */}
-          {!isFullscreen && (
+        {/* 개요 */}
+        <div className="border-b border-gray-100 pb-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-3">개요</h2>
+          <p className="text-gray-600 leading-relaxed">
+            GPS를 기반으로 현재 위치에서 가장 적합한 관람 코스를 실시간으로 안내합니다. 
+            각 지점에 도착하면 자동으로 해당 위치의 상세 정보와 오디오 가이드가 제공됩니다.
+          </p>
+        </div>
+
+        {/* 필수관람포인트 */}
+        <div className="border-b border-gray-100 pb-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-4">필수관람포인트</h2>
+          <div className="space-y-3">
+            {pois.map((poi, index) => (
+              <div key={poi.id} className="flex items-start gap-3">
+                <div className="w-6 h-6 bg-black text-white text-xs rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  {index + 1}
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">{poi.name}</h3>
+                  <p className="text-sm text-gray-600">{poi.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 주의사항 */}
+        <div className="border-b border-gray-100 pb-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-4">주의사항</h2>
+          <div className="space-y-2 text-gray-600">
+            <p>• GPS 신호가 약한 지역에서는 위치 정확도가 떨어질 수 있습니다</p>
+            <p>• 이어폰 착용을 권장하며, 주변 상황을 주의깊게 살펴보세요</p>
+            <p>• 배터리 소모가 많으니 보조배터리를 준비하시기 바랍니다</p>
+            <p>• 실내나 지하에서는 GPS 기능이 제한될 수 있습니다</p>
+          </div>
+        </div>
+
+        {/* 관람순서 */}
+        <div className="pb-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-4">관람순서</h2>
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
+                  1
+                </div>
+                <p className="text-gray-700">위치 권한 허용 및 GPS 활성화</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
+                  2
+                </div>
+                <p className="text-gray-700">시작점으로 이동하여 투어 시작</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
+                  3
+                </div>
+                <p className="text-gray-700">각 지점 도착 시 자동 오디오 가이드 재생</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
+                  4
+                </div>
+                <p className="text-gray-700">제안된 순서대로 이동하여 완주</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 시작 버튼 */}
+        <div className="text-center pt-4">
+          <button
+            onClick={() => {
+              // 실제 실시간 가이드 기능 시작
+              setShowMap(true);
+              setShowAudioPlayer(true);
+            }}
+            className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            실시간 가이드 시작
+          </button>
+        </div>
+
+        {/* Location Tracker (시작 후에만 표시) */}
+        {(showMap || showAudioPlayer) && (
+          <div className="mt-8">
             <LiveLocationTracker
               pois={pois}
               onLocationUpdate={handleLocationUpdate}
@@ -234,110 +289,44 @@ const LiveTourPage: React.FC = () => {
               showProgress={true}
               className="w-full"
             />
-          )}
+          </div>
+        )}
 
-          {/* Map */}
-          {showMap && (
-            <div className={`${isFullscreen ? 'h-full' : 'h-96'} bg-white rounded-lg shadow-sm overflow-hidden`}>
-              <MapWithRoute
-                pois={pois.map(poi => ({
-                  id: poi.id,
-                  name: poi.name,
-                  lat: poi.lat,
-                  lng: poi.lng,
-                  description: poi.description || ''
-                }))}
-                currentLocation={currentLocation}
-                center={mapCenter}
-                zoom={15}
-                showRoute={true}
-                showUserLocation={true}
-                onPoiClick={(poiId) => {
-                  const poiIndex = pois.findIndex(poi => poi.id === poiId);
-                  if (poiIndex !== -1) {
-                    setCurrentChapter(poiIndex);
-                  }
-                }}
-                className="w-full h-full"
-              />
-            </div>
-          )}
-
-          {/* Quick Controls */}
-          {!isFullscreen && (
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowMap(!showMap)}
-                className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg transition-colors ${
-                  showMap 
-                    ? 'bg-black text-white' 
-                    : 'bg-white text-gray-700 border border-gray-300'
-                }`}
-              >
-                <MapPin className="w-4 h-4" />
-                {showMap ? t('live.hideMap') : t('live.showMap')}
-              </button>
-              
-              <button
-                onClick={() => setShowAudioPlayer(!showAudioPlayer)}
-                className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg transition-colors ${
-                  showAudioPlayer 
-                    ? 'bg-black text-white' 
-                    : 'bg-white text-gray-700 border border-gray-300'
-                }`}
-              >
-                <Headphones className="w-4 h-4" />
-                {showAudioPlayer ? t('live.hideAudio') : t('live.showAudio')}
-              </button>
-            </div>
-          )}
-
-          {/* Audio Player */}
-          {showAudioPlayer && !isFullscreen && audioChapters.length > 0 && (
-            <AdvancedAudioPlayer
-              chapters={audioChapters}
-              onChapterChange={handleChapterChange}
-              className="w-full"
+        {/* Map (시작 후에만 표시) */}
+        {showMap && (
+          <div className="h-96 bg-white border border-gray-100 rounded-lg overflow-hidden">
+            <MapWithRoute
+              pois={pois.map(poi => ({
+                id: poi.id,
+                name: poi.name,
+                lat: poi.lat,
+                lng: poi.lng,
+                description: poi.description || ''
+              }))}
+              currentLocation={currentLocation}
+              center={mapCenter}
+              zoom={15}
+              showRoute={true}
+              showUserLocation={true}
+              onPoiClick={(poiId) => {
+                const poiIndex = pois.findIndex(poi => poi.id === poiId);
+                if (poiIndex !== -1) {
+                  setCurrentChapter(poiIndex);
+                }
+              }}
+              className="w-full h-full"
             />
-          )}
+          </div>
+        )}
 
-          {/* Fullscreen Map Mode Audio Controls */}
-          {isFullscreen && showAudioPlayer && audioChapters.length > 0 && (
-            <div className="absolute bottom-4 left-4 right-4 z-40">
-              <AdvancedAudioPlayer
-                chapters={audioChapters}
-                onChapterChange={handleChapterChange}
-                className="w-full bg-white bg-opacity-95 backdrop-blur-sm"
-              />
-            </div>
-          )}
-
-          {/* Current POI Info */}
-          {currentPOI && !isFullscreen && (
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-black text-white rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm font-medium">
-                    {currentChapter + 1}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900 mb-1">
-                    {currentPOI.name}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {currentPOI.description}
-                  </p>
-                  {currentLocation && (
-                    <p className="text-xs text-gray-500 mt-2">
-                      {t('live.coordinates')}: {currentLocation.lat.toFixed(6)}, {currentLocation.lng.toFixed(6)}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Audio Player (시작 후에만 표시) */}
+        {showAudioPlayer && audioChapters.length > 0 && (
+          <AdvancedAudioPlayer
+            chapters={audioChapters}
+            onChapterChange={handleChapterChange}
+            className="w-full"
+          />
+        )}
       </div>
     </div>
   );
