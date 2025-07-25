@@ -79,11 +79,19 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
         return;
       }
       
-      if (languageMenuRef.current && !languageMenuRef.current.contains(event.target as Node)) {
+      // Check if click is inside any dropdown menu
+      if (languageMenuRef.current?.contains(event.target as Node) || 
+          profileMenuRef.current?.contains(event.target as Node)) {
+        console.log('🎯 Click was inside dropdown menu, not closing');
+        return;
+      }
+      
+      // Close menus if click is outside
+      if (isLanguageMenuOpen) {
         console.log('🔒 Closing language menu due to outside click');
         setIsLanguageMenuOpen(false);
       }
-      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+      if (isProfileMenuOpen) {
         console.log('🔒 Closing profile menu due to outside click');
         setIsProfileMenuOpen(false);
       }
@@ -99,7 +107,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
 
 
   const handleLanguageChange = async (langCode: string) => {
-    console.log('🔥 handleLanguageChange called with:', langCode);
+    console.log('🔥 Language changing to:', langCode);
     try {
       await setLanguage(langCode as any);
       setIsLanguageMenuOpen(false);
@@ -239,8 +247,13 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
 
           {/* 히스토리 버튼 */}
           <button
-            onClick={onHistoryOpen}
-            className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+            onClick={(e) => {
+              console.log('🖱️ Desktop history button clicked');
+              e.preventDefault();
+              e.stopPropagation();
+              if (onHistoryOpen) onHistoryOpen();
+            }}
+            className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-150"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -254,7 +267,12 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
           ) : session?.user ? (
             <div className="relative" ref={profileMenuRef}>
               <button
-                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                onClick={(e) => {
+                  console.log('🖱️ Desktop profile button clicked, current state:', isProfileMenuOpen);
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsProfileMenuOpen(!isProfileMenuOpen);
+                }}
                 className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
               >
                 {session.user.image ? (
@@ -271,19 +289,27 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
               </button>
 
               {isProfileMenuOpen && (
-                <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-40 z-50">
+                <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-dropdown border border-gray-200 py-1 min-w-40 z-50">
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      console.log('🖱️ Desktop mypage option clicked');
+                      e.preventDefault();
+                      e.stopPropagation();
                       router.push('/mypage');
                       setIsProfileMenuOpen(false);
                     }}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="dropdown-item w-full text-left px-3 py-2 text-sm text-gray-700 transition-colors duration-150"
                   >
                     {t('profile.mypage') || '마이페이지'}
                   </button>
                   <button
-                    onClick={handleSignOut}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={(e) => {
+                      console.log('🖱️ Desktop logout option clicked');
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleSignOut();
+                    }}
+                    className="dropdown-item w-full text-left px-3 py-2 text-sm text-gray-700 transition-colors duration-150"
                   >
                     {t('auth.signout') || '로그아웃'}
                   </button>
@@ -292,8 +318,13 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
             </div>
           ) : (
             <button
-              onClick={() => router.push('/auth/signin')}
-              className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+              onClick={(e) => {
+                console.log('🖱️ Desktop login button clicked');
+                e.preventDefault();
+                e.stopPropagation();
+                router.push('/auth/signin');
+              }}
+              className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-150"
             >
               <LogIn className="w-4 h-4" />
               <span>{t('auth.signin') || '로그인'}</span>
@@ -307,15 +338,14 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
           <div className="relative" ref={languageMenuRef}>
             <button
               onClick={(e) => {
+                console.log('🖱️ Mobile language button clicked, current state:', isLanguageMenuOpen);
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Mobile language button clicked, current state:', isLanguageMenuOpen);
                 setIsLanguageMenuOpen(!isLanguageMenuOpen);
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  console.log('Mobile language button key pressed:', e.key);
                   setIsLanguageMenuOpen(!isLanguageMenuOpen);
                 }
               }}
@@ -342,7 +372,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
 
             {isLanguageMenuOpen && (
               <div 
-                className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-24 z-50"
+                className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-dropdown border border-gray-200 py-1 min-w-24 z-50"
                 role="listbox"
                 aria-label={t('header.selectLanguage') || '언어 선택'}
               >
@@ -350,14 +380,10 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                   <button
                     key={lang.code}
                     onClick={(e) => {
+                      console.log('🖱️ Mobile dropdown item clicked:', lang.code);
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('Mobile dropdown item clicked:', lang.code);
                       handleLanguageChange(lang.code);
-                    }}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
                     }}
                     className={`
                       dropdown-item w-full text-left px-2 py-1 flex items-center gap-1 text-xs transition-colors duration-150
@@ -392,8 +418,13 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
 
           {/* 히스토리 버튼 */}
           <button
-            onClick={onHistoryOpen}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-xs text-gray-700"
+            onClick={(e) => {
+              console.log('🖱️ Mobile history button clicked');
+              e.preventDefault();
+              e.stopPropagation();
+              if (onHistoryOpen) onHistoryOpen();
+            }}
+            className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-xs text-gray-700 transition-colors duration-150"
           >
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -405,8 +436,13 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
           {session?.user ? (
             <div className="relative" ref={profileMenuRef}>
               <button
-                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-xs text-gray-700"
+                onClick={(e) => {
+                  console.log('🖱️ Mobile profile button clicked, current state:', isProfileMenuOpen);
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsProfileMenuOpen(!isProfileMenuOpen);
+                }}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-xs text-gray-700 transition-colors duration-150"
               >
                 {session.user.image ? (
                   <img 
@@ -421,19 +457,27 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
               </button>
 
               {isProfileMenuOpen && (
-                <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-32 z-50">
+                <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-dropdown border border-gray-200 py-1 min-w-32 z-50">
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      console.log('🖱️ Mobile mypage option clicked');
+                      e.preventDefault();
+                      e.stopPropagation();
                       router.push('/mypage');
                       setIsProfileMenuOpen(false);
                     }}
-                    className="w-full text-left px-2 py-1 text-xs text-gray-700 hover:bg-gray-100"
+                    className="dropdown-item w-full text-left px-2 py-1 text-xs text-gray-700 transition-colors duration-150"
                   >
                     {t('profile.mypage') || '마이페이지'}
                   </button>
                   <button
-                    onClick={handleSignOut}
-                    className="w-full text-left px-2 py-1 text-xs text-gray-700 hover:bg-gray-100"
+                    onClick={(e) => {
+                      console.log('🖱️ Mobile logout option clicked');
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleSignOut();
+                    }}
+                    className="dropdown-item w-full text-left px-2 py-1 text-xs text-gray-700 transition-colors duration-150"
                   >
                     {t('auth.signout') || '로그아웃'}
                   </button>
@@ -442,8 +486,13 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
             </div>
           ) : (
             <button
-              onClick={() => router.push('/auth/signin')}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-xs text-gray-700"
+              onClick={(e) => {
+                console.log('🖱️ Mobile login button clicked');
+                e.preventDefault();
+                e.stopPropagation();
+                router.push('/auth/signin');
+              }}
+              className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-xs text-gray-700 transition-colors duration-150"
             >
               <LogIn className="w-3 h-3" />
               <span className="hidden sm:inline">{t('auth.signin') || '로그인'}</span>
