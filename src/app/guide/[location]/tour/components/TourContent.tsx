@@ -18,7 +18,8 @@ import {
   Users,
   Zap,
   Headphones,
-  Volume2
+  Volume2,
+  Home
 } from 'lucide-react';
 import { GuideData, GuideChapter } from '@/types/guide';
 import { AudioChapter } from '@/types/audio';
@@ -29,6 +30,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { ResponsiveContainer, PageHeader, Card, Stack, Flex } from '@/components/layout/ResponsiveContainer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface TourContentProps {
   guide: GuideData;
@@ -38,9 +40,11 @@ interface TourContentProps {
 
 const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   const { currentLanguage, t } = useLanguage();
+  const router = useRouter();
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [expandedChapters, setExpandedChapters] = useState<number[]>([0]);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showScrollButtons, setShowScrollButtons] = useState(false);
   const [componentKey, setComponentKey] = useState(0); // 컴포넌트 완전 리렌더링용
   const internalChapterRefs = useRef<(HTMLElement | null)[]>([]);
 
@@ -164,10 +168,13 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   // 스크롤 이벤트 처리
   useEffect(() => {
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 300);
+      const scrollY = window.scrollY;
+      setShowScrollTop(scrollY > 300);
+      setShowScrollButtons(scrollY > 300);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // 초기 상태 확인
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -176,6 +183,11 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   // 맨 위로 스크롤
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // 홈으로 이동
+  const goToHome = () => {
+    router.push('/');
   };
 
   // 텍스트 포맷팅
@@ -648,16 +660,37 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
       {/* BigTech 디자인 시뮬레이터 임시 제거 (빌드 오류 해결) */}
 
-      {/* 스크롤 투 탑 버튼 */}
-      {showScrollTop && (
-        <Button
-          onClick={scrollToTop}
-          variant="outline"
-          size="icon"
-          className="fixed bottom-8 right-8 w-14 h-14 z-50 shadow-lg rounded-full"
-        >
-          <ArrowUp className="w-5 h-5" />
-        </Button>
+      {/* 스크롤 네비게이션 버튼들 */}
+      {showScrollButtons && (
+        <>
+          {/* 홈 버튼 (왼쪽 하단) */}
+          <Button
+            onClick={goToHome}
+            variant="outline"
+            size="icon"
+            className="fixed bottom-8 left-8 w-14 h-14 z-50 shadow-lg rounded-full bg-black text-white hover:bg-gray-800 border-black"
+          >
+            <Home className="w-5 h-5" />
+          </Button>
+
+          {/* 스크롤 투 탑 버튼 (오른쪽 하단) */}
+          <Button
+            onClick={scrollToTop}
+            variant="outline"
+            size="icon"
+            className="fixed bottom-8 right-8 w-14 h-14 z-50 shadow-lg rounded-full bg-black text-white hover:bg-gray-800 border-black"
+          >
+            <ArrowUp className="w-5 h-5" />
+          </Button>
+        </>
+      )}
+
+      {/* 디버깅 정보 (개발 환경에서만) */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed top-4 left-4 bg-blue-500 text-white p-2 rounded text-xs z-50">
+          <div>Scroll Buttons: {showScrollButtons ? 'VISIBLE' : 'HIDDEN'}</div>
+          <div>Scroll Y: {typeof window !== 'undefined' ? window.scrollY : 'N/A'}</div>
+        </div>
       )}
     </ResponsiveContainer>
   );
