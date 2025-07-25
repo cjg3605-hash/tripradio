@@ -442,7 +442,10 @@ function SignInContent() {
         )}
 
         {/* Main Card */}
-        <Card variant="glass" className="overflow-hidden transform transition-all duration-500 hover:shadow-ultra rounded-2xl">
+        <Card variant="glass" className="overflow-hidden transform transition-all duration-500 hover:shadow-ultra"
+              style={{
+               borderRadius: 'var(--radius-2xl)'
+             }}>
           {/* 회원가입 완료 상태 */}
           {authMode === 'signup' && signupStep === 'completed' && (
             <div className="p-12 text-center">
@@ -835,13 +838,14 @@ function SignInContent() {
               </div>
             </div>
           )}
-        </Card>
+        </div>
 
         {/* Security Badge */}
         <div className="mt-6 flex items-center justify-center space-x-2 text-xs text-gray-500">
           <Shield className="w-4 h-4" />
           <span>256-bit SSL 보안 연결로 보호됩니다</span>
         </div>
+        </Card>
       </ResponsiveContainer>
     </div>
   );
