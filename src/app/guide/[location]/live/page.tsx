@@ -163,6 +163,8 @@ const LiveTourPage: React.FC = () => {
     };
 
     window.addEventListener('scroll', handleScroll);
+    handleScroll(); // 초기 상태 확인
+    
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -340,26 +342,39 @@ const LiveTourPage: React.FC = () => {
       </div>
 
       {/* 스크롤 네비게이션 버튼들 */}
-      {showScrollButtons && (
-        <>
-          {/* 스크롤 투 탑 버튼 (오른쪽 하단) */}
-          <button
-            onClick={scrollToTop}
-            className="fixed bottom-6 right-6 w-12 h-12 bg-black text-white rounded-full shadow-lg hover:bg-gray-800 transition-all duration-200 z-50 flex items-center justify-center"
-            aria-label="맨 위로 스크롤"
-          >
-            <ArrowUp className="w-5 h-5" />
-          </button>
+      <div className="fixed bottom-6 left-6 right-6 flex justify-between items-center pointer-events-none z-50">
+        {/* 홈 버튼 (왼쪽 하단) */}
+        <button
+          onClick={goToHome}
+          className={`w-14 h-14 bg-black text-white rounded-full shadow-2xl hover:bg-gray-800 hover:scale-110 transition-all duration-300 pointer-events-auto flex items-center justify-center ${
+            showScrollButtons 
+              ? 'opacity-100 translate-y-0' 
+              : 'opacity-0 translate-y-4 pointer-events-none'
+          }`}
+          aria-label="홈으로 이동"
+        >
+          <Home className="w-6 h-6" />
+        </button>
 
-          {/* 홈 버튼 (왼쪽 하단) */}
-          <button
-            onClick={goToHome}
-            className="fixed bottom-6 left-6 w-12 h-12 bg-black text-white rounded-full shadow-lg hover:bg-gray-800 transition-all duration-200 z-50 flex items-center justify-center"
-            aria-label="홈으로 이동"
-          >
-            <Home className="w-5 h-5" />
-          </button>
-        </>
+        {/* 스크롤 투 탑 버튼 (오른쪽 하단) */}
+        <button
+          onClick={scrollToTop}
+          className={`w-14 h-14 bg-black text-white rounded-full shadow-2xl hover:bg-gray-800 hover:scale-110 transition-all duration-300 pointer-events-auto flex items-center justify-center ${
+            showScrollButtons 
+              ? 'opacity-100 translate-y-0' 
+              : 'opacity-0 translate-y-4 pointer-events-none'
+          }`}
+          aria-label="맨 위로 스크롤"
+        >
+          <ArrowUp className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* 디버깅용 상태 표시 */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed top-4 right-4 bg-red-500 text-white p-2 rounded text-xs z-50">
+          showScrollButtons: {showScrollButtons.toString()}
+        </div>
       )}
     </div>
   );

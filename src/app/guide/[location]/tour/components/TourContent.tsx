@@ -219,20 +219,6 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
   return (
     <ResponsiveContainer key={`tour-content-${componentKey}`} variant="default" className="min-h-screen">
-      {/* Header */}
-      <PageHeader
-        title={t('guide.realTimeGuideTitle')}
-        subtitle={t('guide.aiCustomAudioGuide')}
-        backButton={true}
-        onBack={() => window.history.back()}
-        actions={
-          <Flex align="center" gap="sm" className="text-sm text-muted-foreground">
-            <Volume2 className="w-4 h-4" />
-            <span>{totalChapters}{t('guide.chapters')}</span>
-          </Flex>
-        }
-      />
-
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         <div className="px-6 py-8">
