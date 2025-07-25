@@ -386,15 +386,15 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   }
 
   return (
-    <ResponsiveContainer key={`tour-content-${componentKey}`} variant="page" className="min-h-screen">
+    <ResponsiveContainer key={`tour-content-${componentKey}`} variant="default" className="min-h-screen">
       {/* Header */}
       <PageHeader
         title={t('guide.realTimeGuideTitle')}
         subtitle={t('guide.aiCustomAudioGuide')}
-        showBackButton={true}
+        backButton={true}
         onBack={() => window.history.back()}
-        rightElement={
-          <Flex align="center" gap="xs" className="text-sm text-muted-foreground">
+        actions={
+          <Flex align="center" gap="sm" className="text-sm text-muted-foreground">
             <Volume2 className="w-4 h-4" />
             <span>{totalChapters}{t('guide.chapters')}</span>
           </Flex>
@@ -404,7 +404,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         <div className="px-6 py-8">
-          <Stack spacing="lg">
+          <Stack space="lg">
           {/* 장소 정보 */}
           <div className="text-center space-y-4">
             <div className="w-20 h-20 border-4 border-foreground rounded-full flex items-center justify-center mx-auto">
@@ -675,7 +675,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
             <div className="space-y-4">
               {allChapters.map((chapter, index) => (
-                <Card
+                <div
                   key={`chapter-${index}-${chapter.id || index}`}
                   ref={(el) => {
                     try {
@@ -689,7 +689,9 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                       console.warn('챕터 ref 설정 오류:', error);
                     }
                   }}
-                  variant={currentChapterIndex === index ? "selected" : "default"}
+                >
+                <Card
+                  variant={currentChapterIndex === index ? "elevated" : "default"}
                   className="overflow-hidden transition-all duration-200"
                 >
                   {/* 챕터 헤더 */}
@@ -744,7 +746,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                   {/* 챕터 내용 */}
                   {expandedChapters.includes(index) && (
                     <div className="border-t border-border p-6">
-                      <Stack spacing="md">
+                      <Stack space="md">
                         <div className="text-muted-foreground leading-relaxed">
                           {chapter.narrative ? 
                             formatText(chapter.narrative) :
@@ -787,12 +789,13 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                     </div>
                   )}
                 </Card>
+                </div>
               ))}
             </div>
           </div>
 
           {/* 전체 재생 버튼 */}
-          <Card variant="outline">
+          <Card variant="bordered">
             <Flex align="center" justify="between" className="p-6">
               <div>
                 <h3 className="font-medium mb-1">{t('guide.entireAudioTour')}</h3>
