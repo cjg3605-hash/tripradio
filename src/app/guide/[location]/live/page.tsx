@@ -8,7 +8,9 @@ import {
   ArrowLeft,
   Share2,
   RotateCcw,
-  Compass
+  Compass,
+  Home,
+  ArrowUp
 } from 'lucide-react';
 import LiveLocationTracker from '@/components/location/LiveLocationTracker';
 import SimpleAudioPlayer from '@/components/audio/SimpleAudioPlayer';
@@ -38,6 +40,7 @@ const LiveTourPage: React.FC = () => {
   const [showAudioPlayer, setShowAudioPlayer] = useState(true);
   const [showMap, setShowMap] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showScrollButtons, setShowScrollButtons] = useState(false);
 
   // Sample POIs - In real implementation, this would come from the guide data
   const [pois] = useState<POI[]>([
@@ -152,32 +155,32 @@ const LiveTourPage: React.FC = () => {
   // Get current POI info
   const currentPOI = pois[currentChapter];
 
+  // 스크롤 이벤트 리스너
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrolled = window.scrollY;
+      setShowScrollButtons(scrolled > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // 스크롤 투 탑 함수
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  // 홈으로 이동 함수
+  const goToHome = () => {
+    router.push('/');
+  };
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="border-b border-gray-100 sticky top-0 z-40 bg-white">
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => router.back()}
-                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                aria-label="뒤로가기"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <div>
-                <h1 className="text-lg font-medium text-gray-900">
-                  {t('guide.realTimeGuideTitle')}
-                </h1>
-                <p className="text-sm text-gray-500">
-                  {params.location}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-white">{/* 내부 헤더 삭제됨 */}
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto p-6 space-y-8">
@@ -335,6 +338,29 @@ const LiveTourPage: React.FC = () => {
         )}
 
       </div>
+
+      {/* 스크롤 네비게이션 버튼들 */}
+      {showScrollButtons && (
+        <>
+          {/* 스크롤 투 탑 버튼 (오른쪽 하단) */}
+          <button
+            onClick={scrollToTop}
+            className="fixed bottom-6 right-6 w-12 h-12 bg-black text-white rounded-full shadow-lg hover:bg-gray-800 transition-all duration-200 z-50 flex items-center justify-center"
+            aria-label="맨 위로 스크롤"
+          >
+            <ArrowUp className="w-5 h-5" />
+          </button>
+
+          {/* 홈 버튼 (왼쪽 하단) */}
+          <button
+            onClick={goToHome}
+            className="fixed bottom-6 left-6 w-12 h-12 bg-black text-white rounded-full shadow-lg hover:bg-gray-800 transition-all duration-200 z-50 flex items-center justify-center"
+            aria-label="홈으로 이동"
+          >
+            <Home className="w-5 h-5" />
+          </button>
+        </>
+      )}
     </div>
   );
 };
