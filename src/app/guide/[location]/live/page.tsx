@@ -41,6 +41,7 @@ const LiveTourPage: React.FC = () => {
   const [showMap, setShowMap] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showScrollButtons, setShowScrollButtons] = useState(false);
+  const [currentScrollY, setCurrentScrollY] = useState(0);
 
   // Sample POIs - In real implementation, this would come from the guide data
   const [pois] = useState<POI[]>([
@@ -159,13 +160,20 @@ const LiveTourPage: React.FC = () => {
   useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY;
-      setShowScrollButtons(scrolled > 300);
+      setCurrentScrollY(scrolled);
+      const shouldShow = scrolled > 300;
+      console.log('스크롤 이벤트:', { scrolled, shouldShow, currentState: showScrollButtons });
+      setShowScrollButtons(shouldShow);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    console.log('스크롤 리스너 등록');
+    window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll(); // 초기 상태 확인
     
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      console.log('스크롤 리스너 해제');
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   // 스크롤 투 탑 함수
@@ -339,9 +347,41 @@ const LiveTourPage: React.FC = () => {
           </div>
         )}
 
+        {/* 디버깅용 추가 콘텐츠 - 스크롤 테스트를 위한 높이 확보 */}
+        <div className="mt-8 space-y-4">
+          <h3 className="text-lg font-medium text-gray-900">스크롤 테스트용 콘텐츠</h3>
+          {Array.from({ length: 20 }, (_, i) => (
+            <div key={i} className="p-4 bg-gray-100 rounded-lg">
+              <p className="text-gray-700">
+                스크롤 테스트를 위한 콘텐츠 #{i + 1}. 이 콘텐츠는 페이지의 높이를 늘려서 스크롤이 가능하도록 합니다.
+                300px 이상 스크롤하면 하단에 네비게이션 버튼이 나타나야 합니다.
+              </p>
+            </div>
+          ))}
+        </div>
+
       </div>
 
       {/* 스크롤 네비게이션 버튼들 */}
+      {/* 항상 보이는 테스트 버튼 (임시) */}
+      <div className="fixed bottom-20 left-6 right-6 flex justify-between items-center z-50">
+        <button
+          onClick={goToHome}
+          className="w-12 h-12 bg-blue-500 text-white rounded-full shadow-lg flex items-center justify-center"
+          aria-label="테스트 홈 버튼"
+        >
+          <Home className="w-5 h-5" />
+        </button>
+        <button
+          onClick={scrollToTop}
+          className="w-12 h-12 bg-green-500 text-white rounded-full shadow-lg flex items-center justify-center"
+          aria-label="테스트 스크롤 버튼"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* 조건부 스크롤 버튼들 */}
       <div className="fixed bottom-6 left-6 right-6 flex justify-between items-center pointer-events-none z-50">
         {/* 홈 버튼 (왼쪽 하단) */}
         <button
@@ -370,12 +410,14 @@ const LiveTourPage: React.FC = () => {
         </button>
       </div>
 
-      {/* 디버깅용 상태 표시 */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed top-4 right-4 bg-red-500 text-white p-2 rounded text-xs z-50">
-          showScrollButtons: {showScrollButtons.toString()}
-        </div>
-      )}
+      {/* 강화된 디버깅 정보 */}
+      <div className="fixed top-4 right-4 bg-red-500 text-white p-3 rounded text-xs z-50 max-w-xs">
+        <div>showScrollButtons: {showScrollButtons.toString()}</div>
+        <div>currentScrollY: {currentScrollY}</div>
+        <div>scrollY > 300: {(currentScrollY > 300).toString()}</div>
+        <div>Buttons should show: {showScrollButtons ? 'YES' : 'NO'}</div>
+        <div>Page height: {typeof document !== 'undefined' ? document.body.scrollHeight : 'N/A'}</div>
+      </div>
     </div>
   );
 };
