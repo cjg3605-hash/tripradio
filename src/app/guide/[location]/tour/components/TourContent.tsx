@@ -660,6 +660,26 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
       {/* BigTech 디자인 시뮬레이터 임시 제거 (빌드 오류 해결) */}
 
+      {/* 항상 보이는 테스트 버튼 (임시) */}
+      <div className="fixed bottom-20 left-8 right-8 flex justify-between items-center z-50">
+        <Button
+          onClick={goToHome}
+          variant="outline"
+          size="icon"
+          className="w-12 h-12 bg-blue-500 text-white hover:bg-blue-600 border-blue-500 rounded-full shadow-lg"
+        >
+          <Home className="w-5 h-5" />
+        </Button>
+        <Button
+          onClick={scrollToTop}
+          variant="outline"
+          size="icon"
+          className="w-12 h-12 bg-green-500 text-white hover:bg-green-600 border-green-500 rounded-full shadow-lg"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </Button>
+      </div>
+
       {/* 스크롤 네비게이션 버튼들 */}
       {showScrollButtons && (
         <>
