@@ -23,7 +23,7 @@ import {
 import { GuideData, GuideChapter } from '@/types/guide';
 import { AudioChapter } from '@/types/audio';
 import GuideLoading from '@/components/ui/GuideLoading';
-import AdvancedAudioPlayer from '@/components/audio/AdvancedAudioPlayer';
+import ChapterAudioPlayer from '@/components/audio/ChapterAudioPlayer';
 import StartLocationMap from '@/components/guide/StartLocationMap';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ResponsiveContainer, PageHeader, Card, Stack, Flex } from '@/components/layout/ResponsiveContainer';
@@ -42,7 +42,6 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   const [expandedChapters, setExpandedChapters] = useState<number[]>([0]);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [componentKey, setComponentKey] = useState(0); // 컴포넌트 완전 리렌더링용
-  const [showAudioPlayer, setShowAudioPlayer] = useState(true);
   const internalChapterRefs = useRef<(HTMLElement | null)[]>([]);
 
   // 🎯 AI 생성 인트로 챗터 사용 또는 폴백 인트로 생성
@@ -495,44 +494,6 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
 
           {/* 고급 오디오 플레이어 */}
-          {audioChapters.length > 0 && showAudioPlayer && (
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 border-2 border-foreground rounded-full flex items-center justify-center">
-                    <Headphones className="w-5 h-5" />
-                  </div>
-                  <h2 className="text-xl font-medium">{t('guide.audioGuide')}</h2>
-                </div>
-                <button
-                  onClick={() => setShowAudioPlayer(false)}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {t('common.hide')}
-                </button>
-              </div>
-              
-              <AdvancedAudioPlayer
-                chapters={audioChapters}
-                onChapterChange={handleChapterChange}
-                className="w-full"
-              />
-              
-            </div>
-          )}
-
-          {/* Audio Player Toggle (when hidden) */}
-          {!showAudioPlayer && (
-            <div className="mb-6">
-              <button
-                onClick={() => setShowAudioPlayer(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-              >
-                <Headphones className="w-4 h-4" />
-                <span className="text-sm font-medium">{t('guide.showAudioPlayer')}</span>
-              </button>
-            </div>
-          )}
 
           {/* 시작점 지도 */}
           <div className="mb-8">
@@ -608,7 +569,18 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                         </div>
                         
                         <div className="flex-1">
-                          <h3 className="font-medium mb-1">{chapter.title}</h3>
+                          <div className="flex items-center gap-3">
+                            <h3 className="font-medium mb-1">{chapter.title}</h3>
+                            {/* 챕터별 오디오 플레이어 */}
+                            {audioChapters[index] && (
+                              <div className="flex-shrink-0">
+                                <ChapterAudioPlayer
+                                  chapter={audioChapters[index]}
+                                  className="w-64"
+                                />
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </Flex>
                       

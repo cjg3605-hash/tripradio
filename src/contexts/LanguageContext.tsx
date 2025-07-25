@@ -212,6 +212,9 @@ interface Translations {
     zh: string;
     es: string;
   };
+  audio: {
+    chapter: string;
+  };
 }
 
 // 기본 번역 데이터 (한국어)
@@ -370,6 +373,9 @@ const DEFAULT_TRANSLATIONS: Translations = {
     ja: '日本語',
     zh: '中文',
     es: 'Español'
+  },
+  audio: {
+    chapter: '챕터'
   }
 };
 
@@ -492,6 +498,10 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
       languages: {
         ...DEFAULT_TRANSLATIONS.languages,
         ...(translations?.languages || {})
+      },
+      audio: {
+        ...DEFAULT_TRANSLATIONS.audio,
+        ...(translations?.audio || {})
       }
     };
     
