@@ -414,7 +414,7 @@ const LiveTourPage: React.FC = () => {
       <div className="fixed top-4 right-4 bg-red-500 text-white p-3 rounded text-xs z-50 max-w-xs">
         <div>showScrollButtons: {showScrollButtons.toString()}</div>
         <div>currentScrollY: {currentScrollY}</div>
-        <div>scrollY > 300: {(currentScrollY > 300).toString()}</div>
+        <div>scrollY &gt; 300: {(currentScrollY > 300).toString()}</div>
         <div>Buttons should show: {showScrollButtons ? 'YES' : 'NO'}</div>
         <div>Page height: {typeof document !== 'undefined' ? document.body.scrollHeight : 'N/A'}</div>
       </div>
