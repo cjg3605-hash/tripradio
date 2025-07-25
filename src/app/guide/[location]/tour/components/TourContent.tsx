@@ -655,6 +655,57 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
           {/* Bottom spacing */}
           <div className="h-24" />
+
+          {/* 테스트: 항상 보이는 빨간 버튼 */}
+          <div 
+            style={{
+              position: 'fixed',
+              bottom: '20px',
+              right: '20px',
+              width: '60px',
+              height: '60px',
+              backgroundColor: 'red',
+              color: 'white',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              zIndex: 9999,
+              fontSize: '12px'
+            }}
+            onClick={() => {
+              alert('버튼 클릭됨!');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          >
+            UP
+          </div>
+
+          <div 
+            style={{
+              position: 'fixed',
+              bottom: '20px',
+              left: '20px',
+              width: '60px',
+              height: '60px',
+              backgroundColor: 'blue',
+              color: 'white',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              zIndex: 9999,
+              fontSize: '12px'
+            }}
+            onClick={() => {
+              alert('홈 버튼 클릭됨!');
+              window.location.href = '/';
+            }}
+          >
+            HOME
+          </div>
         </div>
       </div>
 
