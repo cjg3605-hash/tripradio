@@ -360,35 +360,6 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
       )}
 
 
-      {/* 가용 언어 표시 (2개 이상인 경우) */}
-      {availableLanguages.length > 1 && (
-        <div className="bg-blue-50 border-b border-blue-200">
-          <div className="container-responsive py-2">
-            <div className="flex-stack-mobile text-sm">
-              <div className="flex items-center space-x-2">
-                <span className="text-blue-700 font-medium">사용 가능한 언어:</span>
-                <div className="flex space-x-1">
-                  {availableLanguages.map(lang => (
-                    <span
-                      key={lang}
-                      className={`px-2 py-1 rounded text-xs font-medium mobile-touch-optimized ${
-                        lang === currentLanguage 
-                          ? 'bg-blue-600 text-white' 
-                          : 'bg-blue-100 text-blue-700'
-                      }`}
-                    >
-                      {lang.toUpperCase()}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="text-blue-600 text-xs mobile-only">
-                언어 설정에서 변경하면 자동으로 전환됩니다
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
 
       {/* 메인 가이드 컨텐츠 */}

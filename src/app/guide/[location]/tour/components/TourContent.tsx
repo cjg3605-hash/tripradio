@@ -18,7 +18,6 @@ import {
   Users,
   Zap,
   Headphones,
-  Navigation,
   Volume2
 } from 'lucide-react';
 import { GuideData, GuideChapter } from '@/types/guide';
@@ -26,8 +25,6 @@ import { AudioChapter } from '@/types/audio';
 import GuideLoading from '@/components/ui/GuideLoading';
 import AdvancedAudioPlayer from '@/components/audio/AdvancedAudioPlayer';
 import StartLocationMap from '@/components/guide/StartLocationMap';
-import ContextualRecommendations from '@/components/ai/ContextualRecommendations';
-import RouteOptimizer from '@/components/ai/RouteOptimizer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/lib/translations';
 import { ResponsiveContainer, PageHeader, Card, Stack, Flex } from '@/components/layout/ResponsiveContainer';
@@ -528,28 +525,6 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                 className="w-full"
               />
               
-              {/* Live Tour 업그레이드 유도 */}
-              <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Navigation className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-medium text-blue-900 mb-1">
-                      {t('features.upgradeToLive')}
-                    </h3>
-                    <p className="text-sm text-blue-700">
-                      {t('features.liveTourBenefits')}
-                    </p>
-                  </div>
-                  <Link
-                    href={`/guide/${encodeURIComponent(locationName || '')}/live`}
-                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap"
-                  >
-                    {t('features.tryLiveTour')}
-                  </Link>
-                </div>
-              </div>
             </div>
           )}
 
@@ -589,45 +564,6 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
               className="w-full"
             />
 
-            {/* 🧠 실시간 맥락적 추천 시스템 */}
-            <ContextualRecommendations
-              personalityType="explorer" // 투어 사용자는 탐험가 성향
-              interests={['history', 'culture', 'architecture']} // 기본 관심사
-              onRecommendationSelect={(recommendation) => {
-                console.log('추천 선택:', recommendation);
-                // 추천 선택 시 해당 위치로 이동하거나 관련 챕터 표시
-              }}
-              className="w-full"
-            />
-
-            {/* 🧭 AI 경로 최적화 시스템 */}
-            <RouteOptimizer
-              waypoints={allChapters
-                .filter(chapter => chapter.id > 0) // 인트로 제외
-                .map((chapter, index) => ({
-                  id: `waypoint_${chapter.id}`,
-                  location: {
-                    lat: 37.5796 + (index * 0.002), // 예시 좌표 (실제로는 각 챕터별 정확한 좌표 필요)
-                    lng: 126.9770 + (index * 0.002)
-                  },
-                  name: chapter.title,
-                  type: index === 0 ? 'start' : (index === allChapters.length - 2 ? 'end' : 'poi'),
-                  estimatedDuration: chapter.estimatedDuration || 15, // 기본 15분
-                  priority: 'medium',
-                  difficulty: 'moderate',
-                  tags: ['history', 'culture']
-                }))
-              }
-              onRouteSelect={(route) => {
-                console.log('최적화된 경로 선택:', route);
-                // 선택된 경로에 따라 챕터 순서 조정
-              }}
-              onWaypointUpdate={(waypoints) => {
-                console.log('웨이포인트 업데이트:', waypoints);
-                // 웨이포인트 변경에 따른 챕터 업데이트
-              }}
-              className="w-full"
-            />
           </div>
 
           {/* 챕터 리스트 */}

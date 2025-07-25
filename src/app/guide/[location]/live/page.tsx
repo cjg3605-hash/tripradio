@@ -285,7 +285,7 @@ const LiveTourPage: React.FC = () => {
               pois={pois}
               onLocationUpdate={handleLocationUpdate}
               onPOIReached={handlePOIReached}
-              showStats={true}
+              showStats={false}
               showProgress={true}
               className="w-full"
             />
