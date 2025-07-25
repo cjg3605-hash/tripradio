@@ -2,10 +2,6 @@
 
 import React, { useState, useRef, useEffect, MutableRefObject } from 'react';
 import { 
-  Play, 
-  Pause, 
-  ChevronLeft, 
-  ChevronRight, 
   ChevronDown, 
   ChevronUp, 
   ArrowUp, 
@@ -13,7 +9,6 @@ import {
   AlertTriangle, 
   Clock, 
   MapPin,
-  Volume2,
   BookOpen,
   Route,
   Info,
@@ -21,15 +16,23 @@ import {
   ArrowLeft,
   Calendar,
   Users,
-  Zap
+  Zap,
+  Headphones,
+  Navigation,
+  Volume2
 } from 'lucide-react';
 import { GuideData, GuideChapter } from '@/types/guide';
+import { AudioChapter } from '@/types/audio';
 import GuideLoading from '@/components/ui/GuideLoading';
+import AdvancedAudioPlayer from '@/components/audio/AdvancedAudioPlayer';
+import StartLocationMap from '@/components/guide/StartLocationMap';
+import ContextualRecommendations from '@/components/ai/ContextualRecommendations';
+import RouteOptimizer from '@/components/ai/RouteOptimizer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/lib/translations';
 import { ResponsiveContainer, PageHeader, Card, Stack, Flex } from '@/components/layout/ResponsiveContainer';
 import { Button } from '@/components/ui/button';
-// import BigTechDesignOptimizer from '@/components/design/BigTechDesignOptimizer';
+import Link from 'next/link';
 
 interface TourContentProps {
   guide: GuideData;
@@ -41,13 +44,10 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   const { currentLanguage } = useLanguage();
   const { t } = useTranslation(currentLanguage);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  // \ub2e8\uc77c \uc624\ub514\uc624 \uc778\uc2a4\ud134\uc2a4 \uad00\ub9ac\ub97c \uc704\ud574 audioRef\ub85c \ud1b5\ud569
   const [expandedChapters, setExpandedChapters] = useState<number[]>([0]);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [componentKey, setComponentKey] = useState(0); // 컴포넌트 완전 리렌더링용
-  // const [showDesignSimulator, setShowDesignSimulator] = useState(false); // BigTech 디자인 시뮬레이터
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [showAudioPlayer, setShowAudioPlayer] = useState(true);
   const internalChapterRefs = useRef<(HTMLElement | null)[]>([]);
 
   // 🎯 AI 생성 인트로 챗터 사용 또는 폴백 인트로 생성
@@ -98,6 +98,34 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
     allChapters = [introChapter, ...adjustedChapters];
   }
   const totalChapters = allChapters.length;
+
+  // 🎵 GuideChapter를 AudioChapter로 변환
+  const audioChapters: AudioChapter[] = allChapters.map((chapter) => ({
+    id: chapter.id,
+    title: chapter.title || `챕터 ${chapter.id}`,
+    text: chapter.narrative || '',
+    duration: chapter.estimatedDuration || 120 // 기본 2분
+  }));
+
+  // 🎯 챕터 변경 핸들러
+  const handleChapterChange = (chapterIndex: number) => {
+    setCurrentChapterIndex(chapterIndex);
+    // 해당 챕터로 스크롤
+    if (chapterRefs?.current?.[chapterIndex] || internalChapterRefs.current[chapterIndex]) {
+      const targetRef = chapterRefs?.current?.[chapterIndex] || internalChapterRefs.current[chapterIndex];
+      targetRef?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+    // 챕터 확장
+    if (!expandedChapters.includes(chapterIndex)) {
+      setExpandedChapters(prev => [...prev, chapterIndex]);
+    }
+  };
+
+  // 🎧 라이브 투어로 업그레이드 유도
+  const locationName = guide.metadata?.originalLocationName || guide.overview?.title;
   const currentChapter = allChapters[currentChapterIndex];
 
   // 안전한 필드 접근 (기본값 제공)
@@ -142,13 +170,6 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
     setComponentKey(prev => prev + 1);
     setCurrentChapterIndex(0);
     setExpandedChapters([0]);
-    setIsPlaying(false);
-    
-    // 기존 오디오 정리 (단일 인스턴스 관리)
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
   }, [guide.metadata?.originalLocationName, guide.realTimeGuide?.chapters?.length]);
 
   // 스크롤 이벤트 처리
@@ -161,22 +182,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // 컴포넌트 언마운트 시 오디오 정리 (단일 인스턴스 관리)
-  useEffect(() => {
-    return () => {
-      try {
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current.currentTime = 0;
-          audioRef.current.onended = null;
-          audioRef.current.onerror = null;
-          audioRef.current = null;
-        }
-      } catch (error) {
-        console.warn('컴포넌트 언마운트 시 오디오 정리 오류:', error);
-      }
-    };
-  }, []);  // currentAudio 종속성 제거로 단일 인스턴스 초점
+  // 컴포넌트 언마운트 시 오디오 정리는 AdvancedAudioPlayer에서 관리됨
 
   // 맨 위로 스크롤
   const scrollToTop = () => {
@@ -198,26 +204,6 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
     ));
   };
 
-  // 오디오 정리 (단일 인스턴스 관리 + Race Condition 방지)
-  const stopAndCleanupAudio = async () => {
-    return new Promise<void>((resolve) => {
-      try {
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current.currentTime = 0;
-          audioRef.current.onended = null;
-          audioRef.current.onerror = null;
-          audioRef.current = null;
-        }
-      } catch (error) {
-        console.warn('오디오 정리 중 오류:', error);
-      }
-      setIsPlaying(false);
-      // 짧은 지연을 통해 오디오 정리 완료 보장
-      setTimeout(resolve, 50);
-    });
-  };
-
   // 챕터 토글 함수
   const toggleChapter = (index: number) => {
     setExpandedChapters(prev => 
@@ -227,149 +213,6 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
     );
   };
 
-  // 오디오 재생/정지
-  const handlePlayPause = async (chapterIndex: number) => {
-    const chap = allChapters[chapterIndex];
-    if (!chap) return;
-
-    // 다른 챕터 재생 중이면 정지 (비동기 대기)
-    if (currentChapterIndex !== chapterIndex) {
-      await stopAndCleanupAudio();
-      setCurrentChapterIndex(chapterIndex);
-    }
-
-    if (isPlaying && currentChapterIndex === chapterIndex) {
-      await stopAndCleanupAudio();
-      return;
-    }
-
-    // 재생할 텍스트 준비
-    const textToSpeak = chap.narrative || 
-      [chap.sceneDescription, chap.coreNarrative, chap.humanStories]
-        .filter(Boolean).join(' ') || 
-      chap.title;
-
-    if (!textToSpeak) return;
-
-    try {
-      setIsPlaying(true);
-      setCurrentChapterIndex(chapterIndex);
-
-      // 가이드 ID 생성
-      const guideId = `${guide.metadata?.originalLocationName || 'guide'}_${language}`.replace(/[^a-zA-Z0-9_]/g, '_');
-      
-      // 고급 성격 기반 TTS 사용 (사용자 성격 자동 감지)
-      const { advancedTTSService } = await import('@/lib/advanced-tts-service');
-      
-      const ttsResult = await advancedTTSService.generatePersonalityTTS({
-        text: textToSpeak,
-        language: language === 'ko' ? 'ko-KR' : 'en-US',
-        guide_id: guideId,
-        locationName: guide.metadata?.originalLocationName || 'guide',
-        adaptToMood: true
-      });
-
-      if (!ttsResult.success) {
-        throw new Error(ttsResult.error || t('guide.ttsGenerationFailed'));
-      }
-
-      console.log('🎭 성격 기반 TTS 적용:', ttsResult.personalityInfo);
-      
-      // Base64 오디오 데이터를 Blob URL로 변환
-      const audioBlob = new Blob([
-        new Uint8Array(
-          atob(ttsResult.audioData!)
-            .split('')
-            .map(char => char.charCodeAt(0))
-        )
-      ], { type: ttsResult.mimeType || 'audio/mpeg' });
-      
-      const audioUrl = URL.createObjectURL(audioBlob);
-
-      const audio = new Audio(audioUrl);
-      audioRef.current = audio;
-
-      audio.onended = () => {
-        setIsPlaying(false);
-        audioRef.current = null;
-        // Blob URL 메모리 해제
-        URL.revokeObjectURL(audioUrl);
-      };
-
-      audio.onerror = (error) => {
-        console.error('오디오 재생 실패:', error);
-        setIsPlaying(false);
-        audioRef.current = null;
-        // Blob URL 메모리 해제
-        URL.revokeObjectURL(audioUrl);
-      };
-
-      // 안전한 재생을 위한 Promise 체인 (에러 처리 강화)
-      await new Promise<void>((resolve, reject) => {
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              console.log('🎵 성격 기반 TTS 재생 시작');
-              resolve();
-            })
-            .catch((error) => {
-              console.log('🔄 오디오 재생 에러 처리:', error.name, error.message);
-              if (error.name === 'AbortError') {
-                console.log('✅ 오디오 재생이 정상적으로 중단됨 (사용자 액션)');
-                resolve(); // AbortError는 정상적인 중단으로 처리
-              } else if (error.name === 'NotAllowedError') {
-                console.warn('⚠️ 자동 재생이 차단됨 - 사용자 상호작용 필요');
-                resolve(); // 자동재생 정책으로 인한 차단도 정상 처리
-              } else {
-                console.error('❌ 치명적 오디오 재생 오류:', error);
-                reject(error);
-              }
-            });
-        } else {
-          resolve();
-        }
-      });
-    } catch (error) {
-      console.error('🚨 TTS 시스템 오류:', error);
-      
-      // 상세한 에러 분류 및 사용자 친화적 메시지
-      let userMessage = t('guide.audioPlaybackError');
-      
-      if (error instanceof Error) {
-        if (error.message.includes('GEMINI_API_KEY')) {
-          userMessage = t('guide.audioServiceError');
-        } else if (error.message.includes(t('guide.ttsGenerationFailed'))) {
-          userMessage = t('guide.audioGenerationRetry');
-        } else if (error.message.includes('fetch')) {
-          userMessage = t('guide.checkNetworkConnection');
-        }
-      }
-      
-      // TODO: 사용자에게 친화적인 에러 메시지 표시 (향후 토스트 알림으로 대체)
-      console.log('📢 사용자 메시지:', userMessage);
-      
-      setIsPlaying(false);
-      audioRef.current = null;
-    }
-  };
-
-  // 챕터 이동
-  const goToChapter = async (index: number) => {
-    if (index >= 0 && index < totalChapters) {
-      await stopAndCleanupAudio();
-      setCurrentChapterIndex(index);
-      
-      // 챕터 참조가 있으면 해당 위치로 스크롤
-      const targetRef = chapterRefs?.current[index] || internalChapterRefs.current[index];
-      if (targetRef) {
-        targetRef.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
-        });
-      }
-    }
-  };
 
   // 데이터가 없을 때 로딩 상태 (인트로 챕터는 항상 생성되므로 기본 가이드 구조만 확인)
   if (!guide.overview && !guide.realTimeGuide) {
@@ -661,6 +504,132 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
           )}
 
 
+          {/* 고급 오디오 플레이어 */}
+          {audioChapters.length > 0 && showAudioPlayer && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 border-2 border-foreground rounded-full flex items-center justify-center">
+                    <Headphones className="w-5 h-5" />
+                  </div>
+                  <h2 className="text-xl font-medium">{t('guide.audioGuide')}</h2>
+                </div>
+                <button
+                  onClick={() => setShowAudioPlayer(false)}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {t('common.hide')}
+                </button>
+              </div>
+              
+              <AdvancedAudioPlayer
+                chapters={audioChapters}
+                onChapterChange={handleChapterChange}
+                className="w-full"
+              />
+              
+              {/* Live Tour 업그레이드 유도 */}
+              <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Navigation className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium text-blue-900 mb-1">
+                      {t('features.upgradeToLive')}
+                    </h3>
+                    <p className="text-sm text-blue-700">
+                      {t('features.liveTourBenefits')}
+                    </p>
+                  </div>
+                  <Link
+                    href={`/guide/${encodeURIComponent(locationName || '')}/live`}
+                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap"
+                  >
+                    {t('features.tryLiveTour')}
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Audio Player Toggle (when hidden) */}
+          {!showAudioPlayer && (
+            <div className="mb-6">
+              <button
+                onClick={() => setShowAudioPlayer(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                <Headphones className="w-4 h-4" />
+                <span className="text-sm font-medium">{t('guide.showAudioPlayer')}</span>
+              </button>
+            </div>
+          )}
+
+          {/* 시작점 지도 */}
+          <div className="mb-8">
+            <StartLocationMap
+              locationName={locationName || ''}
+              startPoint={{
+                lat: 37.5796, // 경복궁 정문 좌표 (예시)
+                lng: 126.9770,
+                name: guide.overview?.title || locationName || t('guide.tourStart')
+              }}
+              pois={allChapters
+                .filter(chapter => chapter.id > 0) // 인트로 제외
+                .slice(0, 5) // 처음 5개 POI만
+                .map((chapter, index) => ({
+                  id: `poi_${chapter.id}`,
+                  name: chapter.title,
+                  lat: 37.5796 + (index * 0.002), // 예시 좌표 (실제로는 각 챕터별 정확한 좌표 필요)
+                  lng: 126.9770 + (index * 0.002),
+                  description: chapter.narrative?.substring(0, 100) + '...' || ''
+                }))
+              }
+              className="w-full"
+            />
+
+            {/* 🧠 실시간 맥락적 추천 시스템 */}
+            <ContextualRecommendations
+              personalityType="explorer" // 투어 사용자는 탐험가 성향
+              interests={['history', 'culture', 'architecture']} // 기본 관심사
+              onRecommendationSelect={(recommendation) => {
+                console.log('추천 선택:', recommendation);
+                // 추천 선택 시 해당 위치로 이동하거나 관련 챕터 표시
+              }}
+              className="w-full"
+            />
+
+            {/* 🧭 AI 경로 최적화 시스템 */}
+            <RouteOptimizer
+              waypoints={allChapters
+                .filter(chapter => chapter.id > 0) // 인트로 제외
+                .map((chapter, index) => ({
+                  id: `waypoint_${chapter.id}`,
+                  location: {
+                    lat: 37.5796 + (index * 0.002), // 예시 좌표 (실제로는 각 챕터별 정확한 좌표 필요)
+                    lng: 126.9770 + (index * 0.002)
+                  },
+                  name: chapter.title,
+                  type: index === 0 ? 'start' : (index === allChapters.length - 2 ? 'end' : 'poi'),
+                  estimatedDuration: chapter.estimatedDuration || 15, // 기본 15분
+                  priority: 'medium',
+                  difficulty: 'moderate',
+                  tags: ['history', 'culture']
+                }))
+              }
+              onRouteSelect={(route) => {
+                console.log('최적화된 경로 선택:', route);
+                // 선택된 경로에 따라 챕터 순서 조정
+              }}
+              onWaypointUpdate={(waypoints) => {
+                console.log('웨이포인트 업데이트:', waypoints);
+                // 웨이포인트 변경에 따른 챕터 업데이트
+              }}
+              className="w-full"
+            />
+          </div>
+
           {/* 챕터 리스트 */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -715,23 +684,13 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                       </Flex>
                       
                       <Flex align="center" gap="sm">
-                        {/* 재생/정지 버튼 */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handlePlayPause(index);
-                          }}
-                          className={`w-12 h-12 border-2 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-105 ${
-                            isPlaying && currentChapterIndex === index
-                              ? 'border-foreground bg-foreground text-background'
-                              : 'border-border text-muted-foreground hover:border-foreground hover:text-foreground'
-                          }`}
-                        >
-                          {isPlaying && currentChapterIndex === index ? 
-                            <Pause className="w-5 h-5" /> : 
-                            <Play className="w-5 h-5 ml-0.5" />
-                          }
-                        </button>
+                        {/* 현재 재생 중 표시 */}
+                        {currentChapterIndex === index && (
+                          <div className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                            {t('guide.currentChapter')}
+                          </div>
+                        )}
                         
                         {/* 확장 인디케이터 */}
                         <div className={`transition-transform duration-300 ${
@@ -793,26 +752,6 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
               ))}
             </div>
           </div>
-
-          {/* 전체 재생 버튼 */}
-          <Card variant="bordered">
-            <Flex align="center" justify="between" className="p-6">
-              <div>
-                <h3 className="font-medium mb-1">{t('guide.entireAudioTour')}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {t('guide.chaptersWithIntro', { count: totalChapters, minutes: Math.round(totalChapters * 4) })}
-                </p>
-              </div>
-              <Button 
-                onClick={() => handlePlayPause(0)}
-                variant="default"
-                size="lg"
-              >
-                <Play className="w-5 h-5 fill-current mr-2" />
-                {t('guide.playAll')}
-              </Button>
-            </Flex>
-          </Card>
           </Stack>
 
           {/* Bottom spacing */}

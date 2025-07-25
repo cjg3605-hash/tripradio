@@ -61,9 +61,17 @@ interface Chapter {
 }
 
 interface MapWithRouteProps {
-  chapters: Chapter[];
-  activeChapter: number;
+  chapters?: Chapter[];
+  activeChapter?: number;
   onMarkerClick?: (index: number) => void;
+  pois?: Array<{ id: string; name: string; lat: number; lng: number; description: string; }>;
+  currentLocation?: { lat: number; lng: number; } | null;
+  center?: { lat: number; lng: number; name?: string; };
+  zoom?: number;
+  showRoute?: boolean;
+  showUserLocation?: boolean;
+  onPoiClick?: (poiId: any) => void;
+  className?: string;
 }
 
 function MapFlyTo({ lat, lng }: { lat: number; lng: number }) {
@@ -124,7 +132,7 @@ export default function MapWithRoute({ chapters, activeChapter, onMarkerClick }:
   };
 
   // 유효한 좌표를 가진 챕터만 필터링
-  const validChapters = chapters
+  const validChapters = (chapters || [])
     .map((chapter, index) => {
       const [lat, lng] = getLatLng(chapter);
       return { ...chapter, originalIndex: index, lat, lng };
@@ -139,7 +147,7 @@ export default function MapWithRoute({ chapters, activeChapter, onMarkerClick }:
     );
 
   console.log('📍 지도 렌더링:', {
-    totalChapters: chapters.length,
+    totalChapters: (chapters || []).length,
     validChapters: validChapters.length,
     activeChapter,
     validCoordsDebug: validChapters.map(c => ({ 
@@ -158,7 +166,7 @@ export default function MapWithRoute({ chapters, activeChapter, onMarkerClick }:
           <div className="text-lg mb-2">📍</div>
           <div>좌표 정보가 없어 지도를 표시할 수 없습니다</div>
           <div className="text-sm mt-1">
-            총 {chapters.length}개 챕터 중 유효한 좌표: {validChapters.length}개
+            총 {(chapters || []).length}개 챕터 중 유효한 좌표: {validChapters.length}개
           </div>
         </div>
       </div>

@@ -1,9 +1,12 @@
 // src/lib/utils.ts
 import { UserProfile, GuideData, GuideOverview, GuideRoute, GuideStep, RealTimeGuide, GuideChapter } from '@/types/guide';
 
-export const cn = (...inputs: (string | undefined | null | boolean)[]) => {
-  return inputs.filter(Boolean).join(' ');
-};
+import { twMerge } from 'tailwind-merge';
+import { clsx, type ClassValue } from 'clsx';
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 export function normalizeString(s: string | null | undefined): string {
   return decodeURIComponent(s || '').trim().toLowerCase();
