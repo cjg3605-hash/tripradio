@@ -166,6 +166,9 @@ interface Translations {
     delete: string;
     edit: string;
     close: string;
+    hide: string;
+    exists: string;
+    notExists: string;
   };
   date: {
     today: string;
@@ -230,22 +233,6 @@ interface Translations {
   };
   audio: {
     chapter: string;
-  };
-  common: {
-    loading: string;
-    error: string;
-    success: string;
-    warning: string;
-    info: string;
-    cancel: string;
-    confirm: string;
-    save: string;
-    delete: string;
-    edit: string;
-    close: string;
-    hide: string;
-    exists: string;
-    notExists: string;
   };
 }
 
