@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import LiveLocationTracker from '@/components/location/LiveLocationTracker';
 import SimpleAudioPlayer from '@/components/audio/SimpleAudioPlayer';
+import ChapterAudioPlayer from '@/components/audio/ChapterAudioPlayer';
 import MapWithRoute from '@/components/guide/MapWithRoute';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/lib/translations';
@@ -205,16 +206,32 @@ const LiveTourPage: React.FC = () => {
         {/* 필수관람포인트 */}
         <div className="border-b border-gray-100 pb-6">
           <h2 className="text-lg font-medium text-gray-900 mb-4">필수관람포인트</h2>
-          <div className="space-y-3">
+          <div className="space-y-6">
             {pois.map((poi, index) => (
-              <div key={poi.id} className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-black text-white text-xs rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  {index + 1}
+              <div key={poi.id} className="border border-gray-100 rounded-lg p-4">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-6 h-6 bg-black text-white text-xs rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    {index + 1}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium text-gray-900 mb-1">{poi.name}</h3>
+                    <p className="text-sm text-gray-600">{poi.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">{poi.name}</h3>
-                  <p className="text-sm text-gray-600">{poi.description}</p>
-                </div>
+                
+                {/* 해당 챕터의 오디오 플레이어 */}
+                {poi.audioChapter && (showMap || showAudioPlayer) && (
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Headphones className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm font-medium text-gray-700">오디오 가이드</span>
+                    </div>
+                    <ChapterAudioPlayer
+                      chapter={poi.audioChapter}
+                      className="w-full"
+                    />
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -319,14 +336,6 @@ const LiveTourPage: React.FC = () => {
           </div>
         )}
 
-        {/* Audio Player (시작 후에만 표시) */}
-        {showAudioPlayer && audioChapters.length > 0 && (
-          <SimpleAudioPlayer
-            chapters={audioChapters}
-            onChapterChange={handleChapterChange}
-            className="w-full"
-          />
-        )}
       </div>
     </div>
   );
