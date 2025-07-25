@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Dropdown Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .viewport-selector {
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #e5e5e5;
+            border-radius: 4px;
+        }
+        .viewport-selector button {
+            margin: 5px;
+            padding: 8px 16px;
+            border: 1px solid #ccc;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .viewport-selector button.active {
+            background: #007bff;
+            color: white;
+        }
+        .test-frame {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .console-log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin-top: 20px;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Language Dropdown Debug Test</h1>
+        
+        <div class="instructions">
+            <h3>Test Instructions:</h3>
+            <ol>
+                <li>Select viewport size below (Desktop vs Mobile)</li>
+                <li>In the iframe, click on the language dropdown (Globe icon + Korean flag)</li>
+                <li>Try clicking on different language options</li>
+                <li>Check if dropdown closes immediately or if clicks register</li>
+                <li>Look for any JavaScript errors or event handler issues</li>
+                <li>Compare desktop (1920x1080) vs mobile (375x667) behavior</li>
+            </ol>
+        </div>
+
+        <div class="viewport-selector">
+            <h3>Viewport Size:</h3>
+            <button id="desktop" class="active" onclick="setViewport(1920, 1080, this)">Desktop (1920x1080)</button>
+            <button id="mobile" onclick="setViewport(375, 667, this)">Mobile (375x667)</button>
+            <button id="tablet" onclick="setViewport(768, 1024, this)">Tablet (768x1024)</button>
+        </div>
+
+        <iframe 
+            id="testFrame" 
+            class="test-frame"
+            src="http://localhost:3000" 
+            width="1920" 
+            height="1080"
+            style="width: 100%; max-width: 1920px; height: 600px; border: 2px solid #ddd;">
+        </iframe>
+
+        <div class="console-log" id="consoleLog">
+            <strong>Console Output:</strong><br>
+            <div id="logContent">Ready for testing...</div>
+        </div>
+    </div>
+
+    <script>
+        function setViewport(width, height, button) {
+            const frame = document.getElementById('testFrame');
+            const buttons = document.querySelectorAll('.viewport-selector button');
+            
+            // Update active button
+            buttons.forEach(b => b.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Update iframe dimensions
+            frame.setAttribute('width', width);
+            frame.setAttribute('height', height);
+            
+            // Adjust container styling for different viewports
+            if (width <= 375) {
+                frame.style.transform = 'scale(1)';
+                frame.style.height = '600px';
+            } else if (width <= 768) {
+                frame.style.transform = 'scale(0.8)';
+                frame.style.height = '500px';
+            } else {
+                frame.style.transform = 'scale(0.6)';
+                frame.style.height = '400px';
+            }
+            
+            log(`Viewport changed to: ${width}x${height}`);
+        }
+
+        function log(message) {
+            const logContent = document.getElementById('logContent');
+            const timestamp = new Date().toLocaleTimeString();
+            logContent.innerHTML += `<br>[${timestamp}] ${message}`;
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+
+        // Listen for messages from iframe
+        window.addEventListener('message', function(event) {
+            if (event.origin !== 'http://localhost:3000') return;
+            
+            log(`Message from iframe: ${JSON.stringify(event.data)}`);
+        });
+
+        // Add developer tools helper
+        window.addEventListener('load', function() {
+            log('Test page loaded. Open browser DevTools (F12) to inspect dropdown behavior.');
+            log('Check for: z-index issues, pointer-events, event listeners, CSS overlays');
+        });
+    </script>
+</body>
+</html>

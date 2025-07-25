@@ -185,7 +185,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     key={lang.code}
                     onClick={() => handleLanguageChange(lang.code)}
                     className={`
-                      w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors duration-150
+                      dropdown-item w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors duration-150
                       focus:outline-none focus:ring-2 focus:ring-black focus:ring-inset
                       ${index === selectedLanguageIndex 
                         ? 'bg-gray-100 text-gray-900' 
@@ -284,10 +284,16 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
           {/* 언어 선택 */}
           <div className="relative" ref={languageMenuRef}>
             <button
-              onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Mobile language button clicked, current state:', isLanguageMenuOpen);
+                setIsLanguageMenuOpen(!isLanguageMenuOpen);
+              }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
+                  console.log('Mobile language button key pressed:', e.key);
                   setIsLanguageMenuOpen(!isLanguageMenuOpen);
                 }
               }}
@@ -321,9 +327,18 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                 {SUPPORTED_LANGUAGES.map((lang, index) => (
                   <button
                     key={lang.code}
-                    onClick={() => handleLanguageChange(lang.code)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Mobile dropdown item clicked:', lang.code);
+                      handleLanguageChange(lang.code);
+                    }}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
                     className={`
-                      w-full text-left px-2 py-1 flex items-center gap-1 text-xs transition-colors duration-150
+                      dropdown-item w-full text-left px-2 py-1 flex items-center gap-1 text-xs transition-colors duration-150
                       focus:outline-none focus:ring-2 focus:ring-black focus:ring-inset
                       ${index === selectedLanguageIndex 
                         ? 'bg-gray-100 text-gray-900' 

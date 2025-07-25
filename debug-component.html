@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Dropdown Debug</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            min-width: 8rem;
+            margin-top: 0.25rem;
+            padding: 0.25rem 0;
+        }
+        .dropdown-item {
+            width: 100%;
+            text-align: left;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.15s;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+        .dropdown-item:hover {
+            background-color: #f9fafb;
+            color: #111827;
+        }
+        .dropdown-item:focus {
+            outline: 2px solid #000;
+            outline-offset: -2px;
+        }
+        .debug-log {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 300px;
+            height: 200px;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 10px;
+            overflow-y: auto;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6">Language Dropdown Debug Test</h1>
+        
+        <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
+            <h3 class="font-semibold">Test Steps:</h3>
+            <ol class="list-decimal list-inside text-sm mt-2">
+                <li>Click the language button to open dropdown</li>
+                <li>Try clicking on each language option</li>
+                <li>Watch the debug log for event details</li>
+                <li>Check if the dropdown closes immediately</li>
+                <li>Test on different screen sizes</li>
+            </ol>
+        </div>
+
+        <!-- Desktop Header Simulation -->
+        <div class="bg-white border-b border-gray-200 mb-8">
+            <div class="max-w-6xl mx-auto flex items-center justify-between p-4">
+                <div class="flex items-center gap-3">
+                    <div class="border-2 border-gray-300 rounded-full flex items-center justify-center w-11 h-11">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M9.464 15.536a5 5 0 01-7.072 0m9.9-2.828a9 9 0 01-12.728 0"/>
+                        </svg>
+                    </div>
+                    <button class="text-lg font-bold text-black">NAVI : GUIDE</button>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center gap-1">
+                    <!-- Language Dropdown -->
+                    <div class="dropdown-container" id="desktopDropdown">
+                        <button
+                            id="desktopButton"
+                            class="btn-base flex items-center text-sm transition-all duration-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900 bg-transparent px-3 py-3 rounded-lg gap-2"
+                            aria-label="언어: 한국어"
+                            aria-expanded="false"
+                            aria-haspopup="listbox"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"/>
+                            </svg>
+                            <span>🇰🇷</span>
+                            <span>한국어</span>
+                            <svg class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+
+                        <div id="desktopMenu" class="dropdown-menu" style="display: none;">
+                            <button class="dropdown-item" data-lang="ko" data-name="한국어">
+                                <span>🇰🇷</span>
+                                <span>한국어</span>
+                                <span class="ml-auto text-xs text-gray-500">✓</span>
+                            </button>
+                            <button class="dropdown-item" data-lang="en" data-name="English">
+                                <span>🇺🇸</span>
+                                <span>English</span>
+                            </button>
+                            <button class="dropdown-item" data-lang="ja" data-name="日本語">
+                                <span>🇯🇵</span>
+                                <span>日本語</span>
+                            </button>
+                            <button class="dropdown-item" data-lang="zh" data-name="中文">
+                                <span>🇨🇳</span>
+                                <span>中文</span>
+                            </button>
+                            <button class="dropdown-item" data-lang="es" data-name="Español">
+                                <span>🇪🇸</span>
+                                <span>Español</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Header Simulation -->
+        <div class="bg-white border-b border-gray-200 md:hidden">
+            <div class="flex items-center justify-between p-4">
+                <div class="flex items-center gap-3">
+                    <div class="border-2 border-gray-300 rounded-full flex items-center justify-center w-11 h-11">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M9.464 15.536a5 5 0 01-7.072 0m9.9-2.828a9 9 0 01-12.728 0"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Mobile Navigation -->
+                <div class="flex items-center gap-1">
+                    <!-- Language Dropdown -->
+                    <div class="dropdown-container" id="mobileDropdown">
+                        <button
+                            id="mobileButton"
+                            class="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                            aria-label="언어: 한국어"
+                            aria-expanded="false"
+                            aria-haspopup="listbox"
+                        >
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"/>
+                            </svg>
+                            <span>🇰🇷</span>
+                            <svg class="w-2 h-2 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+
+                        <div id="mobileMenu" class="dropdown-menu" style="display: none; min-width: 6rem;">
+                            <button class="dropdown-item text-xs px-2 py-1" data-lang="ko" data-name="한국어">
+                                <span>🇰🇷</span>
+                                <span>한국어</span>
+                                <span class="ml-auto text-xs text-gray-500">✓</span>
+                            </button>
+                            <button class="dropdown-item text-xs px-2 py-1" data-lang="en" data-name="English">
+                                <span>🇺🇸</span>
+                                <span>English</span>
+                            </button>
+                            <button class="dropdown-item text-xs px-2 py-1" data-lang="ja" data-name="日本語">
+                                <span>🇯🇵</span>
+                                <span>日本語</span>
+                            </button>
+                            <button class="dropdown-item text-xs px-2 py-1" data-lang="zh" data-name="中文">
+                                <span>🇨🇳</span>
+                                <span>中文</span>
+                            </button>
+                            <button class="dropdown-item text-xs px-2 py-1" data-lang="es" data-name="Español">
+                                <span>🇪🇸</span>
+                                <span>Español</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debug Log -->
+    <div class="debug-log" id="debugLog">
+        <strong>Debug Log:</strong><br>
+        <div id="logContent">Ready for testing...</div>
+    </div>
+
+    <script>
+        let isDesktopOpen = false;
+        let isMobileOpen = false;
+
+        function log(message) {
+            const logContent = document.getElementById('logContent');
+            const timestamp = new Date().toLocaleTimeString();
+            logContent.innerHTML += `<br>[${timestamp}] ${message}`;
+            logContent.scrollTop = logContent.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function toggleDropdown(type) {
+            const button = document.getElementById(`${type}Button`);
+            const menu = document.getElementById(`${type}Menu`);
+            const isOpen = type === 'desktop' ? isDesktopOpen : isMobileOpen;
+            
+            log(`${type} dropdown toggle clicked - currently ${isOpen ? 'open' : 'closed'}`);
+            
+            if (isOpen) {
+                menu.style.display = 'none';
+                button.setAttribute('aria-expanded', 'false');
+                if (type === 'desktop') isDesktopOpen = false;
+                else isMobileOpen = false;
+                log(`${type} dropdown closed`);
+            } else {
+                menu.style.display = 'block';
+                button.setAttribute('aria-expanded', 'true');
+                if (type === 'desktop') isDesktopOpen = true;
+                else isMobileOpen = true;
+                log(`${type} dropdown opened`);
+            }
+        }
+
+        function selectLanguage(lang, name, type) {
+            log(`Language selected: ${lang} (${name}) from ${type} dropdown`);
+            
+            // Close dropdown
+            const menu = document.getElementById(`${type}Menu`);
+            const button = document.getElementById(`${type}Button`);
+            menu.style.display = 'none';
+            button.setAttribute('aria-expanded', 'false');
+            if (type === 'desktop') isDesktopOpen = false;
+            else isMobileOpen = false;
+            
+            alert(`Language changed to: ${name} (${lang})`);
+        }
+
+        // Desktop dropdown handlers
+        document.getElementById('desktopButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            log('Desktop button click event triggered');
+            toggleDropdown('desktop');
+        });
+
+        document.querySelectorAll('#desktopMenu .dropdown-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const lang = this.getAttribute('data-lang');
+                const name = this.getAttribute('data-name');
+                log(`Desktop dropdown item clicked: ${lang}`);
+                selectLanguage(lang, name, 'desktop');
+            });
+            
+            item.addEventListener('mousedown', function(e) {
+                log(`Desktop item mousedown: ${this.getAttribute('data-lang')}`);
+            });
+            
+            item.addEventListener('mouseup', function(e) {
+                log(`Desktop item mouseup: ${this.getAttribute('data-lang')}`);
+            });
+        });
+
+        // Mobile dropdown handlers
+        document.getElementById('mobileButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            log('Mobile button click event triggered');
+            toggleDropdown('mobile');
+        });
+
+        document.querySelectorAll('#mobileMenu .dropdown-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const lang = this.getAttribute('data-lang');
+                const name = this.getAttribute('data-name');
+                log(`Mobile dropdown item clicked: ${lang}`);
+                selectLanguage(lang, name, 'mobile');
+            });
+        });
+
+        // Outside click handler
+        document.addEventListener('click', function(e) {
+            log(`Document click detected on: ${e.target.tagName}`);
+            
+            if (!document.getElementById('desktopDropdown').contains(e.target)) {
+                if (isDesktopOpen) {
+                    log('Closing desktop dropdown due to outside click');
+                    document.getElementById('desktopMenu').style.display = 'none';
+                    document.getElementById('desktopButton').setAttribute('aria-expanded', 'false');
+                    isDesktopOpen = false;
+                }
+            }
+            
+            if (!document.getElementById('mobileDropdown').contains(e.target)) {
+                if (isMobileOpen) {
+                    log('Closing mobile dropdown due to outside click');
+                    document.getElementById('mobileMenu').style.display = 'none';
+                    document.getElementById('mobileButton').setAttribute('aria-expanded', 'false');
+                    isMobileOpen = false;
+                }
+            }
+        });
+
+        // Additional debugging
+        document.addEventListener('mousedown', function(e) {
+            log(`Global mousedown on: ${e.target.tagName}.${e.target.className}`);
+        });
+
+        log('Debug test loaded. Try clicking the dropdowns!');
+    </script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropdown Test - Fixed Version</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .instructions {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .iframe-container {
+            position: relative;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .iframe-label {
+            position: absolute;
+            top: -30px;
+            left: 0;
+            background: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px 4px 0 0;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10;
+        }
+        .console-output {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .viewport-controls {
+            margin-bottom: 15px;
+        }
+        .viewport-controls button {
+            margin: 5px;
+            padding: 8px 16px;
+            border: 1px solid #ccc;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .viewport-controls button.active {
+            background: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Language Dropdown Fix Test</h1>
+        
+        <div class="instructions">
+            <h3>✅ Fixed Issues:</h3>
+            <ul>
+                <li><strong>Event Handler Conflict:</strong> Changed from <code>mousedown</code> to <code>click</code> event for outside click detection</li>
+                <li><strong>Event Propagation:</strong> Added <code>preventDefault</code> and <code>stopPropagation</code> to dropdown items</li>
+                <li><strong>Race Condition:</strong> Added <code>setTimeout(0)</code> to delay outside click processing</li>
+                <li><strong>CSS Styling:</strong> Added explicit <code>pointer-events: auto</code> and proper z-index</li>
+                <li><strong>Debug Logging:</strong> Added console logs to track events</li>
+            </ul>
+            
+            <h3>🧪 Test Instructions:</h3>
+            <ol>
+                <li>Open browser DevTools (F12) to see console logs</li>
+                <li>Test both desktop (1920x1080) and mobile (375x667) viewports</li>
+                <li>Click on the language dropdown (Globe + flag icon)</li>
+                <li>Try clicking on different language options</li>
+                <li>Verify that clicks register and language changes work</li>
+                <li>Check that dropdown doesn't close immediately after opening</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3>Desktop Viewport Test (1920x1080)</h3>
+            <div class="viewport-controls">
+                <button class="active" onclick="setViewport('desktop', 1920, 1080, this)">Desktop Full</button>
+                <button onclick="setViewport('desktop', 1200, 800, this)">Desktop Small</button>
+            </div>
+            <div class="iframe-container">
+                <div class="iframe-label">DESKTOP VIEW</div>
+                <iframe 
+                    id="desktopFrame" 
+                    src="http://localhost:3000" 
+                    width="1920" 
+                    height="1080"
+                    style="width: 100%; max-width: 100%; height: 400px; border: none; transform: scale(0.6); transform-origin: top left;">
+                </iframe>
+            </div>
+            <div class="console-output" id="desktopConsole">
+                <strong>Desktop Console:</strong><br>
+                Ready for testing...
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>Mobile Viewport Test (375x667)</h3>
+            <div class="viewport-controls">
+                <button class="active" onclick="setViewport('mobile', 375, 667, this)">Mobile Portrait</button>
+                <button onclick="setViewport('mobile', 667, 375, this)">Mobile Landscape</button>
+            </div>
+            <div class="iframe-container">
+                <div class="iframe-label">MOBILE VIEW</div>
+                <iframe 
+                    id="mobileFrame" 
+                    src="http://localhost:3000" 
+                    width="375" 
+                    height="667"
+                    style="width: 100%; max-width: 375px; height: 400px; border: none; transform: scale(1); transform-origin: top left;">
+                </iframe>
+            </div>
+            <div class="console-output" id="mobileConsole">
+                <strong>Mobile Console:</strong><br>
+                Ready for testing...
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Test Results Checklist</h3>
+            <ul style="list-style: none; padding: 0;">
+                <li><input type="checkbox" id="check1"> <label for="check1">Desktop dropdown opens when clicked</label></li>
+                <li><input type="checkbox" id="check2"> <label for="check2">Desktop dropdown items are clickable</label></li>
+                <li><input type="checkbox" id="check3"> <label for="check3">Desktop language changes work</label></li>
+                <li><input type="checkbox" id="check4"> <label for="check4">Desktop dropdown closes after selection</label></li>
+                <li><input type="checkbox" id="check5"> <label for="check5">Mobile dropdown opens when clicked</label></li>
+                <li><input type="checkbox" id="check6"> <label for="check6">Mobile dropdown items are clickable</label></li>
+                <li><input type="checkbox" id="check7"> <label for="check7">Mobile language changes work</label></li>
+                <li><input type="checkbox" id="check8"> <label for="check8">Mobile dropdown closes after selection</label></li>
+                <li><input type="checkbox" id="check9"> <label for="check9">No JavaScript errors in console</label></li>
+                <li><input type="checkbox" id="check10"> <label for="check10">Outside clicks close dropdown properly</label></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function setViewport(type, width, height, button) {
+            const frame = document.getElementById(`${type}Frame`);
+            const buttons = button.parentElement.querySelectorAll('button');
+            
+            // Update active button
+            buttons.forEach(b => b.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Update iframe dimensions
+            frame.setAttribute('width', width);
+            frame.setAttribute('height', height);
+            
+            // Adjust scaling for desktop
+            if (type === 'desktop') {
+                if (width > 1200) {
+                    frame.style.transform = 'scale(0.6)';
+                    frame.style.height = '400px';
+                } else {
+                    frame.style.transform = 'scale(0.8)';
+                    frame.style.height = '350px';
+                }
+            } else {
+                frame.style.transform = 'scale(1)';
+                frame.style.maxWidth = width + 'px';
+            }
+            
+            logToConsole(type, `Viewport changed to: ${width}x${height}`);
+        }
+
+        function logToConsole(type, message) {
+            const console = document.getElementById(`${type}Console`);
+            const timestamp = new Date().toLocaleTimeString();
+            console.innerHTML += `<br>[${timestamp}] ${message}`;
+            console.scrollTop = console.scrollHeight;
+        }
+
+        // Listen for messages from iframes (if the app sends any)
+        window.addEventListener('message', function(event) {
+            if (event.origin !== 'http://localhost:3000') return;
+            
+            const frameType = event.source === document.getElementById('desktopFrame').contentWindow ? 'desktop' : 'mobile';
+            logToConsole(frameType, `Message: ${JSON.stringify(event.data)}`);
+        });
+
+        // Initialize
+        logToConsole('desktop', 'Desktop test frame loaded');
+        logToConsole('mobile', 'Mobile test frame loaded');
+        
+        console.log('🧪 Dropdown fix test page loaded. Check both desktop and mobile iframes!');
+    </script>
+</body>
+</html>
