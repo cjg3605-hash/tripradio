@@ -47,7 +47,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   const [expandedChapters, setExpandedChapters] = useState<number[]>([0]);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showScrollButtons, setShowScrollButtons] = useState(false);
-  const [componentKey, setComponentKey] = useState(0); // 컴포넌트 완전 리렌더링용
+  const [componentKey, setComponentKey] = useState(0);
   const internalChapterRefs = useRef<(HTMLElement | null)[]>([]);
 
   // 🎯 AI 생성 인트로 챗터 사용 또는 폴백 인트로 생성
@@ -216,7 +216,6 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
     );
   };
 
-
   // 데이터가 없을 때 로딩 상태 (인트로 챕터는 항상 생성되므로 기본 가이드 구조만 확인)
   if (!guide.overview && !guide.realTimeGuide) {
     return (
@@ -232,435 +231,431 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   }
 
   return (
-    <>
+    <div>
       <ResponsiveContainer key={`tour-content-${componentKey}`} variant="fullwidth" padding="none" className="min-h-screen">
-        {/* Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="px-0.5 py-2 sm:px-0.5 lg:px-1">
             <Stack space="sm">
-          {/* 장소 정보 */}
-          <div className="text-center space-y-2">
-            <div className="w-20 h-20 border-4 border-foreground rounded-full flex items-center justify-center mx-auto">
-              <MapPin className="w-10 h-10" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-medium mb-2">
-                {guide.metadata?.originalLocationName || guide.overview?.title || t('guide.guideTitle')}
-              </h1>
-            </div>
-          </div>
-
-          {/* 개요 - 글로벌 프리미엄 디자인 시스템 */}
-          {guide.overview && (
-            <div className="relative mb-3">
-              {/* Main Container - Minimal Monochrome Card */}
-              <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
-                
-                {/* Header Section - Ultra Minimal */}
-                <div className="px-4 pt-4 pb-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
-                        <Info className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.overview')}</h2>
-                        <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.essentialInfo')}</p>
-                      </div>
-                    </div>
-                    {/* Status Indicator - Minimal Dots */}
-                    <div className="flex gap-1.5">
-                      <div className="w-2 h-2 bg-black/20 rounded-full"></div>
-                      <div className="w-2 h-2 bg-black rounded-full"></div>
-                      <div className="w-2 h-2 bg-black/20 rounded-full"></div>
-                    </div>
-                  </div>
+              {/* 장소 정보 */}
+              <div className="text-center space-y-2">
+                <div className="w-20 h-20 border-4 border-foreground rounded-full flex items-center justify-center mx-auto">
+                  <MapPin className="w-10 h-10" />
                 </div>
+                <div>
+                  <h1 className="text-2xl font-medium mb-2">
+                    {guide.metadata?.originalLocationName || guide.overview?.title || t('guide.guideTitle')}
+                  </h1>
+                </div>
+              </div>
 
-                {/* Quick Info Grid - Mobile First */}
-                <div className="px-4 pb-4">
-                  <div className="grid grid-cols-1 gap-2">
+              {/* 개요 - 글로벌 프리미엄 디자인 시스템 */}
+              {guide.overview && (
+                <div className="relative mb-3">
+                  <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
                     
-                    {/* Tier 1: Immediate Recognition - 3초 정보 */}
-                    <div className="p-4 bg-black/3 rounded-2xl border border-black/5">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
-                          <MapPin className="w-4 h-4 text-white" />
-                        </div>
-                        <span className="text-xs font-bold text-black/60 uppercase tracking-wider">{t('guide.locationAccess')}</span>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        {guide.overview.location && (
-                          <div className="flex items-center gap-3">
-                            <div className="w-1 h-4 bg-black rounded-full"></div>
-                            <p className="text-sm font-semibold text-black">{guide.overview.location}</p>
+                    {/* Header Section - Ultra Minimal */}
+                    <div className="px-4 pt-4 pb-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
+                            <Info className="w-6 h-6 text-white" />
                           </div>
-                        )}
+                          <div>
+                            <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.overview')}</h2>
+                            <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.essentialInfo')}</p>
+                          </div>
+                        </div>
+                        {/* Status Indicator - Minimal Dots */}
+                        <div className="flex gap-1.5">
+                          <div className="w-2 h-2 bg-black/20 rounded-full"></div>
+                          <div className="w-2 h-2 bg-black rounded-full"></div>
+                          <div className="w-2 h-2 bg-black/20 rounded-full"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quick Info Grid - Mobile First */}
+                    <div className="px-4 pb-4">
+                      <div className="grid grid-cols-1 gap-2">
                         
-                        {/* Practical Info Row */}
-                        <div className="flex flex-wrap gap-4 mt-3">
-                          {guide.overview.visitInfo?.duration && (
-                            <div className="flex items-center gap-2">
-                              <Clock className="w-4 h-4 text-black/60" />
-                              <span className="text-sm font-medium text-black">{guide.overview.visitInfo.duration}</span>
+                        {/* Tier 1: Immediate Recognition - 3초 정보 */}
+                        <div className="p-4 bg-black/3 rounded-2xl border border-black/5">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
+                              <MapPin className="w-4 h-4 text-white" />
                             </div>
-                          )}
-                          {guide.overview.visitInfo?.difficulty && (
-                            <div className="flex items-center gap-2">
-                              <Users className="w-4 h-4 text-black/60" />
-                              <span className="text-sm font-medium text-black">{guide.overview.visitInfo.difficulty}</span>
-                            </div>
-                          )}
-                          {guide.overview.visitInfo?.season && (
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4 text-black/60" />
-                              <span className="text-sm font-medium text-black">{guide.overview.visitInfo.season}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Tier 2: Key Features - 7초 정보 */}
-                    {guide.overview.keyFeatures && (
-                      <div className="p-4 bg-black/2 rounded-2xl border border-black/5">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
-                            <Eye className="w-4 h-4 text-white" />
+                            <span className="text-xs font-bold text-black/60 uppercase tracking-wider">{t('guide.locationAccess')}</span>
                           </div>
-                          <span className="text-xs font-bold text-black/60 uppercase tracking-wider">{t('guide.keyFeatures')}</span>
-                        </div>
-                        <p className="text-sm font-medium text-black leading-relaxed">{guide.overview.keyFeatures}</p>
-                      </div>
-                    )}
-
-                    {/* Tier 3: Historical Context - 선택적 확장 */}
-                    {guide.overview.background && (
-                      <div className="p-4 bg-black/1 rounded-2xl border border-black/5">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
-                            <BookOpen className="w-4 h-4 text-white" />
-                          </div>
-                          <span className="text-xs font-bold text-black/60 uppercase tracking-wider">{t('guide.historicalContext')}</span>
-                        </div>
-                        <p className="text-sm font-medium text-black/80 leading-relaxed">{guide.overview.background}</p>
-                      </div>
-                    )}
-
-                    {/* Legacy Support - 기존 summary */}
-                    {guide.overview.summary && !guide.overview.location && !guide.overview.keyFeatures && !guide.overview.background && (
-                      <div className="p-4 bg-black/2 rounded-2xl border border-black/5">
-                        <p className="text-sm font-medium text-black leading-relaxed">{guide.overview.summary}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Bottom Accent Line - Ultra Minimal */}
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent"></div>
-              </div>
-            </div>
-          )}
-
-          {/* 필수 관람 포인트 - 모바일 최적화 */}
-          {(() => {
-            const mustVisitContent = guide.mustVisitSpots || '';
-            return mustVisitContent && mustVisitContent.trim().length > 0;
-          })() && (
-            <div className="relative mb-2">
-              <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
-                
-                {/* Header */}
-                <div className="px-2 pt-2 pb-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
-                        <Sparkles className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.mustSeePoints')}</h2>
-                        <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.mustSeeHighlights')}</p>
-                      </div>
-                    </div>
-                    {/* Counter */}
-                    <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                      <span className="text-xs font-bold text-white">
-                        {(guide.mustVisitSpots || '').split(/[,\n]|#/).filter(spot => spot && spot.trim()).length - 1}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tags Container - Mobile Optimized */}
-                <div className="px-4 pb-4">
-                  <div className="flex flex-wrap gap-3">
-                    {(guide.mustVisitSpots || '').split(/[,\n]|#/).filter(spot => spot && spot.trim()).map((spot, index) => {
-                      const cleanSpot = spot.trim().replace(/^#+/, '');
-                      if (!cleanSpot || index === 0) return null;
-                      
-                      return (
-                        <div
-                          key={`highlight-${index}-${cleanSpot}`}
-                          className="group relative overflow-hidden"
-                        >
-                          <div className="relative px-5 py-3 bg-black rounded-2xl shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95 cursor-pointer">
-                            <div className="flex items-center gap-2">
-                              <span className="text-white font-semibold text-sm">
-                                #{cleanSpot}
-                              </span>
-                              <div className="w-1 h-1 bg-white/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            </div>
-                            
-                            {/* Hover Shine Effect */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  
-                  {/* Fallback for Non-Hashtag Format */}
-                  {guide.mustVisitSpots && !guide.mustVisitSpots.includes('#') && (
-                    <div className="mt-4 p-4 bg-black/3 border border-black/5 rounded-2xl">
-                      <p className="text-sm font-medium text-black leading-relaxed">{guide.mustVisitSpots}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Bottom Accent */}
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent"></div>
-              </div>
-            </div>
-          )}
-
-          {/* 주의사항 - 글로벌 Safety-First 디자인 */}
-          {(() => {
-            const safetyContent = guide.safetyWarnings || '';
-            return safetyContent && safetyContent.trim().length > 0;
-          })() && (
-            <div className="relative mb-2">
-              <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
-                
-                {/* Header */}
-                <div className="px-2 pt-2 pb-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
-                        <AlertTriangle className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.precautions')}</h2>
-                        <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.safetyGuidelines')}</p>
-                      </div>
-                    </div>
-                    {/* Priority Indicator */}
-                    <div className="w-3 h-3 bg-black rounded-full opacity-80"></div>
-                  </div>
-                </div>
-
-                {/* Safety Items - Mobile Optimized List */}
-                <div className="px-4 pb-4">
-                  <div className="space-y-3">
-                    {(() => {
-                      const safetyContent = guide.safetyWarnings || '';
-                      
-                      return safetyContent.split('\n').filter(w => w.trim()).map((warning, index) => {
-                        const cleanWarning = warning.trim().replace(/^[•·-]\s*/, '');
-                        if (!cleanWarning) return null;
-                        
-                        return (
-                          <div key={`safety-${index}`} className="group relative">
-                            <div className="flex items-start gap-4 p-4 bg-black/2 hover:bg-black/4 rounded-2xl border border-black/5 transition-all duration-200">
-                              {/* Bullet Point - Ultra Minimal */}
-                              <div className="flex-shrink-0 w-2 h-2 bg-black rounded-full mt-2 group-hover:scale-110 transition-transform"></div>
-                              
-                              {/* Content */}
-                              <p className="text-sm font-medium text-black leading-relaxed">
-                                {cleanWarning}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      });
-                    })()}
-                  </div>
-                </div>
-
-                {/* Bottom Accent */}
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent"></div>
-              </div>
-            </div>
-          )}
-
-
-          {/* 고급 오디오 플레이어 */}
-
-          {/* 시작점 지도 */}
-          <div className="mb-3">
-            {(() => {
-              // 실제 위치 데이터 가져오기
-              const locationData = getLocationCoordinates(locationName || '');
-              const startPoint = locationData ? locationData.center : DEFAULT_SEOUL_CENTER;
-              const pois = locationData ? locationData.pois.slice(0, 8) : []; // 최대 8개 POI
-              
-              console.log('🗺️ 지도 데이터:', {
-                locationName,
-                locationData: !!locationData,
-                startPoint,
-                poisCount: pois.length,
-                pois: pois.map(p => ({ name: p.name, lat: p.lat, lng: p.lng }))
-              });
-
-              return (
-                <StartLocationMap
-                  locationName={locationName || ''}
-                  startPoint={{
-                    lat: startPoint.lat,
-                    lng: startPoint.lng,
-                    name: startPoint.name || guide.overview?.title || locationName || t('guide.tourStart')
-                  }}
-                  pois={pois.map((poi, index) => ({
-                    id: `poi_${index}`,
-                    name: poi.name,
-                    lat: poi.lat,
-                    lng: poi.lng,
-                    description: poi.description || ''
-                  }))}
-                  className="w-full"
-                />
-              );
-            })()}
-
-          {/* 챕터 리스트 */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 border-2 border-foreground rounded-full flex items-center justify-center">
-                <Route className="w-5 h-5" />
-              </div>
-              <h2 className="text-xl font-medium">{t('guide.viewingOrder')}</h2>
-              <div className="px-3 py-1 bg-muted rounded-full text-sm text-muted-foreground">
-                총 {totalChapters}개 챕터
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              {allChapters.map((chapter, index) => (
-                <div
-                  key={`chapter-${index}-${chapter.id || index}`}
-                  ref={(el) => {
-                    try {
-                      if (internalChapterRefs.current && index < internalChapterRefs.current.length) {
-                        internalChapterRefs.current[index] = el;
-                      }
-                      if (chapterRefs?.current && index < chapterRefs.current.length) {
-                        chapterRefs.current[index] = el;
-                      }
-                    } catch (error) {
-                      console.warn('챕터 ref 설정 오류:', error);
-                    }
-                  }}
-                >
-                <Card
-                  variant={currentChapterIndex === index ? "elevated" : "default"}
-                  className="overflow-hidden transition-all duration-200"
-                >
-                  {/* 챕터 헤더 */}
-                  <div 
-                    className="p-2 cursor-pointer"
-                    onClick={() => toggleChapter(index)}
-                  >
-                    <Flex align="center" justify="between">
-                      <Flex align="center" gap="md" className="flex-1">
-                        <div className={`w-12 h-12 border-2 rounded-full flex items-center justify-center font-medium transition-all duration-300 text-xs ${
-                          currentChapterIndex === index 
-                            ? 'border-foreground bg-foreground text-background' 
-                            : 'border-border text-muted-foreground'
-                        }`}>
-                          {index === 0 ? t('guide.intro') : String(index).padStart(2, '0')}
-                        </div>
-                        
-                        <div className="flex-1">
+                          
                           <div className="space-y-2">
-                            <h3 className="font-medium">{chapter.title}</h3>
-                            {/* 챕터별 오디오 플레이어 */}
-                            {audioChapters[index] && (
-                              <div className="w-full">
-                                <ChapterAudioPlayer
-                                  chapter={audioChapters[index]}
-                                  className="w-full max-w-sm"
-                                />
+                            {guide.overview.location && (
+                              <div className="flex items-center gap-3">
+                                <div className="w-1 h-4 bg-black rounded-full"></div>
+                                <p className="text-sm font-semibold text-black">{guide.overview.location}</p>
                               </div>
                             )}
-                          </div>
-                        </div>
-                      </Flex>
-                      
-                      <Flex align="center" gap="sm">
-                        {/* 확장 인디케이터 */}
-                        <div className={`transition-transform duration-300 ${
-                          expandedChapters.includes(index) ? 'rotate-180' : ''
-                        }`}>
-                          <ChevronDown className="w-5 h-5 text-muted-foreground" />
-                        </div>
-                      </Flex>
-                    </Flex>
-                  </div>
-                  
-                  {/* 챕터 내용 */}
-                  {expandedChapters.includes(index) && (
-                    <div className="border-t border-border p-2">
-                      <Stack space="sm">
-                        <div className="text-muted-foreground leading-relaxed">
-                          {chapter.narrative ? 
-                            formatText(chapter.narrative) :
-                            formatText([chapter.sceneDescription, chapter.coreNarrative, chapter.humanStories]
-                              .filter(Boolean).join(' '))
-                          }
-                        </div>
-                        
-                        {/* 다음 이동 안내 */}
-                        {chapter.nextDirection && (
-                          <div className="mt-2 p-2 bg-muted/30 rounded-lg border-l-4 border-foreground">
-                            <div className="flex items-start gap-3">
-                              <div className="w-6 h-6 border-2 border-foreground rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                                <Route className="w-3 h-3" />
-                              </div>
-                              <div>
-                                <h4 className="text-sm font-medium mb-1">{t('guide.nextMoveGuide')}</h4>
-                                <p className="text-sm text-muted-foreground leading-relaxed">
-                                  {chapter.nextDirection}
-                                </p>
-                              </div>
+                            
+                            {/* Practical Info Row */}
+                            <div className="flex flex-wrap gap-4 mt-3">
+                              {guide.overview.visitInfo?.duration && (
+                                <div className="flex items-center gap-2">
+                                  <Clock className="w-4 h-4 text-black/60" />
+                                  <span className="text-sm font-medium text-black">{guide.overview.visitInfo.duration}</span>
+                                </div>
+                              )}
+                              {guide.overview.visitInfo?.difficulty && (
+                                <div className="flex items-center gap-2">
+                                  <Users className="w-4 h-4 text-black/60" />
+                                  <span className="text-sm font-medium text-black">{guide.overview.visitInfo.difficulty}</span>
+                                </div>
+                              )}
+                              {guide.overview.visitInfo?.season && (
+                                <div className="flex items-center gap-2">
+                                  <Calendar className="w-4 h-4 text-black/60" />
+                                  <span className="text-sm font-medium text-black">{guide.overview.visitInfo.season}</span>
+                                </div>
+                              )}
                             </div>
                           </div>
-                        )}
-                        
-                        {/* 디버깅 정보 (개발 모드에서만) */}
-                        {process.env.NODE_ENV === 'development' && (
-                          <div className="text-xs text-muted-foreground bg-muted p-2 rounded-lg">
-                            <p>Debug - {index === 0 ? 'Intro Chapter' : `Chapter ${index}`}:</p>
-                            <p>Title: {chapter.title}</p>
-                            <p>Narrative: {chapter.narrative ? t('common.exists') : t('common.notExists')}</p>
-                            <p>Scene: {chapter.sceneDescription ? t('common.exists') : t('common.notExists')}</p>
-                            <p>Core: {chapter.coreNarrative ? t('common.exists') : t('common.notExists')}</p>
-                            <p>Stories: {chapter.humanStories ? t('common.exists') : t('common.notExists')}</p>
-                            <p>Next Direction: {chapter.nextDirection ? t('common.exists') : t('common.notExists')}</p>
-                            {index === 0 && <p className="text-slate-600 font-medium">🎯 {t('guide.autoGeneratedIntro')}</p>}
+                        </div>
+
+                        {/* Tier 2: Key Features - 7초 정보 */}
+                        {guide.overview.keyFeatures && (
+                          <div className="p-4 bg-black/2 rounded-2xl border border-black/5">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
+                                <Eye className="w-4 h-4 text-white" />
+                              </div>
+                              <span className="text-xs font-bold text-black/60 uppercase tracking-wider">{t('guide.keyFeatures')}</span>
+                            </div>
+                            <p className="text-sm font-medium text-black leading-relaxed">{guide.overview.keyFeatures}</p>
                           </div>
                         )}
-                      </Stack>
-                    </div>
-                  )}
-                </Card>
-                </div>
-              ))}
-            </div>
-          </div>
-            </Stack>
 
-            {/* Bottom spacing */}
-            <div className="h-8" />
+                        {/* Tier 3: Historical Context - 선택적 확장 */}
+                        {guide.overview.background && (
+                          <div className="p-4 bg-black/1 rounded-2xl border border-black/5">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
+                                <BookOpen className="w-4 h-4 text-white" />
+                              </div>
+                              <span className="text-xs font-bold text-black/60 uppercase tracking-wider">{t('guide.historicalContext')}</span>
+                            </div>
+                            <p className="text-sm font-medium text-black/80 leading-relaxed">{guide.overview.background}</p>
+                          </div>
+                        )}
+
+                        {/* Legacy Support - 기존 summary */}
+                        {guide.overview.summary && !guide.overview.location && !guide.overview.keyFeatures && !guide.overview.background && (
+                          <div className="p-4 bg-black/2 rounded-2xl border border-black/5">
+                            <p className="text-sm font-medium text-black leading-relaxed">{guide.overview.summary}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Bottom Accent Line - Ultra Minimal */}
+                    <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent"></div>
+                  </div>
+                </div>
+              )}
+
+              {/* 필수 관람 포인트 - 모바일 최적화 */}
+              {(() => {
+                const mustVisitContent = guide.mustVisitSpots || '';
+                return mustVisitContent && mustVisitContent.trim().length > 0;
+              })() && (
+                <div className="relative mb-2">
+                  <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
+                    
+                    {/* Header */}
+                    <div className="px-2 pt-2 pb-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
+                            <Sparkles className="w-6 h-6 text-white" />
+                          </div>
+                          <div>
+                            <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.mustSeePoints')}</h2>
+                            <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.mustSeeHighlights')}</p>
+                          </div>
+                        </div>
+                        {/* Counter */}
+                        <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                          <span className="text-xs font-bold text-white">
+                            {(guide.mustVisitSpots || '').split(/[,\n]|#/).filter(spot => spot && spot.trim()).length - 1}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tags Container - Mobile Optimized */}
+                    <div className="px-4 pb-4">
+                      <div className="flex flex-wrap gap-3">
+                        {(guide.mustVisitSpots || '').split(/[,\n]|#/).filter(spot => spot && spot.trim()).map((spot, index) => {
+                          const cleanSpot = spot.trim().replace(/^#+/, '');
+                          if (!cleanSpot || index === 0) return null;
+                          
+                          return (
+                            <div
+                              key={`highlight-${index}-${cleanSpot}`}
+                              className="group relative overflow-hidden"
+                            >
+                              <div className="relative px-5 py-3 bg-black rounded-2xl shadow-md transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95 cursor-pointer">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-white font-semibold text-sm">
+                                    #{cleanSpot}
+                                  </span>
+                                  <div className="w-1 h-1 bg-white/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                </div>
+                                
+                                {/* Hover Shine Effect */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      
+                      {/* Fallback for Non-Hashtag Format */}
+                      {guide.mustVisitSpots && !guide.mustVisitSpots.includes('#') && (
+                        <div className="mt-4 p-4 bg-black/3 border border-black/5 rounded-2xl">
+                          <p className="text-sm font-medium text-black leading-relaxed">{guide.mustVisitSpots}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Bottom Accent */}
+                    <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent"></div>
+                  </div>
+                </div>
+              )}
+
+              {/* 주의사항 - 글로벌 Safety-First 디자인 */}
+              {(() => {
+                const safetyContent = guide.safetyWarnings || '';
+                return safetyContent && safetyContent.trim().length > 0;
+              })() && (
+                <div className="relative mb-2">
+                  <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
+                    
+                    {/* Header */}
+                    <div className="px-2 pt-2 pb-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
+                            <AlertTriangle className="w-6 h-6 text-white" />
+                          </div>
+                          <div>
+                            <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.precautions')}</h2>
+                            <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.safetyGuidelines')}</p>
+                          </div>
+                        </div>
+                        {/* Priority Indicator */}
+                        <div className="w-3 h-3 bg-black rounded-full opacity-80"></div>
+                      </div>
+                    </div>
+
+                    {/* Safety Items - Mobile Optimized List */}
+                    <div className="px-4 pb-4">
+                      <div className="space-y-3">
+                        {(() => {
+                          const safetyContent = guide.safetyWarnings || '';
+                          
+                          return safetyContent.split('\n').filter(w => w.trim()).map((warning, index) => {
+                            const cleanWarning = warning.trim().replace(/^[•·-]\s*/, '');
+                            if (!cleanWarning) return null;
+                            
+                            return (
+                              <div key={`safety-${index}`} className="group relative">
+                                <div className="flex items-start gap-4 p-4 bg-black/2 hover:bg-black/4 rounded-2xl border border-black/5 transition-all duration-200">
+                                  {/* Bullet Point - Ultra Minimal */}
+                                  <div className="flex-shrink-0 w-2 h-2 bg-black rounded-full mt-2 group-hover:scale-110 transition-transform"></div>
+                                  
+                                  {/* Content */}
+                                  <p className="text-sm font-medium text-black leading-relaxed">
+                                    {cleanWarning}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          });
+                        })()}
+                      </div>
+                    </div>
+
+                    {/* Bottom Accent */}
+                    <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent"></div>
+                  </div>
+                </div>
+              )}
+
+              {/* 시작점 지도 */}
+              <div className="mb-3">
+                {(() => {
+                  // 실제 위치 데이터 가져오기
+                  const locationData = getLocationCoordinates(locationName || '');
+                  const startPoint = locationData ? locationData.center : DEFAULT_SEOUL_CENTER;
+                  const pois = locationData ? locationData.pois.slice(0, 8) : []; // 최대 8개 POI
+                  
+                  console.log('🗺️ 지도 데이터:', {
+                    locationName,
+                    locationData: !!locationData,
+                    startPoint,
+                    poisCount: pois.length,
+                    pois: pois.map(p => ({ name: p.name, lat: p.lat, lng: p.lng }))
+                  });
+
+                  return (
+                    <StartLocationMap
+                      locationName={locationName || ''}
+                      startPoint={{
+                        lat: startPoint.lat,
+                        lng: startPoint.lng,
+                        name: startPoint.name || guide.overview?.title || locationName || t('guide.tourStart')
+                      }}
+                      pois={pois.map((poi, index) => ({
+                        id: `poi_${index}`,
+                        name: poi.name,
+                        lat: poi.lat,
+                        lng: poi.lng,
+                        description: poi.description || ''
+                      }))}
+                      className="w-full"
+                    />
+                  );
+                })()}
+              </div>
+
+              {/* 챕터 리스트 */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 border-2 border-foreground rounded-full flex items-center justify-center">
+                    <Route className="w-5 h-5" />
+                  </div>
+                  <h2 className="text-xl font-medium">{t('guide.viewingOrder')}</h2>
+                  <div className="px-3 py-1 bg-muted rounded-full text-sm text-muted-foreground">
+                    총 {totalChapters}개 챕터
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  {allChapters.map((chapter, index) => (
+                    <div
+                      key={`chapter-${index}-${chapter.id || index}`}
+                      ref={(el) => {
+                        try {
+                          if (internalChapterRefs.current && index < internalChapterRefs.current.length) {
+                            internalChapterRefs.current[index] = el;
+                          }
+                          if (chapterRefs?.current && index < chapterRefs.current.length) {
+                            chapterRefs.current[index] = el;
+                          }
+                        } catch (error) {
+                          console.warn('챕터 ref 설정 오류:', error);
+                        }
+                      }}
+                    >
+                      <Card
+                        variant={currentChapterIndex === index ? "elevated" : "default"}
+                        className="overflow-hidden transition-all duration-200"
+                      >
+                        {/* 챕터 헤더 */}
+                        <div 
+                          className="p-2 cursor-pointer"
+                          onClick={() => toggleChapter(index)}
+                        >
+                          <Flex align="center" justify="between">
+                            <Flex align="center" gap="md" className="flex-1">
+                              <div className={`w-12 h-12 border-2 rounded-full flex items-center justify-center font-medium transition-all duration-300 text-xs ${
+                                currentChapterIndex === index 
+                                  ? 'border-foreground bg-foreground text-background' 
+                                  : 'border-border text-muted-foreground'
+                              }`}>
+                                {index === 0 ? t('guide.intro') : String(index).padStart(2, '0')}
+                              </div>
+                              
+                              <div className="flex-1">
+                                <div className="space-y-2">
+                                  <h3 className="font-medium">{chapter.title}</h3>
+                                  {/* 챕터별 오디오 플레이어 */}
+                                  {audioChapters[index] && (
+                                    <div className="w-full">
+                                      <ChapterAudioPlayer
+                                        chapter={audioChapters[index]}
+                                        className="w-full max-w-sm"
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </Flex>
+                            
+                            <Flex align="center" gap="sm">
+                              {/* 확장 인디케이터 */}
+                              <div className={`transition-transform duration-300 ${
+                                expandedChapters.includes(index) ? 'rotate-180' : ''
+                              }`}>
+                                <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                              </div>
+                            </Flex>
+                          </Flex>
+                        </div>
+                        
+                        {/* 챕터 내용 */}
+                        {expandedChapters.includes(index) && (
+                          <div className="border-t border-border p-2">
+                            <Stack space="sm">
+                              <div className="text-muted-foreground leading-relaxed">
+                                {chapter.narrative ? 
+                                  formatText(chapter.narrative) :
+                                  formatText([chapter.sceneDescription, chapter.coreNarrative, chapter.humanStories]
+                                    .filter(Boolean).join(' '))
+                                }
+                              </div>
+                              
+                              {/* 다음 이동 안내 */}
+                              {chapter.nextDirection && (
+                                <div className="mt-2 p-2 bg-muted/30 rounded-lg border-l-4 border-foreground">
+                                  <div className="flex items-start gap-3">
+                                    <div className="w-6 h-6 border-2 border-foreground rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                      <Route className="w-3 h-3" />
+                                    </div>
+                                    <div>
+                                      <h4 className="text-sm font-medium mb-1">{t('guide.nextMoveGuide')}</h4>
+                                      <p className="text-sm text-muted-foreground leading-relaxed">
+                                        {chapter.nextDirection}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* 디버깅 정보 (개발 모드에서만) */}
+                              {process.env.NODE_ENV === 'development' && (
+                                <div className="text-xs text-muted-foreground bg-muted p-2 rounded-lg">
+                                  <p>Debug - {index === 0 ? 'Intro Chapter' : `Chapter ${index}`}:</p>
+                                  <p>Title: {chapter.title}</p>
+                                  <p>Narrative: {chapter.narrative ? t('common.exists') : t('common.notExists')}</p>
+                                  <p>Scene: {chapter.sceneDescription ? t('common.exists') : t('common.notExists')}</p>
+                                  <p>Core: {chapter.coreNarrative ? t('common.exists') : t('common.notExists')}</p>
+                                  <p>Stories: {chapter.humanStories ? t('common.exists') : t('common.notExists')}</p>
+                                  <p>Next Direction: {chapter.nextDirection ? t('common.exists') : t('common.notExists')}</p>
+                                  {index === 0 && <p className="text-slate-600 font-medium">🎯 {t('guide.autoGeneratedIntro')}</p>}
+                                </div>
+                              )}
+                            </Stack>
+                          </div>
+                        )}
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Bottom spacing */}
+              <div className="h-8" />
+            </Stack>
           </div>
         </div>
 
@@ -678,79 +673,79 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
         <>
           {/* 스크롤 투 탑 버튼 (우하단) */}
           <div 
-          style={{
-            position: 'fixed',
-            bottom: '20px',
-            right: '20px',
-            width: '60px',
-            height: '60px',
-            backgroundColor: '#000',
-            color: 'white',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            zIndex: 99999,
-            fontSize: '18px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-            transition: 'all 0.3s ease',
-            pointerEvents: 'auto'
-          }}
-          onClick={() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#333';
-            e.currentTarget.style.transform = 'scale(1.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#000';
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
-        >
-          ↑
-        </div>
+            style={{
+              position: 'fixed',
+              bottom: '20px',
+              right: '20px',
+              width: '60px',
+              height: '60px',
+              backgroundColor: '#000',
+              color: 'white',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              zIndex: 99999,
+              fontSize: '18px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              transition: 'all 0.3s ease',
+              pointerEvents: 'auto'
+            }}
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#333';
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#000';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            ↑
+          </div>
 
           {/* 홈 버튼 (좌하단) */}
           <div 
-          style={{
-            position: 'fixed',
-            bottom: '20px',
-            left: '20px',
-            width: '60px',
-            height: '60px',
-            backgroundColor: '#000',
-            color: 'white',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            zIndex: 99999,
-            fontSize: '18px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-            transition: 'all 0.3s ease',
-            pointerEvents: 'auto'
-          }}
-          onClick={() => {
-            window.location.href = '/';
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#333';
-            e.currentTarget.style.transform = 'scale(1.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#000';
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
-        >
-          🏠
-        </div>
+            style={{
+              position: 'fixed',
+              bottom: '20px',
+              left: '20px',
+              width: '60px',
+              height: '60px',
+              backgroundColor: '#000',
+              color: 'white',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              zIndex: 99999,
+              fontSize: '18px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              transition: 'all 0.3s ease',
+              pointerEvents: 'auto'
+            }}
+            onClick={() => {
+              window.location.href = '/';
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#333';
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#000';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            🏠
+          </div>
         </>,
         document.body
       )}
-    </>
+    </div>
   );
 };
 
