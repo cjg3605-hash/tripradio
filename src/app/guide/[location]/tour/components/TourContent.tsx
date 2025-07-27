@@ -233,11 +233,11 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
   return (
     <>
-    <ResponsiveContainer key={`tour-content-${componentKey}`} variant="fullwidth" padding="none" className="min-h-screen">
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="px-0.5 py-2 sm:px-0.5 lg:px-1">
-          <Stack space="sm">
+      <ResponsiveContainer key={`tour-content-${componentKey}`} variant="fullwidth" padding="none" className="min-h-screen">
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="px-0.5 py-2 sm:px-0.5 lg:px-1">
+            <Stack space="sm">
           {/* 장소 정보 */}
           <div className="text-center space-y-2">
             <div className="w-20 h-20 border-4 border-foreground rounded-full flex items-center justify-center mx-auto">
@@ -657,31 +657,27 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
               ))}
             </div>
           </div>
-          </Stack>
+            </Stack>
 
-          {/* Bottom spacing */}
-          <div className="h-8" />
+            {/* Bottom spacing */}
+            <div className="h-8" />
+          </div>
         </div>
-      </div>
 
-      {/* BigTech 디자인 시뮬레이터 임시 제거 (빌드 오류 해결) */}
+        {/* 디버깅 정보 (개발 환경에서만) */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="fixed top-4 left-4 bg-blue-500 text-white p-2 rounded text-xs z-50">
+            <div>Scroll Buttons: {showScrollButtons ? 'VISIBLE' : 'HIDDEN'}</div>
+            <div>Scroll Y: {typeof window !== 'undefined' ? window.scrollY : 'N/A'}</div>
+          </div>
+        )}
+      </ResponsiveContainer>
 
-
-      {/* 디버깅 정보 (개발 환경에서만) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed top-4 left-4 bg-blue-500 text-white p-2 rounded text-xs z-50">
-          <div>Scroll Buttons: {showScrollButtons ? 'VISIBLE' : 'HIDDEN'}</div>
-          <div>Scroll Y: {typeof window !== 'undefined' ? window.scrollY : 'N/A'}</div>
-        </div>
-      )}
-
-    </ResponsiveContainer>
-
-    {/* 스크롤 네비게이션 버튼들 - React Portal로 body에 직접 렌더링 */}
-    {typeof window !== 'undefined' && showScrollButtons && createPortal(
-      <>
-        {/* 스크롤 투 탑 버튼 (우하단) */}
-        <div 
+      {/* 스크롤 네비게이션 버튼들 - React Portal로 body에 직접 렌더링 */}
+      {typeof window !== 'undefined' && showScrollButtons && createPortal(
+        <>
+          {/* 스크롤 투 탑 버튼 (우하단) */}
+          <div 
           style={{
             position: 'fixed',
             bottom: '20px',
@@ -716,8 +712,8 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
           ↑
         </div>
 
-        {/* 홈 버튼 (좌하단) */}
-        <div 
+          {/* 홈 버튼 (좌하단) */}
+          <div 
           style={{
             position: 'fixed',
             bottom: '20px',
@@ -751,9 +747,9 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
         >
           🏠
         </div>
-      </>,
-      document.body
-    )}
+        </>,
+        document.body
+      )}
     </>
   );
 };
