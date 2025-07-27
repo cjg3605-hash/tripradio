@@ -34,6 +34,8 @@ const LiveTourPage: React.FC = () => {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
   
+  const locationName = typeof params.location === 'string' ? params.location : String(params.location);
+  
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: 37.5665, lng: 126.9780 }); // Default to Seoul
   const [currentChapter, setCurrentChapter] = useState<number>(0);
@@ -343,6 +345,16 @@ const LiveTourPage: React.FC = () => {
                 }
               }}
               className="w-full h-full"
+              // Enhanced Coordinate System (Phase 1-4)
+              locationName={locationName}
+              enableEnhancedCoordinateSystem={true}
+              coordinatePackageOptions={{
+                enableAnalytics: true,
+                enableCaching: true,
+                qualityThreshold: 0.6,
+                region: 'KR',
+                language: 'ko'
+              }}
             />
           </div>
         )}

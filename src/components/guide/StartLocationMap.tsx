@@ -72,6 +72,15 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
           locationName={locationName}
           enableEnhancedGeocoding={true}
           preferStaticData={false}
+          // Enhanced Coordinate System (Phase 1-4)
+          enableEnhancedCoordinateSystem={true}
+          coordinatePackageOptions={{
+            enableAnalytics: true,
+            enableCaching: true,
+            qualityThreshold: 0.7,
+            region: 'KR',
+            language: 'ko'
+          }}
         />
       </div>
     </div>

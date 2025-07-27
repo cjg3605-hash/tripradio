@@ -532,6 +532,93 @@ export default function HomePage() {
           </div>
         </section>
       </main>
+
+      {/* Footer with Legal Links */}
+      <footer className="relative z-10 bg-gray-50 border-t border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {/* Company Info */}
+            <div className="md:col-span-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">네비가이드AI</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                AI 기반 맞춤형 여행 가이드 서비스로 더 스마트하고 개인화된 여행을 경험하세요.
+              </p>
+              <div className="flex items-center space-x-4">
+                <span className="text-xs text-gray-500">© 2024 네비가이드AI. All rights reserved.</span>
+              </div>
+            </div>
+
+            {/* Legal Pages */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 mb-4">법적 정보</h4>
+              <ul className="space-y-2">
+                <li>
+                  <a 
+                    href="/legal/privacy" 
+                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    개인정보처리방침
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="/legal/terms" 
+                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    이용약관
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="/legal/about" 
+                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    회사소개
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="/legal/contact" 
+                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    연락처
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Support */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 mb-4">고객지원</h4>
+              <ul className="space-y-2">
+                <li>
+                  <a 
+                    href="mailto:support@naviguide.ai" 
+                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    support@naviguide.ai
+                  </a>
+                </li>
+                <li>
+                  <span className="text-sm text-gray-600">
+                    평일 09:00 - 18:00 (KST)
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* AdSense Compliance Notice */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <p className="text-xs text-gray-500 text-center">
+              본 사이트는 Google AdSense를 사용하여 광고를 게재합니다. 
+              <a href="/legal/privacy" className="underline hover:text-gray-700 ml-1">
+                개인정보처리방침
+              </a>에서 쿠키 사용 및 광고 정책에 대한 자세한 내용을 확인하실 수 있습니다.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
