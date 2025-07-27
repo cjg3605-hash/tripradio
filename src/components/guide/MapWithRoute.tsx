@@ -2,6 +2,7 @@
 import type { LatLngExpression } from 'leaflet';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
+import '@/styles/monochrome-map.css';
 import L from 'leaflet';
 import { useEffect } from 'react';
 
@@ -84,34 +85,63 @@ function MapFlyTo({ lat, lng }: { lat: number; lng: number }) {
   return null;
 }
 
-// === ⭐️ 노란 별 마커 아이콘 생성 ===
-const starIconSvg = `
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFC700" width="32px" height="32px" stroke="%23B79000" stroke-width="0.5">
-    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+// === 🎯 모던 모노크롬 마커 아이콘 생성 ===
+const modernMarkerSvg = `
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32px" height="32px">
+    <defs>
+      <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+        <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.3)"/>
+      </filter>
+    </defs>
+    <!-- 외부 원 (그림자) -->
+    <circle cx="16" cy="16" r="14" fill="rgba(0,0,0,0.1)" />
+    <!-- 메인 원 -->
+    <circle cx="16" cy="16" r="12" fill="white" stroke="black" stroke-width="2" filter="url(#shadow)" />
+    <!-- 내부 점 -->
+    <circle cx="16" cy="16" r="4" fill="black" />
   </svg>
 `;
 
 const customMarkerIcon = new L.Icon({
-  iconUrl: `data:image/svg+xml,${encodeURIComponent(starIconSvg)}`,
+  iconUrl: `data:image/svg+xml,${encodeURIComponent(modernMarkerSvg)}`,
   iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32],
-  tooltipAnchor: [0, -32], // 툴팁 위치 조정
+  iconAnchor: [16, 16],
+  popupAnchor: [0, -16],
+  tooltipAnchor: [0, -16],
 });
 
-// 활성화된 챕터용 빨간 별 마커
-const activeStarIconSvg = `
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FF4444" width="36px" height="36px" stroke="%23CC0000" stroke-width="1">
-    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+// 활성화된 챕터용 강조 마커 (접근성 고려 고대비)
+const activeModernMarkerSvg = `
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36px" height="36px">
+    <defs>
+      <filter id="activeShadow" x="-50%" y="-50%" width="200%" height="200%">
+        <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="rgba(0,0,0,0.4)"/>
+      </filter>
+      <radialGradient id="activeGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" style="stop-color:white;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#f0f0f0;stop-opacity:1" />
+      </radialGradient>
+    </defs>
+    <!-- 펄싱 효과용 외부 원 -->
+    <circle cx="18" cy="18" r="16" fill="rgba(0,0,0,0.2)" opacity="0.6">
+      <animate attributeName="r" values="16;20;16" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <!-- 메인 원 -->
+    <circle cx="18" cy="18" r="14" fill="url(#activeGrad)" stroke="black" stroke-width="3" filter="url(#activeShadow)" />
+    <!-- 내부 십자 표시 (현재 위치 강조) -->
+    <path d="M 18 8 L 18 28 M 8 18 L 28 18" stroke="black" stroke-width="3" stroke-linecap="round" />
+    <!-- 중앙 점 -->
+    <circle cx="18" cy="18" r="3" fill="black" />
   </svg>
 `;
 
 const activeMarkerIcon = new L.Icon({
-  iconUrl: `data:image/svg+xml,${encodeURIComponent(activeStarIconSvg)}`,
+  iconUrl: `data:image/svg+xml,${encodeURIComponent(activeModernMarkerSvg)}`,
   iconSize: [36, 36],
-  iconAnchor: [18, 36],
-  popupAnchor: [0, -36],
-  tooltipAnchor: [0, -36],
+  iconAnchor: [18, 18],
+  popupAnchor: [0, -18],
+  tooltipAnchor: [0, -18],
 });
 
 export default function MapWithRoute({ 
@@ -243,17 +273,19 @@ export default function MapWithRoute({
   const zoom = customZoom || calculateZoom();
 
   return (
-    <div className="w-full h-64 rounded-lg overflow-hidden shadow-md">
+    <div className="w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
       <MapContainer 
         {...({center: mapCenter, zoom} as any)}
-        className="w-full h-full"
+        className="w-full h-full monochrome-map-container"
         scrollWheelZoom={true}
         zoomControl={true}
+        style={{ filter: 'grayscale(1) contrast(1.2) brightness(1.1)' }}
       >
         <TileLayer
           {...({
             url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            className: "monochrome-map"
           } as any)}
         />
         
@@ -262,15 +294,17 @@ export default function MapWithRoute({
           <MapFlyTo lat={activeLat} lng={activeLng} />
         )}
         
-        {/* 루트 라인 */}
+        {/* 루트 라인 - 모던 모노크롬 스타일 */}
         {routePositions.length > 1 && (
           <Polyline 
             {...({
               positions: routePositions,
-              color: "#3B82F6",
-              weight: 3,
-              opacity: 0.7,
-              dashArray: "5, 10"
+              color: "#000000",
+              weight: 4,
+              opacity: 0.8,
+              dashArray: "8, 6",
+              lineCap: "round",
+              lineJoin: "round"
             } as any)}
           />
         )}
@@ -322,11 +356,14 @@ export default function MapWithRoute({
         })}
       </MapContainer>
       
-      {/* 지도 하단 정보 */}
-      <div className="bg-white px-3 py-2 text-xs text-gray-600 border-t">
+      {/* 지도 하단 정보 - 모던 모노크롬 스타일 */}
+      <div className="bg-black/2 px-4 py-3 text-xs font-medium border-t border-black/5">
         <div className="flex justify-between items-center">
-          <span>📍 {validChapters.length}개 지점</span>
-          <span>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-black rounded-full"></div>
+            <span className="text-black/80">{validChapters.length}개 지점</span>
+          </div>
+          <span className="text-black/60">
             {activeChapterData ? 
               `현재: ${activeChapterData.title}` : 
               '위치를 선택해주세요'

@@ -31,18 +31,18 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden ${className}`}>
-      {/* 간소화된 헤더 */}
-      <div className="p-4 border-b border-gray-200">
+    <div className={`bg-white border border-black/8 rounded-3xl shadow-lg shadow-black/3 overflow-hidden ${className}`}>
+      {/* 모던 모노크롬 헤더 */}
+      <div className="p-4 border-b border-black/5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-            <MapPin className="w-5 h-5 text-blue-600" />
+          <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
+            <MapPin className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h3 className="font-medium text-gray-900">
+            <h3 className="text-xl font-bold text-black tracking-tight">
               투어 시작 위치
             </h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-black/60 font-medium mt-0.5">
               {startPoint.name}
             </p>
           </div>

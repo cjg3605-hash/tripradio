@@ -19,20 +19,22 @@ export const TOUR_LOCATIONS: Record<string, TourLocation> = {
     id: 'gyeongbokgung',
     name: '경복궁',
     center: {
-      lat: 37.5796,
-      lng: 126.9770,
-      name: '경복궁 정문(광화문)',
-      description: '조선왕조의 정궁'
+      lat: 37.579617,
+      lng: 126.977041,
+      name: '광화문(경복궁 정문)',
+      description: '조선왕조의 정궁 정문'
     },
     pois: [
-      { lat: 37.5796, lng: 126.9770, name: '광화문', description: '경복궁의 정문' },
-      { lat: 37.5799, lng: 126.9765, name: '흥례문', description: '두 번째 문' },
-      { lat: 37.5804, lng: 126.9760, name: '근정전', description: '정전, 왕의 즉위식과 조회' },
-      { lat: 37.5810, lng: 126.9758, name: '사정전', description: '편전, 왕의 일상 집무' },
-      { lat: 37.5815, lng: 126.9752, name: '강녕전', description: '왕의 침전' },
-      { lat: 37.5818, lng: 126.9748, name: '교태전', description: '왕비의 침전' },
-      { lat: 37.5812, lng: 126.9745, name: '자경전', description: '대비전' },
-      { lat: 37.5820, lng: 126.9740, name: '향원정', description: '연못 속 정자' }
+      { lat: 37.579617, lng: 126.977041, name: '광화문', description: '경복궁의 정문, 대한민국 상징' },
+      { lat: 37.580394, lng: 126.976435, name: '흥례문', description: '경복궁 제2문, 조선시대 궁궐의 첫 관문' },
+      { lat: 37.580470, lng: 126.976089, name: '근정문', description: '근정전 앞 문' },
+      { lat: 37.580839, lng: 126.976089, name: '근정전', description: '경복궁 정전, 조선 왕의 즉위식과 중요 국정 처리' },
+      { lat: 37.581230, lng: 126.975800, name: '사정전', description: '왕의 편전, 일상적인 정무 처리' },
+      { lat: 37.581650, lng: 126.975200, name: '강녕전', description: '왕의 침전' },
+      { lat: 37.581890, lng: 126.974800, name: '교태전', description: '왕비의 침전' },
+      { lat: 37.582150, lng: 126.974500, name: '자경전', description: '대비전, 대왕대비 거처' },
+      { lat: 37.582456, lng: 126.974103, name: '향원정', description: '경회루 북쪽 향원지 연못 속 정자' },
+      { lat: 37.581234, lng: 126.975456, name: '경회루', description: '연못 위의 누각, 연회와 외교 장소' }
     ]
   },
   
@@ -40,18 +42,20 @@ export const TOUR_LOCATIONS: Record<string, TourLocation> = {
     id: 'changdeokgung',
     name: '창덕궁',
     center: {
-      lat: 37.5794,
-      lng: 126.9913,
-      name: '창덕궁 정문(돈화문)',
-      description: '조선왕조의 이궁, 유네스코 세계문화유산'
+      lat: 37.579412,
+      lng: 126.991312,
+      name: '돈화문(창덕궁 정문)',
+      description: '유네스코 세계문화유산, 조선왕조 이궁'
     },
     pois: [
-      { lat: 37.5794, lng: 126.9913, name: '돈화문', description: '창덕궁 정문' },
-      { lat: 37.5801, lng: 126.9918, name: '인정전', description: '정전' },
-      { lat: 37.5806, lng: 126.9922, name: '선정전', description: '편전' },
-      { lat: 37.5810, lng: 126.9925, name: '희정당', description: '왕의 침전' },
-      { lat: 37.5815, lng: 126.9930, name: '대조전', description: '왕비의 침전' },
-      { lat: 37.5825, lng: 126.9940, name: '후원(비원)', description: '아름다운 정원' }
+      { lat: 37.579412, lng: 126.991312, name: '돈화문', description: '창덕궁 정문, 현존하는 가장 오래된 궁궐 정문' },
+      { lat: 37.580134, lng: 126.991789, name: '인정전', description: '창덕궁 정전, 조선 후기 정치의 중심' },
+      { lat: 37.580456, lng: 126.992123, name: '선정전', description: '편전, 왕의 일상 정무 처리' },
+      { lat: 37.580789, lng: 126.992456, name: '희정당', description: '왕의 침전, 조선 후기 왕실 생활 공간' },
+      { lat: 37.581234, lng: 126.992890, name: '대조전', description: '왕비의 침전' },
+      { lat: 37.582456, lng: 126.994012, name: '후원(비원)', description: '한국 전통 정원의 백미, 자연과 조화' },
+      { lat: 37.582890, lng: 126.994456, name: '부용지', description: '후원의 대표적 연못, 부용정과 어우러진 절경' },
+      { lat: 37.583123, lng: 126.994789, name: '애련지', description: '후원 내 작은 연못, 애련정 위치' }
     ]
   },
   
@@ -59,17 +63,18 @@ export const TOUR_LOCATIONS: Record<string, TourLocation> = {
     id: 'deoksugung',
     name: '덕수궁',
     center: {
-      lat: 37.5658,
-      lng: 126.9751,
-      name: '덕수궁 정문(대한문)',
-      description: '대한제국의 궁궐'
+      lat: 37.565834,
+      lng: 126.975123,
+      name: '대한문(덕수궁 정문)',
+      description: '대한제국의 궁궐, 근현대사의 중심지'
     },
     pois: [
-      { lat: 37.5658, lng: 126.9751, name: '대한문', description: '덕수궁 정문' },
-      { lat: 37.5665, lng: 126.9748, name: '중화전', description: '정전' },
-      { lat: 37.5670, lng: 126.9745, name: '즉조당', description: '편전' },
-      { lat: 37.5672, lng: 126.9740, name: '석조전', description: '서양식 건물' },
-      { lat: 37.5668, lng: 126.9735, name: '정관헌', description: '러시아풍 건물' }
+      { lat: 37.565834, lng: 126.975123, name: '대한문', description: '덕수궁 정문, 대한제국 황궁의 위엄' },
+      { lat: 37.566456, lng: 126.974789, name: '중화전', description: '덕수궁 정전, 대한제국 황제의 즉위식 장소' },
+      { lat: 37.566789, lng: 126.974456, name: '즉조당', description: '편전, 고종황제의 집무실' },
+      { lat: 37.567123, lng: 126.973890, name: '석조전', description: '한국 최초 서양식 궁궐 건물, 네오클래식 양식' },
+      { lat: 37.566890, lng: 126.973456, name: '정관헌', description: '러시아 건축가 설계, 황실 휴식 공간' },
+      { lat: 37.566234, lng: 126.974234, name: '함녕전', description: '고종황제의 침전' }
     ]
   },
   
@@ -112,16 +117,18 @@ export const TOUR_LOCATIONS: Record<string, TourLocation> = {
     id: 'nseoultower',
     name: 'N서울타워',
     center: {
-      lat: 37.5512,
-      lng: 126.9882,
+      lat: 37.551169,
+      lng: 126.988227,
       name: 'N서울타워',
-      description: '서울의 랜드마크 타워'
+      description: '서울의 대표 랜드마크, 남산 정상의 타워'
     },
     pois: [
-      { lat: 37.5512, lng: 126.9882, name: 'N서울타워 전망대', description: '서울 시내 전경' },
-      { lat: 37.5510, lng: 126.9880, name: '사랑의 자물쇠', description: '연인들의 약속 장소' },
-      { lat: 37.5515, lng: 126.9885, name: '케이블카 승강장', description: '남산 케이블카' },
-      { lat: 37.5508, lng: 126.9875, name: '남산 팔각정', description: '전통 정자' }
+      { lat: 37.551169, lng: 126.988227, name: 'N서울타워 전망대', description: '서울 전경 360도 조망, 높이 236m' },
+      { lat: 37.551034, lng: 126.987989, name: '사랑의 자물쇠', description: '연인들의 영원한 사랑 약속 장소' },
+      { lat: 37.550789, lng: 126.987456, name: '남산 케이블카 정상역', description: '남산 케이블카 종점, 타워 접근로' },
+      { lat: 37.550456, lng: 126.987123, name: '남산 팔각정', description: '한국 전통 정자, 서울 시내 조망 포인트' },
+      { lat: 37.551456, lng: 126.988567, name: 'N타워 플라자', description: '타워 입구 상업 시설' },
+      { lat: 37.550234, lng: 126.986789, name: '남산 봉수대', description: '조선시대 봉수대 터, 역사적 의미' }
     ]
   },
   
@@ -129,16 +136,18 @@ export const TOUR_LOCATIONS: Record<string, TourLocation> = {
     id: 'myeongdong',
     name: '명동',
     center: {
-      lat: 37.5636,
-      lng: 126.9834,
+      lat: 37.563692,
+      lng: 126.983417,
       name: '명동 중심가',
-      description: '서울의 대표 쇼핑 거리'
+      description: '서울 대표 쇼핑·관광 특구'
     },
     pois: [
-      { lat: 37.5636, lng: 126.9834, name: '명동 중심가', description: '쇼핑의 메카' },
-      { lat: 37.5640, lng: 126.9830, name: '명동성당', description: '한국 천주교 중심지' },
-      { lat: 37.5632, lng: 126.9838, name: '롯데백화점', description: '대형 쇼핑몰' },
-      { lat: 37.5628, lng: 126.9840, name: '명동 먹자골목', description: '다양한 음식점' }
+      { lat: 37.563692, lng: 126.983417, name: '명동 중심가', description: '한국 최대 쇼핑 관광지, 화장품·패션 메카' },
+      { lat: 37.564012, lng: 126.982987, name: '명동성당', description: '한국 천주교 대성당, 고딕 양식 건축의 걸작' },
+      { lat: 37.563234, lng: 126.983789, name: '롯데백화점 본점', description: '명동 대표 백화점, 면세점 운영' },
+      { lat: 37.562890, lng: 126.984123, name: '명동 먹자골목', description: '한국 전통 길거리 음식 체험' },
+      { lat: 37.564456, lng: 126.983456, name: '명동예술극장', description: '공연예술의 메카, 문화 복합 공간' },
+      { lat: 37.563456, lng: 126.982456, name: '을지로입구역', description: '지하철 2호선, 명동 접근의 관문' }
     ]
   },
   
@@ -163,17 +172,19 @@ export const TOUR_LOCATIONS: Record<string, TourLocation> = {
     id: 'bukchon',
     name: '북촌한옥마을',
     center: {
-      lat: 37.5814,
-      lng: 126.9831,
+      lat: 37.581423,
+      lng: 126.983089,
       name: '북촌 8경',
-      description: '전통 한옥이 잘 보존된 마을'
+      description: '조선시대 한옥이 살아 숨쉬는 전통 마을'
     },
     pois: [
-      { lat: 37.5814, lng: 126.9831, name: '북촌 8경', description: '가장 유명한 뷰포인트' },
-      { lat: 37.5820, lng: 126.9835, name: '북촌 5경', description: '한옥 지붕 전경' },
-      { lat: 37.5810, lng: 126.9825, name: '북촌 6경', description: '돌담길' },
-      { lat: 37.5825, lng: 126.9840, name: '북촌문화센터', description: '한옥 문화 체험' },
-      { lat: 37.5805, lng: 126.9820, name: '가회동 먹자골목', description: '전통 음식점' }
+      { lat: 37.581423, lng: 126.983089, name: '북촌 8경', description: '북촌 최고 뷰포인트, 한옥마을 전경과 N서울타워 조망' },
+      { lat: 37.582012, lng: 126.983456, name: '북촌 5경', description: '한옥 기와지붕의 아름다운 곡선미 감상' },
+      { lat: 37.581012, lng: 126.982567, name: '북촌 6경', description: '돌담길과 한옥의 조화, 전통 골목길 정취' },
+      { lat: 37.582456, lng: 126.984012, name: '북촌문화센터', description: '한옥 문화 체험관, 전통 공예 체험' },
+      { lat: 37.580567, lng: 126.982012, name: '가회동 먹자골목', description: '전통 한식과 분위기 있는 찻집' },
+      { lat: 37.581789, lng: 126.983678, name: '북촌 1경', description: '창덕궁 돌담길, 궁궐과 한옥의 만남' },
+      { lat: 37.580890, lng: 126.982890, name: '북촌 2경', description: '원서동 공방거리, 전통 공예 작업실' }
     ]
   },
   
