@@ -54,6 +54,11 @@ const LiveTourPage: React.FC = () => {
   const fetchGuideBasedPOIs = async (locationName: string): Promise<POI[]> => {
     try {
       console.log('📚 기존 가이드 기반 POI 생성 시작:', locationName);
+      console.log('🔍 URL에서 받은 원본 위치명:', {
+        locationName,
+        urlDecoded: decodeURIComponent(locationName),
+        type: typeof locationName
+      });
       
       // 기존 가이드 데이터 가져오기
       const { MultiLangGuideManager } = await import('@/lib/multilang-guide-manager');
@@ -71,14 +76,28 @@ const LiveTourPage: React.FC = () => {
       for (const searchTerm of searchTerms) {
         console.log(`📖 가이드 검색 시도: "${searchTerm}"`);
         guideResult = await MultiLangGuideManager.getGuideByLanguage(searchTerm, currentLanguage === 'ko' ? 'ko' : 'en');
+        console.log(`📊 검색 결과:`, {
+          searchTerm,
+          success: guideResult.success,
+          hasData: !!guideResult.data,
+          error: guideResult.error,
+          source: guideResult.source
+        });
         if (guideResult.success) {
           console.log(`✅ 가이드 발견: "${searchTerm}"`);
           break;
         }
       }
       
-      if (!guideResult.success || !guideResult.data) {
-        throw new Error(guideResult.error || '가이드 데이터를 찾을 수 없습니다');
+      if (!guideResult || !guideResult.success || !guideResult.data) {
+        console.log('❌ 가이드 검색 실패:', {
+          guideResult,
+          hasResult: !!guideResult,
+          success: guideResult?.success,
+          hasData: !!guideResult?.data,
+          error: guideResult?.error
+        });
+        throw new Error(guideResult?.error || '가이드 데이터를 찾을 수 없습니다');
       }
       
       const guideData = guideResult.data;
