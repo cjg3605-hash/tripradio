@@ -6,6 +6,8 @@ import '@/styles/monochrome-map.css';
 import L from 'leaflet';
 import { useEffect, useState } from 'react';
 import { enhancedLocationService, type EnhancedLocationResult } from '@/lib/location/enhanced-location-utils';
+import { smartChapterMapper, type ChapterMarkerData, type MappingResult } from '@/lib/coordinates/smart-chapter-mapper';
+import type { GuideChapter } from '@/types/guide';
 
 // @ts-ignore
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.MapContainer })), { ssr: false });
@@ -78,6 +80,13 @@ interface MapWithRouteProps {
   locationName?: string; // 위치명으로 자동 지오코딩
   enableEnhancedGeocoding?: boolean;
   preferStaticData?: boolean;
+  // Smart chapter mapping
+  enableSmartMapping?: boolean;
+  mappingOptions?: {
+    radiusKm?: number;
+    qualityThreshold?: number;
+    distributionStrategy?: 'sequential' | 'clustered' | 'smart';
+  };
 }
 
 function MapFlyTo({ lat, lng }: { lat: number; lng: number }) {
@@ -164,12 +173,20 @@ export default function MapWithRoute({
   // Enhanced features
   locationName,
   enableEnhancedGeocoding = true,
-  preferStaticData = false
+  preferStaticData = false,
+  // Smart mapping features
+  enableSmartMapping = true,
+  mappingOptions = {}
 }: MapWithRouteProps) {
   // Enhanced location state
   const [enhancedLocation, setEnhancedLocation] = useState<EnhancedLocationResult | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  
+  // Smart chapter mapping state
+  const [mappingResult, setMappingResult] = useState<MappingResult | null>(null);
+  const [chapterMarkers, setChapterMarkers] = useState<ChapterMarkerData[]>([]);
+  const [isMappingChapters, setIsMappingChapters] = useState(false);
 
   // Enhanced location loading effect
   useEffect(() => {
@@ -194,6 +211,51 @@ export default function MapWithRoute({
       });
     }
   }, [locationName, enableEnhancedGeocoding, preferStaticData]);
+
+  // Smart chapter mapping effect
+  useEffect(() => {
+    if (chapters && chapters.length > 0 && enableSmartMapping && locationName) {
+      setIsMappingChapters(true);
+      
+      const guideChapters: GuideChapter[] = chapters.map(chapter => ({
+        id: chapter.id,
+        title: chapter.title,
+        location: chapter.location ? {
+          lat: chapter.location.lat!,
+          lng: chapter.location.lng!
+        } : undefined,
+        lat: chapter.lat,
+        lng: chapter.lng,
+        latitude: chapter.latitude,
+        longitude: chapter.longitude,
+        coordinates: chapter.coordinates ? {
+          lat: chapter.coordinates.lat!,
+          lng: chapter.coordinates.lng!
+        } : undefined
+      }));
+
+      smartChapterMapper.mapChaptersToCoordinates(guideChapters, {
+        baseLocation: locationName,
+        radiusKm: mappingOptions.radiusKm || 2,
+        qualityThreshold: mappingOptions.qualityThreshold || 0.5,
+        distributionStrategy: mappingOptions.distributionStrategy || 'smart',
+        enableValidation: true
+      })
+      .then(result => {
+        console.log('🗺️ Smart chapter mapping completed:', result);
+        setMappingResult(result);
+        
+        const markers = smartChapterMapper.convertToMarkerData(result.chapterCoordinates);
+        setChapterMarkers(markers);
+      })
+      .catch(error => {
+        console.error('❌ Smart chapter mapping failed:', error);
+      })
+      .finally(() => {
+        setIsMappingChapters(false);
+      });
+    }
+  }, [chapters, enableSmartMapping, locationName, mappingOptions]);
 
   // 좌표 추출 함수 개선 (여러 형태 지원)
   const getLatLng = (chapter: Chapter): [number | undefined, number | undefined] => {
@@ -221,8 +283,25 @@ export default function MapWithRoute({
     originalIndex: index
   }));
 
-  // 챕터와 POI 데이터를 합쳐서 처리
-  const allData = chapters ? (chapters || []) : poisAsChapters;
+  // 스마트 매핑 결과가 있으면 우선 사용
+  let allData: any[];
+  if (enableSmartMapping && chapterMarkers.length > 0) {
+    allData = chapterMarkers.map(marker => ({
+      id: marker.id,
+      title: marker.title,
+      lat: marker.coordinates.lat,
+      lng: marker.coordinates.lng,
+      originalIndex: marker.id - 1,
+      markerType: marker.markerType,
+      accuracy: marker.accuracy,
+      confidence: marker.confidence,
+      tooltip: marker.tooltip,
+      validationStatus: marker.validationStatus
+    }));
+  } else {
+    // 기존 방식
+    allData = chapters ? (chapters || []) : poisAsChapters;
+  }
   
   // 유효한 좌표를 가진 데이터만 필터링
   const validChapters = allData
@@ -328,15 +407,20 @@ export default function MapWithRoute({
 
   const zoom = mapZoom || calculateZoom();
 
-  // Loading 상태 표시
-  if (isLoadingLocation) {
+  // Loading 상태 표시 (Enhanced + Smart Mapping)
+  if (isLoadingLocation || isMappingChapters) {
     return (
       <div className="w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
         <div className="w-full h-full flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
-            <div className="text-sm text-gray-600">정확한 위치 검색 중...</div>
-            <div className="text-xs text-gray-400 mt-1">{locationName}</div>
+            <div className="text-sm text-gray-600">
+              {isMappingChapters ? '챕터별 정확한 위치 매핑 중...' : '정확한 위치 검색 중...'}
+            </div>
+            <div className="text-xs text-gray-400 mt-1">
+              {locationName}
+              {isMappingChapters && chapters && ` (${chapters.length}개 챕터)`}
+            </div>
           </div>
         </div>
       </div>

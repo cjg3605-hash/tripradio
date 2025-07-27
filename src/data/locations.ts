@@ -19,10 +19,10 @@ export const TOUR_LOCATIONS: Record<string, TourLocation> = {
     id: 'gyeongbokgung',
     name: '경복궁',
     center: {
-      lat: 37.579617,
-      lng: 126.977041,
-      name: '광화문(경복궁 정문)',
-      description: '조선왕조의 정궁 정문'
+      lat: 37.580839,
+      lng: 126.976089,
+      name: '근정전(경복궁 중심)',
+      description: '조선왕조 정궁의 중심, 경복궁 전체 영역 표시'
     },
     pois: [
       { lat: 37.579617, lng: 126.977041, name: '광화문', description: '경복궁의 정문, 대한민국 상징' },
