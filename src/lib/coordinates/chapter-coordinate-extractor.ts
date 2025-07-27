@@ -193,7 +193,7 @@ export class ChapterCoordinateExtractor {
   }
 
   /**
-   * 텍스트에서 위치 정보 추출
+   * 텍스트에서 위치 정보 추출 (한국어 특화)
    */
   private extractLocationFromText(chapter: GuideChapter): string | null {
     const textSources = [
@@ -207,13 +207,20 @@ export class ChapterCoordinateExtractor {
     for (const text of textSources) {
       if (!text) continue;
 
-      // 직접적인 위치 언급 찾기
+      // 1. 경복궁 건물명 직접 추출
+      const buildingNames = this.extractKoreanBuildingNames(text);
+      if (buildingNames.length > 0) {
+        console.log(`🏛️ Building names found: ${buildingNames.join(', ')}`);
+        return buildingNames[0]; // 첫 번째 건물명 사용
+      }
+
+      // 2. 직접적인 위치 언급 찾기
       const directMatches = Array.from(text.matchAll(this.locationPatterns.directLocation));
       if (directMatches.length > 0) {
         return directMatches[0][1].trim();
       }
 
-      // 건물명 패턴 매칭
+      // 3. 건물명 패턴 매칭
       const buildingMatches = Array.from(text.matchAll(this.locationPatterns.specificBuildings));
       if (buildingMatches.length > 0) {
         // 가장 구체적인 건물명 반환
@@ -223,6 +230,30 @@ export class ChapterCoordinateExtractor {
     }
 
     return null;
+  }
+
+  /**
+   * 한국어 건물명 추출 (경복궁 특화)
+   */
+  private extractKoreanBuildingNames(text: string): string[] {
+    const buildingNames = [
+      '광화문', '흥례문', '근정문', '근정전', '사정전', '만춘전', '천추전',
+      '강녕전', '교태전', '연생전', '연길헌', '자경전', '함원전',
+      '경회루', '수정전', '향원정', '건청궁', '집경당', '집옥재', '팔우정',
+      '국립고궁박물관', '국립민속박물관', '소주방', '신무문'
+    ];
+
+    const foundBuildings: string[] = [];
+    
+    for (const building of buildingNames) {
+      if (text.includes(building)) {
+        foundBuildings.push(building);
+        console.log(`🔍 Found building: "${building}" in text`);
+      }
+    }
+
+    // 가장 긴 이름 순으로 정렬 (더 구체적인 건물명 우선)
+    return foundBuildings.sort((a, b) => b.length - a.length);
   }
 
   /**
@@ -329,22 +360,160 @@ export class ChapterCoordinateExtractor {
   }
 
   /**
-   * POI 매칭
+   * 향상된 POI 매칭 (한국어 건물명 특화)
    */
   private findMatchingPoi(
     title: string,
     pois: Array<{ name: string; lat: number; lng: number; type: string }>
   ): { lat: number; lng: number } | null {
-    const normalizedTitle = title.toLowerCase().replace(/\s+/g, '');
+    // 1. 직접 매칭 시도
+    const directMatch = this.directPoiMatch(title, pois);
+    if (directMatch) return directMatch;
+    
+    // 2. 키워드 기반 매칭
+    const keywordMatch = this.keywordPoiMatch(title, pois);
+    if (keywordMatch) return keywordMatch;
+    
+    // 3. 유사도 기반 매칭
+    const similarityMatch = this.similarityPoiMatch(title, pois);
+    if (similarityMatch) return similarityMatch;
+    
+    return null;
+  }
+
+  /**
+   * 직접 POI 매칭
+   */
+  private directPoiMatch(
+    title: string,
+    pois: Array<{ name: string; lat: number; lng: number; type: string }>
+  ): { lat: number; lng: number } | null {
+    const normalizedTitle = title.toLowerCase()
+      .replace(/[0-9]+\.\s*/, '') // 숫자 제거
+      .replace(/[\s\-\.]/g, ''); // 공백, 하이픈, 점 제거
     
     for (const poi of pois) {
-      const normalizedPoi = poi.name.toLowerCase().replace(/\s+/g, '');
+      const normalizedPoi = poi.name.toLowerCase().replace(/[\s\-\.]/g, '');
+      
+      // 완전 매칭 또는 포함 관계
       if (normalizedTitle.includes(normalizedPoi) || normalizedPoi.includes(normalizedTitle)) {
+        console.log(`🎯 Direct POI match: "${title}" → "${poi.name}"`);
         return { lat: poi.lat, lng: poi.lng };
       }
     }
     
     return null;
+  }
+
+  /**
+   * 키워드 기반 POI 매칭 (개선된 키워드 우선순위)
+   */
+  private keywordPoiMatch(
+    title: string,
+    pois: Array<{ name: string; lat: number; lng: number; type: string }>
+  ): { lat: number; lng: number } | null {
+    // 경복궁 특화 키워드 매핑 (우선순위 순서로 배열)
+    const keywordMapping: Array<{ building: string; keywords: string[]; priority: number }> = [
+      { building: '국립고궁박물관', keywords: ['박물관', '유물', '마무리', '전시', '관람'], priority: 1 },
+      { building: '광화문', keywords: ['정문', '시작', '입구', '게이트', '대문'], priority: 1 },
+      { building: '근정전', keywords: ['정전', '정치', '즉위', '중심', '메인', '왕좌'], priority: 1 },
+      { building: '사정전', keywords: ['편전', '정무', '업무', '집무'], priority: 1 },
+      { building: '강녕전', keywords: ['침전', '침실', '개인', '사생활', '휴식'], priority: 1 },
+      { building: '교태전', keywords: ['왕비', '여성', '후궁'], priority: 1 },
+      { building: '경회루', keywords: ['연회', '누각', '외교', '연못', '누정'], priority: 1 },
+      { building: '향원정', keywords: ['정자', '정원', '경치', '풍경', '꽃'], priority: 1 },
+      { building: '자경전', keywords: ['대비', '대왕대비', '어머니', '할머니'], priority: 1 },
+      { building: '흥례문', keywords: ['제2문', '진입', '두번째', '궁문'], priority: 1 },
+      // 낮은 우선순위 (일반적인 키워드)
+      { building: '강녕전', keywords: ['왕'], priority: 2 },
+      { building: '교태전', keywords: ['침전'], priority: 2 },
+      { building: '사정전', keywords: ['일상'], priority: 2 },
+      { building: '경회루', keywords: ['물'], priority: 3 }  // 매우 일반적인 키워드
+    ];
+    
+    // 우선순위별로 매칭 시도
+    for (let priorityLevel = 1; priorityLevel <= 3; priorityLevel++) {
+      const mappingsForPriority = keywordMapping.filter(m => m.priority === priorityLevel);
+      
+      for (const mapping of mappingsForPriority) {
+        for (const keyword of mapping.keywords) {
+          // 정확한 키워드 매칭 (단어 경계 고려)
+          const keywordRegex = new RegExp(`\\b${keyword}\\b|${keyword}(?=[을를이가에서의와과])`);
+          
+          if (keywordRegex.test(title)) {
+            const targetPoi = pois.find(poi => poi.name.includes(mapping.building));
+            if (targetPoi) {
+              console.log(`🔑 Keyword POI match: "${title}" (${keyword}, priority: ${priorityLevel}) → "${targetPoi.name}"`);
+              return { lat: targetPoi.lat, lng: targetPoi.lng };
+            }
+          }
+        }
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * 유사도 기반 POI 매칭
+   */
+  private similarityPoiMatch(
+    title: string,
+    pois: Array<{ name: string; lat: number; lng: number; type: string }>
+  ): { lat: number; lng: number } | null {
+    let bestMatch: { poi: any; score: number } | null = null;
+    
+    for (const poi of pois) {
+      const similarity = this.calculateStringSimilarity(title, poi.name);
+      
+      if (similarity > 0.6 && (!bestMatch || similarity > bestMatch.score)) {
+        bestMatch = { poi, score: similarity };
+      }
+    }
+    
+    if (bestMatch) {
+      console.log(`📊 Similarity POI match: "${title}" → "${bestMatch.poi.name}" (${(bestMatch.score * 100).toFixed(0)}%)`);
+      return { lat: bestMatch.poi.lat, lng: bestMatch.poi.lng };
+    }
+    
+    return null;
+  }
+
+  /**
+   * 문자열 유사도 계산 (Levenshtein 기반)
+   */
+  private calculateStringSimilarity(str1: string, str2: string): number {
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+    
+    if (longer.length === 0) return 1.0;
+    
+    const distance = this.levenshteinDistance(longer, shorter);
+    return (longer.length - distance) / longer.length;
+  }
+
+  /**
+   * Levenshtein 거리 계산
+   */
+  private levenshteinDistance(str1: string, str2: string): number {
+    const matrix = Array(str2.length + 1).fill(null)
+      .map(() => Array(str1.length + 1).fill(null));
+
+    for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+    for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+
+    for (let j = 1; j <= str2.length; j++) {
+      for (let i = 1; i <= str1.length; i++) {
+        const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+        matrix[j][i] = Math.min(
+          matrix[j][i - 1] + 1,     // deletion
+          matrix[j - 1][i] + 1,     // insertion
+          matrix[j - 1][i - 1] + indicator // substitution
+        );
+      }
+    }
+
+    return matrix[str2.length][str1.length];
   }
 
   /**
