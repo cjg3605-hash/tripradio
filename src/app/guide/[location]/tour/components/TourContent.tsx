@@ -230,6 +230,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   }
 
   return (
+    <>
     <ResponsiveContainer key={`tour-content-${componentKey}`} variant="default" className="min-h-screen">
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
@@ -669,81 +670,83 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
         </div>
       )}
 
-      {/* 스크롤 네비게이션 버튼들 - 300px 이상 스크롤 시에만 표시 */}
-      {showScrollButtons && (
-        <>
-          {/* 스크롤 투 탑 버튼 (우하단) */}
-          <div 
-            style={{
-              position: 'fixed',
-              bottom: '20px',
-              right: '20px',
-              width: '60px',
-              height: '60px',
-              backgroundColor: '#000',
-              color: 'white',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              zIndex: 9999,
-              fontSize: '18px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-              transition: 'all 0.3s ease'
-            }}
-            onClick={() => {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#333';
-              e.currentTarget.style.transform = 'scale(1.1)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#000';
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
-          >
-            ↑
-          </div>
-
-          {/* 홈 버튼 (좌하단) */}
-          <div 
-            style={{
-              position: 'fixed',
-              bottom: '20px',
-              left: '20px',
-              width: '60px',
-              height: '60px',
-              backgroundColor: '#000',
-              color: 'white',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              zIndex: 9999,
-              fontSize: '18px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-              transition: 'all 0.3s ease'
-            }}
-            onClick={() => {
-              window.location.href = '/';
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#333';
-              e.currentTarget.style.transform = 'scale(1.1)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#000';
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
-          >
-            🏠
-          </div>
-        </>
-      )}
     </ResponsiveContainer>
+
+    {/* 스크롤 네비게이션 버튼들 - 300px 이상 스크롤 시에만 표시 (화면에 고정) */}
+    {showScrollButtons && (
+      <>
+        {/* 스크롤 투 탑 버튼 (우하단) */}
+        <div 
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            width: '60px',
+            height: '60px',
+            backgroundColor: '#000',
+            color: 'white',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            zIndex: 9999,
+            fontSize: '18px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            transition: 'all 0.3s ease'
+          }}
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#333';
+            e.currentTarget.style.transform = 'scale(1.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#000';
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+        >
+          ↑
+        </div>
+
+        {/* 홈 버튼 (좌하단) */}
+        <div 
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            left: '20px',
+            width: '60px',
+            height: '60px',
+            backgroundColor: '#000',
+            color: 'white',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            zIndex: 9999,
+            fontSize: '18px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            transition: 'all 0.3s ease'
+          }}
+          onClick={() => {
+            window.location.href = '/';
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#333';
+            e.currentTarget.style.transform = 'scale(1.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#000';
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+        >
+          🏠
+        </div>
+      </>
+    )}
+    </>
   );
 };
 
