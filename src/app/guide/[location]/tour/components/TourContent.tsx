@@ -235,7 +235,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
     <ResponsiveContainer key={`tour-content-${componentKey}`} variant="fullwidth" className="min-h-screen">
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="px-1 py-3 sm:px-2 lg:px-3">
+        <div className="px-0.5 py-3 sm:px-1 lg:px-1.5">
           <Stack space="sm">
           {/* 장소 정보 */}
           <div className="text-center space-y-2">
@@ -323,7 +323,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
                     {/* Tier 2: Key Features - 7초 정보 */}
                     {guide.overview.keyFeatures && (
-                      <div className="p-4 bg-black/2 rounded-2xl border border-black/5">
+                      <div className="p-2 bg-black/2 rounded-2xl border border-black/5">
                         <div className="flex items-center gap-3 mb-3">
                           <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
                             <Eye className="w-4 h-4 text-white" />
@@ -336,7 +336,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
                     {/* Tier 3: Historical Context - 선택적 확장 */}
                     {guide.overview.background && (
-                      <div className="p-4 bg-black/1 rounded-2xl border border-black/5">
+                      <div className="p-2 bg-black/1 rounded-2xl border border-black/5">
                         <div className="flex items-center gap-3 mb-3">
                           <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
                             <BookOpen className="w-4 h-4 text-white" />
@@ -349,7 +349,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
                     {/* Legacy Support - 기존 summary */}
                     {guide.overview.summary && !guide.overview.location && !guide.overview.keyFeatures && !guide.overview.background && (
-                      <div className="p-4 bg-black/2 rounded-2xl border border-black/5">
+                      <div className="p-2 bg-black/2 rounded-2xl border border-black/5">
                         <p className="text-sm font-medium text-black leading-relaxed">{guide.overview.summary}</p>
                       </div>
                     )}
@@ -367,11 +367,11 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
             const mustVisitContent = guide.mustVisitSpots || '';
             return mustVisitContent && mustVisitContent.trim().length > 0;
           })() && (
-            <div className="relative mb-8">
+            <div className="relative mb-2">
               <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
                 
                 {/* Header */}
-                <div className="px-6 pt-6 pb-5">
+                <div className="px-2 pt-2 pb-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
@@ -392,7 +392,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                 </div>
 
                 {/* Tags Container - Mobile Optimized */}
-                <div className="px-6 pb-6">
+                <div className="px-2 pb-2">
                   <div className="flex flex-wrap gap-3">
                     {(guide.mustVisitSpots || '').split(/[,\n]|#/).filter(spot => spot && spot.trim()).map((spot, index) => {
                       const cleanSpot = spot.trim().replace(/^#+/, '');
@@ -421,7 +421,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                   
                   {/* Fallback for Non-Hashtag Format */}
                   {guide.mustVisitSpots && !guide.mustVisitSpots.includes('#') && (
-                    <div className="mt-4 p-4 bg-black/3 border border-black/5 rounded-2xl">
+                    <div className="mt-2 p-2 bg-black/3 border border-black/5 rounded-2xl">
                       <p className="text-sm font-medium text-black leading-relaxed">{guide.mustVisitSpots}</p>
                     </div>
                   )}
@@ -438,11 +438,11 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
             const safetyContent = guide.safetyWarnings || '';
             return safetyContent && safetyContent.trim().length > 0;
           })() && (
-            <div className="relative mb-8">
+            <div className="relative mb-2">
               <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
                 
                 {/* Header */}
-                <div className="px-6 pt-6 pb-5">
+                <div className="px-2 pt-2 pb-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
@@ -459,7 +459,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                 </div>
 
                 {/* Safety Items - Mobile Optimized List */}
-                <div className="px-6 pb-6">
+                <div className="px-2 pb-2">
                   <div className="space-y-3">
                     {(() => {
                       const safetyContent = guide.safetyWarnings || '';
@@ -470,7 +470,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                         
                         return (
                           <div key={`safety-${index}`} className="group relative">
-                            <div className="flex items-start gap-4 p-4 bg-black/2 hover:bg-black/4 rounded-2xl border border-black/5 transition-all duration-200">
+                            <div className="flex items-start gap-4 p-2 bg-black/2 hover:bg-black/4 rounded-2xl border border-black/5 transition-all duration-200">
                               {/* Bullet Point - Ultra Minimal */}
                               <div className="flex-shrink-0 w-2 h-2 bg-black rounded-full mt-2 group-hover:scale-110 transition-transform"></div>
                               
@@ -634,7 +634,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                         
                         {/* 디버깅 정보 (개발 모드에서만) */}
                         {process.env.NODE_ENV === 'development' && (
-                          <div className="text-xs text-muted-foreground bg-muted p-4 rounded-lg">
+                          <div className="text-xs text-muted-foreground bg-muted p-2 rounded-lg">
                             <p>Debug - {index === 0 ? 'Intro Chapter' : `Chapter ${index}`}:</p>
                             <p>Title: {chapter.title}</p>
                             <p>Narrative: {chapter.narrative ? t('common.exists') : t('common.notExists')}</p>
