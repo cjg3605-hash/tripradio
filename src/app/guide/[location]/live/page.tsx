@@ -319,40 +319,58 @@ const LiveTourPage: React.FC = () => {
     }
   };
 
-  // POI 데이터 로딩 - 현재 페이지 데이터 우선
+  // TourContent 컴포넌트로부터 가이드 데이터 받아서 POI 생성
   useEffect(() => {
-    if (locationName) {
-      setIsLoadingPOIs(true);
-      setPoisError(null);
+    const interval = setInterval(() => {
+      // 전역 window 객체에서 TourContent가 설정한 가이드 데이터 찾기
+      const guideData = (window as any).currentGuideData;
+      
+      if (guideData && guideData.realTimeGuide) {
+        const chapters = guideData.realTimeGuide.chapters || [];
+        const personalities = ['agreeableness', 'openness', 'conscientiousness'];
+        const pois: POI[] = [];
 
-      // 1초 후에 현재 페이지 데이터 추출 시도 (페이지 로딩 완료 대기)
-      setTimeout(() => {
-        try {
-          const pois = extractPOIsFromCurrentGuide();
+        chapters.forEach((chapter: any, index: number) => {
+          if (chapter.coordinates && chapter.coordinates.lat && chapter.coordinates.lng) {
+            pois.push({
+              id: `poi_${index + 1}`,
+              name: chapter.title || `스팟 ${index + 1}`,
+              lat: chapter.coordinates.lat,
+              lng: chapter.coordinates.lng,
+              radius: 100,
+              description: chapter.narrative || chapter.content || chapter.title,
+              audioChapter: {
+                id: index + 1,
+                title: chapter.title || `스팟 ${index + 1}`,
+                text: chapter.narrative || chapter.content || chapter.title,
+                duration: 120 + (index * 30),
+                language: 'ko-KR',
+                personality: personalities[index % personalities.length] as any
+              }
+            });
+          }
+        });
+
+        if (pois.length > 0) {
+          console.log(`✅ TourContent에서 ${pois.length}개 POI 추출 완료`);
           setPoisWithChapters(pois);
           setIsLoadingPOIs(false);
-        } catch (error) {
-          // 현재 페이지 데이터 실패 시 기존 방식 fallback
-          fetchAIGeneratedPOIs(locationName)
-            .then(pois => {
-              setPoisWithChapters(pois);
-            })
-            .catch(aiError => {
-              return fetchLocationPOIs(locationName)
-                .then(pois => {
-                  setPoisWithChapters(pois);
-                })
-                .catch(fallbackError => {
-                  setPoisError(fallbackError.message);
-                });
-            })
-            .finally(() => {
-              setIsLoadingPOIs(false);
-            });
+          clearInterval(interval);
         }
-      }, 1000);
-    }
-  }, [locationName, currentLanguage]);
+      }
+    }, 500);
+
+    // 5초 후 타임아웃
+    setTimeout(() => {
+      clearInterval(interval);
+      if (poisWithChapters.length === 0) {
+        setIsLoadingPOIs(false);
+        setPoisError('가이드 데이터를 찾을 수 없습니다');
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [locationName]);
 
   const audioChapters: AudioChapter[] = poisWithChapters
     .filter(poi => poi.audioChapter)

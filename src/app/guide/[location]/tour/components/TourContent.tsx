@@ -48,6 +48,14 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showScrollButtons, setShowScrollButtons] = useState(false);
   const [componentKey, setComponentKey] = useState(0);
+
+  // 가이드 데이터를 전역에 노출 (라이브 페이지에서 사용)
+  useEffect(() => {
+    if (guide) {
+      (window as any).currentGuideData = guide;
+      console.log('🌍 TourContent에서 가이드 데이터 전역 설정:', guide);
+    }
+  }, [guide]);
   const internalChapterRefs = useRef<(HTMLElement | null)[]>([]);
 
   // 🎯 AI 생성 인트로 챗터 사용 또는 폴백 인트로 생성
