@@ -137,14 +137,9 @@
   }
 }
 
-/* 애니메이션 효과 */
+/* 마커 기본 스타일 - 호버 애니메이션 제거 */
 .leaflet-marker-icon {
-  transition: all 0.3s ease !important;
-}
-
-.leaflet-marker-icon:hover {
-  transform: scale(1.1) !important;
-  z-index: 1000 !important;
+  cursor: pointer !important;
 }
 
 /* 폴리라인 호버 효과 */

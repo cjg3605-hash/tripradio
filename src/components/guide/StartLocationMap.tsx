@@ -49,7 +49,7 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
         </div>
       </div>
 
-      {/* 지도 */}
+      {/* Enhanced 지도 */}
       <div className="h-64">
         <MapWithRoute
           pois={pois.map(poi => ({
@@ -68,6 +68,10 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
             console.log('POI clicked:', poiId);
           }}
           className="w-full h-full"
+          // Enhanced location features
+          locationName={locationName}
+          enableEnhancedGeocoding={true}
+          preferStaticData={false}
         />
       </div>
     </div>

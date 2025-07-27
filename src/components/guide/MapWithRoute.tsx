@@ -4,7 +4,8 @@ import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 import '@/styles/monochrome-map.css';
 import L from 'leaflet';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { enhancedLocationService, type EnhancedLocationResult } from '@/lib/location/enhanced-location-utils';
 
 // @ts-ignore
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.MapContainer })), { ssr: false });
@@ -73,6 +74,10 @@ interface MapWithRouteProps {
   showUserLocation?: boolean;
   onPoiClick?: (poiId: any) => void;
   className?: string;
+  // Enhanced location features
+  locationName?: string; // 위치명으로 자동 지오코딩
+  enableEnhancedGeocoding?: boolean;
+  preferStaticData?: boolean;
 }
 
 function MapFlyTo({ lat, lng }: { lat: number; lng: number }) {
@@ -155,8 +160,41 @@ export default function MapWithRoute({
   showRoute = true, 
   showUserLocation = false, 
   onPoiClick, 
-  className 
+  className,
+  // Enhanced features
+  locationName,
+  enableEnhancedGeocoding = true,
+  preferStaticData = false
 }: MapWithRouteProps) {
+  // Enhanced location state
+  const [enhancedLocation, setEnhancedLocation] = useState<EnhancedLocationResult | null>(null);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  // Enhanced location loading effect
+  useEffect(() => {
+    if (locationName && enableEnhancedGeocoding) {
+      setIsLoadingLocation(true);
+      setLocationError(null);
+      
+      enhancedLocationService.findLocation(locationName, {
+        preferStatic: preferStaticData,
+        language: 'ko'
+      })
+      .then(result => {
+        console.log('📍 Enhanced location found:', result);
+        setEnhancedLocation(result);
+      })
+      .catch(error => {
+        console.error('Enhanced location search failed:', error);
+        setLocationError(error.message);
+      })
+      .finally(() => {
+        setIsLoadingLocation(false);
+      });
+    }
+  }, [locationName, enableEnhancedGeocoding, preferStaticData]);
+
   // 좌표 추출 함수 개선 (여러 형태 지원)
   const getLatLng = (chapter: Chapter): [number | undefined, number | undefined] => {
     // 우선순위: location > coordinates > lat/lng > latitude/longitude
@@ -233,16 +271,34 @@ export default function MapWithRoute({
     );
   }
 
-  // 지도 중심점 계산 (사용자 정의 중심점 우선, 없으면 유효한 좌표들의 평균)
+  // 지도 중심점 계산 (Enhanced location 우선)
   let mapCenter: LatLngExpression;
-  if (center && center.lat && center.lng) {
+  let mapZoom = customZoom;
+  let centerInfo = { name: '', accuracy: 0, sources: [] as string[] };
+
+  if (enhancedLocation && !isLoadingLocation) {
+    // Enhanced location 우선 사용
+    mapCenter = [enhancedLocation.center.lat, enhancedLocation.center.lng];
+    mapZoom = mapZoom || enhancedLocation.recommendedZoom;
+    centerInfo = {
+      name: enhancedLocation.center.name,
+      accuracy: enhancedLocation.center.accuracy,
+      sources: enhancedLocation.center.sources
+    };
+  } else if (center && center.lat && center.lng) {
+    // 사용자 정의 중심점
     mapCenter = [center.lat, center.lng];
+    centerInfo.name = center.name || 'Custom Location';
   } else if (validChapters.length > 0) {
+    // 유효한 좌표들의 평균
     const centerLat = validChapters.reduce((sum, chapter) => sum + chapter.lat!, 0) / validChapters.length;
     const centerLng = validChapters.reduce((sum, chapter) => sum + chapter.lng!, 0) / validChapters.length;
     mapCenter = [centerLat, centerLng];
+    centerInfo.name = 'Calculated Center';
   } else {
-    mapCenter = [37.5665, 126.9780]; // 서울 중심가 기본값
+    // 서울 중심가 기본값
+    mapCenter = [37.5665, 126.9780];
+    centerInfo.name = '서울 중심가';
   }
 
   // 활성 챕터의 좌표 (지도 이동용)
@@ -270,7 +326,37 @@ export default function MapWithRoute({
     return 10;                            // 매우 넓음
   };
 
-  const zoom = customZoom || calculateZoom();
+  const zoom = mapZoom || calculateZoom();
+
+  // Loading 상태 표시
+  if (isLoadingLocation) {
+    return (
+      <div className="w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
+            <div className="text-sm text-gray-600">정확한 위치 검색 중...</div>
+            <div className="text-xs text-gray-400 mt-1">{locationName}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error 상태 표시
+  if (locationError && enableEnhancedGeocoding) {
+    return (
+      <div className="w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="text-center text-red-500">
+            <div className="text-lg mb-2">⚠️</div>
+            <div className="text-sm">위치 검색 실패</div>
+            <div className="text-xs mt-1 text-gray-500">{locationError}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
@@ -336,7 +422,7 @@ export default function MapWithRoute({
                   direction: "top",
                   offset: [0, -20],
                   opacity: 0.9,
-                  permanent: isActive,
+                  permanent: false,
                   className: isActive ? "font-bold" : ""
                 } as any)}
               >
@@ -356,19 +442,34 @@ export default function MapWithRoute({
         })}
       </MapContainer>
       
-      {/* 지도 하단 정보 - 모던 모노크롬 스타일 */}
+      {/* Enhanced 지도 하단 정보 */}
       <div className="bg-black/2 px-4 py-3 text-xs font-medium border-t border-black/5">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-black rounded-full"></div>
             <span className="text-black/80">{validChapters.length}개 지점</span>
+            {enhancedLocation && (
+              <div className="flex items-center gap-1 ml-2">
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                <span className="text-green-700">
+                  정확도 {Math.round(centerInfo.accuracy * 100)}%
+                </span>
+              </div>
+            )}
           </div>
-          <span className="text-black/60">
-            {activeChapterData ? 
-              `현재: ${activeChapterData.title}` : 
-              '위치를 선택해주세요'
-            }
-          </span>
+          <div className="text-right">
+            <div className="text-black/60">
+              {activeChapterData ? 
+                `현재: ${activeChapterData.title}` : 
+                centerInfo.name || '위치를 선택해주세요'
+              }
+            </div>
+            {enhancedLocation && centerInfo.sources.length > 0 && (
+              <div className="text-xs text-black/40 mt-0.5">
+                {centerInfo.sources.join(', ')} • {enhancedLocation.dataSource}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
