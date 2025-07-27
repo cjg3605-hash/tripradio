@@ -57,7 +57,25 @@ const LiveTourPage: React.FC = () => {
       
       // 기존 가이드 데이터 가져오기
       const { MultiLangGuideManager } = await import('@/lib/multilang-guide-manager');
-      const guideResult = await MultiLangGuideManager.getGuideByLanguage(locationName, currentLanguage === 'ko' ? 'ko' : 'en');
+      
+      // 위치명 정규화 시도 (다양한 형태로 검색)
+      const searchTerms = [
+        locationName,
+        decodeURIComponent(locationName),
+        locationName.replace(/-/g, ' ').replace(/_/g, ' ')
+      ];
+      
+      console.log('🔍 가이드 검색 시도 위치명들:', searchTerms);
+      
+      let guideResult: any = null;
+      for (const searchTerm of searchTerms) {
+        console.log(`📖 가이드 검색 시도: "${searchTerm}"`);
+        guideResult = await MultiLangGuideManager.getGuideByLanguage(searchTerm, currentLanguage === 'ko' ? 'ko' : 'en');
+        if (guideResult.success) {
+          console.log(`✅ 가이드 발견: "${searchTerm}"`);
+          break;
+        }
+      }
       
       if (!guideResult.success || !guideResult.data) {
         throw new Error(guideResult.error || '가이드 데이터를 찾을 수 없습니다');
@@ -74,14 +92,26 @@ const LiveTourPage: React.FC = () => {
         sampleRealTimeGuide: guideData?.realTimeGuide?.[0] // 첫 번째 챕터 샘플
       });
 
-      if (guideData?.realTimeGuide && Array.isArray(guideData.realTimeGuide)) {
-        console.log('🎯 실시간 가이드 데이터 사용');
+      // realTimeGuide.chapters 구조 확인
+      const chapters = guideData?.realTimeGuide?.chapters || guideData?.realTimeGuide || [];
+      
+      console.log('🔍 챕터 데이터 구조 분석:', {
+        hasRealTimeGuide: !!guideData?.realTimeGuide,
+        isRealTimeGuideArray: Array.isArray(guideData?.realTimeGuide),
+        hasChapters: !!guideData?.realTimeGuide?.chapters,
+        isChaptersArray: Array.isArray(guideData?.realTimeGuide?.chapters),
+        chaptersLength: chapters.length,
+        chaptersStructure: chapters[0] ? Object.keys(chapters[0]) : []
+      });
+
+      if (chapters && Array.isArray(chapters) && chapters.length > 0) {
+        console.log('🎯 실시간 가이드 챕터 데이터 사용');
         
         const personalities = ['agreeableness', 'openness', 'conscientiousness'];
         const guidePOIs: POI[] = [];
 
-        for (let i = 0; i < guideData.realTimeGuide.length; i++) {
-          const chapter = guideData.realTimeGuide[i];
+        for (let i = 0; i < chapters.length; i++) {
+          const chapter = chapters[i];
           console.log(`📍 챕터 ${i + 1} 분석:`, {
             title: chapter.title || chapter.name,
             hasCoordinates: !!(chapter.coordinates || chapter.lat),
