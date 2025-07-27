@@ -50,7 +50,145 @@ const LiveTourPage: React.FC = () => {
   const [isLoadingPOIs, setIsLoadingPOIs] = useState(false);
   const [poisError, setPoisError] = useState<string | null>(null);
 
-  // AI 가이드 데이터에서 POI 생성하는 함수
+  // 기존 가이드 데이터에서 POI 생성하는 함수  
+  const fetchGuideBasedPOIs = async (locationName: string): Promise<POI[]> => {
+    try {
+      console.log('📚 기존 가이드 기반 POI 생성 시작:', locationName);
+      
+      // 기존 가이드 데이터 가져오기
+      const { MultiLangGuideManager } = await import('@/lib/multilang-guide-manager');
+      const guideResult = await MultiLangGuideManager.getGuideByLanguage(locationName, currentLanguage === 'ko' ? 'ko' : 'en');
+      
+      if (!guideResult.success || !guideResult.data) {
+        throw new Error(guideResult.error || '가이드 데이터를 찾을 수 없습니다');
+      }
+      
+      const guideData = guideResult.data;
+      
+      console.log('📖 가이드 데이터 확인:', {
+        hasGuide: !!guideData,
+        hasRealTimeGuide: !!guideData?.realTimeGuide,
+        realTimeGuideType: typeof guideData?.realTimeGuide,
+        realTimeGuideLength: guideData?.realTimeGuide?.length || 0,
+        guideDataKeys: Object.keys(guideData || {}),
+        sampleRealTimeGuide: guideData?.realTimeGuide?.[0] // 첫 번째 챕터 샘플
+      });
+
+      if (guideData?.realTimeGuide && Array.isArray(guideData.realTimeGuide)) {
+        console.log('🎯 실시간 가이드 데이터 사용');
+        
+        const personalities = ['agreeableness', 'openness', 'conscientiousness'];
+        const guidePOIs: POI[] = [];
+
+        for (let i = 0; i < guideData.realTimeGuide.length; i++) {
+          const chapter = guideData.realTimeGuide[i];
+          console.log(`📍 챕터 ${i + 1} 분석:`, {
+            title: chapter.title || chapter.name,
+            hasCoordinates: !!(chapter.coordinates || chapter.lat),
+            coordinates: chapter.coordinates,
+            lat: chapter.lat,
+            lng: chapter.lng
+          });
+
+          let lat: number, lng: number;
+
+          // 1. 챕터에 이미 좌표가 있는지 확인 (AI가 생성한 좌표)
+          if (chapter.coordinates) {
+            lat = chapter.coordinates.lat;
+            lng = chapter.coordinates.lng;
+            console.log(`✅ AI 생성 좌표 사용: ${lat}, ${lng}`);
+          } 
+          // 2. 직접 lat/lng 필드가 있는지 확인
+          else if (chapter.lat && chapter.lng) {
+            lat = chapter.lat;
+            lng = chapter.lng;
+            console.log(`✅ 직접 좌표 사용: ${lat}, ${lng}`);
+          }
+          // 3. 좌표가 없으면 Enhanced Location Service로 검색
+          else {
+            console.log(`🔍 좌표 없음, 위치 검색 시도: ${chapter.title || chapter.name}`);
+            try {
+              const locationPOI = await fetchLocationCoordinates(chapter.title || chapter.name || `${locationName} ${i + 1}`, i);
+              if (locationPOI) {
+                lat = locationPOI.lat;
+                lng = locationPOI.lng;
+                console.log(`✅ 검색된 좌표 사용: ${lat}, ${lng}`);
+              } else {
+                continue; // 좌표를 찾을 수 없으면 건너뛰기
+              }
+            } catch (error) {
+              console.error(`❌ 좌표 검색 실패:`, error);
+              continue;
+            }
+          }
+
+          // POI 생성
+          const poi: POI = {
+            id: `poi_guide_${i + 1}`,
+            name: chapter.title || chapter.name || `${locationName} ${i + 1}`,
+            lat,
+            lng,
+            radius: 100,
+            description: chapter.content || chapter.description || `${chapter.title || chapter.name}에 대한 상세한 설명입니다.`,
+            audioChapter: {
+              id: i + 1,
+              title: chapter.title || chapter.name || `${locationName} ${i + 1}`,
+              text: chapter.content || chapter.description || `${chapter.title || chapter.name}에 오신 것을 환영합니다.`,
+              duration: chapter.duration ? chapter.duration * 60 : 120 + (i * 30),
+              language: 'ko-KR',
+              personality: personalities[i % personalities.length] as any
+            }
+          };
+
+          guidePOIs.push(poi);
+        }
+
+        console.log('✅ 가이드 기반 POI 생성 완료:', guidePOIs.length);
+        return guidePOIs;
+      }
+      
+      throw new Error('실시간 가이드 데이터가 없습니다');
+
+    } catch (error) {
+      console.error('❌ 가이드 기반 POI 생성 실패:', error);
+      throw error;
+    }
+  };
+
+  // 개별 위치의 좌표를 가져오는 함수
+  const fetchLocationCoordinates = async (placeName: string, index: number): Promise<POI | null> => {
+    try {
+      const { enhancedLocationService } = await import('@/lib/location/enhanced-location-utils');
+      const locationResult = await enhancedLocationService.findLocation(placeName, {
+        preferStatic: false,
+        language: currentLanguage === 'ko' ? 'ko' : 'en'
+      });
+
+      const personalities = ['agreeableness', 'openness', 'conscientiousness'];
+      
+      return {
+        id: `poi_guide_${index + 1}`,
+        name: placeName,
+        lat: locationResult.center.lat,
+        lng: locationResult.center.lng,
+        radius: 100,
+        description: `${placeName}에 대한 상세한 설명입니다.`,
+        audioChapter: {
+          id: index + 1,
+          title: placeName,
+          text: `${placeName}에 오신 것을 환영합니다. 이곳의 특별한 이야기를 들려드리겠습니다.`,
+          duration: 120 + (index * 30),
+          language: 'ko-KR',
+          personality: personalities[index % personalities.length] as any
+        }
+      };
+    } catch (error) {
+      console.error(`❌ ${placeName} 좌표 가져오기 실패:`, error);
+      return null;
+    }
+  };
+
+  // AI 가이드 데이터에서 POI 생성하는 함수 (fallback)
   const fetchAIGeneratedPOIs = async (locationName: string): Promise<POI[]> => {
     try {
       console.log('🤖 AI 가이드 기반 POI 생성 시작:', locationName);
@@ -240,28 +378,39 @@ const LiveTourPage: React.FC = () => {
       setIsLoadingPOIs(true);
       setPoisError(null);
 
-      // 먼저 AI 가이드로 시도
-      console.log('🚀 POI 데이터 로딩 시작 - AI 우선 모드');
-      fetchAIGeneratedPOIs(locationName)
+      // 먼저 기존 가이드 데이터로 시도
+      console.log('🚀 POI 데이터 로딩 시작 - 기존 가이드 우선 모드');
+      fetchGuideBasedPOIs(locationName)
         .then(pois => {
-          console.log('✅ AI POI 데이터 로딩 완료:', pois);
-          console.log('📊 AI POI 개수:', pois.length);
+          console.log('✅ 가이드 기반 POI 데이터 로딩 완료:', pois);
+          console.log('📊 가이드 기반 POI 개수:', pois.length);
           setPoisWithChapters(pois);
         })
         .catch(error => {
-          console.error('❌ AI POI 실패, 기존 방식으로 fallback:', error);
-          console.error('❌ AI 실패 상세:', error.message, error.stack);
+          console.error('❌ 가이드 기반 POI 실패, AI로 fallback:', error);
+          console.error('❌ 가이드 실패 상세:', error.message, error.stack);
           
-          // AI 실패 시 기존 방식으로 fallback
-          return fetchLocationPOIs(locationName)
+          // 가이드 실패 시 AI로 fallback
+          return fetchAIGeneratedPOIs(locationName)
             .then(pois => {
-              console.log('✅ Fallback POI 데이터 로딩 완료:', pois);
-              console.log('📊 Fallback POI 개수:', pois.length);
+              console.log('✅ AI Fallback POI 데이터 로딩 완료:', pois);
+              console.log('📊 AI Fallback POI 개수:', pois.length);
               setPoisWithChapters(pois);
             })
-            .catch(fallbackError => {
-              console.error('❌ 모든 POI 데이터 로딩 실패:', fallbackError);
-              setPoisError(fallbackError.message);
+            .catch(aiError => {
+              console.error('❌ AI도 실패, 기존 방식으로 최종 fallback:', aiError);
+              
+              // 최종 fallback
+              return fetchLocationPOIs(locationName)
+                .then(pois => {
+                  console.log('✅ 최종 Fallback POI 데이터 로딩 완료:', pois);
+                  console.log('📊 최종 Fallback POI 개수:', pois.length);
+                  setPoisWithChapters(pois);
+                })
+                .catch(fallbackError => {
+                  console.error('❌ 모든 POI 데이터 로딩 실패:', fallbackError);
+                  setPoisError(fallbackError.message);
+                });
             });
         })
         .finally(() => {

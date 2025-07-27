@@ -140,8 +140,12 @@ ${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, safeProfile)}`;
       if (process.env.NODE_ENV === 'development') {
         const textLength = responseText.length;
         const textPreview = responseText.substring(0, 200);
-        console.log('원본 AI 응답 길이:', textLength);
-        console.log('응답 미리보기:', textPreview + '...');
+        console.log('🤖 원본 AI 응답 길이:', textLength);
+        console.log('📝 응답 미리보기:', textPreview + '...');
+        
+        // 좌표 정보 확인
+        const hasCoordinates = responseText.includes('coordinates') || responseText.includes('lat');
+        console.log('📍 좌표 정보 포함 여부:', hasCoordinates);
       }
       
       let cleanedText = responseText.trim();
@@ -180,9 +184,33 @@ ${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, safeProfile)}`;
       }
       
       const jsonString = cleanedText.substring(startIndex, endIndex + 1);
-      console.log('추출된 JSON 길이:', jsonString.length);
+      console.log('📦 추출된 JSON 길이:', jsonString.length);
       
       const parsed = JSON.parse(jsonString);
+      
+      // 파싱된 데이터에서 좌표 정보 확인
+      if (process.env.NODE_ENV === 'development') {
+        const hasDetailedStops = !!parsed.detailedStops;
+        const stopsCount = parsed.detailedStops?.length || 0;
+        const hasCoordinatesInStops = parsed.detailedStops?.some((stop: any) => stop.coordinates) || false;
+        
+        console.log('🎯 파싱된 데이터 분석:', {
+          hasDetailedStops,
+          stopsCount,
+          hasCoordinatesInStops,
+          sampleStop: parsed.detailedStops?.[0]
+        });
+        
+        if (parsed.detailedStops?.length > 0) {
+          parsed.detailedStops.forEach((stop: any, index: number) => {
+            console.log(`📍 Stop ${index + 1}:`, {
+              name: stop.name,
+              hasCoordinates: !!stop.coordinates,
+              coordinates: stop.coordinates
+            });
+          });
+        }
+      }
       console.log('✅ JSON 파싱 성공');
       return parsed;
       
