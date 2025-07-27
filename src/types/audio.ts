@@ -25,6 +25,10 @@ export interface AudioChapter {
   audioUrl?: string;
   duration?: number;
   text: string;
+  isGeneratingTTS?: boolean;
+  ttsError?: string;
+  personality?: string;
+  language?: string;
 }
 
 export interface AudioPlayerSettings {

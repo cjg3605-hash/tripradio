@@ -20,12 +20,12 @@ export async function generateMetadata({ params, searchParams }: LegalPageProps)
   try {
     // 서버사이드에서 직접 서비스 호출 (API 우회)
     legalPagesService.setContactInformation({
-      companyName: '네비가이드AI 서비스',
+      companyName: '네비가이드AI',
       representativeName: 'cjg5209',
       businessAddress: {
-        street: '',
-        city: '',
-        state: '한국',
+        street: '테헤란로',
+        city: '안양시',
+        state: '경기도',
         zipCode: '',
         country: '대한민국'
       },
@@ -103,12 +103,12 @@ export default async function LegalPage({ params, searchParams }: LegalPageProps
   try {
     // 서버사이드에서 직접 서비스 호출 (API 우회)
     legalPagesService.setContactInformation({
-      companyName: '네비가이드AI 서비스',
+      companyName: '네비가이드AI',
       representativeName: 'cjg5209',
       businessAddress: {
-        street: '',
-        city: '',
-        state: '한국',
+        street: '테헤란로',
+        city: '안양시',
+        state: '경기도',
         zipCode: '',
         country: '대한민국'
       },

@@ -17,11 +17,11 @@ export async function GET(
     
     // 연락처 정보 설정 (최초 실행 시)
     legalPagesService.setContactInformation({
-      companyName: '네비가이드AI 서비스',
+      companyName: '네비가이드AI',
       businessAddress: {
-        street: '',
-        city: '',
-        state: '한국',
+        street: '테헤란로',
+        city: '안양시',
+        state: '경기도',
         zipCode: '',
         country: '대한민국'
       },

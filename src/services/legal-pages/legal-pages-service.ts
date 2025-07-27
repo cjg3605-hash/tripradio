@@ -667,9 +667,9 @@ We have partnerships with various travel-related companies and continuously stri
 
 ## 🏢 사업자 정보
 
-**서비스명**: 네비가이드AI 서비스  
+**서비스명**: 네비가이드AI  
 **운영자**: ${this.contactInfo?.representativeName || 'cjg5209'}  
-**위치**: ${this.contactInfo?.businessAddress?.state || '한국'}
+**주소**: 경기도 안양시
 
 ## 📞 전화 문의
 
@@ -727,9 +727,9 @@ If you need inquiries or support regarding NaviGuide AI, please use the informat
 
 ## 🏢 Business Information
 
-**Service Name**: NaviGuide AI Service  
+**Service Name**: NaviGuide AI  
 **Operator**: ${this.contactInfo?.representativeName || 'cjg5209'}  
-**Location**: ${this.contactInfo?.businessAddress?.state || 'South Korea'}
+**Address**: Gyeonggi-do, Anyang-si, South Korea
 
 ## 📞 Phone Inquiries
 

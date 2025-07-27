@@ -44,54 +44,152 @@ const LiveTourPage: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showScrollButtons, setShowScrollButtons] = useState(false);
   const [currentScrollY, setCurrentScrollY] = useState(0);
+  
+  // POI와 챕터 상태 관리
+  const [poisWithChapters, setPoisWithChapters] = useState<POI[]>([]);
+  const [isLoadingPOIs, setIsLoadingPOIs] = useState(false);
+  const [poisError, setPoisError] = useState<string | null>(null);
 
-  // Sample POIs - In real implementation, this would come from the guide data
-  const [pois] = useState<POI[]>([
-    {
-      id: 'poi_1',
-      name: '경복궁 정문',
-      lat: 37.5796,
-      lng: 126.9770,
-      radius: 50,
-      description: '조선왕조의 정궁인 경복궁의 정문입니다.',
-      audioChapter: {
-        id: 1,
-        title: '경복궁 정문의 역사',
-        text: '경복궁은 1395년 조선왕조의 정궁으로 창건되었습니다...',
-        duration: 180
+  // 실제 위치 데이터를 가져오는 함수
+  const fetchLocationPOIs = async (locationName: string): Promise<POI[]> => {
+    try {
+      console.log('🔍 실제 위치 데이터 검색 시작:', locationName);
+      
+      // Enhanced Location Service를 사용하여 실제 좌표 가져오기
+      const { enhancedLocationService } = await import('@/lib/location/enhanced-location-utils');
+      const locationResult = await enhancedLocationService.findLocation(locationName, {
+        preferStatic: false, // 동적 데이터 우선
+        language: currentLanguage === 'ko' ? 'ko' : 'en'
+      });
+
+      console.log('📍 위치 검색 결과:', locationResult);
+
+      // Smart Chapter Mapper를 사용하여 POI 생성
+      const { smartChapterMapper } = await import('@/lib/coordinates/smart-chapter-mapper');
+      
+      // 기본 챕터 데이터 생성 (실제로는 AI가 생성하거나 DB에서 가져옴)
+      const baseChapters = [
+        {
+          id: 1,
+          title: `${locationName} 주요 관광지`,
+          text: `${locationName}의 대표적인 관광 명소를 소개합니다. 이곳은 역사와 문화가 살아 숨쉬는 특별한 장소입니다.`
+        },
+        {
+          id: 2, 
+          title: `${locationName} 문화 유산`,
+          text: `${locationName}에서 만날 수 있는 소중한 문화유산들을 탐방해보세요. 각각의 이야기가 담겨있습니다.`
+        },
+        {
+          id: 3,
+          title: `${locationName} 현지 체험`,
+          text: `${locationName}에서만 경험할 수 있는 특별한 문화와 전통을 직접 체험해보세요.`
+        }
+      ];
+
+      // Smart Mapping으로 정확한 좌표 생성
+      const mappingResult = await smartChapterMapper.mapChaptersToCoordinates(baseChapters, {
+        baseLocation: locationName,
+        radiusKm: 3,
+        qualityThreshold: 0.6,
+        distributionStrategy: 'smart',
+        enableValidation: true
+      });
+
+      console.log('🗺️ 챕터 매핑 결과:', mappingResult);
+
+      // POI 데이터로 변환
+      const pois: POI[] = mappingResult.chapterCoordinates.map((chapterCoord, index) => {
+        const personalities = ['agreeableness', 'openness', 'conscientiousness'];
+        
+        return {
+          id: `poi_${chapterCoord.chapterId}`,
+          name: chapterCoord.title,
+          lat: chapterCoord.coordinates.lat,
+          lng: chapterCoord.coordinates.lng,
+          radius: 50,
+          description: baseChapters[index]?.text || `${locationName}의 중요한 장소입니다.`,
+          audioChapter: {
+            id: chapterCoord.chapterId,
+            title: chapterCoord.title,
+            text: baseChapters[index]?.text || `${locationName}의 ${chapterCoord.title}에 대한 상세한 설명입니다. 이곳의 역사와 문화적 의미를 알아보세요.`,
+            duration: 150 + (index * 30),
+            language: 'ko-KR',
+            personality: personalities[index % personalities.length] as any
+          }
+        };
+      });
+
+      // 결과가 없으면 기본 중심점 기반으로 생성
+      if (pois.length === 0) {
+        const centerPOI: POI = {
+          id: 'poi_center',
+          name: `${locationName} 중심가`,
+          lat: locationResult.center.lat,
+          lng: locationResult.center.lng,
+          radius: 100,
+          description: `${locationName}의 중심 지역입니다.`,
+          audioChapter: {
+            id: 1,
+            title: `${locationName} 소개`,
+            text: `${locationName}에 오신 것을 환영합니다. 이곳은 특별한 역사와 문화를 가진 매력적인 도시입니다. 함께 탐방해보세요.`,
+            duration: 120,
+            language: 'ko-KR',
+            personality: 'agreeableness'
+          }
+        };
+        return [centerPOI];
       }
-    },
-    {
-      id: 'poi_2',
-      name: '광화문 광장',
-      lat: 37.5759,
-      lng: 126.9768,
-      radius: 100,
-      description: '한국의 역사와 문화를 상징하는 광장입니다.',
-      audioChapter: {
-        id: 2,
-        title: '광화문 광장의 의미',
-        text: '이 광장은 세종대왕과 이순신 장군의 동상이 있는 곳입니다...',
-        duration: 150
-      }
-    },
-    {
-      id: 'poi_3',
-      name: '청와대 앞',
-      lat: 37.5867,
-      lng: 126.9748,
-      radius: 30,
-      description: '대한민국 대통령 관저였던 청와대입니다.',
-      audioChapter: {
-        id: 3,
-        title: '청와대의 변천사',
-        text: '청와대는 1948년부터 2022년까지 대통령 관저로 사용되었습니다...',
-        duration: 200
-      }
+
+      return pois;
+
+    } catch (error) {
+      console.error('❌ 위치 데이터 가져오기 실패:', error);
+      
+      // 폴백: 기본 서울 데이터
+      const fallbackPOIs: POI[] = [
+        {
+          id: 'poi_fallback',
+          name: `${locationName} (검색 실패)`,
+          lat: 37.5665,
+          lng: 126.9780,
+          radius: 100,
+          description: `${locationName}의 위치를 찾을 수 없어 기본 위치를 표시합니다.`,
+          audioChapter: {
+            id: 1,
+            title: `${locationName} 정보`,
+            text: `죄송합니다. ${locationName}의 정확한 위치 정보를 찾을 수 없습니다. 다른 위치를 검색해보시거나 잠시 후 다시 시도해주세요.`,
+            duration: 90,
+            language: 'ko-KR',
+            personality: 'agreeableness'
+          }
+        }
+      ];
+      return fallbackPOIs;
     }
-  ]);
+  };
 
-  const audioChapters: AudioChapter[] = pois
+  // 실제 위치 데이터 로딩
+  useEffect(() => {
+    if (locationName) {
+      setIsLoadingPOIs(true);
+      setPoisError(null);
+      
+      fetchLocationPOIs(locationName)
+        .then(pois => {
+          console.log('✅ POI 데이터 로딩 완료:', pois);
+          setPoisWithChapters(pois);
+        })
+        .catch(error => {
+          console.error('❌ POI 데이터 로딩 실패:', error);
+          setPoisError(error.message);
+        })
+        .finally(() => {
+          setIsLoadingPOIs(false);
+        });
+    }
+  }, [locationName, currentLanguage]);
+
+  const audioChapters: AudioChapter[] = poisWithChapters
     .filter(poi => poi.audioChapter)
     .map(poi => poi.audioChapter!);
 
@@ -103,7 +201,7 @@ const LiveTourPage: React.FC = () => {
 
   // Handle POI reached events
   const handlePOIReached = (poiId: string, poiName: string) => {
-    const poiIndex = pois.findIndex(poi => poi.id === poiId);
+    const poiIndex = poisWithChapters.findIndex(poi => poi.id === poiId);
     if (poiIndex !== -1 && audioChapters[poiIndex]) {
       setCurrentChapter(poiIndex);
       // Show notification or modal for new chapter
@@ -111,15 +209,26 @@ const LiveTourPage: React.FC = () => {
     }
   };
 
+  // Handle chapter updates from audio player
+  const handleChapterUpdate = (poiId: string, updatedChapter: AudioChapter) => {
+    setPoisWithChapters(prev => 
+      prev.map(poi => 
+        poi.id === poiId 
+          ? { ...poi, audioChapter: updatedChapter }
+          : poi
+      )
+    );
+  };
+
   // Handle chapter changes from audio player
   const handleChapterChange = (chapterIndex: number) => {
     setCurrentChapter(chapterIndex);
     
     // Center map on the corresponding POI
-    if (pois[chapterIndex]) {
+    if (poisWithChapters[chapterIndex]) {
       setMapCenter({
-        lat: pois[chapterIndex].lat,
-        lng: pois[chapterIndex].lng
+        lat: poisWithChapters[chapterIndex].lat,
+        lng: poisWithChapters[chapterIndex].lng
       });
     }
   };
@@ -147,16 +256,16 @@ const LiveTourPage: React.FC = () => {
   // Reset tour
   const handleReset = () => {
     setCurrentChapter(0);
-    if (pois[0]) {
+    if (poisWithChapters[0]) {
       setMapCenter({
-        lat: pois[0].lat,
-        lng: pois[0].lng
+        lat: poisWithChapters[0].lat,
+        lng: poisWithChapters[0].lng
       });
     }
   };
 
   // Get current POI info
-  const currentPOI = pois[currentChapter];
+  const currentPOI = poisWithChapters[currentChapter];
 
   // 스크롤 이벤트 리스너
   useEffect(() => {
@@ -219,8 +328,34 @@ const LiveTourPage: React.FC = () => {
         {/* 필수관람포인트 */}
         <div className="border-b border-gray-100 pb-6">
           <h2 className="text-lg font-medium text-gray-900 mb-4">{t('guide.mustSeePoints')}</h2>
+          
+          {/* 로딩 상태 */}
+          {isLoadingPOIs && (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mr-3"></div>
+              <span className="text-gray-600">📍 {locationName}의 관광지 정보를 검색하고 있습니다...</span>
+            </div>
+          )}
+          
+          {/* 에러 상태 */}
+          {poisError && !isLoadingPOIs && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+              <div className="text-red-800 font-medium">위치 정보 로딩 실패</div>
+              <div className="text-red-600 text-sm mt-1">{poisError}</div>
+            </div>
+          )}
+          
+          {/* POI 목록 */}
+          {!isLoadingPOIs && poisWithChapters.length === 0 && !poisError && (
+            <div className="text-center py-8 text-gray-500">
+              <div className="text-lg mb-2">📍</div>
+              <div>검색된 관광지가 없습니다</div>
+              <div className="text-sm mt-1">다른 위치를 검색해보세요</div>
+            </div>
+          )}
+          
           <div className="space-y-6">
-            {pois.map((poi, index) => (
+            {poisWithChapters.map((poi, index) => (
               <div key={poi.id} className="border border-gray-100 rounded-lg p-4">
                 <div className="flex items-start gap-3 mb-3">
                   <div className="w-6 h-6 bg-black text-white text-xs rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -242,6 +377,9 @@ const LiveTourPage: React.FC = () => {
                     <ChapterAudioPlayer
                       chapter={poi.audioChapter}
                       className="w-full"
+                      onChapterUpdate={(updatedChapter) => handleChapterUpdate(poi.id, updatedChapter)}
+                      locationName={locationName}
+                      guideId={`guide_${locationName}`}
                     />
                   </div>
                 )}
@@ -312,7 +450,7 @@ const LiveTourPage: React.FC = () => {
         {(showMap || showAudioPlayer) && (
           <div className="mt-8">
             <LiveLocationTracker
-              pois={pois}
+              pois={poisWithChapters}
               onLocationUpdate={handleLocationUpdate}
               onPOIReached={handlePOIReached}
               showStats={false}
@@ -326,7 +464,7 @@ const LiveTourPage: React.FC = () => {
         {showMap && (
           <div className="h-96 bg-white border border-gray-100 rounded-lg overflow-hidden">
             <MapWithRoute
-              pois={pois.map(poi => ({
+              pois={poisWithChapters.map(poi => ({
                 id: poi.id,
                 name: poi.name,
                 lat: poi.lat,
@@ -339,15 +477,16 @@ const LiveTourPage: React.FC = () => {
               showRoute={true}
               showUserLocation={true}
               onPoiClick={(poiId) => {
-                const poiIndex = pois.findIndex(poi => poi.id === poiId);
+                const poiIndex = poisWithChapters.findIndex(poi => poi.id === poiId);
                 if (poiIndex !== -1) {
                   setCurrentChapter(poiIndex);
                 }
               }}
               className="w-full h-full"
-              // Enhanced Coordinate System (Phase 1-4)
+              // Enhanced Coordinate System (Phase 1-4) - 임시 비활성화
               locationName={locationName}
-              enableEnhancedCoordinateSystem={true}
+              enableEnhancedCoordinateSystem={false}
+              enableSmartMapping={false}
               coordinatePackageOptions={{
                 enableAnalytics: true,
                 enableCaching: true,
