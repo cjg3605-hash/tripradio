@@ -531,9 +531,6 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                 />
               );
             })()}
-          </div>
-
-          </div>
 
           {/* 챕터 리스트 */}
           <div className="space-y-2">
