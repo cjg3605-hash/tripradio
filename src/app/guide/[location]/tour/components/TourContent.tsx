@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, MutableRefObject } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   ChevronDown, 
   ChevronUp, 
@@ -231,11 +232,11 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
   return (
     <>
-    <ResponsiveContainer key={`tour-content-${componentKey}`} variant="default" className="min-h-screen">
+    <ResponsiveContainer key={`tour-content-${componentKey}`} variant="fullwidth" className="min-h-screen">
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="px-6 py-8">
-          <Stack space="lg">
+        <div className="px-3 py-6 sm:px-4 lg:px-6">
+          <Stack space="md">
           {/* 장소 정보 */}
           <div className="text-center space-y-4">
             <div className="w-20 h-20 border-4 border-foreground rounded-full flex items-center justify-center mx-auto">
@@ -255,7 +256,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
               <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
                 
                 {/* Header Section - Ultra Minimal */}
-                <div className="px-6 pt-6 pb-5">
+                <div className="px-4 pt-4 pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
@@ -276,11 +277,11 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                 </div>
 
                 {/* Quick Info Grid - Mobile First */}
-                <div className="px-6 pb-4">
+                <div className="px-4 pb-3">
                   <div className="grid grid-cols-1 gap-3">
                     
                     {/* Tier 1: Immediate Recognition - 3초 정보 */}
-                    <div className="p-4 bg-black/3 rounded-2xl border border-black/5">
+                    <div className="p-3 bg-black/3 rounded-2xl border border-black/5">
                       <div className="flex items-center gap-3 mb-3">
                         <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
                           <MapPin className="w-4 h-4 text-white" />
@@ -495,7 +496,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
           {/* 고급 오디오 플레이어 */}
 
           {/* 시작점 지도 */}
-          <div className="mb-8">
+          <div className="mb-6">
             <StartLocationMap
               locationName={locationName || ''}
               startPoint={{
@@ -520,7 +521,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
           </div>
 
           {/* 챕터 리스트 */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 border-2 border-foreground rounded-full flex items-center justify-center">
                 <Route className="w-5 h-5" />
@@ -531,7 +532,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {allChapters.map((chapter, index) => (
                 <div
                   key={`chapter-${index}-${chapter.id || index}`}
@@ -554,7 +555,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                 >
                   {/* 챕터 헤더 */}
                   <div 
-                    className="p-6 cursor-pointer"
+                    className="p-4 cursor-pointer"
                     onClick={() => toggleChapter(index)}
                   >
                     <Flex align="center" justify="between">
@@ -604,7 +605,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                   
                   {/* 챕터 내용 */}
                   {expandedChapters.includes(index) && (
-                    <div className="border-t border-border p-6">
+                    <div className="border-t border-border p-4">
                       <Stack space="md">
                         <div className="text-muted-foreground leading-relaxed">
                           {chapter.narrative ? 
@@ -616,7 +617,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                         
                         {/* 다음 이동 안내 */}
                         {chapter.nextDirection && (
-                          <div className="mt-6 p-4 bg-muted/30 rounded-lg border-l-4 border-foreground">
+                          <div className="mt-4 p-3 bg-muted/30 rounded-lg border-l-4 border-foreground">
                             <div className="flex items-start gap-3">
                               <div className="w-6 h-6 border-2 border-foreground rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                                 <Route className="w-3 h-3" />
@@ -655,7 +656,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
           </Stack>
 
           {/* Bottom spacing */}
-          <div className="h-24" />
+          <div className="h-16" />
         </div>
       </div>
 
@@ -672,8 +673,8 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
     </ResponsiveContainer>
 
-    {/* 스크롤 네비게이션 버튼들 - 300px 이상 스크롤 시에만 표시 (화면에 고정) */}
-    {showScrollButtons && (
+    {/* 스크롤 네비게이션 버튼들 - React Portal로 body에 직접 렌더링 */}
+    {typeof window !== 'undefined' && showScrollButtons && createPortal(
       <>
         {/* 스크롤 투 탑 버튼 (우하단) */}
         <div 
@@ -690,10 +691,11 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            zIndex: 9999,
+            zIndex: 99999,
             fontSize: '18px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s ease',
+            pointerEvents: 'auto'
           }}
           onClick={() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -725,10 +727,11 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            zIndex: 9999,
+            zIndex: 99999,
             fontSize: '18px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s ease',
+            pointerEvents: 'auto'
           }}
           onClick={() => {
             window.location.href = '/';
@@ -744,7 +747,8 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
         >
           🏠
         </div>
-      </>
+      </>,
+      document.body
     )}
     </>
   );
