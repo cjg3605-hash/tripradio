@@ -5,6 +5,7 @@
 
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { legalPagesService } from '@/services/legal-pages/legal-pages-service';
 
 interface LegalPageProps {
   params: { type: string };
@@ -17,23 +18,45 @@ export async function generateMetadata({ params, searchParams }: LegalPageProps)
   const lang = searchParams.lang || 'ko';
   
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/legal/${type}?lang=${lang}`, {
-      cache: 'force-cache',
-      next: { revalidate: 86400 } // 24시간 캐시
+    // 서버사이드에서 직접 서비스 호출 (API 우회)
+    legalPagesService.setContactInformation({
+      companyName: '네비가이드AI',
+      representativeName: '김대표',
+      businessAddress: {
+        street: '테헤란로 123',
+        city: '강남구',
+        state: '서울특별시',
+        zipCode: '06159',
+        country: '대한민국'
+      },
+      email: 'support@naviguide.ai',
+      phone: '070-0000-0000'
     });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch legal page data');
+
+    let page;
+    switch (type) {
+      case 'privacy':
+        page = legalPagesService.generatePrivacyPolicy(lang);
+        break;
+      case 'terms':
+        page = legalPagesService.generateTermsOfService(lang);
+        break;
+      case 'about':
+        page = legalPagesService.generateAboutPage(lang);
+        break;
+      case 'contact':
+        page = legalPagesService.generateContactPage(lang);
+        break;
+      default:
+        notFound();
     }
     
-    const { data } = await response.json();
-    const { page, seo } = data;
+    const seo = page.seoMetadata;
     
     return {
       title: `${page.title} | 네비가이드AI`,
       description: seo.description,
       keywords: seo.keywords.join(', '),
-      canonical: `${process.env.NEXT_PUBLIC_BASE_URL}${seo.canonicalUrl}`,
       robots: 'index, follow',
       alternates: {
         canonical: `${process.env.NEXT_PUBLIC_BASE_URL}${seo.canonicalUrl}`,
@@ -78,17 +101,40 @@ export default async function LegalPage({ params, searchParams }: LegalPageProps
   }
   
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/legal/${type}?lang=${lang}`, {
-      cache: 'force-cache',
-      next: { revalidate: 86400 } // 24시간 캐시
+    // 서버사이드에서 직접 서비스 호출 (API 우회)
+    legalPagesService.setContactInformation({
+      companyName: '네비가이드AI',
+      representativeName: '김대표',
+      businessAddress: {
+        street: '테헤란로 123',
+        city: '강남구',
+        state: '서울특별시',
+        zipCode: '06159',
+        country: '대한민국'
+      },
+      email: 'support@naviguide.ai',
+      phone: '070-0000-0000'
     });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch legal page data');
+
+    let page;
+    switch (type) {
+      case 'privacy':
+        page = legalPagesService.generatePrivacyPolicy(lang);
+        break;
+      case 'terms':
+        page = legalPagesService.generateTermsOfService(lang);
+        break;
+      case 'about':
+        page = legalPagesService.generateAboutPage(lang);
+        break;
+      case 'contact':
+        page = legalPagesService.generateContactPage(lang);
+        break;
+      default:
+        notFound();
     }
     
-    const { data } = await response.json();
-    const { page, compliance } = data;
+    const compliance = legalPagesService.assessAdSenseCompliance();
     
     // Markdown을 HTML로 변환하는 간단한 함수
     const markdownToHtml = (markdown: string) => {

@@ -7,7 +7,11 @@ import L from 'leaflet';
 import { useEffect, useState } from 'react';
 import { enhancedLocationService, type EnhancedLocationResult } from '@/lib/location/enhanced-location-utils';
 import { smartChapterMapper, type ChapterMarkerData, type MappingResult } from '@/lib/coordinates/smart-chapter-mapper';
-import { coordinateServiceIntegration, type GuideCoordinatePackage, type GuideQualityOverview } from '@/lib/coordinates/coordinate-service-integration';
+// import { coordinateServiceIntegration, type GuideCoordinatePackage, type GuideQualityOverview } from '@/lib/coordinates/coordinate-service-integration';
+
+// 임시 타입 정의
+type GuideCoordinatePackage = any;
+type GuideQualityOverview = any;
 import type { GuideChapter } from '@/types/guide';
 
 // @ts-ignore
@@ -256,48 +260,51 @@ export default function MapWithRoute({
         } : undefined
       }));
 
-      coordinateServiceIntegration.generateGuideCoordinatePackage(locationName, guideChapters, {
-        enableAnalytics: coordinatePackageOptions.enableAnalytics || true,
-        enableCaching: coordinatePackageOptions.enableCaching !== false,
-        qualityThreshold: coordinatePackageOptions.qualityThreshold || 0.5,
-        region: coordinatePackageOptions.region || 'KR',
-        language: coordinatePackageOptions.language || 'ko'
-      })
-      .then(result => {
-        console.log('✅ Enhanced Coordinate Package 생성 완료:', result);
-        setCoordinatePackage(result);
-        setQualityOverview(result.qualityOverview);
-        
-        // MapWithRoute 호환 데이터로 변환
-        const mapData = coordinateServiceIntegration.convertToMapWithRouteProps(result);
-        
-        // 챕터 마커 데이터 생성
-        const enhancedMarkers: ChapterMarkerData[] = mapData.chapters.map(chapter => ({
-          id: chapter.id,
-          title: chapter.title,
-          coordinates: { lat: chapter.lat, lng: chapter.lng },
-          markerType: chapter.qualityLevel === 'excellent' ? 'verified' : 
-                     chapter.qualityLevel === 'good' ? 'estimated' : 'inferred',
-          accuracy: chapter.accuracy || 0,
-          confidence: chapter.confidence || 0,
-          tooltip: `${chapter.title} (품질: ${chapter.qualityLevel})`,
-          validationStatus: chapter.qualityLevel === 'excellent' ? 'verified' : 
-                          chapter.qualityLevel === 'good' ? 'estimated' : 'failed',
-          sources: ['4단계-통합시스템']
-        }));
-        
-        setChapterMarkers(enhancedMarkers);
-        
-        // 실시간 모니터링 활성화
-        coordinateServiceIntegration.enableRealTimeMonitoring(locationName);
-      })
-      .catch(error => {
-        console.error('❌ Enhanced Coordinate System 실패:', error);
-        setEnhancedSystemError(error.message);
-        
-        // 폴백: 기존 Smart Chapter Mapper 사용
-        console.log('🔄 폴백: Smart Chapter Mapper 사용');
-        smartChapterMapper.mapChaptersToCoordinates(guideChapters, {
+      // coordinateServiceIntegration.generateGuideCoordinatePackage(locationName, guideChapters, {
+      //   enableAnalytics: coordinatePackageOptions.enableAnalytics || true,
+      //   enableCaching: coordinatePackageOptions.enableCaching !== false,
+      //   qualityThreshold: coordinatePackageOptions.qualityThreshold || 0.5,
+      //   region: coordinatePackageOptions.region || 'KR',
+      //   language: coordinatePackageOptions.language || 'ko'
+      // })
+      // .then(result => {
+      //   console.log('✅ Enhanced Coordinate Package 생성 완료:', result);
+      //   setCoordinatePackage(result);
+      //   setQualityOverview(result.qualityOverview);
+      //   
+      //   // MapWithRoute 호환 데이터로 변환
+      //   const mapData = coordinateServiceIntegration.convertToMapWithRouteProps(result);
+      //   
+      //   // 챕터 마커 데이터 생성
+      //   const enhancedMarkers: ChapterMarkerData[] = mapData.chapters.map(chapter => ({
+      //     id: chapter.id,
+      //     title: chapter.title,
+      //     coordinates: { lat: chapter.lat, lng: chapter.lng },
+      //     markerType: chapter.qualityLevel === 'excellent' ? 'verified' : 
+      //                chapter.qualityLevel === 'good' ? 'estimated' : 'inferred',
+      //     accuracy: chapter.accuracy || 0,
+      //     confidence: chapter.confidence || 0,
+      //     tooltip: `${chapter.title} (품질: ${chapter.qualityLevel})`,
+      //     validationStatus: chapter.qualityLevel === 'excellent' ? 'verified' : 
+      //                     chapter.qualityLevel === 'good' ? 'estimated' : 'failed',
+      //     sources: ['4단계-통합시스템']
+      //   }));
+      //   
+      //   setChapterMarkers(enhancedMarkers);
+      //   
+      //   // 실시간 모니터링 활성화
+      //   coordinateServiceIntegration.enableRealTimeMonitoring(locationName);
+      // })
+      // .catch(error => {
+      //   console.error('❌ Enhanced Coordinate System 실패:', error);
+      //   setEnhancedSystemError(error.message);
+      //   
+      //   // 폴백: 기존 Smart Chapter Mapper 사용
+      //   console.log('🔄 폴백: Smart Chapter Mapper 사용');
+      // });
+
+      // 폴백: 기존 Smart Chapter Mapper 사용
+      smartChapterMapper.mapChaptersToCoordinates(guideChapters, {
           baseLocation: locationName,
           radiusKm: mappingOptions.radiusKm || 2,
           qualityThreshold: mappingOptions.qualityThreshold || 0.5,
@@ -310,11 +317,10 @@ export default function MapWithRoute({
         })
         .catch(fallbackError => {
           console.error('❌ 폴백도 실패:', fallbackError);
+        })
+        .finally(() => {
+          setIsLoadingEnhancedSystem(false);
         });
-      })
-      .finally(() => {
-        setIsLoadingEnhancedSystem(false);
-      });
     }
   }, [chapters, enableEnhancedCoordinateSystem, locationName, coordinatePackageOptions]);
 

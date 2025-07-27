@@ -564,7 +564,7 @@ AI 기술은 여행을 더욱 스마트하고 편리하게 만들어줍니다. �
 
   private extractImageAltTexts(content: string): string[] {
     const imagePattern = /!\[(.*?)\]/g;
-    const matches = [];
+    const matches: string[] = [];
     let match;
     while ((match = imagePattern.exec(content)) !== null) {
       matches.push(match[1]);

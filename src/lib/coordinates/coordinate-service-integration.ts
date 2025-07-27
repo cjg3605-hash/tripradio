@@ -158,22 +158,21 @@ export class CoordinateServiceIntegration {
   private async validateMainLocation(
     locationName: string,
     options: any
-  ): Promise<EnhancedCoordinateResult> {
-    // 글로벌 시스템 사용
-    const { globalCoordinator } = await import('./global-coordinator');
+  ): Promise<ValidationResult> {
+    console.log(`🔍 Phase 1: Multi-Source validation for ${locationName}`);
     
-    const validation = await globalCoordinator.validateGlobal(
-      locationName,
-      options.region || 'KR',
-      options.language || 'ko',
-      { priority: 'accuracy', cacheFirst: true }
+    // Phase 1: Multi-Source Validator 사용
+    const validationResult = await this.multiSourceValidator.validateLocation(
+      locationName, 
+      options.region || 'korea',
+      {
+        requireMinSources: 2,
+        enableCaching: true
+      }
     );
 
-    // 품질 평가
-    const { qualityManager } = await import('./quality-manager');
-    const qualityReport = await qualityManager.monitorQuality(locationName, locationName);
-
-    return this.convertToEnhancedResult(validation, qualityReport, 'main_location');
+    console.log(`✅ Validation complete: ${validationResult.consensus} quality (${validationResult.qualityScore.toFixed(3)})`);
+    return validationResult;
   }
 
   /**
@@ -261,41 +260,12 @@ export class CoordinateServiceIntegration {
     };
   }
 
-  /**
-   * 전반적인 품질 평가
-   */
-  private async assessOverallQuality(
-    mainLocation: EnhancedCoordinateResult,
-    chapterMappings: ChapterCoordinateMapping[]
-  ): Promise<GuideQualityOverview> {
-    const allResults = [mainLocation, ...chapterMappings.map(m => m.coordinateResult)];
-    
-    // 통계 계산
-    const overallScore = allResults.reduce((sum, r) => sum + r.qualityScore, 0) / allResults.length;
-    const averageAccuracy = allResults.reduce((sum, r) => sum + r.accuracy, 0) / allResults.length;
-    const averageFreshness = allResults.reduce((sum, r) => sum + r.dataFreshness, 0) / allResults.length;
-    
-    // 상태별 분류
-    const accurateChapters = chapterMappings.filter(m => m.coordinateResult.verificationStatus === 'verified').length;
-    const estimatedChapters = chapterMappings.filter(m => m.coordinateResult.verificationStatus === 'estimated').length;
-    const needsReviewChapters = chapterMappings.filter(m => m.coordinateResult.verificationStatus === 'needs_review').length;
-
-    return {
-      overallScore: Number(overallScore.toFixed(3)),
-      accurateChapters,
-      estimatedChapters,
-      needsReviewChapters,
-      averageAccuracy: Number(averageAccuracy.toFixed(1)),
-      dataFreshness: Number(averageFreshness.toFixed(0)),
-      lastQualityCheck: new Date()
-    };
-  }
 
   /**
    * 최적 지도 설정 계산
    */
   private calculateOptimalMapSettings(
-    mainLocation: EnhancedCoordinateResult,
+    mainLocation: ValidationResult,
     chapterMappings: ChapterCoordinateMapping[]
   ): { center: { lat: number; lng: number }; zoom: number } {
     // 모든 좌표 수집
@@ -474,25 +444,6 @@ export class CoordinateServiceIntegration {
     }
   }
 
-  /**
-   * Phase 1-4 시스템을 사용한 메인 위치 검증
-   */
-  private async validateMainLocation(
-    locationName: string, 
-    options: { region?: string; language?: string; qualityThreshold?: number }
-  ): Promise<ValidationResult> {
-    console.log(`🔍 Phase 1: Multi-Source validation for ${locationName}`);
-    
-    // Phase 1: Multi-Source Validator 사용
-    const validationResult = await this.multiSourceValidator.validateLocation(locationName, {
-      region: options.region || 'korea',
-      requireMinSources: 2,
-      enableCaching: true
-    });
-
-    console.log(`✅ Validation complete: ${validationResult.consensus} quality (${validationResult.qualityScore.toFixed(3)})`);
-    return validationResult;
-  }
 
   /**
    * Phase 2-3을 사용한 전반적 품질 평가

@@ -50,7 +50,19 @@ export interface AdSenseComplianceMetrics {
  */
 export class LegalPagesService {
   private static instance: LegalPagesService;
-  private contactInfo: ContactInformation;
+  private contactInfo: ContactInformation = {
+    companyName: '네비가이드AI',
+    representativeName: '김대표',
+    businessAddress: {
+      street: '테헤란로 123',
+      city: '강남구',
+      state: '서울특별시',
+      zipCode: '06159',
+      country: '대한민국'
+    },
+    email: 'support@naviguide.ai',
+    phone: '070-0000-0000'
+  };
   private pages = new Map<string, LegalPageContent>();
 
   static getInstance(): LegalPagesService {

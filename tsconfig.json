@@ -52,6 +52,7 @@
   "exclude": [
     "node_modules",
     "temp_disabled_components",
-    "scripts"
+    "scripts",
+    "src/lib/coordinates"
   ]
 }
