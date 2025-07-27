@@ -56,21 +56,32 @@ const LiveTourPage: React.FC = () => {
       console.log('🤖 AI 가이드 기반 POI 생성 시작:', locationName);
       
       // AI 가이드 생성 API 호출
+      console.log('📡 AI API 호출 준비:', {
+        location: locationName,
+        language: currentLanguage
+      });
+      
+      const requestBody = {
+        location: locationName,
+        userProfile: {
+          interests: ['문화', '역사'],
+          tourDuration: 90,
+          preferredStyle: '친근함',
+          language: currentLanguage === 'ko' ? 'ko' : 'en'
+        }
+      };
+      
+      console.log('📦 요청 데이터:', requestBody);
+      
       const response = await fetch('/api/ai/generate-guide-with-gemini', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          location: locationName,
-          userProfile: {
-            interests: ['문화', '역사'],
-            tourDuration: 90,
-            preferredStyle: '친근함',
-            language: currentLanguage === 'ko' ? 'ko' : 'en'
-          }
-        })
+        body: JSON.stringify(requestBody)
       });
+      
+      console.log('📡 API 응답 상태:', response.status, response.statusText);
 
       if (!response.ok) {
         throw new Error(`AI 가이드 생성 실패: ${response.status}`);
@@ -78,9 +89,20 @@ const LiveTourPage: React.FC = () => {
 
       const result = await response.json();
       console.log('🎯 AI 가이드 생성 결과:', result);
+      console.log('🔍 결과 분석:', {
+        success: result.success,
+        hasData: !!result.data,
+        hasStops: !!result.data?.detailedStops,
+        stopsCount: result.data?.detailedStops?.length || 0
+      });
 
       if (!result.success || !result.data?.detailedStops) {
-        throw new Error('AI 가이드 데이터가 없습니다');
+        console.error('❌ AI 가이드 데이터 검증 실패:', {
+          success: result.success,
+          data: result.data,
+          error: result.error
+        });
+        throw new Error(`AI 가이드 데이터가 없습니다: ${result.error || '알 수 없는 오류'}`);
       }
 
       // AI 생성 데이터에서 POI 생성
@@ -219,18 +241,22 @@ const LiveTourPage: React.FC = () => {
       setPoisError(null);
 
       // 먼저 AI 가이드로 시도
+      console.log('🚀 POI 데이터 로딩 시작 - AI 우선 모드');
       fetchAIGeneratedPOIs(locationName)
         .then(pois => {
           console.log('✅ AI POI 데이터 로딩 완료:', pois);
+          console.log('📊 AI POI 개수:', pois.length);
           setPoisWithChapters(pois);
         })
         .catch(error => {
-          console.log('⚠️ AI POI 실패, 기존 방식으로 fallback:', error.message);
+          console.error('❌ AI POI 실패, 기존 방식으로 fallback:', error);
+          console.error('❌ AI 실패 상세:', error.message, error.stack);
           
           // AI 실패 시 기존 방식으로 fallback
           return fetchLocationPOIs(locationName)
             .then(pois => {
               console.log('✅ Fallback POI 데이터 로딩 완료:', pois);
+              console.log('📊 Fallback POI 개수:', pois.length);
               setPoisWithChapters(pois);
             })
             .catch(fallbackError => {
