@@ -671,7 +671,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
       {/* 스크롤 네비게이션 버튼들 - React Portal로 body에 직접 렌더링 */}
       {typeof window !== 'undefined' && showScrollButtons && createPortal(
         <>
-          {/* 스크롤 투 탑 버튼 (우하단) */}
+          {/* 스크롤 투 탑 버튼 (우하단) - 모던 모노크롬 스타일 */}
           <div 
             style={{
               position: 'fixed',
@@ -679,16 +679,16 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
               right: '20px',
               width: '60px',
               height: '60px',
-              backgroundColor: '#000',
-              color: 'white',
+              backgroundColor: 'white',
+              color: 'black',
+              border: '2px solid black',
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
               zIndex: 99999,
-              fontSize: '18px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               transition: 'all 0.3s ease',
               pointerEvents: 'auto'
             }}
@@ -696,18 +696,22 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#333';
+              e.currentTarget.style.backgroundColor = 'black';
+              e.currentTarget.style.color = 'white';
               e.currentTarget.style.transform = 'scale(1.1)';
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#000';
+              e.currentTarget.style.backgroundColor = 'white';
+              e.currentTarget.style.color = 'black';
               e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
             }}
           >
-            ↑
+            <ArrowUp className="w-6 h-6" />
           </div>
 
-          {/* 홈 버튼 (좌하단) */}
+          {/* 홈 버튼 (좌하단) - 모던 모노크롬 스타일 */}
           <div 
             style={{
               position: 'fixed',
@@ -715,16 +719,16 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
               left: '20px',
               width: '60px',
               height: '60px',
-              backgroundColor: '#000',
-              color: 'white',
+              backgroundColor: 'white',
+              color: 'black',
+              border: '2px solid black',
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
               zIndex: 99999,
-              fontSize: '18px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               transition: 'all 0.3s ease',
               pointerEvents: 'auto'
             }}
@@ -732,15 +736,19 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
               window.location.href = '/';
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#333';
+              e.currentTarget.style.backgroundColor = 'black';
+              e.currentTarget.style.color = 'white';
               e.currentTarget.style.transform = 'scale(1.1)';
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#000';
+              e.currentTarget.style.backgroundColor = 'white';
+              e.currentTarget.style.color = 'black';
               e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
             }}
           >
-            🏠
+            <Home className="w-6 h-6" />
           </div>
         </>,
         document.body
