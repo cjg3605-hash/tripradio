@@ -34,7 +34,14 @@ const LiveTourPage: React.FC = () => {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
   
-  const locationName = typeof params.location === 'string' ? params.location : String(params.location);
+  const locationName = typeof params.location === 'string' 
+    ? decodeURIComponent(params.location) 
+    : decodeURIComponent(String(params.location));
+  
+  console.log('🔍 URL 파라미터 디버그:', {
+    rawParam: params.location,
+    decodedLocationName: locationName
+  });
   
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: 37.5665, lng: 126.9780 }); // Default to Seoul
@@ -50,75 +57,47 @@ const LiveTourPage: React.FC = () => {
   const [isLoadingPOIs, setIsLoadingPOIs] = useState(false);
   const [poisError, setPoisError] = useState<string | null>(null);
 
-  // 기존 가이드 데이터에서 POI 생성하는 함수  
-  const fetchGuideBasedPOIs = async (locationName: string): Promise<POI[]> => {
+  // 현재 페이지의 가이드 데이터에서 직접 좌표 추출
+  const extractPOIsFromCurrentGuide = (): POI[] => {
     try {
-      const { MultiLangGuideManager } = await import('@/lib/multilang-guide-manager');
+      // 브라우저에서 전역으로 접근 가능한 가이드 데이터 찾기
+      const guideData = (window as any).currentGuideData || (window as any).guideData;
       
-      // 가이드 데이터 가져오기 (단순하게)
-      const guideResult = await MultiLangGuideManager.getGuideByLanguage(locationName, currentLanguage === 'ko' ? 'ko' : 'en');
-      
-      if (!guideResult.success || !guideResult.data) {
-        throw new Error('가이드 데이터를 찾을 수 없습니다');
-      }
-      
-      const guideData = guideResult.data;
-      
-      // realTimeGuide.chapters 구조 확인
-      const chapters = guideData?.realTimeGuide?.chapters || guideData?.realTimeGuide || [];
-      
-      if (chapters && Array.isArray(chapters) && chapters.length > 0) {
+      if (guideData && guideData.realTimeGuide) {
+        const chapters = guideData.realTimeGuide.chapters || guideData.realTimeGuide || [];
         const personalities = ['agreeableness', 'openness', 'conscientiousness'];
-        const guidePOIs: POI[] = [];
+        const pois: POI[] = [];
 
-        for (let i = 0; i < chapters.length; i++) {
-          const chapter = chapters[i];
-          let lat: number, lng: number;
-
-          // 챕터에 좌표가 있는지 확인 (AI가 생성한 좌표)
+        chapters.forEach((chapter: any, index: number) => {
           if (chapter.coordinates && chapter.coordinates.lat && chapter.coordinates.lng) {
-            lat = chapter.coordinates.lat;
-            lng = chapter.coordinates.lng;
-          } 
-          // 직접 lat/lng 필드가 있는지 확인
-          else if (chapter.lat && chapter.lng) {
-            lat = chapter.lat;
-            lng = chapter.lng;
+            pois.push({
+              id: `poi_${index + 1}`,
+              name: chapter.title || `스팟 ${index + 1}`,
+              lat: chapter.coordinates.lat,
+              lng: chapter.coordinates.lng,
+              radius: 100,
+              description: chapter.narrative || chapter.content || chapter.title,
+              audioChapter: {
+                id: index + 1,
+                title: chapter.title || `스팟 ${index + 1}`,
+                text: chapter.narrative || chapter.content || chapter.title,
+                duration: 120 + (index * 30),
+                language: 'ko-KR',
+                personality: personalities[index % personalities.length] as any
+              }
+            });
           }
-          // 좌표가 없으면 스킵
-          else {
-            continue;
-          }
+        });
 
-          // POI 생성
-          const poi: POI = {
-            id: `poi_guide_${i + 1}`,
-            name: chapter.title || chapter.name || `${locationName} ${i + 1}`,
-            lat,
-            lng,
-            radius: 100,
-            description: chapter.narrative || chapter.content || chapter.description || `${chapter.title || chapter.name}에 대한 상세한 설명입니다.`,
-            audioChapter: {
-              id: i + 1,
-              title: chapter.title || chapter.name || `${locationName} ${i + 1}`,
-              text: chapter.narrative || chapter.content || chapter.description || `${chapter.title || chapter.name}에 오신 것을 환영합니다.`,
-              duration: chapter.duration ? chapter.duration * 60 : 120 + (i * 30),
-              language: 'ko-KR',
-              personality: personalities[i % personalities.length] as any
-            }
-          };
-
-          guidePOIs.push(poi);
+        if (pois.length > 0) {
+          console.log(`✅ 현재 가이드에서 ${pois.length}개 POI 추출 완료`);
+          return pois;
         }
-
-        console.log(`✅ ${locationName} 가이드 POI 생성: ${guidePOIs.length}개`);
-        return guidePOIs;
       }
-      
-      throw new Error('실시간 가이드 데이터가 없습니다');
 
+      throw new Error('현재 페이지에서 가이드 데이터를 찾을 수 없습니다');
     } catch (error) {
-      console.error('❌ 가이드 기반 POI 생성 실패:', error);
+      console.error('❌ 현재 가이드 데이터 추출 실패:', error);
       throw error;
     }
   };
@@ -340,25 +319,25 @@ const LiveTourPage: React.FC = () => {
     }
   };
 
-  // POI 데이터 로딩 (가이드 우선, 실패시 fallback)
+  // POI 데이터 로딩 - 현재 페이지 데이터 우선
   useEffect(() => {
     if (locationName) {
       setIsLoadingPOIs(true);
       setPoisError(null);
 
-      // 기존 가이드 데이터로 먼저 시도
-      fetchGuideBasedPOIs(locationName)
-        .then(pois => {
+      // 1초 후에 현재 페이지 데이터 추출 시도 (페이지 로딩 완료 대기)
+      setTimeout(() => {
+        try {
+          const pois = extractPOIsFromCurrentGuide();
           setPoisWithChapters(pois);
-        })
-        .catch(error => {
-          // 가이드 실패 시 AI로 fallback
-          return fetchAIGeneratedPOIs(locationName)
+          setIsLoadingPOIs(false);
+        } catch (error) {
+          // 현재 페이지 데이터 실패 시 기존 방식 fallback
+          fetchAIGeneratedPOIs(locationName)
             .then(pois => {
               setPoisWithChapters(pois);
             })
             .catch(aiError => {
-              // 최종 fallback
               return fetchLocationPOIs(locationName)
                 .then(pois => {
                   setPoisWithChapters(pois);
@@ -366,11 +345,12 @@ const LiveTourPage: React.FC = () => {
                 .catch(fallbackError => {
                   setPoisError(fallbackError.message);
                 });
+            })
+            .finally(() => {
+              setIsLoadingPOIs(false);
             });
-        })
-        .finally(() => {
-          setIsLoadingPOIs(false);
-        });
+        }
+      }, 1000);
     }
   }, [locationName, currentLanguage]);
 
