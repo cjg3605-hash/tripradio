@@ -53,7 +53,12 @@ export const GEMINI_PROMPTS = {
       "content": "가이드 설명 (200-300자)",
       "keyPoints": ["포인트1", "포인트2", "포인트3"],
       "guideNote": "가이드 조언",
-      "duration": 15
+      "duration": 15,
+      "coordinates": {
+        "lat": 37.5665,
+        "lng": 126.9780,
+        "description": "정확한 위치 설명"
+      }
     }
   ],
   "personalizedNote": "개인화 메시지"
@@ -72,7 +77,9 @@ export const GEMINI_PROMPTS = {
 중요: 
 - JSON 외에 다른 텍스트 없이 순수 JSON만 응답
 - 문자열 내 따옴표는 \\"로 이스케이프
-- 모든 중괄호와 대괄호가 올바르게 닫혀야 함`
+- 모든 중괄호와 대괄호가 올바르게 닫혀야 함
+- detailedStops 각 항목에 정확한 coordinates (lat, lng) 정보 필수 포함
+- 실제 관광지의 정확한 GPS 좌표를 제공하세요`
   }
 };
 

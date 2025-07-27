@@ -50,7 +50,78 @@ const LiveTourPage: React.FC = () => {
   const [isLoadingPOIs, setIsLoadingPOIs] = useState(false);
   const [poisError, setPoisError] = useState<string | null>(null);
 
-  // 실제 위치 데이터를 가져오는 함수
+  // AI 가이드 데이터에서 POI 생성하는 함수
+  const fetchAIGeneratedPOIs = async (locationName: string): Promise<POI[]> => {
+    try {
+      console.log('🤖 AI 가이드 기반 POI 생성 시작:', locationName);
+      
+      // AI 가이드 생성 API 호출
+      const response = await fetch('/api/ai/generate-guide-with-gemini', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          location: locationName,
+          userProfile: {
+            interests: ['문화', '역사'],
+            tourDuration: 90,
+            preferredStyle: '친근함',
+            language: currentLanguage === 'ko' ? 'ko' : 'en'
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`AI 가이드 생성 실패: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('🎯 AI 가이드 생성 결과:', result);
+
+      if (!result.success || !result.data?.detailedStops) {
+        throw new Error('AI 가이드 데이터가 없습니다');
+      }
+
+      // AI 생성 데이터에서 POI 생성
+      const personalities = ['agreeableness', 'openness', 'conscientiousness'];
+      const aiPOIs: POI[] = result.data.detailedStops.map((stop: any, index: number) => {
+        return {
+          id: `poi_ai_${stop.order || index + 1}`,
+          name: stop.name || `${locationName} ${index + 1}번째 명소`,
+          lat: stop.coordinates?.lat || 0,
+          lng: stop.coordinates?.lng || 0,
+          radius: 100,
+          description: stop.content || stop.guideNote || '특별한 장소입니다.',
+          audioChapter: {
+            id: stop.order || index + 1,
+            title: stop.name || `${locationName} ${index + 1}번째 명소`,
+            text: stop.content || stop.guideNote || `${locationName}의 ${stop.name}에 대한 상세한 설명입니다.`,
+            duration: stop.duration ? stop.duration * 60 : 120 + (index * 30),
+            language: 'ko-KR',
+            personality: personalities[index % personalities.length] as any
+          }
+        };
+      });
+
+      // 좌표가 유효한지 확인
+      const validPOIs = aiPOIs.filter(poi => poi.lat !== 0 && poi.lng !== 0);
+      
+      if (validPOIs.length > 0) {
+        console.log('✅ AI 생성 POI 개수:', validPOIs.length);
+        return validPOIs;
+      } else {
+        console.log('⚠️ AI 생성 좌표가 유효하지 않아 fallback 사용');
+        throw new Error('AI 생성 좌표가 유효하지 않습니다');
+      }
+
+    } catch (error) {
+      console.error('❌ AI POI 생성 실패:', error);
+      throw error;
+    }
+  };
+
+  // 실제 위치 데이터를 가져오는 함수 (fallback)
   const fetchLocationPOIs = async (locationName: string): Promise<POI[]> => {
     try {
       console.log('🔍 실제 위치 데이터 검색 시작:', locationName);
@@ -64,8 +135,7 @@ const LiveTourPage: React.FC = () => {
 
       console.log('📍 위치 검색 결과:', locationResult);
 
-      // Smart Chapter Mapper를 사용하여 POI 생성
-      const { smartChapterMapper } = await import('@/lib/coordinates/smart-chapter-mapper');
+      // 간단한 POI 생성
       
       // 기본 챕터 데이터 생성 (실제로는 AI가 생성하거나 DB에서 가져옴)
       const baseChapters = [
@@ -86,61 +156,35 @@ const LiveTourPage: React.FC = () => {
         }
       ];
 
-      // Smart Mapping으로 정확한 좌표 생성
-      const mappingResult = await smartChapterMapper.mapChaptersToCoordinates(baseChapters, {
-        baseLocation: locationName,
-        radiusKm: 3,
-        qualityThreshold: 0.6,
-        distributionStrategy: 'smart',
-        enableValidation: true
-      });
-
-      console.log('🗺️ 챕터 매핑 결과:', mappingResult);
-
-      // POI 데이터로 변환
-      const pois: POI[] = mappingResult.chapterCoordinates.map((chapterCoord, index) => {
-        const personalities = ['agreeableness', 'openness', 'conscientiousness'];
-        
+      // Smart Mapping은 복잡하므로 간단한 방식으로 대체
+      console.log('🎯 위치 기반 POI 생성 시작:', locationName);
+      
+      const personalities = ['agreeableness', 'openness', 'conscientiousness'];
+      const simplePOIs: POI[] = baseChapters.map((chapter, index) => {
+        // 중심점 주변에 약간의 오프셋을 주어 POI 생성
+        const offset = 0.002 * (index + 1);
         return {
-          id: `poi_${chapterCoord.chapterId}`,
-          name: chapterCoord.title,
-          lat: chapterCoord.coordinates.lat,
-          lng: chapterCoord.coordinates.lng,
-          radius: 50,
-          description: baseChapters[index]?.text || `${locationName}의 중요한 장소입니다.`,
+          id: `poi_${chapter.id}`,
+          name: chapter.title,
+          lat: locationResult.center.lat + (index === 0 ? 0 : offset * (index % 2 === 0 ? 1 : -1)),
+          lng: locationResult.center.lng + (index === 0 ? 0 : offset * (index % 2 === 1 ? 1 : -1)),
+          radius: 100,
+          description: chapter.text,
           audioChapter: {
-            id: chapterCoord.chapterId,
-            title: chapterCoord.title,
-            text: baseChapters[index]?.text || `${locationName}의 ${chapterCoord.title}에 대한 상세한 설명입니다. 이곳의 역사와 문화적 의미를 알아보세요.`,
-            duration: 150 + (index * 30),
+            id: chapter.id,
+            title: chapter.title,
+            text: chapter.text,
+            duration: 120 + (index * 30),
             language: 'ko-KR',
             personality: personalities[index % personalities.length] as any
           }
         };
       });
-
-      // 결과가 없으면 기본 중심점 기반으로 생성
-      if (pois.length === 0) {
-        const centerPOI: POI = {
-          id: 'poi_center',
-          name: `${locationName} 중심가`,
-          lat: locationResult.center.lat,
-          lng: locationResult.center.lng,
-          radius: 100,
-          description: `${locationName}의 중심 지역입니다.`,
-          audioChapter: {
-            id: 1,
-            title: `${locationName} 소개`,
-            text: `${locationName}에 오신 것을 환영합니다. 이곳은 특별한 역사와 문화를 가진 매력적인 도시입니다. 함께 탐방해보세요.`,
-            duration: 120,
-            language: 'ko-KR',
-            personality: 'agreeableness'
-          }
-        };
-        return [centerPOI];
-      }
-
-      return pois;
+      
+      console.log('📍 생성된 POI 개수:', simplePOIs.length);
+      console.log('🗺️ 중심 좌표:', locationResult.center);
+      
+      return simplePOIs;
 
     } catch (error) {
       console.error('❌ 위치 데이터 가져오기 실패:', error);
@@ -168,20 +212,31 @@ const LiveTourPage: React.FC = () => {
     }
   };
 
-  // 실제 위치 데이터 로딩
+  // POI 데이터 로딩 (AI 우선, fallback으로 위치 서비스)
   useEffect(() => {
     if (locationName) {
       setIsLoadingPOIs(true);
       setPoisError(null);
-      
-      fetchLocationPOIs(locationName)
+
+      // 먼저 AI 가이드로 시도
+      fetchAIGeneratedPOIs(locationName)
         .then(pois => {
-          console.log('✅ POI 데이터 로딩 완료:', pois);
+          console.log('✅ AI POI 데이터 로딩 완료:', pois);
           setPoisWithChapters(pois);
         })
         .catch(error => {
-          console.error('❌ POI 데이터 로딩 실패:', error);
-          setPoisError(error.message);
+          console.log('⚠️ AI POI 실패, 기존 방식으로 fallback:', error.message);
+          
+          // AI 실패 시 기존 방식으로 fallback
+          return fetchLocationPOIs(locationName)
+            .then(pois => {
+              console.log('✅ Fallback POI 데이터 로딩 완료:', pois);
+              setPoisWithChapters(pois);
+            })
+            .catch(fallbackError => {
+              console.error('❌ 모든 POI 데이터 로딩 실패:', fallbackError);
+              setPoisError(fallbackError.message);
+            });
         })
         .finally(() => {
           setIsLoadingPOIs(false);
