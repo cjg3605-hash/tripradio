@@ -12,16 +12,12 @@ export class MultiLangGuideManager {
     source: 'cache' | 'database';
   }> {
     try {
-      console.log(`🔍 ${language} 가이드 조회:`, locationName);
-      
       // 위치명 정규화 (한글 처리 개선)
       const normalizedLocation = locationName
         .toLowerCase()
         .trim()
         .replace(/\s+/g, ' ')
         .replace(/[^\w\s가-힣]/g, ''); // 특수문자 제거, 한글 유지
-      
-      console.log(`📍 정규화된 위치명: "${locationName}" → "${normalizedLocation}"`);
       
       const { data, error } = await supabase
         .from('guides')
@@ -32,18 +28,96 @@ export class MultiLangGuideManager {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          console.log(`📭 ${language} 가이드 없음:`, locationName);
           return { success: false, error: 'NOT_FOUND', source: 'database' };
         }
-        console.error(`❌ ${language} 가이드 조회 실패:`, error);
         return { success: false, error: error.message, source: 'database' };
       }
 
-      console.log(`✅ ${language} 가이드 발견:`, locationName);
       return { success: true, data: data.content, source: 'cache' };
 
     } catch (error) {
-      console.error(`❌ ${language} 가이드 조회 중 오류:`, error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : '알 수 없는 오류',
+        source: 'database'
+      };
+    }
+  }
+
+  /**
+   * 📋 모든 가이드 목록 조회 (디버깅용)
+   */
+  static async getAllGuides(): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('guides')
+        .select('id, locationname, language, created_at, updated_at')
+        .order('updated_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.error('❌ 전체 가이드 목록 조회 실패:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('❌ 전체 가이드 목록 조회 중 오류:', error);
+      return [];
+    }
+  }
+
+  /**
+   * 🔍 향상된 가이드 검색 (여러 패턴으로 시도)
+   */
+  static async findGuideWithVariations(locationName: string, language: string): Promise<{
+    success: boolean;
+    data?: any;
+    error?: string;
+    source: 'cache' | 'database';
+    matchedTerm?: string;
+  }> {
+    try {
+      console.log(`🔍 향상된 검색 시작: "${locationName}" (${language})`);
+      
+      // 다양한 검색 패턴들
+      const searchPatterns = [
+        locationName, // 원본
+        locationName.toLowerCase().trim(), // 소문자
+        locationName.toLowerCase().trim().replace(/\s+/g, ' '), // 공백 정규화
+        locationName.toLowerCase().trim().replace(/[^\w\s가-힣]/g, ''), // 특수문자 제거
+        locationName.toLowerCase().trim().replace(/\s+/g, ''), // 모든 공백 제거
+        // 추가 한글-영어 매핑
+        ...(locationName === '에펠탑' ? ['eiffel tower', 'eiffeltower'] : []),
+        ...(locationName === '스핑크스' ? ['sphinx', 'great sphinx'] : [])
+      ];
+
+      console.log('🔍 검색 패턴들:', searchPatterns);
+
+      for (const pattern of searchPatterns) {
+        const { data, error } = await supabase
+          .from('guides')
+          .select('*')
+          .eq('locationname', pattern)
+          .eq('language', language)
+          .single();
+
+        if (!error && data) {
+          console.log(`✅ 가이드 발견: "${pattern}"`);
+          return { 
+            success: true, 
+            data: data.content, 
+            source: 'cache',
+            matchedTerm: pattern
+          };
+        }
+      }
+
+      console.log(`📭 모든 패턴 실패: ${locationName}`);
+      return { success: false, error: 'NOT_FOUND', source: 'database' };
+
+    } catch (error) {
+      console.error(`❌ 향상된 검색 중 오류:`, error);
       return { 
         success: false, 
         error: error instanceof Error ? error.message : '알 수 없는 오류',
