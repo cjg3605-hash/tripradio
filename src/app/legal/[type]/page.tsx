@@ -20,16 +20,16 @@ export async function generateMetadata({ params, searchParams }: LegalPageProps)
   try {
     // 서버사이드에서 직접 서비스 호출 (API 우회)
     legalPagesService.setContactInformation({
-      companyName: '네비가이드AI',
-      representativeName: '김대표',
+      companyName: '네비가이드AI 서비스',
+      representativeName: 'cjg5209',
       businessAddress: {
-        street: '테헤란로 123',
-        city: '강남구',
-        state: '서울특별시',
-        zipCode: '06159',
+        street: '',
+        city: '',
+        state: '한국',
+        zipCode: '',
         country: '대한민국'
       },
-      email: 'support@naviguide.ai',
+      email: 'cjg5209@gmail.com',
       phone: '070-0000-0000'
     });
 
@@ -103,16 +103,16 @@ export default async function LegalPage({ params, searchParams }: LegalPageProps
   try {
     // 서버사이드에서 직접 서비스 호출 (API 우회)
     legalPagesService.setContactInformation({
-      companyName: '네비가이드AI',
-      representativeName: '김대표',
+      companyName: '네비가이드AI 서비스',
+      representativeName: 'cjg5209',
       businessAddress: {
-        street: '테헤란로 123',
-        city: '강남구',
-        state: '서울특별시',
-        zipCode: '06159',
+        street: '',
+        city: '',
+        state: '한국',
+        zipCode: '',
         country: '대한민국'
       },
-      email: 'support@naviguide.ai',
+      email: 'cjg5209@gmail.com',
       phone: '070-0000-0000'
     });
 

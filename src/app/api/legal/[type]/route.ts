@@ -17,18 +17,17 @@ export async function GET(
     
     // 연락처 정보 설정 (최초 실행 시)
     legalPagesService.setContactInformation({
-      companyName: '네비가이드AI',
+      companyName: '네비가이드AI 서비스',
       businessAddress: {
-        street: '서울특별시 강남구 테헤란로 123',
-        city: '서울특별시',
-        state: '서울',
-        zipCode: '06234',
+        street: '',
+        city: '',
+        state: '한국',
+        zipCode: '',
         country: '대한민국'
       },
-      email: 'contact@naviguide.ai',
-      phone: '+82-2-1234-5678',
-      businessNumber: '123-45-67890',
-      representativeName: '김대표'
+      email: 'cjg5209@gmail.com',
+      phone: '070-0000-0000',
+      representativeName: 'cjg5209'
     });
 
     let page;

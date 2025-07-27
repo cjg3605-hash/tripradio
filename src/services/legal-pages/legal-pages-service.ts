@@ -51,16 +51,16 @@ export interface AdSenseComplianceMetrics {
 export class LegalPagesService {
   private static instance: LegalPagesService;
   private contactInfo: ContactInformation = {
-    companyName: '네비가이드AI',
-    representativeName: '김대표',
+    companyName: '네비가이드AI 서비스',
+    representativeName: 'cjg5209',
     businessAddress: {
-      street: '테헤란로 123',
-      city: '강남구',
-      state: '서울특별시',
-      zipCode: '06159',
+      street: '',
+      city: '',
+      state: '한국',
+      zipCode: '',
       country: '대한민국'
     },
-    email: 'support@naviguide.ai',
+    email: 'cjg5209@gmail.com',
     phone: '070-0000-0000'
   };
   private pages = new Map<string, LegalPageContent>();
@@ -562,9 +562,10 @@ Matters not specified in these terms will be governed by applicable laws and cus
 - 이메일: ${this.contactInfo?.email || 'contact@naviguide.ai'}
 - 주소: ${this.contactInfo?.businessAddress?.street || '서울특별시 강남구 테헤란로'} ${this.contactInfo?.businessAddress?.city || ''}
 
-**고객 지원**
-- 이메일: support@naviguide.ai
-- 운영시간: 평일 09:00 - 18:00 (KST)
+**문의 유형**
+- 일반 문의: 서비스 이용, 계정 관련
+- 기술 지원: 버그 신고, 기능 문의  
+- 제안/피드백: 서비스 개선 아이디어
 
 ## 파트너십 및 협력
 
@@ -630,9 +631,10 @@ We prioritize user privacy protection:
 - Email: ${this.contactInfo?.email || 'contact@naviguide.ai'}
 - Address: ${this.contactInfo?.businessAddress?.street || 'Seoul, South Korea'}
 
-**Customer Support**
-- Email: support@naviguide.ai
-- Business Hours: Weekdays 09:00 - 18:00 (KST)
+**Contact Types**
+- General Inquiry: Service usage, account related
+- Technical Support: Bug reports, feature questions
+- Suggestions/Feedback: Service improvement ideas
 
 ## Partnerships and Collaboration
 
@@ -655,31 +657,19 @@ We have partnerships with various travel-related companies and continuously stri
 
 네비가이드AI에 대한 문의나 지원이 필요하시면 아래 정보를 이용해 주세요.
 
-## 📧 이메일 문의
+## 📱 문의 채널
 
-**일반 문의**
-- Email: ${this.contactInfo?.email || 'contact@naviguide.ai'}
+**주 연락처**
+- Email: ${this.contactInfo?.email || 'cjg5209@gmail.com'}
+- 텔레그램 채널: [네비:가이드AI](https://t.me/+z2Z5yfFKu30xN2Vl)
 - 운영시간: 평일 09:00 - 18:00 (KST)
 - 응답시간: 24시간 이내
 
-**기술 지원**
-- Email: support@naviguide.ai
-- 긴급 기술 문제: 우선 처리
-
-**비즈니스 문의**
-- Email: business@naviguide.ai
-- 파트너십, 제휴, 투자 관련
-
 ## 🏢 사업자 정보
 
-**회사명**: 네비가이드AI  
-**대표자**: ${this.contactInfo?.representativeName || '김대표'}  
-**사업자등록번호**: ${this.contactInfo?.businessNumber || '000-00-00000'}  
-
-**사업장 주소**  
-${this.contactInfo?.businessAddress?.street || '서울특별시 강남구 테헤란로 000'}  
-${this.contactInfo?.businessAddress?.city || '서울특별시'} ${this.contactInfo?.businessAddress?.zipCode || '00000'}  
-${this.contactInfo?.businessAddress?.country || '대한민국'}
+**서비스명**: 네비가이드AI 서비스  
+**운영자**: ${this.contactInfo?.representativeName || 'cjg5209'}  
+**위치**: ${this.contactInfo?.businessAddress?.state || '한국'}
 
 ## 📞 전화 문의
 
@@ -727,31 +717,19 @@ A: 가이드 다운로드 기능을 통해 오프라인에서도 이용 가능�
 
 If you need inquiries or support regarding NaviGuide AI, please use the information below.
 
-## 📧 Email Inquiries
+## 📱 Contact Channels
 
-**General Inquiries**
-- Email: ${this.contactInfo?.email || 'contact@naviguide.ai'}
+**Main Contact**
+- Email: ${this.contactInfo?.email || 'cjg5209@gmail.com'}
+- Telegram Channel: [Navi:GuideAI](https://t.me/+z2Z5yfFKu30xN2Vl)
 - Business Hours: Weekdays 09:00 - 18:00 (KST)
 - Response Time: Within 24 hours
 
-**Technical Support**
-- Email: support@naviguide.ai
-- Urgent technical issues: Priority processing
-
-**Business Inquiries**
-- Email: business@naviguide.ai
-- Partnership, collaboration, investment related
-
 ## 🏢 Business Information
 
-**Company Name**: NaviGuide AI  
-**Representative**: ${this.contactInfo?.representativeName || 'CEO Kim'}  
-**Business Registration Number**: ${this.contactInfo?.businessNumber || '000-00-00000'}  
-
-**Business Address**  
-${this.contactInfo?.businessAddress?.street || 'Seoul, South Korea'}  
-${this.contactInfo?.businessAddress?.city || 'Seoul'} ${this.contactInfo?.businessAddress?.zipCode || '00000'}  
-${this.contactInfo?.businessAddress?.country || 'South Korea'}
+**Service Name**: NaviGuide AI Service  
+**Operator**: ${this.contactInfo?.representativeName || 'cjg5209'}  
+**Location**: ${this.contactInfo?.businessAddress?.state || 'South Korea'}
 
 ## 📞 Phone Inquiries
 
