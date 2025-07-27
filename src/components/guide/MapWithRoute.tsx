@@ -114,7 +114,19 @@ const activeMarkerIcon = new L.Icon({
   tooltipAnchor: [0, -36],
 });
 
-export default function MapWithRoute({ chapters, activeChapter, onMarkerClick }: MapWithRouteProps) {
+export default function MapWithRoute({ 
+  chapters, 
+  activeChapter, 
+  onMarkerClick, 
+  pois, 
+  currentLocation, 
+  center, 
+  zoom: customZoom, 
+  showRoute = true, 
+  showUserLocation = false, 
+  onPoiClick, 
+  className 
+}: MapWithRouteProps) {
   // 좌표 추출 함수 개선 (여러 형태 지원)
   const getLatLng = (chapter: Chapter): [number | undefined, number | undefined] => {
     // 우선순위: location > coordinates > lat/lng > latitude/longitude
@@ -131,19 +143,37 @@ export default function MapWithRoute({ chapters, activeChapter, onMarkerClick }:
     return [lat, lng];
   };
 
-  // 유효한 좌표를 가진 챕터만 필터링
-  const validChapters = (chapters || [])
-    .map((chapter, index) => {
-      const [lat, lng] = getLatLng(chapter);
-      return { ...chapter, originalIndex: index, lat, lng };
+  // POI 데이터를 Chapter 형태로 변환
+  const poisAsChapters = (pois || []).map((poi, index) => ({
+    id: parseInt(poi.id.replace(/\D/g, '')) || index,
+    title: poi.name,
+    lat: poi.lat,
+    lng: poi.lng,
+    narrative: poi.description,
+    originalIndex: index
+  }));
+
+  // 챕터와 POI 데이터를 합쳐서 처리
+  const allData = chapters ? (chapters || []) : poisAsChapters;
+  
+  // 유효한 좌표를 가진 데이터만 필터링
+  const validChapters = allData
+    .map((item, index) => {
+      if (chapters) {
+        const [lat, lng] = getLatLng(item);
+        return { ...item, originalIndex: index, lat, lng };
+      } else {
+        // POI 데이터인 경우
+        return { ...item, originalIndex: index };
+      }
     })
-    .filter(chapter => 
-      chapter.lat !== undefined && 
-      chapter.lng !== undefined && 
-      !isNaN(chapter.lat) && 
-      !isNaN(chapter.lng) &&
-      chapter.lat !== 0 && 
-      chapter.lng !== 0
+    .filter(item => 
+      item.lat !== undefined && 
+      item.lng !== undefined && 
+      !isNaN(item.lat) && 
+      !isNaN(item.lng) &&
+      item.lat !== 0 && 
+      item.lng !== 0
     );
 
   console.log('📍 지도 렌더링:', {
@@ -173,10 +203,17 @@ export default function MapWithRoute({ chapters, activeChapter, onMarkerClick }:
     );
   }
 
-  // 지도 중심점 계산 (유효한 좌표들의 평균)
-  const centerLat = validChapters.reduce((sum, chapter) => sum + chapter.lat!, 0) / validChapters.length;
-  const centerLng = validChapters.reduce((sum, chapter) => sum + chapter.lng!, 0) / validChapters.length;
-  const center: LatLngExpression = [centerLat, centerLng];
+  // 지도 중심점 계산 (사용자 정의 중심점 우선, 없으면 유효한 좌표들의 평균)
+  let mapCenter: LatLngExpression;
+  if (center && center.lat && center.lng) {
+    mapCenter = [center.lat, center.lng];
+  } else if (validChapters.length > 0) {
+    const centerLat = validChapters.reduce((sum, chapter) => sum + chapter.lat!, 0) / validChapters.length;
+    const centerLng = validChapters.reduce((sum, chapter) => sum + chapter.lng!, 0) / validChapters.length;
+    mapCenter = [centerLat, centerLng];
+  } else {
+    mapCenter = [37.5665, 126.9780]; // 서울 중심가 기본값
+  }
 
   // 활성 챕터의 좌표 (지도 이동용)
   const activeChapterData = validChapters.find(c => c.originalIndex === activeChapter);
@@ -203,12 +240,12 @@ export default function MapWithRoute({ chapters, activeChapter, onMarkerClick }:
     return 10;                            // 매우 넓음
   };
 
-  const zoom = calculateZoom();
+  const zoom = customZoom || calculateZoom();
 
   return (
     <div className="w-full h-64 rounded-lg overflow-hidden shadow-md">
       <MapContainer 
-        {...({center, zoom} as any)}
+        {...({center: mapCenter, zoom} as any)}
         className="w-full h-full"
         scrollWheelZoom={true}
         zoomControl={true}
@@ -251,7 +288,11 @@ export default function MapWithRoute({ chapters, activeChapter, onMarkerClick }:
                 eventHandlers: {
                   click: () => {
                     console.log('마커 클릭:', chapter.originalIndex, chapter.title);
-                    onMarkerClick?.(chapter.originalIndex);
+                    if (chapters) {
+                      onMarkerClick?.(chapter.originalIndex);
+                    } else {
+                      onPoiClick?.(chapter.id);
+                    }
                   }
                 }
               } as any)}

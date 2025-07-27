@@ -32,6 +32,7 @@ import { ResponsiveContainer, PageHeader, Card, Stack, Flex } from '@/components
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { getLocationCoordinates, DEFAULT_SEOUL_CENTER } from '@/data/locations';
 
 interface TourContentProps {
   guide: GuideData;
@@ -497,26 +498,40 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
           {/* 시작점 지도 */}
           <div className="mb-3">
-            <StartLocationMap
-              locationName={locationName || ''}
-              startPoint={{
-                lat: 37.5796, // 경복궁 정문 좌표 (예시)
-                lng: 126.9770,
-                name: guide.overview?.title || locationName || t('guide.tourStart')
-              }}
-              pois={allChapters
-                .filter(chapter => chapter.id > 0) // 인트로 제외
-                .slice(0, 5) // 처음 5개 POI만
-                .map((chapter, index) => ({
-                  id: `poi_${chapter.id}`,
-                  name: chapter.title,
-                  lat: 37.5796 + (index * 0.002), // 예시 좌표 (실제로는 각 챕터별 정확한 좌표 필요)
-                  lng: 126.9770 + (index * 0.002),
-                  description: chapter.narrative?.substring(0, 100) + '...' || ''
-                }))
-              }
-              className="w-full"
-            />
+            {(() => {
+              // 실제 위치 데이터 가져오기
+              const locationData = getLocationCoordinates(locationName || '');
+              const startPoint = locationData ? locationData.center : DEFAULT_SEOUL_CENTER;
+              const pois = locationData ? locationData.pois.slice(0, 8) : []; // 최대 8개 POI
+              
+              console.log('🗺️ 지도 데이터:', {
+                locationName,
+                locationData: !!locationData,
+                startPoint,
+                poisCount: pois.length,
+                pois: pois.map(p => ({ name: p.name, lat: p.lat, lng: p.lng }))
+              });
+
+              return (
+                <StartLocationMap
+                  locationName={locationName || ''}
+                  startPoint={{
+                    lat: startPoint.lat,
+                    lng: startPoint.lng,
+                    name: startPoint.name || guide.overview?.title || locationName || t('guide.tourStart')
+                  }}
+                  pois={pois.map((poi, index) => ({
+                    id: `poi_${index}`,
+                    name: poi.name,
+                    lat: poi.lat,
+                    lng: poi.lng,
+                    description: poi.description || ''
+                  }))}
+                  className="w-full"
+                />
+              );
+            })()}
+          </div>
 
           </div>
 
@@ -585,14 +600,6 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                       </Flex>
                       
                       <Flex align="center" gap="sm">
-                        {/* 현재 재생 중 표시 */}
-                        {currentChapterIndex === index && (
-                          <div className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                            {t('guide.currentChapter')}
-                          </div>
-                        )}
-                        
                         {/* 확장 인디케이터 */}
                         <div className={`transition-transform duration-300 ${
                           expandedChapters.includes(index) ? 'rotate-180' : ''
