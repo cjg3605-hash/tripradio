@@ -660,50 +660,6 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
       {/* BigTech 디자인 시뮬레이터 임시 제거 (빌드 오류 해결) */}
 
-      {/* 항상 보이는 테스트 버튼 (임시) */}
-      <div className="fixed bottom-20 left-8 right-8 flex justify-between items-center z-50">
-        <Button
-          onClick={goToHome}
-          variant="outline"
-          size="icon"
-          className="w-12 h-12 bg-blue-500 text-white hover:bg-blue-600 border-blue-500 rounded-full shadow-lg"
-        >
-          <Home className="w-5 h-5" />
-        </Button>
-        <Button
-          onClick={scrollToTop}
-          variant="outline"
-          size="icon"
-          className="w-12 h-12 bg-green-500 text-white hover:bg-green-600 border-green-500 rounded-full shadow-lg"
-        >
-          <ArrowUp className="w-5 h-5" />
-        </Button>
-      </div>
-
-      {/* 스크롤 네비게이션 버튼들 */}
-      {showScrollButtons && (
-        <>
-          {/* 홈 버튼 (왼쪽 하단) */}
-          <Button
-            onClick={goToHome}
-            variant="outline"
-            size="icon"
-            className="fixed bottom-8 left-8 w-14 h-14 z-50 shadow-lg rounded-full bg-black text-white hover:bg-gray-800 border-black"
-          >
-            <Home className="w-5 h-5" />
-          </Button>
-
-          {/* 스크롤 투 탑 버튼 (오른쪽 하단) */}
-          <Button
-            onClick={scrollToTop}
-            variant="outline"
-            size="icon"
-            className="fixed bottom-8 right-8 w-14 h-14 z-50 shadow-lg rounded-full bg-black text-white hover:bg-gray-800 border-black"
-          >
-            <ArrowUp className="w-5 h-5" />
-          </Button>
-        </>
-      )}
 
       {/* 디버깅 정보 (개발 환경에서만) */}
       {process.env.NODE_ENV === 'development' && (
@@ -713,54 +669,80 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
         </div>
       )}
 
-      {/* 플로팅 버튼들 - 항상 화면에 고정 */}
-      <div 
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '20px',
-          width: '60px',
-          height: '60px',
-          backgroundColor: 'red',
-          color: 'white',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          zIndex: 9999,
-          fontSize: '12px'
-        }}
-        onClick={() => {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-      >
-        UP
-      </div>
+      {/* 스크롤 네비게이션 버튼들 - 300px 이상 스크롤 시에만 표시 */}
+      {showScrollButtons && (
+        <>
+          {/* 스크롤 투 탑 버튼 (우하단) */}
+          <div 
+            style={{
+              position: 'fixed',
+              bottom: '20px',
+              right: '20px',
+              width: '60px',
+              height: '60px',
+              backgroundColor: '#000',
+              color: 'white',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              zIndex: 9999,
+              fontSize: '18px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              transition: 'all 0.3s ease'
+            }}
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#333';
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#000';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            ↑
+          </div>
 
-      <div 
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          left: '20px',
-          width: '60px',
-          height: '60px',
-          backgroundColor: 'blue',
-          color: 'white',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          zIndex: 9999,
-          fontSize: '12px'
-        }}
-        onClick={() => {
-          window.location.href = '/';
-        }}
-      >
-        HOME
-      </div>
+          {/* 홈 버튼 (좌하단) */}
+          <div 
+            style={{
+              position: 'fixed',
+              bottom: '20px',
+              left: '20px',
+              width: '60px',
+              height: '60px',
+              backgroundColor: '#000',
+              color: 'white',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              zIndex: 9999,
+              fontSize: '18px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              transition: 'all 0.3s ease'
+            }}
+            onClick={() => {
+              window.location.href = '/';
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#333';
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#000';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            🏠
+          </div>
+        </>
+      )}
     </ResponsiveContainer>
   );
 };
