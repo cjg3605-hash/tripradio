@@ -89,8 +89,17 @@ export async function POST(request: NextRequest) {
         // 🔥 핵심: 좌표 데이터 추출 및 narrative 정리
         if (guideData.realTimeGuide?.chapters) {
           guideData.realTimeGuide.chapters = guideData.realTimeGuide.chapters.map((chapter: any) => {
-            // 🚨 narrative에서 좌표 데이터 추출
-            let cleanNarrative = chapter.narrative || '';
+            // 🚨 narrative 통합 및 좌표 데이터 추출
+            // narrative가 없으면 3개 필드를 합쳐서 narrative로 생성
+            const sceneDescription = chapter.sceneDescription || '';
+            const coreNarrative = chapter.coreNarrative || '';
+            const humanStories = chapter.humanStories || '';
+            
+            const combinedNarrative = [sceneDescription, coreNarrative, humanStories]
+              .filter(Boolean)
+              .join(' ');
+            
+            let cleanNarrative = combinedNarrative || chapter.narrative || '';
             let extractedCoordinates: { lat: number; lng: number; description: string } | null = null;
             
             // 🔍 AI 응답에서 실제 좌표 데이터 패턴 찾기
@@ -174,7 +183,11 @@ export async function POST(request: NextRequest) {
               narrative: cleanNarrative,
               coordinates: extractedCoordinates,
               lat: extractedCoordinates?.lat,
-              lng: extractedCoordinates?.lng
+              lng: extractedCoordinates?.lng,
+              // 3개 필드는 제거 (narrative로 통합됨)
+              sceneDescription: undefined,
+              coreNarrative: undefined,
+              humanStories: undefined
             };
           });
         }
