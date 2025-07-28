@@ -92,14 +92,16 @@ export async function POST(request: NextRequest) {
         if (guideData.realTimeGuide?.chapters) {
           guideData.realTimeGuide.chapters = guideData.realTimeGuide.chapters.map((chapter: any) => {
             // 🚨 narrative 통합 및 좌표 데이터 추출
-            // narrative가 없으면 3개 필드를 합쳐서 narrative로 생성
+            // 3개 필드를 합쳐서 narrative로 생성 (AI가 생성했든 안했든)
             const sceneDescription = chapter.sceneDescription || '';
             const coreNarrative = chapter.coreNarrative || '';
             const humanStories = chapter.humanStories || '';
+            const existingNarrative = chapter.narrative || '';
             
+            // 3개 필드가 있으면 통합, 없으면 기존 narrative 사용
             const combinedNarrative = [sceneDescription, coreNarrative, humanStories]
               .filter(Boolean)
-              .join(' ');
+              .join(' ') || existingNarrative;
             
             // 🔥 3개 필드 통합 디버깅
             console.log(`📝 챕터 ${chapter.id} 필드 통합:`);
@@ -109,17 +111,9 @@ export async function POST(request: NextRequest) {
             console.log(`  combinedNarrative: ${combinedNarrative ? combinedNarrative.length + '글자' : '없음'}`);
             console.log(`  기존 narrative: ${chapter.narrative ? chapter.narrative.length + '글자' : '없음'}`);
             
-            // 🔥 3개 필드 통합된 narrative 또는 기존 narrative 사용
-            let cleanNarrative;
-            if (combinedNarrative && combinedNarrative.trim().length > 0) {
-              // 3개 필드가 성공적으로 통합된 경우
-              cleanNarrative = combinedNarrative;
-              console.log(`✅ 3개 필드 통합 성공: ${combinedNarrative.length}글자`);
-            } else {
-              // 3개 필드가 없거나 빈 경우, 기존 narrative 사용
-              cleanNarrative = chapter.narrative || '';
-              console.log(`🔄 기존 narrative 사용: ${cleanNarrative.length}글자`);
-            }
+            // 🔥 최종 narrative 사용 (이미 통합 완료)
+            let cleanNarrative = combinedNarrative;
+            console.log(`📝 최종 narrative: ${cleanNarrative.length}글자`);
             let extractedCoordinates: { lat: number; lng: number; description: string } | null = null;
             
             // 🔍 AI 응답에서 실제 좌표 데이터 패턴 찾기
