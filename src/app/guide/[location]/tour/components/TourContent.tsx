@@ -552,7 +552,28 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                   };
                   
                   const chaptersForMap = allChapters.map((chapter, index) => {
-                    const coords = getSmartCoordinates(locationName || '', index, allChapters.length);
+                    // 🎯 AI 생성 좌표 우선 사용, 없으면 동적 생성으로 폴백
+                    let coords;
+                    if (chapter.coordinates?.lat && chapter.coordinates?.lng) {
+                      // AI가 생성한 정확한 좌표 사용
+                      coords = {
+                        lat: chapter.coordinates.lat,
+                        lng: chapter.coordinates.lng
+                      };
+                      console.log(`🤖 AI 좌표 사용 - 챕터 ${chapter.id}: ${coords.lat}, ${coords.lng}`);
+                    } else if (chapter.lat && chapter.lng) {
+                      // 대체 좌표 필드 사용
+                      coords = {
+                        lat: chapter.lat,
+                        lng: chapter.lng
+                      };
+                      console.log(`📍 기존 좌표 사용 - 챕터 ${chapter.id}: ${coords.lat}, ${coords.lng}`);
+                    } else {
+                      // 폴백: 동적 좌표 생성
+                      coords = getSmartCoordinates(locationName || '', index, allChapters.length);
+                      console.log(`🔄 동적 좌표 생성 - 챕터 ${chapter.id}: ${coords.lat}, ${coords.lng}`);
+                    }
+                    
                     return {
                       id: chapter.id,
                       title: chapter.title,
