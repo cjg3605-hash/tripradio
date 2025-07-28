@@ -25,11 +25,11 @@ export default function NextLevelSearchBox() {
 
   // Rotating placeholder examples
   const placeholders = [
-    '경복궁',
-    '부산 해운대', 
-    '제주도 성산일출봉',
-    '명동 카페거리',
-    '강릉 커피거리'
+    '에펠탑',
+    '타지마할', 
+    '마추픽추',
+    '콜로세움',
+    '자유의 여신상'
   ];
 
   // Rotate placeholders
