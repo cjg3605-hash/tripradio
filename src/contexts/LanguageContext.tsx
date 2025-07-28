@@ -264,11 +264,11 @@ const DEFAULT_TRANSLATIONS: Translations = {
     popularDestinations: '인기 여행지',
     description: 'AI 기술로 생성되는 개인화된 여행 가이드',
     searchPlaceholders: [
-      '강릉 커피거리',
-      '경복궁',
-      '부산 해운대',
-      '제주도 성산일출봉',
-      '명동 카페거리'
+      '에펠탑',
+      '타지마할',
+      '마추픽추',
+      '콜로세움',
+      '자유의 여신상'
     ],
     defaultSuggestions: [
       { name: '경복궁', location: '서울 종로구' },
