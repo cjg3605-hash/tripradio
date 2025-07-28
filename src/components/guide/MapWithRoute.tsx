@@ -2,7 +2,7 @@
 import type { LatLngExpression } from 'leaflet';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
-import '@/styles/monochrome-map.css';
+// import '@/styles/monochrome-map.css'; // 🔥 흑백 스타일 제거
 import L from 'leaflet';
 import { useEffect, useState } from 'react';
 import { enhancedLocationService, type EnhancedLocationResult } from '@/lib/location/enhanced-location-utils';
@@ -213,7 +213,7 @@ export default function MapWithRoute({
 
   // Enhanced location loading effect
   useEffect(() => {
-    if (locationName && enableEnhancedGeocoding) {
+    if (locationName && enableEnhancedGeocoding && false) { // 🔥 비활성화
       setIsLoadingLocation(true);
       setLocationError(null);
       
@@ -237,7 +237,7 @@ export default function MapWithRoute({
 
   // Enhanced Coordinate System effect (Phase 1-4 통합)
   useEffect(() => {
-    if (chapters && chapters.length > 0 && enableEnhancedCoordinateSystem && locationName) {
+    if (chapters && chapters.length > 0 && enableEnhancedCoordinateSystem && locationName && false) { // 🔥 비활성화
       setIsLoadingEnhancedSystem(true);
       setEnhancedSystemError(null);
       
@@ -326,7 +326,7 @@ export default function MapWithRoute({
 
   // Smart chapter mapping effect (Enhanced System이 비활성화된 경우)
   useEffect(() => {
-    if (chapters && chapters.length > 0 && enableSmartMapping && !enableEnhancedCoordinateSystem && locationName) {
+    if (chapters && chapters.length > 0 && enableSmartMapping && !enableEnhancedCoordinateSystem && locationName && false) { // 🔥 비활성화
       setIsMappingChapters(true);
       
       const guideChapters: GuideChapter[] = chapters.map(chapter => ({
@@ -455,16 +455,16 @@ export default function MapWithRoute({
         <div className="w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
           <MapContainer 
             {...({center: [center.lat, center.lng], zoom: customZoom || 15} as any)}
-            className="w-full h-full monochrome-map-container"
+            className="w-full h-full"
             scrollWheelZoom={true}
             zoomControl={true}
-            style={{ filter: 'grayscale(1) contrast(1.2) brightness(1.1)' }}
           >
+            {/* 🌍 Google Maps 스타일 타일 (가장 인기) */}
             <TileLayer
               {...({
-                url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                className: "monochrome-map"
+                url: "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+                attribution: '&copy; <a href="https://www.google.com/maps">Google Maps</a>',
+                maxZoom: 20
               } as any)}
             />
             
@@ -625,16 +625,16 @@ export default function MapWithRoute({
     <div className="w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
       <MapContainer 
         {...({center: mapCenter, zoom} as any)}
-        className="w-full h-full monochrome-map-container"
+        className="w-full h-full"
         scrollWheelZoom={true}
         zoomControl={true}
-        style={{ filter: 'grayscale(1) contrast(1.2) brightness(1.1)' }}
       >
+        {/* 🌍 Google Maps 스타일 */}
         <TileLayer
           {...({
-            url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            className: "monochrome-map"
+            url: "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+            attribution: '&copy; <a href="https://www.google.com/maps">Google Maps</a>',
+            maxZoom: 20
           } as any)}
         />
         

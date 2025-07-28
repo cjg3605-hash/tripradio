@@ -506,43 +506,66 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                   const startPoint = locationData ? locationData.center : DEFAULT_SEOUL_CENTER;
                   const pois = locationData ? locationData.pois.slice(0, 8) : []; // 최대 8개 POI
                   
-                  // 🎯 실제 투어 챕터 데이터 준비
-                  const chaptersForMap = allChapters.map((chapter, index) => ({
-                    id: chapter.id,
-                    title: chapter.title,
-                    // 챕터별 기본 좌표 (실제 위치 주변에 분산 배치)
-                    lat: startPoint.lat + (Math.random() - 0.5) * 0.01 * (index + 1),
-                    lng: startPoint.lng + (Math.random() - 0.5) * 0.01 * (index + 1),
-                    narrative: chapter.narrative || chapter.sceneDescription || '',
-                    originalIndex: index
-                  }));
+                  // 🎯 실제 투어 챕터 데이터 준비 - 지능형 좌표 생성
+                  const getSmartCoordinates = (locationName: string, index: number, total: number) => {
+                    // 🌍 주요 도시별 기본 좌표 (API 없이)
+                    const cityCoords: Record<string, {lat: number, lng: number}> = {
+                      '에펠탑': { lat: 48.8584, lng: 2.2945 },
+                      '파리': { lat: 48.8566, lng: 2.3522 },
+                      '도쿄': { lat: 35.6762, lng: 139.6503 },
+                      '뉴욕': { lat: 40.7128, lng: -74.0060 },
+                      '런던': { lat: 51.5074, lng: -0.1278 },
+                      '로마': { lat: 41.9028, lng: 12.4964 },
+                      '서울': { lat: 37.5665, lng: 126.9780 }
+                    };
+                    
+                    // 도시명에서 기본 좌표 찾기
+                    const baseCoord = cityCoords[locationName] || 
+                                     Object.values(cityCoords).find(coord => 
+                                       locationName.includes(Object.keys(cityCoords).find(city => city.includes(locationName.slice(0,2))) || '')
+                                     ) || 
+                                     cityCoords['서울']; // 기본값
+                    
+                    // 챕터별 스마트 분산 (원형 배치)
+                    const angle = (index / total) * 2 * Math.PI;
+                    const radius = 0.005 + (index * 0.002); // 거리 증가
+                    
+                    return {
+                      lat: baseCoord.lat + Math.cos(angle) * radius,
+                      lng: baseCoord.lng + Math.sin(angle) * radius
+                    };
+                  };
                   
-                  console.log('🗺️ 지도 데이터:', {
+                  const chaptersForMap = allChapters.map((chapter, index) => {
+                    const coords = getSmartCoordinates(locationName || '', index, allChapters.length);
+                    return {
+                      id: chapter.id,
+                      title: chapter.title,
+                      lat: coords.lat,
+                      lng: coords.lng,
+                      narrative: chapter.narrative || chapter.sceneDescription || '',
+                      originalIndex: index
+                    };
+                  });
+                  
+                  // 🎯 스마트 시작점 설정
+                  const smartStartPoint = chaptersForMap.length > 0 ? 
+                    { lat: chaptersForMap[0].lat, lng: chaptersForMap[0].lng, name: `${locationName} 시작점` } :
+                    { lat: 48.8584, lng: 2.2945, name: '에펠탑' }; // 에펠탑 기본값
+                  
+                  console.log('🗺️ 지도 데이터 (API 없음):', {
                     locationName,
-                    locationData: !!locationData,
-                    startPoint,
-                    poisCount: pois.length,
+                    smartStartPoint,
                     chaptersCount: chaptersForMap.length,
-                    pois: pois.map(p => ({ name: p.name, lat: p.lat, lng: p.lng })),
                     chapters: chaptersForMap.map(c => ({ id: c.id, title: c.title, lat: c.lat, lng: c.lng }))
                   });
 
                   return (
                     <StartLocationMap
                       locationName={locationName || ''}
-                      startPoint={{
-                        lat: startPoint.lat,
-                        lng: startPoint.lng,
-                        name: startPoint.name || guide.overview?.title || locationName || t('guide.tourStart')
-                      }}
+                      startPoint={smartStartPoint} // 🔥 스마트 시작점 사용
                       chapters={chaptersForMap} // 🔥 실제 챕터 데이터 전달
-                      pois={pois.map((poi, index) => ({
-                        id: `poi_${index}`,
-                        name: poi.name,
-                        lat: poi.lat,
-                        lng: poi.lng,
-                        description: poi.description || ''
-                      }))}
+                      pois={[]} // POI는 비워둠 (챕터 우선)
                       className="w-full"
                     />
                   );

@@ -76,10 +76,10 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
           className="w-full h-full"
           // Enhanced location features
           locationName={locationName}
-          enableEnhancedGeocoding={true}
-          preferStaticData={false}
+          enableEnhancedGeocoding={false} // 🔥 API 호출 비활성화
+          preferStaticData={true}
           // Enhanced Coordinate System (Phase 1-4)
-          enableEnhancedCoordinateSystem={true}
+          enableEnhancedCoordinateSystem={false} // 🔥 복잡한 시스템 비활성화
           coordinatePackageOptions={{
             enableAnalytics: true,
             enableCaching: true,
