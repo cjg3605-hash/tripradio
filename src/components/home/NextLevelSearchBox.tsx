@@ -21,10 +21,10 @@ export default function NextLevelSearchBox() {
   
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const { currentLanguage } = useLanguage();
+  const { currentLanguage, t } = useLanguage();
 
   // Rotating placeholder examples
-  const placeholders = [
+  const placeholders = t('home.searchPlaceholders') || [
     '에펠탑',
     '타지마할', 
     '마추픽추',

@@ -27,11 +27,11 @@
       "popularDestinations": "인기 여행지",
       "description": "AI가 찾아낸 가장 완벽한 가이드해설",
       "searchPlaceholders": [
-        "강릉 커피거리",
-        "경복궁", 
-        "부산 해운대",
-        "제주도 성산일출봉",
-        "명동 카페거리"
+        "에펠탑",
+        "타지마할", 
+        "마추픽추",
+        "콜로세움",
+        "자유의 여신상"
       ],
       "defaultSuggestions": [
         { "name": "경복궁", "location": "서울 종로구" },
@@ -518,11 +518,11 @@
       "popularDestinations": "Popular Destinations",
       "description": "The most perfect guide commentary found by AI",
       "searchPlaceholders": [
-        "Gangneung Coffee Street",
-        "Gyeongbokgung Palace",
-        "Busan Haeundae Beach",
-        "Jeju Seongsan Ilchulbong",
-        "Myeongdong Shopping Street"
+        "Eiffel Tower",
+        "Taj Mahal",
+        "Machu Picchu",
+        "Colosseum",
+        "Statue of Liberty"
       ],
       "defaultSuggestions": [
         { "name": "Gyeongbokgung Palace", "location": "Seoul Jongno-gu" },
@@ -899,11 +899,11 @@
       "popularDestinations": "人気の目的地",
       "description": "AIが見つけた最も完璧なガイド解説",
       "searchPlaceholders": [
-        "江陵コーヒー通り",
-        "景福宮",
-        "釜山海雲台",
-        "済州城山日出峰",
-        "明洞ショッピング街"
+        "エッフェル塔",
+        "タージマハル",
+        "マチュピチュ",
+        "コロッセオ",
+        "自由の女神"
       ],
       "defaultSuggestions": [
         { "name": "景福宮", "location": "ソウル鍾路区" },
@@ -1093,11 +1093,11 @@
       "popularDestinations": "热门目的地",
       "description": "AI发现的最完美导游解说",
       "searchPlaceholders": [
-        "江陵咖啡街",
-        "景福宫",
-        "釜山海云台",
-        "济州城山日出峰",
-        "明洞购物街"
+        "埃菲尔铁塔",
+        "泰姬陵",
+        "马丘比丘",
+        "斗兽场",
+        "自由女神像"
       ],
       "defaultSuggestions": [
         { "name": "景福宫", "location": "首尔钟路区" },
@@ -1287,11 +1287,11 @@
       "popularDestinations": "Destinos Populares",
       "description": "El comentario de guía más perfecto encontrado por IA",
       "searchPlaceholders": [
-        "Calle del Café de Gangneung",
-        "Palacio Gyeongbokgung",
-        "Playa Haeundae de Busan",
-        "Seongsan Ilchulbong de Jeju",
-        "Calle Comercial de Myeongdong"
+        "Torre Eiffel",
+        "Taj Mahal",
+        "Machu Picchu",
+        "Coliseo",
+        "Estatua de la Libertad"
       ],
       "defaultSuggestions": [
         { "name": "Palacio Gyeongbokgung", "location": "Seúl Jongno-gu" },
