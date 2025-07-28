@@ -75,14 +75,16 @@ export async function POST(request: NextRequest) {
       if (jsonMatch) {
         guideData = JSON.parse(jsonMatch[0]);
         
-        // 🔥 디버깅: 챕터 제목 및 좌표 데이터 확인
+        // 🔥 디버깅: 챕터 제목 및 3개 필드 데이터 확인
         if (guideData.realTimeGuide?.chapters) {
-          console.log(`🔍 ${language} 챕터 제목 및 좌표 확인:`);
+          console.log(`🔍 ${language} 챕터 제목 및 필드 확인:`);
           guideData.realTimeGuide.chapters.forEach((chapter: any, index: number) => {
             console.log(`  챕터 ${index + 1}: "${chapter.title}"`);
+            console.log(`    narrative: ${chapter.narrative ? `${chapter.narrative.substring(0, 100)}...` : 'MISSING'}`);
+            console.log(`    sceneDescription: ${chapter.sceneDescription ? `${chapter.sceneDescription.substring(0, 50)}...` : 'MISSING'}`);
+            console.log(`    coreNarrative: ${chapter.coreNarrative ? `${chapter.coreNarrative.substring(0, 50)}...` : 'MISSING'}`);
+            console.log(`    humanStories: ${chapter.humanStories ? `${chapter.humanStories.substring(0, 50)}...` : 'MISSING'}`);
             console.log(`    coordinates: ${JSON.stringify(chapter.coordinates || 'MISSING')}`);
-            console.log(`    lat/lng: ${chapter.lat || 'N/A'}/${chapter.lng || 'N/A'}`);
-            console.log(`    location: ${JSON.stringify(chapter.location || 'N/A')}`);
           });
         }
         
@@ -99,8 +101,25 @@ export async function POST(request: NextRequest) {
               .filter(Boolean)
               .join(' ');
             
+            // 🔥 3개 필드 통합 디버깅
+            console.log(`📝 챕터 ${chapter.id} 필드 통합:`);
+            console.log(`  sceneDescription: ${sceneDescription ? sceneDescription.length + '글자' : '없음'}`);
+            console.log(`  coreNarrative: ${coreNarrative ? coreNarrative.length + '글자' : '없음'}`);
+            console.log(`  humanStories: ${humanStories ? humanStories.length + '글자' : '없음'}`);
+            console.log(`  combinedNarrative: ${combinedNarrative ? combinedNarrative.length + '글자' : '없음'}`);
+            console.log(`  기존 narrative: ${chapter.narrative ? chapter.narrative.length + '글자' : '없음'}`);
+            
             // 🔥 3개 필드 통합된 narrative 또는 기존 narrative 사용
-            let cleanNarrative = combinedNarrative || chapter.narrative || '';
+            let cleanNarrative;
+            if (combinedNarrative && combinedNarrative.trim().length > 0) {
+              // 3개 필드가 성공적으로 통합된 경우
+              cleanNarrative = combinedNarrative;
+              console.log(`✅ 3개 필드 통합 성공: ${combinedNarrative.length}글자`);
+            } else {
+              // 3개 필드가 없거나 빈 경우, 기존 narrative 사용
+              cleanNarrative = chapter.narrative || '';
+              console.log(`🔄 기존 narrative 사용: ${cleanNarrative.length}글자`);
+            }
             let extractedCoordinates: { lat: number; lng: number; description: string } | null = null;
             
             // 🔍 AI 응답에서 실제 좌표 데이터 패턴 찾기
