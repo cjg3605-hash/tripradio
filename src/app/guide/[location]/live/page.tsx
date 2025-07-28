@@ -66,18 +66,42 @@ const LiveTourPage: React.FC = () => {
       // 전역 window 객체에서 TourContent가 설정한 가이드 데이터 찾기
       const guideData = (window as any).currentGuideData;
       
-      if (guideData && guideData.realTimeGuide) {
-        const chapters = guideData.realTimeGuide.chapters || [];
+      if (guideData) {
         const personalities = ['agreeableness', 'openness', 'conscientiousness'];
         const pois: POI[] = [];
 
+        // 다양한 데이터 구조에서 챕터 찾기
+        let chapters: any[] = [];
+        
+        if (guideData.realTimeGuide?.chapters) {
+          chapters = guideData.realTimeGuide.chapters;
+        } else if (guideData.realTimeGuide && Array.isArray(guideData.realTimeGuide)) {
+          chapters = guideData.realTimeGuide;
+        } else if (guideData.chapters) {
+          chapters = guideData.chapters;
+        }
+
+        console.log(`🔍 찾은 챕터: ${chapters.length}개`);
+
         chapters.forEach((chapter: any, index: number) => {
-          if (chapter.coordinates && chapter.coordinates.lat && chapter.coordinates.lng) {
+          // 다양한 좌표 형태 지원
+          let lat: number | undefined, lng: number | undefined;
+          
+          if (chapter.coordinates?.lat && chapter.coordinates?.lng) {
+            lat = chapter.coordinates.lat;
+            lng = chapter.coordinates.lng;
+          } else if (chapter.lat && chapter.lng) {
+            lat = chapter.lat;
+            lng = chapter.lng;
+          }
+
+          if (lat && lng) {
+            console.log(`📍 챕터 ${index + 1}: ${chapter.title} -> ${lat}, ${lng}`);
             pois.push({
               id: `poi_${index + 1}`,
               name: chapter.title || `스팟 ${index + 1}`,
-              lat: chapter.coordinates.lat,
-              lng: chapter.coordinates.lng,
+              lat,
+              lng,
               radius: 100,
               description: chapter.narrative || chapter.content || chapter.title,
               audioChapter: {
@@ -93,7 +117,7 @@ const LiveTourPage: React.FC = () => {
         });
 
         if (pois.length > 0) {
-          console.log(`✅ TourContent에서 ${pois.length}개 POI 추출 완료`);
+          console.log(`✅ ${pois.length}개 POI 생성 완료`);
           setPoisWithChapters(pois);
           setIsLoadingPOIs(false);
           clearInterval(interval);
