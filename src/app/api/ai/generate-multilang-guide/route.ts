@@ -99,9 +99,10 @@ export async function POST(request: NextRequest) {
             const existingNarrative = chapter.narrative || '';
             
             // 3개 필드가 있으면 통합, 없으면 기존 narrative 사용
-            const combinedNarrative = [sceneDescription, coreNarrative, humanStories]
-              .filter(Boolean)
-              .join(' ') || existingNarrative;
+            const fieldsArray = [sceneDescription, coreNarrative, humanStories].filter(Boolean);
+            const combinedNarrative = fieldsArray.length > 0 
+              ? fieldsArray.join(' ') 
+              : existingNarrative;
             
             // 🔥 3개 필드 통합 디버깅
             console.log(`📝 챕터 ${chapter.id} 필드 통합:`);
@@ -109,7 +110,7 @@ export async function POST(request: NextRequest) {
             console.log(`  coreNarrative: ${coreNarrative ? coreNarrative.length + '글자' : '없음'}`);
             console.log(`  humanStories: ${humanStories ? humanStories.length + '글자' : '없음'}`);
             console.log(`  combinedNarrative: ${combinedNarrative ? combinedNarrative.length + '글자' : '없음'}`);
-            console.log(`  기존 narrative: ${chapter.narrative ? chapter.narrative.length + '글자' : '없음'}`);
+            console.log(`  기존 narrative: ${existingNarrative ? existingNarrative.length + '글자' : '없음'}`);
             
             // 🔥 최종 narrative 사용 (이미 통합 완료)
             let cleanNarrative = combinedNarrative;
