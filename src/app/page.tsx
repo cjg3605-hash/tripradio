@@ -47,13 +47,24 @@ export default function HomePage() {
 
   // 회전하는 플레이스홀더 (다국어 지원)
   const placeholders = useMemo(() => {
+    const { translations } = useLanguage();
     const translated = t('home.searchPlaceholders');
+    const directAccess = translations?.home?.searchPlaceholders;
+    
     console.log('🔍 Placeholders Debug:', {
       currentLanguage,
       translated,
+      directAccess,
+      translationsHome: translations?.home,
       isArray: Array.isArray(translated),
       type: typeof translated
     });
+    
+    // 직접 접근해서 배열이 있으면 사용, 없으면 기본값
+    if (Array.isArray(directAccess)) {
+      return directAccess;
+    }
+    
     return Array.isArray(translated) ? translated : [
       '에펠탑',
       '타지마할',
