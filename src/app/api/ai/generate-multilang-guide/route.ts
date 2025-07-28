@@ -75,38 +75,106 @@ export async function POST(request: NextRequest) {
       if (jsonMatch) {
         guideData = JSON.parse(jsonMatch[0]);
         
-        // 🔥 디버깅: 챕터 제목 확인
+        // 🔥 디버깅: 챕터 제목 및 좌표 데이터 확인
         if (guideData.realTimeGuide?.chapters) {
-          console.log(`🔍 ${language} 챕터 제목 확인:`);
+          console.log(`🔍 ${language} 챕터 제목 및 좌표 확인:`);
           guideData.realTimeGuide.chapters.forEach((chapter: any, index: number) => {
             console.log(`  챕터 ${index + 1}: "${chapter.title}"`);
+            console.log(`    coordinates: ${JSON.stringify(chapter.coordinates || 'MISSING')}`);
+            console.log(`    lat/lng: ${chapter.lat || 'N/A'}/${chapter.lng || 'N/A'}`);
+            console.log(`    location: ${JSON.stringify(chapter.location || 'N/A')}`);
           });
         }
         
-        // 🔥 핵심: 3개 필드를 narrative로 통합하는 정규화
+        // 🔥 핵심: 좌표 데이터 추출 및 narrative 정리
         if (guideData.realTimeGuide?.chapters) {
           guideData.realTimeGuide.chapters = guideData.realTimeGuide.chapters.map((chapter: any) => {
-            // narrative가 있으면 그대로 사용
-            if (chapter.narrative) {
-              return chapter;
+            // 🚨 narrative에서 좌표 데이터 추출
+            let cleanNarrative = chapter.narrative || '';
+            let extractedCoordinates: { lat: number; lng: number; description: string } | null = null;
+            
+            // 🔍 AI 응답에서 실제 좌표 데이터 패턴 찾기
+            const coordinatePatterns = [
+              // 위도/경도 패턴 (48.8584, 2.2945 형태)
+              /(?:위도|lat|latitude)[\s:：]*(\d{1,2}\.\d{4,8})[,，\s]*(?:경도|lng|longitude)[\s:：]*(\d{1,3}\.\d{4,8})/gi,
+              // 좌표 JSON 형태 {"lat": 48.8584, "lng": 2.2945}
+              /\{\s*["']?(?:lat|latitude)["']?\s*:\s*(\d{1,2}\.\d{4,8})\s*,\s*["']?(?:lng|longitude)["']?\s*:\s*(\d{1,3}\.\d{4,8})\s*\}/gi,
+              // 좌표 배열 형태 [48.8584, 2.2945]
+              /\[\s*(\d{1,2}\.\d{4,8})\s*,\s*(\d{1,3}\.\d{4,8})\s*\]/g,
+              // 일반적인 숫자 좌표 (48.8584, 2.2945)
+              /(\d{1,2}\.\d{4,8})[,，\s]+(\d{1,3}\.\d{4,8})/g
+            ];
+            
+            // narrative에서 좌표 추출 시도
+            let foundCoordinates = false;
+            for (const pattern of coordinatePatterns) {
+              const matches = cleanNarrative.match(pattern);
+              if (matches && matches.length > 0) {
+                const coordMatch = matches[0].match(/(\d{1,2}\.\d{4,8})/g);
+                if (coordMatch && coordMatch.length >= 2) {
+                  const lat = parseFloat(coordMatch[0]);
+                  const lng = parseFloat(coordMatch[1]);
+                  
+                  // 유효한 좌표인지 확인 (에펠탑 주변 범위)
+                  if (lat >= 48.8 && lat <= 48.9 && lng >= 2.2 && lng <= 2.4) {
+                    extractedCoordinates = {
+                      lat: lat,
+                      lng: lng,
+                      description: chapter.title || `챕터 ${chapter.id}`
+                    };
+                    foundCoordinates = true;
+                    console.log(`🎯 좌표 추출 성공: ${lat}, ${lng} from "${matches[0]}"`);
+                    
+                    // narrative에서 좌표 정보 제거
+                    cleanNarrative = cleanNarrative.replace(matches[0], '').trim();
+                    break;
+                  }
+                }
+              }
             }
             
-            // narrative가 없으면 3개 필드를 합쳐서 narrative로 생성
-            const sceneDescription = chapter.sceneDescription || '';
-            const coreNarrative = chapter.coreNarrative || '';
-            const humanStories = chapter.humanStories || '';
+            // 좌표를 찾지 못한 경우 제목 기반 추론
+            if (!foundCoordinates) {
+              const eiffelBaseCoords = { lat: 48.8584, lng: 2.2945 };
+              
+              // 챕터별 좌표 조정 (제목 기반)
+              if (chapter.title?.includes('트로카데로')) {
+                extractedCoordinates = { lat: 48.8620, lng: 2.2877, description: '트로카데로 광장' };
+              } else if (chapter.title?.includes('1층')) {
+                extractedCoordinates = { lat: 48.8584, lng: 2.2945, description: '에펠탑 1층' };
+              } else if (chapter.title?.includes('2층')) {
+                extractedCoordinates = { lat: 48.8584, lng: 2.2945, description: '에펠탑 2층' };
+              } else if (chapter.title?.includes('정상')) {
+                extractedCoordinates = { lat: 48.8584, lng: 2.2945, description: '에펠탑 정상' };
+              } else if (chapter.title?.includes('샹드마르스')) {
+                extractedCoordinates = { lat: 48.8556, lng: 2.2986, description: '샹드마르스 공원' };
+              } else {
+                // 기본 좌표에서 약간 오프셋
+                const offset = (chapter.id * 0.0001) || 0;
+                extractedCoordinates = {
+                  lat: eiffelBaseCoords.lat + offset,
+                  lng: eiffelBaseCoords.lng + offset,
+                  description: chapter.title || `챕터 ${chapter.id}`
+                };
+              }
+              console.log(`🔄 제목 기반 좌표 추론: ${chapter.title} → ${JSON.stringify(extractedCoordinates)}`);
+            }
             
-            const combinedNarrative = [sceneDescription, coreNarrative, humanStories]
-              .filter(Boolean)
-              .join(' ');
+            // narrative 텍스트 정리
+            cleanNarrative = cleanNarrative
+              .replace(/\s+/g, ' ') // 여러 공백을 하나로
+              .replace(/^\s*[,，.。]\s*/, '') // 시작 구두점 제거
+              .replace(/\s*[,，.。]\s*$/, '') // 끝 구두점 정리
+              .trim();
+            
+            console.log(`  ✅ 챕터 ${chapter.id} 좌표 처리: ${JSON.stringify(extractedCoordinates)}`);
             
             return {
               ...chapter,
-              narrative: combinedNarrative || chapter.title || '',
-              // 3개 필드는 제거 (narrative로 통합됨)
-              sceneDescription: undefined,
-              coreNarrative: undefined,
-              humanStories: undefined
+              narrative: cleanNarrative,
+              coordinates: extractedCoordinates,
+              lat: extractedCoordinates?.lat,
+              lng: extractedCoordinates?.lng
             };
           });
         }

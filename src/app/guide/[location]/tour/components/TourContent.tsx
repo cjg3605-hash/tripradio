@@ -137,7 +137,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   const humanStories = currentChapter?.humanStories || '';
   const nextDirection = currentChapter?.nextDirection || '';
 
-  // 데이터 구조 디버깅
+  // 🔍 챕터별 좌표 데이터 상세 디버깅
   console.log('🔍 TourContent 데이터 구조 (인트로 챕터 포함):', {
     hasRealTimeGuide: !!guide.realTimeGuide,
     originalChaptersLength: guide.realTimeGuide?.chapters?.length || 0,
@@ -151,8 +151,23 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
       hasSceneDescription: !!currentChapter.sceneDescription,
       hasCoreNarrative: !!currentChapter.coreNarrative,
       hasHumanStories: !!currentChapter.humanStories,
-      hasNextDirection: !!currentChapter.nextDirection
-    } : null
+      hasNextDirection: !!currentChapter.nextDirection,
+      // 🚨 좌표 데이터 확인
+      coordinates: currentChapter.coordinates || null,
+      lat: currentChapter.lat || null,
+      lng: currentChapter.lng || null,
+      location: currentChapter.location || null
+    } : null,
+    // 🚨 전체 챕터 좌표 정보
+    allChaptersCoordinates: allChapters.map(chapter => ({
+      id: chapter.id,
+      title: chapter.title,
+      coordinates: chapter.coordinates || null,
+      lat: chapter.lat || null,
+      lng: chapter.lng || null,
+      location: chapter.location || null,
+      hasCoordinateData: !!(chapter.coordinates || chapter.lat || chapter.location)
+    }))
   });
 
   // refs 안전한 초기화
