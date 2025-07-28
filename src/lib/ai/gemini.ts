@@ -104,9 +104,9 @@ export const GEMINI_PROMPTS = {
       "guideNote": "실용적 조언",
       "duration": 15,
       "coordinates": {
-        "lat": 37.5665,
-        "lng": 126.9780,
-        "description": "정확한 위치 설명"
+        "lat": 0.0,
+        "lng": 0.0,
+        "description": "[실제 GPS 좌표 필요 - 추측 금지]"
       }
     }
   ],
@@ -154,6 +154,12 @@ export const GEMINI_PROMPTS = {
 - 문자열 내 따옴표는 \\"로 이스케이프
 - 모든 중괄호와 대괄호가 올바르게 닫혀야 함
 - detailedStops 각 항목에 정확한 coordinates (lat, lng) 정보 필수 포함
+
+⚠️ **좌표 생성 금지사항**:
+- 추측이나 임의의 좌표 생성 절대 금지
+- 서울 기본값(37.5665, 126.9780) 사용 금지
+- 확실하지 않은 좌표는 0.0, 0.0으로 설정
+- 좌표 추정보다는 정확한 장소명으로 대체
 
 **기억하세요: 틀린 정보 하나가 전체 가이드의 신뢰성을 무너뜨립니다.**
 **확실하지 않으면 말하지 마세요. 정확성이 완성도보다 중요합니다.**`
@@ -440,8 +446,13 @@ function formatFactualData(data: any): string {
   let factualInfo = '';
   
   if (data.location) {
-    factualInfo += `📍 **위치 정보**:\n`;
-    factualInfo += `- 좌표: ${data.location.coordinates?.lat}, ${data.location.coordinates?.lng}\n`;
+    factualInfo += `📍 **위치 정보** (정확한 좌표 사용 필수):\n`;
+    if (data.location.coordinates?.lat && data.location.coordinates?.lng) {
+      factualInfo += `- 검증된 GPS 좌표: ${data.location.coordinates.lat}, ${data.location.coordinates.lng}\n`;
+      factualInfo += `- ⚠️ 위 좌표를 그대로 사용하세요 (추측 금지)\n`;
+    } else {
+      factualInfo += `- 정확한 좌표 없음 - coordinates를 0.0, 0.0으로 설정하세요\n`;
+    }
     factualInfo += `- 주소: ${data.location.address?.formatted || '정보 없음'}\n\n`;
   }
   

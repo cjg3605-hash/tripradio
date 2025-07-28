@@ -213,7 +213,7 @@ export default function MapWithRoute({
 
   // Enhanced location loading effect
   useEffect(() => {
-    if (locationName && enableEnhancedGeocoding && false) { // 🔥 비활성화
+    if (locationName && enableEnhancedGeocoding && true) { // ✅ 활성화
       setIsLoadingLocation(true);
       setLocationError(null);
       
@@ -326,7 +326,7 @@ export default function MapWithRoute({
 
   // Smart chapter mapping effect (Enhanced System이 비활성화된 경우)
   useEffect(() => {
-    if (chapters && chapters.length > 0 && enableSmartMapping && !enableEnhancedCoordinateSystem && locationName && false) { // 🔥 비활성화
+    if (chapters && chapters.length > 0 && enableSmartMapping && !enableEnhancedCoordinateSystem && locationName && true) { // ✅ 활성화
       setIsMappingChapters(true);
       
       const guideChapters: GuideChapter[] = (chapters || []).map(chapter => ({
@@ -426,14 +426,28 @@ export default function MapWithRoute({
         return { ...item, originalIndex: index };
       }
     })
-    .filter(item => 
-      item.lat !== undefined && 
-      item.lng !== undefined && 
-      !isNaN(item.lat) && 
-      !isNaN(item.lng) &&
-      item.lat !== 0 && 
-      item.lng !== 0
-    );
+    .filter(item => {
+      // 🔧 강화된 좌표 검증
+      const isValidLat = item.lat !== undefined && 
+                        !isNaN(item.lat) && 
+                        item.lat !== 0 && 
+                        item.lat >= -90 && 
+                        item.lat <= 90;
+      
+      const isValidLng = item.lng !== undefined && 
+                        !isNaN(item.lng) && 
+                        item.lng !== 0 && 
+                        item.lng >= -180 && 
+                        item.lng <= 180;
+      
+      // 🚨 서울 기본값 필터링 (AI가 추측으로 생성한 좌표)
+      const isNotSeoulDefault = !(
+        (Math.abs(item.lat - 37.5665) < 0.001 && Math.abs(item.lng - 126.9780) < 0.001) ||
+        (Math.abs(item.lat - 37.5796) < 0.001 && Math.abs(item.lng - 126.9770) < 0.001)
+      );
+      
+      return isValidLat && isValidLng && isNotSeoulDefault;
+    });
 
   console.log('📍 지도 렌더링:', {
     totalChapters: (chapters || []).length,

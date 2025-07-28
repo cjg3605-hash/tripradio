@@ -78,6 +78,7 @@ export default function NextLevelSearchBox() {
     } else if (e.key === 'Enter') {
       e.preventDefault();
       if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+        // 키보드로 선택된 항목을 클릭한 것과 동일하게 처리
         handleSuggestionClick(suggestions[selectedIndex]);
       } else {
         handleSearch();
@@ -100,13 +101,15 @@ export default function NextLevelSearchBox() {
   };
 
   const handleSuggestionClick = (suggestion: Suggestion) => {
+    // 입력창을 업데이트하고 시각적 피드백을 제공
     setQuery(suggestion.name);
-    setIsFocused(false);
     setIsSubmitting(true);
     
+    // 입력창 업데이트가 화면에 반영될 시간을 주고 나서 포커스 해제 및 라우팅
     setTimeout(() => {
+      setIsFocused(false);
       router.push(`/guide/${encodeURIComponent(suggestion.name)}`);
-    }, 0);
+    }, 150); // 0ms → 150ms로 증가하여 시각적 업데이트 시간 확보
   };
 
   const handleFocus = () => {
@@ -114,10 +117,12 @@ export default function NextLevelSearchBox() {
   };
 
   const handleBlur = () => {
+    // 클릭이 아닌 다른 이유로 포커스가 해제될 때만 처리
+    // (예: Tab 키, 다른 곳 클릭 등)
     setTimeout(() => {
       setIsFocused(false);
       setSelectedIndex(-1);
-    }, 200);
+    }, 200); // 충분한 시간을 주어 클릭 이벤트가 먼저 처리되도록 함
   };
 
   return (
