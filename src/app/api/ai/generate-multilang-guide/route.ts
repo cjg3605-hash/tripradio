@@ -99,6 +99,7 @@ export async function POST(request: NextRequest) {
               .filter(Boolean)
               .join(' ');
             
+            // 🔥 3개 필드 통합된 narrative 또는 기존 narrative 사용
             let cleanNarrative = combinedNarrative || chapter.narrative || '';
             let extractedCoordinates: { lat: number; lng: number; description: string } | null = null;
             
