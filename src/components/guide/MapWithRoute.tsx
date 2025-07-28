@@ -217,7 +217,7 @@ export default function MapWithRoute({
       setIsLoadingLocation(true);
       setLocationError(null);
       
-      enhancedLocationService.findLocation(locationName, {
+      enhancedLocationService.findLocation(locationName || '', {
         preferStatic: preferStaticData,
         language: 'ko'
       })
@@ -243,7 +243,7 @@ export default function MapWithRoute({
       
       console.log('🚀 Enhanced Coordinate System (Phase 1-4) 시작:', locationName);
       
-      const guideChapters: GuideChapter[] = chapters.map(chapter => ({
+      const guideChapters: GuideChapter[] = (chapters || []).map(chapter => ({
         id: chapter.id,
         title: chapter.title,
         location: chapter.location ? {
@@ -305,7 +305,7 @@ export default function MapWithRoute({
 
       // 폴백: 기존 Smart Chapter Mapper 사용
       smartChapterMapper.mapChaptersToCoordinates(guideChapters, {
-          baseLocation: locationName,
+          baseLocation: locationName || '',
           radiusKm: mappingOptions.radiusKm || 2,
           qualityThreshold: mappingOptions.qualityThreshold || 0.5,
           distributionStrategy: mappingOptions.distributionStrategy || 'smart',
@@ -329,7 +329,7 @@ export default function MapWithRoute({
     if (chapters && chapters.length > 0 && enableSmartMapping && !enableEnhancedCoordinateSystem && locationName && false) { // 🔥 비활성화
       setIsMappingChapters(true);
       
-      const guideChapters: GuideChapter[] = chapters.map(chapter => ({
+      const guideChapters: GuideChapter[] = (chapters || []).map(chapter => ({
         id: chapter.id,
         title: chapter.title,
         location: chapter.location ? {
@@ -347,7 +347,7 @@ export default function MapWithRoute({
       }));
 
       smartChapterMapper.mapChaptersToCoordinates(guideChapters, {
-        baseLocation: locationName,
+        baseLocation: locationName || '',
         radiusKm: mappingOptions.radiusKm || 2,
         qualityThreshold: mappingOptions.qualityThreshold || 0.5,
         distributionStrategy: mappingOptions.distributionStrategy || 'smart',
