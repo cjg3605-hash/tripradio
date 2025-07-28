@@ -113,6 +113,7 @@ export interface SourceData {
   latency: number; // response time in ms
   httpStatus: number;
   errors?: string[];
+  metadata?: any; // Optional metadata for additional source information
 }
 
 // UNESCO-specific Types
@@ -281,7 +282,8 @@ export enum VerificationMethod {
   AUTHORITY_CHECK = 'authority_check',
   CONSENSUS = 'consensus',
   AI_VALIDATION = 'ai_validation',
-  MANUAL = 'manual'
+  MANUAL = 'manual',
+  FALLBACK = 'fallback'
 }
 
 // Cache Types

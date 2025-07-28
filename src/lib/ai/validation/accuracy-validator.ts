@@ -295,10 +295,113 @@ export function generateAccuracyReport(
   };
 }
 
+/**
+ * 🔥 Critical: 외부 데이터와 교차 검증
+ */
+export function verifyWithExternalData(
+  aiResponse: any,
+  location: string,
+  externalData?: any
+): {
+  isFactVerified: boolean;
+  confidenceScore: number;
+  dataSourceCount: number;
+  verificationMethod: string;
+  conflicts: string[];
+} {
+  if (!externalData || !externalData.sources || externalData.sources.length === 0) {
+    return {
+      isFactVerified: false,
+      confidenceScore: 0.0,
+      dataSourceCount: 0,
+      verificationMethod: 'no_external_data',
+      conflicts: ['외부 검증 데이터 없음']
+    };
+  }
+
+  const conflicts: string[] = [];
+  let factCheckScore = 0;
+  let checkCount = 0;
+
+  // 좌표 정보 검증
+  if (aiResponse.detailedStops && externalData.location?.coordinates) {
+    aiResponse.detailedStops.forEach((stop: any, index: number) => {
+      if (stop.coordinates) {
+        const distance = calculateDistance(
+          stop.coordinates,
+          externalData.location.coordinates
+        );
+        
+        if (distance > 1000) { // 1km 이상 차이
+          conflicts.push(`Stop ${index + 1}: 좌표 불일치 (${distance.toFixed(0)}m 차이)`);
+        } else {
+          factCheckScore++;
+        }
+        checkCount++;
+      }
+    });
+  }
+
+  // 기본 정보 검증
+  if (aiResponse.overview && externalData.basicInfo?.description) {
+    const similarityScore = calculateTextSimilarity(
+      aiResponse.overview,
+      externalData.basicInfo.description
+    );
+    
+    if (similarityScore < 0.3) {
+      conflicts.push('개요 정보가 외부 데이터와 상이함');
+    } else {
+      factCheckScore++;
+    }
+    checkCount++;
+  }
+
+  const finalScore = checkCount > 0 ? factCheckScore / checkCount : 0;
+
+  return {
+    isFactVerified: finalScore >= 0.7 && conflicts.length === 0,
+    confidenceScore: finalScore,
+    dataSourceCount: externalData.sources.length,
+    verificationMethod: 'multi_source_cross_reference',
+    conflicts
+  };
+}
+
+function calculateDistance(
+  coord1: { lat: number; lng: number },
+  coord2: { lat: number; lng: number }
+): number {
+  const R = 6371e3; // Earth's radius in meters
+  const φ1 = coord1.lat * Math.PI/180;
+  const φ2 = coord2.lat * Math.PI/180;
+  const Δφ = (coord2.lat-coord1.lat) * Math.PI/180;
+  const Δλ = (coord2.lng-coord1.lng) * Math.PI/180;
+
+  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+          Math.cos(φ1) * Math.cos(φ2) *
+          Math.sin(Δλ/2) * Math.sin(Δλ/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  return R * c;
+}
+
+function calculateTextSimilarity(text1: string, text2: string): number {
+  // 간단한 유사도 계산 (실제로는 더 정교한 알고리즘 사용 권장)
+  const words1 = text1.toLowerCase().split(/\s+/);
+  const words2 = text2.toLowerCase().split(/\s+/);
+  
+  const intersection = words1.filter(word => words2.includes(word));
+  const union = [...new Set([...words1, ...words2])];
+  
+  return intersection.length / union.length;
+}
+
 // 기본 export
 export default {
   validateAccuracy,
   sanitizeResponse,
   shouldRegenerate,
-  generateAccuracyReport
+  generateAccuracyReport,
+  verifyWithExternalData
 };

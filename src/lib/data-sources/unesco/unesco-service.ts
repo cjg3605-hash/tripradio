@@ -203,7 +203,7 @@ export class UNESCOService {
     return sites.map((site: any) => ({
       id: site.id?.toString() || site.unique_number?.toString(),
       name: site.site || site.name,
-      inscriptionYear: parseInt(site.date_inscribed) || null,
+      inscriptionYear: parseInt(site.date_inscribed) || 0,
       criteria: this.parseCriteria(site.criteria_txt),
       category: this.parseCategory(site.category),
       description: site.short_description || site.description,
@@ -243,7 +243,7 @@ export class UNESCOService {
     return {
       id: siteId,
       name: site.site || site.name,
-      inscriptionYear: parseInt(site.date_inscribed) || null,
+      inscriptionYear: parseInt(site.date_inscribed) || 0,
       criteria: this.parseCriteria(site.criteria_txt),
       category: this.parseCategory(site.category),
       description: site.short_description || site.description,
@@ -301,7 +301,7 @@ export class UNESCOService {
     return nearbySites.map((site: any) => ({
       id: site.id?.toString() || site.unique_number?.toString(),
       name: site.site || site.name,
-      inscriptionYear: parseInt(site.date_inscribed) || null,
+      inscriptionYear: parseInt(site.date_inscribed) || 0,
       criteria: this.parseCriteria(site.criteria_txt),
       category: this.parseCategory(site.category),
       description: site.short_description || site.description,

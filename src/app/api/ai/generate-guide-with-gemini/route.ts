@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     // DataIntegrationOrchestrator를 사용해 모든 데이터 소스에서 정보 수집
     const orchestrator = DataIntegrationOrchestrator.getInstance();
     
-    let integratedData = null;
+    let integratedData: any = null;
     let dataErrors: string[] = [];
     
     try {

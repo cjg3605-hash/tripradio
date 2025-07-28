@@ -95,24 +95,7 @@ export class GovernmentDataService {
         reliability: 0.88,
         dataTypes: ['statistics', 'demographics', 'economics']
       },
-      publicData: {
-        id: 'publicData',
-        name: '공공데이터포털',
-        baseUrl: 'https://api.odcloud.kr/api',
-        apiKey: process.env.PUBLIC_DATA_API_KEY,
-        endpoints: {
-          search: '/search',
-          dataset: '/dataset'
-        },
-        rateLimit: {
-          requestsPerMinute: 1000,
-          requestsPerHour: 10000,
-          requestsPerDay: 100000,
-          burstLimit: 50
-        },
-        reliability: 0.85,
-        dataTypes: ['various', 'government', 'administrative']
-      }
+      // publicData 서비스는 API 키 없이 사용 불가로 제거됨
     };
   }
 
@@ -688,7 +671,7 @@ export class GovernmentDataService {
     const results: Record<string, boolean> = {};
     checks.forEach((check, index) => {
       const key = Object.keys(this.apis)[index];
-      results[key] = check.status === 'fulfilled' ? check.value[1] : false;
+      results[key] = check.status === 'fulfilled' ? Boolean(check.value[1]) : false;
     });
 
     return results;

@@ -49,19 +49,13 @@ KOREA_TOURISM_API_KEY=your_service_key_here
 ```
 
 ### 3. 문화재청 API 🏛️
-**필수도**: High ⭐⭐⭐⭐
+**상태**: ❌ 미구현 (WFS 로직으로 대체됨)
 
-#### 취득 방법:
-1. [공공데이터포털](https://www.data.go.kr/) 접속
-2. "문화재청_국가문화유산포털_문화재검색" 검색
-3. 활용신청 → 승인 (즉시 또는 1일)
+#### 용도: 한국 문화유산 정보 (한국관광공사 API로 대체)
 
 #### 비용: 무료
 
-#### 환경변수 설정:
-```bash
-CULTURAL_HERITAGE_API_KEY=your_service_key_here
-```
+#### 참고: API 키 없이 WFS 방식으로 구현됨
 
 ### 4. 통계청 KOSIS API 📊
 **필수도**: Medium ⭐⭐⭐
@@ -98,9 +92,7 @@ GEMINI_API_KEY=your_gemini_key
 
 # 한국 정부 APIs
 KOREA_TOURISM_API_KEY=your_tourism_key
-CULTURAL_HERITAGE_API_KEY=your_heritage_key
 KOSIS_API_KEY=your_kosis_key
-PUBLIC_DATA_API_KEY=your_public_data_key
 
 # 기타
 NODE_ENV=development

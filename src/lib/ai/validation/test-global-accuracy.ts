@@ -152,10 +152,10 @@ export function runGlobalAccuracyTests(): {
 
       // 테스트 통과 여부 판단
       const expectedFound = testCase.expectedViolations.every(expected => 
-        actualViolationTypes.includes(expected)
+        actualViolationTypes.includes(expected as any)
       );
       const noUnexpectedViolations = actualViolationTypes.every(actual =>
-        testCase.expectedViolations.includes(actual) || actual === '기타'
+        testCase.expectedViolations.includes(actual as any) || actual === '기타'
       );
 
       const passed = expectedFound && noUnexpectedViolations;

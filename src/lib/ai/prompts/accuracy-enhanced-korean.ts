@@ -111,7 +111,7 @@ const UNIVERSAL_GUIDE_STRUCTURE = {
 /**
  * 🎯 정확성 강화된 한국어 가이드 프롬프트 생성
  */
-export const createAccuracyEnhancedKoreanPrompt = (
+const createAccuracyEnhancedKoreanPrompt = (
   locationName: string,
   userProfile?: UserProfile
 ): string => {
@@ -186,7 +186,7 @@ ${ACCURACY_VERIFICATION_SYSTEM.SAFE_DESCRIPTION_PATTERNS}
 /**
  * 🌍 전세계 적용을 위한 범용 검증 시스템
  */
-export const createGlobalAccuracyPrompt = (
+const createGlobalAccuracyPrompt = (
   locationName: string,
   countryCode: string = 'KR',
   userProfile?: UserProfile

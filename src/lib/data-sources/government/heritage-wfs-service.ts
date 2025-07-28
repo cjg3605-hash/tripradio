@@ -4,7 +4,7 @@
  */
 
 import { resilientFetch } from '@/lib/resilient-fetch';
-import { SourceData } from '@/types/data-integration';
+import { SourceData } from '../types/data-types';
 
 export interface HeritageWFSItem {
   ccbaAdmin: string;      // 관리기관

@@ -46,7 +46,6 @@ const enhancedPrompt = createFactBasedPrompt(location, safeProfile, factualData)
 GOOGLE_PLACES_API_KEY=your_key_here
 KOREA_TOURISM_API_KEY=your_key_here
 KOSIS_API_KEY=your_key_here
-PUBLIC_DATA_API_KEY=your_key_here
 ```
 
 #### 3. 실제 사실 검증 시스템 통합

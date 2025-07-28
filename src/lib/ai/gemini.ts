@@ -14,13 +14,17 @@ const genAI = process.env.GEMINI_API_KEY
 import { UserProfile } from '@/types/guide';
 
 // Import accuracy-enhanced prompts and validation
-import { createAccuracyEnhancedKoreanPrompt } from './prompts/accuracy-enhanced-korean';
+// import { createAccuracyEnhancedKoreanPrompt } from './prompts/accuracy-enhanced-korean';
 import { 
   validateAccuracy, 
   sanitizeResponse, 
   shouldRegenerate,
-  generateAccuracyReport 
+  generateAccuracyReport,
+  verifyWithExternalData
 } from './validation/accuracy-validator';
+
+// Import data orchestrator for fact verification
+import { DataIntegrationOrchestrator } from '../data-sources/orchestrator/data-orchestrator';
 
 export const GEMINI_PROMPTS = {
   GUIDE_GENERATION: {
@@ -176,12 +180,29 @@ export async function generatePersonalizedGuide(
   };
 
   try {
+    // 🚀 고성능 데이터 수집 활용
+    let dataIntegrationResult = integratedData;
+    if (!dataIntegrationResult) {
+      const orchestrator = DataIntegrationOrchestrator.getInstance();
+      dataIntegrationResult = await orchestrator.integrateLocationData(
+        location.trim(),
+        undefined,
+        {
+          dataSources: ['unesco', 'wikidata', 'government', 'google_places'],
+          includeReviews: true,
+          includeImages: true,
+          language: safeProfile.language,
+          performanceMode: 'speed' // 🚀 성능 최적화 모드 활성화
+        }
+      );
+    }
+
     // 서킷 브레이커로 AI 호출 보호
     return await aiCircuitBreaker.call(async () => {
       // Gemini API가 없는 경우 더미 데이터 반환
       if (!genAI) {
         console.log('🎭 더미 데이터로 가이드 생성:', location);
-        return generateFallbackGuide(location, safeProfile, integratedData);
+        return generateFallbackGuide(location, safeProfile, dataIntegrationResult);
       }
 
     const model = genAI.getGenerativeModel({ 
@@ -196,25 +217,22 @@ export async function generatePersonalizedGuide(
       topK: 40
     };
 
-    let prompt = `${GEMINI_PROMPTS.GUIDE_GENERATION.system}
-
-${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, safeProfile)}`;
-
-    // 🎯 통합된 외부 데이터가 있는 경우 프롬프트에 포함
-    if (integratedData && integratedData.confidence > 0) {
-      const formattedExternalData = formatExternalDataForAI(integratedData, location);
-      prompt += formattedExternalData;
-    }
+    // 🔥 Critical: 사실 기반 프롬프트 생성
+    const factBasedPrompt = createFactBasedPrompt(
+      location, 
+      safeProfile, 
+      dataIntegrationResult
+    );
 
     console.log('🤖 Gemini 라이브러리에서 프롬프트 전송 중...', {
       location,
-      hasIntegratedData: !!integratedData,
-      dataConfidence: integratedData?.confidence || 0,
-      promptLength: prompt.length
+      hasIntegratedData: !!dataIntegrationResult,
+      dataConfidence: dataIntegrationResult?.data?.confidence || 0,
+      promptLength: factBasedPrompt.length
     });
 
     // Generate content by passing the prompt string directly
-    const result = await model.generateContent(prompt);
+    const result = await model.generateContent(factBasedPrompt);
     
     // Get the response and extract text
     const response = await result.response;
@@ -321,6 +339,13 @@ ${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, safeProfile)}`;
         return generateFallbackGuide(location, safeProfile, integratedData);
       }
 
+      // 🔥 Critical: 실제 데이터와 교차 검증
+      const verificationResult = verifyWithExternalData(
+        parsed, 
+        location, 
+        dataIntegrationResult?.data
+      );
+
       // 경미한 위반사항이 있는 경우 자동 정제
       let finalResponse = parsed;
       if (!validationResult.isValid && regenerationDecision.severity !== 'critical') {
@@ -341,10 +366,15 @@ ${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, safeProfile)}`;
           !validationResult.isValid ? sanitizeResponse(parsed) : undefined
         );
         console.log('📋 정확성 리포트:', accuracyReport);
+        console.log('📊 팩트 검증 결과:', verificationResult);
       }
 
       console.log('✅ JSON 파싱 및 정확성 검증 완료');
-      return finalResponse;
+      return {
+        ...finalResponse,
+        dataIntegration: dataIntegrationResult,
+        factVerification: verificationResult
+      };
       
     } catch (parseError) {
       console.error('JSON 파싱 실패:', parseError);
@@ -368,11 +398,69 @@ ${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, safeProfile)}`;
   }
 }
 
+// 🔥 새로 추가할 함수
+function createFactBasedPrompt(
+  location: string, 
+  profile: UserProfile, 
+  dataResult: any
+): string {
+  if (!dataResult?.success || !dataResult?.data) {
+    return `${GEMINI_PROMPTS.GUIDE_GENERATION.system}
+
+⚠️ **데이터 제한 안내**: ${location}에 대한 외부 검증 데이터가 부족합니다.
+일반적인 정보만을 바탕으로 제한된 가이드를 생성하며, 정확성을 보장할 수 없습니다.
+
+${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, profile)}`;
+  }
+
+  const factualInfo = formatFactualData(dataResult.data);
+  
+  return `${GEMINI_PROMPTS.GUIDE_GENERATION.system}
+
+🔍 **검증된 사실 정보** (아래 정보만 사용하세요):
+${factualInfo}
+
+**데이터 신뢰도**: ${(dataResult.data.confidence * 100).toFixed(1)}%
+**검증 소스**: ${dataResult.sources.join(', ')}
+**데이터 수집 시간**: ${new Date().toLocaleString('ko-KR')}
+
+⚠️ **중요**: 위에 제시된 검증된 정보만을 사용하여 가이드를 생성하세요.
+확인되지 않은 정보는 절대 포함하지 마세요.
+
+${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, profile)}`;
+}
+
+function formatFactualData(data: any): string {
+  let factualInfo = '';
+  
+  if (data.location) {
+    factualInfo += `📍 **위치 정보**:\n`;
+    factualInfo += `- 좌표: ${data.location.coordinates?.lat}, ${data.location.coordinates?.lng}\n`;
+    factualInfo += `- 주소: ${data.location.address?.formatted || '정보 없음'}\n\n`;
+  }
+  
+  if (data.basicInfo) {
+    factualInfo += `ℹ️ **기본 정보**:\n`;
+    factualInfo += `- 공식명: ${data.basicInfo.officialName || data.location?.name || '정보 없음'}\n`;
+    factualInfo += `- 유형: ${data.location?.category || '정보 없음'}\n`;
+    factualInfo += `- 설명: ${data.basicInfo.description || '정보 없음'}\n\n`;
+  }
+  
+  if (data.sources && data.sources.length > 0) {
+    factualInfo += `📚 **검증 소스별 정보**:\n`;
+    data.sources.forEach((source: any, index: number) => {
+      factualInfo += `${index + 1}. ${source.sourceName}: ${(source.reliability * 100).toFixed(0)}% 신뢰도\n`;
+    });
+  }
+  
+  return factualInfo || '검증된 구체적 정보가 부족합니다.';
+}
+
 /**
  * 외부 데이터를 AI가 이해하기 쉬운 형태로 포맷
  */
 function formatExternalDataForAI(integratedData: any, location: string): string {
-  const sections = [];
+  const sections: string[] = [];
   
   // 헤더 섹션
   sections.push(`

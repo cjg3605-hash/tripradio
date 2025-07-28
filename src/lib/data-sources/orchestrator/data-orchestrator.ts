@@ -19,6 +19,7 @@ import { GovernmentDataService } from '../government/government-service';
 import { GooglePlacesService } from '../google/places-service';
 import { FactVerificationPipeline } from '../verification/fact-verification';
 import { DataSourceCache } from '../cache/data-cache';
+import { parallelOrchestrator } from '../performance/parallel-orchestrator';
 
 interface OrchestratorConfig {
   enableParallelFetch: boolean;
@@ -86,7 +87,7 @@ export class DataIntegrationOrchestrator {
   }
 
   /**
-   * 통합 데이터 검색 및 수집
+   * 통합 데이터 검색 및 수집 (고성능 병렬 처리)
    */
   async integrateLocationData(
     query: string,
@@ -96,6 +97,7 @@ export class DataIntegrationOrchestrator {
       includeReviews?: boolean;
       includeImages?: boolean;
       language?: string;
+      performanceMode?: 'speed' | 'accuracy' | 'comprehensive';
     }
   ): Promise<DataIntegrationResult> {
     const startTime = Date.now();
@@ -103,7 +105,52 @@ export class DataIntegrationOrchestrator {
     let integratedData: IntegratedData | undefined;
 
     try {
-      // 캐시 확인
+      // 🚀 고성능 병렙 데이터 수집 활용
+      if (this.config.enableParallelFetch && options?.performanceMode) {
+        const optimizedResult = await parallelOrchestrator.optimizedDataCollection(
+          query,
+          coordinates,
+          {
+            sources: options.dataSources,
+            priorityMode: options.performanceMode,
+            cacheStrategy: 'adaptive'
+          }
+        );
+
+        if (Object.keys(optimizedResult.data).length > 0) {
+          // Transform parallel result to standard format
+          const transformedSources = Object.entries(optimizedResult.data).map(([source, data]) => ({
+            sourceId: source,
+            sourceName: source,
+            data,
+            reliability: 0.9,
+            latency: optimizedResult.performance.totalTime / Object.keys(optimizedResult.data).length,
+            retrievedAt: new Date().toISOString(),
+            httpStatus: 200 // 성공적인 응답 상태
+          }));
+
+          integratedData = await this.integrateSources(query, transformedSources, coordinates);
+          
+          return {
+            success: true,
+            data: integratedData,
+            errors: Object.values(optimizedResult.errors).map(err => 
+              new DataSourceError(err.message, 'parallel', 'OPTIMIZED_FETCH_ERROR')
+            ),
+            performance: {
+              responseTime: optimizedResult.performance.totalTime,
+              throughput: optimizedResult.performance.throughput,
+              errorRate: Object.keys(optimizedResult.errors).length / (Object.keys(optimizedResult.data).length + Object.keys(optimizedResult.errors).length),
+              cacheHitRate: optimizedResult.cacheStats.hitRate,
+              dataQuality: integratedData.confidence,
+              uptime: 100
+            },
+            sources: Object.keys(optimizedResult.data)
+          };
+        }
+      }
+
+      // 기존 캐시 확인 (fallback)
       const cacheKey = this.generateCacheKey(query, coordinates, options);
       const cached = await this.cache.get<IntegratedData>(cacheKey);
       
@@ -121,7 +168,7 @@ export class DataIntegrationOrchestrator {
         };
       }
 
-      // 병렬 데이터 수집
+      // 기존 병렬 데이터 수집 (fallback)
       const sourcePromises = await this.collectDataFromSources(query, coordinates, options);
       const sourceResults = await Promise.allSettled(sourcePromises);
 
@@ -148,7 +195,26 @@ export class DataIntegrationOrchestrator {
       });
 
       if (successfulSources.length === 0) {
-        throw new Error('모든 데이터 소스에서 데이터 수집에 실패했습니다');
+        // 🔥 개선: 명확한 실패 정보 제공
+        console.warn(`❌ 모든 데이터 소스 실패 - 위치: ${query}`);
+        console.warn('실패 원인:', errors.map(e => e.message));
+        
+        return {
+          success: false,
+          errors,
+          performance: {
+            ...this.metrics,
+            responseTime: Date.now() - startTime
+          },
+          sources: [],
+          // 🔥 추가: 명확한 실패 이유
+          failureReason: 'all_data_sources_failed',
+          recommendations: [
+            'API 키 설정을 확인하세요',
+            '네트워크 연결을 확인하세요',
+            '입력된 위치명을 다시 확인하세요'
+          ]
+        } as any;
       }
 
       // 데이터 통합 및 정규화
@@ -184,12 +250,20 @@ export class DataIntegrationOrchestrator {
     } catch (error) {
       this.updateMetrics(startTime, errors.length + 1, 0, false);
       
+      // 🔥 개선: 상세한 에러 분석 및 복구 제안
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorType = this.categorizeError(errorMessage);
+      const suggestions = this.getErrorRecoverySuggestions(errorType);
+      
+      console.error(`❌ 데이터 통합 실패 [${errorType}]:`, errorMessage);
+      console.warn('🔧 복구 제안:', suggestions);
+      
       return {
         success: false,
         errors: [
           ...errors,
           new DataSourceError(
-            error instanceof Error ? error.message : String(error),
+            errorMessage,
             'orchestrator',
             'INTEGRATION_FAILED'
           )
@@ -198,8 +272,16 @@ export class DataIntegrationOrchestrator {
           ...this.metrics,
           responseTime: Date.now() - startTime
         },
-        sources: []
-      };
+        sources: [],
+        // 🔥 추가: 에러 분석 및 복구 정보
+        errorAnalysis: {
+          category: errorType,
+          severity: this.getErrorSeverity(errorType),
+          suggestions,
+          retryRecommended: this.shouldRetry(errorType),
+          fallbackAvailable: true
+        }
+      } as any;
     }
   }
 
@@ -777,5 +859,105 @@ export class DataIntegrationOrchestrator {
    */
   updateConfig(newConfig: Partial<OrchestratorConfig>): void {
     this.config = { ...this.config, ...newConfig };
+  }
+
+  /**
+   * 🔥 에러 분류 시스템
+   */
+  private categorizeError(errorMessage: string): string {
+    const message = errorMessage.toLowerCase();
+    
+    if (message.includes('api key') || message.includes('authentication') || message.includes('unauthorized')) {
+      return 'authentication';
+    } else if (message.includes('network') || message.includes('timeout') || message.includes('connection')) {
+      return 'network';
+    } else if (message.includes('rate limit') || message.includes('quota')) {
+      return 'rate_limit';
+    } else if (message.includes('not found') || message.includes('404')) {
+      return 'not_found';
+    } else if (message.includes('parse') || message.includes('json') || message.includes('format')) {
+      return 'data_format';
+    } else if (message.includes('service unavailable') || message.includes('500') || message.includes('502')) {
+      return 'service_unavailable';
+    } else {
+      return 'unknown';
+    }
+  }
+
+  /**
+   * 🔧 에러별 복구 제안
+   */
+  private getErrorRecoverySuggestions(errorType: string): string[] {
+    switch (errorType) {
+      case 'authentication':
+        return [
+          'API 키가 올바르게 설정되었는지 확인하세요',
+          '.env.local 파일에 모든 필요한 키가 있는지 확인하세요',
+          'API 키의 권한 설정을 확인하세요'
+        ];
+      case 'network':
+        return [
+          '인터넷 연결 상태를 확인하세요',
+          '방화벽 설정을 확인하세요',
+          'VPN 사용 시 설정을 확인하세요',
+          '잠시 후 다시 시도하세요'
+        ];
+      case 'rate_limit':
+        return [
+          '요청 빈도를 줄여보세요',
+          'API 할당량을 확인하세요',
+          '몇 분 후 다시 시도하세요'
+        ];
+      case 'not_found':
+        return [
+          '입력한 위치명을 다시 확인하세요',
+          '영문 또는 한글로 다시 시도해보세요',
+          '유사한 명칭으로 재검색해보세요'
+        ];
+      case 'data_format':
+        return [
+          '서비스 상태를 확인하세요',
+          '잠시 후 다시 시도하세요',
+          '관리자에게 문의하세요'
+        ];
+      case 'service_unavailable':
+        return [
+          '해당 서비스가 일시적으로 불안정합니다',
+          '몇 분 후 다시 시도하세요',
+          '대체 데이터 소스를 이용합니다'
+        ];
+      default:
+        return [
+          '잠시 후 다시 시도하세요',
+          '문제가 계속되면 관리자에게 문의하세요'
+        ];
+    }
+  }
+
+  /**
+   * 🚨 에러 심각도 평가
+   */
+  private getErrorSeverity(errorType: string): 'low' | 'medium' | 'high' | 'critical' {
+    switch (errorType) {
+      case 'authentication':
+        return 'critical';
+      case 'service_unavailable':
+        return 'high';
+      case 'network':
+      case 'rate_limit':
+        return 'medium';
+      case 'not_found':
+      case 'data_format':
+        return 'low';
+      default:
+        return 'medium';
+    }
+  }
+
+  /**
+   * 🔄 재시도 권장 여부
+   */
+  private shouldRetry(errorType: string): boolean {
+    return ['network', 'rate_limit', 'service_unavailable', 'unknown'].includes(errorType);
   }
 }
