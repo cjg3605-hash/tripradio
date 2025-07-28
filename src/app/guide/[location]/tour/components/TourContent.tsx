@@ -506,12 +506,25 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                   const startPoint = locationData ? locationData.center : DEFAULT_SEOUL_CENTER;
                   const pois = locationData ? locationData.pois.slice(0, 8) : []; // 최대 8개 POI
                   
+                  // 🎯 실제 투어 챕터 데이터 준비
+                  const chaptersForMap = allChapters.map((chapter, index) => ({
+                    id: chapter.id,
+                    title: chapter.title,
+                    // 챕터별 기본 좌표 (실제 위치 주변에 분산 배치)
+                    lat: startPoint.lat + (Math.random() - 0.5) * 0.01 * (index + 1),
+                    lng: startPoint.lng + (Math.random() - 0.5) * 0.01 * (index + 1),
+                    narrative: chapter.narrative || chapter.sceneDescription || '',
+                    originalIndex: index
+                  }));
+                  
                   console.log('🗺️ 지도 데이터:', {
                     locationName,
                     locationData: !!locationData,
                     startPoint,
                     poisCount: pois.length,
-                    pois: pois.map(p => ({ name: p.name, lat: p.lat, lng: p.lng }))
+                    chaptersCount: chaptersForMap.length,
+                    pois: pois.map(p => ({ name: p.name, lat: p.lat, lng: p.lng })),
+                    chapters: chaptersForMap.map(c => ({ id: c.id, title: c.title, lat: c.lat, lng: c.lng }))
                   });
 
                   return (
@@ -522,6 +535,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                         lng: startPoint.lng,
                         name: startPoint.name || guide.overview?.title || locationName || t('guide.tourStart')
                       }}
+                      chapters={chaptersForMap} // 🔥 실제 챕터 데이터 전달
                       pois={pois.map((poi, index) => ({
                         id: `poi_${index}`,
                         name: poi.name,

@@ -447,8 +447,68 @@ export default function MapWithRoute({
     }))
   });
 
-  // 유효한 좌표가 없으면 에러 메시지 표시
+  // 유효한 좌표가 없으면 기본 위치로 지도 표시
   if (validChapters.length === 0) {
+    // 중심점이 있으면 기본 지도 표시
+    if (center && center.lat && center.lng) {
+      return (
+        <div className="w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
+          <MapContainer 
+            {...({center: [center.lat, center.lng], zoom: customZoom || 15} as any)}
+            className="w-full h-full monochrome-map-container"
+            scrollWheelZoom={true}
+            zoomControl={true}
+            style={{ filter: 'grayscale(1) contrast(1.2) brightness(1.1)' }}
+          >
+            <TileLayer
+              {...({
+                url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                className: "monochrome-map"
+              } as any)}
+            />
+            
+            {/* 중심점 마커 */}
+            <Marker
+              {...({
+                position: [center.lat, center.lng],
+                icon: customMarkerIcon
+              } as any)}
+            >
+              <Tooltip 
+                {...({
+                  direction: "top",
+                  offset: [0, -20],
+                  opacity: 0.9,
+                  permanent: false
+                } as any)}
+              >
+                <div className="text-center">
+                  <div className="font-medium text-sm">
+                    {center.name || locationName || '시작 위치'}
+                  </div>
+                </div>
+              </Tooltip>
+            </Marker>
+          </MapContainer>
+          
+          <div className="bg-black/2 px-4 py-3 text-xs font-medium border-t border-black/5">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-black rounded-full"></div>
+                <span className="text-black/80">기본 위치</span>
+              </div>
+              <div className="text-right">
+                <div className="text-black/60">
+                  {center.name || locationName || '위치 정보'}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
     return (
       <div className="w-full h-64 bg-gray-100 flex items-center justify-center rounded-lg">
         <div className="text-center text-gray-500">
