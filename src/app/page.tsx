@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import GuideGenerating from '@/components/guide/GuideGenerating';
@@ -38,16 +38,22 @@ export default function HomePage() {
   const [audioPlaying, setAudioPlaying] = useState(false);
 
   // 회전하는 단어들 (번역 키 수정)
-  const words = [
+  const words = useMemo(() => [
     t('home.features.personalized') || '맞춤형추천',
     t('home.features.realTime') || '실시간가이드',
     t('home.features.multiLanguage') || '다국어지원',
     t('home.features.offline') || '오프라인'
-  ];
+  ], [currentLanguage, t]);
 
   // 회전하는 플레이스홀더 (다국어 지원)
-  const placeholders = (() => {
+  const placeholders = useMemo(() => {
     const translated = t('home.searchPlaceholders');
+    console.log('🔍 Placeholders Debug:', {
+      currentLanguage,
+      translated,
+      isArray: Array.isArray(translated),
+      type: typeof translated
+    });
     return Array.isArray(translated) ? translated : [
       '에펠탑',
       '타지마할',
@@ -55,7 +61,13 @@ export default function HomePage() {
       '콜로세움',
       '자유의 여신상'
     ];
-  })();
+  }, [currentLanguage, t]);
+
+  // 언어 변경 시 인덱스 리셋
+  useEffect(() => {
+    setPlaceholderIndex(0);
+    setCurrentWord(0);
+  }, [currentLanguage]);
 
   useEffect(() => {
     setIsLoaded(true);
