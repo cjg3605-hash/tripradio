@@ -34,9 +34,9 @@
         "자유의 여신상"
       ],
       "defaultSuggestions": [
-        { "name": "경복궁", "location": "서울 종로구" },
-        { "name": "부산 해운대", "location": "부산 해운대구" },
-        { "name": "제주도 성산일출봉", "location": "제주 서귀포시" }
+        { "name": "에펠탑", "location": "프랑스 파리" },
+        { "name": "타지마할", "location": "인도 아그라" },
+        { "name": "마추픽추", "location": "페루 쿠스코" }
       ],
       "features": {
         "realTime": "실시간가이드",
@@ -525,9 +525,9 @@
         "Statue of Liberty"
       ],
       "defaultSuggestions": [
-        { "name": "Gyeongbokgung Palace", "location": "Seoul Jongno-gu" },
-        { "name": "Busan Haeundae Beach", "location": "Busan Haeundae-gu" },
-        { "name": "Jeju Seongsan Ilchulbong", "location": "Jeju Seogwipo-si" }
+        { "name": "Eiffel Tower", "location": "Paris, France" },
+        { "name": "Taj Mahal", "location": "Agra, India" },
+        { "name": "Machu Picchu", "location": "Cusco, Peru" }
       ],
       "features": {
         "realTime": "Real-time Guide",
@@ -906,9 +906,9 @@
         "自由の女神"
       ],
       "defaultSuggestions": [
-        { "name": "景福宮", "location": "ソウル鍾路区" },
-        { "name": "釜山海雲台", "location": "釜山海雲台区" },
-        { "name": "済州城山日出峰", "location": "済州西帰浦市" }
+        { "name": "エッフェル塔", "location": "フランス・パリ" },
+        { "name": "タージマハル", "location": "インド・アグラ" },
+        { "name": "マチュピチュ", "location": "ペルー・クスコ" }
       ],
       "features": {
         "realTime": "リアルタイムガイド",
@@ -1100,9 +1100,9 @@
         "自由女神像"
       ],
       "defaultSuggestions": [
-        { "name": "景福宫", "location": "首尔钟路区" },
-        { "name": "釜山海云台", "location": "釜山海云台区" },
-        { "name": "济州城山日出峰", "location": "济州西归浦市" }
+        { "name": "埃菲尔铁塔", "location": "法国巴黎" },
+        { "name": "泰姬陵", "location": "印度阿格拉" },
+        { "name": "马丘比丘", "location": "秘鲁库斯科" }
       ],
       "features": {
         "realTime": "实时导览",
@@ -1294,9 +1294,9 @@
         "Estatua de la Libertad"
       ],
       "defaultSuggestions": [
-        { "name": "Palacio Gyeongbokgung", "location": "Seúl Jongno-gu" },
-        { "name": "Playa Haeundae de Busan", "location": "Busan Haeundae-gu" },
-        { "name": "Seongsan Ilchulbong de Jeju", "location": "Jeju Seogwipo-si" }
+        { "name": "Torre Eiffel", "location": "París, Francia" },
+        { "name": "Taj Mahal", "location": "Agra, India" },
+        { "name": "Machu Picchu", "location": "Cusco, Perú" }
       ],
       "features": {
         "realTime": "Guía en Tiempo Real",

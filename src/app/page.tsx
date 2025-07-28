@@ -25,9 +25,9 @@ export default function HomePage() {
   const [suggestions, setSuggestions] = useState(() => {
     const translated = t('home.defaultSuggestions');
     return Array.isArray(translated) ? translated : [
-      { name: '경복궁', location: '서울 종로구' },
-      { name: '부산 해운대', location: '부산 해운대구' },
-      { name: '제주도 성산일출봉', location: '제주 서귀포시' }
+      { name: '에펠탑', location: '프랑스 파리' },
+      { name: '타지마할', location: '인도 아그라' },
+      { name: '마추픽추', location: '페루 쿠스코' }
     ];
   });
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
@@ -49,11 +49,11 @@ export default function HomePage() {
   const placeholders = (() => {
     const translated = t('home.searchPlaceholders');
     return Array.isArray(translated) ? translated : [
-      '강릉 커피거리',
-      '경복궁',
-      '부산 해운대',
-      '제주도 성산일출봉',
-      '명동 카페거리'
+      '에펠탑',
+      '타지마할',
+      '마추픽추',
+      '콜로세움',
+      '자유의 여신상'
     ];
   })();
 
@@ -91,9 +91,9 @@ export default function HomePage() {
       const translated = t('home.defaultSuggestions');
       setSuggestions(
         Array.isArray(translated) ? translated : [
-          { name: '경복궁', location: '서울 종로구' },
-          { name: '부산 해운대', location: '부산 해운대구' },
-          { name: '제주도 성산일출봉', location: '제주 서귀포시' }
+          { name: '에펠탑', location: '프랑스 파리' },
+          { name: '타지마할', location: '인도 아그라' },
+          { name: '마추픽추', location: '페루 쿠스코' }
         ]
       );
       return;
