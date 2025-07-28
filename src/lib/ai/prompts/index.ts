@@ -110,7 +110,17 @@ const LOCATION_TYPE_CONFIGS: Record<string, LocationTypeConfig> = {
     recommendedSpots: 6
   },
   
-  // 4. 자연 경관 (공원, 산, 바다)
+  // 4. 전통 문화 마을 (한옥마을, 민속촌, 전통 거리)
+  traditional: {
+    keywords: ['한옥마을', '한옥', '민속촌', '전통마을', '전통가옥', '고택', '민속', '전통거리', '전통건축', 'hanok', 'traditional', 'folk', 'heritage'],
+    expertRole: '전통건축사이자 민속문화 전문가',
+    focusAreas: ['전통 건축의 원리와 미학', '생활 민속과 문화', '전통 공예와 기술', '마을 공동체 문화', '전통과 현대의 조화'],
+    specialRequirements: '전통 문화의 가치와 아름다움, 선조들의 지혜와 생활 철학을 존중하는 마음으로 설명해야 합니다.',
+    chapterStructure: '마을 입구 → 대표 한옥들 → 전통 문화 체험공간 → 생활사 전시관 순서',
+    recommendedSpots: 6
+  },
+
+  // 5. 자연 경관 (공원, 산, 바다)
   nature: {
     keywords: ['공원', '국립공원', '산', '바다', '해변', '강', '호수', '숲', '계곡', '자연', '생태', 'park', 'mountain', 'beach', 'forest', 'nature'],
     expertRole: '생태학자이자 지질학 전문가',
@@ -120,7 +130,7 @@ const LOCATION_TYPE_CONFIGS: Record<string, LocationTypeConfig> = {
     recommendedSpots: 5
   },
   
-  // 5. 음식/요리 전문 (맛집, 요리, 전통 음식)
+  // 6. 음식/요리 전문 (맛집, 요리, 전통 음식)
   culinary: {
     keywords: ['맛집', '음식', '요리', '식당', '전통음식', '향토음식', '먹거리', '미식', '카페', 'food', 'restaurant', 'cuisine', 'cooking', 'gourmet'],
     expertRole: '요리 연구가이자 식문화 전문가',
@@ -130,7 +140,7 @@ const LOCATION_TYPE_CONFIGS: Record<string, LocationTypeConfig> = {
     recommendedSpots: 5
   },
   
-  // 6. 예술/문화 공간 (갤러리, 예술관)
+  // 7. 예술/문화 공간 (갤러리, 예술관)
   cultural: {
     keywords: ['갤러리', '미술관', '예술관', '문화센터', '공연장', '전시관', '예술', '문화', '전통', '공연', 'gallery', 'museum', 'art', 'culture', 'performance'],
     expertRole: '미술사학자이자 문화 큐레이터',
@@ -140,7 +150,7 @@ const LOCATION_TYPE_CONFIGS: Record<string, LocationTypeConfig> = {
     recommendedSpots: 6
   },
   
-  // 7. 상업/쇼핑 지역 (시장, 거리, 상가)
+  // 8. 상업/쇼핑 지역 (시장, 거리, 상가)
   commercial: {
     keywords: ['시장', '전통시장', '상가', '거리', '쇼핑', '백화점', '상점가', '상권', 'market', 'shopping', 'street', 'district', 'store'],
     expertRole: '도시 상업사 연구가이자 유통 전문가',
@@ -150,7 +160,7 @@ const LOCATION_TYPE_CONFIGS: Record<string, LocationTypeConfig> = {
     recommendedSpots: 5
   },
   
-  // 8. 현대 건축 (타워, 빌딩, 현대 시설)
+  // 9. 현대 건축 (타워, 빌딩, 현대 시설)
   modern: {
     keywords: ['타워', '빌딩', '전망대', '스카이라인', '현대건축', '랜드마크', '고층건물', '건축물', 'tower', 'building', 'skyscraper', 'landmark', 'modern'],
     expertRole: '현대 건축 전문가이자 도시 설계사',
@@ -160,7 +170,7 @@ const LOCATION_TYPE_CONFIGS: Record<string, LocationTypeConfig> = {
     recommendedSpots: 5
   },
   
-  // 9. 일반 관광지 (기타 모든 장소)
+  // 10. 일반 관광지 (기타 모든 장소)
   general: {
     keywords: [],
     expertRole: '종합 관광 전문가',
