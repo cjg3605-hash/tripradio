@@ -161,7 +161,8 @@ export const generateGuide = generatePersonalizedGuide;
 
 export async function generatePersonalizedGuide(
   location: string,
-  userProfile: UserProfile
+  userProfile: UserProfile,
+  integratedData?: any
 ) {
   // userProfile 안전성 검사 및 기본값 설정 (함수 최상단으로 이동)
   const safeProfile: UserProfile = {
@@ -180,7 +181,7 @@ export async function generatePersonalizedGuide(
       // Gemini API가 없는 경우 더미 데이터 반환
       if (!genAI) {
         console.log('🎭 더미 데이터로 가이드 생성:', location);
-        return generateFallbackGuide(location, safeProfile);
+        return generateFallbackGuide(location, safeProfile, integratedData);
       }
 
     const model = genAI.getGenerativeModel({ 
@@ -195,11 +196,22 @@ export async function generatePersonalizedGuide(
       topK: 40
     };
 
-    const prompt = `${GEMINI_PROMPTS.GUIDE_GENERATION.system}
+    let prompt = `${GEMINI_PROMPTS.GUIDE_GENERATION.system}
 
 ${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, safeProfile)}`;
 
-    console.log('🤖 Gemini 라이브러리에서 프롬프트 전송 중...');
+    // 🎯 통합된 외부 데이터가 있는 경우 프롬프트에 포함
+    if (integratedData && integratedData.confidence > 0) {
+      const formattedExternalData = formatExternalDataForAI(integratedData, location);
+      prompt += formattedExternalData;
+    }
+
+    console.log('🤖 Gemini 라이브러리에서 프롬프트 전송 중...', {
+      location,
+      hasIntegratedData: !!integratedData,
+      dataConfidence: integratedData?.confidence || 0,
+      promptLength: prompt.length
+    });
 
     // Generate content by passing the prompt string directly
     const result = await model.generateContent(prompt);
@@ -306,7 +318,7 @@ ${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, safeProfile)}`;
         console.warn('위반사항:', validationResult.violations);
         
         // 심각한 정확성 위반 시 안전한 폴백 가이드 사용
-        return generateFallbackGuide(location, safeProfile);
+        return generateFallbackGuide(location, safeProfile, integratedData);
       }
 
       // 경미한 위반사항이 있는 경우 자동 정제
@@ -348,7 +360,7 @@ ${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, safeProfile)}`;
     const errorMessage = error instanceof Error ? error.message : String(error);
     if (errorMessage.includes('서킷 브레이커')) {
       console.log('🔄 서킷 브레이커 열림 - 폴백 가이드 생성:', location);
-      return generateFallbackGuide(location, safeProfile);
+      return generateFallbackGuide(location, safeProfile, integratedData);
     }
     
     // 기타 에러는 그대로 던짐
@@ -356,8 +368,144 @@ ${GEMINI_PROMPTS.GUIDE_GENERATION.user(location, safeProfile)}`;
   }
 }
 
-// 더미 데이터 생성 함수 (API 키 없을 때 사용)
-function generateFallbackGuide(location: string, userProfile: UserProfile) {
+/**
+ * 외부 데이터를 AI가 이해하기 쉬운 형태로 포맷
+ */
+function formatExternalDataForAI(integratedData: any, location: string): string {
+  const sections = [];
+  
+  // 헤더 섹션
+  sections.push(`
+
+## 🔍 **검증된 외부 데이터 소스 (필수 활용)**
+
+다음은 "${location}"에 대한 **실제 검증된 정보**입니다. 이 데이터를 바탕으로 정확한 가이드를 작성하세요.
+
+**데이터 신뢰도**: ${Math.round(integratedData.confidence * 100)}%
+**검증 상태**: ${integratedData.verificationStatus?.isValid ? '✅ 완전 검증' : '⚠️ 부분 검증'}
+**데이터 소스**: ${Object.keys(integratedData.sources || {}).join(', ')}
+
+---`);
+
+  // 문화재/유산 정보 (국가유산청 WFS)
+  if (integratedData.sources?.heritage?.data) {
+    const heritageData = Array.isArray(integratedData.sources.heritage.data) 
+      ? integratedData.sources.heritage.data 
+      : [integratedData.sources.heritage.data];
+    
+    sections.push(`
+
+### 🏛️ **문화재/유산 정보** (국가유산청)
+`);
+    
+    heritageData.slice(0, 5).forEach((item: any, index: number) => {
+      sections.push(`
+**${index + 1}. ${item.title || item.ccbaMnm || '이름 없음'}**
+- 분류: ${item.category || item.ccmaName || '미지정'}
+- 위치: ${item.address || item.vlocName || '위치 정보 없음'}
+- 지정일: ${item.designatedDate || item.ccbaAsdt || '미상'}
+- 관리기관: ${item.adminOrg || item.ccbaAdmin || '미상'}${item.culturalAssetNo || item.crltsnoNm ? `
+- 문화재 번호: ${item.culturalAssetNo || item.crltsnoNm}` : ''}${item.hasCoordinates ? `
+- GPS 좌표: 정밀 위치 보유` : ''}`);
+    });
+  }
+
+  // 정부기관 정보 (한국관광공사)
+  if (integratedData.sources?.government?.data) {
+    const govData = Array.isArray(integratedData.sources.government.data) 
+      ? integratedData.sources.government.data 
+      : [integratedData.sources.government.data];
+    
+    sections.push(`
+
+### 🏢 **정부기관 정보** (한국관광공사)
+`);
+    
+    govData.slice(0, 3).forEach((item: any, index: number) => {
+      sections.push(`
+**${index + 1}. ${item.title || item.name || '이름 없음'}**
+- 주소: ${item.addr1 || item.address || '주소 정보 없음'}
+- 전화: ${item.tel || '전화번호 없음'}${item.homepage ? `
+- 홈페이지: ${item.homepage}` : ''}${item.overview ? `
+- 설명: ${item.overview.substring(0, 100)}...` : ''}`);
+    });
+  }
+
+  // Google Places 정보
+  if (integratedData.sources?.google_places?.data) {
+    const placesData = Array.isArray(integratedData.sources.google_places.data) 
+      ? integratedData.sources.google_places.data 
+      : [integratedData.sources.google_places.data];
+    
+    sections.push(`
+
+### 📍 **Google Places 정보** (실시간)
+`);
+    
+    placesData.slice(0, 3).forEach((item: any, index: number) => {
+      sections.push(`
+**${index + 1}. ${item.name || '이름 없음'}**
+- 주소: ${item.formatted_address || item.vicinity || '주소 정보 없음'}
+- 평점: ${item.rating ? `⭐ ${item.rating}/5 (${item.user_ratings_total || 0}개 리뷰)` : '평점 없음'}
+- 상태: ${item.opening_hours?.open_now ? '✅ 현재 운영 중' : '⚠️ 운영 상태 확인 필요'}${item.price_level ? `
+- 가격대: ${'$'.repeat(item.price_level)} (${item.price_level}/4)` : ''}`);
+    });
+  }
+
+  // UNESCO 정보
+  if (integratedData.sources?.unesco?.data) {
+    const unescoData = Array.isArray(integratedData.sources.unesco.data) 
+      ? integratedData.sources.unesco.data 
+      : [integratedData.sources.unesco.data];
+    
+    sections.push(`
+
+### 🌍 **UNESCO 세계유산 정보**
+`);
+    
+    unescoData.slice(0, 2).forEach((item: any, index: number) => {
+      sections.push(`
+**${index + 1}. ${item.name || '이름 없음'}**
+- 등재연도: ${item.date_inscribed || '미상'}
+- 유형: ${item.category || '미분류'}
+- 기준: ${item.criteria || '미상'}${item.short_description ? `
+- 설명: ${item.short_description.substring(0, 150)}...` : ''}`);
+    });
+  }
+
+  // Wikidata 정보
+  if (integratedData.sources?.wikidata?.data) {
+    const wikidataInfo = integratedData.sources.wikidata.data;
+    sections.push(`
+
+### 📊 **구조화된 지식 정보** (Wikidata)
+- 공식명: ${wikidataInfo.label || '미상'}
+- 설명: ${wikidataInfo.description || '설명 없음'}${wikidataInfo.coordinate ? `
+- 정확한 좌표: ${wikidataInfo.coordinate.lat}, ${wikidataInfo.coordinate.lng}` : ''}${wikidataInfo.inception ? `
+- 건립/설립: ${wikidataInfo.inception}` : ''}${wikidataInfo.architect ? `
+- 건축가: ${wikidataInfo.architect}` : ''}`);
+  }
+
+  // 중요 지침
+  sections.push(`
+
+---
+
+**🚨 AI 가이드 작성 지침**:
+1. 위 검증된 데이터의 정보를 **최우선**으로 활용하세요
+2. 문화재 번호, 지정일, 관리기관 등 **정확한 공식 정보** 포함
+3. 실시간 운영 상태(Google Places)를 반영하세요
+4. 평점과 리뷰 수를 언급하여 **신뢰성** 제공
+5. 정확한 주소와 연락처 정보 포함
+6. **추측이나 불확실한 정보는 절대 포함하지 마세요**
+
+`);
+
+  return sections.join('');
+}
+
+// 더미 데이터 생성 함수 (API 키 없을 때 사용)  
+function generateFallbackGuide(location: string, userProfile: UserProfile, integratedData?: any) {
   // 안전한 접근을 위한 기본값 설정
   const tourDuration = userProfile?.tourDuration || 90;
   const preferredStyle = userProfile?.preferredStyle || 'friendly';

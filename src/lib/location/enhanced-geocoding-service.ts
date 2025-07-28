@@ -67,7 +67,7 @@ export class EnhancedGeocodingService {
       this.geocodeWithOpenStreetMap(query, options),
       this.geocodeWithPhoton(query, options),
       // Google Places API는 API 키 설정 시에만 활성화
-      ...(process.env.GOOGLE_PLACES_API_KEY ? [this.geocodeWithGoogle(query, options)] : [])
+      ...((process.env.GOOGLE_API_KEY || process.env.GOOGLE_PLACES_API_KEY) ? [this.geocodeWithGoogle(query, options)] : [])
     ]);
 
     // 성공한 결과만 추출
@@ -228,7 +228,7 @@ export class EnhancedGeocodingService {
     try {
       const params = new URLSearchParams({
         input: query,
-        key: process.env.GOOGLE_PLACES_API_KEY!,
+        key: process.env.GOOGLE_API_KEY || process.env.GOOGLE_PLACES_API_KEY!,
         ...(options.language && { language: options.language }),
         ...(options.components?.country && { components: `country:${options.components.country}` })
       });

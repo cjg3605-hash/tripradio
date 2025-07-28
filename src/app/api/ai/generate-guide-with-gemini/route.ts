@@ -4,6 +4,7 @@ import { UserProfile } from '@/types/guide';
 import { aiRateLimiter } from '@/lib/rate-limiter';
 import { compressResponse } from '@/middleware/compression';
 import { trackAIGeneration } from '@/lib/monitoring';
+import { DataIntegrationOrchestrator } from '@/lib/data-sources/orchestrator/data-orchestrator';
 
 export const runtime = 'nodejs';
 
@@ -62,6 +63,46 @@ export async function POST(request: NextRequest) {
       userProfile: safeUserProfile
     });
 
+    // 🚀 사실 기반 검증된 가이드 생성 프로세스
+    console.log('🔍 1단계: 다중 데이터 소스에서 사실 정보 수집 중...');
+    
+    // DataIntegrationOrchestrator를 사용해 모든 데이터 소스에서 정보 수집
+    const orchestrator = DataIntegrationOrchestrator.getInstance();
+    
+    let integratedData = null;
+    let dataErrors: string[] = [];
+    
+    try {
+      const dataIntegrationResult = await orchestrator.integrateLocationData(
+        location.trim(),
+        undefined, // 좌표는 선택사항
+        {
+          dataSources: ['unesco', 'wikidata', 'government', 'google_places'],
+          includeReviews: true,
+          includeImages: true,
+          language: safeUserProfile.language
+        }
+      );
+      
+      if (dataIntegrationResult.success && dataIntegrationResult.data) {
+        integratedData = dataIntegrationResult.data;
+        console.log('✅ 데이터 통합 성공:', {
+          sources: dataIntegrationResult.sources,
+          confidence: integratedData.confidence,
+          verificationStatus: integratedData.verificationStatus?.isValid
+        });
+      } else {
+        dataErrors = dataIntegrationResult.errors.map(e => e.message);
+        console.warn('⚠️ 데이터 통합 부분 실패:', dataErrors);
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      dataErrors.push(errorMsg);
+      console.warn('⚠️ 데이터 통합 실패, AI 생성으로 대체:', errorMsg);
+    }
+
+    console.log('🤖 2단계: 사실 검증된 AI 가이드 생성 중...');
+
     // 30초 타임아웃으로 Gemini 라이브러리 호출
     const TIMEOUT_MS = 30000;
     const timeoutPromise = new Promise((_, reject) => {
@@ -70,19 +111,38 @@ export async function POST(request: NextRequest) {
 
     const guideData = await trackAIGeneration(async () => {
       return await Promise.race([
-        generatePersonalizedGuide(location.trim(), safeUserProfile),
+        generatePersonalizedGuide(location.trim(), safeUserProfile, integratedData),
         timeoutPromise
       ]);
     });
 
     console.log('✅ 가이드 생성 성공');
 
-    const response = NextResponse.json({
+    // 🎯 최종 응답 구성 - 사실 검증 정보 포함
+    const responseData = {
       success: true,
       data: guideData,
       location: location.trim(),
-      language: safeUserProfile.language
-    });
+      language: safeUserProfile.language,
+      // 🔍 데이터 통합 결과 추가
+      dataIntegration: {
+        hasIntegratedData: !!integratedData,
+        sources: integratedData ? Object.keys(integratedData.sources || {}) : [],
+        confidence: integratedData?.confidence || 0,
+        verificationStatus: integratedData?.verificationStatus || null,
+        dataQuality: integratedData?.metadata?.qualityScore || 0,
+        errors: dataErrors.length > 0 ? dataErrors : undefined
+      },
+      // 🎯 사실 검증 메타데이터
+      factVerification: {
+        isFactVerified: !!integratedData && integratedData.verificationStatus?.isValid,
+        confidenceScore: integratedData?.confidence || 0,
+        dataSourceCount: integratedData ? Object.keys(integratedData.sources || {}).length : 0,
+        verificationMethod: 'multi_source_cross_reference'
+      }
+    };
+
+    const response = NextResponse.json(responseData);
 
     return await compressResponse(response, request);
 

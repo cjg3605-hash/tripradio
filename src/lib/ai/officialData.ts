@@ -2,7 +2,8 @@ import axios from 'axios';
 import { supabase } from '@/lib/supabaseClient';
 import stringSimilarity from 'string-similarity';
 
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+// 통합된 Google API 키 사용
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || process.env.GOOGLE_PLACES_API_KEY;
 
 // 공식명 리스트 (서비스에 맞게 확장)
 const OFFICIAL_NAMES = [
