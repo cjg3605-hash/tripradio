@@ -93,7 +93,7 @@ export default function GuideGenerating({
           {/* 메시지 */}
           <div className="space-y-3">
             <h2 className="text-xl font-medium text-gray-900">
-              "{locationName}"의 개인 가이드를 만들고 있어요
+              &quot;{locationName}&quot;의 개인 가이드를 만들고 있어요
             </h2>
             <p className="text-gray-600 text-lg">
               {currentStageData.text}

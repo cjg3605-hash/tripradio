@@ -133,7 +133,7 @@ const QualityFeedback: React.FC<QualityFeedbackProps> = ({
               id="feedback-title"
               className="text-2xl font-bold text-gray-800"
             >
-              <span aria-hidden="true">🎯</span> "{locationName}" 가이드 평가
+              <span aria-hidden="true">🎯</span> &quot;{locationName}&quot; 가이드 평가
             </h2>
             <button
               onClick={() => setShowFeedback(false)}

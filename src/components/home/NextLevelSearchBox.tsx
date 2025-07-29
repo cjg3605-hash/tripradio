@@ -179,6 +179,7 @@ export default function NextLevelSearchBox() {
               aria-label="여행지 검색"
               aria-describedby="search-suggestions"
               aria-expanded={suggestions.length > 0 && isFocused}
+              aria-controls="search-suggestions"
               aria-autocomplete="list"
               role="combobox"
               aria-activedescendant={selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined}
