@@ -178,7 +178,12 @@ export class AIMapAnalysisSystem {
     try {
       // 다국어 및 정확한 장소명으로 검색 개선
       const enhancedQuery = await this.enhanceLocationQuery(locationName);
-      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(enhancedQuery)}&language=en&key=${this.googleApiKey}`;
+      
+      // 역(Station) 관련 검색인 경우 타입 필터 추가
+      const isStation = enhancedQuery.toLowerCase().includes('station') || locationName.includes('역');
+      const typeFilter = isStation ? '&type=transit_station' : '';
+      
+      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(enhancedQuery)}&language=en${typeFilter}&key=${this.googleApiKey}`;
       
       console.log(`🔍 Google Places 검색 URL: ${url.replace(this.googleApiKey, 'API_KEY')}`);
       
@@ -392,17 +397,18 @@ ${facilitiesInfo}
       });
 
       const prompt = `
-한국어 장소명을 분석하여 적절한 검색어로 변환해주세요.
+한국어 장소명을 Google Places API 검색에 최적화된 검색어로 변환해주세요.
 
 규칙:
-1. 한국 내 장소인 경우: 한국어 그대로 유지 (예: "광화문" → "광화문")
-2. 해외 장소인 경우: 해당 국가 현지어/영어로 번역 (예: "에펠탑" → "Tour Eiffel Paris France")
-3. 도시명/국가명 포함하여 검색 정확도 향상
-4. 정확한 공식 명칭 사용
+1. 한국 지하철역/기차역: 영어로 번역 + Station 추가 (예: "평촌역" → "Pyeongchon Station Korea")
+2. 한국 일반 장소: 한국어 그대로 유지 (예: "광화문" → "광화문")  
+3. 해외 장소: 해당 국가 현지어/영어로 번역 (예: "에펠탑" → "Tour Eiffel Paris France")
+4. 도시명/국가명 포함하여 검색 정확도 향상
+5. 공식 명칭 사용
 
 한국어 장소명: "${locationName}"
 
-답변: 적절한 검색어만 출력 (설명이나 따옴표 없이)
+답변: 최적화된 검색어만 출력 (설명이나 따옴표 없이)
 `;
 
       const result = await model.generateContent(prompt);
