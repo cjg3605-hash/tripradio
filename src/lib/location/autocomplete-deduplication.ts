@@ -81,7 +81,7 @@ export function calculateSimilarity(name1: string, name2: string): number {
  * Levenshtein distance 계산
  */
 function levenshteinDistance(str1: string, str2: string): number {
-  const matrix = [];
+  const matrix: number[][] = [];
   
   for (let i = 0; i <= str2.length; i++) {
     matrix[i] = [i];
