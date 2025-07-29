@@ -60,81 +60,118 @@ const LiveTourPage: React.FC = () => {
 
 
 
-  // TourContent 컴포넌트로부터 가이드 데이터 받아서 POI 생성
+  // 직접 DB에서 가이드 데이터 로딩
   useEffect(() => {
-    const interval = setInterval(() => {
-      // 전역 window 객체에서 TourContent가 설정한 가이드 데이터 찾기
-      const guideData = (window as any).currentGuideData;
+    const loadGuideDataDirectly = async () => {
+      setIsLoadingPOIs(true);
+      setPoisError(null);
       
-      if (guideData) {
-        const personalities = ['agreeableness', 'openness', 'conscientiousness'];
-        const pois: POI[] = [];
-
-        // 다양한 데이터 구조에서 챕터 찾기
-        let chapters: any[] = [];
+      try {
+        console.log('🔍 직접 DB 조회 시작:', locationName);
         
-        if (guideData.realTimeGuide?.chapters) {
-          chapters = guideData.realTimeGuide.chapters;
-        } else if (guideData.realTimeGuide && Array.isArray(guideData.realTimeGuide)) {
-          chapters = guideData.realTimeGuide;
-        } else if (guideData.chapters) {
-          chapters = guideData.chapters;
+        // 먼저 전역 데이터 확인 (빠른 경로)
+        const globalGuideData = (window as any).currentGuideData;
+        if (globalGuideData) {
+          console.log('📦 전역 데이터 사용');
+          processGuideData(globalGuideData);
+          return;
         }
-
-        console.log(`🔍 찾은 챕터: ${chapters.length}개`);
-
-        chapters.forEach((chapter: any, index: number) => {
-          // 다양한 좌표 형태 지원
-          let lat: number | undefined, lng: number | undefined;
-          
-          if (chapter.coordinates?.lat && chapter.coordinates?.lng) {
-            lat = chapter.coordinates.lat;
-            lng = chapter.coordinates.lng;
-          } else if (chapter.lat && chapter.lng) {
-            lat = chapter.lat;
-            lng = chapter.lng;
-          }
-
-          if (lat && lng) {
-            console.log(`📍 챕터 ${index + 1}: ${chapter.title} -> ${lat}, ${lng}`);
-            pois.push({
-              id: `poi_${index + 1}`,
-              name: chapter.title || `스팟 ${index + 1}`,
-              lat,
-              lng,
-              radius: 100,
-              description: chapter.narrative || chapter.content || chapter.title,
-              audioChapter: {
-                id: index + 1,
-                title: chapter.title || `스팟 ${index + 1}`,
-                text: chapter.narrative || chapter.content || chapter.title,
-                duration: 120 + (index * 30),
-                language: 'ko-KR',
-                personality: personalities[index % personalities.length] as any
-              }
-            });
-          }
-        });
-
-        if (pois.length > 0) {
-          console.log(`✅ ${pois.length}개 POI 생성 완료`);
-          setPoisWithChapters(pois);
-          setIsLoadingPOIs(false);
-          clearInterval(interval);
+        
+        // DB에서 직접 조회 (안전한 경로)
+        const { supabase } = await import('@/lib/supabaseClient');
+        const normalizedLocation = locationName.trim().toLowerCase().replace(/\s+/g, ' ');
+        
+        const { data, error } = await supabase
+          .from('guides')
+          .select('content')
+          .eq('locationname', normalizedLocation)
+          .eq('language', 'ko')
+          .maybeSingle();
+        
+        if (error) {
+          console.error('DB 조회 오류:', error);
+          setPoisError('가이드 데이터 조회 실패');
+          return;
         }
-      }
-    }, 500);
-
-    // 5초 후 타임아웃
-    setTimeout(() => {
-      clearInterval(interval);
-      if (poisWithChapters.length === 0) {
+        
+        if (data?.content) {
+          console.log('🗄️ DB에서 데이터 로드 성공');
+          processGuideData(data.content);
+        } else {
+          setPoisError('해당 위치의 가이드 데이터가 없습니다');
+        }
+        
+      } catch (error) {
+        console.error('가이드 데이터 로딩 실패:', error);
+        setPoisError('데이터 로딩 중 오류가 발생했습니다');
+      } finally {
         setIsLoadingPOIs(false);
-        setPoisError('가이드 데이터를 찾을 수 없습니다');
       }
-    }, 5000);
+    };
+    
+    const processGuideData = (guideData: any) => {
+      const personalities = ['agreeableness', 'openness', 'conscientiousness'];
+      const pois: POI[] = [];
 
-    return () => clearInterval(interval);
+      // 다양한 데이터 구조에서 챕터 찾기
+      let chapters: any[] = [];
+      
+      if (guideData.realTimeGuide?.chapters) {
+        chapters = guideData.realTimeGuide.chapters;
+      } else if (guideData.realTimeGuide && Array.isArray(guideData.realTimeGuide)) {
+        chapters = guideData.realTimeGuide;
+      } else if (guideData.chapters) {
+        chapters = guideData.chapters;
+      }
+
+      console.log(`🔍 찾은 챕터: ${chapters.length}개`);
+
+      chapters.forEach((chapter: any, index: number) => {
+        // DB에서 좌표 직접 추출
+        let lat: number | undefined, lng: number | undefined;
+        
+        if (chapter.coordinates?.lat && chapter.coordinates?.lng) {
+          lat = parseFloat(chapter.coordinates.lat);
+          lng = parseFloat(chapter.coordinates.lng);
+        } else if (chapter.lat && chapter.lng) {
+          lat = parseFloat(chapter.lat);
+          lng = parseFloat(chapter.lng);
+        }
+
+        // 기본 유효성 검증만 수행
+        if (lat && lng && !isNaN(lat) && !isNaN(lng) &&
+            lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+          console.log(`📍 챕터 ${index + 1}: ${chapter.title} -> ${lat}, ${lng}`);
+          pois.push({
+            id: `poi_${index + 1}`,
+            name: chapter.title || `스팟 ${index + 1}`,
+            lat,
+            lng,
+            radius: 100,
+            description: chapter.narrative || chapter.content || chapter.title,
+            audioChapter: {
+              id: index + 1,
+              title: chapter.title || `스팟 ${index + 1}`,
+              text: chapter.narrative || chapter.content || chapter.title,
+              duration: 120 + (index * 30),
+              language: 'ko-KR',
+              personality: personalities[index % personalities.length] as any
+            }
+          });
+        } else {
+          console.warn(`⚠️ 챕터 ${index + 1} 좌표 무효:`, { title: chapter.title, lat, lng });
+        }
+      });
+
+      if (pois.length > 0) {
+        console.log(`✅ ${pois.length}개 유효한 POI 생성 완료`);
+        setPoisWithChapters(pois);
+      } else {
+        setPoisError('유효한 좌표를 가진 챕터가 없습니다');
+      }
+    };
+
+    loadGuideDataDirectly();
   }, [locationName]);
 
   const audioChapters: AudioChapter[] = poisWithChapters
@@ -431,17 +468,7 @@ const LiveTourPage: React.FC = () => {
                 }
               }}
               className="w-full h-full"
-              // Enhanced Coordinate System (Phase 1-4) - 임시 비활성화
               locationName={locationName}
-              enableEnhancedCoordinateSystem={false}
-              enableSmartMapping={false}
-              coordinatePackageOptions={{
-                enableAnalytics: true,
-                enableCaching: true,
-                qualityThreshold: 0.6,
-                region: 'KR',
-                language: 'ko'
-              }}
             />
           </div>
         )}

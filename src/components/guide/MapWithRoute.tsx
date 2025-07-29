@@ -5,13 +5,7 @@ import 'leaflet/dist/leaflet.css';
 // import '@/styles/monochrome-map.css'; // 🔥 흑백 스타일 제거
 import L from 'leaflet';
 import { useEffect, useState } from 'react';
-import { enhancedLocationService, type EnhancedLocationResult } from '@/lib/location/enhanced-location-utils';
-import { smartChapterMapper, type ChapterMarkerData, type MappingResult } from '@/lib/coordinates/smart-chapter-mapper';
-// import { coordinateServiceIntegration, type GuideCoordinatePackage, type GuideQualityOverview } from '@/lib/coordinates/coordinate-service-integration';
-
-// 임시 타입 정의
-type GuideCoordinatePackage = any;
-type GuideQualityOverview = any;
+// 기본 좌표 매핑만 사용
 import type { GuideChapter } from '@/types/guide';
 
 // @ts-ignore
@@ -81,26 +75,7 @@ interface MapWithRouteProps {
   showUserLocation?: boolean;
   onPoiClick?: (poiId: any) => void;
   className?: string;
-  // Enhanced location features
-  locationName?: string; // 위치명으로 자동 지오코딩
-  enableEnhancedGeocoding?: boolean;
-  preferStaticData?: boolean;
-  // Smart chapter mapping
-  enableSmartMapping?: boolean;
-  mappingOptions?: {
-    radiusKm?: number;
-    qualityThreshold?: number;
-    distributionStrategy?: 'sequential' | 'clustered' | 'smart';
-  };
-  // Enhanced Coordinate System (Phase 1-4)
-  enableEnhancedCoordinateSystem?: boolean;
-  coordinatePackageOptions?: {
-    enableAnalytics?: boolean;
-    enableCaching?: boolean;
-    qualityThreshold?: number;
-    region?: string;
-    language?: string;
-  };
+  locationName?: string;
 }
 
 function MapFlyTo({ lat, lng }: { lat: number; lng: number }) {
@@ -184,190 +159,16 @@ export default function MapWithRoute({
   showUserLocation = false, 
   onPoiClick, 
   className,
-  // Enhanced features
-  locationName,
-  enableEnhancedGeocoding = true,
-  preferStaticData = false,
-  // Smart mapping features
-  enableSmartMapping = true,
-  mappingOptions = {},
-  // Enhanced Coordinate System features
-  enableEnhancedCoordinateSystem = true,
-  coordinatePackageOptions = {}
+  locationName
 }: MapWithRouteProps) {
-  // Enhanced location state
-  const [enhancedLocation, setEnhancedLocation] = useState<EnhancedLocationResult | null>(null);
-  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
-  const [locationError, setLocationError] = useState<string | null>(null);
-  
-  // Smart chapter mapping state
-  const [mappingResult, setMappingResult] = useState<MappingResult | null>(null);
-  const [chapterMarkers, setChapterMarkers] = useState<ChapterMarkerData[]>([]);
-  const [isMappingChapters, setIsMappingChapters] = useState(false);
-  
-  // Enhanced Coordinate System state (Phase 1-4)
-  const [coordinatePackage, setCoordinatePackage] = useState<GuideCoordinatePackage | null>(null);
-  const [qualityOverview, setQualityOverview] = useState<GuideQualityOverview | null>(null);
-  const [isLoadingEnhancedSystem, setIsLoadingEnhancedSystem] = useState(false);
-  const [enhancedSystemError, setEnhancedSystemError] = useState<string | null>(null);
 
-  // Enhanced location loading effect
-  useEffect(() => {
-    if (locationName && enableEnhancedGeocoding && true) { // ✅ 활성화
-      setIsLoadingLocation(true);
-      setLocationError(null);
-      
-      enhancedLocationService.findLocation(locationName || '', {
-        preferStatic: preferStaticData,
-        language: 'ko'
-      })
-      .then(result => {
-        console.log('📍 Enhanced location found:', result);
-        setEnhancedLocation(result);
-      })
-      .catch(error => {
-        console.error('Enhanced location search failed:', error);
-        setLocationError(error.message);
-      })
-      .finally(() => {
-        setIsLoadingLocation(false);
-      });
-    }
-  }, [locationName, enableEnhancedGeocoding, preferStaticData]);
-
-  // Enhanced Coordinate System effect (Phase 1-4 통합)
-  useEffect(() => {
-    if (chapters && chapters.length > 0 && enableEnhancedCoordinateSystem && locationName && false) { // 🔥 비활성화
-      setIsLoadingEnhancedSystem(true);
-      setEnhancedSystemError(null);
-      
-      console.log('🚀 Enhanced Coordinate System (Phase 1-4) 시작:', locationName);
-      
-      const guideChapters: GuideChapter[] = (chapters || []).map(chapter => ({
-        id: chapter.id,
-        title: chapter.title,
-        location: chapter.location ? {
-          lat: chapter.location.lat!,
-          lng: chapter.location.lng!
-        } : undefined,
-        lat: chapter.lat,
-        lng: chapter.lng,
-        latitude: chapter.latitude,
-        longitude: chapter.longitude,
-        coordinates: chapter.coordinates ? {
-          lat: chapter.coordinates.lat!,
-          lng: chapter.coordinates.lng!
-        } : undefined
-      }));
-
-      // coordinateServiceIntegration.generateGuideCoordinatePackage(locationName, guideChapters, {
-      //   enableAnalytics: coordinatePackageOptions.enableAnalytics || true,
-      //   enableCaching: coordinatePackageOptions.enableCaching !== false,
-      //   qualityThreshold: coordinatePackageOptions.qualityThreshold || 0.5,
-      //   region: coordinatePackageOptions.region || 'KR',
-      //   language: coordinatePackageOptions.language || 'ko'
-      // })
-      // .then(result => {
-      //   console.log('✅ Enhanced Coordinate Package 생성 완료:', result);
-      //   setCoordinatePackage(result);
-      //   setQualityOverview(result.qualityOverview);
-      //   
-      //   // MapWithRoute 호환 데이터로 변환
-      //   const mapData = coordinateServiceIntegration.convertToMapWithRouteProps(result);
-      //   
-      //   // 챕터 마커 데이터 생성
-      //   const enhancedMarkers: ChapterMarkerData[] = mapData.chapters.map(chapter => ({
-      //     id: chapter.id,
-      //     title: chapter.title,
-      //     coordinates: { lat: chapter.lat, lng: chapter.lng },
-      //     markerType: chapter.qualityLevel === 'excellent' ? 'verified' : 
-      //                chapter.qualityLevel === 'good' ? 'estimated' : 'inferred',
-      //     accuracy: chapter.accuracy || 0,
-      //     confidence: chapter.confidence || 0,
-      //     tooltip: `${chapter.title} (품질: ${chapter.qualityLevel})`,
-      //     validationStatus: chapter.qualityLevel === 'excellent' ? 'verified' : 
-      //                     chapter.qualityLevel === 'good' ? 'estimated' : 'failed',
-      //     sources: ['4단계-통합시스템']
-      //   }));
-      //   
-      //   setChapterMarkers(enhancedMarkers);
-      //   
-      //   // 실시간 모니터링 활성화
-      //   coordinateServiceIntegration.enableRealTimeMonitoring(locationName);
-      // })
-      // .catch(error => {
-      //   console.error('❌ Enhanced Coordinate System 실패:', error);
-      //   setEnhancedSystemError(error.message);
-      //   
-      //   // 폴백: 기존 Smart Chapter Mapper 사용
-      //   console.log('🔄 폴백: Smart Chapter Mapper 사용');
-      // });
-
-      // 폴백: 기존 Smart Chapter Mapper 사용
-      smartChapterMapper.mapChaptersToCoordinates(guideChapters, {
-          baseLocation: locationName || '',
-          radiusKm: mappingOptions.radiusKm || 2,
-          qualityThreshold: mappingOptions.qualityThreshold || 0.5,
-          distributionStrategy: mappingOptions.distributionStrategy || 'smart',
-          enableValidation: true
-        })
-        .then(fallbackResult => {
-          const markers = smartChapterMapper.convertToMarkerData(fallbackResult.chapterCoordinates);
-          setChapterMarkers(markers);
-        })
-        .catch(fallbackError => {
-          console.error('❌ 폴백도 실패:', fallbackError);
-        })
-        .finally(() => {
-          setIsLoadingEnhancedSystem(false);
-        });
-    }
-  }, [chapters, enableEnhancedCoordinateSystem, locationName, coordinatePackageOptions]);
-
-  // Smart chapter mapping effect (Enhanced System이 비활성화된 경우)
-  useEffect(() => {
-    if (chapters && chapters.length > 0 && enableSmartMapping && !enableEnhancedCoordinateSystem && locationName && true) { // ✅ 활성화
-      setIsMappingChapters(true);
-      
-      const guideChapters: GuideChapter[] = (chapters || []).map(chapter => ({
-        id: chapter.id,
-        title: chapter.title,
-        location: chapter.location ? {
-          lat: chapter.location.lat!,
-          lng: chapter.location.lng!
-        } : undefined,
-        lat: chapter.lat,
-        lng: chapter.lng,
-        latitude: chapter.latitude,
-        longitude: chapter.longitude,
-        coordinates: chapter.coordinates ? {
-          lat: chapter.coordinates.lat!,
-          lng: chapter.coordinates.lng!
-        } : undefined
-      }));
-
-      smartChapterMapper.mapChaptersToCoordinates(guideChapters, {
-        baseLocation: locationName || '',
-        radiusKm: mappingOptions.radiusKm || 2,
-        qualityThreshold: mappingOptions.qualityThreshold || 0.5,
-        distributionStrategy: mappingOptions.distributionStrategy || 'smart',
-        enableValidation: true
-      })
-      .then(result => {
-        console.log('🗺️ Smart chapter mapping completed:', result);
-        setMappingResult(result);
-        
-        const markers = smartChapterMapper.convertToMarkerData(result.chapterCoordinates);
-        setChapterMarkers(markers);
-      })
-      .catch(error => {
-        console.error('❌ Smart chapter mapping failed:', error);
-      })
-      .finally(() => {
-        setIsMappingChapters(false);
-      });
-    }
-  }, [chapters, enableSmartMapping, locationName, mappingOptions]);
+  // 기본 좌표 매핑만 사용 - 단순화
+  console.log('🗺️ MapWithRoute 렌더링:', {
+    chaptersCount: chapters?.length || 0,
+    poisCount: pois?.length || 0,
+    hasCenter: !!center,
+    locationName
+  });
 
   // 좌표 추출 함수 개선 (여러 형태 지원)
   const getLatLng = (chapter: Chapter): [number | undefined, number | undefined] => {
@@ -395,25 +196,8 @@ export default function MapWithRoute({
     originalIndex: index
   }));
 
-  // 스마트 매핑 결과가 있으면 우선 사용
-  let allData: any[];
-  if (enableSmartMapping && chapterMarkers.length > 0) {
-    allData = chapterMarkers.map(marker => ({
-      id: marker.id,
-      title: marker.title,
-      lat: marker.coordinates.lat,
-      lng: marker.coordinates.lng,
-      originalIndex: marker.id - 1,
-      markerType: marker.markerType,
-      accuracy: marker.accuracy,
-      confidence: marker.confidence,
-      tooltip: marker.tooltip,
-      validationStatus: marker.validationStatus
-    }));
-  } else {
-    // 기존 방식
-    allData = chapters ? (chapters || []) : poisAsChapters;
-  }
+  // 기본 데이터 사용 (chapters 우선, 없으면 pois)
+  const allData = chapters?.length ? chapters : poisAsChapters;
   
   // 유효한 좌표를 가진 데이터만 필터링
   const validChapters = allData
@@ -427,26 +211,18 @@ export default function MapWithRoute({
       }
     })
     .filter(item => {
-      // 🔧 강화된 좌표 검증
+      // 기본 좌표 유효성 검증만 수행
       const isValidLat = item.lat !== undefined && 
                         !isNaN(item.lat) && 
-                        item.lat !== 0 && 
                         item.lat >= -90 && 
                         item.lat <= 90;
       
       const isValidLng = item.lng !== undefined && 
                         !isNaN(item.lng) && 
-                        item.lng !== 0 && 
                         item.lng >= -180 && 
                         item.lng <= 180;
       
-      // 🚨 서울 기본값 필터링 (AI가 추측으로 생성한 좌표)
-      const isNotSeoulDefault = !(
-        (Math.abs(item.lat - 37.5665) < 0.001 && Math.abs(item.lng - 126.9780) < 0.001) ||
-        (Math.abs(item.lat - 37.5796) < 0.001 && Math.abs(item.lng - 126.9770) < 0.001)
-      );
-      
-      return isValidLat && isValidLng && isNotSeoulDefault;
+      return isValidLat && isValidLng;
     });
 
   console.log('📍 지도 렌더링:', {
@@ -536,34 +312,21 @@ export default function MapWithRoute({
     );
   }
 
-  // 지도 중심점 계산 (Enhanced location 우선)
+  // 지도 중심점 계산 - 단순화
   let mapCenter: LatLngExpression;
   let mapZoom = customZoom;
-  let centerInfo = { name: '', accuracy: 0, sources: [] as string[] };
 
-  if (enhancedLocation && !isLoadingLocation) {
-    // Enhanced location 우선 사용
-    mapCenter = [enhancedLocation.center.lat, enhancedLocation.center.lng];
-    mapZoom = mapZoom || enhancedLocation.recommendedZoom;
-    centerInfo = {
-      name: enhancedLocation.center.name,
-      accuracy: enhancedLocation.center.accuracy,
-      sources: enhancedLocation.center.sources
-    };
-  } else if (center && center.lat && center.lng) {
-    // 사용자 정의 중심점
+  if (center && center.lat && center.lng) {
+    // 사용자 정의 중심점 우선
     mapCenter = [center.lat, center.lng];
-    centerInfo.name = center.name || 'Custom Location';
   } else if (validChapters.length > 0) {
     // 유효한 좌표들의 평균
     const centerLat = validChapters.reduce((sum, chapter) => sum + chapter.lat!, 0) / validChapters.length;
     const centerLng = validChapters.reduce((sum, chapter) => sum + chapter.lng!, 0) / validChapters.length;
     mapCenter = [centerLat, centerLng];
-    centerInfo.name = 'Calculated Center';
   } else {
-    // 서울 중심가 기본값
+    // 기본값
     mapCenter = [37.5665, 126.9780];
-    centerInfo.name = '서울 중심가';
   }
 
   // 활성 챕터의 좌표 (지도 이동용)
@@ -593,47 +356,7 @@ export default function MapWithRoute({
 
   const zoom = mapZoom || calculateZoom();
 
-  // Loading 상태 표시 (Enhanced + Smart Mapping + Enhanced System)
-  if (isLoadingLocation || isMappingChapters || isLoadingEnhancedSystem) {
-    return (
-      <div className="w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
-        <div className="w-full h-full flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
-            <div className="text-sm text-gray-600">
-              {isLoadingEnhancedSystem ? '📊 4단계 통합 좌표 시스템 구동 중...' : 
-               isMappingChapters ? '챕터별 정확한 위치 매핑 중...' : 
-               '정확한 위치 검색 중...'}
-            </div>
-            <div className="text-xs text-gray-400 mt-1">
-              {locationName}
-              {(isMappingChapters || isLoadingEnhancedSystem) && chapters && ` (${chapters.length}개 챕터)`}
-              {isLoadingEnhancedSystem && (
-                <div className="mt-1 text-xs text-blue-600">
-                  Phase 1-4: Multi-Source → Quality → Analytics → Global
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Error 상태 표시
-  if (locationError && enableEnhancedGeocoding) {
-    return (
-      <div className="w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
-        <div className="w-full h-full flex items-center justify-center">
-          <div className="text-center text-red-500">
-            <div className="text-lg mb-2">⚠️</div>
-            <div className="text-sm">위치 검색 실패</div>
-            <div className="text-xs mt-1 text-gray-500">{locationError}</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // 로딩 상태 제거 - 즉시 렌더링
 
   return (
     <div className="w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
@@ -719,77 +442,22 @@ export default function MapWithRoute({
         })}
       </MapContainer>
       
-      {/* Enhanced 지도 하단 정보 - 품질 정보 포함 */}
+      {/* 기본 지도 하단 정보 */}
       <div className="bg-black/2 px-4 py-3 text-xs font-medium border-t border-black/5">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-black rounded-full"></div>
             <span className="text-black/80">{validChapters.length}개 지점</span>
-            
-            {/* Enhanced Coordinate System 품질 정보 */}
-            {qualityOverview && (
-              <div className="flex items-center gap-1 ml-2">
-                <div className={`w-1.5 h-1.5 rounded-full ${
-                  qualityOverview.overallScore >= 0.8 ? 'bg-green-500' :
-                  qualityOverview.overallScore >= 0.6 ? 'bg-yellow-500' : 'bg-red-500'
-                }`}></div>
-                <span className={`${
-                  qualityOverview.overallScore >= 0.8 ? 'text-green-700' :
-                  qualityOverview.overallScore >= 0.6 ? 'text-yellow-700' : 'text-red-700'
-                }`}>
-                  품질 {Math.round(qualityOverview.overallScore * 100)}%
-                </span>
-                <span className="text-black/50 ml-1">
-                  ({qualityOverview.accurateChapters}개 검증)
-                </span>
-              </div>
-            )}
-            
-            {/* 기존 Enhanced Location 정보 */}
-            {enhancedLocation && !qualityOverview && (
-              <div className="flex items-center gap-1 ml-2">
-                <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                <span className="text-green-700">
-                  정확도 {Math.round(centerInfo.accuracy * 100)}%
-                </span>
-              </div>
-            )}
           </div>
           <div className="text-right">
             <div className="text-black/60">
               {activeChapterData ? 
                 `현재: ${activeChapterData.title}` : 
-                centerInfo.name || '위치를 선택해주세요'
+                locationName || '위치를 선택해주세요'
               }
             </div>
-            
-            {/* Enhanced System 상세 정보 */}
-            {coordinatePackage && (
-              <div className="text-xs text-black/40 mt-0.5">
-                4단계 통합시스템 • {coordinatePackage.recommendations.length}개 권장사항
-                {qualityOverview && qualityOverview.averageAccuracy < 20 && (
-                  <span className="text-green-600 ml-1">• 고정밀도</span>
-                )}
-              </div>
-            )}
-            
-            {/* 기존 Enhanced Location 상세 정보 */}
-            {enhancedLocation && centerInfo.sources.length > 0 && !coordinatePackage && (
-              <div className="text-xs text-black/40 mt-0.5">
-                {centerInfo.sources.join(', ')} • {enhancedLocation.dataSource}
-              </div>
-            )}
           </div>
         </div>
-        
-        {/* 품질 경고 및 권장사항 */}
-        {coordinatePackage && coordinatePackage.recommendations.length > 0 && (
-          <div className="mt-2 pt-2 border-t border-black/5">
-            <div className="text-xs text-amber-700">
-              💡 {coordinatePackage.recommendations[0]}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
