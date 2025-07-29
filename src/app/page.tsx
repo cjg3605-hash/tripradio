@@ -147,7 +147,7 @@ export default function HomePage() {
       if (query.trim() && isFocused) {
         fetchSuggestions(query.trim());
       }
-    }, 300); // 300ms 디바운스
+    }, 200); // 200ms 디바운스 (최적화)
 
     return () => clearTimeout(timeoutId);
   }, [query, currentLanguage, isFocused]);

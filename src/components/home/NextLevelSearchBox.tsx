@@ -55,7 +55,7 @@ export default function NextLevelSearchBox() {
         } finally {
           setIsTyping(false);
         }
-      }, 300);
+      }, 200); // 200ms 디바운스 (최적화)
       return () => clearTimeout(timer);
     } else {
       setSuggestions([]);
