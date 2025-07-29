@@ -18,7 +18,7 @@ export interface CoordinateEnhancementResult {
     originalCoords: { lat: number; lng: number };
     enhancedCoords: { lat: number; lng: number };
     distanceImprovement: number; // 미터
-    method: 'self-validation' | 'api-enhancement' | 'ai-map-analysis' | 'fallback'; // 사용된 검증 방법
+    method: 'self-validation' | 'api-enhancement' | 'ai-map-analysis' | 'fallback' | 'real-location-search'; // 사용된 검증 방법
   }[];
   chapter0Validation?: SelfValidationResult; // 챕터 0 자가검증 결과
   chapter0AIAnalysis?: AIMapAnalysisResult; // 챕터 0 AI 지도 분석 결과
@@ -109,8 +109,8 @@ export async function enhanceGuideCoordinates(
         if (i === 0 || hasOriginalCoords) {
 
           if (i === 0) {
-            // 🎯 챕터 0: 새로운 AI 지도 분석 시스템 사용 (Google Places 우선 검색)
-            console.log('🎯 챕터 0 AI 지도 분석 시작...');
+            // 🎯 챕터 0: 새로운 AI 지도 분석 시스템 사용 (관광 시작점)
+            console.log('🎯 챕터 0 관광 시작점 분석 시작...');
             
             try {
               const aiAnalysis = await generateChapter0CoordinateWithAI(
@@ -199,32 +199,62 @@ export async function enhanceGuideCoordinates(
               result.enhancedCount++;
             }
           } else {
-            // 🔧 나머지 챕터: 기존 Enhanced Location Service 방식
-            const enhancedCoords = generateChapterCoordinate(
-              baseCoordinates, 
-              i, 
-              chapters.length,
-              chapter.title || `Chapter ${i}`
-            );
-
-            const distanceImprovement = originalCoords ? calculateDistance(
-              originalCoords.lat, originalCoords.lng,
-              enhancedCoords.lat, enhancedCoords.lng
-            ) : 0;
-
-            chapter.coordinates = enhancedCoords;
-
-            result.improvements.push({
-              chapterId: i,
-              originalCoords: originalCoords || { lat: 0, lng: 0 },
-              enhancedCoords,
-              distanceImprovement,
-              method: 'api-enhancement'
-            });
-
-            result.enhancedCount++;
+            // 🎯 나머지 챕터: 실제 관광 장소 기반 좌표 검색
+            console.log(`🎯 챕터 ${i} 실제 관광 장소 분석 중...`);
             
-            console.log(`🔧 챕터 ${i} 좌표 보정: ${originalCoords?.lat || 0}, ${originalCoords?.lng || 0} → ${enhancedCoords.lat}, ${enhancedCoords.lng} (${Math.round(distanceImprovement)}m 개선)`);
+            try {
+              const realLocationCoords = await findRealTourismLocation(
+                locationName,
+                chapter,
+                baseCoordinates,
+                i
+              );
+
+              if (realLocationCoords) {
+                const distanceImprovement = originalCoords ? calculateDistance(
+                  originalCoords.lat, originalCoords.lng,
+                  realLocationCoords.lat, realLocationCoords.lng
+                ) : 0;
+
+                chapter.coordinates = realLocationCoords;
+
+                result.improvements.push({
+                  chapterId: i,
+                  originalCoords: originalCoords || { lat: 0, lng: 0 },
+                  enhancedCoords: realLocationCoords,
+                  distanceImprovement,
+                  method: 'real-location-search'
+                });
+
+                result.enhancedCount++;
+                
+                console.log(`✅ 챕터 ${i} 실제 장소 발견: ${realLocationCoords.lat}, ${realLocationCoords.lng} (${Math.round(distanceImprovement)}m 개선)`);
+              } else {
+                // 폴백: 기존 방식
+                const enhancedCoords = generateChapterCoordinate(
+                  baseCoordinates, 
+                  i, 
+                  chapters.length,
+                  chapter.title || `Chapter ${i}`
+                );
+
+                chapter.coordinates = enhancedCoords;
+                result.enhancedCount++;
+                console.log(`🔄 챕터 ${i} 폴백 좌표 사용`);
+              }
+            } catch (error) {
+              console.warn(`⚠️ 챕터 ${i} 실제 장소 검색 실패, 폴백 사용:`, error);
+              // 폴백: 기존 방식
+              const enhancedCoords = generateChapterCoordinate(
+                baseCoordinates, 
+                i, 
+                chapters.length,
+                chapter.title || `Chapter ${i}`
+              );
+
+              chapter.coordinates = enhancedCoords;
+              result.enhancedCount++;
+            }
           }
         }
       }
@@ -276,6 +306,134 @@ export async function enhanceGuideCoordinates(
 }
 
 /**
+ * 🎯 실제 관광 장소 검색: 챕터 내용에서 구체적 위치 추출 후 좌표 검색
+ */
+async function findRealTourismLocation(
+  mainLocationName: string,
+  chapter: GuideChapter,
+  baseCoordinates: { lat: number; lng: number },
+  chapterIndex: number
+): Promise<{ lat: number; lng: number } | null> {
+  
+  try {
+    // 1단계: AI로 챕터에서 실제 장소명 추출
+    const extractedLocation = await extractLocationFromChapter(
+      mainLocationName,
+      chapter,
+      chapterIndex
+    );
+
+    if (!extractedLocation) {
+      console.warn(`⚠️ 챕터 ${chapterIndex}에서 장소명 추출 실패`);
+      return null;
+    }
+
+    console.log(`🔍 챕터 ${chapterIndex} 추출된 장소: "${extractedLocation}"`);
+
+    // 2단계: 하이브리드 API로 실제 좌표 검색
+    const locationResult = await enhancedLocationService.findLocation({
+      query: `${mainLocationName} ${extractedLocation}`,
+      language: 'ko',
+      context: 'tourist attraction point of interest landmark'
+    });
+
+    if (locationResult.error || !locationResult.coordinates) {
+      console.warn(`⚠️ 장소 좌표 검색 실패: ${extractedLocation}`);
+      return null;
+    }
+
+    // 3단계: 기준점과의 거리 검증 (10km 이내만 허용)
+    const distance = calculateDistance(
+      baseCoordinates.lat, baseCoordinates.lng,
+      locationResult.coordinates.lat, locationResult.coordinates.lng
+    );
+
+    if (distance > 10000) { // 10km 초과시 제외
+      console.warn(`⚠️ 장소가 너무 멀음: ${extractedLocation} (${Math.round(distance)}m)`);
+      return null;
+    }
+
+    console.log(`✅ 유효한 관광 장소 발견: ${extractedLocation} (${Math.round(distance)}m 거리)`);
+    return locationResult.coordinates;
+
+  } catch (error) {
+    console.error('실제 관광 장소 검색 오류:', error);
+    return null;
+  }
+}
+
+/**
+ * 🤖 AI로 챕터 내용에서 구체적인 장소명 추출
+ */
+async function extractLocationFromChapter(
+  mainLocationName: string,
+  chapter: GuideChapter,
+  chapterIndex: number
+): Promise<string | null> {
+  
+  try {
+    // Gemini API 설정
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    if (!geminiApiKey) {
+      return null;
+    }
+
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-2.5-flash',
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 200
+      }
+    });
+
+    const chapterContent = chapter.description || chapter.narrative || chapter.title || '';
+    
+    const prompt = `
+관광 가이드 챕터에서 구체적인 장소명을 추출해주세요.
+
+**메인 관광지**: ${mainLocationName}
+**챕터 번호**: ${chapterIndex}
+**챕터 내용**: "${chapterContent}"
+
+다음 우선순위로 구체적인 장소명을 찾아주세요:
+1. 건물명, 시설명 (예: "2번 출구", "중앙광장", "매표소")
+2. 구역명 (예: "동쪽 구역", "메인 홀", "전시관")  
+3. 랜드마크 (예: "분수대", "조각상", "정원")
+4. 방향/위치 (예: "입구", "중심부", "끝부분")
+
+**중요사항**:
+- ${mainLocationName}와 직접 관련된 구체적 장소만 추출
+- 추상적 표현은 제외 (예: "아름다운 곳", "특별한 장소")
+- 장소명만 간단히 출력 (설명 없이)
+
+답변: 구체적인 장소명만 출력 (예: "2번 출구", "중앙광장")
+`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const extractedLocation = response.text().trim().replace(/['"""]/g, '');
+
+    // 유효성 검증
+    if (extractedLocation && 
+        extractedLocation.length > 2 && 
+        extractedLocation.length < 50 &&
+        !extractedLocation.includes('없음') &&
+        !extractedLocation.includes('추출') &&
+        !extractedLocation.includes('해당') ) {
+      return extractedLocation;
+    }
+
+    return null;
+
+  } catch (error) {
+    console.error('장소명 추출 오류:', error);
+    return null;
+  }
+}
+
+/**
  * 기준 좌표 기반으로 챕터별 정확한 좌표 생성
  */
 function generateChapterCoordinate(
@@ -286,8 +444,8 @@ function generateChapterCoordinate(
 ): { lat: number; lng: number } {
   
   // 챕터별 반경 계산 (첫 번째는 중심에 가깝게)
-  const baseRadius = 0.0001; // 약 10m
-  const maxRadius = 0.0005;  // 약 50m
+  const baseRadius = 0.00001; // 약 1m
+  const maxRadius = 0.00005;  // 약 5m
   
   let radius: number;
   if (chapterIndex === 0) {

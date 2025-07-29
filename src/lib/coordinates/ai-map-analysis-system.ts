@@ -37,6 +37,27 @@ export interface GooglePlacesNearbyResult {
   }>;
 }
 
+export interface GoogleGeocodingResult {
+  results: Array<{
+    formatted_address: string;
+    geometry: {
+      location: {
+        lat: number;
+        lng: number;
+      };
+      location_type: 'ROOFTOP' | 'RANGE_INTERPOLATED' | 'GEOMETRIC_CENTER' | 'APPROXIMATE';
+    };
+    place_id: string;
+    types: string[];
+    address_components: Array<{
+      long_name: string;
+      short_name: string;
+      types: string[];
+    }>;
+  }>;
+  status: string;
+}
+
 export interface AIMapAnalysisResult {
   success: boolean;
   selectedStartingPoint: {
@@ -75,10 +96,10 @@ export class AIMapAnalysisSystem {
       this.geminiApiKey = geminiKey;
       this.gemini = new GoogleGenerativeAI(geminiKey);
       this.model = this.gemini.getGenerativeModel({ 
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash',
         generationConfig: {
           temperature: 0.1,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 2048, // 복잡한 관광 동선 분석을 위해 증가
           topP: 0.8
         }
       });
@@ -107,8 +128,8 @@ export class AIMapAnalysisSystem {
     };
 
     try {
-      // 1단계: Google Places Text Search로 메인 장소 찾기
-      const mainLocation = await this.searchMainLocation(locationName);
+      // 1단계: 하이브리드 검색으로 메인 장소 찾기 (Places + Geocoding)
+      const mainLocation = await this.searchMainLocationHybrid(locationName);
       if (!mainLocation) {
         console.warn(`⚠️ 메인 장소를 찾을 수 없음: ${locationName}`);
         result.processingTimeMs = Date.now() - startTime;
@@ -116,6 +137,7 @@ export class AIMapAnalysisSystem {
       }
 
       console.log(`✅ 메인 장소 발견: ${mainLocation.name} (${mainLocation.geometry.location.lat}, ${mainLocation.geometry.location.lng})`);
+      console.log(`🔍 검색 방식: ${mainLocation.source?.toUpperCase()} API`);
 
       // 2단계: 주변 1km 반경의 모든 관련 시설 검색
       const nearbyFacilities = await this.searchNearbyTouristFacilities(
@@ -168,13 +190,43 @@ export class AIMapAnalysisSystem {
   }
 
   /**
-   * 🔍 1단계: Google Places Text Search로 메인 장소 검색
+   * 🎯 하이브리드 좌표 검색: Places + Geocoding API 병렬 실행
    */
-  private async searchMainLocation(locationName: string) {
+  private async searchMainLocationHybrid(locationName: string) {
     if (!this.googleApiKey) {
       throw new Error('Google API key not available');
     }
 
+    try {
+      console.log(`🔍 하이브리드 검색 시작: ${locationName}`);
+      
+      // Places와 Geocoding API 병렬 실행으로 속도 최적화
+      const [placesResult, geocodingResult] = await Promise.all([
+        this.searchWithPlacesAPI(locationName),
+        this.searchWithGeocodingAPI(locationName)
+      ]);
+
+      // 최적 좌표 선택
+      const bestResult = this.selectBestCoordinate(placesResult, geocodingResult, locationName);
+      
+      if (bestResult) {
+        console.log(`✅ 하이브리드 검색 성공: ${bestResult.source} API 선택`);
+        console.log(`📍 좌표: ${bestResult.geometry.location.lat}, ${bestResult.geometry.location.lng}`);
+      }
+      
+      return bestResult;
+
+    } catch (error) {
+      console.error('❌ 하이브리드 검색 실패:', error);
+      // 폴백: Places API만 사용
+      return await this.searchWithPlacesAPI(locationName);
+    }
+  }
+
+  /**
+   * 🔍 Google Places Text Search로 메인 장소 검색
+   */
+  private async searchWithPlacesAPI(locationName: string) {
     try {
       // 다국어 및 정확한 장소명으로 검색 개선
       const enhancedQuery = await this.enhanceLocationQuery(locationName);
@@ -185,24 +237,63 @@ export class AIMapAnalysisSystem {
       
       const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(enhancedQuery)}&language=en${typeFilter}&key=${this.googleApiKey}`;
       
-      console.log(`🔍 Google Places 검색 URL: ${url.replace(this.googleApiKey, 'API_KEY')}`);
+      console.log(`🔍 Places API 검색: ${enhancedQuery}`);
       
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(`Google Places Text Search error: ${response.status}`);
+        throw new Error(`Places API error: ${response.status}`);
       }
 
       const data: GooglePlacesTextSearchResult = await response.json();
       
       if (data.results && data.results.length > 0) {
-        // 가장 관련성 높은 첫 번째 결과 반환
-        return data.results[0];
+        return { ...data.results[0], source: 'places' };
       }
 
       return null;
 
     } catch (error) {
-      console.error('Google Places Text Search 실패:', error);
+      console.error('Places API 검색 실패:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 🗺️ Google Geocoding API로 정확한 주소 기반 좌표 검색
+   */
+  private async searchWithGeocodingAPI(locationName: string) {
+    try {
+      // AI 번역된 장소명 사용
+      const enhancedQuery = await this.enhanceLocationQuery(locationName);
+      
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(enhancedQuery)}&language=en&key=${this.googleApiKey}`;
+      
+      console.log(`🗺️ Geocoding API 검색: ${enhancedQuery}`);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Geocoding API error: ${response.status}`);
+      }
+
+      const data: GoogleGeocodingResult = await response.json();
+      
+      if (data.status === 'OK' && data.results && data.results.length > 0) {
+        const result = data.results[0];
+        return {
+          name: result.formatted_address,
+          formatted_address: result.formatted_address,
+          geometry: result.geometry,
+          place_id: result.place_id,
+          types: result.types,
+          source: 'geocoding',
+          location_type: result.geometry.location_type
+        };
+      }
+
+      return null;
+
+    } catch (error) {
+      console.error('Geocoding API 검색 실패:', error);
       return null;
     }
   }
@@ -234,14 +325,26 @@ export class AIMapAnalysisSystem {
 
       // 각 타입별로 검색 (Google Places는 한 번에 하나의 타입만 검색 가능)
       for (const type of touristTypes) {
-        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${centerLocation.lat},${centerLocation.lng}&radius=1000&type=${type}&key=${this.googleApiKey}`;
+        // 다중 반경 검색으로 정확도 향상
+        const radii = [500, 1000, 2000]; // 500m, 1km, 2km
         
-        const response = await fetch(url);
-        if (response.ok) {
-          const data: GooglePlacesNearbyResult = await response.json();
-          if (data.results) {
-            allFacilities.push(...data.results);
+        for (const radius of radii) {
+          const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${centerLocation.lat},${centerLocation.lng}&radius=${radius}&type=${type}&key=${this.googleApiKey}`;
+          
+          const response = await fetch(url);
+          if (response.ok) {
+            const data: GooglePlacesNearbyResult = await response.json();
+            if (data.results) {
+              allFacilities.push(...data.results.map(facility => ({
+                ...facility,
+                searchRadius: radius,
+                searchType: type
+              })));
+            }
           }
+          
+          // API 호출 간격 (rate limiting 방지)
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
       }
 
@@ -257,7 +360,7 @@ export class AIMapAnalysisSystem {
           relevanceScore: this.calculateRelevanceScore(facility.name, facility.types, locationName)
         }))
         .sort((a, b) => b.relevanceScore - a.relevanceScore)
-        .slice(0, 20); // 상위 20개만
+        .slice(0, 30); // 30개로 확장하여 더 정확한 분석
 
     } catch (error) {
       console.error('주변 시설 검색 실패:', error);
@@ -278,7 +381,7 @@ export class AIMapAnalysisSystem {
       throw new Error('Gemini model not available');
     }
 
-    const facilitiesInfo = facilities.slice(0, 15).map((f, index) => 
+    const facilitiesInfo = facilities.slice(0, 20).map((f, index) => 
       `${index + 1}. ${f.name} (${f.types.slice(0, 3).join(', ')}) - ${f.rating ? f.rating + '★' : '평점없음'} - 좌표: ${f.geometry.location.lat}, ${f.geometry.location.lng}`
     ).join('\n');
 
@@ -310,7 +413,7 @@ ${facilitiesInfo}
 다음 JSON 형식으로 정확히 답변하세요:
 
 {
-  "selectedFacilityIndex": 선택한 시설의 번호 (1-15),
+  "selectedFacilityIndex": 선택한 시설의 번호 (1-20),
   "selectedFacility": {
     "name": "선택한 시설명",
     "coordinate": { "lat": 위도, "lng": 경도 },
@@ -389,10 +492,10 @@ ${facilitiesInfo}
 
       const genAI = new GoogleGenerativeAI(this.geminiApiKey);
       const model = genAI.getGenerativeModel({ 
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash',
         generationConfig: {
           temperature: 0.1, // 일관된 번역을 위해 낮은 temperature
-          maxOutputTokens: 100 // 짧은 응답만 필요
+          maxOutputTokens: 150 // 관광지 분석을 위해 증가
         }
       });
 
@@ -427,6 +530,79 @@ ${facilitiesInfo}
       console.warn(`⚠️ Gemini AI 번역 오류: ${locationName}`, error);
       return locationName;
     }
+  }
+
+  /**
+   * 🎯 최적 좌표 선택: Places vs Geocoding 결과 비교
+   */
+  private selectBestCoordinate(placesResult: any, geocodingResult: any, locationName: string) {
+    // 둘 다 없으면 null
+    if (!placesResult && !geocodingResult) {
+      return null;
+    }
+
+    // 하나만 있으면 그것 반환
+    if (!placesResult) return geocodingResult;
+    if (!geocodingResult) return placesResult;
+
+    // 둘 다 있으면 정확도 점수로 비교
+    const placesScore = this.calculateAccuracyScore(placesResult, locationName, 'places');
+    const geocodingScore = this.calculateAccuracyScore(geocodingResult, locationName, 'geocoding');
+
+    console.log(`📊 정확도 점수 비교:`);
+    console.log(`   Places: ${placesScore.toFixed(2)} (${placesResult.name})`);
+    console.log(`   Geocoding: ${geocodingScore.toFixed(2)} (${geocodingResult.name})`);
+
+    return placesScore >= geocodingScore ? placesResult : geocodingResult;
+  }
+
+  /**
+   * 📏 좌표 정확도 점수 계산
+   */
+  private calculateAccuracyScore(result: any, locationName: string, source: string): number {
+    let score = 0;
+
+    // 1. 이름 유사성 (0-0.4)
+    const nameSimilarity = this.calculateStringSimilarity(
+      result.name?.toLowerCase() || '',
+      locationName.toLowerCase()
+    );
+    score += nameSimilarity * 0.4;
+
+    // 2. Geocoding 특별 보너스 (0-0.3)
+    if (source === 'geocoding') {
+      const locationType = result.location_type;
+      if (locationType === 'ROOFTOP') score += 0.3;
+      else if (locationType === 'RANGE_INTERPOLATED') score += 0.2;
+      else if (locationType === 'GEOMETRIC_CENTER') score += 0.1;
+    }
+
+    // 3. Places 특별 보너스 (0-0.3)
+    if (source === 'places') {
+      // 관광지/시설 타입 보너스
+      const relevantTypes = ['tourist_attraction', 'point_of_interest', 'transit_station'];
+      const hasRelevantType = result.types?.some((type: string) => relevantTypes.includes(type));
+      if (hasRelevantType) score += 0.2;
+      
+      // 평점 보너스
+      if (result.rating && result.rating > 4.0) score += 0.1;
+    }
+
+    // 4. 타입 관련성 (0-0.2)
+    if (result.types) {
+      const isStation = locationName.includes('역') || locationName.toLowerCase().includes('station');
+      const hasStationType = result.types.some((type: string) => 
+        type.includes('station') || type.includes('transit')
+      );
+      if (isStation && hasStationType) score += 0.2;
+    }
+
+    // 5. 주소 완성도 (0-0.1)
+    if (result.formatted_address && result.formatted_address.length > 20) {
+      score += 0.1;
+    }
+
+    return Math.min(score, 1.0);
   }
 
   /**
