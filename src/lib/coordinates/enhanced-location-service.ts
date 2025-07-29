@@ -1,0 +1,572 @@
+/**
+ * 🎯 Enhanced Location Service - API 기반 고정밀 위치 탐지 시스템
+ * 
+ * QA 설계 원칙:
+ * - 95% 정확도 목표
+ * - 다단계 검증 파이프라인
+ * - 실패 시 즉시 폴백
+ * - 전세계 다국어 지원
+ * 
+ * Architecture:
+ * Phase 1: Gemini AI 위치 정규화
+ * Phase 2: Multi-API 교차 검증  
+ * Phase 3: 지능형 품질 검증
+ */
+
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+// === 인터페이스 정의 ===
+export interface LocationInput {
+  query: string;
+  language?: string;
+  context?: string; // 도시, 국가 등 추가 컨텍스트
+  locationType?: 'station' | 'tourist' | 'building' | 'general';
+}
+
+export interface LocationResult {
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  confidence: number; // 0-1 범위
+  accuracy: 'high' | 'medium' | 'low';
+  sources: string[]; // 사용된 API 목록
+  metadata: {
+    officialName: string;
+    address: string;
+    placeType: string;
+    country: string;
+    validatedAt: Date;
+    processingTimeMs: number;
+  };
+  quality: {
+    consensusScore: number; // API 간 합의 점수
+    distanceVariance: number; // 좌표 편차 (미터)
+    addressMatch: number; // 주소 일치도
+  };
+  error?: string;
+}
+
+export interface APIClient {
+  name: string;
+  search(query: string, context?: string): Promise<APIResult | null>;
+  reverseGeocode(lat: number, lng: number): Promise<string | null>;
+}
+
+export interface APIResult {
+  coordinates: { lat: number; lng: number };
+  name: string;
+  address: string;
+  placeId?: string;
+  confidence: number;
+}
+
+// === Phase 1: Gemini AI 위치 정규화 시스템 ===
+class LocationNormalizer {
+  private gemini: GoogleGenerativeAI;
+  private model: any;
+
+  constructor() {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('GEMINI_API_KEY not found');
+    
+    this.gemini = new GoogleGenerativeAI(apiKey);
+    this.model = this.gemini.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 256,
+        topP: 0.8
+      }
+    });
+  }
+
+  /**
+   * 사용자 입력을 정확한 위치명으로 정규화
+   */
+  async normalize(input: LocationInput): Promise<{
+    officialName: string;
+    alternativeNames: string[];
+    locationType: string;
+    country: string;
+    city: string;
+    searchQueries: string[];
+  }> {
+    const prompt = `위치 정규화: "${input.query}"
+
+다음 JSON 형태로 정확한 위치 정보를 반환해줘:
+{
+  "officialName": "정확한 공식명 (한국어/영어)",
+  "alternativeNames": ["별칭1", "별칭2", "영어명"],
+  "locationType": "station|tourist|building|commercial|transport",
+  "country": "국가명",
+  "city": "도시명", 
+  "searchQueries": ["API 검색용 쿼리1", "쿼리2", "쿼리3"]
+}
+
+예시:
+입력: "평촌역"
+출력: {
+  "officialName": "평촌역",
+  "alternativeNames": ["Pyeongchon Station", "안양 평촌역"],
+  "locationType": "station",
+  "country": "대한민국",
+  "city": "안양시",
+  "searchQueries": ["평촌역 안양", "Pyeongchon Station Anyang", "안양 평촌역 경기도"]
+}`;
+
+    try {
+      const result = await this.model.generateContent(prompt);
+      const text = await result.response.text();
+      
+      // JSON 추출
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('JSON 형식이 아님');
+      
+      const parsed = JSON.parse(jsonMatch[0]);
+      
+      // 기본값 설정
+      return {
+        officialName: parsed.officialName || input.query,
+        alternativeNames: parsed.alternativeNames || [],
+        locationType: parsed.locationType || 'general',
+        country: parsed.country || '',
+        city: parsed.city || '',
+        searchQueries: parsed.searchQueries || [input.query]
+      };
+      
+    } catch (error) {
+      console.warn('위치 정규화 실패, 기본값 사용:', error);
+      return {
+        officialName: input.query,
+        alternativeNames: [],
+        locationType: input.locationType || 'general',
+        country: '',
+        city: '',
+        searchQueries: [input.query]
+      };
+    }
+  }
+}
+
+// === Phase 2: API 클라이언트들 ===
+
+class GooglePlacesClient implements APIClient {
+  name = 'Google Places';
+  private apiKey: string;
+
+  constructor() {
+    this.apiKey = process.env.GOOGLE_API_KEY || process.env.GOOGLE_PLACES_API_KEY || '';
+    if (!this.apiKey) throw new Error('Google API key not found');
+  }
+
+  async search(query: string, context?: string): Promise<APIResult | null> {
+    try {
+      const searchQuery = context ? `${query} ${context}` : query;
+      const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json`;
+      
+      const response = await fetch(`${url}?input=${encodeURIComponent(searchQuery)}&inputtype=textquery&fields=geometry,place_id,name,formatted_address&key=${this.apiKey}`);
+      
+      if (!response.ok) throw new Error(`Google API error: ${response.status}`);
+      
+      const data = await response.json();
+      const candidate = data.candidates?.[0];
+      
+      if (!candidate || !candidate.geometry?.location) return null;
+      
+      return {
+        coordinates: {
+          lat: candidate.geometry.location.lat,
+          lng: candidate.geometry.location.lng
+        },
+        name: candidate.name || query,
+        address: candidate.formatted_address || '',
+        placeId: candidate.place_id,
+        confidence: 0.9 // Google Places 기본 신뢰도
+      };
+      
+    } catch (error) {
+      console.error('Google Places API 오류:', error);
+      return null;
+    }
+  }
+
+  async reverseGeocode(lat: number, lng: number): Promise<string | null> {
+    try {
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${this.apiKey}&language=ko`;
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      return data.results?.[0]?.formatted_address || null;
+    } catch (error) {
+      console.error('Google 역지오코딩 오류:', error);
+      return null;
+    }
+  }
+}
+
+class NominatimClient implements APIClient {
+  name = 'OpenStreetMap';
+  private lastRequestTime = 0;
+  private rateLimit = 1000; // 1초 간격
+
+  private async waitForRateLimit() {
+    const now = Date.now();
+    const timeSinceLastRequest = now - this.lastRequestTime;
+    if (timeSinceLastRequest < this.rateLimit) {
+      await new Promise(resolve => 
+        setTimeout(resolve, this.rateLimit - timeSinceLastRequest)
+      );
+    }
+    this.lastRequestTime = Date.now();
+  }
+
+  async search(query: string, context?: string): Promise<APIResult | null> {
+    try {
+      await this.waitForRateLimit();
+      
+      const searchQuery = context ? `${query} ${context}` : query;
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1&addressdetails=1`;
+      
+      const response = await fetch(url, {
+        headers: { 'User-Agent': 'GuideAI/1.0 (contact@guideai.com)' }
+      });
+      
+      if (!response.ok) throw new Error(`Nominatim error: ${response.status}`);
+      
+      const data = await response.json();
+      const result = data[0];
+      
+      if (!result) return null;
+      
+      return {
+        coordinates: {
+          lat: parseFloat(result.lat),
+          lng: parseFloat(result.lon)
+        },
+        name: result.display_name.split(',')[0],
+        address: result.display_name,
+        confidence: Math.min(parseFloat(result.importance || '0.5'), 1)
+      };
+      
+    } catch (error) {
+      console.error('Nominatim API 오류:', error);
+      return null;
+    }
+  }
+
+  async reverseGeocode(lat: number, lng: number): Promise<string | null> {
+    try {
+      await this.waitForRateLimit();
+      
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+      const response = await fetch(url, {
+        headers: { 'User-Agent': 'GuideAI/1.0 (contact@guideai.com)' }
+      });
+      
+      const data = await response.json();
+      return data.display_name || null;
+      
+    } catch (error) {
+      console.error('Nominatim 역지오코딩 오류:', error);
+      return null;
+    }
+  }
+}
+
+// === Phase 3: 메인 위치 서비스 ===
+export class EnhancedLocationService {
+  private normalizer: LocationNormalizer;
+  private clients: APIClient[];
+  private cache = new Map<string, LocationResult>();
+
+  constructor() {
+    this.normalizer = new LocationNormalizer();
+    this.clients = [
+      new GooglePlacesClient(),
+      new NominatimClient()
+    ];
+  }
+
+  /**
+   * 🎯 메인 위치 검색 함수
+   */
+  async findLocation(input: LocationInput): Promise<LocationResult> {
+    const startTime = Date.now();
+    
+    try {
+      // 캐시 확인
+      const cacheKey = this.generateCacheKey(input);
+      const cached = this.cache.get(cacheKey);
+      if (cached && this.isCacheValid(cached)) {
+        return cached;
+      }
+
+      // Phase 1: AI 정규화
+      console.log('🤖 Phase 1: 위치 정규화 시작');
+      const normalized = await this.normalizer.normalize(input);
+      console.log('✅ 정규화 완료:', normalized.officialName);
+
+      // Phase 2: Multi-API 병렬 검색
+      console.log('🔍 Phase 2: Multi-API 검색 시작');
+      const apiResults = await this.searchAllAPIs(normalized);
+      
+      if (apiResults.length === 0) {
+        throw new Error('모든 API에서 결과를 찾을 수 없습니다');
+      }
+
+      // Phase 3: 합의 알고리즘 & 품질 검증
+      console.log('⚖️ Phase 3: 합의 알고리즘 실행');
+      const consensusResult = await this.findConsensus(apiResults, normalized);
+      
+      // 최종 품질 검증
+      const qualityScore = await this.validateQuality(consensusResult, normalized);
+      
+      const result: LocationResult = {
+        coordinates: consensusResult.coordinates,
+        confidence: consensusResult.confidence,
+        accuracy: this.determineAccuracy(qualityScore),
+        sources: apiResults.map(r => r.source),
+        metadata: {
+          officialName: normalized.officialName,
+          address: consensusResult.address,
+          placeType: normalized.locationType,
+          country: normalized.country,
+          validatedAt: new Date(),
+          processingTimeMs: Date.now() - startTime
+        },
+        quality: qualityScore
+      };
+
+      // 캐시 저장
+      this.cache.set(cacheKey, result);
+      
+      console.log(`✅ 위치 검색 완료: ${result.metadata.officialName} (정확도: ${result.accuracy})`);
+      return result;
+
+    } catch (error) {
+      console.error('❌ 위치 검색 실패:', error);
+      
+      return {
+        coordinates: { lat: 0, lng: 0 },
+        confidence: 0,
+        accuracy: 'low',
+        sources: [],
+        metadata: {
+          officialName: input.query,
+          address: '',
+          placeType: 'unknown',
+          country: '',
+          validatedAt: new Date(),
+          processingTimeMs: Date.now() - startTime
+        },
+        quality: {
+          consensusScore: 0,
+          distanceVariance: 999999,
+          addressMatch: 0
+        },
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  /**
+   * 모든 API에서 병렬 검색
+   */
+  private async searchAllAPIs(normalized: any): Promise<Array<APIResult & { source: string }>> {
+    const searchPromises = this.clients.flatMap(client => 
+      normalized.searchQueries.map(async (query: string) => {
+        try {
+          const result = await client.search(query, `${normalized.city} ${normalized.country}`);
+          return result ? { ...result, source: client.name } : null;
+        } catch (error) {
+          console.warn(`${client.name} 검색 실패:`, error);
+          return null;
+        }
+      })
+    );
+
+    const results = await Promise.allSettled(searchPromises);
+    
+    return results
+      .filter((result): result is PromiseFulfilledResult<APIResult & { source: string }> => 
+        result.status === 'fulfilled' && result.value !== null
+      )
+      .map(result => result.value);
+  }
+
+  /**
+   * 합의 알고리즘: 여러 API 결과에서 최적 좌표 선택
+   */
+  private async findConsensus(
+    results: Array<APIResult & { source: string }>, 
+    normalized: any
+  ): Promise<APIResult & { source: string }> {
+    
+    if (results.length === 1) return results[0];
+
+    // 1. 거리 기반 클러스터링
+    const clusters = this.clusterByDistance(results, 1000); // 1km 반경
+    
+    // 2. 가장 큰 클러스터 선택
+    const mainCluster = clusters.reduce((a, b) => a.length > b.length ? a : b);
+    
+    // 3. 클러스터 내에서 최고 신뢰도 선택
+    const bestResult = mainCluster.reduce((best, current) => 
+      current.confidence > best.confidence ? current : best
+    );
+
+    console.log(`🎯 합의 결과: ${(bestResult as any).source} (클러스터: ${mainCluster.length}개)`);
+    return bestResult as APIResult & { source: string };
+  }
+
+  /**
+   * 거리 기반 클러스터링
+   */
+  private clusterByDistance(results: Array<APIResult & { source: string }>, maxDistance: number): Array<APIResult & { source: string }>[] {
+    const clusters: Array<APIResult & { source: string }>[] = [];
+    const used = new Set<number>();
+
+    for (let i = 0; i < results.length; i++) {
+      if (used.has(i)) continue;
+
+      const cluster = [results[i]];
+      used.add(i);
+
+      for (let j = i + 1; j < results.length; j++) {
+        if (used.has(j)) continue;
+
+        const distance = this.calculateDistance(
+          results[i].coordinates.lat, results[i].coordinates.lng,
+          results[j].coordinates.lat, results[j].coordinates.lng
+        );
+
+        if (distance <= maxDistance) {
+          cluster.push(results[j]);
+          used.add(j);
+        }
+      }
+
+      clusters.push(cluster);
+    }
+
+    return clusters;
+  }
+
+  /**
+   * 품질 검증
+   */
+  private async validateQuality(
+    result: APIResult & { source: string }, 
+    normalized: any
+  ): Promise<LocationResult['quality']> {
+    
+    // 역지오코딩으로 주소 확인
+    const client = this.clients.find(c => c.name === result.source);
+    const reverseAddress = client ? await client.reverseGeocode(
+      result.coordinates.lat, 
+      result.coordinates.lng
+    ) : null;
+
+    // 주소 일치도 계산
+    const addressMatch = reverseAddress ? 
+      this.calculateSimilarity(reverseAddress.toLowerCase(), normalized.officialName.toLowerCase()) : 0;
+
+    return {
+      consensusScore: result.confidence,
+      distanceVariance: 0, // 단일 결과이므로 0
+      addressMatch
+    };
+  }
+
+  /**
+   * 거리 계산 (Haversine formula)
+   */
+  private calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const R = 6371000; // 지구 반지름 (미터)
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+              
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  /**
+   * 문자열 유사도 계산 (간단한 구현)
+   */
+  private calculateSimilarity(str1: string, str2: string): number {
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+    
+    if (longer.length === 0) return 1.0;
+    
+    const editDistance = this.levenshteinDistance(longer, shorter);
+    return (longer.length - editDistance) / longer.length;
+  }
+
+  private levenshteinDistance(str1: string, str2: string): number {
+    const matrix: number[][] = [];
+    
+    for (let i = 0; i <= str2.length; i++) {
+      matrix[i] = [i];
+    }
+    
+    for (let j = 0; j <= str1.length; j++) {
+      matrix[0][j] = j;
+    }
+    
+    for (let i = 1; i <= str2.length; i++) {
+      for (let j = 1; j <= str1.length; j++) {
+        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          );
+        }
+      }
+    }
+    
+    return matrix[str2.length][str1.length];
+  }
+
+  private determineAccuracy(quality: LocationResult['quality']): 'high' | 'medium' | 'low' {
+    if (quality.consensusScore >= 0.8 && quality.addressMatch >= 0.7) return 'high';
+    if (quality.consensusScore >= 0.6 && quality.addressMatch >= 0.5) return 'medium';
+    return 'low';
+  }
+
+  private generateCacheKey(input: LocationInput): string {
+    return `${input.query}_${input.language || 'ko'}_${input.context || ''}`;
+  }
+
+  private isCacheValid(cached: LocationResult): boolean {
+    const age = Date.now() - cached.metadata.validatedAt.getTime();
+    return age < 24 * 60 * 60 * 1000; // 24시간 유효
+  }
+
+  /**
+   * 통계 조회
+   */
+  getStats(): { cacheSize: number; totalRequests: number } {
+    return {
+      cacheSize: this.cache.size,
+      totalRequests: 0 // 실제 구현에서는 카운터 추가 필요
+    };
+  }
+
+  /**
+   * 캐시 초기화
+   */
+  clearCache(): void {
+    this.cache.clear();
+  }
+}
+
+// 싱글톤 인스턴스
+export const enhancedLocationService = new EnhancedLocationService();

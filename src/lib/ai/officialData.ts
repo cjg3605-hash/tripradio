@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { supabase } from '@/lib/supabaseClient';
 import stringSimilarity from 'string-similarity';
+// 🚀 Enhanced Location Service 통합
+import { enhancedLocationService, LocationInput } from '@/lib/coordinates/enhanced-location-service';
 
 // 통합된 Google API 키 사용
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || process.env.GOOGLE_PLACES_API_KEY;
@@ -136,29 +138,91 @@ async function saveGoldenRecord(locationName, language, coords, placeId, source,
 export async function getOrCreateGoldenCoordinates(locationName, language) {
   const normLocation = locationName.trim().toLowerCase();
   const normLang = language.trim().toLowerCase();
-  // 1. DB 캐시 조회
-  const { data: cached } = await supabase
-    .from('places')
-    .select('*')
-    .eq('location_name', normLocation)
-    .eq('language', normLang)
-    .single();
-  if (cached && cached.coordinates) return cached.coordinates;
-  // 2. 공식명 유사어 매칭
+  
+  try {
+    // 1. DB 캐시 조회 (기존 유지)
+    const { data: cached } = await supabase
+      .from('places')
+      .select('*')
+      .eq('location_name', normLocation)
+      .eq('language', normLang)
+      .single();
+    if (cached && cached.coordinates) {
+      console.log(`✅ DB 캐시 적중: ${locationName}`);
+      return cached.coordinates;
+    }
+
+    // 2. 🎯 Enhanced Location Service 사용
+    console.log(`🚀 Enhanced Location Service 시작: ${locationName}`);
+    
+    const locationInput: LocationInput = {
+      query: locationName,
+      language: normLang,
+      context: '', // 필요시 추가 컨텍스트
+    };
+
+    const result = await enhancedLocationService.findLocation(locationInput);
+    
+    if (result.error) {
+      throw new Error(result.error);
+    }
+
+    // 3. 결과 검증
+    if (result.accuracy === 'low' || result.confidence < 0.5) {
+      console.warn(`⚠️ 낮은 정확도: ${locationName} (accuracy: ${result.accuracy}, confidence: ${result.confidence})`);
+    }
+
+    // 4. DB에 저장 (Enhanced 결과)
+    const coords = result.coordinates;
+    const validation = result.accuracy === 'high' ? 'ok' : result.accuracy === 'medium' ? 'review' : 'fail';
+    const validation_score = result.quality.consensusScore;
+    
+    await saveGoldenRecord(
+      normLocation, 
+      normLang, 
+      coords, 
+      result.metadata.address, // placeId 대신 주소 사용
+      result.sources.join(','), // 여러 소스 정보
+      validation, 
+      validation_score
+    );
+
+    console.log(`✅ Enhanced 좌표 반환: ${result.metadata.officialName} (${result.accuracy})`);
+    console.log(`📍 좌표: ${coords.lat}, ${coords.lng}`);
+    console.log(`🔍 소스: ${result.sources.join(', ')}`);
+    console.log(`⚡ 처리시간: ${result.metadata.processingTimeMs}ms`);
+    
+    return coords;
+
+  } catch (error) {
+    console.error(`❌ Enhanced Location Service 실패: ${locationName}`, error);
+    
+    // 폴백: 기존 방식 사용
+    console.log(`🔄 기존 방식으로 폴백: ${locationName}`);
+    return await getOrCreateGoldenCoordinatesLegacy(locationName, language);
+  }
+}
+
+// 기존 방식 백업 (폴백용)
+async function getOrCreateGoldenCoordinatesLegacy(locationName, language) {
+  const normLocation = locationName.trim().toLowerCase();
+  const normLang = language.trim().toLowerCase();
+  
+  // 기존 로직 유지
   const bestMatchName = getBestMatchName(normLocation);
-  console.log('[좌표 fetch] input:', normLocation, 'bestMatch:', bestMatchName, 'language:', normLang);
-  // 3. 공식 API 호출 (구글 등)
+  console.log('[Legacy 좌표 fetch] input:', normLocation, 'bestMatch:', bestMatchName, 'language:', normLang);
+  
   const google = await getGooglePlace(bestMatchName);
   let coords: { lat: number; lng: number } | null = null;
   let placeId: string | null = null;
   let source: string | null = null;
+  
   if (google && google.geometry && google.geometry.location) {
     coords = { lat: google.geometry.location.lat, lng: google.geometry.location.lng };
     placeId = google.place_id;
     source = 'google';
   }
-  // ... OSM, Wikidata 등 폴백 추가 가능
-  // 4. 좌표 검증 (역지오코딩 + 유사도)
+  
   let validation = 'ok', validation_score = 1;
   if (coords) {
     const address = await reverseGeocode(coords.lat, coords.lng);
@@ -166,16 +230,18 @@ export async function getOrCreateGoldenCoordinates(locationName, language) {
     validation = sim > 0.7 ? 'ok' : 'review';
     validation_score = sim;
     if (validation === 'review') {
-      console.warn(`[좌표 검증 실패] ${locationName} (${language}) → ${address} (score: ${sim})`);
+      console.warn(`[Legacy 좌표 검증 실패] ${locationName} (${language}) → ${address} (score: ${sim})`);
     }
   }
+  
   if (!coords) {
     validation = 'fail';
     validation_score = 0;
     await saveGoldenRecord(normLocation, normLang, null, null, null, validation, validation_score);
-    console.error(`[좌표 fetch 완전 실패] ${locationName} (${language})`);
+    console.error(`[Legacy 좌표 fetch 완전 실패] ${locationName} (${language})`);
     throw new Error('좌표를 찾을 수 없습니다.');
   }
+  
   await saveGoldenRecord(normLocation, normLang, coords, placeId, source, validation, validation_score);
   return coords;
 } 
