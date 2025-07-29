@@ -101,15 +101,18 @@ export default function NextLevelSearchBox() {
   };
 
   const handleSuggestionClick = (suggestion: Suggestion) => {
-    // 입력창을 업데이트하고 시각적 피드백을 제공
+    // 입력창에 선택된 제안사항 채우기
     setQuery(suggestion.name);
-    setIsSubmitting(true);
     
-    // 입력창 업데이트가 화면에 반영될 시간을 주고 나서 포커스 해제 및 라우팅
+    // 자동완성 드롭다운 닫기
+    setIsFocused(false);
+    setSuggestions([]);
+    setSelectedIndex(-1);
+    
+    // 입력창에 포커스 유지 (사용자가 Enter를 누르거나 검색 버튼을 클릭할 수 있도록)
     setTimeout(() => {
-      setIsFocused(false);
-      router.push(`/guide/${encodeURIComponent(suggestion.name)}`);
-    }, 150); // 0ms → 150ms로 증가하여 시각적 업데이트 시간 확보
+      inputRef.current?.focus();
+    }, 50);
   };
 
   const handleFocus = () => {
@@ -269,7 +272,7 @@ export default function NextLevelSearchBox() {
                   }}
                 >
                   <div className="flex items-center justify-between">
-                    <div>
+                    <div className="flex-1">
                       <div className={`
                         font-medium transition-colors
                         ${selectedIndex === index ? 'text-blue-900' : 'text-gray-900 group-hover:text-black'}
@@ -283,9 +286,14 @@ export default function NextLevelSearchBox() {
                       </div>
                     </div>
                     <div className={`
-                      transition-all duration-200
+                      flex items-center gap-2 transition-all duration-200
                       ${selectedIndex === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 group-hover:opacity-60 group-hover:translate-x-0'}
                     `}>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        selectedIndex === index ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
+                      }`}>
+                        클릭하여 완성
+                      </span>
                       <svg 
                         className={`w-4 h-4 ${
                           selectedIndex === index ? 'text-blue-600' : 'text-gray-400'

@@ -18,6 +18,14 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
   const requestedLang = safeLanguageCode(searchParams?.lang);
   const normLocation = normalizeString(locationName);
   
+  // 🔍 디버깅: URL 파라미터 로깅
+  console.log('🔍 가이드 페이지 파라미터:', {
+    rawLocation: params.location,
+    decodedLocation: locationName,
+    normalizedLocation: normLocation,
+    requestedLang
+  });
+  
   // 서버에서 요청된 언어의 가이드 조회
   let initialGuide: { content: any } | null = null;
   try {

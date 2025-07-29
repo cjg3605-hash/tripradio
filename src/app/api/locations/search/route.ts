@@ -298,48 +298,16 @@ export async function GET(request: NextRequest) {
 
     // Generate response using Gemini AI
     try {
-      console.log('🔍 검색 쿼리:', query, '언어:', lang);
-      console.log('🔑 API 키 상태:', process.env.GEMINI_API_KEY ? '설정됨' : '없음');
-      
       const gemini = getGeminiClient();
-      console.log('✅ Gemini 클라이언트 생성 성공');
-      
-      // 모델 우선순위: 최신 → 안정 → 폴백
-      const modelNames = [
-        'gemini-2.5-flash-lite-preview-06-17', // 최신 미리보기 (재도전!)
-        'gemini-2.5-flash',                    // 2.5 시리즈 안정 버전
-        'gemini-1.5-flash',                    // 안정된 폴백
-        'gemini-1.5-pro'                       // 최종 폴백
-      ];
-      
-      let model;
-      let usedModel = '';
-      
-      for (const modelName of modelNames) {
-        try {
-          console.log(`🔄 모델 시도: ${modelName}`);
-          model = gemini.getGenerativeModel({ 
-            model: modelName,
-            generationConfig: {
-              temperature: 0.3,
-              maxOutputTokens: 16384, // 대폭 증가: 2048 → 16384
-            }
-          });
-          usedModel = modelName;
-          console.log(`✅ 모델 생성 성공: ${modelName}`);
-          break;
-        } catch (modelError) {
-          console.warn(`⚠️ 모델 ${modelName} 생성 실패:`, modelError instanceof Error ? modelError.message : String(modelError));
-          continue;
+      const model = gemini.getGenerativeModel({ 
+        model: 'gemini-1.5-flash',
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 2048,
         }
-      }
-      
-      if (!model) {
-        throw new Error('사용 가능한 Gemini 모델이 없습니다.');
-      }
+      });
       
       const prompt = createSearchPrompt(sanitizeInput(query), lang);
-      console.log('📝 생성된 프롬프트:', prompt.substring(0, 200) + '...');
       
       // Set timeout for API call (30 seconds)
       const TIMEOUT_MS = 30000; // 30 seconds
@@ -359,44 +327,7 @@ export async function GET(request: NextRequest) {
       
       try {
         // Make the API call
-        const generatePromise = (async () => {
-          try {
-            console.log(`🚀 Gemini API 호출 시작 (모델: ${usedModel})...`);
-            const genResult = await model.generateContent(prompt);
-            console.log(`✅ Gemini API 호출 성공 (모델: ${usedModel})`);
-            // Check if we've already timed out
-            if (Date.now() - startTime >= TIMEOUT_MS) {
-              throw new Error('AI 응답 처리 시간이 초과되었습니다.');
-            }
-            return genResult;
-          } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            const errorInfo = error instanceof Error ? {
-              name: error.name,
-              message: error.message,
-              stack: error.stack,
-              ...(error as any).status && { status: (error as any).status },
-              ...(error as any).statusText && { statusText: (error as any).statusText },
-              ...(error as any).code && { code: (error as any).code },
-              ...(error as any).details && { details: (error as any).details }
-            } : { message: errorMessage };
-            
-            console.error('❌ Gemini API 호출 중 상세 오류:', errorInfo);
-            
-            // 구체적인 오류 분석
-            if (errorMessage?.includes('404') || errorMessage?.includes('not found')) {
-              throw new Error('모델을 찾을 수 없습니다 (404). 미리보기 모델 접근 권한이나 지역 설정을 확인하세요.');
-            } else if (errorMessage?.includes('403') || errorMessage?.includes('permission')) {
-              throw new Error('모델 접근 권한이 없습니다 (403). API 키나 프로젝트 권한을 확인하세요.');
-            } else if (errorMessage?.includes('400') || errorMessage?.includes('invalid')) {
-              throw new Error('잘못된 요청입니다 (400). 모델 파라미터나 프롬프트를 확인하세요.');
-            } else if (errorMessage?.includes('region') || errorMessage?.includes('location')) {
-              throw new Error('지역 제한 오류입니다. us-central1 지역으로 설정을 변경해보세요.');
-            }
-            
-            throw error;
-          }
-        })();
+        const generatePromise = model.generateContent(prompt);
         
         // Race between the API call and the timeout
         result = await Promise.race([
@@ -411,8 +342,6 @@ export async function GET(request: NextRequest) {
         throw apiError;
       }
       
-      console.log('📨 AI 응답 수신 (길이):', text.length);
-      console.log('📄 AI 응답 시작 200자:', text.substring(0, 200));
       
       // Parse response (assuming it's a JSON string)
       let suggestions: Suggestion[] = [];
@@ -422,33 +351,12 @@ export async function GET(request: NextRequest) {
         const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/s);
         const jsonString = jsonMatch ? jsonMatch[1].trim() : text.trim();
         
-        console.log('🔍 추출된 JSON 문자열 (길이):', jsonString.length);
-        
         const parsed = JSON.parse(jsonString);
-        console.log('✅ JSON 파싱 성공');
         
         // 프롬프트가 배열을 반환하도록 지시했으므로, 배열인지 확인
         if (Array.isArray(parsed)) {
           suggestions = parsed.filter(item => item.name && item.location);
-
-          // 입력값이 name에 포함된 항목이 없으면, 직접 추가
-          const normalizedQuery = sanitizeInput(query).replace(/\s+/g, '').toLowerCase();
-          const hasDirectMatch = suggestions.some(item =>
-            item.name.replace(/\s+/g, '').toLowerCase().includes(normalizedQuery)
-          );
-
-          if (!hasDirectMatch) {
-            suggestions.unshift({
-              name: query,
-              location: ''
-            });
-          }
-        } else {
-          console.warn('⚠️ AI 응답이 배열이 아닙니다. 응답:', parsed);
-          suggestions = [];
         }
-        
-        console.log('✅ 필터링된 제안 수:', suggestions.length);
         
         // Update cache
         const cacheItem: CacheItem = {
@@ -456,8 +364,6 @@ export async function GET(request: NextRequest) {
           timestamp: Date.now()
         };
         await kv.setex(cacheKey, CACHE_DURATION, cacheItem);
-        
-        console.log('✅ 캐시 업데이트 완료');
 
         return NextResponse.json(
           { 
