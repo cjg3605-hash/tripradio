@@ -8,6 +8,11 @@ interface Suggestion {
   id?: string;
   name: string;
   location: string;
+  metadata?: {
+    isOfficial?: boolean;
+    category?: string;
+    popularity?: number;
+  };
 }
 
 export default function NextLevelSearchBox() {
@@ -273,11 +278,23 @@ export default function NextLevelSearchBox() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <div className={`
-                        font-medium transition-colors
-                        ${selectedIndex === index ? 'text-blue-900' : 'text-gray-900 group-hover:text-black'}
-                      `}>
-                        {suggestion.name}
+                      <div className="flex items-center gap-2">
+                        <div className={`
+                          font-medium transition-colors
+                          ${selectedIndex === index ? 'text-blue-900' : 'text-gray-900 group-hover:text-black'}
+                        `}>
+                          {suggestion.name}
+                        </div>
+                        {suggestion.metadata?.isOfficial && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                            공식
+                          </span>
+                        )}
+                        {suggestion.metadata?.category && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                            {suggestion.metadata.category}
+                          </span>
+                        )}
                       </div>
                       <div className={`text-sm mt-1 ${
                         selectedIndex === index ? 'text-blue-700' : 'text-gray-500'

@@ -1,11 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getOrCreateGoldenCoordinates } from '@/lib/ai/officialData';
+import { 
+  deduplicateAndSelectRepresentative, 
+  getDeduplicationDebugInfo,
+  type Suggestion as DeduplicationSuggestion,
+  type DeduplicationConfig
+} from '@/lib/location/autocomplete-deduplication';
 
 // Types
 interface Suggestion {
   name: string;
   location: string;
+  metadata?: {
+    isOfficial?: boolean;
+    category?: string;
+    popularity?: number;
+  };
 }
 
 interface CacheItem {
@@ -163,20 +174,20 @@ function sanitizeInput(input: string): string {
 // Create optimized autocomplete prompt (minimal tokens)
 function createSearchPrompt(query: string, language: Language): string {
   const prompts = {
-    ko: `'${query}' 자동완성: 입력 텍스트가 포함된 정확한 장소명 5개. JSON 배열만 반환:
-[{"name": "장소명", "location": "도시, 국가"}]`,
+    ko: `'${query}' 자동완성: 입력 텍스트가 포함된 정확한 장소명 8개. 다양한 표현 포함. JSON 배열만 반환:
+[{"name": "장소명", "location": "도시, 국가", "metadata": {"isOfficial": true/false, "category": "관광지/박물관/자연", "popularity": 1-10}}]`,
     
-    en: `Autocomplete '${query}': 5 places containing input text. JSON array only:
-[{"name": "place name", "location": "city, country"}]`,
+    en: `Autocomplete '${query}': 8 places containing input text. Include variations. JSON array only:
+[{"name": "place name", "location": "city, country", "metadata": {"isOfficial": true/false, "category": "tourist/museum/nature", "popularity": 1-10}}]`,
     
-    ja: `'${query}' 自動完成: 入力文字を含む場所5件. JSON配列のみ:
-[{"name": "場所名", "location": "都市, 国"}]`,
+    ja: `'${query}' 自動完成: 入力文字を含む場所8件. 様々な表現含む. JSON配列のみ:
+[{"name": "場所名", "location": "都市, 国", "metadata": {"isOfficial": true/false, "category": "観光地/博物館/自然", "popularity": 1-10}}]`,
     
-    zh: `'${query}' 自动完成: 包含输入文本的地点5个. 仅JSON数组:
-[{"name": "地点名", "location": "城市, 国家"}]`,
+    zh: `'${query}' 自动完成: 包含输入文本的地点8个. 包含多种表达. 仅JSON数组:
+[{"name": "地点名", "location": "城市, 国家", "metadata": {"isOfficial": true/false, "category": "旅游/博物馆/自然", "popularity": 1-10}}]`,
     
-    es: `Autocompletar '${query}': 5 lugares con texto. Solo JSON:
-[{"name": "lugar", "location": "ciudad, país"}]`
+    es: `Autocompletar '${query}': 8 lugares con texto. Incluir variaciones. Solo JSON:
+[{"name": "lugar", "location": "ciudad, país", "metadata": {"isOfficial": true/false, "category": "turístico/museo/natural", "popularity": 1-10}}]`
   };
   return prompts[language] || prompts.ko;
 }
@@ -341,7 +352,29 @@ export async function GET(request: NextRequest) {
         
         // 프롬프트가 배열을 반환하도록 지시했으므로, 배열인지 확인
         if (Array.isArray(parsed)) {
-          suggestions = parsed.filter(item => item.name && item.location);
+          const filteredSuggestions = parsed.filter(item => item.name && item.location);
+          
+          // 중복 제거 및 대표 장소 선택 적용
+          const deduplicationConfig: DeduplicationConfig = {
+            maxResults: 5,
+            similarityThreshold: 0.75,
+            preferOfficialNames: true
+          };
+          
+          suggestions = deduplicateAndSelectRepresentative(
+            filteredSuggestions as DeduplicationSuggestion[], 
+            deduplicationConfig
+          );
+          
+          // 디버그 정보 (개발 환경에서만)
+          if (process.env.NODE_ENV === 'development') {
+            const debugInfo = getDeduplicationDebugInfo(
+              filteredSuggestions as DeduplicationSuggestion[],
+              suggestions as DeduplicationSuggestion[],
+              deduplicationConfig
+            );
+            console.log('🔍 중복 제거 디버그 정보:', debugInfo);
+          }
         }
         
         // Update cache
@@ -355,7 +388,13 @@ export async function GET(request: NextRequest) {
           { 
             success: true, 
             data: suggestions, 
-            cached: false 
+            cached: false,
+            ...(process.env.NODE_ENV === 'development' && {
+              debug: {
+                originalCount: parsed?.length || 0,
+                deduplicatedCount: suggestions.length
+              }
+            })
           },
           { headers }
         );
