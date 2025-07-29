@@ -26,6 +26,9 @@ import {
 // Import data orchestrator for fact verification
 import { DataIntegrationOrchestrator } from '../data-sources/orchestrator/data-orchestrator';
 
+// Import coordinate enhancement system
+import { enhanceGuideCoordinates, validateCoordinateQuality } from '../coordinates/guide-coordinate-enhancer';
+
 export const GEMINI_PROMPTS = {
   GUIDE_GENERATION: {
     system: `# 🎯 정확성 최우선 전문 관광 가이드 AI (전세계 적용)
@@ -376,6 +379,39 @@ export async function generatePersonalizedGuide(
       }
 
       console.log('✅ JSON 파싱 및 정확성 검증 완료');
+      
+      // 🎯 좌표 정확도 향상 시스템 적용
+      console.log('🎯 좌표 보정 시스템 시작...');
+      try {
+        const { enhancedGuide, result: coordinateResult } = await enhanceGuideCoordinates(
+          finalResponse,
+          location,
+          safeProfile.language || 'ko'
+        );
+        
+        if (coordinateResult.success && coordinateResult.enhancedCount > 0) {
+          console.log(`✅ 좌표 보정 완료: ${coordinateResult.enhancedCount}개 챕터 개선`);
+          coordinateResult.improvements.forEach((improvement, index) => {
+            console.log(`   챕터 ${improvement.chapterId}: ${Math.round(improvement.distanceImprovement)}m 정확도 향상`);
+          });
+          
+          // 좌표 품질 검증
+          const qualityCheck = validateCoordinateQuality(enhancedGuide);
+          console.log(`📊 좌표 품질 점수: ${Math.round(qualityCheck.score * 100)}%`);
+          
+          return {
+            ...enhancedGuide,
+            dataIntegration: dataIntegrationResult,
+            factVerification: verificationResult,
+            coordinateEnhancement: coordinateResult
+          };
+        } else {
+          console.warn('⚠️ 좌표 보정 실패 또는 개선 없음');
+        }
+      } catch (coordError) {
+        console.error('❌ 좌표 보정 중 오류:', coordError);
+      }
+      
       return {
         ...finalResponse,
         dataIntegration: dataIntegrationResult,

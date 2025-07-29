@@ -552,15 +552,17 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                   };
                   
                   const chaptersForMap = allChapters.map((chapter, index) => {
-                    // 🎯 AI 생성 좌표 우선 사용, 없으면 동적 생성으로 폴백
+                    // 🎯 AI 생성 좌표를 그대로 사용 (Enhanced Service로 보정된)
                     let coords;
+                    
                     if (chapter.coordinates?.lat && chapter.coordinates?.lng) {
-                      // AI가 생성한 정확한 좌표 사용
+                      // AI가 생성한 좌표 사용 (Enhanced Service로 보정되어야 함)
                       coords = {
                         lat: chapter.coordinates.lat,
                         lng: chapter.coordinates.lng
                       };
                       console.log(`🤖 AI 좌표 사용 - 챕터 ${chapter.id}: ${coords.lat}, ${coords.lng}`);
+                      
                     } else if (chapter.lat && chapter.lng) {
                       // 대체 좌표 필드 사용
                       coords = {
@@ -568,6 +570,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                         lng: chapter.lng
                       };
                       console.log(`📍 기존 좌표 사용 - 챕터 ${chapter.id}: ${coords.lat}, ${coords.lng}`);
+                      
                     } else {
                       // 폴백: 동적 좌표 생성
                       coords = getSmartCoordinates(locationName || '', index, allChapters.length);

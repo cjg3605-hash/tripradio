@@ -156,7 +156,7 @@ ${ACCURACY_VERIFICATION_SYSTEM.SAFE_DESCRIPTION_PATTERNS}
         "id": 0,
         "title": "[구체적 공간명]: [객관적 특징]",
         "narrative": "[500-600자] [절대 확실한 정보만 포함된 설명]",
-        "coordinates": {"lat": 0, "lng": 0, "description": "[정확한 위치 설명]"},
+        "description": "[정확한 위치 설명 - 관광객이 실제 도착하는 지점: 메인 출입구, 방문자센터, 주출입구 등 구체적 시작지점 명시]",
         "nextDirection": "[명확한 이동 안내]"
       }
     ]
