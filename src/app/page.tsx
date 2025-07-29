@@ -428,9 +428,12 @@ export default function HomePage() {
                       <button
                         key={index}
                         onClick={() => {
-                          setQuery(suggestion.name);
+                          const selectedLocation = suggestion.name;
+                          setQuery(selectedLocation);
                           setIsFocused(false);
-                          setTimeout(() => handleSearch(), 100);
+                          setTimeout(() => {
+                            router.push(`/guide/${encodeURIComponent(selectedLocation)}`);
+                          }, 100);
                         }}
                         className="w-full px-6 py-4 text-left transition-all duration-200 group hover:bg-gray-50"
                       >
