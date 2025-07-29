@@ -379,20 +379,6 @@ export class CoordinateServiceIntegration {
     };
   }
 
-  /**
-   * 실시간 품질 모니터링 활성화
-   */
-  async enableRealTimeMonitoring(locationName: string): Promise<void> {
-    const { qualityManager } = await import('./quality-manager');
-    
-    // 알림 구독
-    qualityManager.subscribeToAlerts((alert) => {
-      console.log(`📢 Quality Alert for ${locationName}:`, alert);
-      // 실제 구현시 사용자 알림 UI 업데이트
-    });
-
-    console.log(`🔔 Real-time monitoring enabled for ${locationName}`);
-  }
 
   /**
    * 사용자 피드백 수집
@@ -490,41 +476,6 @@ export class CoordinateServiceIntegration {
     };
   }
 
-  /**
-   * Phase 4를 사용한 권장사항 생성
-   */
-  private async generateRecommendations(
-    qualityOverview: GuideQualityOverview,
-    chapterMappings: ChapterCoordinateMapping[]
-  ): Promise<string[]> {
-    console.log(`🌍 Phase 4: Global coordination and recommendations`);
-
-    const recommendations: string[] = [];
-
-    if (qualityOverview.overallScore < 0.7) {
-      recommendations.push('전반적인 위치 정확도 개선이 필요합니다.');
-    }
-
-    if (qualityOverview.needsReviewChapters > 0) {
-      recommendations.push(`${qualityOverview.needsReviewChapters}개 챕터의 위치 확인이 필요합니다.`);
-    }
-
-    if (qualityOverview.averageAccuracy > 50) {
-      recommendations.push('더 정확한 위치 데이터로 업데이트를 권장합니다.');
-    }
-
-    if (qualityOverview.dataFreshness > 30) {
-      recommendations.push('위치 데이터가 30일 이상 경과되어 갱신이 필요합니다.');
-    }
-
-    // Phase 4: Global Coordinator 활용
-    const globalInsights = await this.globalCoordinator.generateGlobalDashboard();
-    if (globalInsights.systemHealth.alerts.length > 0) {
-      recommendations.push('시스템 상태 확인이 필요합니다.');
-    }
-
-    return recommendations;
-  }
 
   /**
    * 실시간 모니터링 활성화
