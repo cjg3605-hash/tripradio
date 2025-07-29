@@ -5,6 +5,7 @@ import { aiRateLimiter } from '@/lib/rate-limiter';
 import { compressResponse } from '@/middleware/compression';
 import { trackAIGeneration } from '@/lib/monitoring';
 import { DataIntegrationOrchestrator } from '@/lib/data-sources/orchestrator/data-orchestrator';
+import { enhanceGuideCoordinates } from '@/lib/coordinates/guide-coordinate-enhancer';
 
 export const runtime = 'nodejs';
 
@@ -118,10 +119,54 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ 가이드 생성 성공');
 
+    // 🎯 3단계: 좌표 정확도 향상 (AI 지도 분석 시스템 적용)
+    let enhancedGuideData = guideData;
+    let coordinateEnhancementResult: any = null;
+    
+    // enhanceCoordinates 플래그가 있거나 기본적으로 좌표 향상 실행
+    const shouldEnhanceCoordinates = body.enhanceCoordinates !== false; // 기본값: true
+    
+    if (shouldEnhanceCoordinates) {
+      console.log('🎯 좌표 정확도 향상 시작...');
+      try {
+        const enhancementResult = await enhanceGuideCoordinates(
+          guideData,
+          location.trim(),
+          safeUserProfile.language
+        );
+        
+        enhancedGuideData = enhancementResult.enhancedGuide;
+        coordinateEnhancementResult = enhancementResult.result;
+        
+        console.log('✅ 좌표 향상 완료:', {
+          enhancedCount: coordinateEnhancementResult.enhancedCount,
+          improvements: coordinateEnhancementResult.improvements.length,
+          processingTime: coordinateEnhancementResult.processingTimeMs
+        });
+        
+        // 챕터 0 AI 분석 결과 로깅
+        if (coordinateEnhancementResult.chapter0AIAnalysis) {
+          const analysis = coordinateEnhancementResult.chapter0AIAnalysis;
+          console.log('🎯 챕터 0 AI 분석 결과:', {
+            success: analysis.success,
+            startingPoint: analysis.selectedStartingPoint ? {
+              name: analysis.selectedStartingPoint.name,
+              coordinate: analysis.selectedStartingPoint.coordinate,
+              reasoning: analysis.selectedStartingPoint.reasoning
+            } : null,
+            allFacilities: analysis.allFacilities.length
+          });
+        }
+        
+      } catch (enhanceError) {
+        console.warn('⚠️ 좌표 향상 실패, 원본 가이드 사용:', enhanceError);
+      }
+    }
+
     // 🎯 최종 응답 구성 - 사실 검증 정보 포함
     const responseData = {
       success: true,
-      data: guideData,
+      data: enhancedGuideData, // 좌표 향상된 가이드 데이터 사용
       location: location.trim(),
       language: safeUserProfile.language,
       // 🔍 데이터 통합 결과 추가
@@ -139,7 +184,15 @@ export async function POST(request: NextRequest) {
         confidenceScore: integratedData?.confidence || 0,
         dataSourceCount: integratedData ? Object.keys(integratedData.sources || {}).length : 0,
         verificationMethod: 'multi_source_cross_reference'
-      }
+      },
+      // 🎯 좌표 정확도 향상 결과
+      coordinateEnhancement: coordinateEnhancementResult ? {
+        success: coordinateEnhancementResult.success,
+        enhancedCount: coordinateEnhancementResult.enhancedCount,
+        improvements: coordinateEnhancementResult.improvements,
+        chapter0AIAnalysis: coordinateEnhancementResult.chapter0AIAnalysis,
+        processingTimeMs: coordinateEnhancementResult.processingTimeMs
+      } : null
     };
 
     const response = NextResponse.json(responseData);

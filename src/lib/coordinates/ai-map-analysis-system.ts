@@ -62,6 +62,7 @@ export class AIMapAnalysisSystem {
   private gemini: GoogleGenerativeAI | null = null;
   private model: any = null;
   private googleApiKey: string = '';
+  private geminiApiKey: string = '';
 
   constructor() {
     this.initialize();
@@ -71,6 +72,7 @@ export class AIMapAnalysisSystem {
     // Gemini 초기화
     const geminiKey = process.env.GEMINI_API_KEY;
     if (geminiKey) {
+      this.geminiApiKey = geminiKey;
       this.gemini = new GoogleGenerativeAI(geminiKey);
       this.model = this.gemini.getGenerativeModel({ 
         model: 'gemini-1.5-flash',
@@ -174,7 +176,11 @@ export class AIMapAnalysisSystem {
     }
 
     try {
-      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(locationName)}&key=${this.googleApiKey}`;
+      // 다국어 및 정확한 장소명으로 검색 개선
+      const enhancedQuery = await this.enhanceLocationQuery(locationName);
+      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(enhancedQuery)}&language=en&key=${this.googleApiKey}`;
+      
+      console.log(`🔍 Google Places 검색 URL: ${url.replace(this.googleApiKey, 'API_KEY')}`);
       
       const response = await fetch(url);
       if (!response.ok) {
@@ -339,6 +345,81 @@ ${facilitiesInfo}
     } catch (error) {
       console.error('AI 지도 분석 실패:', error);
       return null;
+    }
+  }
+
+  /**
+   * 🌍 AI 기반 실시간 장소명 번역 - Google Places API 최적화
+   */
+  private async enhanceLocationQuery(locationName: string): Promise<string> {
+    // 한국어가 포함된 경우에만 AI 번역 실행
+    if (this.containsKorean(locationName)) {
+      console.log(`🤖 AI 실시간 번역: "${locationName}"`);
+      return await this.translateWithGeminiAI(locationName);
+    }
+    
+    // 한국어가 없으면 원본 사용
+    return locationName;
+  }
+
+
+  /**
+   * 🔍 한국어 포함 여부 확인
+   */
+  private containsKorean(text: string): boolean {
+    return /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(text);
+  }
+
+
+  /**
+   * 🤖 Gemini AI를 활용한 실시간 장소명 번역
+   * 한국어 장소명을 Google Places API에 최적화된 영어/현지어로 변환
+   */
+  private async translateWithGeminiAI(locationName: string): Promise<string> {
+    try {
+      if (!this.geminiApiKey) {
+        console.warn('⚠️ Gemini API key 없음, 원본 사용');
+        return locationName;
+      }
+
+      const genAI = new GoogleGenerativeAI(this.geminiApiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: 'gemini-1.5-flash',
+        generationConfig: {
+          temperature: 0.1, // 일관된 번역을 위해 낮은 temperature
+          maxOutputTokens: 100 // 짧은 응답만 필요
+        }
+      });
+
+      const prompt = `
+한국어 장소명을 분석하여 적절한 검색어로 변환해주세요.
+
+규칙:
+1. 한국 내 장소인 경우: 한국어 그대로 유지 (예: "광화문" → "광화문")
+2. 해외 장소인 경우: 해당 국가 현지어/영어로 번역 (예: "에펠탑" → "Tour Eiffel Paris France")
+3. 도시명/국가명 포함하여 검색 정확도 향상
+4. 정확한 공식 명칭 사용
+
+한국어 장소명: "${locationName}"
+
+답변: 적절한 검색어만 출력 (설명이나 따옴표 없이)
+`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const translatedName = response.text().trim().replace(/['"]/g, ''); // 따옴표 제거
+
+      if (translatedName && translatedName !== locationName && translatedName.length < 200) {
+        console.log(`🤖 AI 번역: "${locationName}" → "${translatedName}"`);
+        return translatedName;
+      } else {
+        console.warn(`⚠️ AI 번역 실패, 원본 사용: ${locationName}`);
+        return locationName;
+      }
+
+    } catch (error) {
+      console.warn(`⚠️ Gemini AI 번역 오류: ${locationName}`, error);
+      return locationName;
     }
   }
 
