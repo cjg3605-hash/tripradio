@@ -54,18 +54,18 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
       {/* Enhanced 지도 */}
       <div className="h-64">
         <MapWithRoute
-          chapters={chapters.length > 0 ? chapters : undefined} // 🔥 챕터 데이터 전달
+          chapters={chapters.length > 0 ? chapters : undefined}
           pois={chapters.length === 0 ? pois.map(poi => ({
             id: poi.id,
             name: poi.name,
             lat: poi.lat,
             lng: poi.lng,
             description: poi.description
-          })) : undefined} // 챕터가 있으면 POI는 숨김
+          })) : undefined}
           currentLocation={null}
           center={{ lat: startPoint.lat, lng: startPoint.lng }}
           zoom={15}
-          showRoute={chapters.length > 0} // 챕터가 있을 때만 경로 표시
+          showRoute={chapters.length > 0}
           showUserLocation={false}
           onMarkerClick={(chapterIndex) => {
             console.log('Chapter marker clicked:', chapterIndex);
@@ -74,19 +74,7 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
             console.log('POI clicked:', poiId);
           }}
           className="w-full h-full"
-          // Enhanced location features
           locationName={locationName}
-          enableEnhancedGeocoding={false} // 🔥 API 호출 비활성화
-          preferStaticData={true}
-          // Enhanced Coordinate System (Phase 1-4)
-          enableEnhancedCoordinateSystem={false} // 🔥 복잡한 시스템 비활성화
-          coordinatePackageOptions={{
-            enableAnalytics: true,
-            enableCaching: true,
-            qualityThreshold: 0.7,
-            region: 'KR',
-            language: 'ko'
-          }}
         />
       </div>
     </div>

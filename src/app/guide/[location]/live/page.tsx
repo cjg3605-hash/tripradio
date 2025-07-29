@@ -18,6 +18,7 @@ import ChapterAudioPlayer from '@/components/audio/ChapterAudioPlayer';
 import MapWithRoute from '@/components/guide/MapWithRoute';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AudioChapter } from '@/types/audio';
+import { coordinateVerificationSystem, CoordinateInput } from '@/lib/coordinates/coordinate-verification-system';
 
 interface POI {
   id: string;
@@ -73,7 +74,7 @@ const LiveTourPage: React.FC = () => {
         const globalGuideData = (window as any).currentGuideData;
         if (globalGuideData) {
           console.log('📦 전역 데이터 사용');
-          processGuideData(globalGuideData);
+          await processGuideData(globalGuideData);
           return;
         }
         
@@ -96,7 +97,7 @@ const LiveTourPage: React.FC = () => {
         
         if (data?.content) {
           console.log('🗄️ DB에서 데이터 로드 성공');
-          processGuideData(data.content);
+          await processGuideData(data.content);
         } else {
           setPoisError('해당 위치의 가이드 데이터가 없습니다');
         }
@@ -109,7 +110,7 @@ const LiveTourPage: React.FC = () => {
       }
     };
     
-    const processGuideData = (guideData: any) => {
+    const processGuideData = async (guideData: any) => {
       const personalities = ['agreeableness', 'openness', 'conscientiousness'];
       const pois: POI[] = [];
 
@@ -126,6 +127,13 @@ const LiveTourPage: React.FC = () => {
 
       console.log(`🔍 찾은 챕터: ${chapters.length}개`);
 
+      // 1단계: 좌표 추출 및 기본 검증
+      const coordinatesToVerify: Array<{
+        chapter: any;
+        index: number;
+        input: CoordinateInput;
+      }> = [];
+
       chapters.forEach((chapter: any, index: number) => {
         // DB에서 좌표 직접 추출
         let lat: number | undefined, lng: number | undefined;
@@ -138,15 +146,93 @@ const LiveTourPage: React.FC = () => {
           lng = parseFloat(chapter.lng);
         }
 
-        // 기본 유효성 검증만 수행
+        // 기본 유효성 검증 후 검증 대상에 추가
         if (lat && lng && !isNaN(lat) && !isNaN(lng) &&
             lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-          console.log(`📍 챕터 ${index + 1}: ${chapter.title} -> ${lat}, ${lng}`);
+          
+          coordinatesToVerify.push({
+            chapter,
+            index,
+            input: {
+              lat,
+              lng,
+              context: chapter.title || `스팟 ${index + 1}`,
+              locationName: locationName
+            }
+          });
+        } else {
+          console.warn(`⚠️ 챕터 ${index + 1} 좌표 무효:`, { title: chapter.title, lat, lng });
+        }
+      });
+
+      console.log(`📍 검증 대상 좌표: ${coordinatesToVerify.length}개`);
+
+      if (coordinatesToVerify.length === 0) {
+        setPoisError('유효한 기본 좌표를 가진 챕터가 없습니다');
+        return;
+      }
+
+      try {
+        // 2단계: 배치 좌표 검증 수행
+        console.log('🔍 좌표 검증 시스템으로 검증 시작...');
+        const verificationResults = await coordinateVerificationSystem.batchVerifyCoordinates(
+          coordinatesToVerify.map(item => item.input)
+        );
+
+        console.log(`🎯 검증 완료: ${verificationResults.length}개 결과`);
+
+        // 3단계: 검증 결과를 바탕으로 POI 생성
+        coordinatesToVerify.forEach((item, resultIndex) => {
+          const result = verificationResults[resultIndex];
+          const { chapter, index } = item;
+          
+          console.log(`📊 챕터 ${index + 1} 검증 결과:`, {
+            title: chapter.title,
+            isValid: result.isValid,
+            confidence: result.confidence,
+            source: result.source,
+            coordinates: result.coordinates
+          });
+
+          // 신뢰도가 0.3 이상인 좌표만 사용 (원본 포함)
+          if (result.isValid && result.confidence >= 0.3) {
+            pois.push({
+              id: `poi_${index + 1}`,
+              name: chapter.title || `스팟 ${index + 1}`,
+              lat: result.coordinates.lat,
+              lng: result.coordinates.lng,
+              radius: 100,
+              description: chapter.narrative || chapter.content || chapter.title,
+              audioChapter: {
+                id: index + 1,
+                title: chapter.title || `스팟 ${index + 1}`,
+                text: chapter.narrative || chapter.content || chapter.title,
+                duration: 120 + (index * 30),
+                language: 'ko-KR',
+                personality: personalities[index % personalities.length] as any
+              }
+            });
+            
+            console.log(`✅ POI 생성: ${chapter.title} (신뢰도: ${result.confidence.toFixed(2)}, 출처: ${result.source})`);
+          } else {
+            console.warn(`⚠️ 좌표 검증 실패: ${chapter.title}`, {
+              confidence: result.confidence,
+              reason: result.error || '신뢰도 부족'
+            });
+          }
+        });
+
+      } catch (verificationError) {
+        console.error('좌표 검증 시스템 오류:', verificationError);
+        console.log('🔄 기본 좌표로 폴백 처리');
+        
+        // 검증 시스템 오류 시 기본 좌표 사용
+        coordinatesToVerify.forEach(({ chapter, index, input }) => {
           pois.push({
             id: `poi_${index + 1}`,
             name: chapter.title || `스팟 ${index + 1}`,
-            lat,
-            lng,
+            lat: input.lat,
+            lng: input.lng,
             radius: 100,
             description: chapter.narrative || chapter.content || chapter.title,
             audioChapter: {
@@ -158,16 +244,14 @@ const LiveTourPage: React.FC = () => {
               personality: personalities[index % personalities.length] as any
             }
           });
-        } else {
-          console.warn(`⚠️ 챕터 ${index + 1} 좌표 무효:`, { title: chapter.title, lat, lng });
-        }
-      });
+        });
+      }
 
       if (pois.length > 0) {
         console.log(`✅ ${pois.length}개 유효한 POI 생성 완료`);
         setPoisWithChapters(pois);
       } else {
-        setPoisError('유효한 좌표를 가진 챕터가 없습니다');
+        setPoisError('좌표 검증 후 유효한 챕터가 없습니다');
       }
     };
 

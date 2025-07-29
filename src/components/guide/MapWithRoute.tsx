@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 // import '@/styles/monochrome-map.css'; // 🔥 흑백 스타일 제거
 import L from 'leaflet';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 // 기본 좌표 매핑만 사용
 import type { GuideChapter } from '@/types/guide';
 
@@ -20,6 +20,10 @@ const Marker = dynamic(() => import('react-leaflet').then(mod => ({ default: mod
 const Tooltip = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.Tooltip })), { ssr: false });
 // @ts-ignore
 const useMap = dynamic(() => import('react-leaflet').then(mod => mod.useMap), { ssr: false });
+
+// 내 위치 버튼 훅
+import { useSimpleGeolocation } from '@/hooks/useSimpleGeolocation';
+import { Navigation } from 'lucide-react';
 
 // Leaflet 기본 마커 아이콘 수정 (타입 안전하게)
 const fixLeafletIcons = (): void => {
@@ -147,6 +151,102 @@ const activeMarkerIcon = new L.Icon({
   tooltipAnchor: [0, -18],
 });
 
+// 사용자 위치 마커 (방향 표시 포함)
+const createUserLocationMarkerSvg = (heading: number | null) => `
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40px" height="40px">
+    <defs>
+      <filter id="userShadow" x="-50%" y="-50%" width="200%" height="200%">
+        <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="rgba(59,130,246,0.5)"/>
+      </filter>
+      <radialGradient id="userGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+        <stop offset="70%" style="stop-color:#1d4ed8;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+      </radialGradient>
+    </defs>
+    <!-- 펄싱 효과용 외부 원 -->
+    <circle cx="20" cy="20" r="18" fill="rgba(59,130,246,0.3)" opacity="0.8">
+      <animate attributeName="r" values="18;24;18" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <!-- 메인 원 -->
+    <circle cx="20" cy="20" r="16" fill="url(#userGrad)" stroke="white" stroke-width="3" filter="url(#userShadow)" />
+    ${heading !== null ? `
+    <!-- 방향 화살표 -->
+    <g transform="rotate(${heading} 20 20)">
+      <path d="M 20 8 L 26 20 L 20 17 L 14 20 Z" fill="white" stroke="none"/>
+    </g>
+    ` : ''}
+    <!-- 중앙 점 -->
+    <circle cx="20" cy="20" r="4" fill="white" />
+  </svg>
+`;
+
+const createUserLocationIcon = (heading: number | null) => new L.Icon({
+  iconUrl: `data:image/svg+xml,${encodeURIComponent(createUserLocationMarkerSvg(heading))}`,
+  iconSize: [40, 40],
+  iconAnchor: [20, 20],
+  popupAnchor: [0, -20],
+  tooltipAnchor: [0, -20],
+});
+
+// 내 위치 버튼 컴포넌트
+const MyLocationButton = ({ map, onLocationClick }: { map: any, onLocationClick: () => void }) => {
+  const geolocation = useSimpleGeolocation();
+
+  const handleLocationClick = useCallback(() => {
+    if (geolocation.permissionStatus === 'denied') {
+      alert('위치 권한이 거부되었습니다. 브라우저 설정에서 위치 권한을 허용해주세요.');
+      return;
+    }
+
+    if (!geolocation.isTracking) {
+      geolocation.startTracking();
+    }
+    
+    onLocationClick();
+  }, [geolocation, onLocationClick]);
+
+  useEffect(() => {
+    if (geolocation.latitude && geolocation.longitude && map) {
+      map.flyTo([geolocation.latitude, geolocation.longitude], 17, { duration: 1 });
+    }
+  }, [geolocation.latitude, geolocation.longitude, map]);
+
+  return (
+    <button
+      onClick={handleLocationClick}
+      disabled={!geolocation.isSupported || geolocation.isLoading}
+      className={`
+        absolute bottom-4 right-4 z-[1000]
+        w-12 h-12 bg-white rounded-lg shadow-lg
+        flex items-center justify-center
+        border border-gray-200 hover:border-gray-300
+        transition-all duration-200
+        hover:scale-105 active:scale-95
+        ${geolocation.isLoading ? 'animate-pulse' : ''}
+        ${geolocation.isTracking ? 'bg-blue-50 border-blue-200' : ''}
+        ${!geolocation.isSupported ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+      `}
+      title={geolocation.isTracking ? '내 위치 추적 중' : '내 위치로 이동'}
+      aria-label="내 위치로 이동"
+    >
+      <Navigation 
+        className={`
+          w-5 h-5 transition-colors duration-200
+          ${geolocation.isTracking ? 'text-blue-600' : 'text-gray-600'}
+          ${geolocation.isLoading ? 'animate-spin' : ''}
+        `}
+        style={{
+          transform: geolocation.isTracking && geolocation.heading 
+            ? `rotate(${geolocation.heading}deg)` 
+            : 'none'
+        }}
+      />
+    </button>
+  );
+};
+
 export default function MapWithRoute({ 
   chapters, 
   activeChapter, 
@@ -161,13 +261,18 @@ export default function MapWithRoute({
   className,
   locationName
 }: MapWithRouteProps) {
+  
+  // GPS 위치 추적
+  const geolocation = useSimpleGeolocation();
+  const [showMyLocation, setShowMyLocation] = useState(false);
 
   // 기본 좌표 매핑만 사용 - 단순화
   console.log('🗺️ MapWithRoute 렌더링:', {
     chaptersCount: chapters?.length || 0,
     poisCount: pois?.length || 0,
     hasCenter: !!center,
-    locationName
+    locationName,
+    userLocation: showMyLocation ? 'enabled' : 'disabled'
   });
 
   // 좌표 추출 함수 개선 (여러 형태 지원)
@@ -359,7 +464,7 @@ export default function MapWithRoute({
   // 로딩 상태 제거 - 즉시 렌더링
 
   return (
-    <div className="w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
+    <div className="relative w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
       <MapContainer 
         {...({center: mapCenter, zoom} as any)}
         className="w-full h-full"
@@ -395,6 +500,41 @@ export default function MapWithRoute({
           />
         )}
         
+        {/* 사용자 위치 마커 */}
+        {showMyLocation && geolocation.latitude && geolocation.longitude && (
+          <Marker
+            {...({
+              position: [geolocation.latitude, geolocation.longitude],
+              icon: createUserLocationIcon(geolocation.heading)
+            } as any)}
+          >
+            <Tooltip 
+              {...({
+                direction: "top",
+                offset: [0, -20],
+                opacity: 0.9,
+                permanent: false
+              } as any)}
+            >
+              <div className="text-center">
+                <div className="font-medium text-sm text-blue-600">
+                  내 위치
+                </div>
+                {geolocation.accuracy && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    정확도: ±{Math.round(geolocation.accuracy)}m
+                  </div>
+                )}
+                {geolocation.heading !== null && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    방향: {geolocation.heading}°
+                  </div>
+                )}
+              </div>
+            </Tooltip>
+          </Marker>
+        )}
+
         {/* 마커들 */}
         {validChapters.map((chapter) => {
           const isActive = chapter.originalIndex === activeChapter;
@@ -441,6 +581,12 @@ export default function MapWithRoute({
           );
         })}
       </MapContainer>
+      
+      {/* 내 위치 버튼 - 지도 위에 절대 위치 */}
+      <MyLocationButton 
+        map={null} 
+        onLocationClick={() => setShowMyLocation(true)} 
+      />
       
       {/* 기본 지도 하단 정보 */}
       <div className="bg-black/2 px-4 py-3 text-xs font-medium border-t border-black/5">
