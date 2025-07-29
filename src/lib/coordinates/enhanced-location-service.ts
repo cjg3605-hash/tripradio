@@ -63,12 +63,17 @@ export interface APIResult {
 
 // === Phase 1: Gemini AI 위치 정규화 시스템 ===
 class LocationNormalizer {
-  private gemini: GoogleGenerativeAI;
-  private model: any;
+  private gemini: GoogleGenerativeAI | null = null;
+  private model: any = null;
 
-  constructor() {
+  private initialize() {
+    if (this.model) return; // 이미 초기화됨
+    
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error('GEMINI_API_KEY not found');
+    if (!apiKey) {
+      console.warn('GEMINI_API_KEY not found, Gemini normalization disabled');
+      return;
+    }
     
     this.gemini = new GoogleGenerativeAI(apiKey);
     this.model = this.gemini.getGenerativeModel({ 
@@ -92,6 +97,22 @@ class LocationNormalizer {
     city: string;
     searchQueries: string[];
   }> {
+    // 런타임에 초기화
+    this.initialize();
+    
+    // Gemini가 사용 가능하지 않으면 기본값 반환
+    if (!this.model) {
+      console.log('Gemini 미사용, 기본 정규화 적용');
+      return {
+        officialName: input.query,
+        alternativeNames: [],
+        locationType: input.locationType || 'general',
+        country: '',
+        city: '',
+        searchQueries: [input.query]
+      };
+    }
+
     const prompt = `위치 정규화: "${input.query}"
 
 다음 JSON 형태로 정확한 위치 정보를 반환해줘:
@@ -153,15 +174,31 @@ class LocationNormalizer {
 
 class GooglePlacesClient implements APIClient {
   name = 'Google Places';
-  private apiKey: string;
+  private apiKey: string = '';
+  private initialized = false;
 
-  constructor() {
+  private initialize() {
+    if (this.initialized) return;
+    
     this.apiKey = process.env.GOOGLE_API_KEY || process.env.GOOGLE_PLACES_API_KEY || '';
-    if (!this.apiKey) throw new Error('Google API key not found');
+    this.initialized = true;
+    
+    if (!this.apiKey) {
+      console.warn('Google API key not found, Google Places disabled');
+    }
   }
 
   async search(query: string, context?: string): Promise<APIResult | null> {
     try {
+      // 런타임에 초기화
+      this.initialize();
+      
+      // API 키가 없으면 null 반환
+      if (!this.apiKey) {
+        console.log('Google Places API 키 없음, 건너뛰기');
+        return null;
+      }
+      
       const searchQuery = context ? `${query} ${context}` : query;
       const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json`;
       
@@ -193,6 +230,15 @@ class GooglePlacesClient implements APIClient {
 
   async reverseGeocode(lat: number, lng: number): Promise<string | null> {
     try {
+      // 런타임에 초기화
+      this.initialize();
+      
+      // API 키가 없으면 null 반환
+      if (!this.apiKey) {
+        console.log('Google Places API 키 없음, 역지오코딩 건너뛰기');
+        return null;
+      }
+      
       const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${this.apiKey}&language=ko`;
       const response = await fetch(url);
       const data = await response.json();
@@ -312,7 +358,28 @@ export class EnhancedLocationService {
       const apiResults = await this.searchAllAPIs(normalized);
       
       if (apiResults.length === 0) {
-        throw new Error('모든 API에서 결과를 찾을 수 없습니다');
+        console.warn('모든 API에서 결과를 찾을 수 없음, 기본 좌표 반환');
+        // 완전히 실패하는 대신 기본 좌표 반환
+        return {
+          coordinates: { lat: 37.5665, lng: 126.9780 }, // 서울 시청 기본값
+          confidence: 0.1,
+          accuracy: 'low',
+          sources: ['fallback'],
+          metadata: {
+            officialName: normalized.officialName,
+            address: 'Location not found',
+            placeType: normalized.locationType,
+            country: normalized.country || 'Unknown',
+            validatedAt: new Date(),
+            processingTimeMs: Date.now() - startTime
+          },
+          quality: {
+            consensusScore: 0.1,
+            distanceVariance: 999999,
+            addressMatch: 0
+          },
+          error: 'No API results found, using fallback coordinates'
+        };
       }
 
       // Phase 3: 합의 알고리즘 & 품질 검증
