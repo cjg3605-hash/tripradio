@@ -420,10 +420,10 @@ export async function GET(request: NextRequest) {
       
       // Parse response (assuming it's a JSON string)
       let suggestions: Suggestion[] = [];
+      let jsonString = text.trim(); // 스코프를 밖으로 이동
       
       try {
         // AI가 마크다운 코드 블록을 포함할 수 있으므로, JSON만 추출
-        let jsonString = text.trim();
         
         // 여러 패턴으로 JSON 추출 시도
         const patterns = [
