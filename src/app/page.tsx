@@ -110,10 +110,12 @@ export default function HomePage() {
       const data = await response.json();
       
       console.log('🔍 API 응답:', data);
+      console.log('🔍 API 응답 데이터 상세:', JSON.stringify(data, null, 2));
       if (data.success && data.data) {
         const newSuggestions = data.data.slice(0, 5);
         console.log('🔄 기존 suggestions:', suggestions);
         console.log('🔄 setSuggestions 호출할 새 데이터:', newSuggestions);
+        console.log('🔄 새 데이터 상세:', JSON.stringify(newSuggestions, null, 2));
         setSuggestions(newSuggestions); // 최대 5개 제안
       } else {
         console.warn('⚠️ API 응답 실패:', data);

@@ -427,16 +427,17 @@ export async function GET(request: NextRequest) {
         
         // 여러 패턴으로 JSON 추출 시도
         const patterns = [
-          /```(?:json)?\s*([\s\S]*?)\s*```/s,     // ```json 패턴
-          /```\s*([\s\S]*?)\s*```/s,              // ``` 패턴  
-          /\[[\s\S]*\]/s,                         // [ ] 패턴
-          /\{[\s\S]*\}/s                          // { } 패턴
+          /```(?:json)?\s*([\s\S]*?)\s*```/s,     // ```json 패턴 (그룹 1 사용)
+          /```\s*([\s\S]*?)\s*```/s,              // ``` 패턴 (그룹 1 사용)
+          /(\[[\s\S]*?\])/s,                      // [ ] 패턴 (그룹 1 사용)
+          /(\{[\s\S]*?\})/s                       // { } 패턴 (그룹 1 사용)
         ];
         
         for (const pattern of patterns) {
           const match = text.match(pattern);
           if (match) {
             jsonString = match[1] ? match[1].trim() : match[0].trim();
+            console.log('🔍 패턴 매치됨:', pattern.toString(), '결과:', jsonString.substring(0, 100) + '...');
             break;
           }
         }
