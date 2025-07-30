@@ -151,17 +151,6 @@
     "audio": {
       "chapter": "챕터"
     },
-    "common": {
-      "hide": "숨기기",
-      "exists": "있음",
-      "notExists": "없음",
-      "back": "뒤로가기",
-      "minutes": "분",
-      "pressEnterToOpen": "Enter를 눌러서 열기",
-      "languagesGenerated": "개 언어로 생성됨",
-      "total": "총",
-      "none": "없음"
-    },
     "location": {
       "accuracyInfo": "위치 정확도 정보",
       "permissionRequired": "위치 권한이 필요합니다",

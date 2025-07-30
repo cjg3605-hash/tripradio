@@ -117,19 +117,28 @@ export default function HomePage() {
       
       if (data.success && data.data) {
         console.log('✅ 자동완성 성공:', data.data);
-        setSuggestions(data.data.slice(0, 5)); // 최대 5개 제안
+        const newSuggestions = data.data.slice(0, 5);
+        console.log('🔄 setSuggestions 호출:', newSuggestions);
+        setSuggestions(newSuggestions); // 최대 5개 제안
       } else {
         console.warn('⚠️ 자동완성 API 응답 오류:', data.error);
         console.warn('⚠️ 응답 전체:', data);
-        // 기본 제안 유지 (문제의 원인!)
+        // 오류 시 빈 배열로 설정
+        setSuggestions([]);
       }
     } catch (error) {
       console.error('❌ 자동완성 API 호출 실패:', error);
-      // 에러 시 기본 제안 유지 (문제의 원인!)
+      // 에러 시 빈 배열로 설정
+      setSuggestions([]);
     } finally {
       setIsLoadingSuggestions(false);
     }
   };
+
+  // suggestions 상태 변경 모니터링
+  useEffect(() => {
+    console.log('🎯 suggestions 상태 변경:', suggestions);
+  }, [suggestions]);
 
   // 디바운스된 검색 함수
   useEffect(() => {
