@@ -684,7 +684,7 @@ ${JSON.stringify(existingGuide, null, 2)}
     "id": ${chapterIndex},
     "title": "${chapterTitle}",
     "narrative": "En esta ubicación, lo primero que llama la atención es... [Escribir descripción vívida del sitio en detalle 400-500 caracteres] ...Pero ¿por qué este lugar es tan especial? Fue en [período de tiempo] cuando [explicar antecedentes históricos y significado en detalle 600-700 caracteres] ...Dentro de esta historia hay historias verdaderamente conmovedoras de personas. [Narrar ricamente figuras históricas reales o anécdotas verificadas 400-500 caracteres] ...Ahora, manteniendo estas historias significativas en mente, vamos al siguiente punto. [200-300 caracteres de ruta de movimiento específica y vista previa de próxima ubicación] (Total 1800-2000 caracteres de historia completa)",
-    "nextDirection": "Desde aquí, muévanse [dirección específica] aproximadamente [distancia/tiempo] y encontrarán [nombre de próxima ubicación]. En el camino, por favor noten [atracciones o características circundantes]. En la próxima ubicación, pueden experimentar [contenido esperado]."
+    "nextDirection": "Desde su posición actual, sigan [punto de referencia: edificio principal/muro/sendero] hacia [dirección: norte/sur/este/oeste/noreste/noroeste/sureste/suroeste] por exactamente [número] metros. En el camino, pasarán por [características del sendero: fuente/escultura/señalización/escaleras], y sabrán que han llegado cuando vean [señal de llegada: edificio específico/letrero/entrada]. Tiempo de caminata: aproximadamente [número] minutos."
   }
 }
 

@@ -95,7 +95,7 @@ export default function HomePage() {
 
   // 자동완성 API 호출
   const fetchSuggestions = async (searchQuery: string) => {
-    if (searchQuery.length < 2) {
+    if (searchQuery.length < 1) {
       const translated = t('home.defaultSuggestions');
       setSuggestions(
         Array.isArray(translated) ? translated : [

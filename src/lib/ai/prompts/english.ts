@@ -633,7 +633,7 @@ ${JSON.stringify(existingGuide, null, 2)}
     "id": ${chapterIndex},
     "title": "${chapterTitle}",
     "narrative": "At this location, the first thing that catches your eye is... [Write vivid on-site description in detail 400-500 chars] ...But why is this place so special? It was in [time period] when [historical background and significance explained in detail 600-700 chars] ...Within this history are truly moving stories of people. [Richly narrate actual historical figures or verified anecdotes 400-500 chars] ...Now, keeping these meaningful stories in mind, let's move to the next point. [200-300 chars of specific movement route and next location preview] (Total 1800-2000 chars of complete story)",
-    "nextDirection": "From here, move [specific direction] about [distance/time] and you'll find [next location name]. On your way, please notice [surrounding attractions or features]. At the next location, you can experience [expected content]."
+    "nextDirection": "From your current position, follow the [landmark: main building/wall/path] heading [direction: north/south/east/west/northeast/northwest/southeast/southwest] for exactly [number] meters. Along the way, you'll pass [path features: fountain/sculpture/signage/stairs], and you'll know you've arrived when you see [arrival marker: specific building/sign/entrance]. Walking time: approximately [number] minutes."
   }
 }
 
