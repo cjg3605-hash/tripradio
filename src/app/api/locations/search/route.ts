@@ -211,22 +211,22 @@ function sanitizeInput(input: string): string {
 // Create optimized autocomplete prompt (minimal tokens)
 function createSearchPrompt(query: string, language: Language): string {
   const prompts = {
-    ko: `'${query}' 관련 관광지 추천 8개:
+    ko: `'${query}' 관련 관광지 추천 4개:
 - ${query} 자체와 주요 구역들
 - ${query} 주변 명소들  
 - 비슷한 성격의 다른 관광지들
 JSON만: [{"name": "장소명", "location": "도시, 국가", "metadata": {"isOfficial": true/false, "category": "관광지/박물관/자연", "popularity": 1-10}}]`,
     
-    en: `Autocomplete '${query}': 8 places containing input text. Include variations. JSON array only:
+    en: `Autocomplete '${query}': 4 places containing input text. Include variations. JSON array only:
 [{"name": "place name", "location": "city, country", "metadata": {"isOfficial": true/false, "category": "tourist/museum/nature", "popularity": 1-10}}]`,
     
-    ja: `'${query}' 自動完成: 入力文字を含む場所8件. 様々な表現含む. JSON配列のみ:
+    ja: `'${query}' 自動完成: 入力文字を含む場所4件. 様々な表現含む. JSON配列のみ:
 [{"name": "場所名", "location": "都市, 国", "metadata": {"isOfficial": true/false, "category": "観光地/博物館/自然", "popularity": 1-10}}]`,
     
-    zh: `'${query}' 自动完成: 包含输入文本的地点8个. 包含多种表达. 仅JSON数组:
+    zh: `'${query}' 自动完成: 包含输入文本的地点4个. 包含多种表达. 仅JSON数组:
 [{"name": "地点名", "location": "城市, 国家", "metadata": {"isOfficial": true/false, "category": "旅游/博物馆/自然", "popularity": 1-10}}]`,
     
-    es: `Autocompletar '${query}': 8 lugares con texto. Incluir variaciones. Solo JSON:
+    es: `Autocompletar '${query}': 4 lugares con texto. Incluir variaciones. Solo JSON:
 [{"name": "lugar", "location": "ciudad, país", "metadata": {"isOfficial": true/false, "category": "turístico/museo/natural", "popularity": 1-10}}]`
   };
   return prompts[language] || prompts.ko;
@@ -369,7 +369,7 @@ export async function GET(request: NextRequest) {
           model: 'gemini-2.5-flash-lite',
           generationConfig: {
             temperature: 0.2,    // 다양성을 위해 약간 증가
-            maxOutputTokens: 200, // 자동완성용으로 더 축소
+            maxOutputTokens: 400, // 4개 장소 JSON 응답을 위한 적정 토큰
             topP: 0.9,           // 더 다양한 결과
             topK: 20             // 선택 범위 확대
           }
@@ -395,7 +395,6 @@ export async function GET(request: NextRequest) {
         
         try {
           // Make the API call
-          console.log('🚀 AI 호출 시작, 프롬프트:', prompt.substring(0, 200) + '...');
           const generatePromise = model.generateContent(prompt);
           
           // Race between the API call and the timeout
@@ -406,7 +405,6 @@ export async function GET(request: NextRequest) {
           
           response = await result.response;
           text = await response.text();
-          console.log('✅ AI 응답 수신 완료, 길이:', text.length);
           
           return { result, response, text };
         } catch (apiError) {
@@ -438,22 +436,11 @@ export async function GET(request: NextRequest) {
         
         for (const pattern of patterns) {
           const match = text.match(pattern);
-          console.log('🔍 패턴 시도:', pattern.toString(), '매치 결과:', !!match);
           if (match) {
             jsonString = match[1] ? match[1].trim() : match[0].trim();
-            console.log('🔍 패턴 매치됨:', pattern.toString());
-            console.log('🔍 match[0]:', match[0]?.substring(0, 100) + '...');
-            console.log('🔍 match[1]:', match[1]?.substring(0, 100) + '...');
-            console.log('🔍 최종 선택:', jsonString.substring(0, 100) + '...');
             break;
           }
         }
-        
-        // 강제 디버깅 로그 (문제 해결을 위해)
-        console.log('🔍 원본 AI 응답 (전체):', JSON.stringify(text));
-        console.log('🔍 원본 길이:', text.length);
-        console.log('🔍 첫 10글자 char codes:', text.substring(0, 10).split('').map(c => c.charCodeAt(0)));
-        console.log('🔍 추출된 JSON:', jsonString.substring(0, 500) + '...');
         
         const parsed = JSON.parse(jsonString);
         
@@ -463,7 +450,7 @@ export async function GET(request: NextRequest) {
           
           // 중복 제거 및 대표 장소 선택 적용
           const deduplicationConfig: DeduplicationConfig = {
-            maxResults: 8,
+            maxResults: 4,
             similarityThreshold: 0.85,
             preferOfficialNames: false
           };
@@ -522,8 +509,6 @@ export async function GET(request: NextRequest) {
         
       } catch (parseError) {
         console.error('❌ AI 응답 처리 실패:', parseError);
-        console.error('❌ 오류 발생한 응답 내용 (전체):', text);
-        console.error('❌ 추출 시도한 JSON 문자열:', jsonString);
         
         // 기본 제안으로 폴백
         const defaultSuggestions = [

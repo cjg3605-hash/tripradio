@@ -109,16 +109,9 @@ export default function HomePage() {
       const response = await fetch(`/api/locations/search?q=${encodeURIComponent(searchQuery)}&lang=${currentLanguage}`);
       const data = await response.json();
       
-      console.log('🔍 API 응답:', data);
-      console.log('🔍 API 응답 데이터 상세:', JSON.stringify(data, null, 2));
       if (data.success && data.data) {
-        const newSuggestions = data.data.slice(0, 5);
-        console.log('🔄 기존 suggestions:', suggestions);
-        console.log('🔄 setSuggestions 호출할 새 데이터:', newSuggestions);
-        console.log('🔄 새 데이터 상세:', JSON.stringify(newSuggestions, null, 2));
-        setSuggestions(newSuggestions); // 최대 5개 제안
+        setSuggestions(data.data.slice(0, 5)); // 최대 5개 제안
       } else {
-        console.warn('⚠️ API 응답 실패:', data);
         setSuggestions([]);
       }
     } catch (error) {
@@ -128,10 +121,6 @@ export default function HomePage() {
     }
   };
 
-  // suggestions 상태 변경 모니터링
-  useEffect(() => {
-    console.log('🎯 suggestions 상태 업데이트됨:', suggestions);
-  }, [suggestions]);
 
   // 디바운스된 검색 함수
   useEffect(() => {
@@ -416,10 +405,7 @@ export default function HomePage() {
                       </div>
                     </div>
                   ) : suggestions.length > 0 ? (
-                    (() => {
-                      console.log('🎨 렌더링할 suggestions:', suggestions);
-                      return suggestions;
-                    })().map((suggestion, index) => (
+                    suggestions.map((suggestion, index) => (
                       <button
                         key={index}
                         onClick={() => {
