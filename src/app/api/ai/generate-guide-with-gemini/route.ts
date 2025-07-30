@@ -745,7 +745,7 @@ async function handleStreamingResponse(
             sendProgress('좌표_향상', 95, { message: '좌표 정확도 향상 중...' });
             
             let enhancedGuideData = guideData;
-            let coordinateEnhancementResult = null;
+            let coordinateEnhancementResult: any = null;
             
             try {
               const enhancementResult = await enhanceGuideCoordinates(
