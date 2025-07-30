@@ -235,7 +235,7 @@ export class EnhancedCacheSystem {
 
     try {
       // 모든 레벨에 저장
-      const promises = [];
+      const promises: Promise<void>[] = [];
 
       if (config.levels.includes(CacheLevel.L1_MEMORY)) {
         this.memoryCache.set(fullKey, processedValue, { ttl: config.ttl * 1000 });

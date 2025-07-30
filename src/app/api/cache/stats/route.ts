@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     };
 
     if (detail) {
-      response.data.strategies = [
+      (response.data as any).strategies = [
         {
           name: 'SEARCH_AUTOCOMPLETE',
           ttl: '30분',

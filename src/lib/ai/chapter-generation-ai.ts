@@ -137,7 +137,7 @@ export class UniversalChapterGenerationAI {
 - 전통시장, 유명 음식점, 현지 특산품, 문화 체험
 
 ## 👤 사용자 맞춤화
-- 관심사: ${userProfile.interests?.join(', ') || '일반'}
+- 관심사: ${(userProfile.interests || []).join(', ') || '일반'}
 - 연령대: ${userProfile.ageGroup || '30대'}
 - 지식수준: ${userProfile.knowledgeLevel || '중급'}
 - 희망시간: ${userProfile.tourDuration || 90}분
@@ -301,7 +301,16 @@ ${candidatesText}
     // Enhanced Chapter System 활용하여 구조화
     const enhancedRequest = {
       locationName,
-      userProfile,
+      userProfile: {
+        ...userProfile,
+        interests: userProfile.interests || [],
+        ageGroup: userProfile.ageGroup || '30대',
+        knowledgeLevel: userProfile.knowledgeLevel || '중급',
+        companions: userProfile.companions || 'solo',
+        tourDuration: userProfile.tourDuration || 90,
+        preferredStyle: userProfile.preferredStyle || 'balanced',
+        language: userProfile.language || 'ko'
+      },
       preferredLanguage: userProfile.language || 'ko',
       visitDuration: userProfile.tourDuration || 90,
       customizations: {
@@ -369,7 +378,7 @@ ${candidatesText}
         // Chapter 1~N: 메인 챕터들
         ...diversifiedChapters.map((chapter, index) => ({
           id: index + 1,
-          type: 'viewing_point',
+          type: 'viewing_point' as const,
           title: chapter.title,
           content: {
             narrative: chapter.content.narrative,
@@ -698,7 +707,7 @@ ${candidatesText}
   }
 
   private generateImprovementSuggestions(confidenceScore: number): string[] {
-    const suggestions = [];
+    const suggestions: string[] = [];
     
     if (confidenceScore < 0.7) {
       suggestions.push('더 많은 현지 정보 수집 필요');

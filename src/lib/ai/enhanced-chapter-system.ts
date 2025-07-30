@@ -656,25 +656,25 @@ export class EnhancedChapterSelectionSystem {
 
   private async determineOptimalStartingPoint(locationData: LocationData) {
     return {
-      type: 'main_entrance' as const,
+      type: 'entrance' as const,
       coordinates: locationData.coordinates,
       description: `${locationData.name} 정문 입구`
     };
   }
 
-  private async generateHistoricalBackground(locationData: LocationData): string {
+  private async generateHistoricalBackground(locationData: LocationData): Promise<string> {
     return `${locationData.name}의 역사적 배경과 중요성을 소개합니다.`;
   }
 
-  private async generateCulturalContext(locationData: LocationData): string {
+  private async generateCulturalContext(locationData: LocationData): Promise<string> {
     return `${locationData.name}의 문화적 맥락과 의미를 설명합니다.`;
   }
 
-  private async generateVisitingTips(locationData: LocationData): string {
+  private async generateVisitingTips(locationData: LocationData): Promise<string> {
     return `${locationData.name} 관람을 위한 실용적인 팁들을 제공합니다.`;
   }
 
-  private async generateExpectationSetting(locationData: LocationData): string {
+  private async generateExpectationSetting(locationData: LocationData): Promise<string> {
     return `${locationData.name}에서 무엇을 볼 수 있는지 미리 안내합니다.`;
   }
 
@@ -749,7 +749,7 @@ export class EnhancedChapterSelectionSystem {
     }
   }
 
-  private async generateNarrative(point: ViewingPoint, userProfile?: UserProfile): string {
+  private async generateNarrative(point: ViewingPoint, userProfile?: UserProfile): Promise<string> {
     return `${point.name}에 대한 음성 가이드 내러티브입니다. ${point.content.detailedDescription}`;
   }
 
