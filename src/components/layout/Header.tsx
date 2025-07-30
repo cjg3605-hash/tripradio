@@ -79,6 +79,14 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
         return;
       }
       
+      // Check if click is inside search autocomplete area - if so, don't interfere
+      if (clickedElement.closest('input[type="text"]') || 
+          clickedElement.closest('[class*="suggestion"]') ||
+          clickedElement.closest('[class*="autocomplete"]')) {
+        console.log('🎯 Click was on search area, not closing menu');
+        return;
+      }
+      
       // Check if click is inside any dropdown menu
       if (languageMenuRef.current?.contains(event.target as Node) || 
           profileMenuRef.current?.contains(event.target as Node)) {

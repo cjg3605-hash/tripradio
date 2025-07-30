@@ -395,6 +395,7 @@ export async function GET(request: NextRequest) {
         
         try {
           // Make the API call
+          console.log('🚀 AI 호출 시작, 프롬프트:', prompt.substring(0, 200) + '...');
           const generatePromise = model.generateContent(prompt);
           
           // Race between the API call and the timeout
@@ -405,6 +406,7 @@ export async function GET(request: NextRequest) {
           
           response = await result.response;
           text = await response.text();
+          console.log('✅ AI 응답 수신 완료, 길이:', text.length);
           
           return { result, response, text };
         } catch (apiError) {
@@ -439,11 +441,9 @@ export async function GET(request: NextRequest) {
           }
         }
         
-        // 개발 환경에서 디버깅 로그
-        if (process.env.NODE_ENV === 'development') {
-          console.log('🔍 원본 AI 응답:', text.substring(0, 200) + '...');
-          console.log('🔍 추출된 JSON:', jsonString.substring(0, 200) + '...');
-        }
+        // 강제 디버깅 로그 (문제 해결을 위해)
+        console.log('🔍 원본 AI 응답:', text.substring(0, 500) + '...');
+        console.log('🔍 추출된 JSON:', jsonString.substring(0, 500) + '...');
         
         const parsed = JSON.parse(jsonString);
         
@@ -512,7 +512,8 @@ export async function GET(request: NextRequest) {
         
       } catch (parseError) {
         console.error('❌ AI 응답 처리 실패:', parseError);
-        console.error('❌ 오류 발생한 응답 내용:', text);
+        console.error('❌ 오류 발생한 응답 내용 (전체):', text);
+        console.error('❌ 추출 시도한 JSON 문자열:', jsonString);
         
         // 기본 제안으로 폴백
         const defaultSuggestions = [

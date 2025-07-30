@@ -109,9 +109,14 @@ export default function HomePage() {
       const response = await fetch(`/api/locations/search?q=${encodeURIComponent(searchQuery)}&lang=${currentLanguage}`);
       const data = await response.json();
       
+      console.log('🔍 API 응답:', data);
       if (data.success && data.data) {
-        setSuggestions(data.data.slice(0, 5)); // 최대 5개 제안
+        const newSuggestions = data.data.slice(0, 5);
+        console.log('🔄 기존 suggestions:', suggestions);
+        console.log('🔄 setSuggestions 호출할 새 데이터:', newSuggestions);
+        setSuggestions(newSuggestions); // 최대 5개 제안
       } else {
+        console.warn('⚠️ API 응답 실패:', data);
         setSuggestions([]);
       }
     } catch (error) {
@@ -121,6 +126,10 @@ export default function HomePage() {
     }
   };
 
+  // suggestions 상태 변경 모니터링
+  useEffect(() => {
+    console.log('🎯 suggestions 상태 업데이트됨:', suggestions);
+  }, [suggestions]);
 
   // 디바운스된 검색 함수
   useEffect(() => {
@@ -396,7 +405,7 @@ export default function HomePage() {
 
               {/* Suggestions Dropdown */}
               {isFocused && query.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-50">
+                <div className="absolute top-full left-0 right-0 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-50 autocomplete-dropdown">
                   {isLoadingSuggestions ? (
                     <div className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-2">
@@ -405,7 +414,10 @@ export default function HomePage() {
                       </div>
                     </div>
                   ) : suggestions.length > 0 ? (
-                    suggestions.map((suggestion, index) => (
+                    (() => {
+                      console.log('🎨 렌더링할 suggestions:', suggestions);
+                      return suggestions;
+                    })().map((suggestion, index) => (
                       <button
                         key={index}
                         onClick={() => {
@@ -416,7 +428,7 @@ export default function HomePage() {
                             router.push(`/guide/${encodeURIComponent(selectedLocation)}`);
                           }, 100);
                         }}
-                        className="w-full px-6 py-4 text-left transition-all duration-200 group hover:bg-gray-50"
+                        className="w-full px-6 py-4 text-left transition-all duration-200 group hover:bg-gray-50 suggestion-item"
                       >
                         <div className="flex items-center justify-between">
                           <div>
