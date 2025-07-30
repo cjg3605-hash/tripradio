@@ -309,7 +309,18 @@ ${candidatesText}
         companions: userProfile.companions || 'solo',
         tourDuration: userProfile.tourDuration || 90,
         preferredStyle: userProfile.preferredStyle || 'balanced',
-        language: userProfile.language || 'ko'
+        language: userProfile.language || 'ko',
+        accessibilityNeeds: userProfile.accessibilityNeeds ? {
+          wheelchairAccessible: userProfile.accessibilityNeeds.includes('wheelchair'),
+          stairsRequired: !userProfile.accessibilityNeeds.includes('no_stairs'),
+          visualImpairment: userProfile.accessibilityNeeds.includes('visual'),
+          hearingImpairment: userProfile.accessibilityNeeds.includes('hearing'),
+          mobilityLimited: userProfile.accessibilityNeeds.includes('mobility'),
+          other: userProfile.accessibilityNeeds.filter(need => !['wheelchair', 'no_stairs', 'visual', 'hearing', 'mobility'].includes(need))
+        } : {
+          wheelchairAccessible: false,
+          stairsRequired: true
+        }
       },
       preferredLanguage: userProfile.language || 'ko',
       visitDuration: userProfile.tourDuration || 90,
