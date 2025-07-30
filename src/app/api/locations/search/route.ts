@@ -211,8 +211,11 @@ function sanitizeInput(input: string): string {
 // Create optimized autocomplete prompt (minimal tokens)
 function createSearchPrompt(query: string, language: Language): string {
   const prompts = {
-    ko: `'${query}' 자동완성: 입력 텍스트가 포함된 정확한 장소명 8개. 다양한 표현 포함. JSON 배열만 반환:
-[{"name": "장소명", "location": "도시, 국가", "metadata": {"isOfficial": true/false, "category": "관광지/박물관/자연", "popularity": 1-10}}]`,
+    ko: `'${query}' 관련 관광지 추천 8개:
+- ${query} 자체와 주요 구역들
+- ${query} 주변 명소들  
+- 비슷한 성격의 다른 관광지들
+JSON만: [{"name": "장소명", "location": "도시, 국가", "metadata": {"isOfficial": true/false, "category": "관광지/박물관/자연", "popularity": 1-10}}]`,
     
     en: `Autocomplete '${query}': 8 places containing input text. Include variations. JSON array only:
 [{"name": "place name", "location": "city, country", "metadata": {"isOfficial": true/false, "category": "tourist/museum/nature", "popularity": 1-10}}]`,
@@ -363,19 +366,19 @@ export async function GET(request: NextRequest) {
         
         const gemini = getGeminiClient();
         const model = gemini.getGenerativeModel({ 
-          model: 'gemini-1.5-flash',
+          model: 'gemini-2.5-flash-lite',
           generationConfig: {
-            temperature: 0.1,    // 더 일관된 결과
-            maxOutputTokens: 512, // 토큰 수 대폭 감소
-            topP: 0.8,           // 더 집중된 응답
-            topK: 10             // 선택 범위 제한
+            temperature: 0.2,    // 다양성을 위해 약간 증가
+            maxOutputTokens: 200, // 자동완성용으로 더 축소
+            topP: 0.9,           // 더 다양한 결과
+            topK: 20             // 선택 범위 확대
           }
         });
         
         const prompt = createSearchPrompt(sanitizeInput(query), lang);
         
         // Set timeout for API call (optimized for autocomplete)
-        const TIMEOUT_MS = 8000; // 8 seconds for fast autocomplete
+        const TIMEOUT_MS = 3000; // 3 seconds for fast autocomplete
         const startTime = Date.now();
         
         // Create a promise that will reject after the timeout
@@ -429,9 +432,9 @@ export async function GET(request: NextRequest) {
           
           // 중복 제거 및 대표 장소 선택 적용
           const deduplicationConfig: DeduplicationConfig = {
-            maxResults: 5,
-            similarityThreshold: 0.75,
-            preferOfficialNames: true
+            maxResults: 8,
+            similarityThreshold: 0.85,
+            preferOfficialNames: false
           };
           
           suggestions = deduplicateAndSelectRepresentative(
