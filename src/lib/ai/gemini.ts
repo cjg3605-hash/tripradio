@@ -23,6 +23,12 @@ import {
   verifyWithExternalData
 } from './validation/accuracy-validator';
 
+// Import adaptive persona system
+import { 
+  createAdaptivePersonaPrompt, 
+  shouldUseAdaptivePersona 
+} from './prompts/adaptive-persona';
+
 // Import data orchestrator for fact verification
 import { DataIntegrationOrchestrator } from '../data-sources/orchestrator/data-orchestrator';
 
@@ -446,22 +452,47 @@ function createFactBasedPrompt(
   profile: UserProfile, 
   dataResult: any
 ): string {
-  // 업그레이드된 정확성 강화 프롬프트 생성
-  const basePrompt = createAccuracyEnhancedKoreanPrompt(location, profile);
+  // 🎭 AI 자동 페르소나 선택 시스템 적용 여부 결정
+  const useAdaptivePersona = shouldUseAdaptivePersona(location);
   
+  console.log(`🎭 Persona 시스템: ${location} → ${useAdaptivePersona ? 'Adaptive Persona' : 'Korean Standard'}`);
+  
+  let basePrompt: string;
+  
+  if (useAdaptivePersona) {
+    // 🌍 전세계 장소에 대해 AI 자동 페르소나 선택 시스템 사용
+    console.log('🌍 적응형 페르소나 시스템 활성화 - 문화적으로 적절한 전문가 자동 선택');
+    basePrompt = createAdaptivePersonaPrompt(location, profile.language || 'ko');
+  } else {
+    // 🇰🇷 한국 장소에 대해서는 기존 정확성 강화 시스템 사용
+    console.log('🇰🇷 한국형 정확성 강화 시스템 사용');
+    basePrompt = createAccuracyEnhancedKoreanPrompt(location, profile);
+  }
+  
+  // 외부 데이터가 없는 경우의 처리
   if (!dataResult?.success || !dataResult?.data) {
+    const dataLimitationNotice = useAdaptivePersona ? 
+      `⚠️ **Data Limitation Notice**: Limited external verification data available for "${location}". The guide will be generated based on general knowledge with strict accuracy standards. No speculative information will be included.` :
+      `⚠️ **데이터 제한 안내**: ${location}에 대한 외부 검증 데이터가 부족합니다. 일반적인 정보만을 바탕으로 제한된 가이드를 생성하며, 정확성을 보장할 수 없습니다. 더욱 엄격한 정확성 기준을 적용하여 추측성 정보는 절대 포함하지 마세요.`;
+    
     return `${basePrompt}
 
-⚠️ **데이터 제한 안내**: ${location}에 대한 외부 검증 데이터가 부족합니다.
-일반적인 정보만을 바탕으로 제한된 가이드를 생성하며, 정확성을 보장할 수 없습니다.
-더욱 엄격한 정확성 기준을 적용하여 추측성 정보는 절대 포함하지 마세요.`;
+${dataLimitationNotice}`;
   }
 
   const factualInfo = formatFactualData(dataResult.data);
   
-  return `${basePrompt}
+  const verifiedDataSection = useAdaptivePersona ? 
+    `🔍 **Verified Factual Information** (Use only the information below):
+${factualInfo}
 
-🔍 **검증된 사실 정보** (아래 정보만 사용하세요):
+**Data Reliability**: ${(dataResult.data.confidence * 100).toFixed(1)}%
+**Verification Sources**: ${dataResult.sources?.join(', ') || 'No information available'}
+**Data Collection Time**: ${new Date().toLocaleString('en-US')}
+
+⚠️ **Important**: Generate the guide using only the verified information provided above.
+Never include unconfirmed information.` :
+    `🔍 **검증된 사실 정보** (아래 정보만 사용하세요):
 ${factualInfo}
 
 **데이터 신뢰도**: ${(dataResult.data.confidence * 100).toFixed(1)}%
@@ -469,13 +500,25 @@ ${factualInfo}
 **데이터 수집 시간**: ${new Date().toLocaleString('ko-KR')}
 
 ⚠️ **중요**: 위에 제시된 검증된 정보만을 사용하여 가이드를 생성하세요.
-확인되지 않은 정보는 절대 포함하지 마세요.
+확인되지 않은 정보는 절대 포함하지 마세요.`;
 
-🎯 **사용자 맞춤 설정**:
+  const userSettingsSection = useAdaptivePersona ?
+    `🎯 **User Personalization Settings**:
+- Interests: ${profile.interests?.join(', ') || 'General'}
+- Desired Duration: ${profile.tourDuration || 90} minutes
+- Style: ${profile.preferredStyle || 'Friendly'}
+- Knowledge Level: ${profile.knowledgeLevel || 'Intermediate'}` :
+    `🎯 **사용자 맞춤 설정**:
 - 관심사: ${profile.interests?.join(', ') || '일반'}
 - 희망시간: ${profile.tourDuration || 90}분  
 - 스타일: ${profile.preferredStyle || '친근함'}
 - 지식수준: ${profile.knowledgeLevel || '중급'}`;
+  
+  return `${basePrompt}
+
+${verifiedDataSection}
+
+${userSettingsSection}`;
 }
 
 function formatFactualData(data: any): string {

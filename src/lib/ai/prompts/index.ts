@@ -82,11 +82,11 @@ const REALTIME_GUIDE_KEYS: Record<string, string> = {
 const LOCATION_TYPE_CONFIGS: Record<string, LocationTypeConfig> = {
   // 1. 궁궐/고궁 전용 (최고 품질 가이드 필요)
   palace: {
-    keywords: ['궁궐', '궁', '고궁', '왕궁', '별궁', '이궁', 'palace', 'royal', '창덕궁', '경복궁', '덕수궁', '경희궁', '창경궁'],
-    expertRole: '궁궐 건축사이자 조선왕조 역사 전문가',
-    focusAreas: ['궁궐 건축의 위계질서', '조선 왕실 생활사', '정치사적 의미', '건축 배치의 원리', '궁중 문화와 예술'],
-    specialRequirements: '왕실의 권위와 품격, 정치적 상징성, 건축의 우수성을 강조하며 스토리텔링해야 합니다.',
-    chapterStructure: '정문 → 외전(정치 공간) → 내전(생활 공간) → 후원(휴식 공간) 순서',
+    keywords: ['궁궐', '궁', '고궁', '왕궁', '별궁', '이궁', 'palace', 'royal', 'castle', 'alcazar', 'alhambra', '창덕궁', '경복궁', '덕수궁', '경희궁', '창경궁', 'versailles', 'buckingham'],
+    expertRole: '궁궐 건축사이자 왕실 역사 전문가',
+    focusAreas: ['궁궐 건축의 위계질서', '왕실 생활사', '정치사적 의미', '건축 배치의 원리', '궁정 문화와 예술'],
+    specialRequirements: '해당 지역 왕실의 권위와 품격, 정치적 상징성, 건축의 우수성을 강조하며 문화적 맥락에 맞게 스토리텔링해야 합니다.',
+    chapterStructure: '정문/입구 → 공적 공간(정치/의례) → 사적 공간(생활) → 정원/부속시설 순서',
     recommendedSpots: 7
   },
   
