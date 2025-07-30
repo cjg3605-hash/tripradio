@@ -421,8 +421,29 @@ export async function GET(request: NextRequest) {
       
       try {
         // AI가 마크다운 코드 블록을 포함할 수 있으므로, JSON만 추출
-        const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/s);
-        const jsonString = jsonMatch ? jsonMatch[1].trim() : text.trim();
+        let jsonString = text.trim();
+        
+        // 여러 패턴으로 JSON 추출 시도
+        const patterns = [
+          /```(?:json)?\s*([\s\S]*?)\s*```/s,     // ```json 패턴
+          /```\s*([\s\S]*?)\s*```/s,              // ``` 패턴  
+          /\[[\s\S]*\]/s,                         // [ ] 패턴
+          /\{[\s\S]*\}/s                          // { } 패턴
+        ];
+        
+        for (const pattern of patterns) {
+          const match = text.match(pattern);
+          if (match) {
+            jsonString = match[1] ? match[1].trim() : match[0].trim();
+            break;
+          }
+        }
+        
+        // 개발 환경에서 디버깅 로그
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔍 원본 AI 응답:', text.substring(0, 200) + '...');
+          console.log('🔍 추출된 JSON:', jsonString.substring(0, 200) + '...');
+        }
         
         const parsed = JSON.parse(jsonString);
         
@@ -492,17 +513,37 @@ export async function GET(request: NextRequest) {
       } catch (parseError) {
         console.error('❌ AI 응답 처리 실패:', parseError);
         console.error('❌ 오류 발생한 응답 내용:', text);
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: 'AI 응답 처리에 실패했습니다',
-            details: parseError instanceof Error ? parseError.message : '알 수 없는 오류',
-            ...(process.env.NODE_ENV === 'development' && {
-              responsePreview: text ? (text.length > 200 ? text.substring(0, 200) + '...' : text) : 'No response content'
-            })
-          },
-          { status: 500, headers }
-        );
+        
+        // 기본 제안으로 폴백
+        const defaultSuggestions = [
+          { name: '경복궁', location: '서울, 대한민국', metadata: { isOfficial: true, category: '궁궐', popularity: 9 }},
+          { name: '경회루', location: '서울, 대한민국', metadata: { isOfficial: true, category: '누각', popularity: 7 }},
+          { name: '경주 불국사', location: '경주, 대한민국', metadata: { isOfficial: true, category: '사찰', popularity: 8 }}
+        ];
+        
+        if (process.env.NODE_ENV === 'development') {
+          return NextResponse.json(
+            { 
+              success: false, 
+              error: 'AI 응답 처리에 실패했습니다',
+              details: parseError instanceof Error ? parseError.message : '알 수 없는 오류',
+              responsePreview: text ? (text.length > 200 ? text.substring(0, 200) + '...' : text) : 'No response content',
+              fallbackSuggestions: defaultSuggestions
+            },
+            { status: 500, headers }
+          );
+        } else {
+          // 프로덕션에서는 기본 제안 반환
+          return NextResponse.json(
+            { 
+              success: true, 
+              data: defaultSuggestions, 
+              cached: false,
+              fallback: true
+            },
+            { headers }
+          );
+        }
       }
       
     } catch (error) {
