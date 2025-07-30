@@ -109,18 +109,23 @@ export default function HomePage() {
 
     setIsLoadingSuggestions(true);
     try {
+      console.log('🔍 자동완성 API 호출:', `/api/locations/search?q=${encodeURIComponent(searchQuery)}&lang=${currentLanguage}`);
       const response = await fetch(`/api/locations/search?q=${encodeURIComponent(searchQuery)}&lang=${currentLanguage}`);
       const data = await response.json();
       
+      console.log('📡 API 응답:', data);
+      
       if (data.success && data.data) {
+        console.log('✅ 자동완성 성공:', data.data);
         setSuggestions(data.data.slice(0, 5)); // 최대 5개 제안
       } else {
-        console.warn('자동완성 API 응답 오류:', data.error);
-        // 기본 제안 유지
+        console.warn('⚠️ 자동완성 API 응답 오류:', data.error);
+        console.warn('⚠️ 응답 전체:', data);
+        // 기본 제안 유지 (문제의 원인!)
       }
     } catch (error) {
-      console.error('자동완성 API 호출 실패:', error);
-      // 에러 시 기본 제안 유지
+      console.error('❌ 자동완성 API 호출 실패:', error);
+      // 에러 시 기본 제안 유지 (문제의 원인!)
     } finally {
       setIsLoadingSuggestions(false);
     }

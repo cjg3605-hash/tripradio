@@ -304,11 +304,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Validate query length
-    if (query.length < 2 || query.length > 200) {
+    if (query.length < 1 || query.length > 200) {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: '검색어는 2자 이상 200자 이하로 입력해주세요' 
+          error: '검색어는 1자 이상 200자 이하로 입력해주세요' 
         }),
         { 
           status: 400, 
