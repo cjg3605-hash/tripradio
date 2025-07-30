@@ -40,11 +40,15 @@
       ],
       "features": {
         "realTime": "실시간가이드",
-        "personalized": "맞춤형추천",
+        "personalized": "맞춤형추천",  
         "multiLanguage": "다국어지원",
         "offline": "오프라인사용",
         "storyteller": "스토리텔러",
-        "docent": "도슨트"
+        "docent": "도슨트",
+        "personalGuide": "개인가이드",
+        "audioCommentary": "오디오해설",
+        "tourDocent": "투어도슨트",
+        "selfTour": "셀프투어"
       }
     },
     "guide": {
@@ -524,7 +528,11 @@
         "multiLanguage": "Multi-language",
         "offline": "Offline Use",
         "storyteller": "Storyteller",
-        "docent": "Docent"
+        "docent": "Docent",
+        "personalGuide": "Personal Guide",
+        "audioCommentary": "Audio Commentary",
+        "tourDocent": "Tour Docent",
+        "selfTour": "Self Tour"
       }
     },
     "guide": {
@@ -905,7 +913,11 @@
         "multiLanguage": "多言語対応",
         "offline": "オフライン使用",
         "storyteller": "ストーリーテラー",
-        "docent": "ドーセント"
+        "docent": "ドーセント",
+        "personalGuide": "個人ガイド",
+        "audioCommentary": "音声解説",
+        "tourDocent": "ツアードーセント",
+        "selfTour": "セルフツアー"
       }
     },
     "guide": {
@@ -1099,7 +1111,11 @@
         "multiLanguage": "多语言",
         "offline": "离线使用",
         "storyteller": "故事讲述者",
-        "docent": "导览员"
+        "docent": "导览员",
+        "personalGuide": "个人向导",
+        "audioCommentary": "音频解说",
+        "tourDocent": "旅游导览员",
+        "selfTour": "自助游"
       }
     },
     "guide": {
@@ -1293,7 +1309,11 @@
         "multiLanguage": "Multiidioma",
         "offline": "Uso Sin Conexión",
         "storyteller": "Narrador",
-        "docent": "Guía"
+        "docent": "Guía",
+        "personalGuide": "Guía Personal",
+        "audioCommentary": "Comentario de Audio",
+        "tourDocent": "Guía Turístico",
+        "selfTour": "Tour Autoguiado"
       }
     },
     "guide": {
