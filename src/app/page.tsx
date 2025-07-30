@@ -106,41 +106,21 @@ export default function HomePage() {
 
     setIsLoadingSuggestions(true);
     try {
-      console.log('🔍 자동완성 API 호출:', `/api/locations/search?q=${encodeURIComponent(searchQuery)}&lang=${currentLanguage}`);
       const response = await fetch(`/api/locations/search?q=${encodeURIComponent(searchQuery)}&lang=${currentLanguage}`);
       const data = await response.json();
       
-      console.log('📡 API 응답:', data);
-      
       if (data.success && data.data) {
-        console.log('✅ 자동완성 성공:', data.data);
-        const newSuggestions = data.data.slice(0, 5);
-        console.log('🔄 setSuggestions 호출:', newSuggestions);
-        setSuggestions(newSuggestions); // 최대 5개 제안
+        setSuggestions(data.data.slice(0, 5)); // 최대 5개 제안
       } else {
-        console.warn('⚠️ 자동완성 API 응답 오류:', data.error);
-        console.warn('⚠️ 응답 전체:', data);
-        // 오류 시 빈 배열로 설정
         setSuggestions([]);
       }
     } catch (error) {
-      console.error('❌ 자동완성 API 호출 실패:', error);
-      // 에러 시 빈 배열로 설정
       setSuggestions([]);
     } finally {
       setIsLoadingSuggestions(false);
     }
   };
 
-  // suggestions 상태 변경 모니터링
-  useEffect(() => {
-    console.log('🎯 suggestions 상태 변경:', suggestions);
-  }, [suggestions]);
-
-  // isFocused 상태 변경 모니터링
-  useEffect(() => {
-    console.log('👁️ isFocused 상태 변경:', isFocused);
-  }, [isFocused]);
 
   // 디바운스된 검색 함수
   useEffect(() => {
@@ -415,12 +395,8 @@ export default function HomePage() {
               </div>
 
               {/* Suggestions Dropdown */}
-              {(() => {
-                const shouldShow = isFocused && query.length > 0;
-                console.log('🔍 드롭다운 표시 조건:', { isFocused, queryLength: query.length, shouldShow, suggestionsLength: suggestions.length });
-                return shouldShow;
-              })() && (
-                <div className="absolute top-full left-0 right-0 bg-red-500 rounded-2xl shadow-2xl shadow-black/15 border-4 border-blue-500 overflow-hidden z-50" style={{backgroundColor: 'red', border: '4px solid blue', zIndex: 9999}}>
+              {isFocused && query.length > 0 && (
+                <div className="absolute top-full left-0 right-0 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-50">
                   {isLoadingSuggestions ? (
                     <div className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-2">
