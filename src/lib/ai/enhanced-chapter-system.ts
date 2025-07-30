@@ -21,6 +21,8 @@ import {
   LOCATION_TYPE_CONFIGS 
 } from '@/lib/ai/prompts/index';
 
+import { EnhancedIntroChapterGenerator } from './intro-chapter-generator';
+
 /**
  * 🎯 Enhanced Chapter Selection System
  * 현실적 접근법으로 설계된 차세대 챕터 선정 시스템
@@ -28,6 +30,11 @@ import {
 export class EnhancedChapterSelectionSystem {
   private cache: Map<string, any> = new Map();
   private readonly CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7일
+  private introChapterGenerator: EnhancedIntroChapterGenerator;
+
+  constructor() {
+    this.introChapterGenerator = new EnhancedIntroChapterGenerator();
+  }
 
   /**
    * 메인 엔트리포인트: 최적화된 챕터 구조 생성
@@ -174,29 +181,72 @@ export class EnhancedChapterSelectionSystem {
   }
 
   /**
-   * 인트로 챕터 (Chapter 0) 생성
+   * 🎯 Enhanced 인트로 챕터 (Chapter 0) 생성
+   * - AI 기반 풍부한 배경지식 제공
+   * - 전체 장소에 대한 종합적 문화적 맥락
+   * - 일반 챕터보다 20-25% 더 긴 분량
    */
   private async generateIntroChapter(
     locationData: LocationData,
     userProfile?: UserProfile
   ): Promise<IntroChapter> {
+    console.log('🎯 Enhanced Intro Chapter 생성 중:', locationData.name);
+    
+    try {
+      // 🚀 새로운 Enhanced Intro Chapter Generator 사용
+      const enhancedIntroChapter = await this.introChapterGenerator.generateEnhancedIntroChapter(
+        locationData,
+        userProfile
+      );
+      
+      console.log('✅ Enhanced Intro Chapter 생성 완료:', {
+        title: enhancedIntroChapter.title,
+        timeEstimate: enhancedIntroChapter.content.timeEstimate,
+        contentLength: {
+          historical: enhancedIntroChapter.content.historicalBackground.length,
+          cultural: enhancedIntroChapter.content.culturalContext.length,
+          tips: enhancedIntroChapter.content.visitingTips.length,
+          expectation: enhancedIntroChapter.content.whatsToExpected.length
+        }
+      });
+      
+      return enhancedIntroChapter;
+      
+    } catch (error) {
+      console.warn('⚠️ Enhanced Intro Chapter 생성 실패, 기본 방식 사용:', error);
+      
+      // 🔄 폴백: 기본 방식으로 생성 (개선된 버전)
+      return await this.generateFallbackIntroChapter(locationData, userProfile);
+    }
+  }
+
+  /**
+   * 🔄 폴백: 개선된 기본 인트로 챕터 생성
+   */
+  private async generateFallbackIntroChapter(
+    locationData: LocationData,
+    userProfile?: UserProfile
+  ): Promise<IntroChapter> {
     const startingPoint = await this.determineOptimalStartingPoint(locationData);
+    
+    // 🎯 시간 배정 개선: 20-22% (기존 10% → 20-22%)
+    const timeEstimate = Math.ceil(locationData.averageVisitDuration * 0.21);
     
     return {
       id: 0,
       type: 'introduction',
-      title: `${locationData.name} 관람 시작`,
+      title: `${locationData.name} - 여행의 시작`,
       location: {
         type: startingPoint.type,
         coordinates: startingPoint.coordinates,
         description: startingPoint.description
       },
       content: {
-        historicalBackground: await this.generateHistoricalBackground(locationData),
-        culturalContext: await this.generateCulturalContext(locationData),
-        visitingTips: await this.generateVisitingTips(locationData),
-        whatsToExpected: await this.generateExpectationSetting(locationData),
-        timeEstimate: Math.ceil(locationData.averageVisitDuration / 10), // 인트로는 전체의 10%
+        historicalBackground: await this.generateEnhancedHistoricalBackground(locationData),
+        culturalContext: await this.generateEnhancedCulturalContext(locationData),
+        visitingTips: await this.generateEnhancedVisitingTips(locationData),
+        whatsToExpected: await this.generateEnhancedExpectationSetting(locationData),
+        timeEstimate, // 🎯 개선된 시간 배정 (20-22%)
         highlightsPreview: this.generateHighlightsPreview(locationData)
       },
       triggers: {
@@ -218,8 +268,8 @@ export class EnhancedChapterSelectionSystem {
         ]
       },
       navigation: {
-        nextChapterHint: this.generateNextChapterHint(locationData),
-        estimatedDuration: Math.ceil(locationData.averageVisitDuration / 10)
+        nextChapterHint: this.generateIntelligentNextChapterHint(locationData),
+        estimatedDuration: timeEstimate
       }
     };
   }
@@ -685,6 +735,109 @@ export class EnhancedChapterSelectionSystem {
   private generateNextChapterHint(locationData: LocationData): string {
     const firstPoint = locationData.tier1Points[0] || locationData.tier2Points[0];
     return firstPoint ? `${firstPoint.name}으로 이동하여 본격적인 관람을 시작하세요.` : '첫 번째 관람 지점으로 이동하세요.';
+  }
+
+  /**
+   * 🏛️ Enhanced 역사적 배경 생성 (폴백용)
+   */
+  private async generateEnhancedHistoricalBackground(locationData: LocationData): Promise<string> {
+    // 🎯 개선된 폴백 버전: 더 풍부한 내용 제공
+    const venueTypeContext = this.getVenueTypeHistoricalContext(locationData.venueType);
+    const scaleContext = this.getScaleHistoricalContext(locationData.scale);
+    
+    return `${locationData.name}은 ${scaleContext}으로서 중요한 역사적 의미를 지니고 있습니다. ${venueTypeContext} 이곳은 오랜 시간에 걸쳐 형성된 문화적 가치와 역사적 배경을 간직하고 있으며, 방문객들에게 과거와 현재를 잇는 특별한 경험을 제공합니다. 각 공간과 전시물들은 시대의 흐름 속에서 보존되고 전해져 온 소중한 유산으로, 우리가 이해해야 할 문화적 맥락과 역사적 의미를 담고 있습니다.`;
+  }
+
+  /**
+   * 🎨 Enhanced 문화적 맥락 생성 (폴백용)
+   */
+  private async generateEnhancedCulturalContext(locationData: LocationData): Promise<string> {
+    const culturalSignificance = this.getCulturalSignificanceByType(locationData.venueType);
+    
+    return `${locationData.name}은 ${culturalSignificance}한 문화적 가치를 지닌 공간입니다. 이곳에서는 전통과 현대가 조화롭게 어우러진 모습을 경험할 수 있으며, 우리의 문화적 정체성과 예술적 감성을 깊이 이해할 수 있는 기회를 제공합니다. 각 관람 포인트들은 단순한 볼거리를 넘어서 문화적 교육과 감동을 주는 의미 있는 공간으로, 방문객들의 문화적 소양과 이해를 높이는 데 기여합니다.`;
+  }
+
+  /**
+   * 💡 Enhanced 방문 팁 생성 (폴백용)
+   */
+  private async generateEnhancedVisitingTips(locationData: LocationData): Promise<string> {
+    const durationTips = locationData.averageVisitDuration > 120 ? 
+      '충분한 시간을 확보하여 여유롭게 관람하시기를 권합니다.' : 
+      '적당한 시간 내에 효율적으로 관람하실 수 있습니다.';
+    
+    const venueTips = locationData.venueType === 'outdoor' ? 
+      '날씨에 따른 준비와 편안한 보행을 위한 신발을 착용하세요.' :
+      locationData.venueType === 'indoor' ?
+      '실내 환경에 맞는 적절한 복장을 준비하시고 조용한 관람 예절을 지켜주세요.' :
+      '실내외를 오가며 관람하게 되므로 날씨 변화에 대비한 준비를 하세요.';
+    
+    return `${locationData.name} 관람을 위해서는 ${venueTips} ${durationTips} 관람 중에는 각 포인트에서 제공되는 안내와 설명을 주의 깊게 들어보시고, 사진 촬영 시에는 관련 규정을 확인하시기 바랍니다. 다른 관람객들을 배려하는 마음으로 관람하시면 모두에게 좋은 경험이 될 것입니다.`;
+  }
+
+  /**
+   * 🔮 Enhanced 기대치 설정 생성 (폴백용)
+   */
+  private async generateEnhancedExpectationSetting(locationData: LocationData): Promise<string> {
+    const tier1Count = locationData.tier1Points?.length || 0;
+    const tier2Count = locationData.tier2Points?.length || 0;
+    const totalHighlights = tier1Count + tier2Count;
+    
+    const expectationLevel = totalHighlights > 5 ? '다양하고 풍부한' : 
+                            totalHighlights > 2 ? '알찬' : '선별된';
+    
+    return `${locationData.name}에서는 ${expectationLevel} 볼거리들을 만나실 수 있습니다. 각 관람 포인트마다 독특한 특징과 의미가 있어, 단계별로 천천히 감상하시면서 그 가치를 느껴보시기 바랍니다. 미리 준비된 배경지식을 바탕으로 관람하신다면 더욱 깊이 있고 의미 있는 경험을 하실 수 있을 것입니다. 특히 주요 하이라이트들에서는 충분한 시간을 가지고 자세히 살펴보시기를 권합니다.`;
+  }
+
+  /**
+   * 🧭 지능적 다음 챕터 힌트 생성 (개선된 버전)
+   */
+  private generateIntelligentNextChapterHint(locationData: LocationData): string {
+    const firstPoint = locationData.tier1Points?.[0] || locationData.tier2Points?.[0];
+    
+    if (!firstPoint) {
+      return '첫 번째 관람 지점으로 이동하여 본격적인 여행을 시작하세요. 방금 들은 배경지식을 바탕으로 더욱 깊이 있는 관람을 경험해보시기 바랍니다.';
+    }
+
+    const venueContext = locationData.venueType === 'outdoor' ? 
+      `${firstPoint.name} 방향으로 걸어가며` : 
+      `${firstPoint.name}이 있는 구역으로 이동하며`;
+
+    return `${venueContext} 방금 들은 역사적 배경과 문화적 맥락을 떠올려보세요. 이제 실제로 그 의미를 직접 확인하고 체험할 시간입니다. 투어의 진정한 하이라이트가 시작됩니다.`;
+  }
+
+  /**
+   * 🔧 헬퍼 메서드들 (Enhanced 폴백용)
+   */
+  private getVenueTypeHistoricalContext(venueType: string): string {
+    const contexts = {
+      'indoor': '실내 문화 공간의 특성을 지닌 곳으로, 보존된 문화재와 전시물들을 통해 역사를 체험할 수 있습니다.',
+      'outdoor': '야외 역사 공간으로서 자연환경과 어우러진 역사적 경관을 제공하며, 당시의 생활상과 문화를 생생하게 느낄 수 있습니다.',
+      'mixed': '실내외가 조화된 복합 문화 공간으로, 다양한 각도에서 역사와 문화를 경험할 수 있는 종합적인 학습 환경을 제공합니다.'
+    };
+    
+    return contexts[venueType as keyof typeof contexts] || '독특한 문화적 특성을 지닌 공간으로';
+  }
+
+  private getScaleHistoricalContext(scale: string): string {
+    const contexts = {
+      'world_heritage': '세계적으로 인정받은 문화유산',
+      'national_museum': '국가적 차원의 주요 문화기관',
+      'major_attraction': '지역의 대표적인 문화명소',
+      'regional_site': '지역 역사의 중요한 거점',
+      'local_attraction': '지역 문화의 소중한 보고'
+    };
+    
+    return contexts[scale as keyof typeof contexts] || '의미 있는 문화 공간';
+  }
+
+  private getCulturalSignificanceByType(venueType: string): string {
+    const significances = {
+      'indoor': '학술적이고 교육적',
+      'outdoor': '체험적이고 역사적',
+      'mixed': '종합적이고 다면적'
+    };
+    
+    return significances[venueType as keyof typeof significances] || '특별';
   }
 
   private calculateTotalDuration(intro: IntroChapter, main: MainChapter[]): number {
