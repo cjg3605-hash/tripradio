@@ -425,25 +425,31 @@ export async function GET(request: NextRequest) {
       try {
         // AI가 마크다운 코드 블록을 포함할 수 있으므로, JSON만 추출
         
-        // 여러 패턴으로 JSON 추출 시도
+        // 여러 패턴으로 JSON 추출 시도 (순서 중요!)
         const patterns = [
-          /```(?:json)?\s*([\s\S]*?)\s*```/s,     // ```json 패턴 (그룹 1 사용)
-          /```\s*([\s\S]*?)\s*```/s,              // ``` 패턴 (그룹 1 사용)
-          /(\[[\s\S]*?\])/s,                      // [ ] 패턴 (그룹 1 사용)
-          /(\{[\s\S]*?\})/s                       // { } 패턴 (그룹 1 사용)
+          /```(?:json)?\s*([\s\S]*?)\s*```/s,     // ```json 패턴 (그룹 1 사용) - 우선순위
+          /```\s*([\s\S]*?)\s*```/s,              // ``` 패턴 (그룹 1 사용) - 우선순위  
+          /(\[[\s\S]*?\])/s,                      // [ ] 배열 패턴 (그룹 1 사용) - 배열 우선
+          /(\{[\s\S]*?\})/s                       // { } 객체 패턴 (그룹 1 사용) - 마지막
         ];
         
         for (const pattern of patterns) {
           const match = text.match(pattern);
+          console.log('🔍 패턴 시도:', pattern.toString(), '매치 결과:', !!match);
           if (match) {
             jsonString = match[1] ? match[1].trim() : match[0].trim();
-            console.log('🔍 패턴 매치됨:', pattern.toString(), '결과:', jsonString.substring(0, 100) + '...');
+            console.log('🔍 패턴 매치됨:', pattern.toString());
+            console.log('🔍 match[0]:', match[0]?.substring(0, 100) + '...');
+            console.log('🔍 match[1]:', match[1]?.substring(0, 100) + '...');
+            console.log('🔍 최종 선택:', jsonString.substring(0, 100) + '...');
             break;
           }
         }
         
         // 강제 디버깅 로그 (문제 해결을 위해)
-        console.log('🔍 원본 AI 응답:', text.substring(0, 500) + '...');
+        console.log('🔍 원본 AI 응답 (전체):', JSON.stringify(text));
+        console.log('🔍 원본 길이:', text.length);
+        console.log('🔍 첫 10글자 char codes:', text.substring(0, 10).split('').map(c => c.charCodeAt(0)));
         console.log('🔍 추출된 JSON:', jsonString.substring(0, 500) + '...');
         
         const parsed = JSON.parse(jsonString);
