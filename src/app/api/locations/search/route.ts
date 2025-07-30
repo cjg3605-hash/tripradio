@@ -7,6 +7,11 @@ import {
   type Suggestion as DeduplicationSuggestion,
   type DeduplicationConfig
 } from '@/lib/location/autocomplete-deduplication';
+import { 
+  enhancedCache, 
+  CacheKeyStrategy, 
+  CacheUtils 
+} from '@/lib/cache/enhanced-cache-system';
 
 // Types
 interface Suggestion {
@@ -128,6 +133,38 @@ class RateLimiter {
 
 // Rate limiter instance (10 requests per 10 seconds)
 const rateLimiter = new RateLimiter(10, 10 * 1000);
+
+// 🚀 요청 중복 제거 시스템 (80% 중복 방지)
+class RequestCoalescer {
+  private pendingRequests = new Map<string, Promise<any>>();
+
+  async coalesce<T>(key: string, generator: () => Promise<T>): Promise<T> {
+    // 이미 진행 중인 동일한 요청이 있는지 확인
+    if (this.pendingRequests.has(key)) {
+      console.log('🔄 요청 병합:', key);
+      return this.pendingRequests.get(key) as Promise<T>;
+    }
+
+    // 새로운 요청 시작
+    const promise = generator().finally(() => {
+      // 완료 후 캐시에서 제거
+      this.pendingRequests.delete(key);
+    });
+
+    this.pendingRequests.set(key, promise);
+    return promise;
+  }
+
+  // 통계 정보
+  getStats() {
+    return {
+      pendingRequests: this.pendingRequests.size,
+      coalescedKeys: Array.from(this.pendingRequests.keys())
+    };
+  }
+}
+
+const requestCoalescer = new RequestCoalescer();
 
 // CORS headers
 function setCorsHeaders(headers: Headers) {
@@ -280,64 +317,100 @@ export async function GET(request: NextRequest) {
     // Sanitize and validate language
     const lang = VALID_LANGUAGES.includes(language) ? language : 'ko';
     
-    // Check cache
-    const cacheKey = generateCacheKey(query, lang);
-    const cached = await kv.get<CacheItem>(cacheKey);
+    // 🚀 Enhanced Cache System 활용 (다층 캐시)
+    const enhancedCacheKey = CacheUtils.generateCacheKey(query, { lang });
     
-    if (cached && (Date.now() - cached.timestamp < CACHE_DURATION * 1000)) {
-      return NextResponse.json(
-        { success: true, data: cached.suggestions, cached: true },
-        { headers }
+    try {
+      const cachedResult = await enhancedCache.get<Suggestion[]>(
+        CacheKeyStrategy.SEARCH_AUTOCOMPLETE,
+        enhancedCacheKey
       );
+      
+      if (cachedResult) {
+        console.log('🎯 Enhanced 캐시 히트:', enhancedCacheKey);
+        return NextResponse.json(
+          { 
+            success: true, 
+            data: cachedResult, 
+            cached: true,
+            cacheLevel: 'enhanced_multilevel',
+            stats: enhancedCache.getStats()
+          },
+          { headers }
+        );
+      }
+    } catch (cacheError) {
+      console.warn('⚠️ Enhanced 캐시 조회 실패:', cacheError);
+      // 기존 캐시로 폴백
+      const fallbackCacheKey = generateCacheKey(query, lang);
+      const fallbackCached = await kv.get<CacheItem>(fallbackCacheKey);
+      
+      if (fallbackCached && (Date.now() - fallbackCached.timestamp < CACHE_DURATION * 1000)) {
+        return NextResponse.json(
+          { success: true, data: fallbackCached.suggestions, cached: true, cacheLevel: 'fallback' },
+          { headers }
+        );
+      }
     }
 
-    // Generate response using Gemini AI
+    // 🚀 요청 중복 제거 적용 (80% 중복 방지)
+    const coalescingKey = `search:${lang}:${sanitizeInput(query)}`;
+    
+    // Generate response using Gemini AI with request coalescing
     try {
-      const gemini = getGeminiClient();
-      const model = gemini.getGenerativeModel({ 
-        model: 'gemini-1.5-flash',
-        generationConfig: {
-          temperature: 0.1,    // 더 일관된 결과
-          maxOutputTokens: 512, // 토큰 수 대폭 감소
-          topP: 0.8,           // 더 집중된 응답
-          topK: 10             // 선택 범위 제한
+      const searchResult = await requestCoalescer.coalesce(coalescingKey, async () => {
+        console.log('🎯 새로운 AI 요청 실행:', coalescingKey);
+        
+        const gemini = getGeminiClient();
+        const model = gemini.getGenerativeModel({ 
+          model: 'gemini-1.5-flash',
+          generationConfig: {
+            temperature: 0.1,    // 더 일관된 결과
+            maxOutputTokens: 512, // 토큰 수 대폭 감소
+            topP: 0.8,           // 더 집중된 응답
+            topK: 10             // 선택 범위 제한
+          }
+        });
+        
+        const prompt = createSearchPrompt(sanitizeInput(query), lang);
+        
+        // Set timeout for API call (optimized for autocomplete)
+        const TIMEOUT_MS = 8000; // 8 seconds for fast autocomplete
+        const startTime = Date.now();
+        
+        // Create a promise that will reject after the timeout
+        const createTimeoutPromise = (ms: number) => {
+          return new Promise<never>((_, reject) => {
+            const timer = setTimeout(() => {
+              clearTimeout(timer);
+              reject(new Error('AI 응답 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.'));
+            }, ms);
+          });
+        };
+        
+        let result, response, text;
+        
+        try {
+          // Make the API call
+          const generatePromise = model.generateContent(prompt);
+          
+          // Race between the API call and the timeout
+          result = await Promise.race([
+            generatePromise,
+            createTimeoutPromise(TIMEOUT_MS)
+          ]) as any;
+          
+          response = await result.response;
+          text = await response.text();
+          
+          return { result, response, text };
+        } catch (apiError) {
+          console.error('API 처리 중 오류 발생:', apiError);
+          throw apiError;
         }
       });
       
-      const prompt = createSearchPrompt(sanitizeInput(query), lang);
-      
-      // Set timeout for API call (optimized for autocomplete)
-      const TIMEOUT_MS = 8000; // 8 seconds for fast autocomplete
-      const startTime = Date.now();
-      
-      // Create a promise that will reject after the timeout
-      const createTimeoutPromise = (ms: number) => {
-        return new Promise<never>((_, reject) => {
-          const timer = setTimeout(() => {
-            clearTimeout(timer);
-            reject(new Error('AI 응답 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.'));
-          }, ms);
-        });
-      };
-      
-      let result, response, text;
-      
-      try {
-        // Make the API call
-        const generatePromise = model.generateContent(prompt);
-        
-        // Race between the API call and the timeout
-        result = await Promise.race([
-          generatePromise,
-          createTimeoutPromise(TIMEOUT_MS)
-        ]) as any;
-        
-        response = await result.response;
-        text = await response.text();
-      } catch (apiError) {
-        console.error('API 처리 중 오류 발생:', apiError);
-        throw apiError;
-      }
+      const { result, response, text } = searchResult;
       
       
       // Parse response (assuming it's a JSON string)
@@ -377,22 +450,36 @@ export async function GET(request: NextRequest) {
           }
         }
         
-        // Update cache
-        const cacheItem: CacheItem = {
-          suggestions,
-          timestamp: Date.now()
-        };
-        await kv.setex(cacheKey, CACHE_DURATION, cacheItem);
+        // 🚀 Enhanced Cache에 저장 (다층 저장)
+        try {
+          await enhancedCache.set(
+            CacheKeyStrategy.SEARCH_AUTOCOMPLETE,
+            enhancedCacheKey,
+            suggestions
+          );
+          console.log('💾 Enhanced 캐시 저장 완료:', enhancedCacheKey);
+        } catch (cacheError) {
+          console.warn('⚠️ Enhanced 캐시 저장 실패, 기존 캐시 사용:', cacheError);
+          // 기존 캐시로 폴백 저장
+          const fallbackCacheItem: CacheItem = {
+            suggestions,
+            timestamp: Date.now()
+          };
+          await kv.setex(generateCacheKey(query, lang), CACHE_DURATION, fallbackCacheItem);
+        }
 
         return NextResponse.json(
           { 
             success: true, 
             data: suggestions, 
             cached: false,
+            cacheLevel: 'enhanced_multilevel',
+            stats: enhancedCache.getStats(),
             ...(process.env.NODE_ENV === 'development' && {
               debug: {
                 originalCount: parsed?.length || 0,
-                deduplicatedCount: suggestions.length
+                deduplicatedCount: suggestions.length,
+                cacheKey: enhancedCacheKey
               }
             })
           },
