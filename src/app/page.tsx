@@ -381,6 +381,54 @@ export default function HomePage() {
             </div>
           </div>
 
+          {/* How to Use - 3 Steps */}
+          <div className="w-full max-w-4xl mx-auto mb-12 px-4">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-100">
+              <h2 className="text-lg font-bold text-center mb-6 text-gray-800">
+                🎧 3단계로 시작하는 AI 음성 가이드
+              </h2>
+              
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="text-center group">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <span className="text-2xl">🔍</span>
+                  </div>
+                  <h3 className="font-bold mb-2 text-gray-800">1. 관광명소 검색</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    가고 싶은 <span className="font-semibold text-blue-600">구체적인 장소</span>나 박물관을 입력하세요
+                  </p>
+                </div>
+                
+                <div className="text-center group">
+                  <div className="w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <span className="text-2xl">🎧</span>
+                  </div>
+                  <h3 className="font-bold mb-2 text-gray-800">2. AI 음성가이드 생성</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    <span className="font-semibold text-green-600">전문가 수준</span>의 맞춤형 음성 해설을 즉시 생성합니다
+                  </p>
+                </div>
+                
+                <div className="text-center group">
+                  <div className="w-14 h-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <span className="text-2xl">🚶‍♂️</span>
+                  </div>
+                  <h3 className="font-bold mb-2 text-gray-800">3. 실시간 투어</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    <span className="font-semibold text-purple-600">GPS 기반</span>으로 위치에 맞는 해설을 들으며 관람하세요
+                  </p>
+                </div>
+              </div>
+              
+              {/* 추가 설명 */}
+              <div className="mt-6 text-center">
+                <p className="text-xs text-gray-500 bg-white/60 rounded-lg px-4 py-2 inline-block">
+                  💡 <span className="font-medium">예시:</span> &ldquo;루브르 박물관&rdquo;, &ldquo;에펠탑&rdquo;, &ldquo;경복궁&rdquo; 등 구체적인 장소명을 입력해보세요
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Search Box */}
           <div className="relative z-50 w-full max-w-2xl mx-auto">
             <div className={`
