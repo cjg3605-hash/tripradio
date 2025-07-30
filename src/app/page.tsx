@@ -38,7 +38,7 @@ export default function HomePage() {
   // 지역별 탭 상태
   const [activeRegion, setActiveRegion] = useState('europe');
   
-  // 지역별 인기 국가 데이터 (인기여행지 스타일)
+  // 지역별 인기 국가 데이터 (모던 모노크롬 스타일)
   const regionCountries = useMemo(() => ({
     europe: [
       { 
@@ -46,45 +46,35 @@ export default function HomePage() {
         name: '프랑스', 
         flag: '🇫🇷', 
         attractions: ['에펠탑', '루브르 박물관', '베르사유 궁전'],
-        description: '로맨틱한 파리와 화려한 문화유산',
-        gradient: 'from-blue-400 to-purple-500',
-        bgColor: 'bg-gradient-to-br from-blue-50 to-purple-50'
+        description: '로맨틱한 파리와 화려한 문화유산'
       },
       { 
         id: 'italy', 
         name: '이탈리아', 
         flag: '🇮🇹', 
         attractions: ['콜로세움', '피사의 사탑', '바티칸'],
-        description: '고대 로마의 영광과 르네상스 예술',
-        gradient: 'from-green-400 to-emerald-500',
-        bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50'
+        description: '고대 로마의 영광과 르네상스 예술'
       },
       { 
         id: 'spain', 
         name: '스페인', 
         flag: '🇪🇸', 
         attractions: ['사그라다 파밀리아', '알함브라 궁전', '구엘 공원'],
-        description: '가우디의 건축과 플라멩코의 열정',
-        gradient: 'from-orange-400 to-red-500',
-        bgColor: 'bg-gradient-to-br from-orange-50 to-red-50'
+        description: '가우디의 건축과 플라멩코의 열정'
       },
       { 
         id: 'uk', 
         name: '영국', 
         flag: '🇬🇧', 
         attractions: ['빅벤', '타워 브리지', '버킹엄 궁전'],
-        description: '전통과 현대가 조화로운 대영제국',
-        gradient: 'from-slate-400 to-blue-600',
-        bgColor: 'bg-gradient-to-br from-slate-50 to-blue-50'
+        description: '전통과 현대가 조화로운 대영제국'
       },
       { 
         id: 'germany', 
         name: '독일', 
         flag: '🇩🇪', 
         attractions: ['브란덴부르크 문', '노이슈반슈타인성', '쾰른 대성당'],
-        description: '동화 속 성과 깊은 역사의 나라',
-        gradient: 'from-yellow-400 to-amber-500',
-        bgColor: 'bg-gradient-to-br from-yellow-50 to-amber-50'
+        description: '동화 속 성과 깊은 역사의 나라'
       }
     ],
     asia: [
@@ -93,45 +83,35 @@ export default function HomePage() {
         name: '일본', 
         flag: '🇯🇵', 
         attractions: ['후지산', '기요미즈데라', '센소지'],
-        description: '전통과 첨단이 공존하는 신비로운 나라',
-        gradient: 'from-pink-400 to-rose-500',
-        bgColor: 'bg-gradient-to-br from-pink-50 to-rose-50'
+        description: '전통과 첨단이 공존하는 신비로운 나라'
       },
       { 
         id: 'china', 
         name: '중국', 
         flag: '🇨🇳', 
         attractions: ['만리장성', '자금성', '천안문 광장'],
-        description: '5천년 역사를 간직한 거대한 문명',
-        gradient: 'from-red-400 to-yellow-500',
-        bgColor: 'bg-gradient-to-br from-red-50 to-yellow-50'
+        description: '5천년 역사를 간직한 거대한 문명'
       },
       { 
         id: 'india', 
         name: '인도', 
         flag: '🇮🇳', 
         attractions: ['타지마할', '붉은 요새', '갠지스 강'],
-        description: '신비로운 영성과 화려한 궁전들',
-        gradient: 'from-orange-400 to-pink-500',
-        bgColor: 'bg-gradient-to-br from-orange-50 to-pink-50'
+        description: '신비로운 영성과 화려한 궁전들'
       },
       { 
         id: 'thailand', 
         name: '태국', 
         flag: '🇹🇭', 
         attractions: ['왓 아룬', '대왕궁', '왓 포'],
-        description: '황금빛 사원과 미소의 나라',
-        gradient: 'from-yellow-400 to-orange-500',
-        bgColor: 'bg-gradient-to-br from-yellow-50 to-orange-50'
+        description: '황금빛 사원과 미소의 나라'
       },
       { 
         id: 'singapore', 
         name: '싱가포르', 
         flag: '🇸🇬', 
         attractions: ['마리나 베이 샌즈', '가든스 바이 더 베이', '머라이언'],
-        description: '미래도시와 다양한 문화의 만남',
-        gradient: 'from-teal-400 to-blue-500',
-        bgColor: 'bg-gradient-to-br from-teal-50 to-blue-50'
+        description: '미래도시와 다양한 문화의 만남'
       }
     ],
     americas: [
@@ -140,45 +120,35 @@ export default function HomePage() {
         name: '미국', 
         flag: '🇺🇸', 
         attractions: ['자유의 여신상', '그랜드 캐니언', '타임스퀘어'],
-        description: '자유와 꿈의 땅, 무한한 가능성',
-        gradient: 'from-blue-400 to-red-500',
-        bgColor: 'bg-gradient-to-br from-blue-50 to-red-50'
+        description: '자유와 꿈의 땅, 무한한 가능성'
       },
       { 
         id: 'canada', 
         name: '캐나다', 
         flag: '🇨🇦', 
         attractions: ['나이아가라 폭포', 'CN 타워', '밴프 국립공원'],
-        description: '광활한 자연과 깨끗한 도시',
-        gradient: 'from-red-400 to-orange-500',
-        bgColor: 'bg-gradient-to-br from-red-50 to-orange-50'
+        description: '광활한 자연과 깨끗한 도시'
       },
       { 
         id: 'brazil', 
         name: '브라질', 
         flag: '🇧🇷', 
         attractions: ['리우 예수상', '이과수 폭포', '마라카낭 스타디움'],
-        description: '삼바와 축구, 열정적인 남미',
-        gradient: 'from-green-400 to-yellow-500',
-        bgColor: 'bg-gradient-to-br from-green-50 to-yellow-50'
+        description: '삼바와 축구, 열정적인 남미'
       },
       { 
         id: 'peru', 
         name: '페루', 
         flag: '🇵🇪', 
         attractions: ['마추픽추', '쿠스코', '나스카 라인'],
-        description: '잉카 문명의 신비로운 유적들',
-        gradient: 'from-amber-400 to-orange-500',
-        bgColor: 'bg-gradient-to-br from-amber-50 to-orange-50'
+        description: '잉카 문명의 신비로운 유적들'
       },
       { 
         id: 'mexico', 
         name: '멕시코', 
         flag: '🇲🇽', 
         attractions: ['치첸이트사', '테오티우아칸', '칸쿤'],
-        description: '마야 문명과 카리브해의 낙원',
-        gradient: 'from-green-500 to-red-500',
-        bgColor: 'bg-gradient-to-br from-green-50 to-red-50'
+        description: '마야 문명과 카리브해의 낙원'
       }
     ]
   }), []);
@@ -189,7 +159,7 @@ export default function HomePage() {
     t('home.features.audioCommentary') || '오디오해설',
     t('home.features.tourDocent') || '투어도슨트',
     t('home.features.selfTour') || '셀프투어'
-  ], [currentLanguage, t]);
+  ], [t]);
 
   // 회전하는 플레이스홀더 (다국어 지원)
   const placeholders = useMemo(() => {
@@ -539,50 +509,93 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* How to Use - 3 Steps */}
-          <div className="w-full max-w-4xl mx-auto mb-12 px-4">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-100">
-              <h2 className="text-lg font-bold text-center mb-6 text-gray-800">
-                🎧 3단계로 시작하는 AI 음성 가이드
-              </h2>
-              
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="text-center group">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                    <span className="text-2xl">🔍</span>
-                  </div>
-                  <h3 className="font-bold mb-2 text-gray-800">1. 관광명소 검색</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    가고 싶은 <span className="font-semibold text-blue-600">구체적인 장소</span>나 박물관을 입력하세요
-                  </p>
-                </div>
+          {/* How to Use - 3 Steps - 깔끔한 디자인 */}
+          <div className="relative z-10 py-8 mb-8">
+            <div className="max-w-6xl mx-auto px-6">
+              {/* 모든 화면에서 가로 배열 */}
+              <div className="flex flex-row justify-center items-start gap-2 sm:gap-4 md:gap-8">
                 
-                <div className="text-center group">
-                  <div className="w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                    <span className="text-2xl">🎧</span>
+                {/* 장소 입력 */}
+                <div className="text-center relative z-10 flex-1 max-w-32 sm:max-w-xs">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center bg-black text-white mb-3 sm:mb-4 shadow-lg">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
                   </div>
-                  <h3 className="font-bold mb-2 text-gray-800">2. AI 음성가이드 생성</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    <span className="font-semibold text-green-600">전문가 수준</span>의 맞춤형 음성 해설을 즉시 생성합니다
-                  </p>
-                </div>
-                
-                <div className="text-center group">
-                  <div className="w-14 h-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                    <span className="text-2xl">🚶‍♂️</span>
+                  <div className="h-16 sm:h-20 flex flex-col justify-center">
+                    <div className="text-sm sm:text-lg font-medium text-black mb-1">장소 입력</div>
+                    <div className="text-xs sm:text-sm text-gray-500 leading-relaxed">
+                      궁금한 곳의<br />이름을 입력하세요
+                    </div>
                   </div>
-                  <h3 className="font-bold mb-2 text-gray-800">3. 실시간 투어</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    <span className="font-semibold text-purple-600">GPS 기반</span>으로 위치에 맞는 해설을 들으며 관람하세요
-                  </p>
                 </div>
-              </div>
-              
-              {/* 추가 설명 */}
-              <div className="mt-6 text-center">
-                <p className="text-xs text-gray-500 bg-white/60 rounded-lg px-4 py-2 inline-block">
-                  💡 <span className="font-medium">예시:</span> &ldquo;루브르 박물관&rdquo;, &ldquo;에펠탑&rdquo;, &ldquo;경복궁&rdquo; 등 구체적인 장소명을 입력해보세요
-                </p>
+
+                {/* 화살표 1 */}
+                <div className="flex items-center justify-center pt-6 sm:pt-8">
+                  <svg className="w-4 h-4 sm:w-6 sm:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+
+                {/* AI 생성 */}
+                <div className="text-center relative z-10 flex-1 max-w-32 sm:max-w-xs">
+                  <button 
+                    onClick={handleAIGeneration}
+                    disabled={!query.trim() || isGenerating}
+                    className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-3 sm:mb-4 bg-black text-white ${
+                      isGenerating ? 'animate-pulse' : ''
+                    } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
+                  >
+                    {isGenerating ? (
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    )}
+                  </button>
+                  <div className="h-16 sm:h-20 flex flex-col justify-center">
+                    <div className="text-sm sm:text-lg font-medium text-black mb-1">AI 생성</div>
+                    <div className="text-xs sm:text-sm text-gray-500 leading-relaxed">
+                      실시간으로<br />맞춤 가이드 생성
+                    </div>
+                  </div>
+                </div>
+
+                {/* 화살표 2 */}
+                <div className="flex items-center justify-center pt-6 sm:pt-8">
+                  <svg className="w-4 h-4 sm:w-6 sm:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+
+                {/* 오디오 재생 */}
+                <div className="text-center relative z-10 flex-1 max-w-32 sm:max-w-xs">
+                  <button 
+                    onClick={handleAudioPlayback}
+                    disabled={!query.trim()}
+                    className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-3 sm:mb-4 bg-black text-white ${
+                      audioPlaying ? 'animate-pulse' : ''
+                    } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
+                  >
+                    {audioPlaying ? (
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    )}
+                  </button>
+                  <div className="h-16 sm:h-20 flex flex-col justify-center">
+                    <div className="text-sm sm:text-lg font-medium text-black mb-1">오디오 재생</div>
+                    <div className="text-xs sm:text-sm text-gray-500 leading-relaxed">
+                      음성으로 생생한<br />현장 해설
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -750,65 +763,65 @@ export default function HomePage() {
                     onClick={() => handleCountryClick(country)}
                     className="flex-shrink-0 w-64 group cursor-pointer"
                   >
-                    {/* 메인 카드 */}
-                    <div className="relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden group-hover:scale-105">
+                    {/* 메인 카드 - 모던 모노크롬 스타일 */}
+                    <div className="relative bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-500 overflow-hidden group-hover:scale-[1.02]">
                       
-                      {/* 상단 그라데이션 헤더 */}
-                      <div className={`relative h-32 bg-gradient-to-br ${country.gradient} overflow-hidden`}>
-                        {/* 장식적 패턴 */}
-                        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div className="absolute -top-8 -right-8 w-24 h-24 bg-white/10 rounded-full"></div>
-                        <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-white/10 rounded-full"></div>
+                      {/* 상단 모노크롬 헤더 */}
+                      <div className="relative h-32 bg-gradient-to-br from-gray-900 to-black overflow-hidden">
+                        {/* 미니멀 패턴 */}
+                        <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/3 rounded-full transform translate-x-8 -translate-y-8"></div>
+                        <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/3 rounded-full transform -translate-x-4 translate-y-4"></div>
                         
                         {/* 국기와 국가명 */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-                          <div className="text-4xl mb-2 transform group-hover:scale-110 transition-transform duration-300">
+                          <div className="text-4xl mb-2 transform group-hover:scale-110 transition-transform duration-300 filter drop-shadow-sm">
                             {country.flag}
                           </div>
-                          <h3 className="font-bold text-lg tracking-wide">
+                          <h3 className="font-light text-lg tracking-wider">
                             {country.name}
                           </h3>
                         </div>
 
-                        {/* 인기 배지 */}
-                        <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
-                          <span className="text-xs text-white font-medium">인기</span>
+                        {/* 인기 배지 - 모노크롬 */}
+                        <div className="absolute top-3 right-3 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
+                          <span className="text-xs text-white font-light tracking-wide">POPULAR</span>
                         </div>
                       </div>
 
-                      {/* 카드 콘텐츠 */}
-                      <div className="p-5">
+                      {/* 카드 콘텐츠 - 모노크롬 스타일 */}
+                      <div className="p-6">
                         {/* 설명 */}
-                        <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                        <p className="text-sm text-gray-600 mb-5 leading-relaxed font-light">
                           {country.description}
                         </p>
 
                         {/* 인기 관광지 */}
-                        <div className="space-y-2 mb-4">
-                          <h4 className="text-xs font-semibold text-gray-800 uppercase tracking-wider">
-                            인기 관광지
+                        <div className="space-y-3 mb-5">
+                          <h4 className="text-xs font-medium text-gray-900 uppercase tracking-[0.1em] letter-spacing-wider">
+                            TOP ATTRACTIONS
                           </h4>
                           {country.attractions.slice(0, 3).map((attraction, idx) => (
                             <div
                               key={idx}
                               className="flex items-center text-sm text-gray-700 group-hover:text-gray-900 transition-colors"
                             >
-                              <div className="w-2 h-2 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full mr-3 group-hover:from-gray-400 group-hover:to-gray-600 transition-all duration-300"></div>
-                              <span className="font-medium">{attraction}</span>
+                              <div className="w-1 h-1 bg-black rounded-full mr-4 group-hover:scale-125 transition-transform duration-300"></div>
+                              <span className="font-light tracking-wide">{attraction}</span>
                             </div>
                           ))}
                         </div>
 
                         {/* CTA 버튼 */}
-                        <div className="pt-3 border-t border-gray-100">
+                        <div className="pt-4 border-t border-gray-100">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-500">
-                              {country.attractions.length}개 명소
+                            <span className="text-xs text-gray-500 font-light tracking-wide">
+                              {country.attractions.length} destinations
                             </span>
-                            <div className="flex items-center text-sm font-semibold text-gray-700 group-hover:text-black transition-colors">
-                              <span>가이드 시작</span>
-                              <svg className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            <div className="flex items-center text-sm font-light text-gray-700 group-hover:text-black transition-colors">
+                              <span className="tracking-wide">Start Guide</span>
+                              <svg className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                               </svg>
                             </div>
                           </div>
@@ -832,96 +845,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Features Section - 3개 원형 아이콘 */}
-        <section className="relative z-10 py-8">
-          <div className="max-w-6xl mx-auto px-6">
-            {/* 모든 화면에서 가로 배열 */}
-            <div className="flex flex-row justify-center items-start gap-2 sm:gap-4 md:gap-8 mb-16">
-              
-              {/* 장소 입력 */}
-              <div className="text-center relative z-10 flex-1 max-w-32 sm:max-w-xs">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center bg-black text-white mb-3 sm:mb-4 shadow-lg">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <div className="h-16 sm:h-20 flex flex-col justify-center">
-                  <div className="text-sm sm:text-lg font-medium text-black mb-1">장소 입력</div>
-                  <div className="text-xs sm:text-sm text-gray-500 leading-relaxed">
-                    궁금한 곳의<br />이름을 입력하세요
-                  </div>
-                </div>
-              </div>
-
-              {/* 화살표 1 */}
-              <div className="flex items-center justify-center pt-6 sm:pt-8">
-                <svg className="w-4 h-4 sm:w-6 sm:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-
-              {/* AI 생성 */}
-              <div className="text-center relative z-10 flex-1 max-w-32 sm:max-w-xs">
-                <button 
-                  onClick={handleAIGeneration}
-                  disabled={!query.trim() || isGenerating}
-                  className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-3 sm:mb-4 bg-black text-white ${
-                    isGenerating ? 'animate-pulse' : ''
-                  } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
-                >
-                  {isGenerating ? (
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  )}
-                </button>
-                <div className="h-16 sm:h-20 flex flex-col justify-center">
-                  <div className="text-sm sm:text-lg font-medium text-black mb-1">AI 생성</div>
-                  <div className="text-xs sm:text-sm text-gray-500 leading-relaxed">
-                    실시간으로<br />맞춤 가이드 생성
-                  </div>
-                </div>
-              </div>
-
-              {/* 화살표 2 */}
-              <div className="flex items-center justify-center pt-6 sm:pt-8">
-                <svg className="w-4 h-4 sm:w-6 sm:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-
-              {/* 오디오 재생 */}
-              <div className="text-center relative z-10 flex-1 max-w-32 sm:max-w-xs">
-                <button 
-                  onClick={handleAudioPlayback}
-                  disabled={!query.trim()}
-                  className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-3 sm:mb-4 bg-black text-white ${
-                    audioPlaying ? 'animate-pulse' : ''
-                  } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
-                >
-                  {audioPlaying ? (
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                    </svg>
-                  ) : (
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
-                  )}
-                </button>
-                <div className="h-16 sm:h-20 flex flex-col justify-center">
-                  <div className="text-sm sm:text-lg font-medium text-black mb-1">오디오 재생</div>
-                  <div className="text-xs sm:text-sm text-gray-500 leading-relaxed">
-                    음성으로 생생한<br />현장 해설
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
 
       {/* Footer with Legal Links */}

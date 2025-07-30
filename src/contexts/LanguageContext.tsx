@@ -101,6 +101,10 @@ interface Translations {
       offline: string;
       storyteller: string;
       docent: string;
+      personalGuide: string;
+      audioCommentary: string;
+      tourDocent: string;
+      selfTour: string;
     };
   };
   guide: {
@@ -281,7 +285,11 @@ const DEFAULT_TRANSLATIONS: Translations = {
       multiLanguage: '다국어지원',
       offline: '오프라인사용',
       storyteller: '스토리텔러',
-      docent: '도슨트'
+      docent: '도슨트',
+      personalGuide: '개인가이드',
+      audioCommentary: '오디오해설',
+      tourDocent: '투어도슨트',
+      selfTour: '셀프투어'
     }
   },
   guide: {
