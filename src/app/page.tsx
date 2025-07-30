@@ -22,14 +22,11 @@ export default function HomePage() {
   const [currentWord, setCurrentWord] = useState(0);
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const [suggestions, setSuggestions] = useState(() => {
-    const translated = t('home.defaultSuggestions');
-    return Array.isArray(translated) ? translated : [
-      { name: '에펠탑', location: '프랑스 파리' },
-      { name: '타지마할', location: '인도 아그라' },
-      { name: '마추픽추', location: '페루 쿠스코' }
-    ];
-  });
+  const [suggestions, setSuggestions] = useState([
+    { name: '에펠탑', location: '프랑스 파리' },
+    { name: '타지마할', location: '인도 아그라' },
+    { name: '마추픽추', location: '페루 쿠스코' }
+  ]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   
