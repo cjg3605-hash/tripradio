@@ -29,6 +29,7 @@ export default function HomePage() {
   ]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   
   // 기능 상태
   const [isGenerating, setIsGenerating] = useState(false);
@@ -111,8 +112,10 @@ export default function HomePage() {
       
       if (data.success && data.data) {
         setSuggestions(data.data.slice(0, 5)); // 최대 5개 제안
+        setSelectedSuggestionIndex(-1); // 새로운 제안이 오면 선택 초기화
       } else {
         setSuggestions([]);
+        setSelectedSuggestionIndex(-1);
       }
     } catch (error) {
       setSuggestions([]);
@@ -148,8 +151,42 @@ export default function HomePage() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
+    if (!isFocused || suggestions.length === 0) {
+      if (e.key === 'Enter') {
+        handleSearch();
+      }
+      return;
+    }
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedSuggestionIndex(prev => 
+          prev < suggestions.length - 1 ? prev + 1 : prev
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedSuggestionIndex(prev => prev > -1 ? prev - 1 : -1);
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < suggestions.length) {
+          const selectedSuggestion = suggestions[selectedSuggestionIndex];
+          setQuery(selectedSuggestion.name);
+          setIsFocused(false);
+          setSelectedSuggestionIndex(-1);
+          setTimeout(() => {
+            router.push(`/guide/${encodeURIComponent(selectedSuggestion.name)}`);
+          }, 100);
+        } else {
+          handleSearch();
+        }
+        break;
+      case 'Escape':
+        setIsFocused(false);
+        setSelectedSuggestionIndex(-1);
+        break;
     }
   };
 
@@ -412,11 +449,18 @@ export default function HomePage() {
                           const selectedLocation = suggestion.name;
                           setQuery(selectedLocation);
                           setIsFocused(false);
+                          setSelectedSuggestionIndex(-1);
                           setTimeout(() => {
                             router.push(`/guide/${encodeURIComponent(selectedLocation)}`);
                           }, 100);
                         }}
-                        className="w-full px-6 py-4 text-left transition-all duration-200 group hover:bg-gray-50 suggestion-item"
+                        onMouseEnter={() => setSelectedSuggestionIndex(index)}
+                        onMouseLeave={() => setSelectedSuggestionIndex(-1)}
+                        className={`w-full px-6 py-4 text-left transition-all duration-200 group suggestion-item ${
+                          selectedSuggestionIndex === index 
+                            ? 'bg-blue-50 ring-2 ring-blue-200' 
+                            : 'hover:bg-gray-50'
+                        }`}
                       >
                         <div className="flex items-center justify-between">
                           <div>
