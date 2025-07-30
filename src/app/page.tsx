@@ -137,6 +137,11 @@ export default function HomePage() {
     console.log('🎯 suggestions 상태 변경:', suggestions);
   }, [suggestions]);
 
+  // isFocused 상태 변경 모니터링
+  useEffect(() => {
+    console.log('👁️ isFocused 상태 변경:', isFocused);
+  }, [isFocused]);
+
   // 디바운스된 검색 함수
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -410,7 +415,11 @@ export default function HomePage() {
               </div>
 
               {/* Suggestions Dropdown */}
-              {isFocused && query.length > 0 && (
+              {(() => {
+                const shouldShow = isFocused && query.length > 0;
+                console.log('🔍 드롭다운 표시 조건:', { isFocused, queryLength: query.length, shouldShow, suggestionsLength: suggestions.length });
+                return shouldShow;
+              })() && (
                 <div className="absolute top-full left-0 right-0 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-10">
                   {isLoadingSuggestions ? (
                     <div className="px-6 py-4 text-center">
