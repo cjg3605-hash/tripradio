@@ -420,7 +420,7 @@ export default function HomePage() {
                 console.log('🔍 드롭다운 표시 조건:', { isFocused, queryLength: query.length, shouldShow, suggestionsLength: suggestions.length });
                 return shouldShow;
               })() && (
-                <div className="absolute top-full left-0 right-0 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-10">
+                <div className="absolute top-full left-0 right-0 bg-red-500 rounded-2xl shadow-2xl shadow-black/15 border-4 border-blue-500 overflow-hidden z-50" style={{backgroundColor: 'red', border: '4px solid blue', zIndex: 9999}}>
                   {isLoadingSuggestions ? (
                     <div className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-2">
