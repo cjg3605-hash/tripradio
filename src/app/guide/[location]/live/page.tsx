@@ -289,8 +289,8 @@ const LiveTourPage: React.FC = () => {
     if (navigator.share && currentLocation) {
       try {
         await navigator.share({
-          title: t('live.shareTitle'),
-          text: t('live.shareText'),
+          title: String(t('live.shareTitle')),
+          text: String(t('live.shareText')),
           url: window.location.href
         });
       } catch (error) {

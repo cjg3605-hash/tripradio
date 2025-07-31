@@ -53,7 +53,7 @@ const session = sessionResult?.data;
           fileName: entry.id,
           locationName: entry.locationName,
           generatedAt: entry.createdAt,
-          preview: entry.guideData?.overview?.summary || entry.guideData?.overview?.title || t('history.preview')
+          preview: entry.guideData?.overview?.summary || entry.guideData?.overview?.title || String(t('history.preview'))
         }));
         setHistory(convertedHistory);
       }
@@ -76,7 +76,7 @@ const session = sessionResult?.data;
         fileName: entry.id,
         locationName: entry.locationName,
         generatedAt: entry.createdAt,
-        preview: entry.guideData?.overview?.summary || entry.guideData?.overview?.title || t('history.preview')
+        preview: entry.guideData?.overview?.summary || entry.guideData?.overview?.title || String(t('history.preview'))
       }));
       setHistory(convertedHistory);
     } catch (error) {
@@ -166,7 +166,7 @@ const session = sessionResult?.data;
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder={t('history.searchInHistory')}
+                placeholder={String(t('history.searchInHistory'))}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -219,14 +219,14 @@ const session = sessionResult?.data;
                         <button
                           onClick={() => goToGuide(item.locationName)}
                           className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                          title={t('history.view')}
+                          title={String(t('history.view'))}
                         >
                           <ArrowRight className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => deleteHistoryItem(item.fileName)}
                           className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title={t('history.delete')}
+                          title={String(t('history.delete'))}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

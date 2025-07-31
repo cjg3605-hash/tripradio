@@ -185,7 +185,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                 padding: 'var(--space-3) var(--space-3)',
                 borderRadius: 'var(--radius-md)'
               }}
-              aria-label={`${t('header.language')}: ${currentConfig?.name}. ${t('search.pressEnterToSearch')}`}
+              aria-label={`${String(t('header.language'))}: ${currentConfig?.name}. ${String(t('search.pressEnterToSearch'))}`}
               aria-expanded={isLanguageMenuOpen}
               aria-haspopup="listbox"
             >
@@ -211,7 +211,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                   minWidth: '8rem'
                 }}
                 role="listbox"
-                aria-label={t('header.selectLanguage')}
+                aria-label={String(t('header.selectLanguage'))}
               >
                 {SUPPORTED_LANGUAGES.map((lang, index) => (
                   <button
@@ -243,7 +243,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     </span>
                     <span>{lang.name}</span>
                     {lang.code === currentLanguage && (
-                      <span className="ml-auto text-xs text-gray-500" aria-label={t('header.currentSelectedLanguage')}>
+                      <span className="ml-auto text-xs text-gray-500" aria-label={String(t('header.currentSelectedLanguage'))}>
                         ✓
                       </span>
                     )}
@@ -286,7 +286,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                 {session.user.image ? (
                   <img 
                     src={session.user.image} 
-                    alt={t('header.profileAlt')} 
+                    alt={String(t('header.profileAlt'))} 
                     className="w-5 h-5 rounded-full"
                   />
                 ) : (
@@ -365,7 +365,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                   : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                 }
               `}
-              aria-label={`${t('header.language')}: ${currentConfig?.name}`}
+              aria-label={`${String(t('header.language'))}: ${currentConfig?.name}`}
               aria-expanded={isLanguageMenuOpen}
               aria-haspopup="listbox"
             >
@@ -382,7 +382,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
               <div 
                 className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-dropdown border border-gray-200 py-1 min-w-24 z-50"
                 role="listbox"
-                aria-label={t('header.selectLanguage')}
+                aria-label={String(t('header.selectLanguage'))}
               >
                 {SUPPORTED_LANGUAGES.map((lang, index) => (
                   <button
@@ -414,7 +414,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     </span>
                     <span>{lang.name}</span>
                     {lang.code === currentLanguage && (
-                      <span className="ml-auto text-xs text-gray-500" aria-label={t('header.currentSelectedLanguage')}>
+                      <span className="ml-auto text-xs text-gray-500" aria-label={String(t('header.currentSelectedLanguage'))}>
                         ✓
                       </span>
                     )}
@@ -455,7 +455,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                 {session.user.image ? (
                   <img 
                     src={session.user.image} 
-                    alt={t('header.profileAlt')} 
+                    alt={String(t('header.profileAlt'))} 
                     className="w-4 h-4 rounded-full"
                   />
                 ) : (

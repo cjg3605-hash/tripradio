@@ -128,7 +128,7 @@ export default function MyGuidePage({ params }: { params: { id: string } }) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <GuideLoading 
           type="loading"
-          message={t('common.loading')}
+          message={String(t('common.loading'))}
           subMessage={currentLanguage === 'ko' ? "저장된 가이드를 불러오고 있어요..." :
                      currentLanguage === 'en' ? "Loading your saved guide..." :
                      currentLanguage === 'ja' ? "保存されたガイドを読み込んでいます..." :

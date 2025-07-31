@@ -245,8 +245,8 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <GuideLoading 
           type="loading"
-          message={t('guide.loadingGuide')}
-          subMessage={t('guide.fetchingGuideData')}
+          message={String(t('guide.loadingGuide'))}
+          subMessage={String(t('guide.fetchingGuideData'))}
           showProgress={true}
         />
       </div>

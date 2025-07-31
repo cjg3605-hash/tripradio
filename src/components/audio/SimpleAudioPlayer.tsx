@@ -180,7 +180,7 @@ const SimpleAudioPlayer: React.FC<SimpleAudioPlayerProps> = ({
             onClick={handlePrevious}
             disabled={currentChapterIndex === 0}
             className="p-2 text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label={t('audio.previousChapter') || '이전 챕터'}
+            aria-label={String(t('audio.previousChapter') || '이전 챕터')}
           >
             <SkipBack className="w-5 h-5" />
           </button>
@@ -188,7 +188,7 @@ const SimpleAudioPlayer: React.FC<SimpleAudioPlayerProps> = ({
           <button
             onClick={togglePlayPause}
             className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
-            aria-label={isPlaying ? (t('audio.pause') || '일시정지') : (t('audio.play') || '재생')}
+            aria-label={isPlaying ? String(t('audio.pause') || '일시정지') : String(t('audio.play') || '재생')}
           >
             {isPlaying ? (
               <Pause className="w-5 h-5" />
@@ -201,7 +201,7 @@ const SimpleAudioPlayer: React.FC<SimpleAudioPlayerProps> = ({
             onClick={handleNext}
             disabled={currentChapterIndex === chapters.length - 1}
             className="p-2 text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label={t('audio.nextChapter') || '다음 챕터'}
+            aria-label={String(t('audio.nextChapter') || '다음 챕터')}
           >
             <SkipForward className="w-5 h-5" />
           </button>
@@ -212,7 +212,7 @@ const SimpleAudioPlayer: React.FC<SimpleAudioPlayerProps> = ({
           <button
             onClick={toggleMute}
             className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
-            aria-label={isMuted ? (t('audio.unmute') || '음소거 해제') : (t('audio.mute') || '음소거')}
+            aria-label={isMuted ? String(t('audio.unmute') || '음소거 해제') : String(t('audio.mute') || '음소거')}
           >
             {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>

@@ -225,7 +225,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                 <GuideLoading 
                     type="generating"
                     message={`"${locationName}" ${t('guide.preparing')}`}
-                    subMessage={Array.isArray(t('guide.generating')) ? t('guide.generating')[0] : t('guide.generating')}
+                    subMessage={Array.isArray(t('guide.generating')) ? String(t('guide.generating')[0]) : String(t('guide.generating'))}
                     showProgress={true}
                 />
             </div>

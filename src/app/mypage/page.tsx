@@ -262,7 +262,8 @@ export default function MyPage() {
 
   // 가이드 삭제 핸들러
   const handleDeleteGuide = (id: string) => {
-    if (confirm(t('common.confirmDelete') || '이 가이드를 삭제하시겠습니까?')) {
+    const confirmMessage = typeof t('common.confirmDelete') === 'string' ? String(t('common.confirmDelete')) : '이 가이드를 삭제하시겠습니까?';
+    if (confirm(confirmMessage)) {
       safeDeleteFromStorage(id);
       setLocalGuides(prev => prev.filter(guide => guide.id !== id));
       
@@ -506,7 +507,7 @@ export default function MyPage() {
               <div className="w-full">
                 <input
                   type="text"
-                  placeholder={t('search.placeholder') || '가이드 검색...'}
+                  placeholder={String(t('search.placeholder')) || '가이드 검색...'}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent bg-white"
@@ -739,12 +740,12 @@ export default function MyPage() {
               <div className="p-6 space-y-6">
                 {/* 프로필 정보 */}
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">{t('profile.name') || '이름'}</label>
+                  <label className="block text-sm font-medium text-black mb-2">{String(t('profile.name')) || '이름'}</label>
                   <input
                     type="text"
                     value={session?.user?.name || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                    placeholder={t('profile.enterName') || '이름을 입력하세요'}
+                    placeholder={String(t('profile.enterName')) || '이름을 입력하세요'}
                   />
                 </div>
 

@@ -66,7 +66,7 @@ const LiveLocationTracker: React.FC<LiveLocationTrackerProps> = ({
       handleGeofenceEvent(event);
     },
     onPermissionDenied: () => {
-      addNotification('location-denied', t('location.permissionDenied'), 'warning');
+      addNotification('location-denied', String(t('location.permissionDenied')), 'warning');
     }
   });
 
@@ -93,14 +93,14 @@ const LiveLocationTracker: React.FC<LiveLocationTrackerProps> = ({
       case 'exit':
         addNotification(
           `poi-exit-${event.geofenceId}`,
-          t('location.leftArea'),
+          String(t('location.leftArea')),
           'info'
         );
         break;
       case 'dwell':
         addNotification(
           `poi-dwell-${event.geofenceId}`,
-          t('location.stayingAt'),
+          String(t('location.stayingAt')),
           'info'
         );
         break;
@@ -126,12 +126,12 @@ const LiveLocationTracker: React.FC<LiveLocationTrackerProps> = ({
     }
     
     await startTracking();
-    addNotification('tracking-started', t('location.trackingStarted'), 'success');
+    addNotification('tracking-started', String(t('location.trackingStarted')), 'success');
   };
 
   const handleStopTracking = () => {
     stopTracking();
-    addNotification('tracking-stopped', t('location.trackingStopped'), 'info');
+    addNotification('tracking-stopped', String(t('location.trackingStopped')), 'info');
   };
 
   const formatDistance = (meters: number): string => {
@@ -186,7 +186,7 @@ const LiveLocationTracker: React.FC<LiveLocationTrackerProps> = ({
             <button
               onClick={() => setShowSettings(!showSettings)}
               className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors"
-              aria-label={t('location.settings')}
+              aria-label={String(t('location.settings'))}
             >
               <Settings className="w-4 h-4" />
             </button>

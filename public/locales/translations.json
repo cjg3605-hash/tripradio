@@ -87,6 +87,83 @@
         "audioCommentary": "오디오해설",
         "tourDocent": "투어도슨트",
         "selfTour": "셀프투어"
+      },
+      "countries": {
+        "france": {
+          "name": "프랑스",
+          "attractions": ["에펠탑", "루브르 박물관", "베르사유 궁전"],
+          "description": "로맨틱한 파리와 화려한 문화유산"
+        },
+        "italy": {
+          "name": "이탈리아",
+          "attractions": ["콜로세움", "피사의 사탑", "바티칸"],
+          "description": "고대 로마의 영광과 르네상스 예술"
+        },
+        "spain": {
+          "name": "스페인",
+          "attractions": ["사그라다 파밀리아", "알함브라 궁전", "구엘 공원"],
+          "description": "가우디의 건축과 플라멩코의 열정"
+        },
+        "uk": {
+          "name": "영국",
+          "attractions": ["빅벤", "타워 브리지", "버킹엄 궁전"],
+          "description": "전통과 현대가 조화로운 대영제국"
+        },
+        "germany": {
+          "name": "독일",
+          "attractions": ["브란덴부르크 문", "노이슈반슈타인성", "쾰른 대성당"],
+          "description": "동화 속 성과 깊은 역사의 나라"
+        },
+        "japan": {
+          "name": "일본",
+          "attractions": ["후지산", "기요미즈데라", "센소지"],
+          "description": "전통과 첨단이 공존하는 신비로운 나라"
+        },
+        "china": {
+          "name": "중국",
+          "attractions": ["만리장성", "자금성", "천안문 광장"],
+          "description": "5천년 역사를 간직한 거대한 문명"
+        },
+        "india": {
+          "name": "인도",
+          "attractions": ["타지마할", "붉은 요새", "갠지스 강"],
+          "description": "신비로운 영성과 화려한 궁전들"
+        },
+        "thailand": {
+          "name": "태국",
+          "attractions": ["왓 아룬", "대왕궁", "왓 포"],
+          "description": "황금빛 사원과 미소의 나라"
+        },
+        "singapore": {
+          "name": "싱가포르",
+          "attractions": ["마리나 베이 샌즈", "가든스 바이 더 베이", "머라이언"],
+          "description": "미래도시와 다양한 문화의 만남"
+        },
+        "usa": {
+          "name": "미국",
+          "attractions": ["자유의 여신상", "그랜드 캐니언", "타임스퀘어"],
+          "description": "자유와 꿈의 땅, 무한한 가능성"
+        },
+        "canada": {
+          "name": "캐나다",
+          "attractions": ["나이아가라 폭포", "CN 타워", "밴프 국립공원"],
+          "description": "광활한 자연과 깨끗한 도시"
+        },
+        "brazil": {
+          "name": "브라질",
+          "attractions": ["리우 예수상", "이과수 폭포", "마라카낭 스타디움"],
+          "description": "삼바와 축구, 열정적인 남미"
+        },
+        "peru": {
+          "name": "페루",
+          "attractions": ["마추픽추", "쿠스코", "나스카 라인"],
+          "description": "잉카 문명의 신비로운 유적들"
+        },
+        "mexico": {
+          "name": "멕시코",
+          "attractions": ["치첸이트사", "테오티우아칸", "칸쿤"],
+          "description": "마야 문명과 카리브해의 낙원"
+        }
       }
     },
     "guide": {
@@ -748,6 +825,83 @@
         "audioCommentary": "Audio Commentary",
         "tourDocent": "Tour Docent",
         "selfTour": "Self Tour"
+      },
+      "countries": {
+        "france": {
+          "name": "France",
+          "attractions": ["Eiffel Tower", "Louvre Museum", "Palace of Versailles"],
+          "description": "Romantic Paris and magnificent cultural heritage"
+        },
+        "italy": {
+          "name": "Italy",
+          "attractions": ["Colosseum", "Leaning Tower of Pisa", "Vatican"],
+          "description": "Glory of ancient Rome and Renaissance art"
+        },
+        "spain": {
+          "name": "Spain",
+          "attractions": ["Sagrada Familia", "Alhambra", "Park Güell"],
+          "description": "Gaudí's architecture and flamenco passion"
+        },
+        "uk": {
+          "name": "United Kingdom",
+          "attractions": ["Big Ben", "Tower Bridge", "Buckingham Palace"],
+          "description": "Harmonious blend of tradition and modernity"
+        },
+        "germany": {
+          "name": "Germany",
+          "attractions": ["Brandenburg Gate", "Neuschwanstein Castle", "Cologne Cathedral"],
+          "description": "Fairy-tale castles and deep historical heritage"
+        },
+        "japan": {
+          "name": "Japan",
+          "attractions": ["Mount Fuji", "Kiyomizu-dera", "Senso-ji"],
+          "description": "Mysterious land where tradition and cutting-edge coexist"
+        },
+        "china": {
+          "name": "China",
+          "attractions": ["Great Wall", "Forbidden City", "Tiananmen Square"],
+          "description": "Great civilization with 5000 years of history"
+        },
+        "india": {
+          "name": "India",
+          "attractions": ["Taj Mahal", "Red Fort", "Ganges River"],
+          "description": "Mystical spirituality and magnificent palaces"
+        },
+        "thailand": {
+          "name": "Thailand",
+          "attractions": ["Wat Arun", "Grand Palace", "Wat Pho"],
+          "description": "Golden temples and the land of smiles"
+        },
+        "singapore": {
+          "name": "Singapore",
+          "attractions": ["Marina Bay Sands", "Gardens by the Bay", "Merlion"],
+          "description": "Future city meets diverse cultures"
+        },
+        "usa": {
+          "name": "United States",
+          "attractions": ["Statue of Liberty", "Grand Canyon", "Times Square"],
+          "description": "Land of freedom and dreams, infinite possibilities"
+        },
+        "canada": {
+          "name": "Canada",
+          "attractions": ["Niagara Falls", "CN Tower", "Banff National Park"],
+          "description": "Vast nature and clean cities"
+        },
+        "brazil": {
+          "name": "Brazil",
+          "attractions": ["Christ the Redeemer", "Iguazu Falls", "Maracanã Stadium"],
+          "description": "Samba and soccer, passionate South America"
+        },
+        "peru": {
+          "name": "Peru",
+          "attractions": ["Machu Picchu", "Cusco", "Nazca Lines"],
+          "description": "Mysterious ruins of Inca civilization"
+        },
+        "mexico": {
+          "name": "Mexico",
+          "attractions": ["Chichen Itza", "Teotihuacan", "Cancun"],
+          "description": "Mayan civilization and Caribbean paradise"
+        }
       }
     },
     "guide": {
@@ -1199,6 +1353,105 @@
         "audioCommentary": "音声解説",
         "tourDocent": "ツアードーセント",
         "selfTour": "セルフツアー"
+      },
+      "stepTitles": {
+        "inputLocation": "場所を入力",
+        "aiGenerate": "AI生成", 
+        "audioPlay": "音声再生"
+      },
+      "stepDescriptions": {
+        "inputLocation": "気になる場所の名前を入力してください",
+        "aiGenerate": "AIがカスタマイズされたガイドを生成します",
+        "audioPlay": "生成されたガイドを音声で聞いてください"
+      },
+      "regionTitles": {
+        "popularCountries": "🌍 人気の旅行国",
+        "europe": "ヨーロッパ",
+        "asia": "アジア",
+        "americas": "アメリカ大陸"
+      },
+      "regionDescription": "世界各国の代表的な観光地と一緒に特別なオーディオガイドの旅を始めましょう",
+      "countryAttraction": "主要観光地",
+      "startGuide": "ガイド開始",
+      "destinations": "観光地",
+      "scrollHint": "左右にスクロールしてより多くの国を確認してください",
+      "popularBadge": "人気",
+      "countries": {
+        "france": {
+          "name": "フランス",
+          "attractions": ["エッフェル塔", "ルーブル美術館", "ベルサイユ宮殿"],
+          "description": "ロマンチックなパリと華麗な文化遺産"
+        },
+        "italy": {
+          "name": "Italy",
+          "attractions": ["Colosseum", "Leaning Tower of Pisa", "Vatican"],
+          "description": "Glory of ancient Rome and Renaissance art"
+        },
+        "spain": {
+          "name": "Spain",
+          "attractions": ["Sagrada Familia", "Alhambra", "Park Güell"],
+          "description": "Gaudí's architecture and flamenco passion"
+        },
+        "uk": {
+          "name": "United Kingdom",
+          "attractions": ["Big Ben", "Tower Bridge", "Buckingham Palace"],
+          "description": "Harmonious blend of tradition and modernity"
+        },
+        "germany": {
+          "name": "Germany",
+          "attractions": ["Brandenburg Gate", "Neuschwanstein Castle", "Cologne Cathedral"],
+          "description": "Fairy-tale castles and deep historical heritage"
+        },
+        "japan": {
+          "name": "Japan",
+          "attractions": ["Mount Fuji", "Kiyomizu-dera", "Senso-ji"],
+          "description": "Mysterious land where tradition and cutting-edge coexist"
+        },
+        "china": {
+          "name": "China",
+          "attractions": ["Great Wall", "Forbidden City", "Tiananmen Square"],
+          "description": "Great civilization with 5000 years of history"
+        },
+        "india": {
+          "name": "India",
+          "attractions": ["Taj Mahal", "Red Fort", "Ganges River"],
+          "description": "Mystical spirituality and magnificent palaces"
+        },
+        "thailand": {
+          "name": "Thailand",
+          "attractions": ["Wat Arun", "Grand Palace", "Wat Pho"],
+          "description": "Golden temples and the land of smiles"
+        },
+        "singapore": {
+          "name": "Singapore",
+          "attractions": ["Marina Bay Sands", "Gardens by the Bay", "Merlion"],
+          "description": "Future city meets diverse cultures"
+        },
+        "usa": {
+          "name": "United States",
+          "attractions": ["Statue of Liberty", "Grand Canyon", "Times Square"],
+          "description": "Land of freedom and dreams, infinite possibilities"
+        },
+        "canada": {
+          "name": "Canada",
+          "attractions": ["Niagara Falls", "CN Tower", "Banff National Park"],
+          "description": "Vast nature and clean cities"
+        },
+        "brazil": {
+          "name": "Brazil",
+          "attractions": ["Christ the Redeemer", "Iguazu Falls", "Maracanã Stadium"],
+          "description": "Samba and soccer, passionate South America"
+        },
+        "peru": {
+          "name": "Peru",
+          "attractions": ["Machu Picchu", "Cusco", "Nazca Lines"],
+          "description": "Mysterious ruins of Inca civilization"
+        },
+        "mexico": {
+          "name": "Mexico",
+          "attractions": ["Chichen Itza", "Teotihuacan", "Cancun"],
+          "description": "Mayan civilization and Caribbean paradise"
+        }
       }
     },
     "guide": {
@@ -1360,6 +1613,35 @@
     "audio": {
       "audioGuide": "音声ガイド",
       "unknown_error": "不明なエラーが発生しました。"
+    },
+    "footer": {
+      "companyName": "GUIDE AI",
+      "companyDescription": "AI-based personalized travel guide service",
+      "copyright": "© 2024 GUIDE AI. All rights reserved.",
+      "legalInfo": "Legal Information",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "aboutUs": "About Us",
+      "contact": "Contact",
+      "support": "Support",
+      "telegramChannel": "Telegram Channel",
+      "supportHours": "Support Hours: Weekdays 9AM-6PM",
+      "adsenseNotice": "Ad Revenue Notice",
+      "adsensePolicy": "AdSense Policy"
+    },
+    "legal": {
+      "terms": {
+        "title": "Terms of Service",
+        "description": "GUIDE AI Service Terms of Service",
+        "content": "Terms and conditions for using the service",
+        "lastUpdated": "Last Updated"
+      },
+      "privacy": {
+        "title": "Privacy Policy",
+        "description": "GUIDE AI Privacy Policy",
+        "content": "Privacy policy content",
+        "lastUpdated": "Last Updated"
+      }
     }
   },
   "zh": {
@@ -1412,6 +1694,105 @@
         "audioCommentary": "音频解说",
         "tourDocent": "旅游导览员",
         "selfTour": "自助游"
+      },
+      "stepTitles": {
+        "inputLocation": "输入地点",
+        "aiGenerate": "AI生成", 
+        "audioPlay": "音频播放"
+      },
+      "stepDescriptions": {
+        "inputLocation": "输入您想了解的地方名称",
+        "aiGenerate": "AI生成个性化导游",
+        "audioPlay": "收听生成的音频导游"
+      },
+      "regionTitles": {
+        "popularCountries": "🌍 热门旅游国家",
+        "europe": "欧洲",
+        "asia": "亚洲",
+        "americas": "美洲"
+      },
+      "regionDescription": "与世界各国代表性景点一起开始特别的音频导游之旅",
+      "countryAttraction": "热门景点",
+      "startGuide": "开始导游",
+      "destinations": "目的地",
+      "scrollHint": "左右滑动查看更多国家",
+      "popularBadge": "热门",
+      "countries": {
+        "france": {
+          "name": "法国",
+          "attractions": ["埃菲尔铁塔", "卢浮宫", "凡尔赛宫"],
+          "description": "浪漫的巴黎和华丽的文化遗产"
+        },
+        "italy": {
+          "name": "Italy",
+          "attractions": ["Colosseum", "Leaning Tower of Pisa", "Vatican"],
+          "description": "Glory of ancient Rome and Renaissance art"
+        },
+        "spain": {
+          "name": "Spain",
+          "attractions": ["Sagrada Familia", "Alhambra", "Park Güell"],
+          "description": "Gaudí's architecture and flamenco passion"
+        },
+        "uk": {
+          "name": "United Kingdom",
+          "attractions": ["Big Ben", "Tower Bridge", "Buckingham Palace"],
+          "description": "Harmonious blend of tradition and modernity"
+        },
+        "germany": {
+          "name": "Germany",
+          "attractions": ["Brandenburg Gate", "Neuschwanstein Castle", "Cologne Cathedral"],
+          "description": "Fairy-tale castles and deep historical heritage"
+        },
+        "japan": {
+          "name": "Japan",
+          "attractions": ["Mount Fuji", "Kiyomizu-dera", "Senso-ji"],
+          "description": "Mysterious land where tradition and cutting-edge coexist"
+        },
+        "china": {
+          "name": "China",
+          "attractions": ["Great Wall", "Forbidden City", "Tiananmen Square"],
+          "description": "Great civilization with 5000 years of history"
+        },
+        "india": {
+          "name": "India",
+          "attractions": ["Taj Mahal", "Red Fort", "Ganges River"],
+          "description": "Mystical spirituality and magnificent palaces"
+        },
+        "thailand": {
+          "name": "Thailand",
+          "attractions": ["Wat Arun", "Grand Palace", "Wat Pho"],
+          "description": "Golden temples and the land of smiles"
+        },
+        "singapore": {
+          "name": "Singapore",
+          "attractions": ["Marina Bay Sands", "Gardens by the Bay", "Merlion"],
+          "description": "Future city meets diverse cultures"
+        },
+        "usa": {
+          "name": "United States",
+          "attractions": ["Statue of Liberty", "Grand Canyon", "Times Square"],
+          "description": "Land of freedom and dreams, infinite possibilities"
+        },
+        "canada": {
+          "name": "Canada",
+          "attractions": ["Niagara Falls", "CN Tower", "Banff National Park"],
+          "description": "Vast nature and clean cities"
+        },
+        "brazil": {
+          "name": "Brazil",
+          "attractions": ["Christ the Redeemer", "Iguazu Falls", "Maracanã Stadium"],
+          "description": "Samba and soccer, passionate South America"
+        },
+        "peru": {
+          "name": "Peru",
+          "attractions": ["Machu Picchu", "Cusco", "Nazca Lines"],
+          "description": "Mysterious ruins of Inca civilization"
+        },
+        "mexico": {
+          "name": "Mexico",
+          "attractions": ["Chichen Itza", "Teotihuacan", "Cancun"],
+          "description": "Mayan civilization and Caribbean paradise"
+        }
       }
     },
     "guide": {
@@ -1573,6 +1954,35 @@
     "audio": {
       "audioGuide": "音频导览",
       "unknown_error": "发生未知错误。"
+    },
+    "footer": {
+      "companyName": "GUIDE AI",
+      "companyDescription": "AI-based personalized travel guide service",
+      "copyright": "© 2024 GUIDE AI. All rights reserved.",
+      "legalInfo": "Legal Information",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "aboutUs": "About Us",
+      "contact": "Contact",
+      "support": "Support",
+      "telegramChannel": "Telegram Channel",
+      "supportHours": "Support Hours: Weekdays 9AM-6PM",
+      "adsenseNotice": "Ad Revenue Notice",
+      "adsensePolicy": "AdSense Policy"
+    },
+    "legal": {
+      "terms": {
+        "title": "Terms of Service",
+        "description": "GUIDE AI Service Terms of Service",
+        "content": "Terms and conditions for using the service",
+        "lastUpdated": "Last Updated"
+      },
+      "privacy": {
+        "title": "Privacy Policy",
+        "description": "GUIDE AI Privacy Policy",
+        "content": "Privacy policy content",
+        "lastUpdated": "Last Updated"
+      }
     }
   },
   "es": {
@@ -1625,6 +2035,105 @@
         "audioCommentary": "Comentario de Audio",
         "tourDocent": "Guía Turístico",
         "selfTour": "Tour Autoguiado"
+      },
+      "stepTitles": {
+        "inputLocation": "Ingresar Ubicación",
+        "aiGenerate": "Generar IA", 
+        "audioPlay": "Reproducir Audio"
+      },
+      "stepDescriptions": {
+        "inputLocation": "Ingrese el nombre del lugar que le interesa",
+        "aiGenerate": "La IA genera una guía personalizada",
+        "audioPlay": "Escuche la guía generada con audio"
+      },
+      "regionTitles": {
+        "popularCountries": "🌍 Países de Viaje Populares",
+        "europe": "Europa",
+        "asia": "Asia",
+        "americas": "Américas"
+      },
+      "regionDescription": "Comience su viaje especial de audioguía con atracciones representativas de países de todo el mundo",
+      "countryAttraction": "TOP ATTRACTIONS",
+      "startGuide": "Start Guide",
+      "destinations": "destinations",
+      "scrollHint": "Scroll left and right to see more countries",
+      "popularBadge": "POPULAR",
+      "countries": {
+        "france": {
+          "name": "Francia",
+          "attractions": ["Torre Eiffel", "Museo del Louvre", "Palacio de Versalles"],
+          "description": "París romántico y magnífico patrimonio cultural"
+        },
+        "italy": {
+          "name": "Italy",
+          "attractions": ["Colosseum", "Leaning Tower of Pisa", "Vatican"],
+          "description": "Glory of ancient Rome and Renaissance art"
+        },
+        "spain": {
+          "name": "Spain",
+          "attractions": ["Sagrada Familia", "Alhambra", "Park Güell"],
+          "description": "Gaudí's architecture and flamenco passion"
+        },
+        "uk": {
+          "name": "United Kingdom",
+          "attractions": ["Big Ben", "Tower Bridge", "Buckingham Palace"],
+          "description": "Harmonious blend of tradition and modernity"
+        },
+        "germany": {
+          "name": "Germany",
+          "attractions": ["Brandenburg Gate", "Neuschwanstein Castle", "Cologne Cathedral"],
+          "description": "Fairy-tale castles and deep historical heritage"
+        },
+        "japan": {
+          "name": "Japan",
+          "attractions": ["Mount Fuji", "Kiyomizu-dera", "Senso-ji"],
+          "description": "Mysterious land where tradition and cutting-edge coexist"
+        },
+        "china": {
+          "name": "China",
+          "attractions": ["Great Wall", "Forbidden City", "Tiananmen Square"],
+          "description": "Great civilization with 5000 years of history"
+        },
+        "india": {
+          "name": "India",
+          "attractions": ["Taj Mahal", "Red Fort", "Ganges River"],
+          "description": "Mystical spirituality and magnificent palaces"
+        },
+        "thailand": {
+          "name": "Thailand",
+          "attractions": ["Wat Arun", "Grand Palace", "Wat Pho"],
+          "description": "Golden temples and the land of smiles"
+        },
+        "singapore": {
+          "name": "Singapore",
+          "attractions": ["Marina Bay Sands", "Gardens by the Bay", "Merlion"],
+          "description": "Future city meets diverse cultures"
+        },
+        "usa": {
+          "name": "United States",
+          "attractions": ["Statue of Liberty", "Grand Canyon", "Times Square"],
+          "description": "Land of freedom and dreams, infinite possibilities"
+        },
+        "canada": {
+          "name": "Canada",
+          "attractions": ["Niagara Falls", "CN Tower", "Banff National Park"],
+          "description": "Vast nature and clean cities"
+        },
+        "brazil": {
+          "name": "Brazil",
+          "attractions": ["Christ the Redeemer", "Iguazu Falls", "Maracanã Stadium"],
+          "description": "Samba and soccer, passionate South America"
+        },
+        "peru": {
+          "name": "Peru",
+          "attractions": ["Machu Picchu", "Cusco", "Nazca Lines"],
+          "description": "Mysterious ruins of Inca civilization"
+        },
+        "mexico": {
+          "name": "Mexico",
+          "attractions": ["Chichen Itza", "Teotihuacan", "Cancun"],
+          "description": "Mayan civilization and Caribbean paradise"
+        }
       }
     },
     "guide": {
@@ -1786,6 +2295,35 @@
     "audio": {
       "audioGuide": "Guía de Audio",
       "unknown_error": "Ocurrió un error desconocido."
+    },
+    "footer": {
+      "companyName": "GUIDE AI",
+      "companyDescription": "AI-based personalized travel guide service",
+      "copyright": "© 2024 GUIDE AI. All rights reserved.",
+      "legalInfo": "Legal Information",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "aboutUs": "About Us",
+      "contact": "Contact",
+      "support": "Support",
+      "telegramChannel": "Telegram Channel",
+      "supportHours": "Support Hours: Weekdays 9AM-6PM",
+      "adsenseNotice": "Ad Revenue Notice",
+      "adsensePolicy": "AdSense Policy"
+    },
+    "legal": {
+      "terms": {
+        "title": "Terms of Service",
+        "description": "GUIDE AI Service Terms of Service",
+        "content": "Terms and conditions for using the service",
+        "lastUpdated": "Last Updated"
+      },
+      "privacy": {
+        "title": "Privacy Policy",
+        "description": "GUIDE AI Privacy Policy",
+        "content": "Privacy policy content",
+        "lastUpdated": "Last Updated"
+      }
     }
   }
 }

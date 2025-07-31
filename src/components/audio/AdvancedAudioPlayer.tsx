@@ -145,7 +145,7 @@ const AdvancedAudioPlayer: React.FC<AdvancedAudioPlayerProps> = ({
               className={`p-2 rounded-lg transition-colors ${
                 showPlaylist ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-700'
               }`}
-              aria-label={t('audio.togglePlaylist')}
+              aria-label={String(t('audio.togglePlaylist'))}
             >
               <List className="w-4 h-4" />
             </button>
@@ -154,7 +154,7 @@ const AdvancedAudioPlayer: React.FC<AdvancedAudioPlayerProps> = ({
               className={`p-2 rounded-lg transition-colors ${
                 showBookmarks ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-700'
               }`}
-              aria-label={t('audio.toggleBookmarks')}
+              aria-label={String(t('audio.toggleBookmarks'))}
             >
               <Bookmark className="w-4 h-4" />
             </button>
@@ -163,7 +163,7 @@ const AdvancedAudioPlayer: React.FC<AdvancedAudioPlayerProps> = ({
               className={`p-2 rounded-lg transition-colors ${
                 showSettings ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-700'
               }`}
-              aria-label={t('audio.settings')}
+              aria-label={String(t('audio.settings'))}
             >
               <Settings className="w-4 h-4" />
             </button>
@@ -205,7 +205,7 @@ const AdvancedAudioPlayer: React.FC<AdvancedAudioPlayerProps> = ({
               className={`p-2 rounded-lg transition-colors ${
                 repeatMode !== 'none' ? 'text-black' : 'text-gray-400 hover:text-gray-600'
               }`}
-              aria-label={t('audio.repeatMode')}
+              aria-label={String(t('audio.repeatMode'))}
             >
               {getRepeatIcon()}
             </button>
@@ -214,7 +214,7 @@ const AdvancedAudioPlayer: React.FC<AdvancedAudioPlayerProps> = ({
               className={`p-2 rounded-lg transition-colors ${
                 shuffleMode ? 'text-black' : 'text-gray-400 hover:text-gray-600'
               }`}
-              aria-label={t('audio.shuffle')}
+              aria-label={String(t('audio.shuffle'))}
             >
               <Shuffle className="w-5 h-5" />
             </button>
@@ -225,7 +225,7 @@ const AdvancedAudioPlayer: React.FC<AdvancedAudioPlayerProps> = ({
             <button
               onClick={handlePrevious}
               className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
-              aria-label={t('audio.previous')}
+              aria-label={String(t('audio.previous'))}
             >
               <SkipBack className="w-5 h-5" />
             </button>
@@ -233,7 +233,7 @@ const AdvancedAudioPlayer: React.FC<AdvancedAudioPlayerProps> = ({
             <button
               onClick={() => skipBy(-10)}
               className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
-              aria-label={t('audio.rewind10')}
+              aria-label={String(t('audio.rewind10'))}
             >
               <span className="text-xs font-medium">-10</span>
             </button>
@@ -242,7 +242,7 @@ const AdvancedAudioPlayer: React.FC<AdvancedAudioPlayerProps> = ({
               onClick={togglePlayPause}
               disabled={status === 'loading' || status === 'error'}
               className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors disabled:opacity-50"
-              aria-label={status === 'playing' ? t('audio.pause') : t('audio.play')}
+              aria-label={status === 'playing' ? String(t('audio.pause')) : String(t('audio.play'))}
             >
               {status === 'loading' ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -256,7 +256,7 @@ const AdvancedAudioPlayer: React.FC<AdvancedAudioPlayerProps> = ({
             <button
               onClick={() => skipBy(10)}
               className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
-              aria-label={t('audio.forward10')}
+              aria-label={String(t('audio.forward10'))}
             >
               <span className="text-xs font-medium">+10</span>
             </button>
@@ -264,7 +264,7 @@ const AdvancedAudioPlayer: React.FC<AdvancedAudioPlayerProps> = ({
             <button
               onClick={handleNext}
               className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
-              aria-label={t('audio.next')}
+              aria-label={String(t('audio.next'))}
             >
               <SkipForward className="w-5 h-5" />
             </button>
@@ -275,7 +275,7 @@ const AdvancedAudioPlayer: React.FC<AdvancedAudioPlayerProps> = ({
             <button
               onClick={() => setIsMuted(!isMuted)}
               className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
-              aria-label={isMuted ? t('audio.unmute') : t('audio.mute')}
+              aria-label={isMuted ? String(t('audio.unmute')) : String(t('audio.mute'))}
             >
               {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
             </button>
@@ -351,7 +351,7 @@ const AdvancedAudioPlayer: React.FC<AdvancedAudioPlayerProps> = ({
               type="text"
               value={bookmarkTitle}
               onChange={(e) => setBookmarkTitle(e.target.value)}
-              placeholder={t('audio.bookmarkTitle')}
+              placeholder={String(t('audio.bookmarkTitle'))}
               className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
             />
             <button
@@ -384,7 +384,7 @@ const AdvancedAudioPlayer: React.FC<AdvancedAudioPlayerProps> = ({
                 <button
                   onClick={() => removeBookmark(bookmark.id)}
                   className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                  aria-label={t('audio.removeBookmark')}
+                  aria-label={String(t('audio.removeBookmark'))}
                 >
                   ×
                 </button>

@@ -213,13 +213,16 @@ export default function HomePage() {
   const fetchSuggestions = async (searchQuery: string) => {
     if (searchQuery.length < 1) {
       const translated = t('home.defaultSuggestions');
-      setSuggestions(
-        Array.isArray(translated) ? translated : [
+      // defaultSuggestions는 객체 배열이어야 하므로 타입 체크
+      if (Array.isArray(translated) && translated.length > 0 && typeof translated[0] === 'object' && 'name' in translated[0] && 'location' in translated[0]) {
+        setSuggestions(translated as unknown as Array<{ name: string; location: string }>);
+      } else {
+        setSuggestions([
           { name: '에펠탑', location: '프랑스 파리' },
           { name: '타지마할', location: '인도 아그라' },
           { name: '마추픽추', location: '페루 쿠스코' }
-        ]
-      );
+        ]);
+      }
       return;
     }
 
@@ -526,8 +529,8 @@ export default function HomePage() {
                   <div className="h-16 sm:h-20 flex flex-col justify-center">
                     <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-1">{t('home.stepTitles.inputLocation')}</div>
                     <div className="text-xs sm:text-sm lg:text-base text-gray-500 leading-relaxed">
-                      {t('home.stepDescriptions.inputLocation').split(' ').slice(0, 2).join(' ')}<br />
-                      {t('home.stepDescriptions.inputLocation').split(' ').slice(2).join(' ')}
+                      {String(t('home.stepDescriptions.inputLocation')).split(' ').slice(0, 2).join(' ')}<br />
+                      {String(t('home.stepDescriptions.inputLocation')).split(' ').slice(2).join(' ')}
                     </div>
                   </div>
                 </div>
@@ -559,8 +562,8 @@ export default function HomePage() {
                   <div className="h-16 sm:h-20 flex flex-col justify-center">
                     <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-1">{t('home.stepTitles.aiGenerate')}</div>
                     <div className="text-xs sm:text-sm lg:text-base text-gray-500 leading-relaxed">
-                      {t('home.stepDescriptions.aiGenerate').split(' ').slice(0, 1).join(' ')}<br />
-                      {t('home.stepDescriptions.aiGenerate').split(' ').slice(1).join(' ')}
+                      {String(t('home.stepDescriptions.aiGenerate')).split(' ').slice(0, 1).join(' ')}<br />
+                      {String(t('home.stepDescriptions.aiGenerate')).split(' ').slice(1).join(' ')}
                     </div>
                   </div>
                 </div>
@@ -594,8 +597,8 @@ export default function HomePage() {
                   <div className="h-16 sm:h-20 flex flex-col justify-center">
                     <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-1">{t('home.stepTitles.audioPlay')}</div>
                     <div className="text-xs sm:text-sm lg:text-base text-gray-500 leading-relaxed">
-                      {t('home.stepDescriptions.audioPlay').split(' ').slice(0, 2).join(' ')}<br />
-                      {t('home.stepDescriptions.audioPlay').split(' ').slice(2).join(' ')}
+                      {String(t('home.stepDescriptions.audioPlay')).split(' ').slice(0, 2).join(' ')}<br />
+                      {String(t('home.stepDescriptions.audioPlay')).split(' ').slice(2).join(' ')}
                     </div>
                   </div>
                 </div>

@@ -170,7 +170,7 @@ export default function NextLevelSearchBox() {
               placeholder={placeholders[placeholderIndex]}
               disabled={isSubmitting}
               // 접근성 속성
-              aria-label={t('search.searchLocation')}
+              aria-label={String(t('search.searchLocation'))}
               aria-describedby="search-suggestions"
               aria-expanded={suggestions.length > 0 && isFocused}
               aria-controls="search-suggestions"
@@ -248,7 +248,7 @@ export default function NextLevelSearchBox() {
                 borderRadius: 'var(--radius-xl)'
               }}
               role="listbox"
-              aria-label={t('search.suggestions')}
+              aria-label={String(t('search.suggestions'))}
             >
               {suggestions.map((suggestion, index) => (
                 <button
