@@ -473,7 +473,7 @@ export default function HomePage() {
             ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
           `}>
             {/* Main Title */}
-            <h1 className="text-2xl md:text-3xl font-thin tracking-[-0.02em] text-black mb-8">
+            <h1 className="text-2xl md:text-3xl font-thin tracking-[-0.02em] text-black mb-4">
               <div>
                 {/* 상단: 내손안의 (왼쪽 정렬) */}
                 <div className="mb-4 text-left">
@@ -503,7 +503,7 @@ export default function HomePage() {
             </h1>
 
             {/* Decorative Element */}
-            <div className="flex items-center justify-center gap-8 mb-12 relative z-0">
+            <div className="flex items-center justify-center gap-8 mb-6 relative z-0">
               <div className="w-12 h-px bg-black opacity-30"></div>
               <div className="w-1 h-1 bg-black rounded-full opacity-50"></div>
               <div className="w-1 h-1 bg-black rounded-full opacity-30"></div>
@@ -512,7 +512,7 @@ export default function HomePage() {
             </div>
 
             {/* Subtitle */}
-            <div className="text-center space-y-2 mb-1">
+            <div className="text-center space-y-1 mb-1">
               <p className="text-base text-gray-500 font-light tracking-wide">
                 {t('home.subtitle')}
               </p>
@@ -526,7 +526,7 @@ export default function HomePage() {
           </div>
 
           {/* How to Use - 3 Steps - 깔끔한 디자인 */}
-          <div className="relative z-10 py-8 mb-8">
+          <div className="relative z-10 py-4 mb-4">
             <div className="max-w-6xl mx-auto px-6">
               {/* 모든 화면에서 가로 배열 */}
               <div className="flex flex-row justify-center items-start gap-2 sm:gap-4 md:gap-8">
@@ -539,8 +539,8 @@ export default function HomePage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
-                  <div className="h-16 sm:h-20 flex flex-col justify-center">
-                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-1">{t('home.stepTitles.inputLocation')}</div>
+                  <div className="min-h-16 sm:min-h-20 flex flex-col justify-start pt-2">
+                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-2">{t('home.stepTitles.inputLocation')}</div>
                     <div className="text-xs sm:text-sm lg:text-base text-gray-500 leading-relaxed">
                       {String(t('home.stepDescriptions.inputLocation')).split(' ').slice(0, 2).join(' ')}<br />
                       {String(t('home.stepDescriptions.inputLocation')).split(' ').slice(2).join(' ')}
@@ -572,8 +572,8 @@ export default function HomePage() {
                       </svg>
                     )}
                   </button>
-                  <div className="h-16 sm:h-20 flex flex-col justify-center">
-                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-1">{t('home.stepTitles.aiGenerate')}</div>
+                  <div className="min-h-16 sm:min-h-20 flex flex-col justify-start pt-2">
+                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-2">{t('home.stepTitles.aiGenerate')}</div>
                     <div className="text-xs sm:text-sm lg:text-base text-gray-500 leading-relaxed">
                       {String(t('home.stepDescriptions.aiGenerate')).split(' ').slice(0, 1).join(' ')}<br />
                       {String(t('home.stepDescriptions.aiGenerate')).split(' ').slice(1).join(' ')}
@@ -607,8 +607,8 @@ export default function HomePage() {
                       </svg>
                     )}
                   </button>
-                  <div className="h-16 sm:h-20 flex flex-col justify-center">
-                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-1">{t('home.stepTitles.audioPlay')}</div>
+                  <div className="min-h-16 sm:min-h-20 flex flex-col justify-start pt-2">
+                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-2">{t('home.stepTitles.audioPlay')}</div>
                     <div className="text-xs sm:text-sm lg:text-base text-gray-500 leading-relaxed">
                       {String(t('home.stepDescriptions.audioPlay')).split(' ').slice(0, 2).join(' ')}<br />
                       {String(t('home.stepDescriptions.audioPlay')).split(' ').slice(2).join(' ')}
@@ -749,23 +749,21 @@ export default function HomePage() {
               <div className="bg-white rounded-xl p-1 shadow-sm border border-gray-100">
                 <div className="flex space-x-1">
                   {[
-                    { id: 'europe', label: t('home.regionTitles.europe'), icon: '🏰' },
-                    { id: 'asia', label: t('home.regionTitles.asia'), icon: '🏯' },
-                    { id: 'americas', label: t('home.regionTitles.americas'), icon: '🗽' }
+                    { id: 'europe', label: t('home.regionTitles.europe') },
+                    { id: 'asia', label: t('home.regionTitles.asia') },
+                    { id: 'americas', label: t('home.regionTitles.americas') }
                   ].map((region) => (
                     <button
                       key={region.id}
                       onClick={() => setActiveRegion(region.id)}
                       className={`
                         px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300
-                        flex items-center gap-2
                         ${activeRegion === region.id
                           ? 'bg-black text-white shadow-md'
                           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                         }
                       `}
                     >
-                      <span className="text-lg">{region.icon}</span>
                       {region.label}
                     </button>
                   ))}
