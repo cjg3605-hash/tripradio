@@ -185,15 +185,15 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                 padding: 'var(--space-3) var(--space-3)',
                 borderRadius: 'var(--radius-md)'
               }}
-              aria-label={`${t('header.language') || '언어'}: ${currentConfig?.name || '한국어'}. ${t('common.pressEnterToOpen') || 'Enter키를 눌러 언어 메뉴를 열 수 있습니다.'}`}
+              aria-label={`${t('header.language')}: ${currentConfig?.name}. ${t('search.pressEnterToSearch')}`}
               aria-expanded={isLanguageMenuOpen}
               aria-haspopup="listbox"
             >
               <Globe className="w-4 h-4" />
               <span role="img" aria-label={`${currentConfig?.name || '한국어'} 국기`}>
-                {currentConfig?.flag || '🇰🇷'}
+                {currentConfig?.flag}
               </span>
-              <span>{currentConfig?.name || '한국어'}</span>
+              <span>{currentConfig?.name}</span>
               <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${
                 isLanguageMenuOpen ? 'rotate-180' : ''
               }`} />
@@ -211,7 +211,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                   minWidth: '8rem'
                 }}
                 role="listbox"
-                aria-label={t('header.selectLanguage') || '언어 선택'}
+                aria-label={t('header.selectLanguage')}
               >
                 {SUPPORTED_LANGUAGES.map((lang, index) => (
                   <button
@@ -236,14 +236,14 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     `}
                     role="option"
                     aria-selected={lang.code === currentLanguage}
-                    aria-label={`${lang.name} 언어로 변경`}
+                    aria-label={`${lang.name}로 변경`}
                   >
                     <span role="img" aria-label={`${lang.name} 국기`}>
                       {lang.flag}
                     </span>
                     <span>{lang.name}</span>
                     {lang.code === currentLanguage && (
-                      <span className="ml-auto text-xs text-gray-500" aria-label="현재 선택된 언어">
+                      <span className="ml-auto text-xs text-gray-500" aria-label={t('header.currentSelectedLanguage')}>
                         ✓
                       </span>
                     )}
@@ -266,7 +266,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>{t('header.history') || '히스토리'}</span>
+            <span>{t('header.history')}</span>
           </button>
 
           {/* 로그인 상태 */}
@@ -286,7 +286,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                 {session.user.image ? (
                   <img 
                     src={session.user.image} 
-                    alt="프로필" 
+                    alt={t('header.profileAlt')} 
                     className="w-5 h-5 rounded-full"
                   />
                 ) : (
@@ -308,7 +308,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     }}
                     className="dropdown-item w-full text-left px-3 py-2 text-sm text-gray-700 transition-colors duration-150"
                   >
-                    {t('profile.mypage') || '마이페이지'}
+                    {t('profile.mypage')}
                   </button>
                   <button
                     onClick={(e) => {
@@ -319,7 +319,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     }}
                     className="dropdown-item w-full text-left px-3 py-2 text-sm text-gray-700 transition-colors duration-150"
                   >
-                    {t('auth.signout') || '로그아웃'}
+                    {t('auth.signout')}
                   </button>
                 </div>
               )}
@@ -335,7 +335,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
               className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-150"
             >
               <LogIn className="w-4 h-4" />
-              <span>{t('auth.signin') || '로그인'}</span>
+              <span>{t('auth.signin')}</span>
             </button>
           )}
         </div>
@@ -365,13 +365,13 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                   : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                 }
               `}
-              aria-label={`${t('header.language') || '언어'}: ${currentConfig?.name || '한국어'}`}
+              aria-label={`${t('header.language')}: ${currentConfig?.name}`}
               aria-expanded={isLanguageMenuOpen}
               aria-haspopup="listbox"
             >
               <Globe className="w-3 h-3" />
               <span role="img" aria-label={`${currentConfig?.name || '한국어'} 국기`}>
-                {currentConfig?.flag || '🇰🇷'}
+                {currentConfig?.flag}
               </span>
               <ChevronDown className={`w-2 h-2 transition-transform duration-200 ${
                 isLanguageMenuOpen ? 'rotate-180' : ''
@@ -382,7 +382,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
               <div 
                 className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-dropdown border border-gray-200 py-1 min-w-24 z-50"
                 role="listbox"
-                aria-label={t('header.selectLanguage') || '언어 선택'}
+                aria-label={t('header.selectLanguage')}
               >
                 {SUPPORTED_LANGUAGES.map((lang, index) => (
                   <button
@@ -407,14 +407,14 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     `}
                     role="option"
                     aria-selected={lang.code === currentLanguage}
-                    aria-label={`${lang.name} 언어로 변경`}
+                    aria-label={`${lang.name}로 변경`}
                   >
                     <span role="img" aria-label={`${lang.name} 국기`}>
                       {lang.flag}
                     </span>
                     <span>{lang.name}</span>
                     {lang.code === currentLanguage && (
-                      <span className="ml-auto text-xs text-gray-500" aria-label="현재 선택된 언어">
+                      <span className="ml-auto text-xs text-gray-500" aria-label={t('header.currentSelectedLanguage')}>
                         ✓
                       </span>
                     )}
@@ -437,7 +437,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="hidden sm:inline">{t('header.history') || '히스토리'}</span>
+            <span className="hidden sm:inline">{t('header.history')}</span>
           </button>
 
           {/* 로그인 상태 */}
@@ -455,7 +455,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                 {session.user.image ? (
                   <img 
                     src={session.user.image} 
-                    alt="프로필" 
+                    alt={t('header.profileAlt')} 
                     className="w-4 h-4 rounded-full"
                   />
                 ) : (
@@ -476,7 +476,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     }}
                     className="dropdown-item w-full text-left px-2 py-1 text-xs text-gray-700 transition-colors duration-150"
                   >
-                    {t('profile.mypage') || '마이페이지'}
+                    {t('profile.mypage')}
                   </button>
                   <button
                     onClick={(e) => {
@@ -487,7 +487,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                     }}
                     className="dropdown-item w-full text-left px-2 py-1 text-xs text-gray-700 transition-colors duration-150"
                   >
-                    {t('auth.signout') || '로그아웃'}
+                    {t('auth.signout')}
                   </button>
                 </div>
               )}
@@ -503,7 +503,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
               className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-xs text-gray-700 transition-colors duration-150"
             >
               <LogIn className="w-3 h-3" />
-              <span className="hidden sm:inline">{t('auth.signin') || '로그인'}</span>
+              <span className="hidden sm:inline">{t('auth.signin')}</span>
             </button>
           )}
         </div>

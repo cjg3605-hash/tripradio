@@ -29,13 +29,7 @@ export default function NextLevelSearchBox() {
   const { currentLanguage, t } = useLanguage();
 
   // Rotating placeholder examples
-  const placeholders = t('home.searchPlaceholders') || [
-    '에펠탑',
-    '타지마할', 
-    '마추픽추',
-    '콜로세움',
-    '자유의 여신상'
-  ];
+  const placeholders = t('home.searchPlaceholders') || [];
 
   // Rotate placeholders
   useEffect(() => {
@@ -176,7 +170,7 @@ export default function NextLevelSearchBox() {
               placeholder={placeholders[placeholderIndex]}
               disabled={isSubmitting}
               // 접근성 속성
-              aria-label="여행지 검색"
+              aria-label={t('search.searchLocation')}
               aria-describedby="search-suggestions"
               aria-expanded={suggestions.length > 0 && isFocused}
               aria-controls="search-suggestions"
@@ -201,7 +195,7 @@ export default function NextLevelSearchBox() {
               onClick={handleSearch}
               disabled={!query.trim() || isSubmitting}
               // 접근성 속성
-              aria-label={`${query.trim() ? `'${query}' 검색하기` : '검색어를 입력하세요'}`}
+              aria-label={query.trim() ? `'${query}' 검색하기` : '검색어를 입력하세요'}
               type="submit"
               className={`
                 absolute right-4 top-1/2 transform -translate-y-1/2
@@ -254,7 +248,7 @@ export default function NextLevelSearchBox() {
                 borderRadius: 'var(--radius-xl)'
               }}
               role="listbox"
-              aria-label="검색 제안"
+              aria-label={t('search.suggestions')}
             >
               {suggestions.map((suggestion, index) => (
                 <button
@@ -288,7 +282,7 @@ export default function NextLevelSearchBox() {
                         </div>
                         {suggestion.metadata?.isOfficial && (
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                            공식
+                            {t('search.official')}
                           </span>
                         )}
                         {suggestion.metadata?.category && (
@@ -310,7 +304,7 @@ export default function NextLevelSearchBox() {
                       <span className={`text-xs px-2 py-1 rounded-full ${
                         selectedIndex === index ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
                       }`}>
-                        클릭하여 완성
+                        {t('search.clickToComplete')}
                       </span>
                       <svg 
                         className={`w-4 h-4 ${

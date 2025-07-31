@@ -53,13 +53,13 @@ const session = sessionResult?.data;
           fileName: entry.id,
           locationName: entry.locationName,
           generatedAt: entry.createdAt,
-          preview: entry.guideData?.overview?.summary || entry.guideData?.overview?.title || '가이드 미리보기'
+          preview: entry.guideData?.overview?.summary || entry.guideData?.overview?.title || t('history.preview')
         }));
         setHistory(convertedHistory);
       }
     } catch (error) {
       setHistory([]);
-      console.error('히스토리 로드 실패:', error);
+      console.error(t('history.loadFailed'), error);
     } finally {
       setIsLoading(false);
     }
@@ -76,11 +76,11 @@ const session = sessionResult?.data;
         fileName: entry.id,
         locationName: entry.locationName,
         generatedAt: entry.createdAt,
-        preview: entry.guideData?.overview?.summary || entry.guideData?.overview?.title || '가이드 미리보기'
+        preview: entry.guideData?.overview?.summary || entry.guideData?.overview?.title || t('history.preview')
       }));
       setHistory(convertedHistory);
     } catch (error) {
-      console.error('히스토리 삭제 실패:', error);
+      console.error(t('history.deleteFailed'), error);
     }
   };
 
@@ -93,14 +93,14 @@ const session = sessionResult?.data;
 
   // 날짜 포맷팅
   const formatDate = (dateString: string) => {
-    if (!dateString) return '잘못된 날짜';
+    if (!dateString) return t('history.invalidDate');
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return '잘못된 날짜';
+    if (isNaN(date.getTime())) return t('history.invalidDate');
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) return '오늘';
-    if (diffDays === 1) return '어제';
+    if (diffDays === 0) return t('history.today');
+    if (diffDays === 1) return t('history.yesterday');
     if (diffDays < 7) return `${diffDays}일 전`;
     if (diffDays < 30) return `${Math.floor(diffDays / 7)}주 전`;
     return date.toLocaleDateString();
@@ -166,7 +166,7 @@ const session = sessionResult?.data;
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder={t('search.recentSearches')}
+                placeholder={t('history.searchInHistory')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -185,10 +185,10 @@ const session = sessionResult?.data;
               <div className="p-4 text-center">
                 <History className="w-12 h-12 text-gray-300 mx-auto mb-2" />
                 <p className="text-gray-500">
-                  {searchQuery ? '검색 결과가 없습니다' : '검색 기록이 없습니다'}
+                  {searchQuery ? t('history.noResults') : t('history.noHistory')}
                 </p>
                 <p className="text-sm text-gray-400 mt-1">
-                  장소를 검색해보세요
+                  {t('history.searchPlaces')}
                 </p>
               </div>
             ) : (
@@ -219,14 +219,14 @@ const session = sessionResult?.data;
                         <button
                           onClick={() => goToGuide(item.locationName)}
                           className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                          title="가이드 보기"
+                          title={t('history.view')}
                         >
                           <ArrowRight className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => deleteHistoryItem(item.fileName)}
                           className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="삭제"
+                          title={t('history.delete')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -242,7 +242,7 @@ const session = sessionResult?.data;
           {filteredHistory.length > 0 && (
             <div className="p-4 border-t border-gray-200">
               <span className="text-xs text-gray-400 block text-center mt-4">
-                총 {filteredHistory.length}개의 가이드
+                총 {filteredHistory.length}개 가이드
               </span>
             </div>
           )}

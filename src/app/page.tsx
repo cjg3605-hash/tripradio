@@ -262,7 +262,7 @@ export default function HomePage() {
     try {
       router.push(`/guide/${encodeURIComponent(query.trim())}`);
     } catch (error) {
-      console.error('검색 오류:', error);
+      console.error('Search error:', error);
     } finally {
       setIsGenerating(false);
     }
@@ -313,7 +313,7 @@ export default function HomePage() {
   // AI 가이드 생성
   const handleAIGeneration = async () => {
     if (!query.trim()) {
-      alert('먼저 장소를 입력해주세요.');
+      alert(t('home.alerts.enterLocation'));
       return;
     }
 
@@ -367,11 +367,11 @@ export default function HomePage() {
           statusText: response.statusText,
           errorData
         });
-        alert(errorData.error || `가이드 생성에 실패했습니다 (${response.status})`);
+        alert(errorData.error || `${t('home.alerts.generationFailed')} (${response.status})`);
       }
     } catch (error) {
       console.error('❌ AI 생성 오류:', error);
-      alert('가이드 생성 중 네트워크 오류가 발생했습니다.');
+      alert(t('home.alerts.networkError'));
     } finally {
       setIsGenerating(false);
     }
@@ -380,7 +380,7 @@ export default function HomePage() {
   // 오디오 재생
   const handleAudioPlayback = () => {
     if (!query.trim()) {
-      alert('먼저 장소를 입력해주세요.');
+      alert(t('home.alerts.enterLocation'));
       return;
     }
 
@@ -524,9 +524,10 @@ export default function HomePage() {
                     </svg>
                   </div>
                   <div className="h-16 sm:h-20 flex flex-col justify-center">
-                    <div className="text-sm sm:text-lg font-medium text-black mb-1">장소 입력</div>
+                    <div className="text-sm sm:text-lg font-medium text-black mb-1">{t('home.stepTitles.inputLocation')}</div>
                     <div className="text-xs sm:text-sm text-gray-500 leading-relaxed">
-                      궁금한 곳의<br />이름을 입력하세요
+                      {t('home.stepDescriptions.inputLocation').split(' ').slice(0, 2).join(' ')}<br />
+                      {t('home.stepDescriptions.inputLocation').split(' ').slice(2).join(' ')}
                     </div>
                   </div>
                 </div>
@@ -556,9 +557,10 @@ export default function HomePage() {
                     )}
                   </button>
                   <div className="h-16 sm:h-20 flex flex-col justify-center">
-                    <div className="text-sm sm:text-lg font-medium text-black mb-1">AI 생성</div>
+                    <div className="text-sm sm:text-lg font-medium text-black mb-1">{t('home.stepTitles.aiGenerate')}</div>
                     <div className="text-xs sm:text-sm text-gray-500 leading-relaxed">
-                      실시간으로<br />맞춤 가이드 생성
+                      {t('home.stepDescriptions.aiGenerate').split(' ').slice(0, 1).join(' ')}<br />
+                      {t('home.stepDescriptions.aiGenerate').split(' ').slice(1).join(' ')}
                     </div>
                   </div>
                 </div>
@@ -590,9 +592,10 @@ export default function HomePage() {
                     )}
                   </button>
                   <div className="h-16 sm:h-20 flex flex-col justify-center">
-                    <div className="text-sm sm:text-lg font-medium text-black mb-1">오디오 재생</div>
+                    <div className="text-sm sm:text-lg font-medium text-black mb-1">{t('home.stepTitles.audioPlay')}</div>
                     <div className="text-xs sm:text-sm text-gray-500 leading-relaxed">
-                      음성으로 생생한<br />현장 해설
+                      {t('home.stepDescriptions.audioPlay').split(' ').slice(0, 2).join(' ')}<br />
+                      {t('home.stepDescriptions.audioPlay').split(' ').slice(2).join(' ')}
                     </div>
                   </div>
                 </div>
@@ -702,7 +705,7 @@ export default function HomePage() {
                     ))
                   ) : (
                     <div className="px-6 py-4 text-center text-sm text-gray-500">
-                      검색 결과가 없습니다
+                      {t('search.noResults')}
                     </div>
                   )}
                 </div>
@@ -718,10 +721,10 @@ export default function HomePage() {
             {/* 섹션 제목 */}
             <div className="text-center mb-10">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                🌍 인기 여행 국가
+                {t('home.regionTitles.popularCountries')}
               </h2>
               <p className="text-gray-600 max-w-2xl mx-auto">
-                세계 각국의 대표 관광명소와 함께하는 특별한 오디오 가이드 여행을 시작하세요
+                {t('home.regionDescription')}
               </p>
             </div>
             
@@ -730,9 +733,9 @@ export default function HomePage() {
               <div className="bg-white rounded-xl p-1 shadow-sm border border-gray-100">
                 <div className="flex space-x-1">
                   {[
-                    { id: 'europe', label: '유럽', icon: '🏰' },
-                    { id: 'asia', label: '아시아', icon: '🏯' },
-                    { id: 'americas', label: '미주', icon: '🗽' }
+                    { id: 'europe', label: t('home.regionTitles.europe'), icon: '🏰' },
+                    { id: 'asia', label: t('home.regionTitles.asia'), icon: '🏯' },
+                    { id: 'americas', label: t('home.regionTitles.americas'), icon: '🗽' }
                   ].map((region) => (
                     <button
                       key={region.id}
@@ -785,7 +788,7 @@ export default function HomePage() {
 
                         {/* 인기 배지 - 모노크롬 */}
                         <div className="absolute top-3 right-3 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
-                          <span className="text-xs text-white font-light tracking-wide">POPULAR</span>
+                          <span className="text-xs text-white font-light tracking-wide">{t('home.popularBadge')}</span>
                         </div>
                       </div>
 
@@ -799,7 +802,7 @@ export default function HomePage() {
                         {/* 인기 관광지 */}
                         <div className="space-y-3 mb-5">
                           <h4 className="text-xs font-medium text-gray-900 uppercase tracking-[0.1em] letter-spacing-wider">
-                            TOP ATTRACTIONS
+                            {t('home.countryAttraction')}
                           </h4>
                           {country.attractions.slice(0, 3).map((attraction, idx) => (
                             <div
@@ -816,10 +819,10 @@ export default function HomePage() {
                         <div className="pt-4 border-t border-gray-100">
                           <div className="flex items-center justify-between">
                             <span className="text-xs text-gray-500 font-light tracking-wide">
-                              {country.attractions.length} destinations
+                              {country.attractions.length} {t('home.destinations')}
                             </span>
                             <div className="flex items-center text-sm font-light text-gray-700 group-hover:text-black transition-colors">
-                              <span className="tracking-wide">Start Guide</span>
+                              <span className="tracking-wide">{t('home.startGuide')}</span>
                               <svg className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                               </svg>
@@ -839,7 +842,7 @@ export default function HomePage() {
                 <svg className="w-4 h-4 mr-2 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l4-4m0 0l4-4m-4 4v12" />
                 </svg>
-                <span className="font-medium">좌우로 스크롤하여 더 많은 국가를 확인하세요</span>
+                <span className="font-medium">{t('home.scrollHint')}</span>
               </div>
             </div>
           </div>
@@ -853,25 +856,25 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Company Info */}
             <div className="md:col-span-2">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">네비가이드AI</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('footer.companyName')}</h3>
               <p className="text-sm text-gray-600 mb-4">
-                AI 기반 맞춤형 여행 가이드 서비스로 더 스마트하고 개인화된 여행을 경험하세요.
+                {t('footer.companyDescription')}
               </p>
               <div className="flex items-center space-x-4">
-                <span className="text-xs text-gray-500">© 2024 네비가이드AI. All rights reserved.</span>
+                <span className="text-xs text-gray-500">{t('footer.copyright')}</span>
               </div>
             </div>
 
             {/* Legal Pages */}
             <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-4">법적 정보</h4>
+              <h4 className="text-sm font-semibold text-gray-900 mb-4">{t('footer.legalInfo')}</h4>
               <ul className="space-y-2">
                 <li>
                   <a 
                     href="/legal/privacy" 
                     className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
                   >
-                    개인정보처리방침
+                    {t('footer.privacyPolicy')}
                   </a>
                 </li>
                 <li>
@@ -879,7 +882,7 @@ export default function HomePage() {
                     href="/legal/terms" 
                     className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
                   >
-                    이용약관
+                    {t('footer.termsOfService')}
                   </a>
                 </li>
                 <li>
@@ -887,7 +890,7 @@ export default function HomePage() {
                     href="/legal/about" 
                     className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
                   >
-                    회사소개
+                    {t('footer.aboutUs')}
                   </a>
                 </li>
                 <li>
@@ -895,7 +898,7 @@ export default function HomePage() {
                     href="/legal/contact" 
                     className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
                   >
-                    연락처
+                    {t('footer.contact')}
                   </a>
                 </li>
               </ul>
@@ -903,7 +906,7 @@ export default function HomePage() {
 
             {/* Support */}
             <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-4">고객지원</h4>
+              <h4 className="text-sm font-semibold text-gray-900 mb-4">{t('footer.support')}</h4>
               <ul className="space-y-2">
                 <li>
                   <a 
@@ -912,12 +915,12 @@ export default function HomePage() {
                     rel="noopener noreferrer"
                     className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
                   >
-                    Telegram 채널
+                    {t('footer.telegramChannel')}
                   </a>
                 </li>
                 <li>
                   <span className="text-sm text-gray-600">
-                    평일 09:00 - 18:00 (KST)
+                    {t('footer.supportHours')}
                   </span>
                 </li>
               </ul>
@@ -927,10 +930,10 @@ export default function HomePage() {
           {/* AdSense Compliance Notice */}
           <div className="mt-6 pt-6 border-t border-gray-200">
             <p className="text-xs text-gray-500 text-center">
-              본 사이트는 Google AdSense를 사용하여 광고를 게재합니다. 
+              {t('footer.adsenseNotice')} 
               <a href="/legal/privacy" className="underline hover:text-gray-700 ml-1">
-                개인정보처리방침
-              </a>에서 쿠키 사용 및 광고 정책에 대한 자세한 내용을 확인하실 수 있습니다.
+                {t('footer.privacyPolicy')}
+              </a>{t('footer.adsensePolicy')}
             </p>
           </div>
         </div>

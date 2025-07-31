@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   Play,
   Pause,
@@ -22,6 +23,7 @@ const SimpleAudioPlayer: React.FC<SimpleAudioPlayerProps> = ({
   onChapterChange,
   className = ''
 }) => {
+  const { t } = useLanguage();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
@@ -146,7 +148,7 @@ const SimpleAudioPlayer: React.FC<SimpleAudioPlayerProps> = ({
       {/* 현재 챕터 정보 */}
       <div className="mb-4">
         <h3 className="font-medium text-gray-900 mb-1">
-          {currentChapter?.title || '오디오 가이드'}
+          {currentChapter?.title || t('audio.audioGuide') || '오디오 가이드'}
         </h3>
         <p className="text-sm text-gray-500">
           {currentChapterIndex + 1} / {chapters.length} 챕터
@@ -178,7 +180,7 @@ const SimpleAudioPlayer: React.FC<SimpleAudioPlayerProps> = ({
             onClick={handlePrevious}
             disabled={currentChapterIndex === 0}
             className="p-2 text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="이전 챕터"
+            aria-label={t('audio.previousChapter') || '이전 챕터'}
           >
             <SkipBack className="w-5 h-5" />
           </button>
@@ -186,7 +188,7 @@ const SimpleAudioPlayer: React.FC<SimpleAudioPlayerProps> = ({
           <button
             onClick={togglePlayPause}
             className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
-            aria-label={isPlaying ? '일시정지' : '재생'}
+            aria-label={isPlaying ? (t('audio.pause') || '일시정지') : (t('audio.play') || '재생')}
           >
             {isPlaying ? (
               <Pause className="w-5 h-5" />
@@ -199,7 +201,7 @@ const SimpleAudioPlayer: React.FC<SimpleAudioPlayerProps> = ({
             onClick={handleNext}
             disabled={currentChapterIndex === chapters.length - 1}
             className="p-2 text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="다음 챕터"
+            aria-label={t('audio.nextChapter') || '다음 챕터'}
           >
             <SkipForward className="w-5 h-5" />
           </button>
@@ -210,7 +212,7 @@ const SimpleAudioPlayer: React.FC<SimpleAudioPlayerProps> = ({
           <button
             onClick={toggleMute}
             className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
-            aria-label={isMuted ? '음소거 해제' : '음소거'}
+            aria-label={isMuted ? (t('audio.unmute') || '음소거 해제') : (t('audio.mute') || '음소거')}
           >
             {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   Play,
   Pause,
@@ -27,6 +28,7 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
   locationName = 'guide',
   guideId = 'default'
 }) => {
+  const { t } = useLanguage();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -168,7 +170,7 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
 
     } catch (error) {
       console.error('❌ TTS 생성 실패:', error);
-      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
+      const errorMessage = error instanceof Error ? error.message : (t('audio.unknown_error') || '알 수 없는 오류가 발생했습니다.');
       setTtsError(errorMessage);
       
       if (onChapterUpdate) {
@@ -202,7 +204,7 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
           onClick={togglePlayPause}
           disabled={isGeneratingTTS}
           className="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors flex-shrink-0 disabled:bg-gray-400"
-          aria-label={isGeneratingTTS ? 'TTS 생성 중' : isPlaying ? '일시정지' : '재생'}
+          aria-label={isGeneratingTTS ? (t('audio.generating') || 'TTS 생성 중') : isPlaying ? (t('audio.pause') || '일시정지') : (t('audio.play') || '재생')}
         >
           {isGeneratingTTS ? (
             <Loader2 className="w-4 h-4 animate-spin" />

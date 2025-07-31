@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface QualityFeedbackProps {
   guideId: string;
@@ -23,6 +24,7 @@ const QualityFeedback: React.FC<QualityFeedbackProps> = ({
   locationName, 
   onFeedbackSubmit
 }) => {
+  const { t } = useLanguage();
   const [feedback, setFeedback] = useState<QualityFeedback>({
     accuracy: 5,
     expertise: 5,
@@ -79,21 +81,21 @@ const QualityFeedback: React.FC<QualityFeedbackProps> = ({
       }
     } catch (error) {
       console.error('피드백 제출 실패:', error);
-      alert('피드백 제출에 실패했습니다. 다시 시도해주세요.');
+      alert(t('feedback.submitFailed') || '피드백 제출에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const ratingLabels = {
-    1: '매우 불만족',
-    2: '불만족', 
-    3: '보통',
-    4: '만족',
-    5: '매우 만족'
+    1: t('feedback.ratings.1') || '매우 불만족',
+    2: t('feedback.ratings.2') || '불만족', 
+    3: t('feedback.ratings.3') || '보통',
+    4: t('feedback.ratings.4') || '만족',
+    5: t('feedback.ratings.5') || '매우 만족'
   };
 
-  const improvementOptions = [
+  const improvementOptions: string[] = [
     '더 구체적인 역사적 사실 필요',
     '재미있는 스토리 부족',
     '전문 용어 설명 필요',

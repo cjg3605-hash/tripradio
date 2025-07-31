@@ -8,7 +8,11 @@
       "logout": "로그아웃",
       "history": "검색 기록",
       "profile": "프로필",
-      "settings": "설정"
+      "settings": "설정",
+      "currentSelectedLanguage": "현재 선택된 언어",
+      "changeToLanguage": "{language} 언어로 변경",
+      "flagAltText": "{language} 국기",
+      "profileAlt": "프로필"
     },
     "navigation": {
       "home": "홈",
@@ -26,6 +30,33 @@
       "searchButton": "가이드 생성",
       "popularDestinations": "인기 여행지",
       "description": "AI가 찾아낸 가장 완벽한 가이드해설",
+      "stepTitles": {
+        "inputLocation": "장소 입력",
+        "aiGenerate": "AI 생성",
+        "audioPlay": "오디오 재생"
+      },
+      "stepDescriptions": {
+        "inputLocation": "궁금한 곳의 이름을 입력하세요",
+        "aiGenerate": "실시간으로 맞춤 가이드 생성",
+        "audioPlay": "음성으로 생생한 현장 해설"
+      },
+      "regionTitles": {
+        "popularCountries": "🌍 인기 여행 국가",
+        "europe": "유럽",
+        "asia": "아시아",
+        "americas": "미주"
+      },
+      "regionDescription": "세계 각국의 대표 관광명소와 함께하는 특별한 오디오 가이드 여행을 시작하세요",
+      "countryAttraction": "TOP ATTRACTIONS",
+      "startGuide": "Start Guide",
+      "destinations": "destinations",
+      "scrollHint": "좌우로 스크롤하여 더 많은 국가를 확인하세요",
+      "popularBadge": "POPULAR",
+      "alerts": {
+        "enterLocation": "먼저 장소를 입력해주세요.",
+        "generationFailed": "가이드 생성에 실패했습니다",
+        "networkError": "가이드 생성 중 네트워크 오류가 발생했습니다."
+      },
       "searchPlaceholders": [
         "에펠탑",
         "타지마할", 
@@ -261,7 +292,104 @@
       "noResults": "검색 결과가 없습니다",
       "searching": "검색 중...",
       "clear": "지우기",
-      "enterLocation": "먼저 장소를 입력해주세요"
+      "enterLocation": "먼저 장소를 입력해주세요",
+      "placeholder": "어디로 떠나고 싶으신가요?",
+      "searchButton": "검색하기"
+    },
+    "audio": {
+      "audioGuide": "오디오 가이드",
+      "previousChapter": "이전 챕터",
+      "nextChapter": "다음 챕터",
+      "play": "재생",
+      "pause": "일시정지",
+      "mute": "음소거",
+      "unmute": "음소거 해제",
+      "regenerate": "새로운 음성으로 재생성",
+      "generating": "TTS 생성 중",
+      "unknown_error": "알 수 없는 오류가 발생했습니다."
+    },
+    "feedback": {
+      "submit": "피드백 제출하기",
+      "submitting": "제출 중...",
+      "cancel": "취소",
+      "placeholder": "더 좋은 가이드를 위한 의견을 자유롭게 작성해주세요...",
+      "submitFailed": "피드백 제출에 실패했습니다. 다시 시도해주세요.",
+      "ratings": {
+        "1": "매우 불만족",
+        "2": "불만족",
+        "3": "보통", 
+        "4": "만족",
+        "5": "매우 만족"
+      },
+      "suggestions": [
+        "더 구체적인 역사적 사실 필요",
+        "재미있는 스토리 부족",
+        "전문 용어 설명 필요",
+        "문화적 배경 설명 부족",
+        "개인적 관심사 반영 부족",
+        "실용적 정보 부족",
+        "내용이 너무 길어서 지루함",
+        "내용이 너무 짧아서 아쉬움"
+      ]
+    },
+    "location": {
+      "myLocation": "내 위치로 이동",
+      "tracking": "내 위치 추적 중",
+      "startLocation": "시작 위치",
+      "selectLocation": "위치를 선택해주세요",
+      "locationInfo": "위치 정보",
+      "viewingOrder": "관람순서 지도",
+      "tourStart": "투어 시작 위치",
+      "permissionDenied": "위치 권한이 거부되었습니다. 브라우저 설정에서 위치 권한을 허용해주세요."
+    },
+    "history": {
+      "noResults": "검색 결과가 없습니다",
+      "noHistory": "검색 기록이 없습니다",
+      "view": "가이드 보기",
+      "delete": "삭제",
+      "today": "오늘",
+      "yesterday": "어제",
+      "invalidDate": "잘못된 날짜",
+      "preview": "가이드 미리보기",
+      "loadFailed": "히스토리 로드 실패",
+      "deleteFailed": "히스토리 삭제 실패",
+      "searchInHistory": "검색 기록에서 찾기",
+      "searchPlaces": "장소를 검색해보세요",
+      "totalGuides": "총 {count}개의 가이드",
+      "daysAgo": "{days}일 전",
+      "weeksAgo": "{weeks}주 전"
+    },
+    "ui": {
+      "loadingMessages": {
+        "loading": [
+          "가이드를 불러오고 있어요...",
+          "데이터를 준비하고 있어요...",
+          "거의 완료되었어요..."
+        ],
+        "generating": [
+          "새로운 가이드를 만들고 있어요...",
+          "맞춤형 콘텐츠를 생성하고 있어요...",
+          "최종 확인 중이에요..."
+        ],
+        "saved": [
+          "저장된 가이드를 찾고 있어요...",
+          "데이터를 가져오고 있어요...",
+          "준비가 거의 끝났어요..."
+        ]
+      },
+      "generating": {
+        "steps": [
+          "위치 정보를 분석하고 있어요...",
+          "역사적 정보를 수집하고 있어요...",
+          "맞춤형 콘텐츠를 만들고 있어요...",
+          "오디오 챕터를 생성하고 있어요...",
+          "가이드를 완성하고 있어요..."
+        ]
+      },
+      "back": "뒤로 가기",
+      "loading": "로딩 중",
+      "checking": "확인 중...",
+      "recheck": "다시 확인"
     },
     "errors": {
       "networkError": "네트워크 연결을 확인해주세요",
@@ -452,7 +580,19 @@
       "save": "변경사항 저장"
     },
     "search": {
-      "placeholder": "가이드 검색..."
+      "placeholder": "가이드 검색...",
+      "recentSearches": "검색 기록에서 찾기",
+      "noResults": "검색 결과가 없습니다",
+      "searchResults": "검색 결과",
+      "searching": "검색 중...",
+      "tryAgain": "다시 시도",
+      "suggestions": "추천 검색어",
+      "searchLocation": "여행지 검색",
+      "pressEnterToSearch": "Enter키를 눌러 검색하세요",
+      "searchPrompt": "{query} 검색하기",
+      "enterSearchTerm": "검색어를 입력하세요",
+      "clickToComplete": "클릭하여 완성",
+      "official": "공식"
     },
     "profile": {
       "user": "사용자",
@@ -481,6 +621,21 @@
       "upgradeToLive": "라이브 투어로 업그레이드",
       "liveTourBenefits": "실시간 위치 추적과 개인화된 가이드를 경험해보세요",
       "tryLiveTour": "라이브 투어 체험"
+    },
+    "footer": {
+      "companyName": "네비가이드AI",
+      "companyDescription": "AI 기반 맞춤형 여행 가이드 서비스로 더 스마트하고 개인화된 여행을 경험하세요.",
+      "copyright": "© 2024 네비가이드AI. All rights reserved.",
+      "legalInfo": "법적 정보",
+      "privacyPolicy": "개인정보처리방침",
+      "termsOfService": "이용약관", 
+      "aboutUs": "회사소개",
+      "contact": "연락처",
+      "support": "고객지원",
+      "telegramChannel": "Telegram 채널",
+      "supportHours": "평일 09:00 - 18:00 (KST)",
+      "adsenseNotice": "본 사이트는 Google AdSense를 사용하여 광고를 게재합니다.",
+      "adsensePolicy": "에서 쿠키 사용 및 광고 정책에 대한 자세한 내용을 확인하실 수 있습니다."
     }
   },
   "en": {
@@ -492,7 +647,11 @@
       "logout": "Logout",
       "history": "Search History",
       "profile": "Profile",
-      "settings": "Settings"
+      "settings": "Settings",
+      "currentSelectedLanguage": "Currently selected language",
+      "changeToLanguage": "Change to {language}",
+      "flagAltText": "{language} flag",
+      "profileAlt": "Profile"
     },
     "navigation": {
       "home": "Home",
@@ -510,6 +669,33 @@
       "searchButton": "Generate Guide",
       "popularDestinations": "Popular Destinations",
       "description": "The most perfect guide commentary found by AI",
+      "stepTitles": {
+        "inputLocation": "Enter Location",
+        "aiGenerate": "AI Generate",
+        "audioPlay": "Audio Play"
+      },
+      "stepDescriptions": {
+        "inputLocation": "Enter the name of the place you're curious about",
+        "aiGenerate": "Generate customized guide in real-time",
+        "audioPlay": "Vivid on-site commentary by voice"
+      },
+      "regionTitles": {
+        "popularCountries": "🌍 Popular Travel Countries",
+        "europe": "Europe",
+        "asia": "Asia", 
+        "americas": "Americas"
+      },
+      "regionDescription": "Start your special audio guide journey with representative attractions from countries around the world",
+      "countryAttraction": "TOP ATTRACTIONS",
+      "startGuide": "Start Guide",
+      "destinations": "destinations",
+      "scrollHint": "Scroll left and right to see more countries",
+      "popularBadge": "POPULAR",
+      "alerts": {
+        "enterLocation": "Please enter a location first.",
+        "generationFailed": "Guide generation failed",
+        "networkError": "A network error occurred during guide generation."
+      },
       "searchPlaceholders": [
         "Eiffel Tower",
         "Taj Mahal",
@@ -866,6 +1052,53 @@
       "upgradeToLive": "Upgrade to Live Tour",
       "liveTourBenefits": "Experience real-time location tracking and personalized guides",
       "tryLiveTour": "Try Live Tour"
+    },
+    "search": {
+      "placeholder": "Search guides...",
+      "recentSearches": "Search in history",
+      "noResults": "No search results",
+      "searchResults": "Search Results",
+      "searching": "Searching...",
+      "tryAgain": "Try Again",
+      "suggestions": "Suggested searches",
+      "searchLocation": "Search destination",
+      "pressEnterToSearch": "Press Enter to search",
+      "searchPrompt": "Search for {query}",
+      "enterSearchTerm": "Enter search term",
+      "clickToComplete": "Click to complete",
+      "official": "Official"
+    },
+    "history": {
+      "noResults": "No search results",
+      "noHistory": "No search history",
+      "view": "View guide",
+      "delete": "Delete",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "invalidDate": "Invalid date",
+      "preview": "Guide preview",
+      "loadFailed": "History load failed",
+      "deleteFailed": "History delete failed",
+      "searchInHistory": "Search in history",
+      "searchPlaces": "Search for places",
+      "totalGuides": "Total {count} guides",
+      "daysAgo": "{days} days ago",
+      "weeksAgo": "{weeks} weeks ago"
+    },
+    "footer": {
+      "companyName": "NaviGuideAI",
+      "companyDescription": "Experience smarter and more personalized travel with our AI-powered customized travel guide service.",
+      "copyright": "© 2024 NaviGuideAI. All rights reserved.",
+      "legalInfo": "Legal Information",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "aboutUs": "About Us",
+      "contact": "Contact",
+      "support": "Customer Support",
+      "telegramChannel": "Telegram Channel",
+      "supportHours": "Weekdays 09:00 - 18:00 (KST)",
+      "adsenseNotice": "This site uses Google AdSense to display advertisements.",
+      "adsensePolicy": "for more details about cookie usage and advertising policies."
     }
   },
   "ja": {
@@ -877,7 +1110,11 @@
       "logout": "ログアウト",
       "history": "検索履歴",
       "profile": "プロフィール",
-      "settings": "設定"
+      "settings": "設定",
+      "currentSelectedLanguage": "現在選択されている言語",
+      "changeToLanguage": "{language}に変更",
+      "flagAltText": "{language}の国旗",
+      "profileAlt": "プロフィール"
     },
     "navigation": {
       "home": "ホーム",
