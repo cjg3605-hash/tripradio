@@ -449,11 +449,11 @@ export default function HomePage() {
         </div>
 
         {/* Hero Section */}
-        <section className="relative z-10 flex flex-col items-center justify-center px-6 pt-12 pb-20">
+        <section className="relative z-10 flex flex-col items-center justify-center px-6 pt-12 pb-4">
           
           {/* Hero Typography */}
           <div className={`
-            pb-20 px-4 transform transition-all duration-1000
+            pb-4 px-4 transform transition-all duration-1000
             ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
           `}>
             {/* Main Title */}
@@ -461,22 +461,22 @@ export default function HomePage() {
               <div>
                 {/* 상단: 내손안의 (왼쪽 정렬) */}
                 <div className="mb-4 text-left">
-                  <span className="block font-bold text-2xl">
+                  <span className="block font-bold text-3xl md:text-5xl">
                     {t('home.brandTitle') || '내 손안의'}
                   </span>
                 </div>
                 
                 {/* 하단 중앙: 회전하는 단어들 */}
                 <div className="flex justify-center">
-                  <div className="overflow-hidden" style={{ height: '32px', lineHeight: '32px' }}>
+                  <div className="overflow-hidden" style={{ height: '48px', lineHeight: '48px' }}>
                     <span 
-                      className="inline-block transition-transform duration-1000 ease-out font-bold text-2xl"
+                      className="inline-block transition-transform duration-1000 ease-out font-bold text-3xl md:text-5xl"
                       style={{
-                        transform: `translateY(-${currentWord * 32}px)`
+                        transform: `translateY(-${currentWord * 48}px)`
                       }}
                     >
                       {words.map((word, index) => (
-                        <span key={index} className="block" style={{ height: '32px', lineHeight: '32px' }}>
+                        <span key={index} className="block" style={{ height: '48px', lineHeight: '48px' }}>
                           {word}
                         </span>
                       ))}
