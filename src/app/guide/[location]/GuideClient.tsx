@@ -20,7 +20,8 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     // 🔥 핵심 수정: content 래핑 구조 올바른 처리
     const normalizeGuideData = (data: any, locationName: string): GuideData => {
         if (!data) {
-            throw new Error(t('guide.noGuideData'));
+            const errorMessage = t('guide.noGuideData');
+            throw new Error(Array.isArray(errorMessage) ? errorMessage[0] : errorMessage);
         }
 
         // 🔥 핵심 수정: content 래핑 구조 올바른 처리
@@ -38,7 +39,8 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         }
         else {
             console.error('❌ Cannot find valid guide structure:', Object.keys(data));
-            throw new Error(t('guide.invalidGuideStructure'));
+            const errorMessage = t('guide.invalidGuideStructure');
+            throw new Error(Array.isArray(errorMessage) ? errorMessage[0] : errorMessage);
         }
 
         // 🎯 정규화된 GuideData 생성
