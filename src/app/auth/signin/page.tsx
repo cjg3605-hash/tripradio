@@ -230,34 +230,99 @@ function SignInContent() {
 
   // Google 로그인
   const handleGoogleSignIn = async (): Promise<void> => {
+    if (isLoading) return; // 중복 클릭 방지
+    
     setIsLoading(true);
     setErrors({});
     
     try {
       console.log('🔵 Google 로그인 시작...');
+      console.log('🔵 현재 URL:', window.location.href);
       console.log('🔵 CallbackUrl:', callbackUrl);
+      console.log('🔵 NextAuth URL:', process.env.NEXT_PUBLIC_NEXTAUTH_URL || 'undefined');
+      console.log('🔵 Base URL:', window.location.origin);
       
+      // 브라우저 호환성 확인
+      if (!window.crypto || !window.crypto.subtle) {
+        throw new Error('브라우저가 최신 보안 기능을 지원하지 않습니다. 브라우저를 업데이트해주세요.');
+      }
+      
+      // 팝업 차단 여부 확인
+      const popup = window.open('about:blank', '_blank');
+      if (!popup) {
+        throw new Error('팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.');
+      }
+      popup.close();
+      
+      // 타임아웃 설정
+      const timeout = setTimeout(() => {
+        setErrors({ general: '로그인 요청이 시간 초과되었습니다. 다시 시도해주세요.' });
+        setIsLoading(false);
+      }, 30000); // 30초 타임아웃
+      
+      console.log('🔵 signIn 호출 중...');
+      
+      // 첫 번째 시도: redirect: false로 시도
       const result = await signIn('google', {
-        callbackUrl,
+        callbackUrl: callbackUrl || '/',
         redirect: false
       });
       
-      console.log('🔵 Google 로그인 결과:', result);
+      clearTimeout(timeout);
+      
+      console.log('🔵 signIn 결과:', result);
       
       if (result?.error) {
         console.error('❌ Google 로그인 오류:', result.error);
-        setErrors({ 
-          general: `Google 로그인 실패: ${result.error}. 브라우저 설정을 확인하고 다시 시도해주세요.` 
-        });
+        let errorMessage = 'Google 로그인에 실패했습니다.';
+        
+        switch (result.error) {
+          case 'OAuthSignin':
+          case 'OAuthCallback':
+            errorMessage = 'Google 인증 서버와의 통신에 실패했습니다. Google Cloud Console 설정을 확인해주세요.';
+            break;
+          case 'OAuthCreateAccount':
+            errorMessage = '계정 생성에 실패했습니다. 다시 시도해주세요.';
+            break;
+          case 'EmailCreateAccount':
+            errorMessage = '이메일 계정 생성에 실패했습니다.';
+            break;
+          case 'Callback':
+            errorMessage = '콜백 처리 중 오류가 발생했습니다.';
+            break;
+          case 'OAuthAccountNotLinked':
+            errorMessage = '이미 다른 방법으로 가입된 이메일입니다.';
+            break;
+          case 'EmailSignin':
+            errorMessage = '이메일 로그인 처리 중 오류가 발생했습니다.';
+            break;
+          case 'CredentialsSignin':
+            errorMessage = '로그인 정보가 올바르지 않습니다.';
+            break;
+          case 'SessionRequired':
+            errorMessage = '세션이 필요합니다. 다시 로그인해주세요.';
+            break;
+          default:
+            errorMessage = `로그인 오류: ${result.error}`;
+        }
+        
+        setErrors({ general: errorMessage });
       } else if (result?.ok) {
         console.log('✅ Google 로그인 성공');
-        // 성공 시 페이지 새로고침 또는 리다이렉트
+        // 성공 시 리다이렉트
         window.location.href = callbackUrl || '/';
+      } else if (result?.url) {
+        console.log('🔵 리다이렉트 URL:', result.url);
+        window.location.href = result.url;
+      } else {
+        console.warn('⚠️ 예상하지 못한 결과:', result);
+        setErrors({ general: '로그인 처리 중 알 수 없는 오류가 발생했습니다.' });
       }
+      
     } catch (error) {
       console.error('❌ Google 로그인 예외:', error);
       setErrors({ 
-        general: '로그인 중 네트워크 오류가 발생했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.' 
+        general: error instanceof Error ? error.message : '로그인 중 네트워크 오류가 발생했습니다.' 
       });
     } finally {
       setIsLoading(false);

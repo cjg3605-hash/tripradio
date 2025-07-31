@@ -12,7 +12,17 @@ export const authOptions: NextAuthOptions = {
         params: {
           prompt: "consent",
           access_type: "offline",
-          response_type: "code"
+          response_type: "code",
+          scope: "openid email profile"
+        }
+      },
+      profile(profile) {
+        console.log('🔵 Google profile received:', profile);
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
         }
       }
     }),
@@ -88,14 +98,33 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
+        console.log('🔵 SignIn callback triggered');
+        console.log('🔵 User:', user);
+        console.log('🔵 Account:', account);
+        console.log('🔵 Profile:', profile);
+        
         if (account?.provider === 'google') {
-          console.log('Google sign-in attempt:', user.email);
+          console.log('🔵 Google sign-in attempt for:', user.email);
+          console.log('🔵 Google account details:', {
+            provider: account.provider,
+            type: account.type,
+            providerAccountId: account.providerAccountId
+          });
+          
           // Google 로그인 성공 시 추가 검증 로직
+          if (!user.email) {
+            console.error('❌ No email provided by Google');
+            return false;
+          }
+          
+          console.log('✅ Google sign-in approved for:', user.email);
           return true;
         }
+        
+        console.log('✅ Other provider sign-in approved');
         return true;
       } catch (error) {
-        console.error('Sign-in callback error:', error);
+        console.error('❌ Sign-in callback error:', error);
         return false;
       }
     },
