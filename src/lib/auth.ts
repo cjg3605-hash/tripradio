@@ -8,23 +8,6 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code",
-          scope: "openid email profile"
-        }
-      },
-      profile(profile) {
-        console.log('🔵 Google profile received:', profile);
-        return {
-          id: profile.sub,
-          name: profile.name,
-          email: profile.email,
-          image: profile.picture,
-        }
-      }
     }),
     CredentialsProvider({
       id: 'credentials',
@@ -96,53 +79,12 @@ export const authOptions: NextAuthOptions = {
     }
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
-      try {
-        console.log('🔵 SignIn callback triggered');
-        console.log('🔵 User:', user);
-        console.log('🔵 Account:', account);
-        console.log('🔵 Profile:', profile);
-        
-        if (account?.provider === 'google') {
-          console.log('🔵 Google sign-in attempt for:', user.email);
-          console.log('🔵 Google account details:', {
-            provider: account.provider,
-            type: account.type,
-            providerAccountId: account.providerAccountId
-          });
-          
-          // Google 로그인 성공 시 추가 검증 로직
-          if (!user.email) {
-            console.error('❌ No email provided by Google');
-            return false;
-          }
-          
-          console.log('✅ Google sign-in approved for:', user.email);
-          return true;
-        }
-        
-        console.log('✅ Other provider sign-in approved');
-        return true;
-      } catch (error) {
-        console.error('❌ Sign-in callback error:', error);
-        return false;
-      }
-    },
-    async jwt({ token, user, trigger, session, account }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
       }
-      
-      if (account?.provider === 'google') {
-        token.provider = 'google';
-      }
-      
-      if (trigger === 'update' && session) {
-        token = { ...token, ...session };
-      }
-      
       return token;
     },
     async session({ session, token }) {
@@ -152,34 +94,6 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name as string;
       }
       return session;
-    },
-    async redirect({ url, baseUrl }) {
-      // 더 안전한 리다이렉트 처리
-      try {
-        if (url.startsWith('/')) {
-          return `${baseUrl}${url}`;
-        }
-        else if (new URL(url).origin === baseUrl) {
-          return url;
-        }
-        return baseUrl;
-      } catch (error) {
-        console.error('Redirect callback error:', error);
-        return baseUrl;
-      }
-    }
-  },
-  events: {
-    async signIn({ user, account, profile }) {
-      console.log('User signed in:', user.email, 'via', account?.provider);
-    },
-    async signOut({ token, session }) {
-      console.log('User signed out');
-    },
-    async session({ session, token }) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Session verified:', session.user?.email);
-      }
     }
   },
   debug: process.env.NODE_ENV === 'development',
