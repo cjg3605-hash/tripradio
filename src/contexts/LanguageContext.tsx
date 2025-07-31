@@ -75,6 +75,7 @@ interface Translations {
     history: string;
     profile: string;
     settings: string;
+    currentSelectedLanguage: string;
   };
   navigation: {
     home: string;
@@ -178,6 +179,7 @@ interface Translations {
     tryAgain: string;
     suggestions: string;
     recentSearches: string;
+    pressEnterToSearch: string;
   };
   errors: {
     networkError: string;
@@ -324,7 +326,8 @@ const DEFAULT_TRANSLATIONS: Translations = {
     logout: '로그아웃',
     history: '히스토리',
     profile: '프로필',
-    settings: '설정'
+    settings: '설정',
+    currentSelectedLanguage: '현재 선택된 언어'
   },
   navigation: {
     home: '홈',
@@ -507,7 +510,8 @@ const DEFAULT_TRANSLATIONS: Translations = {
     noResults: '검색 결과가 없습니다',
     tryAgain: '다시 시도',
     suggestions: '추천 검색어',
-    recentSearches: '최근 검색'
+    recentSearches: '최근 검색',
+    pressEnterToSearch: 'Enter키를 눌러 검색하세요'
   },
   errors: {
     networkError: '네트워크 오류가 발생했습니다',

@@ -23,7 +23,7 @@
     },
     "home": {
       "brandTitle": "내손안의",
-      "title": "내손안의 도슨트",
+      "title": "내손안의 도슨트", 
       "subtitle": "가이드없이 자유롭게,",
       "subtitle2": "여행은 깊이있게",
       "searchPlaceholder": "어디로 떠나고 싶으신가요?",
@@ -44,7 +44,7 @@
       "popularBadge": "POPULAR",
       "stepTitles": {
         "inputLocation": "장소 입력",
-        "aiGenerate": "AI 생성", 
+        "aiGenerate": "AI 생성",
         "audioPlay": "오디오 재생"
       },
       "stepDescriptions": {
@@ -52,13 +52,6 @@
         "aiGenerate": "AI가 맞춤형 가이드를 생성합니다",
         "audioPlay": "생성된 가이드를 음성으로 들어보세요"
       },
-      "regionTitles": {
-        "popularCountries": "인기 여행 국가",
-        "europe": "유럽",
-        "asia": "아시아",
-        "americas": "아메리카"
-      },
-      "regionDescription": "다양한 지역의 인기 여행지를 둘러보세요",
       "alerts": {
         "enterLocation": "먼저 장소를 입력해주세요.",
         "generationFailed": "가이드 생성에 실패했습니다",
@@ -66,7 +59,7 @@
       },
       "searchPlaceholders": [
         "에펠탑",
-        "타지마할", 
+        "타지마할",
         "마추픽추",
         "콜로세움",
         "자유의 여신상"
@@ -78,7 +71,7 @@
       ],
       "features": {
         "realTime": "실시간가이드",
-        "personalized": "맞춤형추천",  
+        "personalized": "맞춤형추천",
         "multiLanguage": "다국어지원",
         "offline": "오프라인사용",
         "storyteller": "스토리텔러",
@@ -166,266 +159,85 @@
         }
       }
     },
+    "search": {
+      "placeholder": "검색어를 입력하세요",
+      "searching": "검색 중...",
+      "noResults": "검색 결과가 없습니다",
+      "tryAgain": "다시 시도",
+      "suggestions": "추천 검색어",
+      "recentSearches": "최근 검색",
+      "pressEnterToSearch": "Enter키를 눌러 검색하세요",
+      "clear": "지우기",
+      "enterLocation": "먼저 장소를 입력해주세요",
+      "searchButton": "검색하기",
+      "searchLocation": "여행지 검색",
+      "searchPrompt": "{query} 검색하기",
+      "searchResults": "검색 결과"
+    },
     "guide": {
-      "overview": "투어 개요",
-      "route": "추천 관람순서",
-      "realTimeGuide": "실시간 오디오 가이드",
-      "play": "재생",
-      "pause": "일시정지",
-      "stop": "정지",
-      "next": "다음",
-      "previous": "이전",
-      "startingLocation": "시작 위치",
-      "viewOnGoogleMaps": "구글맵에서 보기",
-      "keyFacts": "핵심 정보",
+      "loading": "가이드 로딩 중...",
+      "error": "가이드를 불러올 수 없습니다",
+      "chapters": "챕터",
       "duration": "소요시간",
       "difficulty": "난이도",
-      "season": "추천 계절",
-      "nextMove": "다음으로 이동",
-      "downloadAudio": "오디오 다운로드",
-      "share": "공유하기",
+      "nextChapter": "다음 챕터",
+      "previousChapter": "이전 챕터",
+      "playAudio": "오디오 재생",
+      "pauseAudio": "오디오 일시정지",
+      "mapView": "지도 보기",
+      "listView": "목록 보기", 
       "essentialInfo": "필수 정보",
       "locationAccess": "위치 및 접근",
       "keyFeatures": "주요 특징",
       "historicalContext": "역사적 배경",
       "mustSeeHighlights": "필수 관람 포인트",
       "safetyGuidelines": "안전 수칙",
-      "noGuideData": "가이드 데이터가 없습니다",
-      "chapterTitle": "챕터",
-      "locationNameMissing": "위치 이름이 없습니다",
-      "guideGenerationFailed": "가이드 생성에 실패했습니다",
-      "unknownError": "알 수 없는 오류가 발생했습니다",
-      "guidePreparing": "가이드 준비 중",
-      "aiGeneratingCustomGuide": "AI가 맞춤형 가이드를 생성하고 있어요...",
-      "errorOccurred": "오류 발생",
-      "backToHome": "홈으로 돌아가기",
-      "guideNotFound": "가이드를 찾을 수 없습니다",
-      "cannotLoadGuideData": "요청하신 가이드 데이터를 불러올 수 없습니다",
-      "invalidGuideStructure": "올바른 가이드 데이터 구조가 아닙니다",
-      "guideLoadFailed": "가이드 로드 실패",
-      "guideLoadError": "가이드 로드 중 오류가 발생했습니다",
-      "loadingGuideData": "가이드 불러오는 중",
-      "preparingMultilingualGuide": "다국어 가이드 데이터를 준비하고 있어요...",
-      "generating": "생성 중...",
-      "generateGuide": "가이드 생성",
-      "availableLanguages": "사용 가능한 언어:",
-      "languageChangeNote": "언어 설정에서 변경하면 자동으로 전환됩니다",
-      "generatingNewGuide": "새로운 가이드를 생성하고 있습니다...",
-      "pleaseWait": "잠시만 기다려주세요",
-      "keyboardShortcuts": "키보드 단축키",
-      "contentLoading": "콘텐츠 로딩 중",
-      "noCoordinatesForMap": "좌표 정보가 없어 지도를 표시할 수 없습니다",
-      "totalChaptersValidCoordinates": "총 {total}개 챕터 중 유효한 좌표: {valid}개",
-      "noLocationName": "위치 이름이 없습니다",
-      "thisPlace": "이곳",
-      "tourStart": "{location} 투어 시작",
-      "introNarrative": "{location}에 오신 것을 환영합니다. {locationInfo}에 위치한 이곳은 {features}으로 유명합니다. {background}을 간직한 특별한 장소로 여러분을 안내하겠습니다.",
-      "specialPlace": "특별한 장소",
-      "uniqueCharm": "독특한 매력",
-      "richHistory": "풍부한 역사",
-      "startMainTour": "{location} 본격적인 투어를 시작합니다",
-      "guideTitle": "가이드",
       "realTimeGuideTitle": "실시간 가이드",
-      "aiCustomAudioGuide": "AI 맞춤 오디오 가이드",
-      "chapters": "개 챕터",
       "overview": "개요",
-      "essentialInfo": "필수 정보",
-      "locationAccess": "위치 및 접근",
-      "keyFeatures": "주요 특징",
-      "historicalContext": "역사적 배경",
-      "mustSeePoints": "필수 관람 포인트",
-      "mustSeeHighlights": "놓치면 안 될 하이라이트",
+      "mustSeePoints": "필수관람포인트",
       "precautions": "주의사항",
-      "safetyGuidelines": "안전 수칙",
+      "viewingOrder": "관람순서",
       "audioGuide": "오디오 가이드",
-      "viewingOrder": "관람 순서",
-      "chaptersCount": "총 {count}개 챕터",
-      "intro": "시작",
+      "thisPlace": "이곳",
+      "tourStart": "투어 시작",
+      "guideTitle": "가이드",
+      "loadingGuide": "가이드 로딩 중",
+      "fetchingGuideData": "가이드 데이터를 가져오는 중",
       "currentChapter": "현재 챕터",
       "nextMoveGuide": "다음 이동 안내",
-      "autoGeneratedIntro": "자동 생성된 인트로 챕터",
-      "showAudioPlayer": "오디오 플레이어 보기",
-      "tourStartLocation": "투어 시작 위치",
-      "loadingGuide": "가이드 로딩 중",
-      "fetchingGuideData": "가이드 데이터를 가져오는 중입니다",
-      "generationFailed": "가이드 생성에 실패했습니다",
-      "preparing": "\"{location}\" 가이드 준비 중",
-      "notFound": "가이드를 찾을 수 없습니다",
-      "cannotLoad": "요청하신 가이드 데이터를 불러올 수 없습니다",
-      "tourStart": "{location} 여행의 시작",
-      "introNarrative": "{location}에 오신 것을 환영합니다. 이곳은 {locationInfo}로, {features}입니다. {background}는 잊을 수 없는 경험을 하실 수 있을 것입니다. 지금부터 시작되는 여정에서 {location}의 모든 것을 탐험해보세요.",
-      "specialPlace": "특별한 장소",
-      "uniqueCharm": "독특한 매력을 가진 곳",
-      "richHistory": "풍부한 역사와 문화를 간직한 이 장소에서",
-      "startMainTour": "이제 {location}의 첫 번째 핵심 공간으로 함께 이동하여 본격적인 투어를 시작해보겠습니다.",
-      "ttsGenerationFailed": "TTS 생성 실패",
-      "audioPlaybackError": "음성 재생 중 오류가 발생했습니다.",
-      "audioServiceError": "음성 서비스 설정 오류입니다. 관리자에게 문의해주세요.",
-      "audioGenerationRetry": "음성 생성에 실패했습니다. 잠시 후 다시 시도해주세요.",
-      "checkNetworkConnection": "네트워크 연결을 확인해주세요.",
-      "loadingGuide": "가이드를 불러오는 중",
-      "fetchingGuideData": "저장된 가이드 데이터를 가져오고 있어요...",
-      "chaptersCount": "{count}개 챕터"
-    },
-    "audio": {
-      "chapter": "챕터"
-    },
-    "location": {
-      "accuracyInfo": "위치 정확도 정보",
-      "permissionRequired": "위치 권한이 필요합니다",
-      "permissionForAccuracy": "정확한 위치 확인을 위해 권한을 허용해주세요",
-      "allowLocation": "위치 허용"
-    },
-    "legal": {
-      "privacy": {
-        "title": "개인정보 처리방침",
-        "description": "가이드AI 서비스의 개인정보 처리방침입니다",
-        "content": "가이드AI는 사용자의 개인정보를 소중히 여기며, 개인정보보호법에 따라 개인정보를 안전하게 처리하고 있습니다.",
-        "lastUpdated": "최종 업데이트"
-      },
-      "terms": {
-        "title": "이용약관",
-        "description": "가이드AI 서비스 이용약관입니다",
-        "content": "본 약관은 가이드AI 서비스 이용에 관한 기본적인 사항을 규정합니다.",
-        "lastUpdated": "최종 업데이트"
-      },
-      "about": {
-        "title": "가이드AI 소개",
-        "description": "AI 기반 개인맞춤형 여행 가이드 서비스",
-        "lastUpdated": "최종 업데이트"
-      },
-      "contact": {
-        "title": "문의하기", 
-        "description": "가이드AI 서비스 관련 문의",
-        "lastUpdated": "최종 업데이트"
-      }
-    },
-    "mypage": {
-      "autoGeneratedIntro": "자동 생성된 인트로 챕터",
-      "currentLocation": "현재 위치",
-      "points": "개 지점",
-      "current": "현재:",
-      "selectLocation": "위치를 선택해주세요",
-      "analyzingLocation": "위치 정보를 분석하고 있어요...",
-      "collectingHistory": "역사적 정보를 수집하고 있어요...",
-      "creatingCustomContent": "맞춤형 콘텐츠를 만들고 있어요...",
-      "generatingAudioChapters": "오디오 챕터를 생성하고 있어요...",
-      "finalizingGuide": "가이드를 완성하고 있어요...",
-      "aiGuideGenerating": "AI 가이드 생성 중",
-      "personalGuideCreating": "{location}의 개인 가이드를 만들고 있어요",
-      "percentComplete": "{progress}% 완료",
-      "customizingToYourTaste": "당신의 취향에 맞춰 맞춤화 중:",
-      "metricsQueryFailed": "메트릭 조회 실패",
-      "unknownErrorOccurred": "알 수 없는 오류",
-      "confirmClearAllMetrics": "모든 메트릭을 초기화하시겠습니까?",
-      "metricsInitializationFailed": "메트릭 초기화 실패",
-      "metricsInitialized": "메트릭이 초기화되었습니다",
-      "initializationFailed": "초기화에 실패했습니다",
-      "loadingMetrics": "메트릭을 불러오는 중...",
-      "errorOccurredSymbol": "❌오류 발생",
-      "performanceMonitoring": "🏁 가이드AI 성능 모니터링",
-      "autoRefresh": "자동 갱신 (10초)",
-      "thisPlace": "이곳",
-      "travelStart": "{location} 여행의 시작",
-      "realTimeGuideTitle": "실시간 가이드",
-      "aiCustomAudioGuide": "AI 맞춤형 오디오 가이드",
-      "chapters": "개 챕터",
-      "guideTitle": "가이드",
-      "overview": "개요",
-      "mustSeePoints": "필수 관람 포인트",
-      "precautions": "주의사항",
-      "viewingOrder": "관람 순서",
+      "autoGeneratedIntro": "자동 생성된 인트로",
       "intro": "인트로",
-      "nextMoveGuide": "다음 이동 안내",
-      "entireAudioTour": "전체 오디오 투어",
-      "chaptersWithIntro": "{count}개 챕터 (인트로 포함) • 약 {minutes}분",
-      "playAll": "전체 재생",
-      "fileGuides": "파일 가이드",
-      "frequentPlaces": "자주 방문하는 장소",
-      "primaryLanguage": "주 사용 언어",
-      "personalizedDiagnosis": "개인화 가이드 맞춤 진단",
-      "diagnosisComplete": "진단 완료",
-      "diagnosisResult": "진단 결과",
-      "reliability": "신뢰도",
-      "diagnosed": "진단됨",
-      "contentDepth": "콘텐츠 깊이",
-      "guideStyle": "가이드 스타일",
-      "interaction": "상호작용",
-      "emotionalTone": "감정적 톤",
-      "retakeDiagnosis": "다시 진단하기",
-      "personalizedGuideActive": "이제 모든 가이드가 당신의 성격에 맞게 자동으로 개인화됩니다!",
-      "personalityTraits": {
-        "conscientiousness": "성실성"
-      },
-      "contentDepthLevels": {
-        "veryDetailed": "매우 상세함"
-      },
-      "guideStyles": {
-        "academic": "학술적"
-      },
-      "interactionLevels": {
-        "veryActive": "매우 활발함"
-      },
-      "emotionalTones": {
-        "enthusiastic": "열정적"
-      }
+      "aiCustomAudioGuide": "AI 맞춤형 오디오 가이드",
+      "generating": "가이드 생성 중...",
+      "generatingSubtitle": "AI가 맞춤형 가이드를 생성하고 있습니다"
     },
-    "search": {
-      "recentSearches": "최근 검색",
-      "suggestions": "추천 검색어",
-      "noResults": "검색 결과가 없습니다",
-      "searching": "검색 중...",
-      "clear": "지우기",
-      "enterLocation": "먼저 장소를 입력해주세요",
-      "placeholder": "어디로 떠나고 싶으신가요?",
-      "searchButton": "검색하기",
-      "pressEnterToSearch": "Enter키를 눌러 검색하세요"
+    "live": {
+      "shareTitle": "AI 가이드 공유",
+      "shareText": "이 멋진 가이드를 확인해보세요!"
     },
-    "audio": {
-      "audioGuide": "오디오 가이드",
-      "previousChapter": "이전 챕터",
-      "nextChapter": "다음 챕터",
-      "play": "재생",
-      "pause": "일시정지",
-      "mute": "음소거",
-      "unmute": "음소거 해제",
-      "regenerate": "새로운 음성으로 재생성",
-      "generating": "TTS 생성 중",
-      "unknown_error": "알 수 없는 오류가 발생했습니다."
+    "errors": {
+      "networkError": "네트워크 오류가 발생했습니다",
+      "serverError": "서버 오류가 발생했습니다", 
+      "notFound": "페이지를 찾을 수 없습니다",
+      "unauthorized": "인증이 필요합니다",
+      "forbidden": "접근 권한이 없습니다",
+      "generalError": "오류가 발생했습니다"
     },
-    "feedback": {
-      "submit": "피드백 제출하기",
-      "submitting": "제출 중...",
+    "common": {
+      "loading": "로딩 중...",
+      "error": "오류",
+      "success": "성공",
+      "warning": "경고",
+      "info": "정보",
       "cancel": "취소",
-      "placeholder": "더 좋은 가이드를 위한 의견을 자유롭게 작성해주세요...",
-      "submitFailed": "피드백 제출에 실패했습니다. 다시 시도해주세요.",
-      "ratings": {
-        "1": "매우 불만족",
-        "2": "불만족",
-        "3": "보통", 
-        "4": "만족",
-        "5": "매우 만족"
-      },
-      "suggestions": [
-        "더 구체적인 역사적 사실 필요",
-        "재미있는 스토리 부족",
-        "전문 용어 설명 필요",
-        "문화적 배경 설명 부족",
-        "개인적 관심사 반영 부족",
-        "실용적 정보 부족",
-        "내용이 너무 길어서 지루함",
-        "내용이 너무 짧아서 아쉬움"
-      ]
-    },
-    "location": {
-      "myLocation": "내 위치로 이동",
-      "tracking": "내 위치 추적 중",
-      "startLocation": "시작 위치",
-      "selectLocation": "위치를 선택해주세요",
-      "locationInfo": "위치 정보",
-      "viewingOrder": "관람순서 지도",
-      "tourStart": "투어 시작 위치",
-      "permissionDenied": "위치 권한이 거부되었습니다. 브라우저 설정에서 위치 권한을 허용해주세요."
+      "confirm": "확인",
+      "save": "저장",
+      "delete": "삭제",
+      "edit": "편집",
+      "close": "닫기",
+      "hide": "숨기기",
+      "exists": "있음",
+      "notExists": "없음"
     },
     "history": {
       "noResults": "검색 결과가 없습니다",
@@ -444,176 +256,60 @@
       "daysAgo": "{days}일 전",
       "weeksAgo": "{weeks}주 전"
     },
-    "ui": {
-      "loadingMessages": {
-        "loading": [
-          "가이드를 불러오고 있어요...",
-          "데이터를 준비하고 있어요...",
-          "거의 완료되었어요..."
-        ],
-        "generating": [
-          "새로운 가이드를 만들고 있어요...",
-          "맞춤형 콘텐츠를 생성하고 있어요...",
-          "최종 확인 중이에요..."
-        ],
-        "saved": [
-          "저장된 가이드를 찾고 있어요...",
-          "데이터를 가져오고 있어요...",
-          "준비가 거의 끝났어요..."
-        ]
-      },
-      "generating": {
-        "steps": [
-          "위치 정보를 분석하고 있어요...",
-          "역사적 정보를 수집하고 있어요...",
-          "맞춤형 콘텐츠를 만들고 있어요...",
-          "오디오 챕터를 생성하고 있어요...",
-          "가이드를 완성하고 있어요..."
-        ]
-      },
-      "back": "뒤로 가기",
-      "loading": "로딩 중",
-      "checking": "확인 중...",
-      "recheck": "다시 확인"
-    },
-    "errors": {
-      "networkError": "네트워크 연결을 확인해주세요",
-      "serverError": "서버 오류가 발생했습니다",
-      "notFound": "페이지를 찾을 수 없습니다",
-      "retry": "다시 시도"
-    },
-    "common": {
-      "loading": "로딩 중...",
-      "save": "저장",
-      "cancel": "취소",
-      "confirm": "확인",
-      "delete": "삭제",
-      "edit": "편집",
-      "back": "뒤로",
-      "close": "닫기",
-      "yes": "예",
-      "no": "아니오",
-      "pressEnterToOpen": "Enter키를 눌러 언어 메뉴를 열 수 있습니다",
-      "clickToSelectLanguage": "클릭하여 언어 선택",
-      "exists": "있음",
-      "notExists": "없음",
-      "confirmDelete": "정말 삭제하시겠습니까?",
-      "languagesGenerated": "개 언어로 생성",
-      "total": "총",
-      "none": "없음",
-      "minutes": "분",
-      "chapters": "개 챕터",
-      "sortLatest": "최신순",
-      "sortName": "이름순",
-      "sortChapters": "챕터순",
-      "allLanguages": "모든 언어",
-      "completed": "완료",
-      "processing": "처리중",
-      "error": "오류",
-      "hide": "숨기기",
-      "showAudioPlayer": "오디오 플레이어 표시",
-      "daysAgo": "일 전",
-      "weeksAgo": "주 전"
-    },
     "date": {
       "today": "오늘",
       "yesterday": "어제",
-      "daysAgo": "{days}일 전",
-      "weeksAgo": "{weeks}주 전",
-      "invalidDate": "잘못된 날짜"
+      "tomorrow": "내일",
+      "thisWeek": "이번 주",
+      "lastWeek": "지난 주",
+      "thisMonth": "이번 달",
+      "lastMonth": "지난 달"
     },
     "profile": {
+      "name": "이름",
+      "email": "이메일",
+      "preferences": "설정",
+      "language": "언어",
+      "notifications": "알림",
+      "privacy": "개인정보",
+      "account": "계정",
+      "logout": "로그아웃",
       "mypage": "마이페이지",
-      "account": "계정 관리",
-      "preferences": "환경설정",
-      "dashboard": "대시보드",
-      "guides": "나의 가이드",
-      "settings": "설정"
+      "user": "사용자"
     },
     "mypage": {
       "title": "마이페이지",
-      "description": "나만의 AI 가이드 기록을 확인하고 관리하세요",
       "overview": "개요",
-      "overviewShort": "개요",
-      "guides": "내 가이드",
-      "guidesShort": "가이드",
-      "favoriteGuides": "즐겨찾기",
-      "favoritesShort": "즐겨찾기",
-      "fileGuides": "파일 가이드",
-      "filesShort": "파일",
+      "guides": "가이드",
       "settings": "설정",
-      "settingsShort": "설정",
-      "totalGuides": "생성한 가이드",
-      "completedTours": "완료한 투어",
-      "savedGuides": "저장된 가이드",
       "recentGuides": "최근 가이드",
-      "noGuides": "아직 생성한 가이드가 없습니다",
-      "accountInfo": "계정 정보",
-      "dataManagement": "데이터 관리",
-      "clearAllHistory": "모든 가이드 기록 삭제",
-      "joinDate": "가입일",
-      "personalizedDiagnosis": "개인화 진단",
-      "diagnosisComplete": "진단 완료",
-      "diagnosisResult": "진단 결과",
-      "reliability": "신뢰도",
-      "diagnosed": "진단됨",
-      "contentDepth": "콘텐츠 깊이",
-      "guideStyle": "가이드 스타일",
-      "interaction": "상호작용",
-      "emotionalTone": "감정적 어조",
-      "personalizedGuideActive": "개인화 가이드 활성화",
-      "personalityTraits": {
-        "conscientiousness": "성실성",
-        "openness": "개방성",
-        "extraversion": "외향성",
-        "agreeableness": "친화성",
-        "neuroticism": "신경성"
-      },
-      "contentDepthLevels": {
-        "veryDetailed": "매우 상세",
-        "detailed": "상세",
-        "moderate": "보통",
-        "simple": "간단",
-        "verySimple": "매우 간단"
-      },
-      "guideStyles": {
-        "academic": "학술적",
-        "conversational": "대화형",
-        "storytelling": "스토리텔링",
-        "practical": "실용적",
-        "visual": "시각적"
-      },
-      "interactionLevels": {
-        "veryActive": "매우 활발",
-        "active": "활발",
-        "moderate": "보통",
-        "passive": "수동적",
-        "veryPassive": "매우 수동적"
-      },
-      "emotionalTones": {
-        "enthusiastic": "열정적",
-        "friendly": "친근한",
-        "professional": "전문적",
-        "calm": "차분한",
-        "inspiring": "영감을 주는"
-      },
-      "aiSimulationInfo": "100만명 AI 시뮬레이션으로 검증된 5문항 진단으로",
-      "accuracy": "정확도",
-      "personalizedGuideProvided": "의 개인화 가이드를 제공합니다",
-      "timeRequired": "소요시간",
-      "countriesVerification": "개국 문화적 공정성 검증",
-      "retakeDiagnosis": "다시 진단하기",
-      "startDiagnosis": "진단 시작하기",
-      "primaryLanguage": "주 사용 언어",
-      "frequentPlaces": "자주 방문하는 장소들",
-      "noFavoriteGuides": "즐겨찾기한 가이드가 없습니다",
-      "addFavoriteGuides": "마음에 드는 가이드를 즐겨찾기로 추가해보세요!",
-      "createGuideFromFile": "파일에서 가이드 생성",
-      "uploadFileDescription": "PDF, Word, 텍스트 파일을 업로드하여 가이드를 생성할 수 있습니다",
-      "supportedFormats": "지원 형식: PDF, DOCX, TXT (최대 10MB)",
-      "noUploadedFiles": "업로드된 파일이 없습니다",
-      "uploadFirstFile": "첫 번째 파일을 업로드해보세요!",
-      "personalizedGuideActive": "이제 모든 가이드가 당신의 성격에 맞게 자동으로 개인화됩니다!"
+      "favoriteGuides": "즐겨찾기 가이드",
+      "totalGuides": "전체 가이드",
+      "completedTours": "완료된 투어",
+      "savedLocations": "저장된 장소"
+    },
+    "auth": {
+      "login": "로그인",
+      "register": "회원가입",
+      "email": "이메일",
+      "password": "비밀번호",
+      "confirmPassword": "비밀번호 확인",
+      "forgotPassword": "비밀번호 찾기",
+      "rememberMe": "로그인 상태 유지",
+      "loginWithGoogle": "Google로 로그인",
+      "loginWithFacebook": "Facebook으로 로그인",
+      "createAccount": "계정 만들기",
+      "alreadyHaveAccount": "이미 계정이 있으신가요?",
+      "noAccount": "계정이 없으신가요?",
+      "signin": "로그인",
+      "signout": "로그아웃"
+    },
+    "buttons": {
+      "submit": "제출",
+      "continue": "계속",
+      "goBack": "돌아가기",
+      "tryAgain": "다시 시도",
+      "viewDetails": "자세히 보기"
     },
     "languages": {
       "ko": "한국어",
@@ -622,119 +318,48 @@
       "zh": "中文",
       "es": "Español"
     },
-    "legal": {
-      "privacy": {
-        "title": "개인정보처리방침",
-        "description": "NAVI-GUIDE의 개인정보 처리 방침을 안내합니다.",
-        "content": "NAVI-GUIDE는 개인정보보호법에 따라 이용자의 개인정보 보호 및 권익을 보호하고 개인정보와 관련한 이용자의 고충을 원활하게 처리할 수 있도록 다음과 같은 처리방침을 두고 있습니다.",
-        "lastUpdated": "최종 업데이트"
-      },
-      "terms": {
-        "title": "이용약관",
-        "description": "NAVI-GUIDE 서비스 이용약관을 안내합니다.",
-        "content": "본 약관은 NAVI-GUIDE가 제공하는 AI 기반 여행 가이드 서비스의 이용조건 및 절차에 관한 사항을 규정함을 목적으로 합니다.",
-        "lastUpdated": "최종 업데이트"
-      }
-    },
-    "auth": {
-      "signin": "로그인",
-      "signup": "회원가입",
-      "signout": "로그아웃",
-      "email": "이메일",
-      "password": "비밀번호",
-      "name": "이름",
-      "confirmPassword": "비밀번호 확인",
-      "emailVerification": "이메일 인증",
-      "verificationCode": "인증 코드",
-      "sendCode": "인증 코드 전송",
-      "resendCode": "인증 코드 재전송",
-      "forgotPassword": "비밀번호 찾기",
-      "loginWithGoogle": "구글로 로그인",
-      "alreadyHaveAccount": "이미 계정이 있으신가요?",
-      "noAccount": "계정이 없으신가요?"
-    },
-    "buttons": {
-      "submit": "제출",
-      "continue": "계속",
-      "goBack": "돌아가기",
-      "goHome": "홈으로 돌아가기",
-      "tryAgain": "다시 시도",
-      "viewDetails": "자세히 보기",
-      "createGuide": "가이드 생성하기",
-      "selectFile": "파일 선택",
-      "save": "변경사항 저장"
-    },
-    "search": {
-      "placeholder": "가이드 검색...",
-      "recentSearches": "검색 기록에서 찾기",
-      "noResults": "검색 결과가 없습니다",
-      "searchResults": "검색 결과",
-      "searching": "검색 중...",
-      "tryAgain": "다시 시도",
-      "suggestions": "추천 검색어",
-      "searchLocation": "여행지 검색",
-      "pressEnterToSearch": "Enter키를 눌러 검색하세요",
-      "searchPrompt": "{query} 검색하기",
-      "enterSearchTerm": "검색어를 입력하세요",
-      "clickToComplete": "클릭하여 완성",
-      "official": "공식"
-    },
-    "profile": {
-      "user": "사용자",
-      "name": "이름",
-      "email": "이메일",
-      "language": "기본 언어",
-      "notifications": "알림 설정",
-      "newFeatureNotifications": "새로운 기능 알림",
-      "guideCompleteNotifications": "가이드 생성 완료 알림",
-      "marketingEmails": "마케팅 이메일 수신",
-      "dataManagement": "데이터 관리",
-      "exportData": "데이터 내보내기",
-      "exportDescription": "모든 가이드 데이터를 JSON 형태로 다운로드",
-      "deleteAllData": "모든 데이터 삭제",
-      "deleteDescription": "저장된 모든 가이드와 설정을 삭제합니다",
-      "manageProfile": "프로필 정보를 관리하세요",
-      "enterName": "이름을 입력하세요",
-      "emailNotEditable": "이메일은 변경할 수 없습니다"
-    },
-    "guide": {
-      "noGuides": "가이드가 없습니다",
-      "createNewGuide": "새로운 가이드를 생성해보세요!",
-      "audioGuide": "오디오 가이드"
-    },
-    "features": {
-      "upgradeToLive": "라이브 투어로 업그레이드",
-      "liveTourBenefits": "실시간 위치 추적과 개인화된 가이드를 경험해보세요",
-      "tryLiveTour": "라이브 투어 체험"
+    "audio": {
+      "chapter": "챕터",
+      "play": "재생",
+      "pause": "일시정지",
+      "stop": "정지",
+      "previous": "이전",
+      "next": "다음",
+      "volume": "볼륨",
+      "mute": "음소거",
+      "unmute": "음소거 해제",
+      "loading": "로딩 중",
+      "error": "오디오 오류",
+      "ended": "재생 완료"
     },
     "footer": {
-      "companyName": "네비가이드AI",
-      "companyDescription": "AI 기반 맞춤형 여행 가이드 서비스로 더 스마트하고 개인화된 여행을 경험하세요.",
-      "copyright": "© 2024 네비가이드AI. All rights reserved.",
+      "companyName": "GUIDE AI",
+      "companyDescription": "AI 기반 개인화 여행 가이드 서비스",
+      "copyright": "© 2024 GUIDE AI. All rights reserved.",
       "legalInfo": "법적 정보",
-      "privacyPolicy": "개인정보처리방침",
-      "termsOfService": "이용약관", 
+      "privacyPolicy": "개인정보 처리방침",
+      "termsOfService": "이용약관",
       "aboutUs": "회사소개",
-      "contact": "연락처",
+      "contact": "문의하기",
       "support": "고객지원",
-      "telegramChannel": "Telegram 채널",
-      "supportHours": "평일 09:00 - 18:00 (KST)",
-      "adsenseNotice": "본 사이트는 Google AdSense를 사용하여 광고를 게재합니다.",
-      "adsensePolicy": "에서 쿠키 사용 및 광고 정책에 대한 자세한 내용을 확인하실 수 있습니다."
+      "telegramChannel": "텔레그램 채널",
+      "supportHours": "지원시간: 평일 9시-18시",
+      "adsenseNotice": "광고 수익 공지",
+      "adsensePolicy": "AdSense 정책"
     },
-    "feedback": {
-      "ratings": {
-        "1": "매우 불만족",
-        "2": "불만족",
-        "3": "보통",
-        "4": "만족",
-        "5": "매우 만족"
+    "legal": {
+      "terms": {
+        "title": "이용약관",
+        "description": "GUIDE AI 서비스 이용약관",
+        "content": "서비스 이용에 관한 약관 내용",
+        "lastUpdated": "최종 업데이트"
       },
-      "submitFailed": "피드백 제출에 실패했습니다. 다시 시도해주세요."
-    },
-    "audio": {
-      "audioGuide": "오디오 가이드",
-      "unknown_error": "알 수 없는 오류가 발생했습니다."
+      "privacy": {
+        "title": "개인정보 처리방침",
+        "description": "GUIDE AI 개인정보 처리방침",
+        "content": "개인정보 처리에 관한 방침 내용",
+        "lastUpdated": "최종 업데이트"
+      }
     }
   },
   "en": {
@@ -760,10 +385,10 @@
       "contact": "Contact"
     },
     "home": {
-      "brandTitle": "AI Guide in Your Hand",
-      "title": "AI Travel Guide in Your Hand",
-      "subtitle": "Freely without a guide,",
-      "subtitle2": "Travel with depth",
+      "brandTitle": "Your Pocket",
+      "title": "Your Pocket Docent",
+      "subtitle": "Travel freely without guides,",
+      "subtitle2": "yet experience deeply",
       "searchPlaceholder": "Where would you like to go?",
       "searchButton": "Generate Guide",
       "popularDestinations": "Popular Destinations",
@@ -771,10 +396,10 @@
       "regionTitles": {
         "popularCountries": "🌍 Popular Travel Countries",
         "europe": "Europe",
-        "asia": "Asia", 
+        "asia": "Asia",
         "americas": "Americas"
       },
-      "regionDescription": "Start your special audio guide journey with representative attractions from countries around the world",
+      "regionDescription": "Start a special audio guide journey with representative tourist attractions from around the world",
       "countryAttraction": "TOP ATTRACTIONS",
       "startGuide": "Start Guide",
       "destinations": "destinations",
@@ -782,21 +407,14 @@
       "popularBadge": "POPULAR",
       "stepTitles": {
         "inputLocation": "Enter Location",
-        "aiGenerate": "AI Generate", 
-        "audioPlay": "Audio Play"
+        "aiGenerate": "AI Generate",
+        "audioPlay": "Audio Playback"
       },
       "stepDescriptions": {
         "inputLocation": "Enter the name of the place you're curious about",
         "aiGenerate": "AI generates a customized guide",
         "audioPlay": "Listen to the generated guide with audio"
       },
-      "regionTitles": {
-        "popularCountries": "Popular Travel Countries",
-        "europe": "Europe",
-        "asia": "Asia",
-        "americas": "Americas"
-      },
-      "regionDescription": "Explore popular destinations from various regions",
       "alerts": {
         "enterLocation": "Please enter a location first.",
         "generationFailed": "Guide generation failed",
@@ -845,37 +463,37 @@
         "uk": {
           "name": "United Kingdom",
           "attractions": ["Big Ben", "Tower Bridge", "Buckingham Palace"],
-          "description": "Harmonious blend of tradition and modernity"
+          "description": "British Empire with traditional and modern harmony"
         },
         "germany": {
           "name": "Germany",
           "attractions": ["Brandenburg Gate", "Neuschwanstein Castle", "Cologne Cathedral"],
-          "description": "Fairy-tale castles and deep historical heritage"
+          "description": "Land of fairy tale castles and deep history"
         },
         "japan": {
           "name": "Japan",
-          "attractions": ["Mount Fuji", "Kiyomizu-dera", "Senso-ji"],
-          "description": "Mysterious land where tradition and cutting-edge coexist"
+          "attractions": ["Mount Fuji", "Kiyomizu-dera", "Sensoji Temple"],
+          "description": "Mysterious country where tradition and cutting-edge coexist"
         },
         "china": {
           "name": "China",
           "attractions": ["Great Wall", "Forbidden City", "Tiananmen Square"],
-          "description": "Great civilization with 5000 years of history"
+          "description": "Great civilization with 5,000 years of history"
         },
         "india": {
           "name": "India",
           "attractions": ["Taj Mahal", "Red Fort", "Ganges River"],
-          "description": "Mystical spirituality and magnificent palaces"
+          "description": "Mysterious spirituality and magnificent palaces"
         },
         "thailand": {
           "name": "Thailand",
           "attractions": ["Wat Arun", "Grand Palace", "Wat Pho"],
-          "description": "Golden temples and the land of smiles"
+          "description": "Land of golden temples and smiles"
         },
         "singapore": {
           "name": "Singapore",
           "attractions": ["Marina Bay Sands", "Gardens by the Bay", "Merlion"],
-          "description": "Future city meets diverse cultures"
+          "description": "Meeting of futuristic city and diverse cultures"
         },
         "usa": {
           "name": "United States",
@@ -904,258 +522,157 @@
         }
       }
     },
+    "search": {
+      "placeholder": "Enter search term",
+      "searching": "Searching...",
+      "noResults": "No search results",
+      "tryAgain": "Try Again",
+      "suggestions": "Suggestions",
+      "recentSearches": "Recent Searches",
+      "pressEnterToSearch": "Press Enter to search",
+      "clear": "Clear",
+      "enterLocation": "Please enter a location first",
+      "searchButton": "Search",
+      "searchLocation": "Search destination",
+      "searchPrompt": "Search for {query}",
+      "searchResults": "Search Results"
+    },
     "guide": {
-      "overview": "Tour Overview",
-      "route": "Recommended Route",
-      "realTimeGuide": "Real-time Audio Guide",
-      "play": "Play",
-      "pause": "Pause",
-      "stop": "Stop",
-      "next": "Next",
-      "previous": "Previous",
-      "startingLocation": "Starting Location",
-      "viewOnGoogleMaps": "View on Google Maps",
-      "keyFacts": "Key Information",
+      "loading": "Loading guide...",
+      "error": "Unable to load guide",
+      "chapters": "Chapters",
       "duration": "Duration",
       "difficulty": "Difficulty",
-      "season": "Best Season",
-      "nextMove": "Next Destination",
-      "downloadAudio": "Download Audio",
-      "share": "Share",
-      "essentialInfo": "Essential Information",
+      "nextChapter": "Next Chapter",
+      "previousChapter": "Previous Chapter",
+      "playAudio": "Play Audio",
+      "pauseAudio": "Pause Audio",
+      "mapView": "Map View",
+      "listView": "List View",
+      "essentialInfo": "Essential Info",
       "locationAccess": "Location & Access",
       "keyFeatures": "Key Features",
       "historicalContext": "Historical Context",
       "mustSeeHighlights": "Must-See Highlights",
       "safetyGuidelines": "Safety Guidelines",
-      "noGuideData": "No guide data available",
-      "chapterTitle": "Chapter",
-      "locationNameMissing": "Location name is missing",
-      "guideGenerationFailed": "Guide generation failed",
-      "unknownError": "An unknown error occurred",
-      "guidePreparing": "Preparing guide",
-      "aiGeneratingCustomGuide": "AI is generating a customized guide...",
-      "errorOccurred": "Error Occurred",
-      "backToHome": "Back to Home",
-      "guideNotFound": "Guide not found",
-      "cannotLoadGuideData": "Cannot load the requested guide data",
-      "invalidGuideStructure": "Invalid guide data structure",
-      "guideLoadFailed": "Guide load failed",
-      "guideLoadError": "An error occurred while loading the guide",
-      "loadingGuideData": "Loading guide",
-      "preparingMultilingualGuide": "Preparing multilingual guide data...",
-      "generating": "Generating...",
-      "generateGuide": "Generate Guide",
-      "availableLanguages": "Available languages:",
-      "languageChangeNote": "Changes automatically when changed in language settings",
-      "generatingNewGuide": "Generating a new guide...",
-      "pleaseWait": "Please wait",
-      "keyboardShortcuts": "Keyboard Shortcuts",
-      "contentLoading": "Content Loading",
-      "noCoordinatesForMap": "Cannot display map due to missing coordinate information",
-      "totalChaptersValidCoordinates": "Valid coordinates: {valid} out of {total} chapters",
-      "currentLocation": "Current Location",
-      "points": " points",
-      "current": "Current:",
-      "selectLocation": "Please select a location",
-      "analyzingLocation": "Analyzing location information...",
-      "collectingHistory": "Collecting historical information...",
-      "creatingCustomContent": "Creating customized content...",
-      "generatingAudioChapters": "Generating audio chapters...",
-      "finalizingGuide": "Finalizing guide...",
-      "aiGuideGenerating": "AI Guide Generating",
-      "personalGuideCreating": "Creating a personal guide for {location}",
-      "percentComplete": "{progress}% Complete",
-      "customizingToYourTaste": "Customizing to your taste:",
-      "metricsQueryFailed": "Metrics query failed",
-      "unknownErrorOccurred": "Unknown error",
-      "confirmClearAllMetrics": "Are you sure you want to clear all metrics?",
-      "metricsInitializationFailed": "Metrics initialization failed",
-      "metricsInitialized": "Metrics have been initialized",
-      "initializationFailed": "Initialization failed",
-      "loadingMetrics": "Loading metrics...",
-      "errorOccurredSymbol": "❌Error occurred",
-      "performanceMonitoring": "🏁 Guide AI Performance Monitoring",
-      "autoRefresh": "Auto refresh (10 seconds)",
-      "thisPlace": "this place",
-      "travelStart": "Start of {location} journey",
       "realTimeGuideTitle": "Real-time Guide",
-      "aiCustomAudioGuide": "AI Custom Audio Guide",
-      "chapters": " chapters",
-      "guideTitle": "Guide",
       "overview": "Overview",
       "mustSeePoints": "Must-See Points",
       "precautions": "Precautions",
       "viewingOrder": "Viewing Order",
-      "intro": "Intro",
+      "audioGuide": "Audio Guide",
+      "thisPlace": "This Place",
+      "tourStart": "Start Tour",
+      "guideTitle": "Guide",
+      "loadingGuide": "Loading Guide",
+      "fetchingGuideData": "Fetching guide data",
+      "currentChapter": "Current Chapter",
       "nextMoveGuide": "Next Move Guide",
-      "entireAudioTour": "Entire Audio Tour",
-      "chaptersWithIntro": "{count} chapters (including intro) • About {minutes} minutes",
-      "playAll": "Play All",
-      "preparing": "Preparing \"{location}\" guide",
-      "tourStart": "{location} Journey Begins",
-      "introNarrative": "Welcome to {location}. This is {locationInfo}, {features}. At {background}, you will have an unforgettable experience. Explore everything {location} has to offer on the journey that begins now.",
-      "specialPlace": "a special place",
-      "uniqueCharm": "a place with unique charm",
-      "richHistory": "this place rich in history and culture",
-      "startMainTour": "Now let's move to the first key space of {location} and begin the full tour.",
-      "ttsGenerationFailed": "TTS generation failed",
-      "audioPlaybackError": "An error occurred during audio playback.",
-      "audioServiceError": "Audio service configuration error. Please contact administrator.",
-      "audioGenerationRetry": "Audio generation failed. Please try again later.",
-      "checkNetworkConnection": "Please check your network connection.",
-      "loadingGuide": "Loading guide",
-      "fetchingGuideData": "Fetching saved guide data...",
-      "chaptersCount": "{count} chapters",
-      "autoGeneratedIntro": "Auto-generated intro chapter"
+      "autoGeneratedIntro": "Auto-generated Intro",
+      "intro": "Intro",
+      "aiCustomAudioGuide": "AI Custom Audio Guide",
+      "generating": "Generating guide...",
+      "generatingSubtitle": "AI is generating a customized guide"
     },
-    "search": {
-      "recentSearches": "Recent Searches",
-      "suggestions": "Suggestions",
-      "noResults": "No results found",
-      "searching": "Searching...",
-      "clear": "Clear",
-      "enterLocation": "Please enter a location first",
-      "pressEnterToSearch": "Press Enter to search"
+    "live": {
+      "shareTitle": "Share AI Guide",
+      "shareText": "Check out this amazing guide!"
     },
     "errors": {
       "networkError": "Please check your network connection",
       "serverError": "Server error occurred",
       "notFound": "Page not found",
-      "retry": "Retry"
+      "unauthorized": "Authentication required",
+      "forbidden": "Access forbidden",
+      "generalError": "An error occurred"
     },
     "common": {
       "loading": "Loading...",
-      "save": "Save",
+      "error": "Error",
+      "success": "Success",
+      "warning": "Warning",
+      "info": "Info",
       "cancel": "Cancel",
       "confirm": "Confirm",
+      "save": "Save",
       "delete": "Delete",
       "edit": "Edit",
-      "back": "Back",
       "close": "Close",
-      "yes": "Yes",
-      "no": "No",
-      "pressEnterToOpen": "Press Enter to open language menu",
-      "clickToSelectLanguage": "Click to select language",
-      "exists": "Exists",
-      "notExists": "Not exists",
-      "confirmDelete": "Are you sure you want to delete this?",
-      "languagesGenerated": " languages generated",
-      "total": "Total",
-      "none": "None",
-      "minutes": " minutes",
-      "chapters": " chapters",
-      "sortLatest": "Latest",
-      "sortName": "Name",
-      "sortChapters": "Chapters",
-      "allLanguages": "All Languages",
-      "completed": "Completed",
-      "processing": "Processing",
-      "error": "Error",
       "hide": "Hide",
-      "showAudioPlayer": "Show Audio Player",
-      "daysAgo": " days ago",
-      "weeksAgo": " weeks ago"
+      "exists": "Exists",
+      "notExists": "Not Exists"
+    },
+    "history": {
+      "noResults": "No search results",
+      "noHistory": "No search history",
+      "view": "View Guide",
+      "delete": "Delete",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "invalidDate": "Invalid Date",
+      "preview": "Guide Preview",
+      "loadFailed": "Failed to load history",
+      "deleteFailed": "Failed to delete history",
+      "searchInHistory": "Search in history",
+      "searchPlaces": "Search places",
+      "totalGuides": "Total {count} guides",
+      "daysAgo": "{days} days ago",
+      "weeksAgo": "{weeks} weeks ago"
     },
     "date": {
       "today": "Today",
       "yesterday": "Yesterday",
-      "daysAgo": "{days} days ago",
-      "weeksAgo": "{weeks} weeks ago",
-      "invalidDate": "Invalid date"
+      "tomorrow": "Tomorrow",
+      "thisWeek": "This Week",
+      "lastWeek": "Last Week",
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month"
     },
     "profile": {
-      "mypage": "My Page",
-      "account": "Account Management",
+      "name": "Name",
+      "email": "Email",
       "preferences": "Preferences",
-      "dashboard": "Dashboard",
-      "guides": "My Guides",
-      "settings": "Settings"
+      "language": "Language",
+      "notifications": "Notifications",
+      "privacy": "Privacy",
+      "account": "Account",
+      "logout": "Logout",
+      "mypage": "My Page",
+      "user": "User"
     },
     "mypage": {
       "title": "My Page",
-      "description": "Check and manage your AI guide records",
       "overview": "Overview",
-      "overviewShort": "Overview",
-      "guides": "My Guides",
-      "guidesShort": "Guides",
-      "favoriteGuides": "Favorites",
-      "favoritesShort": "Favorites",
-      "fileGuides": "File Guides",
-      "filesShort": "Files",
+      "guides": "Guides",
       "settings": "Settings",
-      "settingsShort": "Settings",
-      "totalGuides": "Generated Guides",
-      "completedTours": "Completed Tours",
-      "savedGuides": "Saved Guides",
       "recentGuides": "Recent Guides",
-      "noGuides": "No guides created yet",
-      "accountInfo": "Account Information",
-      "dataManagement": "Data Management",
-      "clearAllHistory": "Clear All Guide History",
-      "joinDate": "Join Date",
-      "personalizedDiagnosis": "Personalized Diagnosis",
-      "diagnosisComplete": "Diagnosis Complete",
-      "diagnosisResult": "Diagnosis Result",
-      "reliability": "Reliability",
-      "diagnosed": "Diagnosed",
-      "contentDepth": "Content Depth",
-      "guideStyle": "Guide Style",
-      "interaction": "Interaction",
-      "emotionalTone": "Emotional Tone",
-      "personalizedGuideActive": "Personalized Guide Active",
-      "personalityTraits": {
-        "conscientiousness": "Conscientiousness",
-        "openness": "Openness",
-        "extraversion": "Extraversion",
-        "agreeableness": "Agreeableness",
-        "neuroticism": "Neuroticism"
-      },
-      "contentDepthLevels": {
-        "veryDetailed": "Very Detailed",
-        "detailed": "Detailed",
-        "moderate": "Moderate",
-        "simple": "Simple",
-        "verySimple": "Very Simple"
-      },
-      "guideStyles": {
-        "academic": "Academic",
-        "conversational": "Conversational",
-        "storytelling": "Storytelling",
-        "practical": "Practical",
-        "visual": "Visual"
-      },
-      "interactionLevels": {
-        "veryActive": "Very Active",
-        "active": "Active",
-        "moderate": "Moderate",
-        "passive": "Passive",
-        "veryPassive": "Very Passive"
-      },
-      "emotionalTones": {
-        "enthusiastic": "Enthusiastic",
-        "friendly": "Friendly",
-        "professional": "Professional",
-        "calm": "Calm",
-        "inspiring": "Inspiring"
-      },
-      "aiSimulationInfo": "5-question diagnosis verified through 1 million AI simulations with",
-      "accuracy": "accuracy",
-      "personalizedGuideProvided": "personalized guide provided",
-      "timeRequired": "Time required",
-      "countriesVerification": "countries cultural fairness verification",
-      "retakeDiagnosis": "Retake Diagnosis",
-      "startDiagnosis": "Start Diagnosis",
-      "primaryLanguage": "Primary Language",
-      "frequentPlaces": "Frequently visited places",
-      "noFavoriteGuides": "No favorite guides yet",
-      "addFavoriteGuides": "Add your favorite guides to your collection!",
-      "createGuideFromFile": "Create Guide from File",
-      "uploadFileDescription": "Upload PDF, Word, or text files to create guides",
-      "supportedFormats": "Supported formats: PDF, DOCX, TXT (max 10MB)",
-      "noUploadedFiles": "No uploaded files",
-      "uploadFirstFile": "Upload your first file!",
-      "personalizedGuideActive": "All guides will now be automatically personalized to your personality!"
+      "favoriteGuides": "Favorite Guides",
+      "totalGuides": "Total Guides",
+      "completedTours": "Completed Tours",
+      "savedLocations": "Saved Locations"
+    },
+    "auth": {
+      "login": "Login",
+      "register": "Register",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "forgotPassword": "Forgot Password",
+      "rememberMe": "Remember Me",
+      "loginWithGoogle": "Login with Google",
+      "loginWithFacebook": "Login with Facebook",
+      "createAccount": "Create Account",
+      "alreadyHaveAccount": "Already have an account?",
+      "noAccount": "Don't have an account?",
+      "signin": "Sign In",
+      "signout": "Sign Out"
+    },
+    "buttons": {
+      "submit": "Submit",
+      "continue": "Continue",
+      "goBack": "Go Back",
+      "tryAgain": "Try Again",
+      "viewDetails": "View Details"
     },
     "languages": {
       "ko": "Korean",
@@ -1164,146 +681,55 @@
       "zh": "Chinese",
       "es": "Spanish"
     },
-    "legal": {
-      "privacy": {
-        "title": "Privacy Policy",
-        "description": "NAVI-GUIDE's privacy policy guidelines.",
-        "content": "NAVI-GUIDE maintains the following privacy policy to protect user personal information and rights in accordance with personal information protection laws and to smoothly handle user complaints related to personal information.",
-        "lastUpdated": "Last Updated"
-      },
-      "terms": {
-        "title": "Terms of Service",
-        "description": "NAVI-GUIDE service terms of use guidelines.",
-        "content": "These terms aim to define the conditions and procedures for using NAVI-GUIDE's AI-based travel guide service.",
-        "lastUpdated": "Last Updated"
-      }
-    },
-    "auth": {
-      "signin": "Sign In",
-      "signup": "Sign Up",
-      "signout": "Sign Out",
-      "email": "Email",
-      "password": "Password",
-      "name": "Name",
-      "confirmPassword": "Confirm Password",
-      "emailVerification": "Email Verification",
-      "verificationCode": "Verification Code",
-      "sendCode": "Send Verification Code",
-      "resendCode": "Resend Code",
-      "forgotPassword": "Forgot Password",
-      "loginWithGoogle": "Sign in with Google",
-      "alreadyHaveAccount": "Already have an account?",
-      "noAccount": "Don't have an account?"
-    },
-    "buttons": {
-      "submit": "Submit",
-      "continue": "Continue",
-      "goBack": "Go Back",
-      "goHome": "Go Home",
-      "tryAgain": "Try Again",
-      "viewDetails": "View Details",
-      "createGuide": "Create Guide",
-      "selectFile": "Select File",
-      "save": "Save Changes"
-    },
-    "search": {
-      "placeholder": "Search guides..."
-    },
-    "profile": {
-      "user": "User",
-      "name": "Name",
-      "email": "Email",
-      "language": "Default Language",
-      "notifications": "Notification Settings",
-      "newFeatureNotifications": "New feature notifications",
-      "guideCompleteNotifications": "Guide creation completion notifications",
-      "marketingEmails": "Marketing emails",
-      "dataManagement": "Data Management",
-      "exportData": "Export Data",
-      "exportDescription": "Download all guide data in JSON format",
-      "deleteAllData": "Delete All Data",
-      "deleteDescription": "Delete all saved guides and settings",
-      "manageProfile": "Manage your profile information",
-      "enterName": "Enter your name",
-      "emailNotEditable": "Email cannot be changed"
-    },
-    "guide": {
-      "noGuides": "No guides available",
-      "createNewGuide": "Create a new guide!",
-      "audioGuide": "Audio Guide"
-    },
-    "features": {
-      "upgradeToLive": "Upgrade to Live Tour",
-      "liveTourBenefits": "Experience real-time location tracking and personalized guides",
-      "tryLiveTour": "Try Live Tour"
-    },
-    "search": {
-      "placeholder": "Search guides...",
-      "recentSearches": "Search in history",
-      "noResults": "No search results",
-      "searchResults": "Search Results",
-      "searching": "Searching...",
-      "tryAgain": "Try Again",
-      "suggestions": "Suggested searches",
-      "searchLocation": "Search destination",
-      "pressEnterToSearch": "Press Enter to search",
-      "searchPrompt": "Search for {query}",
-      "enterSearchTerm": "Enter search term",
-      "clickToComplete": "Click to complete",
-      "official": "Official"
-    },
-    "history": {
-      "noResults": "No search results",
-      "noHistory": "No search history",
-      "view": "View guide",
-      "delete": "Delete",
-      "today": "Today",
-      "yesterday": "Yesterday",
-      "invalidDate": "Invalid date",
-      "preview": "Guide preview",
-      "loadFailed": "History load failed",
-      "deleteFailed": "History delete failed",
-      "searchInHistory": "Search in history",
-      "searchPlaces": "Search for places",
-      "totalGuides": "Total {count} guides",
-      "daysAgo": "{days} days ago",
-      "weeksAgo": "{weeks} weeks ago"
+    "audio": {
+      "chapter": "Chapter",
+      "play": "Play",
+      "pause": "Pause",
+      "stop": "Stop",
+      "previous": "Previous",
+      "next": "Next",
+      "volume": "Volume",
+      "mute": "Mute",
+      "unmute": "Unmute",
+      "loading": "Loading",
+      "error": "Audio Error",
+      "ended": "Playback Complete"
     },
     "footer": {
-      "companyName": "NaviGuideAI",
-      "companyDescription": "Experience smarter and more personalized travel with our AI-powered customized travel guide service.",
-      "copyright": "© 2024 NaviGuideAI. All rights reserved.",
+      "companyName": "GUIDE AI",
+      "companyDescription": "AI-powered personalized travel guide service",
+      "copyright": "© 2024 GUIDE AI. All rights reserved.",
       "legalInfo": "Legal Information",
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
       "aboutUs": "About Us",
       "contact": "Contact",
-      "support": "Customer Support",
+      "support": "Support",
       "telegramChannel": "Telegram Channel",
-      "supportHours": "Weekdays 09:00 - 18:00 (KST)",
-      "adsenseNotice": "This site uses Google AdSense to display advertisements.",
-      "adsensePolicy": "for more details about cookie usage and advertising policies."
+      "supportHours": "Support Hours: Weekdays 9AM-6PM",
+      "adsenseNotice": "Ad Revenue Notice",
+      "adsensePolicy": "AdSense Policy"
     },
-    "feedback": {
-      "ratings": {
-        "1": "Very Dissatisfied",
-        "2": "Dissatisfied",
-        "3": "Average",
-        "4": "Satisfied",
-        "5": "Very Satisfied"
+    "legal": {
+      "terms": {
+        "title": "Terms of Service",
+        "description": "GUIDE AI Terms of Service",
+        "content": "Terms of service content",
+        "lastUpdated": "Last Updated"
       },
-      "submitFailed": "Failed to submit feedback. Please try again."
-    },
-    "audio": {
-      "audioGuide": "Audio Guide",
-      "unknown_error": "An unknown error occurred."
+      "privacy": {
+        "title": "Privacy Policy",
+        "description": "GUIDE AI Privacy Policy",
+        "content": "Privacy policy content",
+        "lastUpdated": "Last Updated"
+      }
     }
   },
   "ja": {
     "header": {
       "title": "NAVI",
       "language": "言語",
-      "selectLanguage": "言語を選択",
+      "selectLanguage": "言語選択",
       "login": "ログイン",
       "logout": "ログアウト",
       "history": "検索履歴",
@@ -1318,18 +744,45 @@
       "home": "ホーム",
       "guides": "ガイド",
       "favorites": "お気に入り",
-      "about": "について",
+      "about": "概要",
       "contact": "お問い合わせ"
     },
     "home": {
-      "brandTitle": "手のひらのAIガイド",
-      "title": "手のひらのAI旅行ガイド",
+      "brandTitle": "あなたのポケット",
+      "title": "あなたのポケットドーセント",
       "subtitle": "ガイドなしで自由に、",
-      "subtitle2": "深く旅する",
-      "searchPlaceholder": "どちらに行きたいですか？",
+      "subtitle2": "旅行は深く",
+      "searchPlaceholder": "どこに行きたいですか？",
       "searchButton": "ガイド生成",
       "popularDestinations": "人気の目的地",
       "description": "AIが見つけた最も完璧なガイド解説",
+      "regionTitles": {
+        "popularCountries": "🌍 人気旅行国",
+        "europe": "ヨーロッパ",
+        "asia": "アジア",
+        "americas": "アメリカ大陸"
+      },
+      "regionDescription": "世界各国の代表的な観光名所と一緒に特別なオーディオガイド旅行を始めましょう",
+      "countryAttraction": "TOP ATTRACTIONS",
+      "startGuide": "Start Guide",
+      "destinations": "destinations",
+      "scrollHint": "左右にスクロールしてより多くの国を確認してください",
+      "popularBadge": "POPULAR",
+      "stepTitles": {
+        "inputLocation": "場所入力",
+        "aiGenerate": "AI生成",
+        "audioPlay": "オーディオ再生"
+      },
+      "stepDescriptions": {
+        "inputLocation": "気になる場所の名前を入力してください",
+        "aiGenerate": "AIがカスタマイズされたガイドを生成します",
+        "audioPlay": "生成されたガイドを音声で聞いてください"
+      },
+      "alerts": {
+        "enterLocation": "まず場所を入力してください。",
+        "generationFailed": "ガイド生成に失敗しました",
+        "networkError": "ガイド生成中にネットワークエラーが発生しました。"
+      },
       "searchPlaceholders": [
         "エッフェル塔",
         "タージマハル",
@@ -1338,44 +791,22 @@
         "自由の女神"
       ],
       "defaultSuggestions": [
-        { "name": "エッフェル塔", "location": "フランス・パリ" },
-        { "name": "タージマハル", "location": "インド・アグラ" },
-        { "name": "マチュピチュ", "location": "ペルー・クスコ" }
+        { "name": "エッフェル塔", "location": "フランス、パリ" },
+        { "name": "タージマハル", "location": "インド、アグラ" },
+        { "name": "マチュピチュ", "location": "ペルー、クスコ" }
       ],
       "features": {
         "realTime": "リアルタイムガイド",
         "personalized": "パーソナライズ",
-        "multiLanguage": "多言語対応",
+        "multiLanguage": "多言語",
         "offline": "オフライン使用",
         "storyteller": "ストーリーテラー",
         "docent": "ドーセント",
-        "personalGuide": "個人ガイド",
-        "audioCommentary": "音声解説",
+        "personalGuide": "パーソナルガイド",
+        "audioCommentary": "オーディオ解説",
         "tourDocent": "ツアードーセント",
         "selfTour": "セルフツアー"
       },
-      "stepTitles": {
-        "inputLocation": "場所を入力",
-        "aiGenerate": "AI生成", 
-        "audioPlay": "音声再生"
-      },
-      "stepDescriptions": {
-        "inputLocation": "気になる場所の名前を入力してください",
-        "aiGenerate": "AIがカスタマイズされたガイドを生成します",
-        "audioPlay": "生成されたガイドを音声で聞いてください"
-      },
-      "regionTitles": {
-        "popularCountries": "🌍 人気の旅行国",
-        "europe": "ヨーロッパ",
-        "asia": "アジア",
-        "americas": "アメリカ大陸"
-      },
-      "regionDescription": "世界各国の代表的な観光地と一緒に特別なオーディオガイドの旅を始めましょう",
-      "countryAttraction": "主要観光地",
-      "startGuide": "ガイド開始",
-      "destinations": "観光地",
-      "scrollHint": "左右にスクロールしてより多くの国を確認してください",
-      "popularBadge": "人気",
       "countries": {
         "france": {
           "name": "フランス",
@@ -1383,176 +814,228 @@
           "description": "ロマンチックなパリと華麗な文化遺産"
         },
         "italy": {
-          "name": "Italy",
-          "attractions": ["Colosseum", "Leaning Tower of Pisa", "Vatican"],
-          "description": "Glory of ancient Rome and Renaissance art"
+          "name": "イタリア",
+          "attractions": ["コロッセオ", "ピサの斜塔", "バチカン"],
+          "description": "古代ローマの栄光とルネサンス芸術"
         },
         "spain": {
-          "name": "Spain",
-          "attractions": ["Sagrada Familia", "Alhambra", "Park Güell"],
-          "description": "Gaudí's architecture and flamenco passion"
+          "name": "スペイン",
+          "attractions": ["サグラダファミリア", "アルハンブラ宮殿", "グエル公園"],
+          "description": "ガウディの建築とフラメンコの情熱"
         },
         "uk": {
-          "name": "United Kingdom",
-          "attractions": ["Big Ben", "Tower Bridge", "Buckingham Palace"],
-          "description": "Harmonious blend of tradition and modernity"
+          "name": "イギリス",
+          "attractions": ["ビッグベン", "タワーブリッジ", "バッキンガム宮殿"],
+          "description": "伝統と現代が調和した大英帝国"
         },
         "germany": {
-          "name": "Germany",
-          "attractions": ["Brandenburg Gate", "Neuschwanstein Castle", "Cologne Cathedral"],
-          "description": "Fairy-tale castles and deep historical heritage"
+          "name": "ドイツ",
+          "attractions": ["ブランデンブルク門", "ノイシュヴァンシュタイン城", "ケルン大聖堂"],
+          "description": "おとぎ話の城と深い歴史の国"
         },
         "japan": {
-          "name": "Japan",
-          "attractions": ["Mount Fuji", "Kiyomizu-dera", "Senso-ji"],
-          "description": "Mysterious land where tradition and cutting-edge coexist"
+          "name": "日本",
+          "attractions": ["富士山", "清水寺", "浅草寺"],
+          "description": "伝統と最先端技術が共存する神秘的な国"
         },
         "china": {
-          "name": "China",
-          "attractions": ["Great Wall", "Forbidden City", "Tiananmen Square"],
-          "description": "Great civilization with 5000 years of history"
+          "name": "中国",
+          "attractions": ["万里の長城", "紫禁城", "天安門広場"],
+          "description": "5千年の歴史を秘めた巨大な文明"
         },
         "india": {
-          "name": "India",
-          "attractions": ["Taj Mahal", "Red Fort", "Ganges River"],
-          "description": "Mystical spirituality and magnificent palaces"
+          "name": "インド",
+          "attractions": ["タージマハル", "レッドフォート", "ガンジス川"],
+          "description": "神秘的な霊性と華麗な宮殿"
         },
         "thailand": {
-          "name": "Thailand",
-          "attractions": ["Wat Arun", "Grand Palace", "Wat Pho"],
-          "description": "Golden temples and the land of smiles"
+          "name": "タイ",
+          "attractions": ["ワットアルン", "王宮", "ワットポー"],
+          "description": "黄金の寺院と微笑みの国"
         },
         "singapore": {
-          "name": "Singapore",
-          "attractions": ["Marina Bay Sands", "Gardens by the Bay", "Merlion"],
-          "description": "Future city meets diverse cultures"
+          "name": "シンガポール",
+          "attractions": ["マリーナベイサンズ", "ガーデンズバイザベイ", "マーライオン"],
+          "description": "未来都市と多様な文化の出会い"
         },
         "usa": {
-          "name": "United States",
-          "attractions": ["Statue of Liberty", "Grand Canyon", "Times Square"],
-          "description": "Land of freedom and dreams, infinite possibilities"
+          "name": "アメリカ",
+          "attractions": ["自由の女神", "グランドキャニオン", "タイムズスクエア"],
+          "description": "自由と夢の土地、無限の可能性"
         },
         "canada": {
-          "name": "Canada",
-          "attractions": ["Niagara Falls", "CN Tower", "Banff National Park"],
-          "description": "Vast nature and clean cities"
+          "name": "カナダ",
+          "attractions": ["ナイアガラの滝", "CNタワー", "バンフ国立公園"],
+          "description": "広大な自然ときれいな都市"
         },
         "brazil": {
-          "name": "Brazil",
-          "attractions": ["Christ the Redeemer", "Iguazu Falls", "Maracanã Stadium"],
-          "description": "Samba and soccer, passionate South America"
+          "name": "ブラジル",
+          "attractions": ["リオのキリスト像", "イグアスの滝", "マラカナンスタジアム"],
+          "description": "サンバとサッカー、情熱的な南米"
         },
         "peru": {
-          "name": "Peru",
-          "attractions": ["Machu Picchu", "Cusco", "Nazca Lines"],
-          "description": "Mysterious ruins of Inca civilization"
+          "name": "ペルー",
+          "attractions": ["マチュピチュ", "クスコ", "ナスカの地上絵"],
+          "description": "インカ文明の神秘的な遺跡"
         },
         "mexico": {
-          "name": "Mexico",
-          "attractions": ["Chichen Itza", "Teotihuacan", "Cancun"],
-          "description": "Mayan civilization and Caribbean paradise"
+          "name": "メキシコ",
+          "attractions": ["チチェンイッツァ", "テオティワカン", "カンクン"],
+          "description": "マヤ文明とカリブ海の楽園"
         }
       }
     },
-    "guide": {
-      "overview": "ツアー概要",
-      "route": "推奨ルート",
-      "realTimeGuide": "リアルタイム音声ガイド",
-      "play": "再生",
-      "pause": "一時停止",
-      "stop": "停止",
-      "next": "次",
-      "previous": "前",
-      "startingLocation": "開始地点",
-      "viewOnGoogleMaps": "Googleマップで見る",
-      "keyFacts": "重要情報",
-      "duration": "所要時間",
-      "difficulty": "難易度",
-      "season": "おすすめ季節",
-      "nextMove": "次の目的地",
-      "downloadAudio": "音声ダウンロード",
-      "share": "共有",
-      "essentialInfo": "基本情報",
-      "locationAccess": "場所とアクセス",
-      "keyFeatures": "主な特徴",
-      "historicalContext": "歴史的背景",
-      "mustSeeHighlights": "必見ポイント",
-      "safetyGuidelines": "安全ガイドライン",
-      "preparing": "\"{location}\" ガイド準備中",
-      "tourStart": "{location} 旅の始まり",
-      "introNarrative": "{location}へようこそ。ここは{locationInfo}で、{features}です。{background}では忘れられない体験ができるでしょう。これから始まる旅で{location}のすべてを探索してみてください。",
-      "specialPlace": "特別な場所",
-      "uniqueCharm": "独特な魅力を持つ場所",
-      "richHistory": "豊かな歴史と文化を持つこの場所で",
-      "startMainTour": "それでは{location}の最初の重要なスペースに一緒に移動して、本格的なツアーを始めましょう。",
-      "ttsGenerationFailed": "TTS生成失敗",
-      "audioPlaybackError": "音声再生中にエラーが発生しました。",
-      "audioServiceError": "音声サービス設定エラーです。管理者にお問い合わせください。",
-      "audioGenerationRetry": "音声生成に失敗しました。しばらくしてから再試行してください。",
-      "checkNetworkConnection": "ネットワーク接続を確認してください。",
-      "loadingGuide": "ガイドを読み込み中",
-      "fetchingGuideData": "保存されたガイドデータを取得しています...",
-      "chaptersCount": "{count}個のチャプター",
-      "autoGeneratedIntro": "自動生成されたイントロチャプター"
-    },
     "search": {
-      "recentSearches": "最近の検索",
-      "suggestions": "提案",
-      "noResults": "検索結果がありません",
+      "placeholder": "検索語を入力してください",
       "searching": "検索中...",
+      "noResults": "検索結果がありません",
+      "tryAgain": "再試行",
+      "suggestions": "提案",
+      "recentSearches": "最近の検索",
+      "pressEnterToSearch": "Enterキーで検索",
       "clear": "クリア",
       "enterLocation": "まず場所を入力してください",
-      "pressEnterToSearch": "Enterキーで検索"
+      "searchButton": "検索",
+      "searchLocation": "目的地検索",
+      "searchPrompt": "{query}を検索",
+      "searchResults": "検索結果"
+    },
+    "guide": {
+      "loading": "ガイド読み込み中...",
+      "error": "ガイドを読み込めません",
+      "chapters": "チャプター",
+      "duration": "所要時間",
+      "difficulty": "難易度",
+      "nextChapter": "次のチャプター",
+      "previousChapter": "前のチャプター",
+      "playAudio": "オーディオ再生",
+      "pauseAudio": "オーディオ一時停止",
+      "mapView": "地図表示",
+      "listView": "リスト表示",
+      "essentialInfo": "必須情報",
+      "locationAccess": "位置とアクセス",
+      "keyFeatures": "主な特徴",
+      "historicalContext": "歴史的背景",
+      "mustSeeHighlights": "必見ハイライト",
+      "safetyGuidelines": "安全ガイドライン",
+      "realTimeGuideTitle": "リアルタイムガイド",
+      "overview": "概要",
+      "mustSeePoints": "必見ポイント",
+      "precautions": "注意事項",
+      "viewingOrder": "見学順序",
+      "audioGuide": "オーディオガイド",
+      "thisPlace": "この場所",
+      "tourStart": "ツアー開始",
+      "guideTitle": "ガイド",
+      "loadingGuide": "ガイド読み込み中",
+      "fetchingGuideData": "ガイドデータを取得中",
+      "currentChapter": "現在のチャプター",
+      "nextMoveGuide": "次の移動案内",
+      "autoGeneratedIntro": "自動生成イントロ",
+      "intro": "イントロ",
+      "aiCustomAudioGuide": "AIカスタムオーディオガイド",
+      "generating": "ガイド生成中...",
+      "generatingSubtitle": "AIがカスタマイズされたガイドを生成中"
+    },
+    "live": {
+      "shareTitle": "AIガイド共有",
+      "shareText": "この素晴らしいガイドをチェックしてください！"
     },
     "errors": {
       "networkError": "ネットワーク接続を確認してください",
       "serverError": "サーバーエラーが発生しました",
       "notFound": "ページが見つかりません",
-      "retry": "再試行"
+      "unauthorized": "認証が必要です",
+      "forbidden": "アクセスが禁止されています",
+      "generalError": "エラーが発生しました"
     },
     "common": {
       "loading": "読み込み中...",
-      "save": "保存",
+      "error": "エラー",
+      "success": "成功",
+      "warning": "警告",
+      "info": "情報",
       "cancel": "キャンセル",
       "confirm": "確認",
+      "save": "保存",
       "delete": "削除",
       "edit": "編集",
-      "back": "戻る",
       "close": "閉じる",
-      "yes": "はい",
-      "no": "いいえ",
-      "pressEnterToOpen": "Enterキーで言語メニューを開く",
-      "clickToSelectLanguage": "クリックして言語を選択",
-      "exists": "あり",
-      "notExists": "なし"
+      "hide": "非表示",
+      "exists": "存在",
+      "notExists": "存在しない"
+    },
+    "history": {
+      "noResults": "検索結果がありません",
+      "noHistory": "検索履歴がありません",
+      "view": "ガイドを見る",
+      "delete": "削除",
+      "today": "今日",
+      "yesterday": "昨日",
+      "invalidDate": "無効な日付",
+      "preview": "ガイドプレビュー",
+      "loadFailed": "履歴の読み込みに失敗",
+      "deleteFailed": "履歴の削除に失敗",
+      "searchInHistory": "履歴で検索",
+      "searchPlaces": "場所を検索",
+      "totalGuides": "合計{count}個のガイド",
+      "daysAgo": "{days}日前",
+      "weeksAgo": "{weeks}週間前"
     },
     "date": {
       "today": "今日",
       "yesterday": "昨日",
-      "daysAgo": "{days}日前",
-      "weeksAgo": "{weeks}週間前",
-      "invalidDate": "無効な日付"
+      "tomorrow": "明日",
+      "thisWeek": "今週",
+      "lastWeek": "先週",
+      "thisMonth": "今月",
+      "lastMonth": "先月"
     },
     "profile": {
+      "name": "名前",
+      "email": "メール",
+      "preferences": "設定",
+      "language": "言語",
+      "notifications": "通知",
+      "privacy": "プライバシー",
+      "account": "アカウント",
+      "logout": "ログアウト",
       "mypage": "マイページ",
-      "account": "アカウント管理",
-      "preferences": "環境設定",
-      "dashboard": "ダッシュボード",
-      "guides": "マイガイド",
-      "settings": "設定"
+      "user": "ユーザー"
     },
     "mypage": {
       "title": "マイページ",
-      "description": "AIガイドの記録を確認・管理する",
-      "totalGuides": "作成したガイド",
-      "completedTours": "完了したツアー",
-      "savedGuides": "保存したガイド",
+      "overview": "概要",
+      "guides": "ガイド",
+      "settings": "設定",
       "recentGuides": "最近のガイド",
-      "noGuides": "まだガイドが作成されていません",
-      "accountInfo": "アカウント情報",
-      "dataManagement": "データ管理",
-      "clearAllHistory": "すべてのガイド履歴を削除",
-      "joinDate": "登録日"
+      "favoriteGuides": "お気に入りガイド",
+      "totalGuides": "総ガイド数",
+      "completedTours": "完了したツアー",
+      "savedLocations": "保存された場所"
+    },
+    "auth": {
+      "login": "ログイン",
+      "register": "登録",
+      "email": "メール",
+      "password": "パスワード",
+      "confirmPassword": "パスワード確認",
+      "forgotPassword": "パスワードを忘れた",
+      "rememberMe": "ログイン状態を保持",
+      "loginWithGoogle": "Googleでログイン",
+      "loginWithFacebook": "Facebookでログイン",
+      "createAccount": "アカウント作成",
+      "alreadyHaveAccount": "既にアカウントをお持ちですか？",
+      "noAccount": "アカウントをお持ちではありませんか？",
+      "signin": "サインイン",
+      "signout": "サインアウト"
+    },
+    "buttons": {
+      "submit": "送信",
+      "continue": "続行",
+      "goBack": "戻る",
+      "tryAgain": "再試行",
+      "viewDetails": "詳細を見る"
     },
     "languages": {
       "ko": "韓国語",
@@ -1561,86 +1044,47 @@
       "zh": "中国語",
       "es": "スペイン語"
     },
-    "legal": {
-      "privacy": {
-        "title": "プライバシーポリシー",
-        "description": "NAVI-GUIDEのプライバシーポリシーガイドライン。",
-        "content": "NAVI-GUIDEは個人情報保護法に従い、利用者の個人情報保護と権益を保護し、個人情報に関する利用者の苦情を円滑に処理するため、以下のようなプライバシーポリシーを設けています。",
-        "lastUpdated": "最終更新"
-      },
-      "terms": {
-        "title": "利用規約",
-        "description": "NAVI-GUIDEサービス利用規約のガイドライン。",
-        "content": "本規約は、NAVI-GUIDEが提供するAIベースの旅行ガイドサービスの利用条件と手続きに関する事項を定めることを目的とします。",
-        "lastUpdated": "最終更新"
-      }
-    },
-    "auth": {
-      "signin": "ログイン",
-      "signup": "新規登録",
-      "signout": "ログアウト",
-      "email": "メールアドレス",
-      "password": "パスワード",
-      "name": "お名前",
-      "confirmPassword": "パスワード確認",
-      "emailVerification": "メール認証",
-      "verificationCode": "認証コード",
-      "sendCode": "認証コード送信",
-      "resendCode": "認証コード再送信",
-      "forgotPassword": "パスワードを忘れた",
-      "loginWithGoogle": "Googleでログイン",
-      "alreadyHaveAccount": "既にアカウントをお持ちですか？",
-      "noAccount": "アカウントをお持ちではありませんか？"
-    },
-    "buttons": {
-      "submit": "送信",
-      "continue": "続行",
-      "goBack": "戻る",
-      "goHome": "ホームに戻る",
-      "tryAgain": "再試行",
-      "viewDetails": "詳細を見る"
-    },
-    "feedback": {
-      "ratings": {
-        "1": "非常に不満",
-        "2": "不満",
-        "3": "普通",
-        "4": "満足",
-        "5": "非常に満足"
-      },
-      "submitFailed": "フィードバックの送信に失敗しました。再試行してください。"
-    },
     "audio": {
-      "audioGuide": "音声ガイド",
-      "unknown_error": "不明なエラーが発生しました。"
+      "chapter": "チャプター",
+      "play": "再生",
+      "pause": "一時停止",
+      "stop": "停止",
+      "previous": "前へ",
+      "next": "次へ",
+      "volume": "音量",
+      "mute": "ミュート",
+      "unmute": "ミュート解除",
+      "loading": "読み込み中",
+      "error": "オーディオエラー",
+      "ended": "再生完了"
     },
     "footer": {
       "companyName": "GUIDE AI",
-      "companyDescription": "AI-based personalized travel guide service",
+      "companyDescription": "AI基盤個人化旅行ガイドサービス",
       "copyright": "© 2024 GUIDE AI. All rights reserved.",
-      "legalInfo": "Legal Information",
-      "privacyPolicy": "Privacy Policy",
-      "termsOfService": "Terms of Service",
-      "aboutUs": "About Us",
-      "contact": "Contact",
-      "support": "Support",
-      "telegramChannel": "Telegram Channel",
-      "supportHours": "Support Hours: Weekdays 9AM-6PM",
-      "adsenseNotice": "Ad Revenue Notice",
-      "adsensePolicy": "AdSense Policy"
+      "legalInfo": "法的情報",
+      "privacyPolicy": "プライバシーポリシー",
+      "termsOfService": "利用規約",
+      "aboutUs": "会社概要",
+      "contact": "お問い合わせ",
+      "support": "サポート",
+      "telegramChannel": "テレグラムチャンネル",
+      "supportHours": "サポート時間：平日9時-18時",
+      "adsenseNotice": "広告収益お知らせ",
+      "adsensePolicy": "AdSenseポリシー"
     },
     "legal": {
       "terms": {
-        "title": "Terms of Service",
-        "description": "GUIDE AI Service Terms of Service",
-        "content": "Terms and conditions for using the service",
-        "lastUpdated": "Last Updated"
+        "title": "利用規約",
+        "description": "GUIDE AI サービス利用規約",
+        "content": "サービス利用に関する規約内容",
+        "lastUpdated": "最終更新"
       },
       "privacy": {
-        "title": "Privacy Policy",
-        "description": "GUIDE AI Privacy Policy",
-        "content": "Privacy policy content",
-        "lastUpdated": "Last Updated"
+        "title": "プライバシーポリシー",
+        "description": "GUIDE AI プライバシーポリシー",
+        "content": "個人情報処理に関するポリシー内容",
+        "lastUpdated": "最終更新"
       }
     }
   },
@@ -1653,24 +1097,55 @@
       "logout": "退出",
       "history": "搜索历史",
       "profile": "个人资料",
-      "settings": "设置"
+      "settings": "设置",
+      "currentSelectedLanguage": "当前选择的语言",
+      "changeToLanguage": "切换到{language}",
+      "flagAltText": "{language}国旗",
+      "profileAlt": "个人资料"
     },
     "navigation": {
       "home": "首页",
-      "guides": "导游",
+      "guides": "指南",
       "favorites": "收藏",
       "about": "关于",
       "contact": "联系"
     },
     "home": {
-      "brandTitle": "掌上AI导览",
-      "title": "掌上AI旅游导览",
-      "subtitle": "无需导游，自由自在，",
-      "subtitle2": "深度旅行",
+      "brandTitle": "您的口袋",
+      "title": "您的口袋导览员",
+      "subtitle": "无导游自由旅行，",
+      "subtitle2": "却能深度体验",
       "searchPlaceholder": "您想去哪里？",
-      "searchButton": "生成导游",
+      "searchButton": "生成指南",
       "popularDestinations": "热门目的地",
-      "description": "AI发现的最完美导游解说",
+      "description": "AI发现的最完美指南解说",
+      "regionTitles": {
+        "popularCountries": "🌍 热门旅游国家",
+        "europe": "欧洲",
+        "asia": "亚洲",
+        "americas": "美洲"
+      },
+      "regionDescription": "与世界各国代表性旅游景点一起开始特别的音频指南之旅",
+      "countryAttraction": "TOP ATTRACTIONS",
+      "startGuide": "Start Guide",
+      "destinations": "destinations",
+      "scrollHint": "左右滑动查看更多国家",
+      "popularBadge": "POPULAR",
+      "stepTitles": {
+        "inputLocation": "输入地点",
+        "aiGenerate": "AI生成",
+        "audioPlay": "音频播放"
+      },
+      "stepDescriptions": {
+        "inputLocation": "输入您好奇的地点名称",
+        "aiGenerate": "AI生成定制化指南",
+        "audioPlay": "收听生成的音频指南"
+      },
+      "alerts": {
+        "enterLocation": "请先输入地点。",
+        "generationFailed": "指南生成失败",
+        "networkError": "指南生成过程中发生网络错误。"
+      },
       "searchPlaceholders": [
         "埃菲尔铁塔",
         "泰姬陵",
@@ -1684,216 +1159,246 @@
         { "name": "马丘比丘", "location": "秘鲁库斯科" }
       ],
       "features": {
-        "realTime": "实时导览",
+        "realTime": "实时指南",
         "personalized": "个性化",
         "multiLanguage": "多语言",
         "offline": "离线使用",
         "storyteller": "故事讲述者",
         "docent": "导览员",
-        "personalGuide": "个人向导",
+        "personalGuide": "私人导游",
         "audioCommentary": "音频解说",
-        "tourDocent": "旅游导览员",
+        "tourDocent": "旅游导览",
         "selfTour": "自助游"
       },
-      "stepTitles": {
-        "inputLocation": "输入地点",
-        "aiGenerate": "AI生成", 
-        "audioPlay": "音频播放"
-      },
-      "stepDescriptions": {
-        "inputLocation": "输入您想了解的地方名称",
-        "aiGenerate": "AI生成个性化导游",
-        "audioPlay": "收听生成的音频导游"
-      },
-      "regionTitles": {
-        "popularCountries": "🌍 热门旅游国家",
-        "europe": "欧洲",
-        "asia": "亚洲",
-        "americas": "美洲"
-      },
-      "regionDescription": "与世界各国代表性景点一起开始特别的音频导游之旅",
-      "countryAttraction": "热门景点",
-      "startGuide": "开始导游",
-      "destinations": "目的地",
-      "scrollHint": "左右滑动查看更多国家",
-      "popularBadge": "热门",
       "countries": {
         "france": {
           "name": "法国",
           "attractions": ["埃菲尔铁塔", "卢浮宫", "凡尔赛宫"],
-          "description": "浪漫的巴黎和华丽的文化遗产"
+          "description": "浪漫巴黎和华丽文化遗产"
         },
         "italy": {
-          "name": "Italy",
-          "attractions": ["Colosseum", "Leaning Tower of Pisa", "Vatican"],
-          "description": "Glory of ancient Rome and Renaissance art"
+          "name": "意大利",
+          "attractions": ["斗兽场", "比萨斜塔", "梵蒂冈"],
+          "description": "古罗马荣耀和文艺复兴艺术"
         },
         "spain": {
-          "name": "Spain",
-          "attractions": ["Sagrada Familia", "Alhambra", "Park Güell"],
-          "description": "Gaudí's architecture and flamenco passion"
+          "name": "西班牙",
+          "attractions": ["圣家堂", "阿尔罕布拉宫", "奎尔公园"],
+          "description": "高迪建筑和弗拉明戈激情"
         },
         "uk": {
-          "name": "United Kingdom",
-          "attractions": ["Big Ben", "Tower Bridge", "Buckingham Palace"],
-          "description": "Harmonious blend of tradition and modernity"
+          "name": "英国",
+          "attractions": ["大本钟", "塔桥", "白金汉宫"],
+          "description": "传统与现代和谐的大英帝国"
         },
         "germany": {
-          "name": "Germany",
-          "attractions": ["Brandenburg Gate", "Neuschwanstein Castle", "Cologne Cathedral"],
-          "description": "Fairy-tale castles and deep historical heritage"
+          "name": "德国",
+          "attractions": ["勃兰登堡门", "新天鹅堡", "科隆大教堂"],
+          "description": "童话城堡和深厚历史之国"
         },
         "japan": {
-          "name": "Japan",
-          "attractions": ["Mount Fuji", "Kiyomizu-dera", "Senso-ji"],
-          "description": "Mysterious land where tradition and cutting-edge coexist"
+          "name": "日本",
+          "attractions": ["富士山", "清水寺", "浅草寺"],
+          "description": "传统与尖端技术共存的神秘国度"
         },
         "china": {
-          "name": "China",
-          "attractions": ["Great Wall", "Forbidden City", "Tiananmen Square"],
-          "description": "Great civilization with 5000 years of history"
+          "name": "中国",
+          "attractions": ["长城", "紫禁城", "天安门广场"],
+          "description": "拥有五千年历史的伟大文明"
         },
         "india": {
-          "name": "India",
-          "attractions": ["Taj Mahal", "Red Fort", "Ganges River"],
-          "description": "Mystical spirituality and magnificent palaces"
+          "name": "印度",
+          "attractions": ["泰姬陵", "红堡", "恒河"],
+          "description": "神秘灵性和华丽宫殿"
         },
         "thailand": {
-          "name": "Thailand",
-          "attractions": ["Wat Arun", "Grand Palace", "Wat Pho"],
-          "description": "Golden temples and the land of smiles"
+          "name": "泰国",
+          "attractions": ["黎明寺", "大皇宫", "卧佛寺"],
+          "description": "金色寺庙和微笑之国"
         },
         "singapore": {
-          "name": "Singapore",
-          "attractions": ["Marina Bay Sands", "Gardens by the Bay", "Merlion"],
-          "description": "Future city meets diverse cultures"
+          "name": "新加坡",
+          "attractions": ["滨海湾金沙", "滨海湾花园", "鱼尾狮"],
+          "description": "未来城市与多元文化的融合"
         },
         "usa": {
-          "name": "United States",
-          "attractions": ["Statue of Liberty", "Grand Canyon", "Times Square"],
-          "description": "Land of freedom and dreams, infinite possibilities"
+          "name": "美国",
+          "attractions": ["自由女神像", "大峡谷", "时代广场"],
+          "description": "自由与梦想之地，无限可能"
         },
         "canada": {
-          "name": "Canada",
-          "attractions": ["Niagara Falls", "CN Tower", "Banff National Park"],
-          "description": "Vast nature and clean cities"
+          "name": "加拿大",
+          "attractions": ["尼亚加拉瀑布", "CN塔", "班夫国家公园"],
+          "description": "广阔自然和清洁城市"
         },
         "brazil": {
-          "name": "Brazil",
-          "attractions": ["Christ the Redeemer", "Iguazu Falls", "Maracanã Stadium"],
-          "description": "Samba and soccer, passionate South America"
+          "name": "巴西",
+          "attractions": ["里约耶稣像", "伊瓜苏瀑布", "马拉卡纳体育场"],
+          "description": "桑巴和足球，热情南美"
         },
         "peru": {
-          "name": "Peru",
-          "attractions": ["Machu Picchu", "Cusco", "Nazca Lines"],
-          "description": "Mysterious ruins of Inca civilization"
+          "name": "秘鲁",
+          "attractions": ["马丘比丘", "库斯科", "纳斯卡线"],
+          "description": "印加文明的神秘遗迹"
         },
         "mexico": {
-          "name": "Mexico",
-          "attractions": ["Chichen Itza", "Teotihuacan", "Cancun"],
-          "description": "Mayan civilization and Caribbean paradise"
+          "name": "墨西哥",
+          "attractions": ["奇琴伊察", "特奥蒂瓦坎", "坎昆"],
+          "description": "玛雅文明和加勒比海天堂"
         }
       }
     },
+    "search": {
+      "placeholder": "输入搜索词",
+      "searching": "搜索中...",
+      "noResults": "无搜索结果",
+      "tryAgain": "重试",
+      "suggestions": "建议",
+      "recentSearches": "最近搜索",
+      "pressEnterToSearch": "按Enter键搜索",
+      "clear": "清除",
+      "enterLocation": "请先输入地点",
+      "searchButton": "搜索",
+      "searchLocation": "搜索目的地",
+      "searchPrompt": "搜索{query}",
+      "searchResults": "搜索结果"
+    },
     "guide": {
-      "overview": "导览概述",
-      "route": "推荐路线",
-      "realTimeGuide": "实时语音导览",
-      "play": "播放",
-      "pause": "暂停",
-      "stop": "停止",
-      "next": "下一个",
-      "previous": "上一个",
-      "startingLocation": "起始位置",
-      "viewOnGoogleMaps": "在谷歌地图中查看",
-      "keyFacts": "关键信息",
-      "duration": "所需时间",
+      "loading": "加载指南中...",
+      "error": "无法加载指南",
+      "chapters": "章节",
+      "duration": "持续时间",
       "difficulty": "难度",
-      "season": "推荐季节",
-      "nextMove": "下一个目的地",
-      "downloadAudio": "下载音频",
-      "share": "分享",
+      "nextChapter": "下一章",
+      "previousChapter": "上一章",
+      "playAudio": "播放音频",
+      "pauseAudio": "暂停音频",
+      "mapView": "地图视图",
+      "listView": "列表视图",
       "essentialInfo": "基本信息",
-      "locationAccess": "位置与交通",
+      "locationAccess": "位置和交通",
       "keyFeatures": "主要特色",
       "historicalContext": "历史背景",
       "mustSeeHighlights": "必看亮点",
       "safetyGuidelines": "安全指南",
-      "preparing": "准备\"{location}\"导览",
-      "tourStart": "{location}旅程开始",
-      "introNarrative": "欢迎来到{location}。这里是{locationInfo}，{features}。在{background}，您将获得难忘的体验。在即将开始的旅程中探索{location}的一切。",
-      "specialPlace": "特殊地点",
-      "uniqueCharm": "具有独特魅力的地方",
-      "richHistory": "这个拥有丰富历史和文化的地方",
-      "startMainTour": "现在让我们一起前往{location}的第一个关键空间，开始正式的导览。",
-      "ttsGenerationFailed": "TTS生成失败",
-      "audioPlaybackError": "音频播放时发生错误。",
-      "audioServiceError": "音频服务配置错误。请联系管理员。",
-      "audioGenerationRetry": "音频生成失败。请稍后重试。",
-      "checkNetworkConnection": "请检查网络连接。",
-      "loadingGuide": "加载导览中",
-      "fetchingGuideData": "正在获取保存的导览数据...",
-      "chaptersCount": "{count}个章节",
-      "autoGeneratedIntro": "自动生成的介绍章节"
+      "realTimeGuideTitle": "实时指南",
+      "overview": "概览",
+      "mustSeePoints": "必看景点",
+      "precautions": "注意事项",
+      "viewingOrder": "参观顺序",
+      "audioGuide": "音频指南",
+      "thisPlace": "这个地方",
+      "tourStart": "开始游览",
+      "guideTitle": "指南",
+      "loadingGuide": "加载指南中",
+      "fetchingGuideData": "获取指南数据",
+      "currentChapter": "当前章节",
+      "nextMoveGuide": "下一步移动指南",
+      "autoGeneratedIntro": "自动生成介绍",
+      "intro": "介绍",
+      "aiCustomAudioGuide": "AI定制音频指南",
+      "generating": "生成指南中...",
+      "generatingSubtitle": "AI正在生成定制化指南"
     },
-    "search": {
-      "recentSearches": "最近搜索",
-      "suggestions": "建议",
-      "noResults": "未找到结果",
-      "searching": "搜索中...",
-      "clear": "清除",
-      "enterLocation": "请先输入地点",
-      "pressEnterToSearch": "按Enter键搜索"
+    "live": {
+      "shareTitle": "分享AI指南",
+      "shareText": "查看这个精彩的指南！"
     },
     "errors": {
       "networkError": "请检查网络连接",
       "serverError": "服务器错误",
       "notFound": "页面未找到",
-      "retry": "重试"
+      "unauthorized": "需要认证",
+      "forbidden": "访问被禁止",
+      "generalError": "发生错误"
     },
     "common": {
       "loading": "加载中...",
-      "save": "保存",
+      "error": "错误",
+      "success": "成功",
+      "warning": "警告",
+      "info": "信息",
       "cancel": "取消",
       "confirm": "确认",
+      "save": "保存",
       "delete": "删除",
       "edit": "编辑",
-      "back": "返回",
       "close": "关闭",
-      "yes": "是",
-      "no": "否",
-      "pressEnterToOpen": "按Enter键打开语言菜单",
-      "clickToSelectLanguage": "点击选择语言",
+      "hide": "隐藏",
       "exists": "存在",
       "notExists": "不存在"
+    },
+    "history": {
+      "noResults": "无搜索结果",
+      "noHistory": "无搜索历史",
+      "view": "查看指南",
+      "delete": "删除",
+      "today": "今天",
+      "yesterday": "昨天",
+      "invalidDate": "无效日期",
+      "preview": "指南预览",
+      "loadFailed": "加载历史失败",
+      "deleteFailed": "删除历史失败",
+      "searchInHistory": "在历史中搜索",
+      "searchPlaces": "搜索地点",
+      "totalGuides": "总共{count}个指南",
+      "daysAgo": "{days}天前",
+      "weeksAgo": "{weeks}周前"
     },
     "date": {
       "today": "今天",
       "yesterday": "昨天",
-      "daysAgo": "{days}天前",
-      "weeksAgo": "{weeks}周前",
-      "invalidDate": "无效日期"
+      "tomorrow": "明天",
+      "thisWeek": "本周",
+      "lastWeek": "上周",
+      "thisMonth": "本月",
+      "lastMonth": "上月"
     },
     "profile": {
+      "name": "姓名",
+      "email": "邮箱",
+      "preferences": "偏好",
+      "language": "语言",
+      "notifications": "通知",
+      "privacy": "隐私",
+      "account": "账户",
+      "logout": "退出",
       "mypage": "我的页面",
-      "account": "账户管理",
-      "preferences": "偏好设置",
-      "dashboard": "仪表板",
-      "guides": "我的导览",
-      "settings": "设置"
+      "user": "用户"
     },
     "mypage": {
       "title": "我的页面",
-      "description": "查看和管理您的AI导览记录",
-      "totalGuides": "生成的导览",
-      "completedTours": "完成的旅程",
-      "savedGuides": "保存的导览",
-      "recentGuides": "最近的导览",
-      "noGuides": "还没有创建导览",
-      "accountInfo": "账户信息",
-      "dataManagement": "数据管理",
-      "clearAllHistory": "清除所有导览历史",
-      "joinDate": "注册日期"
+      "overview": "概览",
+      "guides": "指南",
+      "settings": "设置",
+      "recentGuides": "最近指南",
+      "favoriteGuides": "收藏指南",
+      "totalGuides": "总指南数",
+      "completedTours": "完成的游览",
+      "savedLocations": "保存的地点"
+    },
+    "auth": {
+      "login": "登录",
+      "register": "注册",
+      "email": "邮箱",
+      "password": "密码",
+      "confirmPassword": "确认密码",
+      "forgotPassword": "忘记密码",
+      "rememberMe": "记住我",
+      "loginWithGoogle": "使用Google登录",
+      "loginWithFacebook": "使用Facebook登录",
+      "createAccount": "创建账户",
+      "alreadyHaveAccount": "已有账户？",
+      "noAccount": "没有账户？",
+      "signin": "登录",
+      "signout": "退出"
+    },
+    "buttons": {
+      "submit": "提交",
+      "continue": "继续",
+      "goBack": "返回",
+      "tryAgain": "重试",
+      "viewDetails": "查看详情"
     },
     "languages": {
       "ko": "韩语",
@@ -1902,86 +1407,47 @@
       "zh": "中文",
       "es": "西班牙语"
     },
-    "legal": {
-      "privacy": {
-        "title": "隐私政策",
-        "description": "NAVI-GUIDE隐私政策指南。",
-        "content": "NAVI-GUIDE根据个人信息保护法设立以下隐私政策，以保护用户的个人信息保护和权益，并顺利处理与个人信息相关的用户投诉。",
-        "lastUpdated": "最后更新"
-      },
-      "terms": {
-        "title": "使用条款",
-        "description": "NAVI-GUIDE服务使用条款指南。",
-        "content": "本条款旨在规定使用NAVI-GUIDE提供的基于AI的旅游指南服务的条件和程序相关事项。",
-        "lastUpdated": "最后更新"
-      }
-    },
-    "auth": {
-      "signin": "登录",
-      "signup": "注册",
-      "signout": "退出",
-      "email": "电子邮件",
-      "password": "密码",
-      "name": "姓名",
-      "confirmPassword": "确认密码",
-      "emailVerification": "邮箱验证",
-      "verificationCode": "验证码",
-      "sendCode": "发送验证码",
-      "resendCode": "重新发送验证码",
-      "forgotPassword": "忘记密码",
-      "loginWithGoogle": "使用Google登录",
-      "alreadyHaveAccount": "已有账户？",
-      "noAccount": "还没有账户？"
-    },
-    "buttons": {
-      "submit": "提交",
-      "continue": "继续",
-      "goBack": "返回",
-      "goHome": "回到首页",
-      "tryAgain": "重试",
-      "viewDetails": "查看详情"
-    },
-    "feedback": {
-      "ratings": {
-        "1": "非常不满意",
-        "2": "不满意",
-        "3": "一般",
-        "4": "满意",
-        "5": "非常满意"
-      },
-      "submitFailed": "反馈提交失败。请重试。"
-    },
     "audio": {
-      "audioGuide": "音频导览",
-      "unknown_error": "发生未知错误。"
+      "chapter": "章节",
+      "play": "播放",
+      "pause": "暂停",
+      "stop": "停止",
+      "previous": "上一个",
+      "next": "下一个",
+      "volume": "音量",
+      "mute": "静音",
+      "unmute": "取消静音",
+      "loading": "加载中",
+      "error": "音频错误",
+      "ended": "播放完成"
     },
     "footer": {
       "companyName": "GUIDE AI",
-      "companyDescription": "AI-based personalized travel guide service",
+      "companyDescription": "AI驱动的个性化旅游指南服务",
       "copyright": "© 2024 GUIDE AI. All rights reserved.",
-      "legalInfo": "Legal Information",
-      "privacyPolicy": "Privacy Policy",
-      "termsOfService": "Terms of Service",
-      "aboutUs": "About Us",
-      "contact": "Contact",
-      "support": "Support",
-      "telegramChannel": "Telegram Channel",
-      "supportHours": "Support Hours: Weekdays 9AM-6PM",
-      "adsenseNotice": "Ad Revenue Notice",
-      "adsensePolicy": "AdSense Policy"
+      "legalInfo": "法律信息",
+      "privacyPolicy": "隐私政策",
+      "termsOfService": "服务条款",
+      "aboutUs": "关于我们",
+      "contact": "联系我们",
+      "support": "支持",
+      "telegramChannel": "Telegram频道",
+      "supportHours": "支持时间：工作日9点-18点",
+      "adsenseNotice": "广告收入通知",
+      "adsensePolicy": "AdSense政策"
     },
     "legal": {
       "terms": {
-        "title": "Terms of Service",
-        "description": "GUIDE AI Service Terms of Service",
-        "content": "Terms and conditions for using the service",
-        "lastUpdated": "Last Updated"
+        "title": "服务条款",
+        "description": "GUIDE AI 服务条款",
+        "content": "服务条款内容",
+        "lastUpdated": "最后更新"
       },
       "privacy": {
-        "title": "Privacy Policy",
-        "description": "GUIDE AI Privacy Policy",
-        "content": "Privacy policy content",
-        "lastUpdated": "Last Updated"
+        "title": "隐私政策",
+        "description": "GUIDE AI 隐私政策",
+        "content": "隐私政策内容",
+        "lastUpdated": "最后更新"
       }
     }
   },
@@ -1990,11 +1456,15 @@
       "title": "NAVI",
       "language": "Idioma",
       "selectLanguage": "Seleccionar Idioma",
-      "login": "Iniciar sesión",
-      "logout": "Cerrar sesión",
-      "history": "Historial de búsqueda",
+      "login": "Iniciar Sesión",
+      "logout": "Cerrar Sesión",
+      "history": "Historial de Búsqueda",
       "profile": "Perfil",
-      "settings": "Configuración"
+      "settings": "Configuración",
+      "currentSelectedLanguage": "Idioma actualmente seleccionado",
+      "changeToLanguage": "Cambiar a {language}",
+      "flagAltText": "Bandera de {language}",
+      "profileAlt": "Perfil"
     },
     "navigation": {
       "home": "Inicio",
@@ -2004,14 +1474,41 @@
       "contact": "Contacto"
     },
     "home": {
-      "brandTitle": "Guía AI en Tu Mano",
-      "title": "Guía AI de Viaje en Tu Mano",
-      "subtitle": "Libremente sin guía,",
-      "subtitle2": "Viaja con profundidad",
-      "searchPlaceholder": "¿A dónde te gustaría ir?",
+      "brandTitle": "Tu Bolsillo",
+      "title": "Tu Docente de Bolsillo",
+      "subtitle": "Viaja libremente sin guías,",
+      "subtitle2": "pero experimenta profundamente",
+      "searchPlaceholder": "¿Dónde te gustaría ir?",
       "searchButton": "Generar Guía",
       "popularDestinations": "Destinos Populares",
       "description": "El comentario de guía más perfecto encontrado por IA",
+      "regionTitles": {
+        "popularCountries": "🌍 Países de Viaje Populares",
+        "europe": "Europa",
+        "asia": "Asia",
+        "americas": "Américas"
+      },
+      "regionDescription": "Comienza un viaje especial de guía de audio con atracciones turísticas representativas de todo el mundo",
+      "countryAttraction": "TOP ATTRACTIONS",
+      "startGuide": "Start Guide",
+      "destinations": "destinations",
+      "scrollHint": "Desplázate a la izquierda y derecha para ver más países",
+      "popularBadge": "POPULAR",
+      "stepTitles": {
+        "inputLocation": "Ingresar Ubicación",
+        "aiGenerate": "Generar IA",
+        "audioPlay": "Reproducir Audio"
+      },
+      "stepDescriptions": {
+        "inputLocation": "Ingrese el nombre del lugar que le interesa",
+        "aiGenerate": "La IA genera una guía personalizada",
+        "audioPlay": "Escuche la guía generada con audio"
+      },
+      "alerts": {
+        "enterLocation": "Por favor, ingrese primero una ubicación.",
+        "generationFailed": "La generación de la guía falló",
+        "networkError": "Ocurrió un error de red durante la generación de la guía."
+      },
       "searchPlaceholders": [
         "Torre Eiffel",
         "Taj Mahal",
@@ -2030,34 +1527,12 @@
         "multiLanguage": "Multiidioma",
         "offline": "Uso Sin Conexión",
         "storyteller": "Narrador",
-        "docent": "Guía",
+        "docent": "Docente",
         "personalGuide": "Guía Personal",
         "audioCommentary": "Comentario de Audio",
-        "tourDocent": "Guía Turístico",
-        "selfTour": "Tour Autoguiado"
+        "tourDocent": "Docente de Tour",
+        "selfTour": "Auto Tour"
       },
-      "stepTitles": {
-        "inputLocation": "Ingresar Ubicación",
-        "aiGenerate": "Generar IA", 
-        "audioPlay": "Reproducir Audio"
-      },
-      "stepDescriptions": {
-        "inputLocation": "Ingrese el nombre del lugar que le interesa",
-        "aiGenerate": "La IA genera una guía personalizada",
-        "audioPlay": "Escuche la guía generada con audio"
-      },
-      "regionTitles": {
-        "popularCountries": "🌍 Países de Viaje Populares",
-        "europe": "Europa",
-        "asia": "Asia",
-        "americas": "Américas"
-      },
-      "regionDescription": "Comience su viaje especial de audioguía con atracciones representativas de países de todo el mundo",
-      "countryAttraction": "TOP ATTRACTIONS",
-      "startGuide": "Start Guide",
-      "destinations": "destinations",
-      "scrollHint": "Scroll left and right to see more countries",
-      "popularBadge": "POPULAR",
       "countries": {
         "france": {
           "name": "Francia",
@@ -2065,176 +1540,228 @@
           "description": "París romántico y magnífico patrimonio cultural"
         },
         "italy": {
-          "name": "Italy",
-          "attractions": ["Colosseum", "Leaning Tower of Pisa", "Vatican"],
-          "description": "Glory of ancient Rome and Renaissance art"
+          "name": "Italia",
+          "attractions": ["Coliseo", "Torre de Pisa", "Vaticano"],
+          "description": "Gloria de la antigua Roma y arte renacentista"
         },
         "spain": {
-          "name": "Spain",
-          "attractions": ["Sagrada Familia", "Alhambra", "Park Güell"],
-          "description": "Gaudí's architecture and flamenco passion"
+          "name": "España",
+          "attractions": ["Sagrada Familia", "Alhambra", "Parque Güell"],
+          "description": "Arquitectura de Gaudí y pasión flamenca"
         },
         "uk": {
-          "name": "United Kingdom",
-          "attractions": ["Big Ben", "Tower Bridge", "Buckingham Palace"],
-          "description": "Harmonious blend of tradition and modernity"
+          "name": "Reino Unido",
+          "attractions": ["Big Ben", "Tower Bridge", "Palacio de Buckingham"],
+          "description": "Imperio Británico con armonía tradicional y moderna"
         },
         "germany": {
-          "name": "Germany",
-          "attractions": ["Brandenburg Gate", "Neuschwanstein Castle", "Cologne Cathedral"],
-          "description": "Fairy-tale castles and deep historical heritage"
+          "name": "Alemania",
+          "attractions": ["Puerta de Brandeburgo", "Castillo de Neuschwanstein", "Catedral de Colonia"],
+          "description": "País de castillos de cuento e historia profunda"
         },
         "japan": {
-          "name": "Japan",
-          "attractions": ["Mount Fuji", "Kiyomizu-dera", "Senso-ji"],
-          "description": "Mysterious land where tradition and cutting-edge coexist"
+          "name": "Japón",
+          "attractions": ["Monte Fuji", "Kiyomizu-dera", "Templo Sensoji"],
+          "description": "País misterioso donde coexisten tradición y tecnología"
         },
         "china": {
           "name": "China",
-          "attractions": ["Great Wall", "Forbidden City", "Tiananmen Square"],
-          "description": "Great civilization with 5000 years of history"
+          "attractions": ["Gran Muralla", "Ciudad Prohibida", "Plaza de Tiananmen"],
+          "description": "Gran civilización con 5,000 años de historia"
         },
         "india": {
           "name": "India",
-          "attractions": ["Taj Mahal", "Red Fort", "Ganges River"],
-          "description": "Mystical spirituality and magnificent palaces"
+          "attractions": ["Taj Mahal", "Fuerte Rojo", "Río Ganges"],
+          "description": "Espiritualidad misteriosa y palacios magníficos"
         },
         "thailand": {
-          "name": "Thailand",
-          "attractions": ["Wat Arun", "Grand Palace", "Wat Pho"],
-          "description": "Golden temples and the land of smiles"
+          "name": "Tailandia",
+          "attractions": ["Wat Arun", "Gran Palacio", "Wat Pho"],
+          "description": "País de templos dorados y sonrisas"
         },
         "singapore": {
-          "name": "Singapore",
+          "name": "Singapur",
           "attractions": ["Marina Bay Sands", "Gardens by the Bay", "Merlion"],
-          "description": "Future city meets diverse cultures"
+          "description": "Encuentro de ciudad futurista y culturas diversas"
         },
         "usa": {
-          "name": "United States",
-          "attractions": ["Statue of Liberty", "Grand Canyon", "Times Square"],
-          "description": "Land of freedom and dreams, infinite possibilities"
+          "name": "Estados Unidos",
+          "attractions": ["Estatua de la Libertad", "Gran Cañón", "Times Square"],
+          "description": "Tierra de libertad y sueños, posibilidades infinitas"
         },
         "canada": {
-          "name": "Canada",
-          "attractions": ["Niagara Falls", "CN Tower", "Banff National Park"],
-          "description": "Vast nature and clean cities"
+          "name": "Canadá",
+          "attractions": ["Cataratas del Niágara", "Torre CN", "Parque Nacional Banff"],
+          "description": "Naturaleza vasta y ciudades limpias"
         },
         "brazil": {
-          "name": "Brazil",
-          "attractions": ["Christ the Redeemer", "Iguazu Falls", "Maracanã Stadium"],
-          "description": "Samba and soccer, passionate South America"
+          "name": "Brasil",
+          "attractions": ["Cristo Redentor", "Cataratas del Iguazú", "Estadio Maracaná"],
+          "description": "Samba y fútbol, Sudamérica apasionada"
         },
         "peru": {
-          "name": "Peru",
-          "attractions": ["Machu Picchu", "Cusco", "Nazca Lines"],
-          "description": "Mysterious ruins of Inca civilization"
+          "name": "Perú",
+          "attractions": ["Machu Picchu", "Cusco", "Líneas de Nazca"],
+          "description": "Ruinas misteriosas de la civilización inca"
         },
         "mexico": {
-          "name": "Mexico",
-          "attractions": ["Chichen Itza", "Teotihuacan", "Cancun"],
-          "description": "Mayan civilization and Caribbean paradise"
+          "name": "México",
+          "attractions": ["Chichén Itzá", "Teotihuacán", "Cancún"],
+          "description": "Civilización maya y paraíso caribeño"
         }
       }
     },
-    "guide": {
-      "overview": "Resumen del Tour",
-      "route": "Ruta Recomendada",
-      "realTimeGuide": "Guía de Audio en Tiempo Real",
-      "play": "Reproducir",
-      "pause": "Pausar",
-      "stop": "Detener",
-      "next": "Siguiente",
-      "previous": "Anterior",
-      "startingLocation": "Ubicación de Inicio",
-      "viewOnGoogleMaps": "Ver en Google Maps",
-      "keyFacts": "Información Clave",
-      "duration": "Duración",
-      "difficulty": "Dificultad",
-      "season": "Mejor Temporada",
-      "nextMove": "Próximo Destino",
-      "downloadAudio": "Descargar Audio",
-      "share": "Compartir",
-      "essentialInfo": "Información Esencial",
-      "locationAccess": "Ubicación y Acceso",
-      "keyFeatures": "Características Principales",
-      "historicalContext": "Contexto Histórico",
-      "mustSeeHighlights": "Puntos Destacados Imprescindibles",
-      "safetyGuidelines": "Pautas de Seguridad",
-      "preparing": "Preparando guía de \"{location}\"",
-      "tourStart": "Comienza el Viaje a {location}",
-      "introNarrative": "Bienvenido a {location}. Este es {locationInfo}, {features}. En {background}, tendrás experiencias inolvidables. Explora todo lo que {location} tiene para ofrecer en el viaje que comienza ahora.",
-      "specialPlace": "un lugar especial",
-      "uniqueCharm": "un lugar con encanto único",
-      "richHistory": "este lugar rico en historia y cultura",
-      "startMainTour": "Ahora vamos juntos al primer espacio clave de {location} y comenzamos el tour completo.",
-      "ttsGenerationFailed": "Fallo en la generación de TTS",
-      "audioPlaybackError": "Ocurrió un error durante la reproducción de audio.",
-      "audioServiceError": "Error de configuración del servicio de audio. Por favor contacte al administrador.",
-      "audioGenerationRetry": "Falló la generación de audio. Por favor inténtalo de nuevo más tarde.",
-      "checkNetworkConnection": "Por favor verifica tu conexión de red.",
-      "loadingGuide": "Cargando guía",
-      "fetchingGuideData": "Obteniendo datos de guía guardados...",
-      "chaptersCount": "{count} capítulos",
-      "autoGeneratedIntro": "Capítulo de introducción generado automáticamente"
-    },
     "search": {
-      "recentSearches": "Búsquedas Recientes",
-      "suggestions": "Sugerencias",
-      "noResults": "No se encontraron resultados",
+      "placeholder": "Ingrese término de búsqueda",
       "searching": "Buscando...",
+      "noResults": "Sin resultados de búsqueda",
+      "tryAgain": "Intentar de Nuevo",
+      "suggestions": "Sugerencias",
+      "recentSearches": "Búsquedas Recientes",
+      "pressEnterToSearch": "Presiona Enter para buscar",
       "clear": "Limpiar",
       "enterLocation": "Por favor, ingrese primero una ubicación",
-      "pressEnterToSearch": "Presiona Enter para buscar"
+      "searchButton": "Buscar",
+      "searchLocation": "Buscar destino",
+      "searchPrompt": "Buscar {query}",
+      "searchResults": "Resultados de Búsqueda"
+    },
+    "guide": {
+      "loading": "Cargando guía...",
+      "error": "No se puede cargar la guía",
+      "chapters": "Capítulos",
+      "duration": "Duración",
+      "difficulty": "Dificultad",
+      "nextChapter": "Siguiente Capítulo",
+      "previousChapter": "Capítulo Anterior",
+      "playAudio": "Reproducir Audio",
+      "pauseAudio": "Pausar Audio",
+      "mapView": "Vista de Mapa",
+      "listView": "Vista de Lista",
+      "essentialInfo": "Información Esencial",
+      "locationAccess": "Ubicación y Acceso",
+      "keyFeatures": "Características Clave",
+      "historicalContext": "Contexto Histórico",
+      "mustSeeHighlights": "Destacados Imperdibles",
+      "safetyGuidelines": "Pautas de Seguridad",
+      "realTimeGuideTitle": "Guía en Tiempo Real",
+      "overview": "Resumen",
+      "mustSeePoints": "Puntos Imperdibles",
+      "precautions": "Precauciones",
+      "viewingOrder": "Orden de Visita",
+      "audioGuide": "Guía de Audio",
+      "thisPlace": "Este Lugar",
+      "tourStart": "Iniciar Tour",
+      "guideTitle": "Guía",
+      "loadingGuide": "Cargando Guía",
+      "fetchingGuideData": "Obteniendo datos de la guía",
+      "currentChapter": "Capítulo Actual",
+      "nextMoveGuide": "Siguiente Guía de Movimiento",
+      "autoGeneratedIntro": "Introducción Auto-generada",
+      "intro": "Introducción",
+      "aiCustomAudioGuide": "Guía de Audio Personalizada IA",
+      "generating": "Generando guía...",
+      "generatingSubtitle": "IA está generando una guía personalizada"
+    },
+    "live": {
+      "shareTitle": "Compartir Guía IA",
+      "shareText": "¡Echa un vistazo a esta increíble guía!"
     },
     "errors": {
       "networkError": "Por favor, verifica tu conexión de red",
       "serverError": "Ocurrió un error del servidor",
       "notFound": "Página no encontrada",
-      "retry": "Reintentar"
+      "unauthorized": "Autenticación requerida",
+      "forbidden": "Acceso prohibido",
+      "generalError": "Ocurrió un error"
     },
     "common": {
       "loading": "Cargando...",
-      "save": "Guardar",
+      "error": "Error",
+      "success": "Éxito",
+      "warning": "Advertencia",
+      "info": "Información",
       "cancel": "Cancelar",
       "confirm": "Confirmar",
+      "save": "Guardar",
       "delete": "Eliminar",
       "edit": "Editar",
-      "back": "Atrás",
       "close": "Cerrar",
-      "yes": "Sí",
-      "no": "No",
-      "pressEnterToOpen": "Presiona Enter para abrir el menú de idiomas",
-      "clickToSelectLanguage": "Haz clic para seleccionar idioma",
+      "hide": "Ocultar",
       "exists": "Existe",
-      "notExists": "No existe"
+      "notExists": "No Existe"
+    },
+    "history": {
+      "noResults": "Sin resultados de búsqueda",
+      "noHistory": "Sin historial de búsqueda",
+      "view": "Ver Guía",
+      "delete": "Eliminar",
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "invalidDate": "Fecha Inválida",
+      "preview": "Vista Previa de Guía",
+      "loadFailed": "Error al cargar historial",
+      "deleteFailed": "Error al eliminar historial",
+      "searchInHistory": "Buscar en historial",
+      "searchPlaces": "Buscar lugares",
+      "totalGuides": "Total {count} guías",
+      "daysAgo": "hace {days} días",
+      "weeksAgo": "hace {weeks} semanas"
     },
     "date": {
       "today": "Hoy",
       "yesterday": "Ayer",
-      "daysAgo": "hace {days} días",
-      "weeksAgo": "hace {weeks} semanas",
-      "invalidDate": "Fecha inválida"
+      "tomorrow": "Mañana",
+      "thisWeek": "Esta Semana",
+      "lastWeek": "Semana Pasada",
+      "thisMonth": "Este Mes",
+      "lastMonth": "Mes Pasado"
     },
     "profile": {
-      "mypage": "Mi Página",
-      "account": "Gestión de Cuenta",
+      "name": "Nombre",
+      "email": "Correo",
       "preferences": "Preferencias",
-      "dashboard": "Panel de Control",
-      "guides": "Mis Guías",
-      "settings": "Configuración"
+      "language": "Idioma",
+      "notifications": "Notificaciones",
+      "privacy": "Privacidad",
+      "account": "Cuenta",
+      "logout": "Cerrar Sesión",
+      "mypage": "Mi Página",
+      "user": "Usuario"
     },
     "mypage": {
       "title": "Mi Página",
-      "description": "Revisa y gestiona tus registros de guías AI",
-      "totalGuides": "Guías Generadas",
-      "completedTours": "Tours Completados",
-      "savedGuides": "Guías Guardadas",
+      "overview": "Resumen",
+      "guides": "Guías",
+      "settings": "Configuración",
       "recentGuides": "Guías Recientes",
-      "noGuides": "Aún no se han creado guías",
-      "accountInfo": "Información de la Cuenta",
-      "dataManagement": "Gestión de Datos",
-      "clearAllHistory": "Borrar Todo el Historial de Guías",
-      "joinDate": "Fecha de Registro"
+      "favoriteGuides": "Guías Favoritas",
+      "totalGuides": "Total de Guías",
+      "completedTours": "Tours Completados",
+      "savedLocations": "Ubicaciones Guardadas"
+    },
+    "auth": {
+      "login": "Iniciar Sesión",
+      "register": "Registrarse",
+      "email": "Correo",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar Contraseña",
+      "forgotPassword": "Olvidé mi Contraseña",
+      "rememberMe": "Recordarme",
+      "loginWithGoogle": "Iniciar con Google",
+      "loginWithFacebook": "Iniciar con Facebook",
+      "createAccount": "Crear Cuenta",
+      "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+      "noAccount": "¿No tienes una cuenta?",
+      "signin": "Iniciar Sesión",
+      "signout": "Cerrar Sesión"
+    },
+    "buttons": {
+      "submit": "Enviar",
+      "continue": "Continuar",
+      "goBack": "Volver",
+      "tryAgain": "Intentar de Nuevo",
+      "viewDetails": "Ver Detalles"
     },
     "languages": {
       "ko": "Coreano",
@@ -2243,86 +1770,47 @@
       "zh": "Chino",
       "es": "Español"
     },
-    "legal": {
-      "privacy": {
-        "title": "Política de Privacidad",
-        "description": "Directrices de la política de privacidad de NAVI-GUIDE.",
-        "content": "NAVI-GUIDE mantiene la siguiente política de privacidad para proteger la información personal y los derechos de los usuarios de acuerdo con las leyes de protección de información personal y para manejar sin problemas las quejas de los usuarios relacionadas con la información personal.",
-        "lastUpdated": "Última Actualización"
-      },
-      "terms": {
-        "title": "Términos de Servicio",
-        "description": "Directrices de los términos de uso del servicio NAVI-GUIDE.",
-        "content": "Estos términos tienen como objetivo definir las condiciones y procedimientos para usar el servicio de guía de viaje basado en IA de NAVI-GUIDE.",
-        "lastUpdated": "Última Actualización"
-      }
-    },
-    "auth": {
-      "signin": "Iniciar Sesión",
-      "signup": "Registrarse",
-      "signout": "Cerrar Sesión",
-      "email": "Correo Electrónico",
-      "password": "Contraseña",
-      "name": "Nombre",
-      "confirmPassword": "Confirmar Contraseña",
-      "emailVerification": "Verificación de Correo",
-      "verificationCode": "Código de Verificación",
-      "sendCode": "Enviar Código de Verificación",
-      "resendCode": "Reenviar Código",
-      "forgotPassword": "Olvidé la Contraseña",
-      "loginWithGoogle": "Iniciar sesión con Google",
-      "alreadyHaveAccount": "¿Ya tienes una cuenta?",
-      "noAccount": "¿No tienes una cuenta?"
-    },
-    "buttons": {
-      "submit": "Enviar",
-      "continue": "Continuar",
-      "goBack": "Volver",
-      "goHome": "Ir a Inicio",
-      "tryAgain": "Intentar de Nuevo",
-      "viewDetails": "Ver Detalles"
-    },
-    "feedback": {
-      "ratings": {
-        "1": "Muy Insatisfecho",
-        "2": "Insatisfecho",
-        "3": "Regular",
-        "4": "Satisfecho",
-        "5": "Muy Satisfecho"
-      },
-      "submitFailed": "Error al enviar comentarios. Por favor, inténtalo de nuevo."
-    },
     "audio": {
-      "audioGuide": "Guía de Audio",
-      "unknown_error": "Ocurrió un error desconocido."
+      "chapter": "Capítulo",
+      "play": "Reproducir",
+      "pause": "Pausa",
+      "stop": "Detener",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "volume": "Volumen",
+      "mute": "Silenciar",
+      "unmute": "Desilenciar",
+      "loading": "Cargando",
+      "error": "Error de Audio",
+      "ended": "Reproducción Completa"
     },
     "footer": {
       "companyName": "GUIDE AI",
-      "companyDescription": "AI-based personalized travel guide service",
+      "companyDescription": "Servicio de guía de viaje personalizada impulsado por IA",
       "copyright": "© 2024 GUIDE AI. All rights reserved.",
-      "legalInfo": "Legal Information",
-      "privacyPolicy": "Privacy Policy",
-      "termsOfService": "Terms of Service",
-      "aboutUs": "About Us",
-      "contact": "Contact",
-      "support": "Support",
-      "telegramChannel": "Telegram Channel",
-      "supportHours": "Support Hours: Weekdays 9AM-6PM",
-      "adsenseNotice": "Ad Revenue Notice",
-      "adsensePolicy": "AdSense Policy"
+      "legalInfo": "Información Legal",
+      "privacyPolicy": "Política de Privacidad",
+      "termsOfService": "Términos de Servicio",
+      "aboutUs": "Acerca de Nosotros",
+      "contact": "Contacto",
+      "support": "Soporte",
+      "telegramChannel": "Canal de Telegram",
+      "supportHours": "Horario de Soporte: Días laborables 9AM-6PM",
+      "adsenseNotice": "Aviso de Ingresos por Publicidad",
+      "adsensePolicy": "Política de AdSense"
     },
     "legal": {
       "terms": {
-        "title": "Terms of Service",
-        "description": "GUIDE AI Service Terms of Service",
-        "content": "Terms and conditions for using the service",
-        "lastUpdated": "Last Updated"
+        "title": "Términos de Servicio",
+        "description": "Términos de Servicio de GUIDE AI",
+        "content": "Contenido de términos de servicio",
+        "lastUpdated": "Última Actualización"
       },
       "privacy": {
-        "title": "Privacy Policy",
-        "description": "GUIDE AI Privacy Policy",
-        "content": "Privacy policy content",
-        "lastUpdated": "Last Updated"
+        "title": "Política de Privacidad",
+        "description": "Política de Privacidad de GUIDE AI",
+        "content": "Contenido de política de privacidad",
+        "lastUpdated": "Última Actualización"
       }
     }
   }
