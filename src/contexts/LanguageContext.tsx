@@ -268,6 +268,27 @@ interface Translations {
     noAccount: string;
     signin: string;
     signout: string;
+    welcomeTitle: string;
+    personalizedGuides: string;
+    joinTitle: string;
+    exploreWithAI: string;
+    emailVerification: string;
+    enterCode: string;
+    signupComplete: string;
+    startYourJourney: string;
+    enterYourEmail: string;
+    enterYourPassword: string;
+    enterYourName: string;
+    passwordMinLength: string;
+    confirmYourPassword: string;
+    name: string;
+    verifyEmail: string;
+    orContinueWith: string;
+    registerWithGoogle: string;
+    signup: string;
+    termsAndConditions: string;
+    privacyPolicy: string;
+    secureConnection: string;
   };
   buttons: {
     submit: string;
@@ -599,7 +620,28 @@ const DEFAULT_TRANSLATIONS: Translations = {
     alreadyHaveAccount: '이미 계정이 있으신가요?',
     noAccount: '계정이 없으신가요?',
     signin: '로그인',
-    signout: '로그아웃'
+    signout: '로그아웃',
+    welcomeTitle: 'AI 가이드에 오신 것을 환영합니다',
+    personalizedGuides: '개인 맞춤형 가이드로 새로운 여행을 경험하세요',
+    joinTitle: 'AI 가이드와 함께 시작하세요',
+    exploreWithAI: 'AI와 함께 세계를 탐험하세요',
+    emailVerification: '이메일 인증',
+    enterCode: '인증 코드를 입력하세요',
+    signupComplete: '회원가입 완료',
+    startYourJourney: '이제 AI 가이드와 함께 여행을 시작하세요',
+    enterYourEmail: '이메일을 입력하세요',
+    enterYourPassword: '비밀번호를 입력하세요',
+    enterYourName: '이름을 입력하세요',
+    passwordMinLength: '8자 이상의 비밀번호를 입력하세요',
+    confirmYourPassword: '비밀번호를 다시 입력하세요',
+    name: '이름',
+    verifyEmail: '이메일 인증',
+    orContinueWith: '또는 다음으로 계속하기',
+    registerWithGoogle: 'Google로 회원가입',
+    signup: '회원가입',
+    termsAndConditions: '이용약관',
+    privacyPolicy: '개인정보 처리방침',
+    secureConnection: '256-bit SSL 보안 연결로 보호됩니다'
   },
   buttons: {
     submit: '제출',
