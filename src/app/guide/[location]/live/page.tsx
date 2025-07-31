@@ -331,7 +331,7 @@ const LiveTourPage: React.FC = () => {
       console.log('스크롤 리스너 해제');
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [showScrollButtons]);
+  }, []); // 빈 의존성 배열로 변경 - 스크롤 이벤트 리스너는 초기 한 번만 등록
 
   // 스크롤 투 탑 함수
   const scrollToTop = () => {
@@ -603,7 +603,7 @@ const LiveTourPage: React.FC = () => {
         <div>currentScrollY: {currentScrollY}</div>
         <div>scrollY &gt; 300: {(currentScrollY > 300).toString()}</div>
         <div>Buttons should show: {showScrollButtons ? 'YES' : 'NO'}</div>
-        <div>Page height: {typeof document !== 'undefined' ? document.body.scrollHeight : 'N/A'}</div>
+        <div>Page height: {typeof window !== 'undefined' && document ? document.body.scrollHeight : 'N/A'}</div>
       </div>
     </div>
   );
