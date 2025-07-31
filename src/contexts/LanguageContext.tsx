@@ -566,7 +566,7 @@ interface LanguageContextType {
   currentLanguage: SupportedLanguage;
   currentConfig: LanguageConfig;
   setLanguage: (language: SupportedLanguage) => void;
-  t: (key: string) => string;
+  t: (key: string) => string | string[];
   translations: Translations;
   isLoading: boolean;
   isRTL: boolean;
@@ -806,7 +806,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // 번역 함수
-  const t = (key: string): string => {
+  const t = (key: string): string | string[] => {
     const keys = key.split('.');
     let value: any = translations;
     
@@ -819,7 +819,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       }
     }
     
-    return typeof value === 'string' ? value : key;
+    return value; // 원래 값 그대로 반환 (string 또는 array)
   };
 
   const contextValue: LanguageContextType = {

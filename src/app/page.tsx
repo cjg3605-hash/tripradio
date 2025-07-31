@@ -461,7 +461,7 @@ export default function HomePage() {
               <div>
                 {/* 상단: 내손안의 (왼쪽 정렬) */}
                 <div className="mb-4 text-left">
-                  <span className="block font-bold text-3xl md:text-5xl">
+                  <span className="block font-bold text-3xl md:text-5xl md:text-[1.5rem] lg:text-[2.5rem]">
                     {t('home.brandTitle') || '내 손안의'}
                   </span>
                 </div>
@@ -470,7 +470,7 @@ export default function HomePage() {
                 <div className="flex justify-center">
                   <div className="overflow-hidden" style={{ height: '48px', lineHeight: '48px' }}>
                     <span 
-                      className="inline-block transition-transform duration-1000 ease-out font-bold text-3xl md:text-5xl"
+                      className="inline-block transition-transform duration-1000 ease-out font-bold text-3xl md:text-5xl md:text-[1.5rem] lg:text-[2.5rem]"
                       style={{
                         transform: `translateY(-${currentWord * 48}px)`
                       }}
