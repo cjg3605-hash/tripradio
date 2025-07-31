@@ -37,7 +37,7 @@ export default function NextLevelSearchBox() {
       setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [placeholders.length]);
 
   // Advanced search suggestions
   useEffect(() => {

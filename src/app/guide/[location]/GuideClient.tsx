@@ -217,7 +217,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         }
 
         loadOrGenerateGuide();
-    }, [locationName, currentLanguage, session]);
+    }, [locationName, currentLanguage, session, guideData, normalizeGuideData, t]);
 
     if (isLoading) {
         return (

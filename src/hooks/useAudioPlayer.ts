@@ -236,7 +236,7 @@ export const useAudioPlayer = ({ chapters, onChapterChange, onPlaybackEnd }: Use
     }
 
     goToChapter(nextIndex);
-  }, [currentChapterIndex, chapters.length, repeatMode, shuffleMode, goToChapter, onPlaybackEnd]);
+  }, [currentChapterIndex, chapters, repeatMode, shuffleMode, goToChapter, onPlaybackEnd]);
 
   // 이전 챕터
   const handlePrevious = useCallback(() => {
@@ -259,7 +259,7 @@ export const useAudioPlayer = ({ chapters, onChapterChange, onPlaybackEnd }: Use
     }
 
     goToChapter(prevIndex);
-  }, [currentChapterIndex, chapters.length, repeatMode, shuffleMode, goToChapter]);
+  }, [currentChapterIndex, chapters, repeatMode, shuffleMode, goToChapter]);
 
   // 시간 이동
   const seekTo = useCallback((time: number) => {
@@ -344,7 +344,7 @@ export const useAudioPlayer = ({ chapters, onChapterChange, onPlaybackEnd }: Use
     if (chapters.length > 0 && audioRef.current) {
       loadChapter(0);
     }
-  }, [chapters.length, loadChapter]);
+  }, [chapters, loadChapter]);
 
   return {
     // Refs

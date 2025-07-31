@@ -937,7 +937,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     };
 
     initializeLanguage();
-  }, []);
+  }, [currentLanguage, setLanguage]);
 
   // 번역 함수
   const t = (key: string): string | string[] => {

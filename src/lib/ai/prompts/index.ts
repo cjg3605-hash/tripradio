@@ -686,7 +686,7 @@ export { analyzeLocationType as detectLocationType };
 export { LOCATION_TYPE_CONFIGS };
 
 // 기본 export (호환성)
-export default {
+const PromptModule = {
   createPrompt,
   createStructurePrompt,
   createChapterPrompt,
@@ -703,3 +703,5 @@ export default {
   REALTIME_GUIDE_KEYS,
   LOCATION_TYPE_CONFIGS
 };
+
+export default PromptModule;

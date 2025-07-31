@@ -331,7 +331,7 @@ const LiveTourPage: React.FC = () => {
       console.log('스크롤 리스너 해제');
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [showScrollButtons]);
 
   // 스크롤 투 탑 함수
   const scrollToTop = () => {

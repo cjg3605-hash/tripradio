@@ -257,7 +257,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
     };
 
     initializeGuide();
-  }, [locationName]); // initialGuide 의존성 제거 (한 번만 실행)
+  }, [locationName, currentLanguage, initialGuide, loadAvailableLanguages, loadGuideForLanguage, saveToHistory]);
 
   // 언어 변경시 자동 로드
   useEffect(() => {
@@ -265,7 +265,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
       console.log(`🌍 언어 변경 감지: ${currentLanguage}`);
       loadGuideForLanguage(currentLanguage);
     }
-  }, [currentLanguage]);
+  }, [currentLanguage, guideData, isLoading, loadGuideForLanguage]);
 
   // 로딩 상태 표시
   if (isLoading) {

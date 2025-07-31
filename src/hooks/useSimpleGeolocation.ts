@@ -33,29 +33,6 @@ export const useSimpleGeolocation = () => {
     isTracking: false
   });
 
-  // 방향 감지 설정
-  const setupOrientationTracking = useCallback(() => {
-    if (!window.DeviceOrientationEvent) {
-      return;
-    }
-
-    // iOS 권한 요청 (iOS 13+)
-    if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-      (DeviceOrientationEvent as any).requestPermission()
-        .then((permissionState: string) => {
-          if (permissionState === 'granted') {
-            startOrientationTracking();
-          }
-        })
-        .catch((error: any) => {
-          console.warn('Device orientation permission denied:', error);
-        });
-    } else {
-      // Android 및 기타 플랫폼
-      startOrientationTracking();
-    }
-  }, []);
-
   const startOrientationTracking = useCallback(() => {
     if (orientationListenerRef.current) {
       (window as any).removeEventListener('deviceorientationabsolute', orientationListenerRef.current);
@@ -87,6 +64,29 @@ export const useSimpleGeolocation = () => {
       (window as any).addEventListener('deviceorientation', handleOrientation, { passive: true });
     }
   }, []);
+
+  // 방향 감지 설정
+  const setupOrientationTracking = useCallback(() => {
+    if (!window.DeviceOrientationEvent) {
+      return;
+    }
+
+    // iOS 권한 요청 (iOS 13+)
+    if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+      (DeviceOrientationEvent as any).requestPermission()
+        .then((permissionState: string) => {
+          if (permissionState === 'granted') {
+            startOrientationTracking();
+          }
+        })
+        .catch((error: any) => {
+          console.warn('Device orientation permission denied:', error);
+        });
+    } else {
+      // Android 및 기타 플랫폼
+      startOrientationTracking();
+    }
+  }, [startOrientationTracking]);
 
   // 위치 추적 시작
   const startTracking = useCallback(() => {

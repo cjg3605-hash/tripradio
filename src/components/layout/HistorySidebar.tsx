@@ -115,7 +115,7 @@ const session = sessionResult?.data;
     if (isOpen) {
       loadHistory();
     }
-  }, [isOpen, session]);
+  }, [isOpen, session, loadHistory]);
 
   // 사이드바 열렸을 때 스크롤 방지
   useEffect(() => {

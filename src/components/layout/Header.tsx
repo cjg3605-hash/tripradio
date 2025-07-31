@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
+import Image from 'next/image';
 import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
 import { Volume2, Globe, User, ChevronDown, LogIn, LogOut } from 'lucide-react';
 
@@ -27,6 +28,17 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
     const currentIndex = SUPPORTED_LANGUAGES.findIndex(lang => lang.code === currentLanguage);
     setSelectedLanguageIndex(currentIndex >= 0 ? currentIndex : 0);
   }, [currentLanguage]);
+
+  const handleLanguageChange = async (langCode: string) => {
+    console.log('🔥 Language changing to:', langCode);
+    try {
+      await setLanguage(langCode as any);
+      setIsLanguageMenuOpen(false);
+      console.log('✅ Language changed successfully to:', langCode);
+    } catch (error) {
+      console.error('❌ Language change failed:', error);
+    }
+  };
 
   // 키보드 네비게이션 및 외부 클릭 처리
   useEffect(() => {
@@ -111,19 +123,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [isLanguageMenuOpen, selectedLanguageIndex]);
-
-
-  const handleLanguageChange = async (langCode: string) => {
-    console.log('🔥 Language changing to:', langCode);
-    try {
-      await setLanguage(langCode as any);
-      setIsLanguageMenuOpen(false);
-      console.log('✅ Language changed successfully to:', langCode);
-    } catch (error) {
-      console.error('❌ Language change failed:', error);
-    }
-  };
+  }, [isLanguageMenuOpen, selectedLanguageIndex, handleLanguageChange, isProfileMenuOpen]);
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/' });
@@ -284,9 +284,11 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                 className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
               >
                 {session.user.image ? (
-                  <img 
+                  <Image 
                     src={session.user.image} 
                     alt={String(t('header.profileAlt'))} 
+                    width={20}
+                    height={20}
                     className="w-5 h-5 rounded-full"
                   />
                 ) : (
@@ -453,9 +455,11 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
                 className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-xs text-gray-700 transition-colors duration-150"
               >
                 {session.user.image ? (
-                  <img 
+                  <Image 
                     src={session.user.image} 
                     alt={String(t('header.profileAlt'))} 
+                    width={16}
+                    height={16}
                     className="w-4 h-4 rounded-full"
                   />
                 ) : (

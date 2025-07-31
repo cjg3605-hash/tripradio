@@ -41,6 +41,14 @@ const SimpleAudioPlayer: React.FC<SimpleAudioPlayerProps> = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // 다음 챕터
+  const handleNext = () => {
+    if (currentChapterIndex < chapters.length - 1) {
+      setCurrentChapterIndex(currentChapterIndex + 1);
+      setIsPlaying(false);
+    }
+  };
+
   // 오디오 이벤트 핸들러
   useEffect(() => {
     const audio = audioRef.current;
@@ -62,7 +70,7 @@ const SimpleAudioPlayer: React.FC<SimpleAudioPlayerProps> = ({
       audio.removeEventListener('durationchange', handleDurationChange);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, []);
+  }, [handleNext]);
 
   // 챕터 변경 시 오디오 로드
   useEffect(() => {
@@ -90,14 +98,6 @@ const SimpleAudioPlayer: React.FC<SimpleAudioPlayerProps> = ({
   const handlePrevious = () => {
     if (currentChapterIndex > 0) {
       setCurrentChapterIndex(currentChapterIndex - 1);
-      setIsPlaying(false);
-    }
-  };
-
-  // 다음 챕터
-  const handleNext = () => {
-    if (currentChapterIndex < chapters.length - 1) {
-      setCurrentChapterIndex(currentChapterIndex + 1);
       setIsPlaying(false);
     }
   };

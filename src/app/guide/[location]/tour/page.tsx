@@ -195,7 +195,7 @@ export default function TourPage() {
     };
 
     fetchGuideData();
-  }, [locationName, userProfile]);
+  }, [locationName, userProfile, currentLanguage]);
 
   if (isLoading || !isMounted) {
     return (

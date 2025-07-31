@@ -398,10 +398,12 @@ function calculateTextSimilarity(text1: string, text2: string): number {
 }
 
 // 기본 export
-export default {
+const AccuracyValidator = {
   validateAccuracy,
   sanitizeResponse,
   shouldRegenerate,
   generateAccuracyReport,
   verifyWithExternalData
 };
+
+export default AccuracyValidator;

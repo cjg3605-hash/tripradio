@@ -414,7 +414,7 @@ ${improvements.map(imp => `- ${imp}`).join('\n')}
   }
 }
 
-export default {
+const OptimizedHybridModule = {
   createHybridOptimizedPrompt,
   detectCulturalContext,
   QualityMeasurement,
@@ -422,3 +422,5 @@ export default {
   CULTURAL_EXPERTS,
   QUALITY_CONSTITUTION
 };
+
+export default OptimizedHybridModule;

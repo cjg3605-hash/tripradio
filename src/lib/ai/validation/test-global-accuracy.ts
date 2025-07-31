@@ -297,9 +297,11 @@ ${testResults.summary.globalCompatibility
 }
 
 // Export everything for testing
-export default {
+const GlobalAccuracyTester = {
   runGlobalAccuracyTests,
   testAccuracyPattern,
   generateGlobalTestReport,
   GLOBAL_TEST_CASES
 };
+
+export default GlobalAccuracyTester;
