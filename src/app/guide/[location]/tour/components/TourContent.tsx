@@ -60,10 +60,10 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
   // 🎯 AI 생성 인트로 챗터 사용 또는 폴백 인트로 생성
   const createIntroChapter = () => {
-    const locationName = guide.metadata?.originalLocationName || guide.overview?.title || t('guide.thisPlace');
+    const locationName = guide?.metadata?.originalLocationName || guide?.overview?.title || String(t('guide.thisPlace'));
     
-    // AI가 이미 인트로 챕터(id: 0)를 생성했는지 확인
-    const aiGeneratedIntro = guide.realTimeGuide?.chapters?.find(chapter => chapter.id === 0);
+    // 🔥 React Error #185 방지: AI가 이미 인트로 챕터(id: 0)를 생성했는지 안전하게 확인
+    const aiGeneratedIntro = guide?.realTimeGuide?.chapters?.find?.(chapter => chapter?.id === 0);
     
     if (aiGeneratedIntro && aiGeneratedIntro.narrative) {
       // 🤖 AI가 생성한 96.3% 만족도 최적화 인트로 사용
@@ -81,10 +81,10 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
     };
   };
 
-  // 인트로 챕터를 포함한 전체 챕터 배열 (AI 생성 시스템 보존)
+  // 🔥 React Error #185 방지: 인트로 챕터를 포함한 전체 챕터 배열 (AI 생성 시스템 보존)
   const introChapter = createIntroChapter();
-  const originalChapters = guide.realTimeGuide?.chapters || [];
-  const aiGeneratedIntro = originalChapters.find(chapter => chapter.id === 0 && chapter.narrative);
+  const originalChapters = guide?.realTimeGuide?.chapters || [];
+  const aiGeneratedIntro = originalChapters.find?.(chapter => chapter?.id === 0 && chapter?.narrative);
   
   let allChapters;
   if (aiGeneratedIntro) {
@@ -139,8 +139,8 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
 
   // 🔍 챕터별 좌표 데이터 상세 디버깅
   console.log('🔍 TourContent 데이터 구조 (인트로 챕터 포함):', {
-    hasRealTimeGuide: !!guide.realTimeGuide,
-    originalChaptersLength: guide.realTimeGuide?.chapters?.length || 0,
+    hasRealTimeGuide: !!guide?.realTimeGuide,
+    originalChaptersLength: guide?.realTimeGuide?.chapters?.length || 0,
     totalChaptersWithIntro: totalChapters,
     currentChapterIndex,
     isIntroChapter: currentChapterIndex === 0,
@@ -188,7 +188,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
     setComponentKey(prev => prev + 1);
     setCurrentChapterIndex(0);
     setExpandedChapters([0]);
-  }, [guide.metadata?.originalLocationName, guide.realTimeGuide?.chapters?.length]);
+  }, [guide?.metadata?.originalLocationName, guide?.realTimeGuide?.chapters?.length]);
 
   // 스크롤 이벤트 처리
   useEffect(() => {
@@ -239,8 +239,8 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
     );
   };
 
-  // 데이터가 없을 때 로딩 상태 (인트로 챕터는 항상 생성되므로 기본 가이드 구조만 확인)
-  if (!guide.overview && !guide.realTimeGuide) {
+  // 🔥 React Error #185 방지: 가이드 데이터 안전성 검증 강화
+  if (!guide || (!guide.overview && !guide.realTimeGuide)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <GuideLoading 
@@ -251,6 +251,11 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
         />
       </div>
     );
+  }
+
+  // 🔥 React Error #185 방지: 추가 안전성 검증
+  if (!guide.metadata) {
+    console.warn('⚠️ Guide metadata is missing, using fallback');
   }
 
   return (
@@ -266,7 +271,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                 </div>
                 <div>
                   <h1 className="text-2xl font-medium mb-2">
-                    {guide.metadata?.originalLocationName || guide.overview?.title || t('guide.guideTitle')}
+                    {guide?.metadata?.originalLocationName || guide?.overview?.title || String(t('guide.guideTitle'))}
                   </h1>
                 </div>
               </div>

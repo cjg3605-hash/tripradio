@@ -217,7 +217,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         }
 
         loadOrGenerateGuide();
-    }, [locationName, currentLanguage, session, guideData, normalizeGuideData, t]);
+    }, [locationName, currentLanguage, session, guideData, t]); // normalizeGuideData 의존성 제거 - 함수가 컴포넌트 내부에 정의되어 무한 루프 발생
 
     if (isLoading) {
         return (

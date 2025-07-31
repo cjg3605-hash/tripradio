@@ -257,15 +257,16 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
     };
 
     initializeGuide();
-  }, [locationName, currentLanguage, initialGuide, loadAvailableLanguages, loadGuideForLanguage, saveToHistory]);
+  }, [locationName, initialGuide]); // 🔥 무한 루프 방지: 함수 의존성 제거
 
-  // 언어 변경시 자동 로드
+  // 언어 변경시 자동 로드 (초기 로드 이후에만)
   useEffect(() => {
-    if (currentLanguage && !isLoading && guideData) {
-      console.log(`🌍 언어 변경 감지: ${currentLanguage}`);
+    // 초기 로드가 완료되고, 현재 가이드의 언어와 다를 때만 로드
+    if (currentLanguage && !isLoading && guideData && guideData.metadata?.language !== currentLanguage) {
+      console.log(`🌍 언어 변경 감지: ${guideData.metadata?.language} → ${currentLanguage}`);
       loadGuideForLanguage(currentLanguage);
     }
-  }, [currentLanguage, guideData, isLoading, loadGuideForLanguage]);
+  }, [currentLanguage]); // 🔥 무한 루프 방지: 함수 의존성 제거, 실제 언어 변경시에만 트리거
 
   // 로딩 상태 표시
   if (isLoading) {
