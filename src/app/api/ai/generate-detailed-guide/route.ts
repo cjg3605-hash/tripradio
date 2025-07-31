@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { enhanceGuideWithQuality } from '@/lib/quality/quality-integration';
 
 // Initialize Gemini AI with direct environment variable access
 function getGeminiClient() {
@@ -63,18 +64,34 @@ JSON 형식으로만 응답해주세요.`;
 
     try {
       const guideData = JSON.parse(text);
+      
+      // 🎯 품질 검증 및 자동 개선 적용
+      console.log('🔍 생성된 가이드 품질 검증 중...');
+      const qualityEnhancedResult = await enhanceGuideWithQuality(location, guideData);
+      
       return NextResponse.json({
-        success: true,
-        data: guideData
+        success: qualityEnhancedResult.success,
+        data: qualityEnhancedResult.data,
+        quality: qualityEnhancedResult.quality,
+        caching: qualityEnhancedResult.caching
       });
     } catch (parseError) {
+      // 파싱 실패 시에도 품질 검증 시도
+      const fallbackData = {
+        location,
+        content: text,
+        raw: true
+      };
+      
+      console.log('🔍 파싱 실패한 가이드 품질 검증 중...');
+      const qualityEnhancedResult = await enhanceGuideWithQuality(location, fallbackData);
+      
       return NextResponse.json({
-        success: true,
-        data: {
-          location,
-          content: text,
-          raw: true
-        }
+        success: qualityEnhancedResult.success,
+        data: qualityEnhancedResult.data,
+        quality: qualityEnhancedResult.quality,
+        caching: qualityEnhancedResult.caching,
+        parseWarning: '원본 JSON 파싱 실패로 품질 개선 적용됨'
       });
     }
 
