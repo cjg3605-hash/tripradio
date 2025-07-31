@@ -268,7 +268,7 @@ export default function HomePage() {
     }, 200); // 200ms 디바운스 (최적화)
 
     return () => clearTimeout(timeoutId);
-  }, [query, currentLanguage, isFocused, fetchSuggestions]);
+  }, [query, currentLanguage, isFocused]); // fetchSuggestions 의존성 제거
 
   // 검색 실행
   const handleSearch = async () => {

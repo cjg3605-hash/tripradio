@@ -935,7 +935,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     };
 
     initializeLanguage();
-  }, [currentLanguage, setLanguage]);
+  }, []); // 초기 실행만 하도록 빈 의존성 배열
 
   // 번역 함수
   const t = (key: string): string | string[] => {
