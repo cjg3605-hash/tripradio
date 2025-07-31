@@ -3,6 +3,7 @@
 import React from 'react';
 import { MapPin } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // 동적 import로 Leaflet 지도 컴포넌트 로드
 const MapWithRoute = dynamic(() => import('./MapWithRoute'), {
@@ -32,6 +33,7 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
   pois,
   className = ''
 }) => {
+  const { t } = useLanguage();
   return (
     <div className={`bg-white border border-black/8 rounded-3xl shadow-lg shadow-black/3 overflow-hidden ${className}`}>
       {/* 모던 모노크롬 헤더 */}
@@ -42,7 +44,7 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
           </div>
           <div>
             <h3 className="text-xl font-bold text-black tracking-tight">
-              {chapters.length > 0 ? '관람순서 지도' : '투어 시작 위치'}
+              {chapters.length > 0 ? String(t('guide.viewingOrderMap')) : String(t('guide.tourStartLocation'))}
             </h3>
             <p className="text-sm text-black/60 font-medium mt-0.5">
               {chapters.length > 0 ? `${chapters.length}개 챕터 경로` : startPoint.name}

@@ -438,10 +438,10 @@ const LiveTourPage: React.FC = () => {
         <div className="border-b border-gray-100 pb-6">
           <h2 className="text-lg font-medium text-gray-900 mb-4">{t('guide.precautions')}</h2>
           <div className="space-y-2 text-gray-600">
-            <p>• GPS 신호가 약한 지역에서는 위치 정확도가 떨어질 수 있습니다</p>
-            <p>• 이어폰 착용을 권장하며, 주변 상황을 주의깊게 살펴보세요</p>
-            <p>• 배터리 소모가 많으니 보조배터리를 준비하시기 바랍니다</p>
-            <p>• 실내나 지하에서는 GPS 기능이 제한될 수 있습니다</p>
+            <p>• {t('guide.precaution1')}</p>
+            <p>• {t('guide.precaution2')}</p>
+            <p>• {t('guide.precaution3')}</p>
+            <p>• {t('guide.precaution4')}</p>
           </div>
         </div>
 
@@ -454,25 +454,25 @@ const LiveTourPage: React.FC = () => {
                 <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
                   1
                 </div>
-                <p className="text-gray-700">위치 권한 허용 및 GPS 활성화</p>
+                <p className="text-gray-700">{t('guide.step1')}</p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
                   2
                 </div>
-                <p className="text-gray-700">시작점으로 이동하여 투어 시작</p>
+                <p className="text-gray-700">{t('guide.step2')}</p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
                   3
                 </div>
-                <p className="text-gray-700">각 지점 도착 시 자동 오디오 가이드 재생</p>
+                <p className="text-gray-700">{t('guide.step3')}</p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
                   4
                 </div>
-                <p className="text-gray-700">제안된 순서대로 이동하여 완주</p>
+                <p className="text-gray-700">{t('guide.step4')}</p>
               </div>
             </div>
           </div>
@@ -488,7 +488,7 @@ const LiveTourPage: React.FC = () => {
             }}
             className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 transition-colors"
           >
-            {t('guide.realTimeGuideTitle')} 시작
+{t('guide.startRealtimeGuide')}
           </button>
         </div>
 
