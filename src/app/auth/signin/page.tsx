@@ -590,7 +590,7 @@ function SignInContent() {
                       className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 ${
                         errors.email ? 'border-red-300 focus:ring-red-500' : 'border-gray-300'
                       }`}
-                      placeholder={t('auth.enterYourEmail')}
+                      placeholder={t('auth.enterYourEmail') as string}
                       autoComplete="email"
                     />
                   </div>
@@ -614,7 +614,7 @@ function SignInContent() {
                       className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 ${
                         errors.password ? 'border-red-300 focus:ring-red-500' : 'border-gray-300'
                       }`}
-                      placeholder={t('auth.enterYourPassword')}
+                      placeholder={t('auth.enterYourPassword') as string}
                       autoComplete="current-password"
                     />
                     <button
@@ -706,7 +706,7 @@ function SignInContent() {
                       className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 ${
                         errors.name ? 'border-red-300 focus:ring-red-500' : 'border-gray-300'
                       }`}
-                      placeholder={t('auth.enterYourName')}
+                      placeholder={t('auth.enterYourName') as string}
                       autoComplete="name"
                     />
                   </div>
@@ -730,7 +730,7 @@ function SignInContent() {
                       className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 ${
                         errors.email ? 'border-red-300 focus:ring-red-500' : 'border-gray-300'
                       }`}
-                      placeholder={t('auth.enterYourEmail')}
+                      placeholder={t('auth.enterYourEmail') as string}
                       autoComplete="email"
                     />
                   </div>
@@ -754,7 +754,7 @@ function SignInContent() {
                       className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 ${
                         errors.password ? 'border-red-300 focus:ring-red-500' : 'border-gray-300'
                       }`}
-                      placeholder={t('auth.passwordMinLength')}
+                      placeholder={t('auth.passwordMinLength') as string}
                       autoComplete="new-password"
                     />
                     <button
@@ -785,7 +785,7 @@ function SignInContent() {
                       className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 ${
                         errors.confirmPassword ? 'border-red-300 focus:ring-red-500' : 'border-gray-300'
                       }`}
-                      placeholder={t('auth.confirmYourPassword')}
+                      placeholder={t('auth.confirmYourPassword') as string}
                       autoComplete="new-password"
                     />
                     <button
@@ -857,10 +857,15 @@ function SignInContent() {
               {/* Terms Agreement */}
               <div className="mt-6 pt-4 border-t border-gray-100">
                 <p className="text-xs text-gray-500 text-center leading-relaxed">
-                  {t('auth.agreeToTerms', {
-                    terms: t('auth.termsAndConditions'),
-                    privacy: t('auth.privacyPolicy')
-                  })}
+                  회원가입 시{' '}
+                  <span className="underline cursor-pointer hover:text-black transition-colors">
+                    {t('auth.termsAndConditions') as string}
+                  </span>
+                  {' '}및{' '}
+                  <span className="underline cursor-pointer hover:text-black transition-colors">
+                    {t('auth.privacyPolicy') as string}
+                  </span>
+                  에 동의하는 것으로 간주됩니다
                 </p>
               </div>
             </div>
