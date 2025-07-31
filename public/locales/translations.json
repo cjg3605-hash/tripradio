@@ -310,7 +310,7 @@
       "alreadyHaveAccount": "이미 계정이 있으신가요?",
       "noAccount": "계정이 없으신가요?",
       "welcomeBack": "다시 오신 것을 환영합니다",
-      "welcomeTitle": "AI 가이드에 오신 것을 환영합니다",
+      "welcomeTitle": "NAVI:가이드에 오신 것을 환영합니다",
       "joinTitle": "AI 가이드와 함께 시작하세요",
       "emailVerification": "이메일 인증",
       "verificationCode": "인증 코드",
@@ -348,8 +348,7 @@
       "somethingWentWrong": "문제가 발생했습니다. 다시 시도해주세요",
       "pleaseTryAgain": "다시 시도해주세요",
       "startYourJourney": "AI와 함께하는 특별한 여행을 시작하세요",
-      "exploreWithAI": "AI와 함께 세계를 탐험하세요",
-      "personalizedGuides": "맞춤형 가이드로 더 깊은 여행 경험을"
+      "exploreWithAI": "AI와 함께 세계를 탐험하세요"
     },
     "buttons": {
       "submit": "제출",
@@ -720,7 +719,7 @@
       "alreadyHaveAccount": "Already have an account?",
       "noAccount": "Don't have an account?",
       "welcomeBack": "Welcome back",
-      "welcomeTitle": "Welcome to AI Guide",
+      "welcomeTitle": "Welcome to NAVI:Guide",
       "joinTitle": "Start your journey with AI Guide",
       "emailVerification": "Email Verification",
       "verificationCode": "Verification Code",
@@ -758,8 +757,7 @@
       "somethingWentWrong": "Something went wrong. Please try again",
       "pleaseTryAgain": "Please try again",
       "startYourJourney": "Start your special journey with AI",
-      "exploreWithAI": "Explore the world with AI",
-      "personalizedGuides": "Deeper travel experiences with personalized guides"
+      "exploreWithAI": "Explore the world with AI"
     },
     "buttons": {
       "submit": "Submit",
@@ -1130,7 +1128,7 @@
       "alreadyHaveAccount": "既にアカウントをお持ちですか？",
       "noAccount": "アカウントをお持ちではありませんか？",
       "welcomeBack": "お帰りなさい",
-      "welcomeTitle": "AIガイドへようこそ",
+      "welcomeTitle": "NAVI:ガイドへようこそ",
       "joinTitle": "AIガイドと一緒に始めましょう",
       "emailVerification": "メール認証",
       "verificationCode": "認証コード",
@@ -1156,8 +1154,7 @@
       "passwordsNotMatch": "パスワードが一致しません",
       "invalidEmailFormat": "有効なメールアドレスを入力してください",
       "startYourJourney": "AIと特別な旅を始めましょう",
-      "exploreWithAI": "AIと世界を探索",
-      "personalizedGuides": "パーソナライズされたガイドでより深い旅行体験を"
+      "exploreWithAI": "AIと世界を探索"
     },
     "buttons": {
       "submit": "送信",
@@ -1528,7 +1525,7 @@
       "alreadyHaveAccount": "已有账户？",
       "noAccount": "没有账户？",
       "welcomeBack": "欢迎回来",
-      "welcomeTitle": "欢迎使用AI指南",
+      "welcomeTitle": "欢迎使用NAVI:指南",
       "joinTitle": "开始您的AI指南之旅",
       "emailVerification": "邮箱验证",
       "verificationCode": "验证码",
@@ -1554,8 +1551,7 @@
       "passwordsNotMatch": "密码不匹配",
       "invalidEmailFormat": "请输入有效的邮箱地址",
       "startYourJourney": "与AI开始您的特别旅程",
-      "exploreWithAI": "与AI探索世界",
-      "personalizedGuides": "个性化指南带来更深入的旅行体验"
+      "exploreWithAI": "与AI探索世界"
     },
     "buttons": {
       "submit": "提交",
@@ -1926,7 +1922,7 @@
       "alreadyHaveAccount": "¿Ya tienes una cuenta?",
       "noAccount": "¿No tienes una cuenta?",
       "welcomeBack": "Bienvenido de vuelta",
-      "welcomeTitle": "Bienvenido a la Guía AI",
+      "welcomeTitle": "Bienvenido a NAVI:Guía",
       "joinTitle": "Comienza tu viaje con la Guía AI",
       "emailVerification": "Verificación de Correo",
       "verificationCode": "Código de Verificación",
@@ -1952,8 +1948,7 @@
       "passwordsNotMatch": "Las contraseñas no coinciden",
       "invalidEmailFormat": "Por favor ingresa un correo válido",
       "startYourJourney": "Comienza tu viaje especial con AI",
-      "exploreWithAI": "Explora el mundo con AI",
-      "personalizedGuides": "Experiencias de viaje más profundas con guías personalizadas"
+      "exploreWithAI": "Explora el mundo con AI"
     },
     "buttons": {
       "submit": "Enviar",

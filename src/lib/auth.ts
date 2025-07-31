@@ -8,6 +8,13 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
     CredentialsProvider({
       id: 'credentials',
@@ -79,11 +86,28 @@ export const authOptions: NextAuthOptions = {
     }
   },
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async signIn({ user, account, profile }) {
+      try {
+        if (account?.provider === 'google') {
+          console.log('Google sign-in attempt:', user.email);
+          // Google 로그인 성공 시 추가 검증 로직
+          return true;
+        }
+        return true;
+      } catch (error) {
+        console.error('Sign-in callback error:', error);
+        return false;
+      }
+    },
+    async jwt({ token, user, trigger, session, account }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
+      }
+      
+      if (account?.provider === 'google') {
+        token.provider = 'google';
       }
       
       if (trigger === 'update' && session) {
@@ -101,13 +125,19 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      if (url.startsWith('/')) {
-        return `${baseUrl}${url}`;
+      // 더 안전한 리다이렉트 처리
+      try {
+        if (url.startsWith('/')) {
+          return `${baseUrl}${url}`;
+        }
+        else if (new URL(url).origin === baseUrl) {
+          return url;
+        }
+        return baseUrl;
+      } catch (error) {
+        console.error('Redirect callback error:', error);
+        return baseUrl;
       }
-      else if (new URL(url).origin === baseUrl) {
-        return url;
-      }
-      return baseUrl;
     }
   },
   events: {

@@ -232,17 +232,33 @@ function SignInContent() {
   const handleGoogleSignIn = async (): Promise<void> => {
     setIsLoading(true);
     setErrors({});
+    
     try {
+      console.log('🔵 Google 로그인 시작...');
+      console.log('🔵 CallbackUrl:', callbackUrl);
+      
       const result = await signIn('google', {
         callbackUrl,
         redirect: false
       });
       
+      console.log('🔵 Google 로그인 결과:', result);
+      
       if (result?.error) {
-        setErrors({ general: 'Google 로그인에 실패했습니다. 다시 시도해주세요.' });
+        console.error('❌ Google 로그인 오류:', result.error);
+        setErrors({ 
+          general: `Google 로그인 실패: ${result.error}. 브라우저 설정을 확인하고 다시 시도해주세요.` 
+        });
+      } else if (result?.ok) {
+        console.log('✅ Google 로그인 성공');
+        // 성공 시 페이지 새로고침 또는 리다이렉트
+        window.location.href = callbackUrl || '/';
       }
     } catch (error) {
-      setErrors({ general: '로그인 중 오류가 발생했습니다.' });
+      console.error('❌ Google 로그인 예외:', error);
+      setErrors({ 
+        general: '로그인 중 네트워크 오류가 발생했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.' 
+      });
     } finally {
       setIsLoading(false);
     }
@@ -388,7 +404,7 @@ function SignInContent() {
           </div>
           
           {/* Title */}
-          <h1 className="text-3xl font-semibold text-gray-900 mb-3 tracking-tight">
+          <h1 className="font-semibold text-gray-900 mb-3 tracking-tight" style={{ fontSize: '70%' }}>
             {authMode === 'signup' 
               ? signupStep === 'completed' 
                 ? t('auth.signupComplete')
@@ -400,16 +416,16 @@ function SignInContent() {
           </h1>
           
           {/* Subtitle */}
-          <p className="text-gray-500 text-base leading-relaxed max-w-sm mx-auto">
-            {authMode === 'signup' && signupStep === 'email_verification'
-              ? t('auth.enterCode')
-              : signupStep === 'completed'
-                ? t('auth.startYourJourney')
-                : authMode === 'signup'
-                  ? t('auth.exploreWithAI')
-                  : t('auth.personalizedGuides')
-            }
-          </p>
+          {authMode === 'signup' && (
+            <p className="text-gray-500 text-base leading-relaxed max-w-sm mx-auto">
+              {signupStep === 'email_verification'
+                ? t('auth.enterCode')
+                : signupStep === 'completed'
+                  ? t('auth.startYourJourney')
+                  : t('auth.exploreWithAI')
+              }
+            </p>
+          )}
         </div>
 
         {/* Alert Messages */}

@@ -269,7 +269,6 @@ interface Translations {
     signin: string;
     signout: string;
     welcomeTitle: string;
-    personalizedGuides: string;
     joinTitle: string;
     exploreWithAI: string;
     emailVerification: string;
@@ -621,8 +620,7 @@ const DEFAULT_TRANSLATIONS: Translations = {
     noAccount: '계정이 없으신가요?',
     signin: '로그인',
     signout: '로그아웃',
-    welcomeTitle: 'AI 가이드에 오신 것을 환영합니다',
-    personalizedGuides: '개인 맞춤형 가이드로 새로운 여행을 경험하세요',
+    welcomeTitle: 'NAVI:가이드에 오신 것을 환영합니다',
     joinTitle: 'AI 가이드와 함께 시작하세요',
     exploreWithAI: 'AI와 함께 세계를 탐험하세요',
     emailVerification: '이메일 인증',
