@@ -617,7 +617,7 @@ async function processRegenerationQueue(batchSize: number, strategy: string): Pr
 
     console.log(`📝 ${queueItems.length}개 재생성 요청 처리 시작`);
 
-    const results = [];
+    const results: any[] = [];
 
     for (const item of queueItems) {
       try {
@@ -667,7 +667,7 @@ async function processRegenerationQueue(batchSize: number, strategy: string): Pr
           .update({ 
             status: newStatus,
             retry_count: newRetryCount,
-            error_log: [...(item.error_log || []), error.message]
+            error_log: [...(item.error_log || []), error instanceof Error ? error.message : String(error)]
           })
           .eq('id', item.id);
 
@@ -675,7 +675,7 @@ async function processRegenerationQueue(batchSize: number, strategy: string): Pr
           id: item.id,
           locationName: item.location_name,
           success: false,
-          error: error.message
+          error: error instanceof Error ? error.message : String(error)
         });
       }
     }
@@ -690,7 +690,7 @@ async function processRegenerationQueue(batchSize: number, strategy: string): Pr
 
 // 다음 행동 제안 생성
 function generateNextActions(newScore: number, targetScore: number): string[] {
-  const actions = [];
+  const actions: string[] = [];
 
   if (newScore >= targetScore) {
     actions.push('목표 품질에 도달했습니다');

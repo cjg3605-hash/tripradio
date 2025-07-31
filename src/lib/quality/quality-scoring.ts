@@ -170,7 +170,7 @@ function assessRiskLevel(
   else baseRisk = 'critical';
 
   // 구성 요소별 위험 요인
-  const riskFactors = [];
+  const riskFactors: string[] = [];
   if (components.factualAccuracy < 70) riskFactors.push('factual');
   if (components.contentCompleteness < 60) riskFactors.push('completeness');
   if (components.culturalSensitivity < 60) riskFactors.push('cultural');
@@ -495,7 +495,7 @@ export async function getQualityScore(
       components,
       'default',
       null,
-      historical
+      historical || undefined
     );
 
   } catch (error) {

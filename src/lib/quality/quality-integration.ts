@@ -121,7 +121,7 @@ export async function integrateQualityCheck(
         }
       } catch (regenerationError) {
         console.error(`재생성 시도 ${regenerationAttempts} 실패:`, regenerationError);
-        warnings.push(`재생성 시도 ${regenerationAttempts} 실패: ${regenerationError.message}`);
+        warnings.push(`재생성 시도 ${regenerationAttempts} 실패: ${regenerationError instanceof Error ? regenerationError.message : String(regenerationError)}`);
       }
 
       // 타임아웃 체크
@@ -178,7 +178,7 @@ export async function integrateQualityCheck(
       regenerationAttempts,
       finalVersion: 1,
       cachingRecommendation: 'no_cache',
-      warnings: [`품질 통합 실패: ${error.message}`, ...warnings]
+      warnings: [`품질 통합 실패: ${error instanceof Error ? error.message : String(error)}`, ...warnings]
     };
   }
 }
