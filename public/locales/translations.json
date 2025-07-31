@@ -30,16 +30,6 @@
       "searchButton": "가이드 생성",
       "popularDestinations": "인기 여행지",
       "description": "AI가 찾아낸 가장 완벽한 가이드해설",
-      "stepTitles": {
-        "inputLocation": "장소 입력",
-        "aiGenerate": "AI 생성",
-        "audioPlay": "오디오 재생"
-      },
-      "stepDescriptions": {
-        "inputLocation": "궁금한 곳의 이름을 입력하세요",
-        "aiGenerate": "실시간으로 맞춤 가이드 생성",
-        "audioPlay": "음성으로 생생한 현장 해설"
-      },
       "regionTitles": {
         "popularCountries": "🌍 인기 여행 국가",
         "europe": "유럽",
@@ -701,16 +691,6 @@
       "searchButton": "Generate Guide",
       "popularDestinations": "Popular Destinations",
       "description": "The most perfect guide commentary found by AI",
-      "stepTitles": {
-        "inputLocation": "Enter Location",
-        "aiGenerate": "AI Generate",
-        "audioPlay": "Audio Play"
-      },
-      "stepDescriptions": {
-        "inputLocation": "Enter the name of the place you're curious about",
-        "aiGenerate": "Generate customized guide in real-time",
-        "audioPlay": "Vivid on-site commentary by voice"
-      },
       "regionTitles": {
         "popularCountries": "🌍 Popular Travel Countries",
         "europe": "Europe",

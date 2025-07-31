@@ -94,6 +94,28 @@ interface Translations {
     description: string;
     searchPlaceholders?: string[];
     defaultSuggestions?: Array<{ name: string; location: string }>;
+    stepTitles: {
+      inputLocation: string;
+      aiGenerate: string;
+      audioPlay: string;
+    };
+    stepDescriptions: {
+      inputLocation: string;
+      aiGenerate: string;
+      audioPlay: string;
+    };
+    regionTitles: {
+      popularCountries: string;
+      europe: string;
+      asia: string;
+      americas: string;
+    };
+    regionDescription: string;
+    countryAttraction: string;
+    startGuide: string;
+    destinations: string;
+    scrollHint: string;
+    popularBadge: string;
     features: {
       personalized: string;
       realTime: string;
@@ -174,6 +196,23 @@ interface Translations {
     exists: string;
     notExists: string;
   };
+  history: {
+    noResults: string;
+    noHistory: string;
+    view: string;
+    delete: string;
+    today: string;
+    yesterday: string;
+    invalidDate: string;
+    preview: string;
+    loadFailed: string;
+    deleteFailed: string;
+    searchInHistory: string;
+    searchPlaces: string;
+    totalGuides: string;
+    daysAgo: string;
+    weeksAgo: string;
+  };
   date: {
     today: string;
     yesterday: string;
@@ -238,6 +277,35 @@ interface Translations {
   audio: {
     chapter: string;
   };
+  footer: {
+    companyName: string;
+    companyDescription: string;
+    copyright: string;
+    legalInfo: string;
+    privacyPolicy: string;
+    termsOfService: string;
+    aboutUs: string;
+    contact: string;
+    support: string;
+    telegramChannel: string;
+    supportHours: string;
+    adsenseNotice: string;
+    adsensePolicy: string;
+  };
+  legal: {
+    terms: {
+      title: string;
+      description: string;
+      content: string;
+      lastUpdated: string;
+    };
+    privacy: {
+      title: string;
+      description: string;
+      content: string;
+      lastUpdated: string;
+    };
+  };
 }
 
 // 기본 번역 데이터 (한국어)
@@ -279,6 +347,28 @@ const DEFAULT_TRANSLATIONS: Translations = {
       { name: '부산 해운대', location: '부산 해운대구' },
       { name: '제주도 성산일출봉', location: '제주 서귀포시' }
     ],
+    stepTitles: {
+      inputLocation: '장소 입력',
+      aiGenerate: 'AI 생성',
+      audioPlay: '오디오 재생'
+    },
+    stepDescriptions: {
+      inputLocation: '궁금한 곳의 이름을 입력하세요',
+      aiGenerate: 'AI가 맞춤형 가이드를 생성합니다',
+      audioPlay: '생성된 가이드를 음성으로 들어보세요'
+    },
+    regionTitles: {
+      popularCountries: '인기 여행 국가',
+      europe: '유럽',
+      asia: '아시아',
+      americas: '아메리카'
+    },
+    regionDescription: '다양한 지역의 인기 여행지를 둘러보세요',
+    countryAttraction: 'TOP ATTRACTIONS',
+    startGuide: 'Start Guide',
+    destinations: 'destinations',
+    scrollHint: '좌우로 스크롤하여 더 많은 국가를 확인하세요',
+    popularBadge: 'POPULAR',
     features: {
       personalized: '맞춤형추천',
       realTime: '실시간가이드',
@@ -359,6 +449,23 @@ const DEFAULT_TRANSLATIONS: Translations = {
     exists: '있음',
     notExists: '없음'
   },
+  history: {
+    noResults: '검색 결과가 없습니다',
+    noHistory: '검색 기록이 없습니다',
+    view: '가이드 보기',
+    delete: '삭제',
+    today: '오늘',
+    yesterday: '어제',
+    invalidDate: '잘못된 날짜',
+    preview: '가이드 미리보기',
+    loadFailed: '히스토리 로드 실패',
+    deleteFailed: '히스토리 삭제 실패',
+    searchInHistory: '검색 기록에서 찾기',
+    searchPlaces: '장소를 검색해보세요',
+    totalGuides: '총 {count}개의 가이드',
+    daysAgo: '{days}일 전',
+    weeksAgo: '{weeks}주 전'
+  },
   date: {
     today: '오늘',
     yesterday: '어제',
@@ -422,6 +529,35 @@ const DEFAULT_TRANSLATIONS: Translations = {
   },
   audio: {
     chapter: '챕터'
+  },
+  footer: {
+    companyName: 'GUIDE AI',
+    companyDescription: 'AI 기반 개인화 여행 가이드 서비스',
+    copyright: '© 2024 GUIDE AI. All rights reserved.',
+    legalInfo: '법적 정보',
+    privacyPolicy: '개인정보 처리방침',
+    termsOfService: '이용약관',
+    aboutUs: '회사소개',
+    contact: '문의하기',
+    support: '고객지원',
+    telegramChannel: '텔레그램 채널',
+    supportHours: '지원시간: 평일 9시-18시',
+    adsenseNotice: '광고 수익 공지',
+    adsensePolicy: 'AdSense 정책'
+  },
+  legal: {
+    terms: {
+      title: '이용약관',
+      description: 'GUIDE AI 서비스 이용약관',
+      content: '서비스 이용에 관한 약관 내용',
+      lastUpdated: '최종 업데이트'
+    },
+    privacy: {
+      title: '개인정보 처리방침',
+      description: 'GUIDE AI 개인정보 처리방침',
+      content: '개인정보 처리에 관한 방침 내용',
+      lastUpdated: '최종 업데이트'
+    }
   }
 };
 
@@ -500,6 +636,18 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
       home: {
         ...DEFAULT_TRANSLATIONS.home,
         ...(translations?.home || {}),
+        stepTitles: {
+          ...DEFAULT_TRANSLATIONS.home.stepTitles,
+          ...(translations?.home?.stepTitles || {})
+        },
+        stepDescriptions: {
+          ...DEFAULT_TRANSLATIONS.home.stepDescriptions,
+          ...(translations?.home?.stepDescriptions || {})
+        },
+        regionTitles: {
+          ...DEFAULT_TRANSLATIONS.home.regionTitles,
+          ...(translations?.home?.regionTitles || {})
+        },
         features: {
           ...DEFAULT_TRANSLATIONS.home.features,
           ...(translations?.home?.features || {})
@@ -548,6 +696,26 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
       audio: {
         ...DEFAULT_TRANSLATIONS.audio,
         ...(translations?.audio || {})
+      },
+      history: {
+        ...DEFAULT_TRANSLATIONS.history,
+        ...(translations?.history || {})
+      },
+      footer: {
+        ...DEFAULT_TRANSLATIONS.footer,
+        ...(translations?.footer || {})
+      },
+      legal: {
+        ...DEFAULT_TRANSLATIONS.legal,
+        ...(translations?.legal || {}),
+        terms: {
+          ...DEFAULT_TRANSLATIONS.legal.terms,
+          ...(translations?.legal?.terms || {})
+        },
+        privacy: {
+          ...DEFAULT_TRANSLATIONS.legal.privacy,
+          ...(translations?.legal?.privacy || {})
+        }
       }
     };
     
