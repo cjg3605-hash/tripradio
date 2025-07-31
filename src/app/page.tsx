@@ -38,120 +38,133 @@ export default function HomePage() {
   // 지역별 탭 상태
   const [activeRegion, setActiveRegion] = useState('europe');
   
-  // 지역별 인기 국가 데이터 (모던 모노크롬 스타일)
-  const regionCountries = useMemo(() => ({
-    europe: [
-      { 
-        id: 'france', 
-        name: '프랑스', 
-        flag: '🇫🇷', 
-        attractions: ['에펠탑', '루브르 박물관', '베르사유 궁전'],
-        description: '로맨틱한 파리와 화려한 문화유산'
-      },
-      { 
-        id: 'italy', 
-        name: '이탈리아', 
-        flag: '🇮🇹', 
-        attractions: ['콜로세움', '피사의 사탑', '바티칸'],
-        description: '고대 로마의 영광과 르네상스 예술'
-      },
-      { 
-        id: 'spain', 
-        name: '스페인', 
-        flag: '🇪🇸', 
-        attractions: ['사그라다 파밀리아', '알함브라 궁전', '구엘 공원'],
-        description: '가우디의 건축과 플라멩코의 열정'
-      },
-      { 
-        id: 'uk', 
-        name: '영국', 
-        flag: '🇬🇧', 
-        attractions: ['빅벤', '타워 브리지', '버킹엄 궁전'],
-        description: '전통과 현대가 조화로운 대영제국'
-      },
-      { 
-        id: 'germany', 
-        name: '독일', 
-        flag: '🇩🇪', 
-        attractions: ['브란덴부르크 문', '노이슈반슈타인성', '쾰른 대성당'],
-        description: '동화 속 성과 깊은 역사의 나라'
-      }
-    ],
-    asia: [
-      { 
-        id: 'japan', 
-        name: '일본', 
-        flag: '🇯🇵', 
-        attractions: ['후지산', '기요미즈데라', '센소지'],
-        description: '전통과 첨단이 공존하는 신비로운 나라'
-      },
-      { 
-        id: 'china', 
-        name: '중국', 
-        flag: '🇨🇳', 
-        attractions: ['만리장성', '자금성', '천안문 광장'],
-        description: '5천년 역사를 간직한 거대한 문명'
-      },
-      { 
-        id: 'india', 
-        name: '인도', 
-        flag: '🇮🇳', 
-        attractions: ['타지마할', '붉은 요새', '갠지스 강'],
-        description: '신비로운 영성과 화려한 궁전들'
-      },
-      { 
-        id: 'thailand', 
-        name: '태국', 
-        flag: '🇹🇭', 
-        attractions: ['왓 아룬', '대왕궁', '왓 포'],
-        description: '황금빛 사원과 미소의 나라'
-      },
-      { 
-        id: 'singapore', 
-        name: '싱가포르', 
-        flag: '🇸🇬', 
-        attractions: ['마리나 베이 샌즈', '가든스 바이 더 베이', '머라이언'],
-        description: '미래도시와 다양한 문화의 만남'
-      }
-    ],
-    americas: [
-      { 
-        id: 'usa', 
-        name: '미국', 
-        flag: '🇺🇸', 
-        attractions: ['자유의 여신상', '그랜드 캐니언', '타임스퀘어'],
-        description: '자유와 꿈의 땅, 무한한 가능성'
-      },
-      { 
-        id: 'canada', 
-        name: '캐나다', 
-        flag: '🇨🇦', 
-        attractions: ['나이아가라 폭포', 'CN 타워', '밴프 국립공원'],
-        description: '광활한 자연과 깨끗한 도시'
-      },
-      { 
-        id: 'brazil', 
-        name: '브라질', 
-        flag: '🇧🇷', 
-        attractions: ['리우 예수상', '이과수 폭포', '마라카낭 스타디움'],
-        description: '삼바와 축구, 열정적인 남미'
-      },
-      { 
-        id: 'peru', 
-        name: '페루', 
-        flag: '🇵🇪', 
-        attractions: ['마추픽추', '쿠스코', '나스카 라인'],
-        description: '잉카 문명의 신비로운 유적들'
-      },
-      { 
-        id: 'mexico', 
-        name: '멕시코', 
-        flag: '🇲🇽', 
-        attractions: ['치첸이트사', '테오티우아칸', '칸쿤'],
-        description: '마야 문명과 카리브해의 낙원'
-      }
-    ]
-  }), []);
+  // 지역별 인기 국가 데이터 (번역키 사용)
+  const regionCountries = useMemo(() => {
+    const countries = t('home.countries') as any;
+    
+    // 번역 데이터가 로드되지 않았을 경우 기본값 사용
+    if (!countries || typeof countries !== 'object') {
+      return {
+        europe: [],
+        asia: [],
+        americas: []
+      };
+    }
+    
+    return {
+      europe: [
+        { 
+          id: 'france', 
+          name: countries.france?.name || 'France', 
+          flag: '🇫🇷', 
+          attractions: countries.france?.attractions || ['Eiffel Tower', 'Louvre Museum', 'Palace of Versailles'],
+          description: countries.france?.description || 'Romantic Paris and magnificent cultural heritage'
+        },
+        { 
+          id: 'italy', 
+          name: countries.italy?.name || 'Italy', 
+          flag: '🇮🇹', 
+          attractions: countries.italy?.attractions || ['Colosseum', 'Leaning Tower of Pisa', 'Vatican'],
+          description: countries.italy?.description || 'Glory of ancient Rome and Renaissance art'
+        },
+        { 
+          id: 'spain', 
+          name: countries.spain?.name || 'Spain', 
+          flag: '🇪🇸', 
+          attractions: countries.spain?.attractions || ['Sagrada Familia', 'Alhambra', 'Park Güell'],
+          description: countries.spain?.description || 'Gaudí\'s architecture and flamenco passion'
+        },
+        { 
+          id: 'uk', 
+          name: countries.uk?.name || 'United Kingdom', 
+          flag: '🇬🇧', 
+          attractions: countries.uk?.attractions || ['Big Ben', 'Tower Bridge', 'Buckingham Palace'],
+          description: countries.uk?.description || 'Harmonious blend of tradition and modernity'
+        },
+        { 
+          id: 'germany', 
+          name: countries.germany?.name || 'Germany', 
+          flag: '🇩🇪', 
+          attractions: countries.germany?.attractions || ['Brandenburg Gate', 'Neuschwanstein Castle', 'Cologne Cathedral'],
+          description: countries.germany?.description || 'Fairy-tale castles and deep historical heritage'
+        }
+      ],
+      asia: [
+        { 
+          id: 'japan', 
+          name: countries.japan?.name || 'Japan', 
+          flag: '🇯🇵', 
+          attractions: countries.japan?.attractions || ['Mount Fuji', 'Kiyomizu-dera', 'Senso-ji'],
+          description: countries.japan?.description || 'Mysterious land where tradition and cutting-edge coexist'
+        },
+        { 
+          id: 'china', 
+          name: countries.china?.name || 'China', 
+          flag: '🇨🇳', 
+          attractions: countries.china?.attractions || ['Great Wall', 'Forbidden City', 'Tiananmen Square'],
+          description: countries.china?.description || 'Great civilization with 5000 years of history'
+        },
+        { 
+          id: 'india', 
+          name: countries.india?.name || 'India', 
+          flag: '🇮🇳', 
+          attractions: countries.india?.attractions || ['Taj Mahal', 'Red Fort', 'Ganges River'],
+          description: countries.india?.description || 'Mystical spirituality and magnificent palaces'
+        },
+        { 
+          id: 'thailand', 
+          name: countries.thailand?.name || 'Thailand', 
+          flag: '🇹🇭', 
+          attractions: countries.thailand?.attractions || ['Wat Arun', 'Grand Palace', 'Wat Pho'],
+          description: countries.thailand?.description || 'Golden temples and the land of smiles'
+        },
+        { 
+          id: 'singapore', 
+          name: countries.singapore?.name || 'Singapore', 
+          flag: '🇸🇬', 
+          attractions: countries.singapore?.attractions || ['Marina Bay Sands', 'Gardens by the Bay', 'Merlion'],
+          description: countries.singapore?.description || 'Future city meets diverse cultures'
+        }
+      ],
+      americas: [
+        { 
+          id: 'usa', 
+          name: countries.usa?.name || 'United States', 
+          flag: '🇺🇸', 
+          attractions: countries.usa?.attractions || ['Statue of Liberty', 'Grand Canyon', 'Times Square'],
+          description: countries.usa?.description || 'Land of freedom and dreams, infinite possibilities'
+        },
+        { 
+          id: 'canada', 
+          name: countries.canada?.name || 'Canada', 
+          flag: '🇨🇦', 
+          attractions: countries.canada?.attractions || ['Niagara Falls', 'CN Tower', 'Banff National Park'],
+          description: countries.canada?.description || 'Vast nature and clean cities'
+        },
+        { 
+          id: 'brazil', 
+          name: countries.brazil?.name || 'Brazil', 
+          flag: '🇧🇷', 
+          attractions: countries.brazil?.attractions || ['Christ the Redeemer', 'Iguazu Falls', 'Maracanã Stadium'],
+          description: countries.brazil?.description || 'Samba and football, passionate South America'
+        },
+        { 
+          id: 'peru', 
+          name: countries.peru?.name || 'Peru', 
+          flag: '🇵🇪', 
+          attractions: countries.peru?.attractions || ['Machu Picchu', 'Cusco', 'Nazca Lines'],
+          description: countries.peru?.description || 'Mysterious ruins of Inca civilization'
+        },
+        { 
+          id: 'mexico', 
+          name: countries.mexico?.name || 'Mexico', 
+          flag: '🇲🇽', 
+          attractions: countries.mexico?.attractions || ['Chichen Itza', 'Teotihuacan', 'Cancun'],
+          description: countries.mexico?.description || 'Mayan civilization and Caribbean paradise'
+        }
+      ]
+    };
+  }, [t]);
 
   // 회전하는 단어들 (audioguide 맞춤)
   const words = useMemo(() => [

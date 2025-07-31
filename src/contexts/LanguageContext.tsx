@@ -128,6 +128,13 @@ interface Translations {
       tourDocent: string;
       selfTour: string;
     };
+    countries: {
+      [countryId: string]: {
+        name: string;
+        attractions: string[];
+        description: string;
+      };
+    };
   };
   guide: {
     loading: string;
@@ -380,6 +387,83 @@ const DEFAULT_TRANSLATIONS: Translations = {
       audioCommentary: '오디오해설',
       tourDocent: '투어도슨트',
       selfTour: '셀프투어'
+    },
+    countries: {
+      france: {
+        name: '프랑스',
+        attractions: ['에펠탑', '루브르 박물관', '베르사유 궁전'],
+        description: '로맨틱한 파리와 화려한 문화유산'
+      },
+      italy: {
+        name: '이탈리아',
+        attractions: ['콜로세움', '피사의 사탑', '바티칸'],
+        description: '고대 로마의 영광과 르네상스 예술'
+      },
+      spain: {
+        name: '스페인',
+        attractions: ['사그라다 파밀리아', '알함브라 궁전', '구엘 공원'],
+        description: '가우디의 건축과 플라멩코의 열정'
+      },
+      uk: {
+        name: '영국',
+        attractions: ['빅벤', '타워 브리지', '버킹엄 궁전'],
+        description: '전통과 현대가 조화로운 대영제국'
+      },
+      germany: {
+        name: '독일',
+        attractions: ['브란덴부르크 문', '노이슈반슈타인성', '쾰른 대성당'],
+        description: '동화 속 성과 깊은 역사의 나라'
+      },
+      japan: {
+        name: '일본',
+        attractions: ['후지산', '기요미즈데라', '센소지'],
+        description: '전통과 첨단이 공존하는 신비로운 나라'
+      },
+      china: {
+        name: '중국',
+        attractions: ['만리장성', '자금성', '천안문 광장'],
+        description: '5천년 역사를 간직한 거대한 문명'
+      },
+      india: {
+        name: '인도',
+        attractions: ['타지마할', '붉은 요새', '갠지스 강'],
+        description: '신비로운 영성과 화려한 궁전들'
+      },
+      thailand: {
+        name: '태국',
+        attractions: ['왓 아룬', '대왕궁', '왓 포'],
+        description: '황금빛 사원과 미소의 나라'
+      },
+      singapore: {
+        name: '싱가포르',
+        attractions: ['마리나 베이 샌즈', '가든스 바이 더 베이', '머라이언'],
+        description: '미래도시와 다양한 문화의 만남'
+      },
+      usa: {
+        name: '미국',
+        attractions: ['자유의 여신상', '그랜드 캐니언', '타임스퀘어'],
+        description: '자유와 꿈의 땅, 무한한 가능성'
+      },
+      canada: {
+        name: '캐나다',
+        attractions: ['나이아가라 폭포', 'CN 타워', '밴프 국립공원'],
+        description: '광활한 자연과 깨끗한 도시'
+      },
+      brazil: {
+        name: '브라질',
+        attractions: ['리우 예수상', '이과수 폭포', '마라카낭 스타디움'],
+        description: '삼바와 축구, 열정적인 남미'
+      },
+      peru: {
+        name: '페루',
+        attractions: ['마추픽추', '쿠스코', '나스카 라인'],
+        description: '잉카 문명의 신비로운 유적들'
+      },
+      mexico: {
+        name: '멕시코',
+        attractions: ['치첸이트사', '테오티우아칸', '칸쿤'],
+        description: '마야 문명과 카리브해의 낙원'
+      }
     }
   },
   guide: {
@@ -651,6 +735,10 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
         features: {
           ...DEFAULT_TRANSLATIONS.home.features,
           ...(translations?.home?.features || {})
+        },
+        countries: {
+          ...DEFAULT_TRANSLATIONS.home.countries,
+          ...(translations?.home?.countries || {})
         }
       },
       guide: {
