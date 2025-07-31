@@ -225,7 +225,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                 <GuideLoading 
                     type="generating"
                     message={`"${locationName}" ${t('guide.preparing')}`}
-                    subMessage={t('guide.generating')}
+                    subMessage={Array.isArray(t('guide.generating')) ? t('guide.generating')[0] : t('guide.generating')}
                     showProgress={true}
                 />
             </div>
@@ -240,13 +240,13 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
                         <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <span className="text-red-600 text-xl">⚠️</span>
                         </div>
-                        <h2 className="text-xl font-medium text-gray-900 mb-2">{t('common.error')}</h2>
+                        <h2 className="text-xl font-medium text-gray-900 mb-2">{Array.isArray(t('common.error')) ? t('common.error')[0] : t('common.error')}</h2>
                         <p className="text-gray-600 text-sm mb-4">{error}</p>
                         <button
                             onClick={() => router.push('/')}
                             className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
                         >
-                            {t('buttons.goHome')}
+                            {Array.isArray(t('buttons.goHome')) ? t('buttons.goHome')[0] : t('buttons.goHome')}
                         </button>
                     </div>
                 </div>
@@ -259,13 +259,13 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="max-w-md w-full mx-auto p-8">
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
-                        <h2 className="text-xl font-medium text-gray-900 mb-2">{t('guide.notFound')}</h2>
-                        <p className="text-gray-600 text-sm mb-4">{t('guide.cannotLoad')}</p>
+                        <h2 className="text-xl font-medium text-gray-900 mb-2">{Array.isArray(t('guide.notFound')) ? t('guide.notFound')[0] : t('guide.notFound')}</h2>
+                        <p className="text-gray-600 text-sm mb-4">{Array.isArray(t('guide.cannotLoad')) ? t('guide.cannotLoad')[0] : t('guide.cannotLoad')}</p>
                         <button
                             onClick={() => router.push('/')}
                             className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
                         >
-                            {t('buttons.goHome')}
+                            {Array.isArray(t('buttons.goHome')) ? t('buttons.goHome')[0] : t('buttons.goHome')}
                         </button>
                     </div>
                 </div>
