@@ -124,7 +124,8 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
             }
 
             if (!locationName) {
-                setError(t('guide.noLocationName'));
+                const errorMessage = t('guide.noLocationName');
+                setError(Array.isArray(errorMessage) ? errorMessage[0] : errorMessage);
                 setIsLoading(false);
                 return;
             }
@@ -208,7 +209,8 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
 
             } catch (err) {
                 console.error('❌ Guide loading/generation failed:', err);
-                setError(err instanceof Error ? err.message : t('errors.unknownError'));
+                const errorMessage = t('errors.unknownError');
+                setError(err instanceof Error ? err.message : (Array.isArray(errorMessage) ? errorMessage[0] : errorMessage));
             } finally {
                 setIsLoading(false);
             }
