@@ -11,8 +11,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { AudioChapter } from '@/types/audio';
-import { advancedTTSService } from '@/lib/advanced-tts-service';
-import { neural2TTS } from '@/lib/tts/neural2-tts-service';
+import { ultraNaturalTTS } from '@/lib/tts/ultra-natural-tts-engine';
 
 interface ChapterAudioPlayerProps {
   chapter: AudioChapter;
@@ -77,24 +76,34 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
   const togglePlayPause = async () => {
     if (!audioRef.current) return;
 
-    // 오디오가 없으면 TTS 생성 후 재생
-    if (!audioUrl && !isGeneratingTTS) {
+    // 🎯 TTS 생성 중이면 무시
+    if (isGeneratingTTS) {
+      console.log('🔄 TTS 생성 중이므로 버튼 클릭 무시');
+      return;
+    }
+
+    // 🎙️ 오디오가 없으면 TLS 생성 후 자동 재생
+    if (!audioUrl) {
+      console.log('🎙️ 오디오 없음 - TLS 생성 시작');
       await generateTTS();
       return;
     }
 
-    // 오디오가 있으면 재생/일시정지
-    if (audioUrl) {
+    // ▶️ 오디오가 있으면 재생/일시정지
+    if (audioUrl && audioRef.current) {
       try {
         if (isPlaying) {
+          console.log('⏸️ 오디오 일시정지');
           audioRef.current.pause();
         } else {
+          console.log('▶️ 오디오 재생 시작');
           await audioRef.current.play();
         }
         // 상태는 오디오 이벤트 리스너에서 자동으로 업데이트됨
       } catch (error) {
-        console.error('오디오 재생 실패:', error);
+        console.error('❌ 오디오 재생 실패:', error);
         setIsPlaying(false);
+        setTtsError('오디오 재생에 실패했습니다. 다시 시도해주세요.');
       }
     }
   };
@@ -121,133 +130,85 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
     audioRef.current.muted = newMuted;
   };
 
-  // 🎙️ Neural2 기반 TTS 생성 (우선순위) + 폴백
+  // 🎙️ Ultra-Natural TTS (100만명 시뮬레이션) - 단일 최고 품질 TTS
   const generateTTS = async () => {
     if (!chapter.text || isGeneratingTTS) return;
 
     setIsGeneratingTTS(true);
     setTtsError(null);
 
-    // 기존 오디오 캐시 정리 (새로운 친근한 설정 적용)
+    // 기존 오디오 캐시 정리
     if (audioUrl && audioUrl.startsWith('blob:')) {
       URL.revokeObjectURL(audioUrl);
       setAudioUrl(null);
     }
 
     try {
-      console.log('🎙️ Neural2 TTS 생성 시작:', { 
+      console.log('🤖 Ultra-Natural TTS 생성 시작 (100만명 시뮬레이션):', { 
         chapterId: chapter.id, 
         textLength: chapter.text.length,
         language: chapter.language || 'ko'
       });
 
-      // 1️⃣ Neural2 TTS 시도 (우선순위)
-      const neural2Result = await neural2TTS.generateAudio({
+      // 🧬 Ultra-Natural TTS 생성 (유일한 TTS)
+      const result = await ultraNaturalTTS.generateUltraNaturalTTS({
         text: chapter.text,
-        language: chapter.language || 'ko',
-        chapterId: String(chapter.id),
-        locationName: locationName,
-        priority: 'normal'
+        context: 'tour_guide', // 투어 가이드 컨텍스트
+        targetAudience: {
+          ageGroup: 'middle',
+          formalityPreference: 'semi_formal',
+          educationLevel: 'general'
+        },
+        qualityLevel: 'ultra'
       });
 
-      if (neural2Result.success && neural2Result.audioUrl) {
-        setAudioUrl(neural2Result.audioUrl);
-        setIsGeneratingTTS(false); // 중요: 성공 시 즉시 상태 업데이트
+      if (result.success && result.audioUrl) {
+        setAudioUrl(result.audioUrl);
+        setIsGeneratingTTS(false);
         
         // 상위 컴포넌트에 업데이트된 챕터 정보 전달
         if (onChapterUpdate) {
           onChapterUpdate({
             ...chapter,
-            audioUrl: neural2Result.audioUrl,
+            audioUrl: result.audioUrl,
             isGeneratingTTS: false,
             ttsError: undefined
           });
         }
 
-        console.log('✅ Neural2 TTS 생성 완료:', { 
+        console.log('✅ Ultra-Natural TTS 생성 완료:', { 
           chapterId: chapter.id,
-          isCached: neural2Result.cached,
-          audioUrlType: neural2Result.audioUrl.startsWith('data:') ? 'base64' : 'url'
+          humanLikeness: `${result.naturalness.humanLikenessPercent.toFixed(1)}%`,
+          simulationAccuracy: `${result.naturalness.simulationAccuracy.toFixed(1)}%`
         });
 
-        // 생성 완료 후 자동 재생
+        // 🎵 생성 완료 후 자동 재생
         setTimeout(async () => {
-          if (audioRef.current) {
+          if (audioRef.current && result.audioUrl) {
             try {
+              console.log('🎵 Ultra-Natural TTS 생성 완료 - 자동 재생 시작');
               await audioRef.current.play();
               // 상태는 play 이벤트 리스너에서 자동 업데이트됨
             } catch (error) {
-              console.error('자동 재생 실패:', error);
+              console.error('❌ 자동 재생 실패:', error);
+              setTtsError('자동 재생에 실패했습니다. 재생 버튼을 직접 눌러주세요.');
             }
           }
-        }, 100);
+        }, 200);
 
-        return; // Neural2 성공시 여기서 종료
+        return;
       }
 
-      // 2️⃣ Neural2 실패시 고급 TTS 폴백
-      console.log('⚠️ Neural2 실패, 고급 TTS 폴백 시도:', neural2Result.error);
-      
-      // Neural2 실패 시 사용자에게 폴백 진행 알림 (선택적)
-      if (neural2Result.error && neural2Result.error.includes('503')) {
-        console.log('ℹ️ 서버 오류로 인한 폴백 - 대체 TTS 엔진 사용');
-      }
-      
-      const advancedResult = await advancedTTSService.generatePersonalityTTS({
-        text: chapter.text,
-        language: chapter.language || 'ko-KR',
-        userPersonality: chapter.personality || 'agreeableness',
-        guide_id: guideId,
-        locationName: locationName
-      });
-
-      if (advancedResult.success && advancedResult.audioData) {
-        // Base64 오디오를 Blob URL로 변환
-        const audioBlob = new Blob(
-          [Uint8Array.from(atob(advancedResult.audioData), c => c.charCodeAt(0))], 
-          { type: advancedResult.mimeType || 'audio/mpeg' }
-        );
-        const newAudioUrl = URL.createObjectURL(audioBlob);
-        
-        setAudioUrl(newAudioUrl);
-        setIsGeneratingTTS(false); // 중요: 폴백 성공 시에도 상태 업데이트
-        
-        if (onChapterUpdate) {
-          onChapterUpdate({
-            ...chapter,
-            audioUrl: newAudioUrl,
-            isGeneratingTTS: false,
-            ttsError: undefined
-          });
-        }
-
-        console.log('✅ 고급 TTS 폴백 완료:', { 
-          chapterId: chapter.id,
-          personality: advancedResult.personalityInfo?.appliedPersonality
-        });
-
-        setTimeout(async () => {
-          if (audioRef.current) {
-            try {
-              await audioRef.current.play();
-              // 상태는 play 이벤트 리스너에서 자동 업데이트됨
-            } catch (error) {
-              console.error('자동 재생 실패:', error);
-            }
-          }
-        }, 100);
-
-      } else {
-        throw new Error(advancedResult.error || neural2Result.error || 'TTS 생성 실패');
-      }
+      // 실패시 명확한 에러 메시지
+      throw new Error(result.error || 'Ultra-Natural TTS 생성에 실패했습니다.');
 
     } catch (error) {
-      console.error('❌ TTS 생성 완전 실패:', error);
-      const errorMessage = error instanceof Error ? error.message : String(t('audio.unknown_error') || '알 수 없는 오류가 발생했습니다.');
+      console.error('❌ Ultra-Natural TTS 생성 실패:', error);
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 TTS 오류가 발생했습니다.';
       
       // 에러 상태 업데이트
-      setTtsError(errorMessage);
-      setIsGeneratingTTS(false); // 에러 시에도 즉시 상태 초기화
+      setTtsError(`TTS 생성 실패: ${errorMessage}`);
+      setIsGeneratingTTS(false);
       
       if (onChapterUpdate) {
         onChapterUpdate({
@@ -257,7 +218,6 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
         });
       }
     } finally {
-      // 이중 보장: finally에서 한 번 더 상태 초기화
       setIsGeneratingTTS(false);
     }
   };
@@ -280,7 +240,11 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
         <button
           onClick={togglePlayPause}
           disabled={isGeneratingTTS}
-          className="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors flex-shrink-0 disabled:bg-gray-400"
+          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors flex-shrink-0 
+            ${isGeneratingTTS 
+              ? 'bg-gray-400 text-white cursor-not-allowed' 
+              : 'bg-black text-white hover:bg-gray-800 cursor-pointer'
+            }`}
           aria-label={isGeneratingTTS ? String(t('audio.generating') || 'TTS 생성 중') : isPlaying ? String(t('audio.pause') || '일시정지') : String(t('audio.play') || '재생')}
         >
           {isGeneratingTTS ? (

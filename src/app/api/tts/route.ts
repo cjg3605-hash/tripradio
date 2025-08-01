@@ -1,6 +1,6 @@
 // src/app/api/tts/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { generateTTSAudio } from '@/lib/tts-gcs';
+import { ultraNaturalTTS } from '@/lib/tts/ultra-natural-tts-engine';
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,28 +23,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'GEMINI_API_KEY가 설정되지 않았습니다.', 
-          code: 'MISSING_API_KEY' 
-        },
-        { status: 500 }
-      );
-    }
+    // Ultra-Natural TTS로 오디오 생성
+    const result = await ultraNaturalTTS.generateUltraNaturalTTS({
+      text: text,
+      context: 'tour_guide',
+      targetAudience: {
+        ageGroup: 'middle',
+        formalityPreference: 'semi_formal',
+        educationLevel: 'general'
+      },
+      qualityLevel: 'ultra'
+    });
 
-    // Google Cloud TTS로 오디오 생성 (배속 적용)
-    const audioBuffer = await generateTTSAudio(text, language, speakingRate);
+    if (!result.success || !result.audioUrl) {
+      throw new Error(result.error || 'Ultra-Natural TTS 생성 실패');
+    }
     
-    console.log('✅ TTS 오디오 생성 완료:', { 
-      size: audioBuffer.byteLength,
+    console.log('✅ Ultra-Natural TTS 오디오 생성 완료:', { 
+      humanLikeness: `${result.naturalness.humanLikenessPercent.toFixed(1)}%`,
+      simulationAccuracy: `${result.naturalness.simulationAccuracy.toFixed(1)}%`,
       language,
       speakingRate 
     });
 
-    // ArrayBuffer를 Base64로 인코딩하여 반환
-    const base64Audio = Buffer.from(audioBuffer).toString('base64');
+    // data URL에서 base64 추출
+    const base64Audio = result.audioUrl.split(',')[1] || result.audioUrl;
     
     return NextResponse.json({
       success: true,

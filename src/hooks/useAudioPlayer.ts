@@ -145,29 +145,41 @@ export const useAudioPlayer = ({ chapters, onChapterChange, onPlaybackEnd }: Use
     setStatus('loading');
     
     try {
-      // TTS 생성 및 캐싱
-      const { advancedTTSService } = await import('@/lib/advanced-tts-service');
+      // 🧬 Ultra-Natural TTS 생성 (유일한 TTS)
+      const { ultraNaturalTTS } = await import('@/lib/tts/ultra-natural-tts-engine');
       
-      const ttsResult = await advancedTTSService.generatePersonalityTTS({
+      const ttsResult = await ultraNaturalTTS.generateUltraNaturalTTS({
         text: chapter.text,
-        language: 'ko-KR',
-        guide_id: `chapter_${chapter.id}`,
-        adaptToMood: true
+        context: 'tour_guide',
+        targetAudience: {
+          ageGroup: 'middle',
+          formalityPreference: 'semi_formal',
+          educationLevel: 'general'
+        },
+        qualityLevel: 'ultra'
       });
 
-      if (ttsResult.success && ttsResult.audioData) {
-        // Base64를 Blob으로 변환
-        const audioBlob = new Blob([
-          new Uint8Array(
-            atob(ttsResult.audioData)
-              .split('')
-              .map(char => char.charCodeAt(0))
-          )
-        ], { type: ttsResult.mimeType || 'audio/mpeg' });
+      if (ttsResult.success && ttsResult.audioUrl) {
+        // audioUrl이 data: URL인 경우 base64 추출, 아니면 그대로 사용
+        let finalAudioUrl = ttsResult.audioUrl;
+        
+        if (ttsResult.audioUrl.startsWith('data:')) {
+          // Base64를 Blob으로 변환
+          const base64Data = ttsResult.audioUrl.split(',')[1];
+          const audioBlob = new Blob([
+            new Uint8Array(
+              atob(base64Data)
+                .split('')
+                .map(char => char.charCodeAt(0))
+            )
+          ], { type: 'audio/mpeg' });
+          
+          finalAudioUrl = URL.createObjectURL(audioBlob);
+        }
 
         // 캐싱 및 URL 생성
         const cacheId = `chapter_${chapter.id}`;
-        const audioUrl = await audioCacheService.cacheAudio(cacheId, URL.createObjectURL(audioBlob));
+        const audioUrl = await audioCacheService.cacheAudio(cacheId, finalAudioUrl);
         
         audioRef.current.src = audioUrl;
         audioRef.current.load();

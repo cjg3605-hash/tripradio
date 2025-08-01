@@ -48,6 +48,15 @@ class UltraNaturalTTSEngine {
   
   constructor() {
     console.log('🚀 초자연화 TTS 엔진 initializing...');
+    
+    // 빌드 시에는 시뮬레이션을 실행하지 않음
+    if (typeof window === 'undefined' && process.env.NODE_ENV === 'production') {
+      console.log('🏗️ 빌드 환경 감지 - TTS 엔진 초기화 지연');
+      this.simulator = {} as SeoulStandardTTSSimulator;
+      this.speakerDatabase = [];
+      return;
+    }
+    
     this.simulator = new SeoulStandardTTSSimulator();
     this.speakerDatabase = this.simulator.getTopNaturalSpeakers(10000); // 상위 1% 자연스러운 화자
     this.precomputeOptimizedSpeakers();
@@ -715,8 +724,12 @@ class UltraNaturalTTSEngine {
   }
 }
 
+// 🎯 싱글톤 인스턴스 생성 및 export
+const ultraNaturalTTS = new UltraNaturalTTSEngine();
+
 export { 
   UltraNaturalTTSEngine, 
+  ultraNaturalTTS,
   type UltraNaturalTTSRequest, 
   type UltraNaturalTTSResponse,
   type MicroExpressionPattern 

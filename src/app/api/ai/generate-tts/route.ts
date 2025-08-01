@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateTTSAudio } from '@/lib/tts-gcs';
+import { ultraNaturalTTS } from '@/lib/tts/ultra-natural-tts-engine';
 import { ttsRateLimiter } from '@/lib/rate-limiter';
 
 export async function POST(req: NextRequest) {
@@ -58,24 +58,35 @@ export async function POST(req: NextRequest) {
       setTimeout(() => reject(new Error('TTS 생성 시간 초과')), TTS_TIMEOUT_MS);
     });
 
-    const audioBuffer = await Promise.race([
-      generateTTSAudio(text, language, speakingRate, voiceSettings),
+    // Ultra-Natural TTS로 생성
+    const result = await Promise.race([
+      ultraNaturalTTS.generateUltraNaturalTTS({
+        text: text,
+        context: 'tour_guide',
+        targetAudience: {
+          ageGroup: 'middle',
+          formalityPreference: personalityContext?.personality === 'extraversion' ? 'casual' : 'semi_formal',
+          educationLevel: 'general'
+        },
+        qualityLevel: 'ultra'
+      }),
       ttsTimeoutPromise
-    ]);
-    
-    // 타입 안전성 확보 및 ArrayBuffer를 Base64로 인코딩
-    if (!(audioBuffer instanceof ArrayBuffer)) {
-      throw new Error('Invalid audio buffer received from TTS service');
+    ]) as any;
+
+    if (!result || !result.success || !result.audioUrl) {
+      throw new Error((result as any)?.error || 'Ultra-Natural TTS 생성 실패');
     }
+
+    // data URL에서 base64 추출
+    const base64Audio = result.audioUrl.split(',')[1] || result.audioUrl;
     
-    const base64Audio = Buffer.from(audioBuffer).toString('base64');
-    
-    console.log('✅ TTS 생성 완료:', { 
+    console.log('✅ Ultra-Natural TTS 생성 완료:', { 
       guide_id, 
-      audioSize: audioBuffer.byteLength,
+      audioDataLength: base64Audio.length,
       language,
       personality: personalityContext?.personality,
-      speakingRate
+      humanLikeness: `${result.naturalness.humanLikenessPercent.toFixed(1)}%`,
+      simulationAccuracy: `${result.naturalness.simulationAccuracy.toFixed(1)}%`
     });
 
     return NextResponse.json({ 

@@ -61,6 +61,12 @@ class KoreanPopulationSimulator {
   private simulatedPopulation: KoreanSpeakerProfile[] = [];
   
   constructor() {
+    // 빌드 시에는 시뮬레이션을 실행하지 않음
+    if (typeof window === 'undefined' && process.env.NODE_ENV === 'production') {
+      console.log('🏗️ 빌드 환경 감지 - 시뮬레이션 초기화 지연');
+      return;
+    }
+    
     this.generatePopulation();
   }
   
