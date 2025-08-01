@@ -1,12 +1,12 @@
-// src/app/api/tts/route.ts
+// Google Cloud Text-to-Speech REST API 직접 호출
 import { NextRequest, NextResponse } from 'next/server';
-import { ultraNaturalTTS } from '@/lib/tts/ultra-natural-tts-engine';
+import { directGoogleCloudTTS } from '@/lib/tts/google-cloud-tts-direct';
 
 export async function POST(req: NextRequest) {
   try {
-    const { text, language = 'ko-KR', speakingRate = 1.2 } = await req.json();
+    const { text, language = 'ko-KR', speakingRate = 1.0 } = await req.json();
     
-    console.log('🎵 TTS 요청 받음:', { 
+    console.log('🎵 Google Cloud TTS 직접 호출 요청:', { 
       textLength: text?.length || 0, 
       language,
       speakingRate
@@ -23,42 +23,38 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Ultra-Natural TTS로 오디오 생성
-    const result = await ultraNaturalTTS.generateUltraNaturalTTS({
+    // Google Cloud TTS REST API 직접 호출
+    const result = await directGoogleCloudTTS.synthesizeSpeech({
       text: text,
-      context: 'tour_guide',
-      targetAudience: {
-        ageGroup: 'middle',
-        formalityPreference: 'semi_formal',
-        educationLevel: 'general'
-      },
-      qualityLevel: 'ultra'
+      languageCode: language,
+      voiceName: language === 'ko-KR' ? 'ko-KR-Standard-A' : 'en-US-Standard-A',
+      ssmlGender: 'NEUTRAL',
+      audioEncoding: 'MP3',
+      speakingRate: speakingRate,
+      pitch: 0.0,
+      volumeGainDb: 0.0
     });
 
-    if (!result.success || !result.audioUrl) {
-      throw new Error(result.error || 'Ultra-Natural TTS 생성 실패');
+    if (!result.success || !result.audioContent) {
+      throw new Error(result.error || 'Google Cloud TTS 생성 실패');
     }
     
-    console.log('✅ Ultra-Natural TTS 오디오 생성 완료:', { 
-      humanLikeness: `${result.naturalness.humanLikenessPercent.toFixed(1)}%`,
-      simulationAccuracy: `${result.naturalness.simulationAccuracy.toFixed(1)}%`,
+    console.log('✅ Google Cloud TTS 오디오 생성 완료:', { 
+      audioSize: result.audioContent.length,
       language,
       speakingRate 
     });
-
-    // data URL에서 base64 추출
-    const base64Audio = result.audioUrl.split(',')[1] || result.audioUrl;
     
     return NextResponse.json({
       success: true,
-      audioData: base64Audio,
+      audioData: result.audioContent,
       mimeType: 'audio/mpeg',
       language,
       speakingRate
     });
     
   } catch (error) {
-    console.error('❌ TTS API 요청 처리 오류:', error);
+    console.error('❌ Google Cloud TTS API 오류:', error);
     
     const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
     
