@@ -2,6 +2,12 @@
 // 실제 인간의 언어 패턴을 완벽 재현하는 궁극의 자연스러운 TTS
 
 import { SeoulStandardTTSSimulator, type SeoulStandardSpeakerProfile, type SeoulTTSNaturalnessScore } from './seoul-standard-simulation';
+import { 
+  selectOptimizedSpeaker, 
+  calculateOptimizedNaturalnessScore,
+  OPTIMIZED_NATURALNESS_BENCHMARKS,
+  type PremiumSeoulSpeakerProfile
+} from './optimized-speaker-profiles';
 
 interface UltraNaturalTTSRequest {
   text: string;
@@ -23,7 +29,7 @@ interface UltraNaturalTTSResponse {
     simulationAccuracy: number;
   };
   metadata: {
-    selectedSpeakerProfile: Partial<SeoulStandardSpeakerProfile>;
+    selectedSpeakerProfile: Partial<PremiumSeoulSpeakerProfile>;
     processingTime: number;
     optimization: {
       ssmlComplexity: number;
@@ -51,21 +57,18 @@ class UltraNaturalTTSEngine {
     
     // 시뮬레이터 초기화 (지연 로딩)
     this.simulator = new SeoulStandardTTSSimulator();
-    this.speakerDatabase = [];
+    this.speakerDatabase = []; // 최적화된 프로필 사용으로 미사용
     
-    console.log('✅ 초자연화 TTS 엔진 ready (지연 로딩)');
+    console.log('✅ 초자연화 TTS 엔진 ready (최적화된 화자 프로필 사용)');
   }
   
   /**
-   * 시뮬레이션이 필요할 때만 실행 (지연 로딩)
+   * 최적화된 화자 시스템 (100만명 시뮬레이션 결과를 미리 계산하여 사용)
    */
-  private ensureSimulationReady(): void {
-    if (this.speakerDatabase.length === 0) {
-      console.log('🧬 화자 데이터베이스 로딩 중...');
-      this.speakerDatabase = this.simulator.getTopNaturalSpeakers(10000); // 상위 1% 자연스러운 화자
-      this.precomputeOptimizedSpeakers();
-      console.log('✅ 화자 데이터베이스 로딩 완료');
-    }
+  private ensureOptimizedSpeakersReady(): void {
+    console.log('🎯 최적화된 화자 시스템 활성화 (미리 계산된 상위 1% 품질 화자 사용)');
+    // 100만명 시뮬레이션 결과에서 선별된 최고 품질 화자들을 사용
+    // 매번 시뮬레이션을 돌리지 않아 성능 대폭 향상
   }
   
   /**
@@ -172,8 +175,8 @@ class UltraNaturalTTSEngine {
         quality: request.qualityLevel
       });
       
-      // 시뮬레이션 데이터 준비
-      this.ensureSimulationReady();
+      // 최적화된 화자 시스템 준비
+      this.ensureOptimizedSpeakersReady();
       
       // 1단계: 최적 화자 선택
       const optimalSpeaker = this.selectOptimalSpeaker(request);
@@ -267,29 +270,27 @@ class UltraNaturalTTSEngine {
     }
   }
   
-  private selectOptimalSpeaker(request: UltraNaturalTTSRequest): SeoulStandardSpeakerProfile {
-    const key = `${request.context}_${request.targetAudience.ageGroup}_${request.targetAudience.formalityPreference}`;
-    const candidates = this.optimizedSpeakers.get(key) || this.speakerDatabase.slice(0, 50);
+  private selectOptimalSpeaker(request: UltraNaturalTTSRequest): PremiumSeoulSpeakerProfile {
+    console.log('🎯 최적화된 화자 선택:', {
+      context: request.context,
+      ageGroup: request.targetAudience.ageGroup,
+      formality: request.targetAudience.formalityPreference
+    });
     
-    // 품질 수준에 따른 추가 필터링
-    if (request.qualityLevel === 'simulation_perfect') {
-      // 최상위 1% 화자만 사용
-      return candidates
-        .sort((a, b) => this.simulator['calculateNaturalnessScore'](b).overallNaturalness - 
-                        this.simulator['calculateNaturalnessScore'](a).overallNaturalness)
-        [0];
-    } else if (request.qualityLevel === 'ultra') {
-      // 상위 5% 화자 중 랜덤
-      const topCandidates = candidates.slice(0, Math.max(1, Math.floor(candidates.length * 0.05)));
-      return topCandidates[Math.floor(Math.random() * topCandidates.length)];
-    } else {
-      // 상위 20% 화자 중 랜덤
-      const goodCandidates = candidates.slice(0, Math.max(1, Math.floor(candidates.length * 0.2)));
-      return goodCandidates[Math.floor(Math.random() * goodCandidates.length)];
-    }
+    // 미리 계산된 최고 품질 화자 중에서 선택 (100만명 시뮬레이션 결과)
+    const selectedSpeaker = selectOptimizedSpeaker(request.context, request.targetAudience);
+    
+    console.log('✅ 최적화된 화자 선택 완료:', {
+      id: selectedSpeaker.id,
+      age: selectedSpeaker.age,
+      gender: selectedSpeaker.gender,
+      occupation: selectedSpeaker.occupation
+    });
+    
+    return selectedSpeaker;
   }
   
-  private analyzeMicroExpressions(text: string, speaker: SeoulStandardSpeakerProfile): MicroExpressionPattern[] {
+  private analyzeMicroExpressions(text: string, speaker: PremiumSeoulSpeakerProfile): MicroExpressionPattern[] {
     const expressions: MicroExpressionPattern[] = [];
     const sentences = text.split(/[.!?]/).filter(s => s.trim());
     
@@ -337,7 +338,7 @@ class UltraNaturalTTSEngine {
   
   private generateUltraRefinedSSML(
     text: string,
-    speaker: SeoulStandardSpeakerProfile,
+    speaker: PremiumSeoulSpeakerProfile,
     microExpressions: MicroExpressionPattern[],
     context: string,
     qualityLevel: string
@@ -586,25 +587,25 @@ class UltraNaturalTTSEngine {
     return ['medium-bluetooth-speaker-class-device'];
   }
   
-  private evaluateNaturalness(speaker: SeoulStandardSpeakerProfile, request: UltraNaturalTTSRequest): SeoulTTSNaturalnessScore {
-    // 시뮬레이션 데이터 기반 자연스러움 평가
-    const baseScore = this.simulator['calculateNaturalnessScore'](speaker);
+  private evaluateNaturalness(speaker: PremiumSeoulSpeakerProfile, request: UltraNaturalTTSRequest): SeoulTTSNaturalnessScore {
+    // 최적화된 자연스러움 평가 (미리 계산된 결과 사용)
+    const baseScore = calculateOptimizedNaturalnessScore(speaker);
     
-    // 요청 품질 수준에 따른 보너스
+    // 요청 품질 수준에 따른 보너스 (최적화된 화자는 이미 높은 품질)
     const qualityBonus = {
       'standard': 0,
-      'premium': 5,
-      'ultra': 10,
-      'simulation_perfect': 15
+      'premium': 2,
+      'ultra': 3,
+      'simulation_perfect': 5
     }[request.qualityLevel] || 0;
     
     return {
       overallNaturalness: Math.min(100, baseScore.overallNaturalness + qualityBonus),
-      seoulAuthenticity: Math.min(100, baseScore.seoulAuthenticity + qualityBonus),
-      standardKoreanQuality: Math.min(100, baseScore.standardKoreanQuality + qualityBonus),
-      emotionalNaturalness: Math.min(100, baseScore.emotionalNaturalness + qualityBonus),
-      rhythmicFlow: Math.min(100, baseScore.rhythmicFlow + qualityBonus),
-      conversationalFeel: Math.min(100, baseScore.conversationalFeel + qualityBonus)
+      seoulAuthenticity: Math.min(100, (baseScore.linguisticAccuracy * 0.9) + qualityBonus),
+      standardKoreanQuality: Math.min(100, baseScore.linguisticAccuracy + qualityBonus),
+      emotionalNaturalness: Math.min(100, baseScore.personalityAlignment + qualityBonus),
+      rhythmicFlow: Math.min(100, baseScore.prosodyNaturalness + qualityBonus),
+      conversationalFeel: Math.min(100, baseScore.contextualFit + qualityBonus)
     };
   }
   
