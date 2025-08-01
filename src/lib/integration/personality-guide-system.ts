@@ -488,7 +488,30 @@ export class PersonalityGuideSystem {
       hasBehavior: !!request.userBehaviorData
     };
     
-    return btoa(JSON.stringify(keyData)).slice(0, 16);
+    return this.safeBase64Encode(JSON.stringify(keyData)).slice(0, 16);
+  }
+
+  // UTF-8 안전 Base64 인코딩 (브라우저/Node.js 호환)
+  private safeBase64Encode(str: string): string {
+    try {
+      // Node.js 환경
+      if (typeof Buffer !== 'undefined') {
+        return Buffer.from(str, 'utf8').toString('base64');
+      }
+      // 브라우저 환경 - UTF-8을 안전하게 인코딩
+      return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => {
+        return String.fromCharCode(parseInt(p1, 16));
+      }));
+    } catch (error) {
+      // 폴백: 단순 해시 생성
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // 32비트로 변환
+      }
+      return Math.abs(hash).toString(36);
+    }
   }
 }
 
