@@ -1,9 +1,68 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback, Component, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import GuideGenerating from '@/components/guide/GuideGenerating';
+
+// 에러 바운더리 클래스 컴포넌트
+class ErrorBoundary extends Component<
+  { children: ReactNode; fallback?: (error: Error, reset: () => void) => ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error('HomePage Error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError && this.state.error) {
+      if (this.props.fallback) {
+        return this.props.fallback(this.state.error, () => {
+          this.setState({ hasError: false, error: null });
+        });
+      }
+
+      return (
+        <div className="min-h-screen bg-white flex items-center justify-center p-4">
+          <div className="max-w-md w-full text-center">
+            <div className="mb-6">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">오류가 발생했습니다</h2>
+              <p className="text-gray-600 mb-6">죄송합니다. 예상치 못한 오류가 발생했습니다. 다시 시도해 주세요.</p>
+              <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+                <p className="text-sm text-gray-500 font-mono">{this.state.error.message}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                window.location.reload();
+              }}
+              className="w-full bg-black text-white py-3 px-6 rounded-2xl font-medium hover:bg-gray-800 transition-colors"
+            >
+              다시 시도
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 // 검색 제안 인터페이스
 interface Suggestion {
@@ -12,7 +71,29 @@ interface Suggestion {
   location: string;
 }
 
-export default function HomePage() {
+// 번역된 제안 타입 가드
+interface TranslatedSuggestion {
+  name: string;
+  location: string;
+}
+
+// 타입 가드 함수들
+const isValidSuggestionsArray = (data: any): data is TranslatedSuggestion[] => {
+  return Array.isArray(data) && 
+         data.length > 0 &&
+         data.every(item => 
+           typeof item === 'object' && 
+           item !== null &&
+           typeof item.name === 'string' && 
+           typeof item.location === 'string'
+         );
+};
+
+const isValidCountriesData = (data: any): boolean => {
+  return data && typeof data === 'object' && !Array.isArray(data);
+};
+
+function Home() {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
   
@@ -22,7 +103,7 @@ export default function HomePage() {
   const [currentWord, setCurrentWord] = useState(0);
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const [suggestions, setSuggestions] = useState([
+  const [suggestions, setSuggestions] = useState<TranslatedSuggestion[]>([
     { name: '에펠탑', location: '프랑스 파리' },
     { name: '타지마할', location: '인도 아그라' },
     { name: '마추픽추', location: '페루 쿠스코' }
@@ -31,19 +112,51 @@ export default function HomePage() {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   
-  // 기능 상태
-  const [isGenerating, setIsGenerating] = useState(false);
+  // 기능 상태 (분리된 로딩 상태)
+  const [loadingStates, setLoadingStates] = useState({
+    search: false,
+    guide: false,
+    tour: false,
+    country: false
+  });
   const [audioPlaying, setAudioPlaying] = useState(false);
+  
+  // 개별 로딩 상태 헬퍼 함수
+  const setLoadingState = useCallback((key: keyof typeof loadingStates, value: boolean) => {
+    if (!isMountedRef.current) return;
+    setLoadingStates(prev => ({ ...prev, [key]: value }));
+  }, []);
+  
+  // 전체 로딩 상태 확인
+  const isAnyLoading = useMemo(() => 
+    Object.values(loadingStates).some(loading => loading), 
+    [loadingStates]
+  );
   
   // 지역별 탭 상태
   const [activeRegion, setActiveRegion] = useState('europe');
+  
+  // API 요청 관리
+  const abortControllerRef = useRef<AbortController | null>(null);
+  
+  // 컴포넌트 마운트 상태
+  const isMountedRef = useRef(true);
+  
+  // 간격 참조
+  const intervalRefs = useRef<{
+    word: NodeJS.Timeout | null;
+    placeholder: NodeJS.Timeout | null;
+  }>({
+    word: null,
+    placeholder: null
+  });
   
   // 지역별 인기 국가 데이터 (번역키 사용)
   const regionCountries = useMemo(() => {
     const countries = t('home.countries') as any;
     
-    // 번역 데이터가 로드되지 않았을 경우 기본값 사용
-    if (!countries || typeof countries !== 'object') {
+    // 번역 데이터 유효성 검증
+    if (!isValidCountriesData(countries)) {
       return {
         europe: [],
         asia: [],
@@ -222,67 +335,119 @@ export default function HomePage() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // 자동완성 API 호출
-  const fetchSuggestions = async (searchQuery: string) => {
+  // 자동완성 API 호출 (메모리 안전, API 중복 방지)
+  const fetchSuggestions = useCallback(async (searchQuery: string) => {
     if (searchQuery.length < 1) {
       const translated = t('home.defaultSuggestions');
       // defaultSuggestions는 객체 배열이어야 하므로 타입 체크
-      if (Array.isArray(translated) && translated.length > 0 && typeof translated[0] === 'object' && 'name' in translated[0] && 'location' in translated[0]) {
-        setSuggestions(translated as unknown as Array<{ name: string; location: string }>);
+      if (isValidSuggestionsArray(translated)) {
+        safeSetState(() => setSuggestions(translated));
       } else {
-        setSuggestions([
+        safeSetState(() => setSuggestions([
           { name: '에펠탑', location: '프랑스 파리' },
           { name: '타지마할', location: '인도 아그라' },
           { name: '마추픽추', location: '페루 쿠스코' }
-        ]);
+        ]));
       }
       return;
     }
 
-    setIsLoadingSuggestions(true);
+    // 이전 요청 취소
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
+    safeSetState(() => setIsLoadingSuggestions(true));
+    
     try {
-      const response = await fetch(`/api/locations/search?q=${encodeURIComponent(searchQuery)}&lang=${currentLanguage}`);
+      const response = await fetch(
+        `/api/locations/search?q=${encodeURIComponent(searchQuery)}&lang=${currentLanguage}`,
+        { 
+          signal: abortControllerRef.current.signal,
+          cache: 'no-cache'
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       
-      if (data.success && data.data) {
-        setSuggestions(data.data.slice(0, 5)); // 최대 5개 제안
-        setSelectedSuggestionIndex(-1); // 새로운 제안이 오면 선택 초기화
+      // 컴포넌트가 마운트되어 있을 때만 상태 업데이트
+      if (!isMountedRef.current) return;
+      
+      if (data.success && isValidSuggestionsArray(data.data)) {
+        safeSetState(() => {
+          setSuggestions(data.data.slice(0, 5)); // 최대 5개 제안
+          setSelectedSuggestionIndex(-1); // 새로운 제안이 오면 선택 초기화
+        });
       } else {
-        setSuggestions([]);
-        setSelectedSuggestionIndex(-1);
+        safeSetState(() => {
+          setSuggestions([]);
+          setSelectedSuggestionIndex(-1);
+        });
       }
     } catch (error) {
-      setSuggestions([]);
+      // AbortError는 의도적인 취소이므로 무시
+      if (error.name === 'AbortError') return;
+      
+      console.error('Suggestions fetch error:', error);
+      if (isMountedRef.current) {
+        safeSetState(() => setSuggestions([]));
+      }
     } finally {
-      setIsLoadingSuggestions(false);
+      if (isMountedRef.current) {
+        safeSetState(() => setIsLoadingSuggestions(false));
+      }
     }
-  };
+  }, [currentLanguage, t]);
 
 
-  // 디바운스된 검색 함수
+  // 디바운스된 검색 함수 (메모리 안전)
   useEffect(() => {
+    if (!isMountedRef.current) return;
+    
     const timeoutId = setTimeout(() => {
-      if (query.trim() && isFocused) {
+      if (query.trim() && isFocused && isMountedRef.current) {
         fetchSuggestions(query.trim());
       }
     }, 200); // 200ms 디바운스 (최적화)
 
-    return () => clearTimeout(timeoutId);
-  }, [query, currentLanguage, isFocused]); // fetchSuggestions 의존성 제거
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [query, currentLanguage, isFocused, fetchSuggestions, isMountedRef]);
 
-  // 검색 실행
-  const handleSearch = async () => {
-    if (!query.trim()) return;
+  // 컴포넌트 언마운트 시 정리 작업
+  useEffect(() => {
+    return () => {
+      // 컴포넌트 언마운트 표시
+      isMountedRef.current = false;
+      
+      // 진행 중인 API 요청 취소
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
+  // 검색 실행 (메모리 안전, 분리된 로딩 상태)
+  const handleSearch = useCallback(async () => {
+    if (!query.trim() || !isMountedRef.current) return;
     
-    setIsGenerating(true);
+    setLoadingState('search', true);
     try {
       router.push(`/guide/${encodeURIComponent(query.trim())}`);
     } catch (error) {
       console.error('Search error:', error);
     } finally {
-      setIsGenerating(false);
+      if (isMountedRef.current) {
+        setLoadingState('search', false);
+      }
     }
-  };
+  }, [query, router, setLoadingState]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isFocused || suggestions.length === 0) {
@@ -310,9 +475,7 @@ export default function HomePage() {
           setQuery(selectedSuggestion.name);
           setIsFocused(false);
           setSelectedSuggestionIndex(-1);
-          setTimeout(() => {
-            router.push(`/guide/${encodeURIComponent(selectedSuggestion.name)}`);
-          }, 100);
+          router.push(`/guide/${encodeURIComponent(selectedSuggestion.name)}`);
         } else {
           handleSearch();
         }
@@ -333,7 +496,7 @@ export default function HomePage() {
       return;
     }
 
-    setIsGenerating(true);
+    setLoadingState('guide', true);
     try {
       console.log('🚀 AI 가이드 생성 요청 시작:', {
         url: '/api/ai/generate-guide-with-gemini',
@@ -389,48 +552,51 @@ export default function HomePage() {
       console.error('❌ AI 생성 오류:', error);
       alert(t('home.alerts.networkError'));
     } finally {
-      setIsGenerating(false);
+      setLoadingState('guide', false);
     }
   };
 
-  // 오디오 재생
-  const handleAudioPlayback = () => {
-    if (!query.trim()) {
+  // 오디오 재생 (지연 제거, 분리된 로딩 상태)
+  const handleAudioPlayback = useCallback(() => {
+    if (!query.trim() || !isMountedRef.current) {
       alert(t('home.alerts.enterLocation'));
       return;
     }
 
-    setAudioPlaying(!audioPlaying);
-    
-    setTimeout(() => {
-      router.push(`/guide/${encodeURIComponent(query.trim())}/tour`);
-    }, 1000);
-  };
+    safeSetState(() => setAudioPlaying(!audioPlaying));
+    setLoadingState('tour', true);
+    router.push(`/guide/${encodeURIComponent(query.trim())}/tour`);
+  }, [query, audioPlaying, router, t, setLoadingState]);
 
-  // 국가 클릭 처리
-  const handleCountryClick = (country: any) => {
+  // 국가 클릭 처리 (지연 제거, 분리된 로딩 상태)
+  const handleCountryClick = useCallback((country: any) => {
+    if (!isMountedRef.current) return;
+    
     // 해당 국가의 첫 번째 유명 관광지로 검색
     const firstAttraction = country.attractions[0];
-    setQuery(firstAttraction);
-    setTimeout(() => {
-      router.push(`/guide/${encodeURIComponent(firstAttraction)}`);
-    }, 300);
-  };
+    safeSetState(() => setQuery(firstAttraction));
+    setLoadingState('country', true);
+    router.push(`/guide/${encodeURIComponent(firstAttraction)}`);
+  }, [router, setLoadingState]);
 
-  // 가이드 생성 중일 때 새로운 컴포넌트 표시
-  if (isGenerating) {
+  // 가이드 생성 중일 때 새로운 컴포넌트 표시 (분리된 로딩 상태)
+  if (isAnyLoading) {
+    const currentLoadingType = Object.entries(loadingStates).find(([_, loading]) => loading)?.[0] || 'search';
     return (
       <GuideGenerating
         locationName={query}
-        onCancel={() => setIsGenerating(false)}
+        onCancel={() => {
+          setLoadingStates({ search: false, guide: false, tour: false, country: false });
+        }}
         onComplete={() => {
-          setIsGenerating(false);
+          setLoadingStates({ search: false, guide: false, tour: false, country: false });
           router.push(`/guide/${encodeURIComponent(query.trim())}`);
         }}
         userPreferences={{
           interests: ['문화', '역사', '건축'],
           ageGroup: '30대',
-          language: currentLanguage
+          language: currentLanguage,
+          loadingType: currentLoadingType
         }}
       />
     );
@@ -559,12 +725,14 @@ export default function HomePage() {
                 <div className="text-center relative z-10 flex-1 max-w-32 sm:max-w-xs">
                   <button 
                     onClick={handleAIGeneration}
-                    disabled={!query.trim() || isGenerating}
-                    className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-3 sm:mb-4 bg-black text-white ${
-                      isGenerating ? 'animate-pulse' : ''
+                    disabled={!query.trim() || loadingStates.search}
+                    className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-3 sm:mb-4 bg-black text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black ${
+                      loadingStates.search ? 'animate-pulse' : ''
                     } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
+                    aria-label={loadingStates.guide ? 'AI 가이드 생성 중...' : t('home.stepTitles.aiGenerate')}
+                    aria-disabled={!query.trim() || loadingStates.search}
                   >
-                    {isGenerating ? (
+                    {loadingStates.guide ? (
                       <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     ) : (
                       <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -593,9 +761,11 @@ export default function HomePage() {
                   <button 
                     onClick={handleAudioPlayback}
                     disabled={!query.trim()}
-                    className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-3 sm:mb-4 bg-black text-white ${
+                    className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-3 sm:mb-4 bg-black text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black ${
                       audioPlaying ? 'animate-pulse' : ''
                     } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
+                    aria-label={audioPlaying ? '오디오 일시정지' : t('home.stepTitles.audioPlay')}
+                    aria-pressed={audioPlaying}
                   >
                     {audioPlaying ? (
                       <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -641,25 +811,41 @@ export default function HomePage() {
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
                   onFocus={() => setIsFocused(true)}
-                  onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+                  onBlur={(e) => {
+                    // 클릭이 제안 목록 내부에서 일어나는지 확인
+                    const relatedTarget = e.relatedTarget as HTMLElement;
+                    if (!relatedTarget || !relatedTarget.closest('.suggestions-container')) {
+                      setIsFocused(false);
+                    }
+                  }}
                   placeholder={placeholders[placeholderIndex]}
-                  className="w-full px-8 py-6 text-xl font-light text-black bg-transparent rounded-3xl focus:outline-none transition-all duration-300 placeholder-gray-400"
+                  className="w-full px-8 py-6 text-xl font-light text-black bg-transparent rounded-3xl focus:outline-none transition-all duration-300 placeholder-gray-400 focus:ring-2 focus:ring-black focus:ring-opacity-20"
+                  aria-label={t('home.searchPlaceholder')}
+                  aria-describedby="search-help"
+                  aria-expanded={isFocused && suggestions.length > 0}
+                  aria-autocomplete="list"
+                  aria-activedescendant={selectedSuggestionIndex >= 0 ? `suggestion-${selectedSuggestionIndex}` : undefined}
+                  aria-controls={isFocused && suggestions.length > 0 ? "suggestions-listbox" : undefined}
+                  role="combobox"
                 />
                 
                 <button
                   onClick={handleSearch}
-                  disabled={!query.trim() || isGenerating}
+                  disabled={!query.trim() || loadingStates.search}
                   className={`
                     absolute right-4 top-1/2 transform -translate-y-1/2
                     w-14 h-14 rounded-2xl transition-all duration-300
                     flex items-center justify-center group
-                    ${query.trim() && !isGenerating
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black
+                    ${query.trim() && !loadingStates.search
                       ? 'bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95' 
                       : 'bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 opacity-50 cursor-not-allowed'
                     }
                   `}
+                  aria-label={loadingStates.search ? '검색 중...' : t('home.searchButton')}
+                  type="submit"
                 >
-                  {isGenerating ? (
+                  {loadingStates.search ? (
                     <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
                     <svg className="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -669,9 +855,19 @@ export default function HomePage() {
                 </button>
               </div>
 
+              {/* 검색 도움말 (화면 판독기용) */}
+              <div id="search-help" className="sr-only">
+                검색어를 입력하고 Enter키를 누르거나 제안 목록에서 선택하세요. 화살표 키로 제안을 탐색할 수 있습니다.
+              </div>
+
               {/* Suggestions Dropdown */}
               {isFocused && query.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-[9999] autocomplete-dropdown">
+                <div 
+                  className="absolute top-full left-0 right-0 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-[9999] autocomplete-dropdown suggestions-container"
+                  role="listbox"
+                  id="suggestions-listbox"
+                  aria-label="검색 제안 목록"
+                >
                   {isLoadingSuggestions ? (
                     <div className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-2">
@@ -683,22 +879,24 @@ export default function HomePage() {
                     suggestions.map((suggestion, index) => (
                       <button
                         key={index}
+                        id={`suggestion-${index}`}
                         onClick={() => {
                           const selectedLocation = suggestion.name;
                           setQuery(selectedLocation);
                           setIsFocused(false);
                           setSelectedSuggestionIndex(-1);
-                          setTimeout(() => {
-                            router.push(`/guide/${encodeURIComponent(selectedLocation)}`);
-                          }, 100);
+                          router.push(`/guide/${encodeURIComponent(selectedLocation)}`);
                         }}
                         onMouseEnter={() => setSelectedSuggestionIndex(index)}
                         onMouseLeave={() => setSelectedSuggestionIndex(-1)}
-                        className={`w-full px-6 py-4 text-left transition-all duration-200 group suggestion-item ${
+                        className={`w-full px-6 py-4 text-left transition-all duration-200 group suggestion-item focus:outline-none focus:ring-2 focus:ring-inset focus:ring-black ${
                           selectedSuggestionIndex === index 
                             ? 'bg-blue-50 ring-2 ring-blue-200' 
                             : 'hover:bg-gray-50'
                         }`}
+                        role="option"
+                        aria-selected={selectedSuggestionIndex === index}
+                        aria-label={`${suggestion.name}, ${suggestion.location}로 이동`}
                       >
                         <div className="flex items-center justify-between">
                           <div>
@@ -757,12 +955,16 @@ export default function HomePage() {
                       key={region.id}
                       onClick={() => setActiveRegion(region.id)}
                       className={`
-                        px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300
+                        px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black
                         ${activeRegion === region.id
                           ? 'bg-black text-white shadow-md'
                           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                         }
                       `}
+                      role="tab"
+                      aria-selected={activeRegion === region.id}
+                      aria-controls={`${region.id}-panel`}
+                      tabIndex={activeRegion === region.id ? 0 : -1}
                     >
                       {region.label}
                     </button>
@@ -772,13 +974,20 @@ export default function HomePage() {
             </div>
 
             {/* 국가 카드 슬라이드 - 인기여행지 스타일 */}
-            <div className="overflow-x-auto pb-4">
+            <div 
+              className="overflow-x-auto pb-4"
+              role="tabpanel"
+              id={`${activeRegion}-panel`}
+              aria-labelledby={`${activeRegion}-tab`}
+            >
               <div className="flex space-x-6 min-w-max px-2">
                 {regionCountries[activeRegion as keyof typeof regionCountries].map((country, index) => (
-                  <div
+                  <button
                     key={country.id}
                     onClick={() => handleCountryClick(country)}
-                    className="flex-shrink-0 w-64 group cursor-pointer"
+                    className="flex-shrink-0 w-64 group cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black rounded-2xl text-left"
+                    aria-label={`${country.name} 여행 가이드 보기`}
+                    type="button"
                   >
                     {/* 메인 카드 - 모던 모노크롬 스타일 */}
                     <div className="relative bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-500 overflow-hidden group-hover:scale-[1.02]">
@@ -845,7 +1054,7 @@ export default function HomePage() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -953,5 +1162,14 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
+  );
+}
+
+// ErrorBoundary로 감싸진 메인 컴포넌트
+export default function HomePage() {
+  return (
+    <ErrorBoundary>
+      <Home />
+    </ErrorBoundary>
   );
 }

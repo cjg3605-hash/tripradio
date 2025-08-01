@@ -220,7 +220,9 @@
       "precaution1": "이어폰이나 헤드폰을 착용하여 오디오 가이드를 들어보세요",
       "precaution2": "GPS 신호가 약한 실내에서는 정확한 위치 추적이 어려울 수 있습니다",
       "precaution3": "배터리 소모를 고려하여 휴대용 충전기를 준비하세요",
-      "precaution4": "주변 상황을 항상 주의 깊게 살피며 안전을 우선으로 하세요"
+      "precaution4": "주변 상황을 항상 주의 깊게 살피며 안전을 우선으로 하세요",
+      "noGuides": "가이드가 없습니다",
+      "createNewGuide": "새로운 가이드를 생성해보세요!"
     },
     "live": {
       "shareTitle": "AI 가이드 공유",
@@ -248,7 +250,21 @@
       "close": "닫기",
       "hide": "숨기기",
       "exists": "있음",
-      "notExists": "없음"
+      "notExists": "없음",
+      "minutes": "분",
+      "languagesGenerated": "개 언어로 생성",
+      "total": "총",
+      "confirmDelete": "이 가이드를 삭제하시겠습니까?",
+      "daysAgo": "일 전",
+      "weeksAgo": "주 전",
+      "allLanguages": "모든 언어",
+      "sortLatest": "최신순",
+      "sortName": "이름순",
+      "sortChapters": "챕터순",
+      "chapters": "개 챕터",
+      "none": "없음",
+      "completed": "완료",
+      "processing": "처리중"
     },
     "history": {
       "noResults": "검색 결과가 없습니다",
@@ -286,7 +302,18 @@
       "account": "계정",
       "logout": "로그아웃",
       "mypage": "마이페이지",
-      "user": "사용자"
+      "user": "사용자",
+      "manageProfile": "프로필 정보를 관리하세요",
+      "enterName": "이름을 입력하세요",
+      "emailNotEditable": "이메일은 변경할 수 없습니다",
+      "newFeatureNotifications": "새로운 기능 알림",
+      "guideCompleteNotifications": "가이드 생성 완료 알림",
+      "marketingEmails": "마케팅 이메일 수신",
+      "dataManagement": "데이터 관리",
+      "exportData": "데이터 내보내기",
+      "exportDescription": "모든 가이드 데이터를 JSON 형태로 다운로드",
+      "deleteAllData": "모든 데이터 삭제",
+      "deleteDescription": "저장된 모든 가이드와 설정을 삭제합니다"
     },
     "mypage": {
       "title": "마이페이지",
@@ -297,7 +324,70 @@
       "favoriteGuides": "즐겨찾기 가이드",
       "totalGuides": "전체 가이드",
       "completedTours": "완료된 투어",
-      "savedLocations": "저장된 장소"
+      "savedLocations": "저장된 장소",
+      "overviewShort": "개요",
+      "guidesShort": "가이드",
+      "favoritesShort": "즐겨찾기",
+      "filesShort": "파일",
+      "settingsShort": "설정",
+      "frequentPlaces": "자주 방문하는 장소들",
+      "primaryLanguage": "주 사용 언어",
+      "personalizedDiagnosis": "개인화 가이드 맞춤 진단",
+      "diagnosisComplete": "진단 완료! 당신의 주도적 성격은",
+      "diagnosisResult": "입니다",
+      "personalityTraits": {
+        "openness": "개방성",
+        "conscientiousness": "성실성",
+        "extraversion": "외향성",
+        "agreeableness": "친화성",
+        "neuroticism": "신경성"
+      },
+      "reliability": "신뢰도",
+      "diagnosed": "진단",
+      "contentDepth": "콘텐츠 깊이",
+      "contentDepthLevels": {
+        "veryDetailed": "매우 상세",
+        "detailed": "상세",
+        "moderate": "보통",
+        "simple": "간단"
+      },
+      "guideStyle": "가이드 스타일",
+      "guideStyles": {
+        "storytelling": "스토리텔링",
+        "academic": "학술적",
+        "conversational": "대화형",
+        "practical": "실용적"
+      },
+      "interaction": "상호작용",
+      "interactionLevels": {
+        "veryActive": "매우 활발",
+        "active": "활발",
+        "moderate": "보통",
+        "passive": "수동적"
+      },
+      "emotionalTone": "감정적 어조",
+      "emotionalTones": {
+        "enthusiastic": "열정적",
+        "friendly": "친근한",
+        "professional": "전문적",
+        "calm": "차분한"
+      },
+      "aiSimulationInfo": "100만명 AI 시뮬레이션으로 검증된 5문항 진단으로",
+      "accuracy": "정확도",
+      "personalizedGuideProvided": "의 개인화 가이드를 제공합니다",
+      "timeRequired": "소요시간",
+      "countriesVerification": "개국 문화적 공정성 검증",
+      "retakeDiagnosis": "다시 진단하기",
+      "startDiagnosis": "진단 시작하기",
+      "personalizedGuideActive": "이제 모든 가이드가 당신의 성격에 맞게 자동으로 개인화됩니다!",
+      "noFavoriteGuides": "즐겨찾기한 가이드가 없습니다",
+      "addFavoriteGuides": "마음에 드는 가이드를 즐겨찾기로 추가해보세요!",
+      "createGuideFromFile": "파일에서 가이드 생성",
+      "uploadFileDescription": "PDF, Word, 텍스트 파일을 업로드하여 가이드를 생성할 수 있습니다",
+      "supportedFormats": "지원 형식: PDF, DOCX, TXT (최대 10MB)",
+      "noUploadedFiles": "업로드된 파일이 없습니다",
+      "uploadFirstFile": "첫 번째 파일을 업로드해보세요!",
+      "fileGuides": "파일 가이드"
     },
     "auth": {
       "login": "로그인",
@@ -364,7 +454,11 @@
       "continue": "계속",
       "goBack": "돌아가기",
       "tryAgain": "다시 시도",
-      "viewDetails": "자세히 보기"
+      "viewDetails": "자세히 보기",
+      "createGuide": "가이드 생성하기",
+      "selectFile": "파일 선택",
+      "save": "변경사항 저장",
+      "cancel": "취소"
     },
     "languages": {
       "ko": "한국어",
@@ -638,7 +732,9 @@
       "precaution1": "Wear earphones or headphones to listen to audio guides",
       "precaution2": "GPS tracking may be inaccurate indoors where signals are weak",
       "precaution3": "Prepare a portable charger considering battery consumption",
-      "precaution4": "Always pay attention to your surroundings and prioritize safety"
+      "precaution4": "Always pay attention to your surroundings and prioritize safety",
+      "noGuides": "No guides available",
+      "createNewGuide": "Create a new guide!"
     },
     "live": {
       "shareTitle": "Share AI Guide",
@@ -666,7 +762,21 @@
       "close": "Close",
       "hide": "Hide",
       "exists": "Exists",
-      "notExists": "Not Exists"
+      "notExists": "Not Exists",
+      "minutes": "minutes",
+      "languagesGenerated": "languages generated",
+      "total": "Total",
+      "confirmDelete": "Are you sure you want to delete this guide?",
+      "daysAgo": "days ago",
+      "weeksAgo": "weeks ago",
+      "allLanguages": "All Languages",
+      "sortLatest": "Latest",
+      "sortName": "Name",
+      "sortChapters": "Chapters",
+      "chapters": "chapters",
+      "none": "None",
+      "completed": "Completed",
+      "processing": "Processing"
     },
     "history": {
       "noResults": "No search results",
@@ -704,7 +814,18 @@
       "account": "Account",
       "logout": "Logout",
       "mypage": "My Page",
-      "user": "User"
+      "user": "User",
+      "manageProfile": "Manage your profile information",
+      "enterName": "Enter your name",
+      "emailNotEditable": "Email cannot be changed",
+      "newFeatureNotifications": "New feature notifications",
+      "guideCompleteNotifications": "Guide completion notifications",
+      "marketingEmails": "Marketing emails",
+      "dataManagement": "Data Management",
+      "exportData": "Export Data",
+      "exportDescription": "Download all guide data in JSON format",
+      "deleteAllData": "Delete All Data",
+      "deleteDescription": "Delete all saved guides and settings"
     },
     "mypage": {
       "title": "My Page",
@@ -715,7 +836,70 @@
       "favoriteGuides": "Favorite Guides",
       "totalGuides": "Total Guides",
       "completedTours": "Completed Tours",
-      "savedLocations": "Saved Locations"
+      "savedLocations": "Saved Locations",
+      "overviewShort": "Overview",
+      "guidesShort": "Guides",
+      "favoritesShort": "Favorites",
+      "filesShort": "Files",
+      "settingsShort": "Settings",
+      "frequentPlaces": "Frequently visited places",
+      "primaryLanguage": "Primary Language",
+      "personalizedDiagnosis": "Personalized Guide Diagnosis",
+      "diagnosisComplete": "Diagnosis Complete! Your dominant personality trait is",
+      "diagnosisResult": ".",
+      "personalityTraits": {
+        "openness": "Openness",
+        "conscientiousness": "Conscientiousness",
+        "extraversion": "Extraversion",
+        "agreeableness": "Agreeableness",
+        "neuroticism": "Neuroticism"
+      },
+      "reliability": "Reliability",
+      "diagnosed": "diagnosed",
+      "contentDepth": "Content Depth",
+      "contentDepthLevels": {
+        "veryDetailed": "Very Detailed",
+        "detailed": "Detailed",
+        "moderate": "Moderate",
+        "simple": "Simple"
+      },
+      "guideStyle": "Guide Style",
+      "guideStyles": {
+        "storytelling": "Storytelling",
+        "academic": "Academic",
+        "conversational": "Conversational",
+        "practical": "Practical"
+      },
+      "interaction": "Interaction",
+      "interactionLevels": {
+        "veryActive": "Very Active",
+        "active": "Active",
+        "moderate": "Moderate",
+        "passive": "Passive"
+      },
+      "emotionalTone": "Emotional Tone",
+      "emotionalTones": {
+        "enthusiastic": "Enthusiastic",
+        "friendly": "Friendly",
+        "professional": "Professional",
+        "calm": "Calm"
+      },
+      "aiSimulationInfo": "Verified by 1 million AI simulations with 5-question diagnosis providing",
+      "accuracy": "accuracy",
+      "personalizedGuideProvided": "personalized guides",
+      "timeRequired": "Time Required",
+      "countriesVerification": "countries cultural fairness verification",
+      "retakeDiagnosis": "Retake Diagnosis",
+      "startDiagnosis": "Start Diagnosis",
+      "personalizedGuideActive": "All guides are now automatically personalized to your personality!",
+      "noFavoriteGuides": "No favorite guides",
+      "addFavoriteGuides": "Add guides you like to favorites!",
+      "createGuideFromFile": "Create Guide from File",
+      "uploadFileDescription": "Upload PDF, Word, or text files to create guides",
+      "supportedFormats": "Supported formats: PDF, DOCX, TXT (max 10MB)",
+      "noUploadedFiles": "No uploaded files",
+      "uploadFirstFile": "Upload your first file!",
+      "fileGuides": "File Guides"
     },
     "auth": {
       "login": "Login",
@@ -782,7 +966,11 @@
       "continue": "Continue",
       "goBack": "Go Back",
       "tryAgain": "Try Again",
-      "viewDetails": "View Details"
+      "viewDetails": "View Details",
+      "createGuide": "Create Guide",
+      "selectFile": "Select File",
+      "save": "Save Changes",
+      "cancel": "Cancel"
     },
     "languages": {
       "ko": "Korean",
