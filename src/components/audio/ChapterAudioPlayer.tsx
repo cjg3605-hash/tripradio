@@ -128,6 +128,12 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
     setIsGeneratingTTS(true);
     setTtsError(null);
 
+    // 기존 오디오 캐시 정리 (새로운 친근한 설정 적용)
+    if (audioUrl && audioUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(audioUrl);
+      setAudioUrl(null);
+    }
+
     try {
       console.log('🎙️ Neural2 TTS 생성 시작:', { 
         chapterId: chapter.id, 

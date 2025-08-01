@@ -27,41 +27,41 @@ interface AdvancedTTSOptions {
  */
 export class AdvancedTTSService {
   
-  // 성격별 음성 설정 (기존 temp_disabled_components에서 가져옴)
+  // 성격별 음성 설정 (친근한 가이드 톤으로 최적화)
   private personalityVoiceSettings: Record<string, PersonalityVoiceSettings> = {
     openness: {
-      rate: 1.1,
-      pitch: 1.2,
-      volume: 0.9,
+      rate: 1.05,        // 호기심이 많은 친근한 속도
+      pitch: 0.8,        // 부드러운 높이
+      volume: 0.85,      // 편안한 볼륨
       preferredGender: 'female',
-      emotionalTone: 'energetic'
+      emotionalTone: 'warm'  // 따뜻한 톤으로 변경
     },
     conscientiousness: {
-      rate: 0.9,
-      pitch: 1.0,
+      rate: 0.95,        // 차분하지만 자연스러운 속도
+      pitch: 0.6,        // 안정감 있는 낮은 톤
       volume: 0.8,
-      preferredGender: 'male',
-      emotionalTone: 'professional'
+      preferredGender: 'female',  // 여성으로 변경 (더 친근함)
+      emotionalTone: 'warm'       // 전문적이면서도 따뜻하게
     },
     extraversion: {
-      rate: 1.2,
-      pitch: 1.3,
-      volume: 1.0,
+      rate: 1.1,         // 활발하지만 과하지 않게
+      pitch: 0.9,        // 밝지만 부드럽게
+      volume: 0.9,
       preferredGender: 'female',
       emotionalTone: 'warm'
     },
     agreeableness: {
-      rate: 1.0,
-      pitch: 1.1,
-      volume: 0.9,
+      rate: 1.0,         // 자연스러운 대화 속도
+      pitch: 0.7,        // 부드럽고 따뜻한 톤
+      volume: 0.85,
       preferredGender: 'female',
       emotionalTone: 'warm'
     },
     neuroticism: {
-      rate: 0.8,
-      pitch: 0.9,
-      volume: 0.7,
-      preferredGender: 'male',
+      rate: 0.9,         // 차분하고 안정적인 속도
+      pitch: 0.5,        // 안정감 주는 낮은 톤
+      volume: 0.8,
+      preferredGender: 'female',  // 위로가 되는 여성 목소리
       emotionalTone: 'calm'
     }
   };

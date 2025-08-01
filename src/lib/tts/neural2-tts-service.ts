@@ -31,21 +31,21 @@ interface TTSRequest {
 // 🎯 언어별 Neural2 최적 설정 (이전 분석 결과 기반)
 const NEURAL2_CONFIGS: Record<string, Neural2TTSConfig> = {
   'ko': {
-    name: 'ko-KR-Neural2-A',
+    name: 'ko-KR-Neural2-C',  // Neural2-C는 더 자연스럽고 친근함
     languageCode: 'ko-KR',
     ssmlGender: 'FEMALE',
     audioConfig: {
       audioEncoding: 'MP3',
-      speakingRate: 0.88,
-      pitch: 1.2,
-      volumeGainDb: 2.0,
+      speakingRate: 0.95,      // 조금 더 빠르게 (자연스러운 대화 속도)
+      pitch: -0.8,             // 음높이를 낮춰서 부드럽게
+      volumeGainDb: 1.5,       // 볼륨을 약간 낮춰서 친근하게
       sampleRateHertz: 24000,
-      effectsProfileId: ['headphone-class-device']
+      effectsProfileId: ['small-bluetooth-speaker-class-device']  // 더 자연스러운 음향
     },
     profile: {
-      description: '자연스럽고 친근한 여성 음성',
-      suitability: '한국 관광객 대상, 문화재 해설 최적화',
-      culturalNotes: '존댓말 기반, 격식있되 친근한 어조'
+      description: '친근하고 따뜻한 여성 음성',
+      suitability: '친구 같은 가이드, 편안한 여행 해설',
+      culturalNotes: '친근한 존댓말, 대화하는 듯한 자연스러운 어조'
     }
   },
   'en': {
@@ -122,9 +122,9 @@ const NEURAL2_CONFIGS: Record<string, Neural2TTSConfig> = {
   }
 };
 
-// 🔄 대체 모델 (Neural2 사용 불가시)
+// 🔄 대체 모델 (Neural2 사용 불가시) - 친근한 목소리 우선
 const FALLBACK_CONFIGS: Record<string, string> = {
-  'ko': 'ko-KR-Wavenet-A',
+  'ko': 'ko-KR-Wavenet-D',    // Wavenet-D는 더 따뜻하고 자연스러운 여성 목소리
   'en': 'en-US-Wavenet-F',
   'zh': 'cmn-CN-Wavenet-A',
   'ja': 'ja-JP-Wavenet-A',
@@ -224,7 +224,7 @@ export class Neural2TTSService {
     return config;
   }
 
-  // 📝 SSML 전처리
+  // 📝 SSML 전처리 (친근한 말투로 변환)
   private prepareSSML(text: string, language: string): string {
     // 기본 텍스트 정리
     let cleanText = text
@@ -234,6 +234,11 @@ export class Neural2TTSService {
       .replace(/\n\s*\n/g, '. ')
       .replace(/\n/g, ' ')
       .trim();
+
+    // 한국어 텍스트를 더 친근하게 변환
+    if (language === 'ko') {
+      cleanText = this.makeKoreanFriendly(cleanText);
+    }
 
     // 언어별 SSML 최적화
     switch (language) {
@@ -257,14 +262,92 @@ export class Neural2TTSService {
     return `<speak>${cleanText}</speak>`;
   }
 
-  // 🇰🇷 한국어 SSML 최적화
+  // 💬 한국어를 친근한 말투로 변환
+  private makeKoreanFriendly(text: string): string {
+    return text
+      // 딱딱한 표현을 부드럽게
+      .replace(/위치해 있습니다/g, '있어요')
+      .replace(/건설되었습니다/g, '지어졌어요')
+      .replace(/만들어졌습니다/g, '만들어졌어요')
+      .replace(/조성되었습니다/g, '만들어졌어요')
+      .replace(/설치되었습니다/g, '설치되어 있어요')
+      .replace(/보존되고 있습니다/g, '보존되고 있어요')
+      .replace(/알려져 있습니다/g, '알려져 있어요')
+      .replace(/사용되었습니다/g, '사용되었어요')
+      .replace(/기록되어 있습니다/g, '기록되어 있어요')
+      
+      // 감정을 담은 표현 추가
+      .replace(/아름다운/g, '정말 아름다운')
+      .replace(/놀라운/g, '정말 놀라운')
+      .replace(/멋진/g, '참 멋진')
+      .replace(/훌륭한/g, '정말 훌륭한')
+      .replace(/인상적인/g, '참 인상적인')
+      
+      // 자연스러운 연결어 사용
+      .replace(/또한/g, '그리고')
+      .replace(/따라서/g, '그래서')
+      .replace(/그러므로/g, '그래서')
+      .replace(/더불어/g, '그리고')
+      
+      // 친근한 표현으로 변경
+      .replace(/확인할 수 있습니다/g, '볼 수 있어요')
+      .replace(/관찰할 수 있습니다/g, '살펴볼 수 있어요')
+      .replace(/감상할 수 있습니다/g, '감상할 수 있어요')
+      .replace(/이용할 수 있습니다/g, '이용할 수 있어요')
+      .replace(/방문할 수 있습니다/g, '가볼 수 있어요')
+      
+      // 흥미로운 표현 추가
+      .replace(/특징은/g, '특징은 바로')
+      .replace(/중요한 점은/g, '중요한 건')
+      .replace(/흥미로운 사실은/g, '재미있는 건')
+      
+      // 마무리 표현을 부드럽게
+      .replace(/이상입니다\./g, '이었어요.')
+      .replace(/마무리하겠습니다\./g, '마무리할게요.')
+      .replace(/소개해드렸습니다\./g, '소개해드렸어요.')
+      
+      // 자연스러운 호응 표현
+      .replace(/어떠신가요\?/g, '어떠세요?')
+      .replace(/어떻게 생각하시나요\?/g, '어떻게 생각하세요?');
+  }
+
+  // 🇰🇷 한국어 SSML 최적화 (친근한 말투)
   private optimizeKoreanSSML(text: string): string {
     return text
+      // 날짜와 숫자를 자연스럽게
       .replace(/(\d{4})년/g, '<say-as interpret-as="date" format="y">$1</say-as>년')
       .replace(/(\d+)층/g, '<say-as interpret-as="ordinal">$1</say-as>층')
-      .replace(/!(.*?)!/g, '<emphasis level="strong">$1</emphasis>')
-      .replace(/\.\.\./g, '<break time="0.8s"/>')
-      .replace(/\?/g, '<break time="0.5s"/>?');
+      
+      // 친근한 억양과 감정 표현
+      .replace(/!(.*?)!/g, '<emphasis level="moderate">$1</emphasis>')
+      .replace(/정말/g, '<emphasis level="moderate">정말</emphasis>')
+      .replace(/너무/g, '<emphasis level="moderate">너무</emphasis>')
+      .replace(/참/g, '<emphasis level="moderate">참</emphasis>')
+      
+      // 자연스러운 쉼과 호흡
+      .replace(/\.\.\./g, '<break time="0.6s"/>')
+      .replace(/~$/g, '~<break time="0.4s"/>')
+      .replace(/ㅎㅎ/g, '<break time="0.3s"/>ㅎㅎ<break time="0.3s"/>')
+      .replace(/아~/g, '<prosody rate="0.9" pitch="+0.5st">아~</prosody>')
+      .replace(/오~/g, '<prosody rate="0.9" pitch="+0.5st">오~</prosody>')
+      
+      // 문장 끝 자연스럽게
+      .replace(/입니다\./g, '<prosody rate="0.85">입니다</prosody>.')
+      .replace(/습니다\./g, '<prosody rate="0.85">습니다</prosody>.')
+      .replace(/해요\./g, '<prosody rate="0.9" pitch="+0.3st">해요</prosody>.')
+      .replace(/이에요\./g, '<prosody rate="0.9" pitch="+0.3st">이에요</prosody>.')
+      .replace(/예요\./g, '<prosody rate="0.9" pitch="+0.3st">예요</prosody>.')
+      
+      // 감탄사를 더 자연스럽게
+      .replace(/와!/g, '<prosody pitch="+1.0st">와!</prosody><break time="0.3s"/>')
+      .replace(/우와!/g, '<prosody pitch="+1.0st">우와!</prosody><break time="0.3s"/>')
+      .replace(/어머!/g, '<prosody pitch="+0.8st">어머!</prosody><break time="0.3s"/>')
+      
+      // 질문을 더 친근하게
+      .replace(/\?/g, '<prosody pitch="+0.5st">?</prosody><break time="0.4s"/>')
+      
+      // 쉼표 뒤 자연스러운 호흡
+      .replace(/,\s/g, ',<break time="0.3s"/> ');
   }
 
   // 🇯🇵 일본어 SSML 최적화  
