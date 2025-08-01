@@ -8,12 +8,6 @@ export function ApiKeySetup() {
   const [isChecking, setIsChecking] = useState(true);
   const [mounted, setMounted] = useState(false);
 
-  // 클라이언트 마운트 확인
-  useEffect(() => {
-    setMounted(true);
-    checkApiStatus();
-  }, []);
-
   const checkApiStatus = useCallback(async () => {
     if (!mounted) return;
     
@@ -29,6 +23,12 @@ export function ApiKeySetup() {
       setIsChecking(false);
     }
   }, [mounted]);
+
+  // 클라이언트 마운트 확인
+  useEffect(() => {
+    setMounted(true);
+    checkApiStatus();
+  }, [checkApiStatus]);
 
   // 클라이언트 마운트 전에는 아무것도 렌더링하지 않음
   if (!mounted) {

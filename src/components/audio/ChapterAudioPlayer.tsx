@@ -55,15 +55,21 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
     const handleDurationChange = () => setDuration(audio.duration);
     const handleEnded = () => setIsPlaying(false);
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('durationchange', handleDurationChange);
     audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('durationchange', handleDurationChange);
       audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
     };
   }, []);
 
@@ -79,12 +85,17 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
 
     // 오디오가 있으면 재생/일시정지
     if (audioUrl) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
+      try {
+        if (isPlaying) {
+          audioRef.current.pause();
+        } else {
+          await audioRef.current.play();
+        }
+        // 상태는 오디오 이벤트 리스너에서 자동으로 업데이트됨
+      } catch (error) {
+        console.error('오디오 재생 실패:', error);
+        setIsPlaying(false);
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
@@ -153,10 +164,14 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
         });
 
         // 생성 완료 후 자동 재생
-        setTimeout(() => {
+        setTimeout(async () => {
           if (audioRef.current) {
-            audioRef.current.play();
-            setIsPlaying(true);
+            try {
+              await audioRef.current.play();
+              // 상태는 play 이벤트 리스너에서 자동 업데이트됨
+            } catch (error) {
+              console.error('자동 재생 실패:', error);
+            }
           }
         }, 100);
 
@@ -198,10 +213,14 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
           personality: advancedResult.personalityInfo?.appliedPersonality
         });
 
-        setTimeout(() => {
+        setTimeout(async () => {
           if (audioRef.current) {
-            audioRef.current.play();
-            setIsPlaying(true);
+            try {
+              await audioRef.current.play();
+              // 상태는 play 이벤트 리스너에서 자동 업데이트됨
+            } catch (error) {
+              console.error('자동 재생 실패:', error);
+            }
           }
         }, 100);
 
