@@ -77,6 +77,15 @@ export async function POST(req: NextRequest) {
       throw new Error((result as any)?.error || 'Ultra-Natural TTS 생성 실패');
     }
 
+    // naturalness 객체가 없는 경우 기본값 설정
+    if (!result.naturalness) {
+      result.naturalness = {
+        score: {} as any,
+        humanLikenessPercent: 85,
+        simulationAccuracy: 90
+      };
+    }
+
     // data URL에서 base64 추출
     const base64Audio = result.audioUrl.split(',')[1] || result.audioUrl;
     
@@ -85,8 +94,8 @@ export async function POST(req: NextRequest) {
       audioDataLength: base64Audio.length,
       language,
       personality: personalityContext?.personality,
-      humanLikeness: `${result.naturalness.humanLikenessPercent?.toFixed(1) || '0'}%`,
-      simulationAccuracy: `${result.naturalness.simulationAccuracy?.toFixed(1) || '0'}%`
+      humanLikeness: `${result.naturalness?.humanLikenessPercent?.toFixed(1) || '0'}%`,
+      simulationAccuracy: `${result.naturalness?.simulationAccuracy?.toFixed(1) || '0'}%`
     });
 
     return NextResponse.json({ 

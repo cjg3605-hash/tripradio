@@ -699,7 +699,7 @@ class UltraNaturalTTSEngine {
         
         // Google Cloud TTS 동적 import (서버사이드만)
         try {
-          const { googleCloudTTS } = await import('./google-cloud-tts');
+          const { directGoogleCloudTTS } = await import('./google-cloud-tts-direct');
           
           const config = {
             text: ssml.replace(/<[^>]*>/g, '').trim(), // SSML 태그 제거
@@ -714,12 +714,8 @@ class UltraNaturalTTSEngine {
             effectsProfileId: voiceParams.neural2Settings?.audioConfig?.effectsProfileId || []
           };
 
-          // SSML이 복잡한 경우 SSML 전용 메서드 사용
-          const hasComplexSSML = ssml.includes('<prosody') || ssml.includes('<break') || ssml.includes('<emphasis');
-          
-          const result = hasComplexSSML 
-            ? await googleCloudTTS.synthesizeSpeechSSML(ssml, config)
-            : await googleCloudTTS.synthesizeSpeech(config);
+          // Direct Google Cloud TTS 호출
+          const result = await directGoogleCloudTTS.synthesizeSpeech(config);
 
           if (result.success && result.audioContent) {
             console.log('✅ Google Cloud TTS 생성 완료');
