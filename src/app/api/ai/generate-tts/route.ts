@@ -85,8 +85,8 @@ export async function POST(req: NextRequest) {
       audioDataLength: base64Audio.length,
       language,
       personality: personalityContext?.personality,
-      humanLikeness: `${result.naturalness.humanLikenessPercent.toFixed(1)}%`,
-      simulationAccuracy: `${result.naturalness.simulationAccuracy.toFixed(1)}%`
+      humanLikeness: `${result.naturalness.humanLikenessPercent?.toFixed(1) || '0'}%`,
+      simulationAccuracy: `${result.naturalness.simulationAccuracy?.toFixed(1) || '0'}%`
     });
 
     return NextResponse.json({ 

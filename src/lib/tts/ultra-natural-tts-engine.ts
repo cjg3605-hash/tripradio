@@ -212,6 +212,12 @@ class UltraNaturalTTSEngine {
       const naturalness = this.evaluateNaturalness(optimalSpeaker, request);
       const humanLikeness = this.calculateHumanLikeness(naturalness);
       
+      console.log('🧮 자연스러움 계산 결과:', {
+        naturalness,
+        humanLikeness,
+        humanLikenessType: typeof humanLikeness
+      });
+      
       const processingTime = Date.now() - startTime;
       
       console.log('✅ 초자연화 TTS 생성 완료:', {
@@ -620,15 +626,28 @@ class UltraNaturalTTSEngine {
       conversationalFeel: 0.10
     };
     
-    let humanLikeness = 0;
-    humanLikeness += naturalness.overallNaturalness * weights.overallNaturalness;
-    humanLikeness += naturalness.seoulAuthenticity * weights.seoulAuthenticity;
-    humanLikeness += naturalness.standardKoreanQuality * weights.standardKoreanQuality;
-    humanLikeness += naturalness.emotionalNaturalness * weights.emotionalNaturalness;
-    humanLikeness += naturalness.rhythmicFlow * weights.rhythmicFlow;
-    humanLikeness += naturalness.conversationalFeel * weights.conversationalFeel;
+    // 안전한 값 추출 (NaN 방지)
+    const safeValue = (value: number) => isNaN(value) || value === undefined ? 0 : value;
     
-    return humanLikeness;
+    let humanLikeness = 0;
+    humanLikeness += safeValue(naturalness.overallNaturalness) * weights.overallNaturalness;
+    humanLikeness += safeValue(naturalness.seoulAuthenticity) * weights.seoulAuthenticity;
+    humanLikeness += safeValue(naturalness.standardKoreanQuality) * weights.standardKoreanQuality;
+    humanLikeness += safeValue(naturalness.emotionalNaturalness) * weights.emotionalNaturalness;
+    humanLikeness += safeValue(naturalness.rhythmicFlow) * weights.rhythmicFlow;
+    humanLikeness += safeValue(naturalness.conversationalFeel) * weights.conversationalFeel;
+    
+    // 최종 값 안전장치
+    const result = isNaN(humanLikeness) ? 85 : Math.max(0, Math.min(100, humanLikeness));
+    
+    console.log('🔢 Human Likeness 계산:', {
+      input: naturalness,
+      calculated: humanLikeness,
+      result,
+      isNaN: isNaN(result)
+    });
+    
+    return result;
   }
   
   private calculateSimulationAccuracy(speaker: PremiumSeoulSpeakerProfile): number {

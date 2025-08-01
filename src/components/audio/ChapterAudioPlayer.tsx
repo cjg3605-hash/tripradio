@@ -187,8 +187,8 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
 
         console.log('✅ Ultra-Natural TTS 생성 완료:', { 
           chapterId: chapter.id,
-          humanLikeness: `${result.naturalness.humanLikenessPercent.toFixed(1)}%`,
-          simulationAccuracy: `${result.naturalness.simulationAccuracy.toFixed(1)}%`
+          humanLikeness: `${result.naturalness.humanLikenessPercent?.toFixed(1) || '0'}%`,
+          simulationAccuracy: `${result.naturalness.simulationAccuracy?.toFixed(1) || '0'}%`
         });
 
         // 🎵 생성 완료 후 자동 재생
