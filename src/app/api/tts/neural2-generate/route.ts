@@ -10,16 +10,43 @@ let ttsClient: TextToSpeechClient | null = null;
 const initializeTTSClient = () => {
   if (!ttsClient) {
     try {
-      // 환경변수 확인
-      if (!process.env.GOOGLE_APPLICATION_CREDENTIALS && !process.env.GOOGLE_CLOUD_PROJECT) {
-        console.warn('⚠️ Google Cloud TTS 인증 정보 없음 - 폴백 모드로 동작');
+      // 환경변수 확인 및 매핑
+      const projectId = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCP_PROJECT_ID;
+      const serviceAccount = process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.GCP_SERVICE_ACCOUNT;
+      
+      if (!projectId) {
+        console.warn('⚠️ Google Cloud Project ID 없음 - 폴백 모드로 동작');
         return null;
       }
 
-      ttsClient = new TextToSpeechClient({
-        projectId: process.env.GOOGLE_CLOUD_PROJECT,
-        keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
-      });
+      // 서비스 계정 인증 정보 파싱
+      let credentials;
+      if (serviceAccount) {
+        try {
+          credentials = typeof serviceAccount === 'string' 
+            ? JSON.parse(serviceAccount) 
+            : serviceAccount;
+        } catch (parseError) {
+          console.error('❌ 서비스 계정 JSON 파싱 실패:', parseError);
+          return null;
+        }
+      }
+
+      // TTS 클라이언트 초기화
+      if (credentials) {
+        ttsClient = new TextToSpeechClient({
+          projectId,
+          credentials
+        });
+      } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+        ttsClient = new TextToSpeechClient({
+          projectId,
+          keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+        });
+      } else {
+        console.warn('⚠️ Google Cloud TTS 인증 정보 없음 - 폴백 모드로 동작');
+        return null;
+      }
 
       console.log('✅ Google Cloud TTS 클라이언트 초기화 완료');
     } catch (error) {

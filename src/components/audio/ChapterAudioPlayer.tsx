@@ -152,6 +152,7 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
 
       if (neural2Result.success && neural2Result.audioUrl) {
         setAudioUrl(neural2Result.audioUrl);
+        setIsGeneratingTTS(false); // 중요: 성공 시 즉시 상태 업데이트
         
         // 상위 컴포넌트에 업데이트된 챕터 정보 전달
         if (onChapterUpdate) {
@@ -187,6 +188,11 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
       // 2️⃣ Neural2 실패시 고급 TTS 폴백
       console.log('⚠️ Neural2 실패, 고급 TTS 폴백 시도:', neural2Result.error);
       
+      // Neural2 실패 시 사용자에게 폴백 진행 알림 (선택적)
+      if (neural2Result.error && neural2Result.error.includes('503')) {
+        console.log('ℹ️ 서버 오류로 인한 폴백 - 대체 TTS 엔진 사용');
+      }
+      
       const advancedResult = await advancedTTSService.generatePersonalityTTS({
         text: chapter.text,
         language: chapter.language || 'ko-KR',
@@ -204,6 +210,7 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
         const newAudioUrl = URL.createObjectURL(audioBlob);
         
         setAudioUrl(newAudioUrl);
+        setIsGeneratingTTS(false); // 중요: 폴백 성공 시에도 상태 업데이트
         
         if (onChapterUpdate) {
           onChapterUpdate({
@@ -237,7 +244,10 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
     } catch (error) {
       console.error('❌ TTS 생성 완전 실패:', error);
       const errorMessage = error instanceof Error ? error.message : String(t('audio.unknown_error') || '알 수 없는 오류가 발생했습니다.');
+      
+      // 에러 상태 업데이트
       setTtsError(errorMessage);
+      setIsGeneratingTTS(false); // 에러 시에도 즉시 상태 초기화
       
       if (onChapterUpdate) {
         onChapterUpdate({
@@ -247,6 +257,7 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
         });
       }
     } finally {
+      // 이중 보장: finally에서 한 번 더 상태 초기화
       setIsGeneratingTTS(false);
     }
   };
