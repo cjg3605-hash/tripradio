@@ -620,7 +620,7 @@ export default function HomePage() {
           </div>
 
           {/* Search Box */}
-          <div className="relative z-50 w-full max-w-2xl mx-auto">
+          <div className="relative z-[9998] w-full max-w-2xl mx-auto">
             <div className={`
               relative transition-all duration-700 ease-out
               ${isFocused 
@@ -671,7 +671,7 @@ export default function HomePage() {
 
               {/* Suggestions Dropdown */}
               {isFocused && query.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-50 autocomplete-dropdown">
+                <div className="absolute top-full left-0 right-0 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-[9999] autocomplete-dropdown">
                   {isLoadingSuggestions ? (
                     <div className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-2">

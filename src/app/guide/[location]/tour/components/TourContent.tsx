@@ -3,24 +3,19 @@
 import React, { useState, useRef, useEffect, MutableRefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { 
-  ChevronDown, 
-  ChevronUp, 
   ArrowUp, 
-  Eye, 
-  AlertTriangle, 
-  Clock, 
   MapPin,
-  BookOpen,
-  Route,
   Info,
-  Sparkles,
-  ArrowLeft,
-  Calendar,
+  Home,
+  Clock,
   Users,
-  Zap,
-  Headphones,
-  Volume2,
-  Home
+  Calendar,
+  Eye,
+  BookOpen,
+  Sparkles,
+  AlertTriangle,
+  Route,
+  ChevronDown
 } from 'lucide-react';
 import { GuideData, GuideChapter } from '@/types/guide';
 import { AudioChapter } from '@/types/audio';

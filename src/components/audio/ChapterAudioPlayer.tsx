@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { AudioChapter } from '@/types/audio';
 import { advancedTTSService } from '@/lib/advanced-tts-service';
+import { neural2TTS } from '@/lib/tts/neural2-tts-service';
 
 interface ChapterAudioPlayerProps {
   chapter: AudioChapter;
@@ -109,7 +110,7 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
     audioRef.current.muted = newMuted;
   };
 
-  // TTS 생성
+  // 🎙️ Neural2 기반 TTS 생성 (우선순위) + 폴백
   const generateTTS = async () => {
     if (!chapter.text || isGeneratingTTS) return;
 
@@ -117,12 +118,55 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
     setTtsError(null);
 
     try {
-      console.log('🎙️ TTS 생성 시작:', { 
+      console.log('🎙️ Neural2 TTS 생성 시작:', { 
         chapterId: chapter.id, 
-        textLength: chapter.text.length 
+        textLength: chapter.text.length,
+        language: chapter.language || 'ko'
       });
 
-      const result = await advancedTTSService.generatePersonalityTTS({
+      // 1️⃣ Neural2 TTS 시도 (우선순위)
+      const neural2Result = await neural2TTS.generateAudio({
+        text: chapter.text,
+        language: chapter.language || 'ko',
+        chapterId: String(chapter.id),
+        locationName: locationName,
+        priority: 'normal'
+      });
+
+      if (neural2Result.success && neural2Result.audioUrl) {
+        setAudioUrl(neural2Result.audioUrl);
+        
+        // 상위 컴포넌트에 업데이트된 챕터 정보 전달
+        if (onChapterUpdate) {
+          onChapterUpdate({
+            ...chapter,
+            audioUrl: neural2Result.audioUrl,
+            isGeneratingTTS: false,
+            ttsError: undefined
+          });
+        }
+
+        console.log('✅ Neural2 TTS 생성 완료:', { 
+          chapterId: chapter.id,
+          isCached: neural2Result.cached,
+          audioUrlType: neural2Result.audioUrl.startsWith('data:') ? 'base64' : 'url'
+        });
+
+        // 생성 완료 후 자동 재생
+        setTimeout(() => {
+          if (audioRef.current) {
+            audioRef.current.play();
+            setIsPlaying(true);
+          }
+        }, 100);
+
+        return; // Neural2 성공시 여기서 종료
+      }
+
+      // 2️⃣ Neural2 실패시 고급 TTS 폴백
+      console.log('⚠️ Neural2 실패, 고급 TTS 폴백 시도:', neural2Result.error);
+      
+      const advancedResult = await advancedTTSService.generatePersonalityTTS({
         text: chapter.text,
         language: chapter.language || 'ko-KR',
         userPersonality: chapter.personality || 'agreeableness',
@@ -130,17 +174,16 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
         locationName: locationName
       });
 
-      if (result.success && result.audioData) {
+      if (advancedResult.success && advancedResult.audioData) {
         // Base64 오디오를 Blob URL로 변환
         const audioBlob = new Blob(
-          [Uint8Array.from(atob(result.audioData), c => c.charCodeAt(0))], 
-          { type: result.mimeType || 'audio/mpeg' }
+          [Uint8Array.from(atob(advancedResult.audioData), c => c.charCodeAt(0))], 
+          { type: advancedResult.mimeType || 'audio/mpeg' }
         );
         const newAudioUrl = URL.createObjectURL(audioBlob);
         
         setAudioUrl(newAudioUrl);
         
-        // 상위 컴포넌트에 업데이트된 챕터 정보 전달
         if (onChapterUpdate) {
           onChapterUpdate({
             ...chapter,
@@ -150,26 +193,24 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
           });
         }
 
-        console.log('✅ TTS 생성 완료:', { 
+        console.log('✅ 고급 TTS 폴백 완료:', { 
           chapterId: chapter.id,
-          audioUrl: newAudioUrl.slice(0, 50) + '...',
-          personality: result.personalityInfo?.appliedPersonality
+          personality: advancedResult.personalityInfo?.appliedPersonality
         });
 
-        // 생성 완료 후 자동 재생
         setTimeout(() => {
           if (audioRef.current) {
             audioRef.current.play();
             setIsPlaying(true);
           }
-        }, 100); // 오디오 로드 대기
+        }, 100);
 
       } else {
-        throw new Error(result.error || 'TTS 생성 실패');
+        throw new Error(advancedResult.error || neural2Result.error || 'TTS 생성 실패');
       }
 
     } catch (error) {
-      console.error('❌ TTS 생성 실패:', error);
+      console.error('❌ TTS 생성 완전 실패:', error);
       const errorMessage = error instanceof Error ? error.message : String(t('audio.unknown_error') || '알 수 없는 오류가 발생했습니다.');
       setTtsError(errorMessage);
       

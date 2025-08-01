@@ -160,6 +160,8 @@ interface Translations {
     mustSeePoints: string;
     precautions: string;
     viewingOrder: string;
+    viewingOrderMap: string;
+    tourStartLocation: string;
     audioGuide: string;
     thisPlace: string;
     tourStart: string;
@@ -512,6 +514,8 @@ const DEFAULT_TRANSLATIONS: Translations = {
     mustSeePoints: '필수관람포인트',
     precautions: '주의사항',
     viewingOrder: '관람순서',
+    viewingOrderMap: '관람순서 지도',
+    tourStartLocation: '투어 시작 위치',
     audioGuide: '오디오 가이드',
     thisPlace: '이곳',
     tourStart: '투어 시작',

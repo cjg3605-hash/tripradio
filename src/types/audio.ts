@@ -20,7 +20,7 @@ export interface PlaylistState {
 }
 
 export interface AudioChapter {
-  id: number;
+  id: string | number; // 🔧 chapter.id 타입 호환성 수정
   title: string;
   audioUrl?: string;
   duration?: number;
