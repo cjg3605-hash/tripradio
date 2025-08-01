@@ -11,7 +11,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { AudioChapter } from '@/types/audio';
-import { ultraNaturalTTS } from '@/lib/tts/ultra-natural-tts-engine';
+// TTS는 API를 통해 생성
 
 interface ChapterAudioPlayerProps {
   chapter: AudioChapter;
@@ -150,27 +150,36 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
         language: chapter.language || 'ko'
       });
 
-      // 🧬 Ultra-Natural TTS 생성 (유일한 TTS)
-      const result = await ultraNaturalTTS.generateUltraNaturalTTS({
-        text: chapter.text,
-        context: 'tour_guide', // 투어 가이드 컨텍스트
-        targetAudience: {
-          ageGroup: 'middle',
-          formalityPreference: 'semi_formal',
-          educationLevel: 'general'
+      // 🧬 Ultra-Natural TTS API 호출
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        qualityLevel: 'ultra'
+        body: JSON.stringify({
+          text: chapter.text,
+          language: 'ko-KR',
+          speakingRate: 1.2
+        })
       });
 
-      if (result.success && result.audioUrl) {
-        setAudioUrl(result.audioUrl);
+      if (!response.ok) {
+        throw new Error(`TTS API 호출 실패: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success && result.audioData) {
+        // Base64 데이터를 data URL로 변환
+        const audioUrl = `data:${result.mimeType || 'audio/mpeg'};base64,${result.audioData}`;
+        setAudioUrl(audioUrl);
         setIsGeneratingTTS(false);
         
         // 상위 컴포넌트에 업데이트된 챕터 정보 전달
         if (onChapterUpdate) {
           onChapterUpdate({
             ...chapter,
-            audioUrl: result.audioUrl,
+            audioUrl: audioUrl,
             isGeneratingTTS: false,
             ttsError: undefined
           });

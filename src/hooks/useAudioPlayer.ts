@@ -145,37 +145,36 @@ export const useAudioPlayer = ({ chapters, onChapterChange, onPlaybackEnd }: Use
     setStatus('loading');
     
     try {
-      // 🧬 Ultra-Natural TTS 생성 (유일한 TTS)
-      const { ultraNaturalTTS } = await import('@/lib/tts/ultra-natural-tts-engine');
-      
-      const ttsResult = await ultraNaturalTTS.generateUltraNaturalTTS({
-        text: chapter.text,
-        context: 'tour_guide',
-        targetAudience: {
-          ageGroup: 'middle',
-          formalityPreference: 'semi_formal',
-          educationLevel: 'general'
+      // 🧬 Ultra-Natural TTS API 호출
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        qualityLevel: 'ultra'
+        body: JSON.stringify({
+          text: chapter.text,
+          language: 'ko-KR',
+          speakingRate: 1.2
+        })
       });
 
-      if (ttsResult.success && ttsResult.audioUrl) {
-        // audioUrl이 data: URL인 경우 base64 추출, 아니면 그대로 사용
-        let finalAudioUrl = ttsResult.audioUrl;
+      if (!response.ok) {
+        throw new Error(`TTS API 호출 실패: ${response.status}`);
+      }
+
+      const ttsResult = await response.json();
+
+      if (ttsResult.success && ttsResult.audioData) {
+        // Base64 데이터를 Blob으로 변환
+        const audioBlob = new Blob([
+          new Uint8Array(
+            atob(ttsResult.audioData)
+              .split('')
+              .map(char => char.charCodeAt(0))
+          )
+        ], { type: ttsResult.mimeType || 'audio/mpeg' });
         
-        if (ttsResult.audioUrl.startsWith('data:')) {
-          // Base64를 Blob으로 변환
-          const base64Data = ttsResult.audioUrl.split(',')[1];
-          const audioBlob = new Blob([
-            new Uint8Array(
-              atob(base64Data)
-                .split('')
-                .map(char => char.charCodeAt(0))
-            )
-          ], { type: 'audio/mpeg' });
-          
-          finalAudioUrl = URL.createObjectURL(audioBlob);
-        }
+        const finalAudioUrl = URL.createObjectURL(audioBlob);
 
         // 캐싱 및 URL 생성
         const cacheId = `chapter_${chapter.id}`;
