@@ -331,7 +331,7 @@ const LiveTourPage: React.FC = () => {
       console.log('스크롤 리스너 해제');
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []); // 빈 의존성 배열로 변경 - 스크롤 이벤트 리스너는 초기 한 번만 등록
+  }, [showScrollButtons]);
 
   // 스크롤 투 탑 함수
   const scrollToTop = () => {

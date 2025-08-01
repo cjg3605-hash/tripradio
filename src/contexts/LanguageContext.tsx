@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 // 지원 언어 타입
 export type SupportedLanguage = 'ko' | 'en' | 'ja' | 'zh' | 'es';
@@ -892,7 +892,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const isRTL = currentConfig?.dir === 'rtl';
 
   // 언어 변경 함수
-  const setLanguage = async (language: SupportedLanguage) => {
+  const setLanguage = useCallback(async (language: SupportedLanguage) => {
     if (language === currentLanguage) return;
     
     setIsLoading(true);
@@ -912,7 +912,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentLanguage]);
 
   // 초기 언어 설정
   useEffect(() => {
@@ -939,7 +939,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     };
 
     initializeLanguage();
-  }, []); // 초기 실행만 하도록 빈 의존성 배열
+  }, [currentLanguage, setLanguage]); // currentLanguage와 setLanguage 의존성 추가
 
   // 번역 함수
   const t = (key: string): string | string[] => {

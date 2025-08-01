@@ -289,7 +289,7 @@ function SignInContent() {
       } else {
         safeSetState(() => {
           setEmailVerified(true);
-          setErrors({ success: t('auth.emailVerificationComplete') || '이메일 인증이 완료되었습니다!' });
+          setErrors({ success: String(t('auth.emailVerificationComplete')) || '이메일 인증이 완료되었습니다!' });
         });
         
         // 안전한 지연 실행
@@ -302,9 +302,9 @@ function SignInContent() {
       }
     } catch (error) {
       if ((error as Error).name === 'AbortError') {
-        safeSetState(() => setErrors({ verificationCode: t('auth.requestTimeout') || '요청 시간이 초과되었습니다.' }));
+        safeSetState(() => setErrors({ verificationCode: String(t('auth.requestTimeout')) || '요청 시간이 초과되었습니다.' }));
       } else {
-        safeSetState(() => setErrors({ verificationCode: t('auth.networkError') || '네트워크 오류가 발생했습니다.' }));
+        safeSetState(() => setErrors({ verificationCode: String(t('auth.networkError')) || '네트워크 오류가 발생했습니다.' }));
       }
     } finally {
       setLoadingState('emailVerification', false);
@@ -343,7 +343,7 @@ function SignInContent() {
       } else {
         safeSetState(() => {
           setSignupStep('completed');
-          setErrors({ success: t('auth.signupSuccess') || '🎉 회원가입이 완료되었습니다!' });
+          setErrors({ success: String(t('auth.signupSuccess')) || '🎉 회원가입이 완료되었습니다!' });
         });
         
         // 안전한 리다이렉트
@@ -360,15 +360,15 @@ function SignInContent() {
       }
     } catch (error) {
       if ((error as Error).name === 'AbortError') {
-        safeSetState(() => setErrors({ general: t('auth.requestTimeout') || '요청 시간이 초과되었습니다.' }));
+        safeSetState(() => setErrors({ general: String(t('auth.requestTimeout')) || '요청 시간이 초과되었습니다.' }));
       } else {
-        safeSetState(() => setErrors({ general: t('auth.networkError') || '네트워크 오류가 발생했습니다.' }));
+        safeSetState(() => setErrors({ general: String(t('auth.networkError')) || '네트워크 오류가 발생했습니다.' }));
       }
       safeSetState(() => setSignupStep('form'));
     } finally {
       setLoadingState('signup', false);
     }
-  }, [formData, t, safeSetState, setLoadingState]);
+  }, [formData, t, safeSetState, setLoadingState, setAuthMode, setSignupStep]);
 
   // 개선된 인증 코드 재전송
   const handleResendCode = useCallback(async (): Promise<void> => {
@@ -391,7 +391,7 @@ function SignInContent() {
       
       // 브라우저 호환성 확인
       if (typeof window !== 'undefined' && (!window.crypto || !window.crypto.subtle)) {
-        throw new Error(t('auth.browserNotSupported') || '브라우저가 최신 보안 기능을 지원하지 않습니다.');
+        throw new Error(String(t('auth.browserNotSupported')) || '브라우저가 최신 보안 기능을 지원하지 않습니다.');
       }
       
       // 팝업 차단 여부 확인 (실제 팝업 테스트 제거)
@@ -405,7 +405,7 @@ function SignInContent() {
       timeoutRefs.current.googleSignIn = setTimeout(() => {
         if (isMountedRef.current) {
           safeSetState(() => {
-            setErrors({ general: t('auth.loginTimeout') || '로그인 요청이 시간 초과되었습니다.' });
+            setErrors({ general: String(t('auth.loginTimeout')) || '로그인 요청이 시간 초과되었습니다.' });
           });
           setLoadingState('googleSignIn', false);
           timeoutRefs.current.googleSignIn = null;
@@ -430,16 +430,16 @@ function SignInContent() {
         
         const getErrorMessage = (error: string): string => {
           const errorMessages: Record<string, string> = {
-            'OAuthSignin': t('auth.oauthSigninError') || 'Google 인증 서버 통신 실패',
-            'OAuthCallback': t('auth.oauthCallbackError') || 'Google 콜백 처리 실패',
-            'OAuthCreateAccount': t('auth.accountCreateError') || '계정 생성 실패',
-            'OAuthAccountNotLinked': t('auth.accountNotLinked') || '이미 다른 방법으로 가입된 이메일',
-            'SessionRequired': t('auth.sessionRequired') || '세션 필요'
+            'OAuthSignin': String(t('auth.oauthSigninError')) || 'Google 인증 서버 통신 실패',
+            'OAuthCallback': String(t('auth.oauthCallbackError')) || 'Google 콜백 처리 실패',
+            'OAuthCreateAccount': String(t('auth.accountCreateError')) || '계정 생성 실패',
+            'OAuthAccountNotLinked': String(t('auth.accountNotLinked')) || '이미 다른 방법으로 가입된 이메일',
+            'SessionRequired': String(t('auth.sessionRequired')) || '세션 필요'
           };
-          return errorMessages[error] || t('auth.googleSigninFailed') || 'Google 로그인 실패';
+          return errorMessages[error] || String(t('auth.googleSigninFailed')) || 'Google 로그인 실패';
         };
         
-        safeSetState(() => setErrors({ general: getErrorMessage(result.error) }));
+        safeSetState(() => setErrors({ general: getErrorMessage(result.error || 'Unknown') }));
       } else if (result?.ok) {
         console.log('✅ Google 로그인 성공');
         if (typeof window !== 'undefined') {
@@ -450,7 +450,7 @@ function SignInContent() {
           window.location.href = result.url;
         }
       } else {
-        safeSetState(() => setErrors({ general: t('auth.unknownError') || '알 수 없는 오류' }));
+        safeSetState(() => setErrors({ general: String(t('auth.unknownError')) || '알 수 없는 오류' }));
       }
       
     } catch (error) {
@@ -463,7 +463,7 @@ function SignInContent() {
       }
       
       safeSetState(() => setErrors({ 
-        general: error instanceof Error ? error.message : t('auth.networkError') || '네트워크 오류'
+        general: error instanceof Error ? error.message : String(t('auth.networkError')) || '네트워크 오류'
       }));
     } finally {
       setLoadingState('googleSignIn', false);
@@ -486,12 +486,12 @@ function SignInContent() {
       if (!isMountedRef.current) return;
       
       if (result?.error) {
-        safeSetState(() => setErrors({ general: result.error || t('auth.loginFailed') || '로그인 실패' }));
+        safeSetState(() => setErrors({ general: result.error || String(t('auth.loginFailed')) || '로그인 실패' }));
       } else if (result?.ok) {
         router.push(callbackUrl);
       }
     } catch (error) {
-      safeSetState(() => setErrors({ general: t('auth.loginError') || '로그인 중 오류가 발생했습니다.' }));
+      safeSetState(() => setErrors({ general: String(t('auth.loginError')) || '로그인 중 오류가 발생했습니다.' }));
     } finally {
       setLoadingState('generalSignIn', false);
     }
@@ -506,19 +506,19 @@ function SignInContent() {
     const validationErrors: {[key: string]: string} = {};
     
     if (!formData.name.trim()) {
-      validationErrors.name = t('auth.nameRequired') || '이름을 입력해주세요.';
+      validationErrors.name = String(t('auth.nameRequired')) || '이름을 입력해주세요.';
     }
     
     if (!formData.email) {
-      validationErrors.email = t('auth.emailRequired') || '이메일을 입력해주세요.';
+      validationErrors.email = String(t('auth.emailRequired')) || '이메일을 입력해주세요.';
     }
     
     if (formData.password.length < 6) {
-      validationErrors.password = t('auth.passwordMinLength') || '비밀번호는 최소 6자리 이상이어야 합니다.';
+      validationErrors.password = String(t('auth.passwordMinLength')) || '비밀번호는 최소 6자리 이상이어야 합니다.';
     }
     
     if (formData.password !== formData.confirmPassword) {
-      validationErrors.confirmPassword = t('auth.passwordsNotMatch') || '비밀번호가 일치하지 않습니다.';
+      validationErrors.confirmPassword = String(t('auth.passwordsNotMatch')) || '비밀번호가 일치하지 않습니다.';
     }
     
     if (Object.keys(validationErrors).length > 0) {

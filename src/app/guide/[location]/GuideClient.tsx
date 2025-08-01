@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { GuideData } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -18,7 +18,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
     const session = sessionResult?.data;
 
     // 🔥 핵심 수정: content 래핑 구조 올바른 처리
-    const normalizeGuideData = (data: any, locationName: string): GuideData => {
+    const normalizeGuideData = useCallback((data: any, locationName: string): GuideData => {
         if (!data) {
             const errorMessage = t('guide.noGuideData');
             throw new Error(Array.isArray(errorMessage) ? errorMessage[0] : errorMessage);
@@ -96,7 +96,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         }
 
         return normalizedData;
-    };
+    }, [t]);
 
     const [guideData, setGuideData] = useState<GuideData | null>(() => {
         if (!initialGuide) return null;
@@ -217,7 +217,7 @@ export default function GuideClient({ locationName, initialGuide }: { locationNa
         }
 
         loadOrGenerateGuide();
-    }, [locationName, currentLanguage, session, guideData, t]); // normalizeGuideData 의존성 제거 - 함수가 컴포넌트 내부에 정의되어 무한 루프 발생
+    }, [locationName, currentLanguage, session, guideData, t, normalizeGuideData]);
 
     if (isLoading) {
         return (

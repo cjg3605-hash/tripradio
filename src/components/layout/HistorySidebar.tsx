@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   X, 
@@ -38,7 +38,7 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
 const session = sessionResult?.data;
 
   // 히스토리 로드 (Supabase/localStorage 병행)
-  const loadHistory = async () => {
+  const loadHistory = useCallback(async () => {
     setIsLoading(true);
     try {
       if (session?.user?.id) {
@@ -63,7 +63,7 @@ const session = sessionResult?.data;
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [session, t]);
 
   // 히스토리 삭제
   const deleteHistoryItem = (historyId: string) => {

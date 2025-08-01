@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
   Play,
@@ -42,12 +42,12 @@ const SimpleAudioPlayer: React.FC<SimpleAudioPlayerProps> = ({
   };
 
   // 다음 챕터
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (currentChapterIndex < chapters.length - 1) {
       setCurrentChapterIndex(currentChapterIndex + 1);
       setIsPlaying(false);
     }
-  };
+  }, [currentChapterIndex, chapters.length]);
 
   // 오디오 이벤트 핸들러
   useEffect(() => {

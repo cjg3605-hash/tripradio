@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AlertTriangleIcon, ExternalLinkIcon } from 'lucide-react';
 
 export function ApiKeySetup() {
@@ -14,7 +14,7 @@ export function ApiKeySetup() {
     checkApiStatus();
   }, []);
 
-  const checkApiStatus = async () => {
+  const checkApiStatus = useCallback(async () => {
     if (!mounted) return;
     
     setIsChecking(true);
@@ -28,7 +28,7 @@ export function ApiKeySetup() {
     } finally {
       setIsChecking(false);
     }
-  };
+  }, [mounted]);
 
   // 클라이언트 마운트 전에는 아무것도 렌더링하지 않음
   if (!mounted) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
@@ -29,7 +29,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
     setSelectedLanguageIndex(currentIndex >= 0 ? currentIndex : 0);
   }, [currentLanguage]);
 
-  const handleLanguageChange = async (langCode: string) => {
+  const handleLanguageChange = useCallback(async (langCode: string) => {
     console.log('🔥 Language changing to:', langCode);
     try {
       await setLanguage(langCode as any);
@@ -38,7 +38,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
     } catch (error) {
       console.error('❌ Language change failed:', error);
     }
-  };
+  }, [setLanguage]);
 
   // 키보드 네비게이션 및 외부 클릭 처리
   useEffect(() => {

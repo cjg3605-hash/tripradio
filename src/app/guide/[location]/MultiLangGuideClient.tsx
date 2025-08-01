@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { GuideData } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -129,7 +129,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
   const [isRegenerating, setIsRegenerating] = useState(false);
 
   // 히스토리 저장 함수
-  const saveToHistory = async (guideData: GuideData) => {
+  const saveToHistory = useCallback(async (guideData: GuideData) => {
     try {
       // 로컬 히스토리 저장 (userProfile 매개변수 확인 필요)
       guideHistory.saveGuide(
@@ -150,10 +150,10 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
     } catch (error) {
       console.warn('히스토리 저장 실패:', error);
     }
-  };
+  }, [session, currentLanguage]);
 
   // 🌍 언어별 가이드 로드
-  const loadGuideForLanguage = async (language = currentLanguage, forceRegenerate = false) => {
+  const loadGuideForLanguage = useCallback(async (language = currentLanguage, forceRegenerate = false) => {
     setIsLoading(true);
     setError(null);
 
@@ -200,10 +200,10 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
       setIsLoading(false);
       setIsRegenerating(false);
     }
-  };
+  }, [currentLanguage, locationName, saveToHistory]);
 
   // 🌍 사용 가능한 언어 목록 로드
-  const loadAvailableLanguages = async () => {
+  const loadAvailableLanguages = useCallback(async () => {
     try {
       const versions = await MultiLangGuideManager.getAllLanguageVersions(locationName);
       if (versions.success && versions.data) {
@@ -212,7 +212,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
     } catch (error) {
       console.warn('언어 목록 로드 실패:', error);
     }
-  };
+  }, [locationName]);
 
   // 🔄 재생성 함수
   const handleRegenerateGuide = async () => {
@@ -257,7 +257,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
     };
 
     initializeGuide();
-  }, [locationName, initialGuide]); // 🔥 무한 루프 방지: 함수 의존성 제거
+  }, [locationName, initialGuide, currentLanguage, loadAvailableLanguages, loadGuideForLanguage, saveToHistory]);
 
   // 언어 변경시 자동 로드 (초기 로드 이후에만)
   useEffect(() => {
@@ -266,7 +266,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
       console.log(`🌍 언어 변경 감지: ${guideData.metadata?.language} → ${currentLanguage}`);
       loadGuideForLanguage(currentLanguage);
     }
-  }, [currentLanguage]); // 🔥 무한 루프 방지: 함수 의존성 제거, 실제 언어 변경시에만 트리거
+  }, [currentLanguage, isLoading, guideData, loadGuideForLanguage]);
 
   // 로딩 상태 표시
   if (isLoading) {

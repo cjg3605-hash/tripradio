@@ -341,13 +341,15 @@ function Home() {
       const translated = t('home.defaultSuggestions');
       // defaultSuggestions는 객체 배열이어야 하므로 타입 체크
       if (isValidSuggestionsArray(translated)) {
-        safeSetState(() => setSuggestions(translated));
+        if (isMountedRef.current) setSuggestions(translated);
       } else {
-        safeSetState(() => setSuggestions([
-          { name: '에펠탑', location: '프랑스 파리' },
-          { name: '타지마할', location: '인도 아그라' },
-          { name: '마추픽추', location: '페루 쿠스코' }
-        ]));
+        if (isMountedRef.current) {
+          setSuggestions([
+            { name: '에펠탑', location: '프랑스 파리' },
+            { name: '타지마할', location: '인도 아그라' },
+            { name: '마추픽추', location: '페루 쿠스코' }
+          ]);
+        }
       }
       return;
     }
@@ -358,7 +360,7 @@ function Home() {
     }
     abortControllerRef.current = new AbortController();
 
-    safeSetState(() => setIsLoadingSuggestions(true));
+    if (isMountedRef.current) setIsLoadingSuggestions(true);
     
     try {
       const response = await fetch(
@@ -379,27 +381,27 @@ function Home() {
       if (!isMountedRef.current) return;
       
       if (data.success && isValidSuggestionsArray(data.data)) {
-        safeSetState(() => {
+        if (isMountedRef.current) {
           setSuggestions(data.data.slice(0, 5)); // 최대 5개 제안
           setSelectedSuggestionIndex(-1); // 새로운 제안이 오면 선택 초기화
-        });
+        }
       } else {
-        safeSetState(() => {
+        if (isMountedRef.current) {
           setSuggestions([]);
           setSelectedSuggestionIndex(-1);
-        });
+        }
       }
     } catch (error) {
       // AbortError는 의도적인 취소이므로 무시
-      if (error.name === 'AbortError') return;
+      if (error instanceof Error && error.name === 'AbortError') return;
       
       console.error('Suggestions fetch error:', error);
       if (isMountedRef.current) {
-        safeSetState(() => setSuggestions([]));
+        if (isMountedRef.current) setSuggestions([]);
       }
     } finally {
       if (isMountedRef.current) {
-        safeSetState(() => setIsLoadingSuggestions(false));
+        if (isMountedRef.current) setIsLoadingSuggestions(false);
       }
     }
   }, [currentLanguage, t]);
@@ -563,7 +565,7 @@ function Home() {
       return;
     }
 
-    safeSetState(() => setAudioPlaying(!audioPlaying));
+    if (isMountedRef.current) setAudioPlaying(!audioPlaying);
     setLoadingState('tour', true);
     router.push(`/guide/${encodeURIComponent(query.trim())}/tour`);
   }, [query, audioPlaying, router, t, setLoadingState]);
@@ -574,7 +576,7 @@ function Home() {
     
     // 해당 국가의 첫 번째 유명 관광지로 검색
     const firstAttraction = country.attractions[0];
-    safeSetState(() => setQuery(firstAttraction));
+    if (isMountedRef.current) setQuery(firstAttraction);
     setLoadingState('country', true);
     router.push(`/guide/${encodeURIComponent(firstAttraction)}`);
   }, [router, setLoadingState]);
@@ -595,8 +597,7 @@ function Home() {
         userPreferences={{
           interests: ['문화', '역사', '건축'],
           ageGroup: '30대',
-          language: currentLanguage,
-          loadingType: currentLoadingType
+          language: currentLanguage
         }}
       />
     );
@@ -729,7 +730,7 @@ function Home() {
                     className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-3 sm:mb-4 bg-black text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black ${
                       loadingStates.search ? 'animate-pulse' : ''
                     } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
-                    aria-label={loadingStates.guide ? 'AI 가이드 생성 중...' : t('home.stepTitles.aiGenerate')}
+                    aria-label={loadingStates.guide ? 'AI 가이드 생성 중...' : String(t('home.stepTitles.aiGenerate'))}
                     aria-disabled={!query.trim() || loadingStates.search}
                   >
                     {loadingStates.guide ? (
@@ -764,7 +765,7 @@ function Home() {
                     className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-3 sm:mb-4 bg-black text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black ${
                       audioPlaying ? 'animate-pulse' : ''
                     } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
-                    aria-label={audioPlaying ? '오디오 일시정지' : t('home.stepTitles.audioPlay')}
+                    aria-label={audioPlaying ? '오디오 일시정지' : String(t('home.stepTitles.audioPlay'))}
                     aria-pressed={audioPlaying}
                   >
                     {audioPlaying ? (
@@ -820,7 +821,7 @@ function Home() {
                   }}
                   placeholder={placeholders[placeholderIndex]}
                   className="w-full px-8 py-6 text-xl font-light text-black bg-transparent rounded-3xl focus:outline-none transition-all duration-300 placeholder-gray-400 focus:ring-2 focus:ring-black focus:ring-opacity-20"
-                  aria-label={t('home.searchPlaceholder')}
+                  aria-label={String(t('home.searchPlaceholder'))}
                   aria-describedby="search-help"
                   aria-expanded={isFocused && suggestions.length > 0}
                   aria-autocomplete="list"
@@ -842,7 +843,7 @@ function Home() {
                       : 'bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 opacity-50 cursor-not-allowed'
                     }
                   `}
-                  aria-label={loadingStates.search ? '검색 중...' : t('home.searchButton')}
+                  aria-label={loadingStates.search ? '검색 중...' : String(t('home.searchButton'))}
                   type="submit"
                 >
                   {loadingStates.search ? (
