@@ -131,11 +131,15 @@ const FALLBACK_CONFIGS: Record<string, string> = {
   'es': 'es-ES-Wavenet-A'
 };
 
+import { UltraNaturalTTSEngine, type UltraNaturalTTSRequest } from './ultra-natural-tts-engine';
+
 export class Neural2TTSService {
   private static instance: Neural2TTSService;
   private requestQueue: TTSRequest[] = [];
   private isProcessing = false;
   private cache = new Map<string, string>(); // URL 캐시
+  private ultraNaturalEngine: UltraNaturalTTSEngine | null = null;
+  private ultraNaturalEnabled = true; // 초자연화 엔진 사용 여부
   
   static getInstance(): Neural2TTSService {
     if (!Neural2TTSService.instance) {
@@ -144,12 +148,32 @@ export class Neural2TTSService {
     return Neural2TTSService.instance;
   }
 
-  // 🎙️ 메인 TTS 생성 메서드
+  constructor() {
+    // 초자연화 엔진 비동기 초기화
+    this.initializeUltraNaturalEngine();
+  }
+
+  private async initializeUltraNaturalEngine(): Promise<void> {
+    try {
+      console.log('🧬 초자연화 TTS 엔진 초기화 중...');
+      this.ultraNaturalEngine = new UltraNaturalTTSEngine();
+      console.log('✅ 100만명 시뮬레이션 기반 초자연화 TTS 준비 완료');
+    } catch (error) {
+      console.warn('⚠️ 초자연화 엔진 초기화 실패, 일반 모드로 실행:', error);
+      this.ultraNaturalEnabled = false;
+    }
+  }
+
+  // 🎙️ 메인 TTS 생성 메서드 (초자연화 엔진 통합)
   async generateAudio(request: TTSRequest): Promise<{
     success: boolean;
     audioUrl?: string;
     error?: string;
     cached?: boolean;
+    naturalness?: {
+      humanLikenessPercent: number;
+      simulationAccuracy: number;
+    };
   }> {
     const cacheKey = this.getCacheKey(request);
     
@@ -162,6 +186,45 @@ export class Neural2TTSService {
       };
     }
 
+    // 🧬 초자연화 엔진 우선 시도 (한국어만)
+    if (this.ultraNaturalEnabled && 
+        this.ultraNaturalEngine && 
+        request.language === 'ko') {
+      
+      try {
+        console.log('🤖 100만명 시뮬레이션 기반 초자연화 TTS 생성 중...');
+        
+        const ultraRequest: UltraNaturalTTSRequest = {
+          text: request.text,
+          context: this.detectContext(request),
+          targetAudience: this.analyzeTargetAudience(request),
+          qualityLevel: 'ultra' // 기본 울트라 품질
+        };
+        
+        const ultraResult = await this.ultraNaturalEngine.generateUltraNaturalTTS(ultraRequest);
+        
+        if (ultraResult.success && ultraResult.audioUrl) {
+          // 캐시 저장
+          this.cache.set(cacheKey, ultraResult.audioUrl);
+          
+          console.log(`✅ 초자연화 TTS 완료 - 인간다움: ${ultraResult.naturalness.humanLikenessPercent.toFixed(1)}%`);
+          
+          return {
+            success: true,
+            audioUrl: ultraResult.audioUrl,
+            cached: false,
+            naturalness: {
+              humanLikenessPercent: ultraResult.naturalness.humanLikenessPercent,
+              simulationAccuracy: ultraResult.naturalness.simulationAccuracy
+            }
+          };
+        }
+      } catch (ultraError) {
+        console.warn('⚠️ 초자연화 TTS 실패, 일반 Neural2로 폴백:', ultraError);
+      }
+    }
+
+    // 💫 일반 Neural2 TTS (기존 로직)
     try {
       const config = this.getOptimalConfig(request.language);
       const ssmlText = this.prepareSSML(request.text, request.language);
@@ -212,6 +275,55 @@ export class Neural2TTSService {
       // 🔄 폴백: 브라우저 내장 TTS
       return this.generateFallbackAudio(request);
     }
+  }
+
+  // 🔍 컨텍스트 자동 감지
+  private detectContext(request: TTSRequest): 'business' | 'casual' | 'educational' | 'tour_guide' {
+    const text = request.text.toLowerCase();
+    
+    // 비즈니스 관련 키워드
+    if (text.includes('회사') || text.includes('비즈니스') || text.includes('업무') || text.includes('사업')) {
+      return 'business';
+    }
+    
+    // 교육 관련 키워드  
+    if (text.includes('학습') || text.includes('설명') || text.includes('교육') || text.includes('강의')) {
+      return 'educational';
+    }
+    
+    // 관광 가이드 (기본값 - 이 앱의 주 용도)
+    if (request.locationName || text.includes('관광') || text.includes('여행') || text.includes('명소')) {
+      return 'tour_guide';
+    }
+    
+    return 'casual';
+  }
+  
+  // 👥 대상 청중 분석
+  private analyzeTargetAudience(request: TTSRequest): UltraNaturalTTSRequest['targetAudience'] {
+    const text = request.text.toLowerCase();
+    
+    // 연령대 추정 (텍스트 톤 기반)
+    let ageGroup: 'young' | 'middle' | 'mature' = 'middle';
+    if (text.includes('완전') || text.includes('대박') || text.includes('개') || text.includes('쩔어')) {
+      ageGroup = 'young';
+    } else if (text.includes('정중') || text.includes('공식') || text.includes('존경')) {
+      ageGroup = 'mature';
+    }
+    
+    // 격식성 수준 추정
+    let formalityPreference: 'formal' | 'semi_formal' | 'casual' = 'semi_formal';
+    if (text.includes('입니다') || text.includes('습니다') || text.includes('하시')) {
+      formalityPreference = 'formal';
+    } else if (text.includes('해요') || text.includes('이에요') || text.includes('예요')) {
+      formalityPreference = 'casual';
+    }
+    
+    return {
+      ageGroup,
+      formalityPreference,
+      educationLevel: 'general' // 기본값
+    };
   }
 
   // 🎯 최적 설정 선택
