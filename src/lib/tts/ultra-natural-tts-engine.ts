@@ -198,8 +198,8 @@ class UltraNaturalTTSEngine {
       // 4단계: 최적화된 음성 파라미터 계산
       const voiceParams = this.calculateOptimalVoiceParameters(optimalSpeaker, request);
       
-      // 5단계: Google Cloud TTS API 직접 호출 (순환 참조 방지)
-      const ttsResult = await this.callGoogleCloudTTSDirectly(ssml, voiceParams);
+      // 5단계: 기존 TTS 시스템 우회하여 직접 처리
+      const ttsResult = await this.generateDirectTTS(ssml, voiceParams);
       
       if (!ttsResult.success) {
         throw new Error(`TTS 생성 실패: ${ttsResult.error}`);
@@ -660,56 +660,80 @@ class UltraNaturalTTSEngine {
   }
   
   /**
-   * 🎙️ Google Cloud TTS API 직접 호출 (순환 참조 방지)
+   * 🎙️ Direct TTS 생성 (Google Cloud TTS 통합)
    */
-  private async callGoogleCloudTTSDirectly(ssml: string, voiceParams: any): Promise<{
+  private async generateDirectTTS(ssml: string, voiceParams: any): Promise<{
     success: boolean;
     audioUrl?: string;
     error?: string;
   }> {
     try {
-      // Google Cloud TTS API 직접 호출
-      const response = await fetch('/api/tts/neural2-generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          input: { ssml },
-          voice: {
-            name: voiceParams.neural2Settings.name,
-            languageCode: voiceParams.neural2Settings.languageCode,
-            ssmlGender: voiceParams.neural2Settings.ssmlGender
-          },
-          audioConfig: voiceParams.neural2Settings.audioConfig,
-          metadata: {
-            engine: 'ultra-natural',
-            quality: 'simulation-perfect'
+      // 서버사이드 환경에서 Google Cloud TTS 사용
+      if (typeof window === 'undefined') {
+        console.log('🏗️ 서버사이드 환경 - Google Cloud TTS 시도');
+        
+        // Google Cloud TTS 동적 import (서버사이드만)
+        try {
+          const { googleCloudTTS } = await import('./google-cloud-tts');
+          
+          const config = {
+            text: ssml.replace(/<[^>]*>/g, '').trim(), // SSML 태그 제거
+            languageCode: voiceParams.neural2Settings?.languageCode || 'ko-KR',
+            name: voiceParams.neural2Settings?.name || 'ko-KR-Neural2-C',
+            ssmlGender: voiceParams.neural2Settings?.ssmlGender || 'FEMALE',
+            audioEncoding: 'MP3' as const,
+            speakingRate: voiceParams.neural2Settings?.audioConfig?.speakingRate || 1.0,
+            pitch: voiceParams.neural2Settings?.audioConfig?.pitch || 0.0,
+            volumeGainDb: voiceParams.neural2Settings?.audioConfig?.volumeGainDb || 0.0,
+            sampleRateHertz: voiceParams.neural2Settings?.audioConfig?.sampleRateHertz || 24000,
+            effectsProfileId: voiceParams.neural2Settings?.audioConfig?.effectsProfileId || []
+          };
+
+          // SSML이 복잡한 경우 SSML 전용 메서드 사용
+          const hasComplexSSML = ssml.includes('<prosody') || ssml.includes('<break') || ssml.includes('<emphasis');
+          
+          const result = hasComplexSSML 
+            ? await googleCloudTTS.synthesizeSpeechSSML(ssml, config)
+            : await googleCloudTTS.synthesizeSpeech(config);
+
+          if (result.success && result.audioContent) {
+            console.log('✅ Google Cloud TTS 생성 완료');
+            return {
+              success: true,
+              audioUrl: `data:audio/mpeg;base64,${result.audioContent}`
+            };
+          } else {
+            console.error('❌ Google Cloud TTS 실패:', result.error);
+            return {
+              success: false,
+              error: `Google Cloud TTS 실패: ${result.error || '알 수 없는 오류'}`
+            };
           }
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`API 응답 오류: ${response.status}`);
+        } catch (importError) {
+          console.error('❌ Google Cloud TTS 모듈 로드 실패:', importError);
+          return {
+            success: false,
+            error: `Google Cloud TTS 초기화 실패: ${importError instanceof Error ? importError.message : '모듈 로드 오류'}`
+          };
+        }
       }
 
-      const result = await response.json();
-      
-      if (result.success && result.audioUrl) {
-        return {
-          success: true,
-          audioUrl: result.audioUrl
-        };
-      } else {
-        throw new Error(result.error || 'TTS 생성 실패');
-      }
-      
-    } catch (error) {
-      console.error('❌ Google Cloud TTS 직접 호출 실패:', error);
+      // 브라우저 환경에서는 TTS 사용 불가
+      console.error('❌ 브라우저 환경에서는 고품질 TTS를 지원하지 않습니다');
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: 'Ultra-Natural TTS는 서버환경에서만 지원됩니다. Google Cloud TTS 설정이 필요합니다.'
+      };
+      
+    } catch (error) {
+      console.error('❌ Direct TTS 생성 실패:', error);
+      return {
+        success: false,
+        error: `TTS 생성 중 오류 발생: ${error instanceof Error ? error.message : '알 수 없는 오류'}`
       };
     }
   }
+
 
   /**
    * 시뮬레이션 엔진 상태 리포트
