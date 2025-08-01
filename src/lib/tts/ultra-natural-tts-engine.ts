@@ -49,18 +49,23 @@ class UltraNaturalTTSEngine {
   constructor() {
     console.log('🚀 초자연화 TTS 엔진 initializing...');
     
-    // 빌드 시에는 시뮬레이션을 실행하지 않음
-    if (typeof window === 'undefined' && process.env.NODE_ENV === 'production') {
-      console.log('🏗️ 빌드 환경 감지 - TTS 엔진 초기화 지연');
-      this.simulator = {} as SeoulStandardTTSSimulator;
-      this.speakerDatabase = [];
-      return;
-    }
-    
+    // 시뮬레이터 초기화 (지연 로딩)
     this.simulator = new SeoulStandardTTSSimulator();
-    this.speakerDatabase = this.simulator.getTopNaturalSpeakers(10000); // 상위 1% 자연스러운 화자
-    this.precomputeOptimizedSpeakers();
-    console.log('✅ 초자연화 TTS 엔진 ready');
+    this.speakerDatabase = [];
+    
+    console.log('✅ 초자연화 TTS 엔진 ready (지연 로딩)');
+  }
+  
+  /**
+   * 시뮬레이션이 필요할 때만 실행 (지연 로딩)
+   */
+  private ensureSimulationReady(): void {
+    if (this.speakerDatabase.length === 0) {
+      console.log('🧬 화자 데이터베이스 로딩 중...');
+      this.speakerDatabase = this.simulator.getTopNaturalSpeakers(10000); // 상위 1% 자연스러운 화자
+      this.precomputeOptimizedSpeakers();
+      console.log('✅ 화자 데이터베이스 로딩 완료');
+    }
   }
   
   /**
@@ -166,6 +171,9 @@ class UltraNaturalTTSEngine {
         context: request.context,
         quality: request.qualityLevel
       });
+      
+      // 시뮬레이션 데이터 준비
+      this.ensureSimulationReady();
       
       // 1단계: 최적 화자 선택
       const optimalSpeaker = this.selectOptimalSpeaker(request);

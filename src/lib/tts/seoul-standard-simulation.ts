@@ -84,15 +84,19 @@ class SeoulStandardTTSSimulator {
   private naturalnessBenchmark: Map<string, number> = new Map();
   
   constructor() {
-    // 빌드 시에는 시뮬레이션을 실행하지 않음
-    if (typeof window === 'undefined' && process.env.NODE_ENV === 'production') {
-      console.log('🏗️ 빌드 환경 감지 - 시뮬레이션 초기화 지연');
-      return;
+    // 시뮬레이션을 즉시 실행하지 않고 지연 로딩 방식으로 변경
+    console.log('🏙️ 서울 표준어 화자 시뮬레이터 초기화 완료 (지연 로딩)');
+  }
+  
+  /**
+   * 시뮬레이션이 필요할 때만 실행 (지연 로딩)
+   */
+  private ensureSimulationReady(): void {
+    if (this.seoulSpeakers.length === 0) {
+      console.log('🚀 서울 표준어 화자 100만명 시뮬레이션 시작...');
+      this.generateSeoulPopulation();
+      this.establishNaturalnessBenchmarks();
     }
-    
-    console.log('🏙️ 서울 표준어 화자 100만명 시뮬레이션 시작...');
-    this.generateSeoulPopulation();
-    this.establishNaturalnessBenchmarks();
   }
   
   /**
@@ -530,6 +534,7 @@ class SeoulStandardTTSSimulator {
    * 최고 자연스러움을 가진 화자 추출
    */
   public getTopNaturalSpeakers(count: number = 1000): SeoulStandardSpeakerProfile[] {
+    this.ensureSimulationReady();
     return this.seoulSpeakers
       .map(speaker => ({
         speaker,
@@ -549,6 +554,7 @@ class SeoulStandardTTSSimulator {
     district?: SeoulStandardSpeakerProfile['district'];
     minNaturalnessScore?: number;
   }, count: number = 100): SeoulStandardSpeakerProfile[] {
+    this.ensureSimulationReady();
     
     return this.seoulSpeakers
       .filter(speaker => {
@@ -574,6 +580,7 @@ class SeoulStandardTTSSimulator {
     };
     naturalnessPrediction: SeoulTTSNaturalnessScore;
   } {
+    this.ensureSimulationReady();
     
     // 최고 자연스러움 화자들의 평균 파라미터 활용
     const topSpeakers = this.getTopNaturalSpeakers(100);
@@ -793,6 +800,7 @@ class SeoulStandardTTSSimulator {
    * 전체 시뮬레이션 요약 리포트
    */
   public generateSimulationReport(): string {
+    this.ensureSimulationReady();
     const stats = this.calculateVoiceStatistics();
     const standardStats = this.calculateStandardKoreanStats();
     const topSpeakers = this.getTopNaturalSpeakers(10);
