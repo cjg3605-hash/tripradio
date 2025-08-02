@@ -840,33 +840,45 @@ export default function MyPage() {
                   onClick={async () => {
                     console.log('🚀 마이페이지 로그아웃 시작...');
                     try {
-                      console.log('🔄 signOut 호출 중...');
-                      const result = await signOut({ 
-                        callbackUrl: '/',
-                        redirect: false
-                      });
-                      console.log('✅ signOut 완료:', result);
-                      
-                      // 세션 및 쿠키 클리어
+                      // 1. 모든 클라이언트 데이터 삭제
                       if (typeof window !== 'undefined') {
                         sessionStorage.clear();
-                        localStorage.removeItem('nextauth.session-token');
-                        localStorage.removeItem('next-auth.session-token');
+                        localStorage.clear();
                         
-                        document.cookie.split(";").forEach((c) => {
-                          const eqPos = c.indexOf("=");
-                          const name = eqPos > -1 ? c.substr(0, eqPos) : c;
-                          if (name.trim().includes('next-auth') || name.trim().includes('nextauth')) {
-                            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
-                            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-                          }
+                        // 모든 쿠키 삭제
+                        const cookies = document.cookie.split(";");
+                        cookies.forEach((cookie) => {
+                          const eqPos = cookie.indexOf("=");
+                          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+                          
+                          const domains = [window.location.hostname, `.${window.location.hostname}`, 'localhost', '.localhost'];
+                          const paths = ['/', '/auth', '/api'];
+                          
+                          domains.forEach(domain => {
+                            paths.forEach(path => {
+                              document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=${path};domain=${domain}`;
+                              document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=${path}`;
+                            });
+                          });
                         });
                       }
                       
-                      window.location.replace('/');
+                      // 2. NextAuth signOut
+                      await signOut({ 
+                        callbackUrl: '/',
+                        redirect: false
+                      });
+                      
+                      console.log('✅ signOut 완료');
+                      
+                      // 3. 페이지 리로드
+                      setTimeout(() => {
+                        window.location.href = '/';
+                      }, 100);
+                      
                     } catch (error) {
                       console.error('❌ 로그아웃 중 오류 발생:', error);
-                      window.location.replace('/');
+                      window.location.href = '/';
                     }
                   }}
                   className="w-full bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors font-medium flex items-center justify-center"

@@ -131,38 +131,48 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
       setIsProfileMenuOpen(false);
       console.log('🔄 signOut 호출 중...');
       
-      // 1. NextAuth signOut 호출
-      const result = await signOut({ 
-        callbackUrl: '/',
-        redirect: false // redirect를 false로 설정하여 수동 제어
-      });
-      
-      console.log('✅ signOut 완료:', result);
-      
-      // 2. 세션 스토리지와 로컬 스토리지 클리어
+      // 1. 먼저 모든 클라이언트 데이터 삭제
       if (typeof window !== 'undefined') {
+        // SessionStorage와 LocalStorage 완전 클리어
         sessionStorage.clear();
-        localStorage.removeItem('nextauth.session-token');
-        localStorage.removeItem('next-auth.session-token');
+        localStorage.clear();
         
-        // 모든 NextAuth 관련 쿠키 삭제
-        document.cookie.split(";").forEach((c) => {
-          const eqPos = c.indexOf("=");
-          const name = eqPos > -1 ? c.substr(0, eqPos) : c;
-          if (name.trim().includes('next-auth') || name.trim().includes('nextauth')) {
-            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
-            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-          }
+        // 모든 쿠키 삭제 (도메인별로)
+        const cookies = document.cookie.split(";");
+        cookies.forEach((cookie) => {
+          const eqPos = cookie.indexOf("=");
+          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+          
+          // 모든 경로와 도메인에서 쿠키 삭제
+          const domains = [window.location.hostname, `.${window.location.hostname}`, 'localhost', '.localhost'];
+          const paths = ['/', '/auth', '/api'];
+          
+          domains.forEach(domain => {
+            paths.forEach(path => {
+              document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=${path};domain=${domain}`;
+              document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=${path}`;
+            });
+          });
         });
       }
       
-      // 3. 강제 페이지 새로고침
-      window.location.replace('/');
+      // 2. NextAuth signOut 호출
+      await signOut({ 
+        callbackUrl: '/',
+        redirect: false
+      });
+      
+      console.log('✅ signOut 완료');
+      
+      // 3. 완전한 페이지 리로드로 모든 상태 초기화
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
       
     } catch (error) {
       console.error('❌ 로그아웃 중 오류 발생:', error);
       // 에러 발생시에도 강제 새로고침
-      window.location.replace('/');
+      window.location.href = '/';
     }
   };
 

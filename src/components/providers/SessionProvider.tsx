@@ -17,12 +17,12 @@ export default function SessionProvider({ children, session }: SessionProviderPr
   }, []);
 
   // SSR/SSG 중에는 항상 SessionProvider로 감싸서 렌더링
-  // 이렇게 하면 prerendering 시에도 useSession이 안전하게 작동
+  // 로그아웃 후 세션 재갱신 방지를 위해 자동 갱신 비활성화
   return (
     <NextAuthSessionProvider 
       session={session}
-      refetchInterval={isClient ? 5 * 60 : 0} // 클라이언트에서만 자동 갱신
-      refetchOnWindowFocus={isClient}
+      refetchInterval={0} // 자동 갱신 완전 비활성화
+      refetchOnWindowFocus={false} // 윈도우 포커스시 갱신 비활성화
       refetchWhenOffline={false}
     >
       {children}
