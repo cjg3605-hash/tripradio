@@ -40,6 +40,83 @@ export const useGeolocation = (options: UseGeolocationOptions = {}) => {
   const locationListenerRef = useRef<((location: LocationPoint) => void) | null>(null);
   const geofenceListenerRef = useRef<((event: GeofenceEvent) => void) | null>(null);
 
+  // Update tracking state from GPS service
+  const updateTrackingState = useCallback(() => {
+    setTrackingState(gpsService.getTrackingState());
+  }, []);
+
+  // Calculate distance between two points
+  const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+    const R = 6371e3; // Earth's radius in meters
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lng2 - lng1) * Math.PI / 180;
+
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    return R * c;
+  };
+
+  // Update route progress
+  const updateRouteProgress = useCallback(() => {
+    const allGeofences = geofencingService.getAllGeofences();
+    const poiGeofences = allGeofences.filter(g => g.type === 'poi');
+    const visitHistory = geofencingService.getVisitHistory();
+    
+    const visitedPOIIds = new Set(
+      visitHistory
+        .filter(v => v.geofenceId?.startsWith('poi_'))
+        .map(v => v.geofenceId)
+    );
+
+    const totalPOIs = poiGeofences.length;
+    const visitedPOIs = visitedPOIIds.size;
+    const completionPercentage = totalPOIs > 0 ? (visitedPOIs / totalPOIs) * 100 : 0;
+
+    // Find current and next POI
+    const currentPOI = poiGeofences.find(poi => 
+      geofencingService.getActiveZones().includes(poi.id)
+    );
+    
+    const nextPOI = poiGeofences.find(poi => 
+      !visitedPOIIds.has(poi.id) && poi.id !== currentPOI?.id
+    );
+
+    const progress: RouteProgress = {
+      totalPOIs,
+      visitedPOIs,
+      completionPercentage,
+      currentPOI: currentPOI?.name,
+      nextPOI: nextPOI?.name
+    };
+
+    // Calculate distance and time to next POI
+    if (nextPOI && currentLocation) {
+      const distance = calculateDistance(
+        currentLocation.lat,
+        currentLocation.lng,
+        nextPOI.center.lat,
+        nextPOI.center.lng
+      );
+      
+      progress.distanceToNext = Math.round(distance);
+      progress.estimatedTimeToNext = Math.round(distance / 1.2); // Assuming 1.2 m/s walking speed
+    }
+
+    setRouteProgress(progress);
+  }, [currentLocation]);
+
+  // Public methods
+  const startTracking = useCallback(async (): Promise<boolean> => {
+    const success = await gpsService.startTracking(enablePrecisionMode);
+    updateTrackingState();
+    return success;
+  }, [updateTrackingState, enablePrecisionMode]);
+
   // Initialize location tracking
   const initializeTracking = useCallback(async () => {
     if (initialized.current || !enableTracking) return;
@@ -95,84 +172,9 @@ export const useGeolocation = (options: UseGeolocationOptions = {}) => {
     } catch (error) {
       console.error('Failed to initialize location tracking:', error);
     }
-  }, [enableTracking, enableGeofencing, autoStart, onLocationUpdate, onGeofenceEvent, onPermissionDenied]);
-
-  // Update tracking state from GPS service
-  const updateTrackingState = useCallback(() => {
-    setTrackingState(gpsService.getTrackingState());
-  }, []);
-
-  // Update route progress
-  const updateRouteProgress = useCallback(() => {
-    const allGeofences = geofencingService.getAllGeofences();
-    const poiGeofences = allGeofences.filter(g => g.type === 'poi');
-    const visitHistory = geofencingService.getVisitHistory();
-    
-    const visitedPOIIds = new Set(
-      visitHistory
-        .filter(v => v.geofenceId?.startsWith('poi_'))
-        .map(v => v.geofenceId)
-    );
-
-    const totalPOIs = poiGeofences.length;
-    const visitedPOIs = visitedPOIIds.size;
-    const completionPercentage = totalPOIs > 0 ? (visitedPOIs / totalPOIs) * 100 : 0;
-
-    // Find current and next POI
-    const currentPOI = poiGeofences.find(poi => 
-      geofencingService.getActiveZones().includes(poi.id)
-    );
-    
-    const nextPOI = poiGeofences.find(poi => 
-      !visitedPOIIds.has(poi.id) && poi.id !== currentPOI?.id
-    );
-
-    const progress: RouteProgress = {
-      totalPOIs,
-      visitedPOIs,
-      completionPercentage,
-      currentPOI: currentPOI?.name,
-      nextPOI: nextPOI?.name
-    };
-
-    // Calculate distance and time to next POI
-    if (nextPOI && currentLocation) {
-      const distance = calculateDistance(
-        currentLocation.lat,
-        currentLocation.lng,
-        nextPOI.center.lat,
-        nextPOI.center.lng
-      );
-      
-      progress.distanceToNext = Math.round(distance);
-      progress.estimatedTimeToNext = Math.round(distance / 1.2); // Assuming 1.2 m/s walking speed
-    }
-
-    setRouteProgress(progress);
-  }, [currentLocation]);
-
-  // Calculate distance between two points
-  const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
-    const R = 6371e3; // Earth's radius in meters
-    const φ1 = lat1 * Math.PI / 180;
-    const φ2 = lat2 * Math.PI / 180;
-    const Δφ = (lat2 - lat1) * Math.PI / 180;
-    const Δλ = (lng2 - lng1) * Math.PI / 180;
-
-    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-              Math.cos(φ1) * Math.cos(φ2) *
-              Math.sin(Δλ/2) * Math.sin(Δλ/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-    return R * c;
-  };
+  }, [enableTracking, enableGeofencing, autoStart, onLocationUpdate, onGeofenceEvent, onPermissionDenied, startTracking, updateRouteProgress]);
 
   // Public methods
-  const startTracking = useCallback(async (): Promise<boolean> => {
-    const success = await gpsService.startTracking(enablePrecisionMode);
-    updateTrackingState();
-    return success;
-  }, [updateTrackingState, enablePrecisionMode]);
 
   const stopTracking = useCallback(() => {
     gpsService.stopTracking();

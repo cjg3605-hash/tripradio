@@ -1,7 +1,7 @@
 // 🚀 Enhanced Multi-Level Cache System (Redis + Memory)
 // 90% 캐시 히트율 목표, 80% 응답 시간 단축
 
-import { LRUCache } from 'lru-cache';
+import LRUCache from 'lru-cache';
 
 /**
  * 🔧 캐시 레벨 정의

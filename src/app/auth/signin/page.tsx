@@ -127,6 +127,130 @@ function SignInContent() {
     return () => {};
   }, [countdown, safeSetState]);
 
+  // 개선된 회원가입 완료 (메모리 안전)
+  const handleCompleteSignup = useCallback(async (): Promise<void> => {
+    setLoadingState('signup', true);
+    safeSetState(() => setErrors({}));
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          name: formData.name,
+          verificationCode: formData.verificationCode
+        }),
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      const data = await response.json();
+
+      if (!response.ok) {
+        safeSetState(() => {
+          setErrors({ general: data.error || t('auth.signupFailed') || '회원가입에 실패했습니다.' });
+          setSignupStep('form');
+        });
+      } else {
+        safeSetState(() => {
+          setSignupStep('completed');
+          setErrors({ success: String(t('auth.signupSuccess')) || '🎉 회원가입이 완료되었습니다!' });
+        });
+        
+        // 안전한 리다이렉트
+        timeoutRefs.current.completionRedirect = setTimeout(() => {
+          if (isMountedRef.current) {
+            safeSetState(() => {
+              setAuthMode('signin');
+              setSignupStep('form');
+              setFormData(prev => ({ ...prev, password: '', confirmPassword: '', verificationCode: '' }));
+            });
+            timeoutRefs.current.completionRedirect = null;
+          }
+        }, 4000);
+      }
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') {
+        safeSetState(() => setErrors({ general: String(t('auth.requestTimeout')) || '요청 시간이 초과되었습니다.' }));
+      } else {
+        safeSetState(() => setErrors({ general: String(t('auth.networkError')) || '네트워크 오류가 발생했습니다.' }));
+      }
+      safeSetState(() => setSignupStep('form'));
+    } finally {
+      setLoadingState('signup', false);
+    }
+  }, [formData, t, safeSetState, setLoadingState, setAuthMode, setSignupStep]);
+
+  // 개선된 인증 코드 확인 (메모리 안전)
+  const handleVerifyCode = useCallback(async (): Promise<void> => {
+    if (!formData.verificationCode || formData.verificationCode.length !== 6) {
+      safeSetState(() => setErrors({ verificationCode: String(t('auth.enter6DigitCode')) || '6자리 인증 코드를 입력해주세요.' }));
+      return;
+    }
+
+    setLoadingState('emailVerification', true);
+    safeSetState(() => setErrors({}));
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
+      const response = await fetch('/api/auth/email-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          verificationCode: formData.verificationCode,
+          action: 'verify_code'
+        }),
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      const data = await response.json();
+
+      if (!response.ok) {
+        safeSetState(() => {
+          setErrors({ verificationCode: data.error || String(t('auth.verificationFailed')) || '인증에 실패했습니다.' });
+          // 실패 시 입력 필드 초기화
+          setCodeInputs(['', '', '', '', '', '']);
+          setFormData(prev => ({ ...prev, verificationCode: '' }));
+        });
+        
+        // DOM 접근 안전성 확인
+        if (typeof document !== 'undefined') {
+          document.getElementById('code-0')?.focus();
+        }
+      } else {
+        safeSetState(() => {
+          setEmailVerified(true);
+          setErrors({ success: String(t('auth.emailVerificationComplete')) || '이메일 인증이 완료되었습니다!' });
+        });
+        
+        // 안전한 지연 실행
+        timeoutRefs.current.completionRedirect = setTimeout(() => {
+          if (isMountedRef.current) {
+            handleCompleteSignup();
+            timeoutRefs.current.completionRedirect = null;
+          }
+        }, 2000);
+      }
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') {
+        safeSetState(() => setErrors({ verificationCode: String(t('auth.requestTimeout')) || '요청 시간이 초과되었습니다.' }));
+      } else {
+        safeSetState(() => setErrors({ verificationCode: String(t('auth.networkError')) || '네트워크 오류가 발생했습니다.' }));
+      }
+    } finally {
+      setLoadingState('emailVerification', false);
+    }
+  }, [formData.email, formData.verificationCode, t, safeSetState, setLoadingState, handleCompleteSignup]);
+
   // 개선된 인증코드 입력 핸들러
   const handleCodeChange = useCallback((index: number, value: string) => {
     if (value.length > 1) return;
@@ -159,7 +283,7 @@ function SignInContent() {
         }
       }, 500);
     }
-  }, [codeInputs]);
+  }, [codeInputs, handleVerifyCode]);
 
   // 개선된 키보드 핸들러 (접근성 포함)
   const handleKeyDown = useCallback((index: number, e: React.KeyboardEvent) => {
@@ -246,129 +370,7 @@ function SignInContent() {
     }
   }, [formData.email, t, safeSetState, setLoadingState]);
 
-  // 개선된 인증 코드 확인 (메모리 안전)
-  const handleVerifyCode = useCallback(async (): Promise<void> => {
-    if (!formData.verificationCode || formData.verificationCode.length !== 6) {
-      safeSetState(() => setErrors({ verificationCode: String(t('auth.enter6DigitCode')) || '6자리 인증 코드를 입력해주세요.' }));
-      return;
-    }
 
-    setLoadingState('emailVerification', true);
-    safeSetState(() => setErrors({}));
-
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-      
-      const response = await fetch('/api/auth/email-verification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: formData.email,
-          verificationCode: formData.verificationCode,
-          action: 'verify_code'
-        }),
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-      const data = await response.json();
-
-      if (!response.ok) {
-        safeSetState(() => {
-          setErrors({ verificationCode: data.error || String(t('auth.verificationFailed')) || '인증에 실패했습니다.' });
-          // 실패 시 입력 필드 초기화
-          setCodeInputs(['', '', '', '', '', '']);
-          setFormData(prev => ({ ...prev, verificationCode: '' }));
-        });
-        
-        // DOM 접근 안전성 확인
-        if (typeof document !== 'undefined') {
-          document.getElementById('code-0')?.focus();
-        }
-      } else {
-        safeSetState(() => {
-          setEmailVerified(true);
-          setErrors({ success: String(t('auth.emailVerificationComplete')) || '이메일 인증이 완료되었습니다!' });
-        });
-        
-        // 안전한 지연 실행
-        timeoutRefs.current.completionRedirect = setTimeout(() => {
-          if (isMountedRef.current) {
-            handleCompleteSignup();
-            timeoutRefs.current.completionRedirect = null;
-          }
-        }, 2000);
-      }
-    } catch (error) {
-      if ((error as Error).name === 'AbortError') {
-        safeSetState(() => setErrors({ verificationCode: String(t('auth.requestTimeout')) || '요청 시간이 초과되었습니다.' }));
-      } else {
-        safeSetState(() => setErrors({ verificationCode: String(t('auth.networkError')) || '네트워크 오류가 발생했습니다.' }));
-      }
-    } finally {
-      setLoadingState('emailVerification', false);
-    }
-  }, [formData.email, formData.verificationCode, t, safeSetState, setLoadingState]);
-
-  // 개선된 회원가입 완료 (메모리 안전)
-  const handleCompleteSignup = useCallback(async (): Promise<void> => {
-    setLoadingState('signup', true);
-    safeSetState(() => setErrors({}));
-
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
-      
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          name: formData.name,
-          verificationCode: formData.verificationCode
-        }),
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-      const data = await response.json();
-
-      if (!response.ok) {
-        safeSetState(() => {
-          setErrors({ general: data.error || t('auth.signupFailed') || '회원가입에 실패했습니다.' });
-          setSignupStep('form');
-        });
-      } else {
-        safeSetState(() => {
-          setSignupStep('completed');
-          setErrors({ success: String(t('auth.signupSuccess')) || '🎉 회원가입이 완료되었습니다!' });
-        });
-        
-        // 안전한 리다이렉트
-        timeoutRefs.current.completionRedirect = setTimeout(() => {
-          if (isMountedRef.current) {
-            safeSetState(() => {
-              setAuthMode('signin');
-              setSignupStep('form');
-              setFormData(prev => ({ ...prev, password: '', confirmPassword: '', verificationCode: '' }));
-            });
-            timeoutRefs.current.completionRedirect = null;
-          }
-        }, 4000);
-      }
-    } catch (error) {
-      if ((error as Error).name === 'AbortError') {
-        safeSetState(() => setErrors({ general: String(t('auth.requestTimeout')) || '요청 시간이 초과되었습니다.' }));
-      } else {
-        safeSetState(() => setErrors({ general: String(t('auth.networkError')) || '네트워크 오류가 발생했습니다.' }));
-      }
-      safeSetState(() => setSignupStep('form'));
-    } finally {
-      setLoadingState('signup', false);
-    }
-  }, [formData, t, safeSetState, setLoadingState, setAuthMode, setSignupStep]);
 
   // 개선된 인증 코드 재전송
   const handleResendCode = useCallback(async (): Promise<void> => {

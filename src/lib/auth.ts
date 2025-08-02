@@ -30,39 +30,53 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
+          // 타이밍 공격 방지를 위한 일정한 시간 지연
+          const startTime = Date.now();
+          const minAuthTime = 500; // 최소 500ms 소요
+
           const user = await getUserByEmail(credentials.email);
-          if (!user) {
-            throw new Error('존재하지 않는 계정입니다.');
+          let isValid = false;
+          let authResult: { id: string; email: string; name: string } | null = null;
+
+          if (user && user.hashedPassword) {
+            isValid = await verifyPassword(credentials.password, user.hashedPassword);
+            if (isValid) {
+              authResult = {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+              };
+            }
+          } else {
+            // 사용자가 없어도 비밀번호 해싱 시간을 시뮬레이션
+            await verifyPassword(credentials.password, '$2a$12$dummy.hash.to.prevent.timing.attack.vulnerability');
           }
 
-          if (!user.hashedPassword) {
-            throw new Error('계정 정보에 오류가 있습니다.');
+          // 최소 시간이 지나지 않았다면 대기
+          const elapsedTime = Date.now() - startTime;
+          if (elapsedTime < minAuthTime) {
+            await new Promise(resolve => setTimeout(resolve, minAuthTime - elapsedTime));
           }
 
-          const isValid = await verifyPassword(credentials.password, user.hashedPassword);
-          if (!isValid) {
-            throw new Error('비밀번호가 올바르지 않습니다.');
+          if (!authResult) {
+            throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');
           }
 
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-          };
+          return authResult;
         } catch (error) {
-          console.error('로그인 실패:', error);
-          throw error;
+          console.error('로그인 실패');
+          throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');
         }
       }
     })
   ],
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
+    maxAge: 7 * 24 * 60 * 60, // 7 days (보안 강화)
+    updateAge: 12 * 60 * 60, // 12 hours (더 자주 갱신)
   },
   jwt: {
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 7 * 24 * 60 * 60, // 7 days (보안 강화)
   },
   pages: {
     signIn: '/auth/signin',
@@ -72,9 +86,26 @@ export const authOptions: NextAuthOptions = {
       name: 'next-auth.session-token',
       options: {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'strict', // CSRF 보호 강화
         path: '/',
-        secure: process.env.NODE_ENV === 'production'
+        secure: true, // 모든 환경에서 HTTPS 강제
+        domain: process.env.NODE_ENV === 'production' ? process.env.NEXTAUTH_URL?.replace(/https?:\/\//, '') : undefined
+      }
+    },
+    callbackUrl: {
+      name: 'next-auth.callback-url',
+      options: {
+        sameSite: 'strict',
+        httpOnly: true,
+        secure: true
+      }
+    },
+    csrfToken: {
+      name: 'next-auth.csrf-token',
+      options: {
+        sameSite: 'strict',
+        httpOnly: true,
+        secure: true
       }
     }
   },

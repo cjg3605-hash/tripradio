@@ -42,7 +42,7 @@ export async function compressResponse(
       return response;
     }
 
-    const newResponse = new NextResponse(compressed, {
+    const newResponse = new NextResponse(new Uint8Array(compressed), {
       status: response.status,
       statusText: response.statusText,
       headers: {
@@ -53,7 +53,6 @@ export async function compressResponse(
       }
     });
 
-    console.log(`🗜️ 압축 완료: ${originalBody.length}B → ${compressed.length}B (${Math.round((1 - compressionRatio) * 100)}% 절약)`);
     return newResponse;
     
   } catch (error) {

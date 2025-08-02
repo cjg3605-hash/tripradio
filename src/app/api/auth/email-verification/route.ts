@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
+import { emailVerificationRateLimiter } from '@/lib/rate-limiter-auth';
 
 // Supabase 클라이언트 초기화
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -16,6 +17,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   console.log('===== 이메일 인증 API 시작 =====');
   
   try {
+    // 속도 제한 확인
+    const rateLimitResult = await emailVerificationRateLimiter.isRateLimited(req);
+    if (rateLimitResult.limited) {
+      const resetTime = new Date(rateLimitResult.resetTime!);
+      return NextResponse.json(
+        { 
+          error: '너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.',
+          resetTime: resetTime.toISOString()
+        },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { action, email, verificationCode } = body;
 
@@ -57,7 +71,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         if (userError && userError.code !== 'PGRST116') {
           console.error('사용자 조회 오류:', userError);
           return NextResponse.json(
-            { error: `사용자 조회 중 오류: ${userError.message}` },
+            { error: '서비스 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' },
             { status: 500 }
           );
         }
@@ -82,7 +96,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       const newVerificationCode = crypto.randomInt(100000, 999999).toString();
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
       
-      console.log('인증 코드 생성:', { code: newVerificationCode, expiresAt });
+      console.log('인증 코드 생성 완료 - 만료시간:', expiresAt.toISOString());
 
       // email_verifications 테이블 확인 및 데이터 삽입
       try {
@@ -111,7 +125,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         if (insertError) {
           console.error('인증 코드 저장 실패:', insertError);
           return NextResponse.json(
-            { error: `인증 코드 저장 실패: ${insertError.message}` },
+            { error: '인증 코드 발송 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' },
             { status: 500 }
           );
         }
@@ -119,7 +133,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       } catch (dbError) {
         console.error('데이터베이스 작업 중 오류:', dbError);
         return NextResponse.json(
-          { error: '데이터베이스 작업 중 오류가 발생했습니다.' },
+          { error: '서비스 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' },
           { status: 500 }
         );
       }
@@ -271,7 +285,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         if (updateError) {
           console.error('인증 상태 업데이트 실패:', updateError);
           return NextResponse.json(
-            { error: '인증 처리 중 오류가 발생했습니다.' },
+            { error: '인증 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' },
             { status: 500 }
           );
         }

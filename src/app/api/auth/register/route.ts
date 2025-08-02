@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
+import { registrationRateLimiter } from '@/lib/rate-limiter-auth';
 
 // Supabase 클라이언트 초기화
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -11,6 +13,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   console.log('===== 회원가입 API 시작 =====');
   
   try {
+    // 속도 제한 확인
+    const rateLimitResult = await registrationRateLimiter.isRateLimited(req);
+    if (rateLimitResult.limited) {
+      const resetTime = new Date(rateLimitResult.resetTime!);
+      return NextResponse.json(
+        { 
+          error: '회원가입 시도 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.',
+          resetTime: resetTime.toISOString()
+        },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { email, password, name } = body;
 
@@ -53,41 +68,51 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // 이메일 인증 완료 확인
-    const { data: verification, error: verificationError } = await supabase
-      .from('email_verifications')
-      .select('*')
-      .eq('email', email)
-      .eq('verified', true)
-      .single();
+    // 트랜잭션을 사용한 원자적 작업 시작
+    const { data: transaction, error: transactionError } = await supabase.rpc('begin_registration_transaction', {
+      p_email: email
+    });
 
-    if (verificationError || !verification) {
-      console.log('이메일 인증이 완료되지 않음:', verificationError?.message);
-      return NextResponse.json(
-        { error: '이메일 인증을 먼저 완료해주세요. 다시 인증해주세요.' },
-        { status: 400 }
-      );
-    }
+    if (transactionError) {
+      // RPC 함수가 없으면 기존 방식 사용하되 더 안전하게 처리
+      console.log('트랜잭션 RPC 사용 불가, 기존 방식으로 처리');
+      
+      // 이메일 인증 완료 확인과 중복 체크를 한번에
+      const [verificationResult, userResult] = await Promise.all([
+        supabase
+          .from('email_verifications')
+          .select('*')
+          .eq('email', email)
+          .eq('verified', true)
+          .single(),
+        supabase
+          .from('users')
+          .select('email')
+          .eq('email', email)
+          .single()
+      ]);
 
-    // 이메일 중복 체크 (최종 확인)
-    const { data: existingUser } = await supabase
-      .from('users')
-      .select('email')
-      .eq('email', email)
-      .single();
+      if (verificationResult.error || !verificationResult.data) {
+        console.log('이메일 인증이 완료되지 않음:', verificationResult.error?.message);
+        return NextResponse.json(
+          { error: '이메일 인증을 먼저 완료해주세요. 다시 인증해주세요.' },
+          { status: 400 }
+        );
+      }
 
-    if (existingUser) {
-      return NextResponse.json(
-        { error: '이미 사용 중인 이메일입니다.' },
-        { status: 409 }
-      );
+      if (userResult.data) {
+        return NextResponse.json(
+          { error: '이미 사용 중인 이메일입니다.' },
+          { status: 409 }
+        );
+      }
     }
 
     // 패스워드 해싱
     const hashedPassword = await bcrypt.hash(password, 12);
     
-    // 사용자 ID 생성
-    const id = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // 사용자 ID 생성 (안전한 UUID 사용)
+    const id = `user_${randomUUID()}`;
     
     const userData = {
       id,

@@ -80,6 +80,47 @@ export const useRouteOptimization = (
   }, [maxDuration, preferredPace, avoidCrowds, accessibilityNeeds, interests]);
 
   /**
+   * 🔄 대안 경로 생성
+   */
+  const generateAlternativeRoutes = useCallback(async (
+    waypoints: RouteWaypoint[],
+    constraints: RouteConstraints,
+    startLocation: any,
+    mainRoute: OptimizedRoute
+  ): Promise<OptimizedRoute[]> => {
+    const alternatives: OptimizedRoute[] = [];
+
+    try {
+      // 빠른 경로 (시간 최적화)
+      const fastConstraints = { 
+        ...constraints, 
+        preferredPace: 'fast' as const,
+        maxDuration: constraints.maxDuration * 0.8 
+      };
+      const fastRoute = await optimizer.optimizeRoute(waypoints, fastConstraints, startLocation);
+      if (fastRoute.id !== mainRoute.id) {
+        alternatives.push({ ...fastRoute, id: `${fastRoute.id}_fast` });
+      }
+
+      // 여유로운 경로 (품질 최적화)
+      const relaxedConstraints = { 
+        ...constraints, 
+        preferredPace: 'slow' as const,
+        maxDuration: constraints.maxDuration * 1.5 
+      };
+      const relaxedRoute = await optimizer.optimizeRoute(waypoints, relaxedConstraints, startLocation);
+      if (relaxedRoute.id !== mainRoute.id) {
+        alternatives.push({ ...relaxedRoute, id: `${relaxedRoute.id}_relaxed` });
+      }
+
+    } catch (error) {
+      console.warn('대안 경로 생성 실패:', error);
+    }
+
+    return alternatives.slice(0, 2); // 최대 2개 대안
+  }, [optimizer]);
+
+  /**
    * 🚀 경로 최적화 실행
    */
   const optimizeRoute = useCallback(async (forceOptimize = false) => {
@@ -149,48 +190,8 @@ export const useRouteOptimization = (
         progress: 0
       }));
     }
-  }, [waypoints, currentLocation, getCurrentPosition, createConstraints, optimizer, state.isOptimizing]);
+  }, [waypoints, currentLocation, getCurrentPosition, createConstraints, optimizer, state.isOptimizing, generateAlternativeRoutes]);
 
-  /**
-   * 🔄 대안 경로 생성
-   */
-  const generateAlternativeRoutes = useCallback(async (
-    waypoints: RouteWaypoint[],
-    constraints: RouteConstraints,
-    startLocation: any,
-    mainRoute: OptimizedRoute
-  ): Promise<OptimizedRoute[]> => {
-    const alternatives: OptimizedRoute[] = [];
-
-    try {
-      // 빠른 경로 (시간 최적화)
-      const fastConstraints = { 
-        ...constraints, 
-        preferredPace: 'fast' as const,
-        maxDuration: constraints.maxDuration * 0.8 
-      };
-      const fastRoute = await optimizer.optimizeRoute(waypoints, fastConstraints, startLocation);
-      if (fastRoute.id !== mainRoute.id) {
-        alternatives.push({ ...fastRoute, id: `${fastRoute.id}_fast` });
-      }
-
-      // 여유로운 경로 (품질 최적화)
-      const relaxedConstraints = { 
-        ...constraints, 
-        preferredPace: 'slow' as const,
-        maxDuration: constraints.maxDuration * 1.5 
-      };
-      const relaxedRoute = await optimizer.optimizeRoute(waypoints, relaxedConstraints, startLocation);
-      if (relaxedRoute.id !== mainRoute.id) {
-        alternatives.push({ ...relaxedRoute, id: `${relaxedRoute.id}_relaxed` });
-      }
-
-    } catch (error) {
-      console.warn('대안 경로 생성 실패:', error);
-    }
-
-    return alternatives.slice(0, 2); // 최대 2개 대안
-  }, [optimizer]);
 
   /**
    * 📊 경로 통계 계산

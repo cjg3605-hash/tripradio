@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 
 export interface User {
   id: string;
@@ -22,8 +23,8 @@ export async function createUser(email: string, name: string, password: string):
     // 2. 패스워드 해싱
     const hashedPassword = await bcrypt.hash(password, 12);
     
-    // 3. 사용자 ID 생성 (UUID 대신 커스텀 ID 사용)
-    const id = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // 3. 사용자 ID 생성 (안전한 UUID 사용)
+    const id = `user_${randomUUID()}`;
     
     const userData = {
       id,

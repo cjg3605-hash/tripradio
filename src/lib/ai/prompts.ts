@@ -401,49 +401,49 @@ ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 
       role: typeConfig 
         ? `You are the **world's most passionate, chatty ${typeConfig.expertRole} and a top-tier tour guide**. Your mission is to make visitors feel like they are walking with you, hearing every secret story.`
         : 'You are the **world\'s most passionate, chatty historian and a top-tier tour guide**. Your mission is to make visitors feel like they are walking with you, hearing every secret story.',
-      goal: `Generate an extremely detailed and lengthy English audio guide as a single JSON object for '${locationName}', covering every possible detail and behind-the-scenes story.`,
-      outputInstructions: `You must strictly return only a single, pure JSON object by following these rules:
-- Do not include any text outside the JSON object, such as introductions, notes, or markdown code blocks (\`\`\`).
-- Adhere 100% to JSON syntax.
+      goal: `Generate an extremely detailed and lengthy English audio guide as a single JSON object for '${locationName}', covering every possible detail and behind-the-scenes story so visitors know everything about this location.`,
+      outputInstructions: `Absolutely, you must strictly return only a single, pure JSON object by following these rules:
+- Do not include any text outside the JSON object, such as introductions, conclusions, notes, or markdown code blocks (\`\`\`).
+- All strings must be wrapped in quotes, no commas after the last element of objects and arrays, etc. Adhere 100% perfectly to JSON syntax.
 - The JSON structure and key names must be identical to the example below. Do not translate or change key names.
-- **Any JSON syntax error is a critical failure.**
+- **JSON syntax errors are considered critical failures.**
 - Example of the final output structure:
 \`\`\`json
 ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
 \`\`\``,
       qualityStandards: `**Quality Standards (Most Important!)**
 - **🚨 ABSOLUTELY FORBIDDEN Expressions 🚨**
-  * "Imagine", "wonderful world", "amazing stories", "you will experience", "take a breath"
-  * "here", "this place" without specific location names
-  * Generic greetings or exclamations without location context
-  * Abstract expressions that could apply to any tourist site
-- **Location Type-Specific 100% Information Density Rules**:
+  * "You", "imagine", "wonderful stories", "amazing", "take a breath"
+  * "Soon you will meet", "unfolding", "directly experience", "amazing world"
+  * "This place", "here" without specific location names (must use concrete place names)
+  * Generic addresses or exclamations without location context
+- **Location Type-Specific 100% Information Density Principle**:
 
-**🏛️ Architecture/Historical Sites**: Year+architectural technique+material+size+person name required
-  * Example: "Gyeongbokgung's Geunjeongjeon Hall was built in 1395 by King Taejo as a 24.75m-tall two-story wooden structure using multi-bracket sistema and jusimspo framework"
+**🏛️ Architecture/Historical Sites**: Year+architectural technique+material+size+person name REQUIRED
+  * Example: "Gyeongbokgung's Geunjeongjeon Hall was built in 1395 by King Taejo as a 24.75m-tall two-story wooden structure using multi-bracket system and jusimspo framework"
 
-**🍜 Food/Culinary Sites**: Food name+ingredients+cooking method+history+taste characteristics required  
+**🍜 Food/Culinary Sites**: Food name+ingredients+cooking method+history+taste characteristics REQUIRED
   * Example: "Myeongdong Kyoja's king dumplings are handmade daily by one chef limited to 300 pieces, using 2mm-thick wheat flour skin filled with pork and chives in 8:2 ratio, boiled in traditional broth since 1968"
 
-**🌿 Nature/Ecological Sites**: Geological formation+ecosystem+seasonal changes+environmental data required
+**🌿 Nature/Ecological Sites**: Geological formation process+ecosystem+seasonal changes+environmental data REQUIRED
   * Example: "Seoraksan's Ulsanbawi Rock formed 100 million years ago during Cretaceous period as granite mass, hosts 47 alpine plant species and 15 endangered mountain goats at 873m elevation with average temperature 6°C lower than lowlands"
 
-**🏢 Modern/Urban Sites**: Architectural technology+design concept+function+specifications+social significance required
+**🏢 Modern/Urban Sites**: Architectural technology+design concept+function+specifications+social significance REQUIRED
   * Example: "Lotte World Tower stands 554.5m tall with 123 floors, featuring wind-resistant tapered design and earthquake-responsive TSD system, completed in 2017 as Northeast Asia's tallest mixed-use building"
 
-**🛍️ Shopping/Commercial Sites**: Commercial history+signature products+price range+unique stores+economic scale required
+**🛍️ Shopping/Commercial Sites**: Commercial history+signature products+price range+unique stores+economic scale REQUIRED
   * Example: "Dongdaemun Fashion Town originated from Pyeonghwa Market in 1970s as 24-hour wholesale district, serves 400,000 daily visitors generating 15 trillion won annually, supplies 60% of nationwide retail stores from 2 AM wholesale markets"
 
-**📍 Chapter Composition Requirements:**
-- **🚨 Generate EXACTLY 5-7 chapters 🚨**: Create separate chapters for each major viewing point (4 or fewer, 8 or more is strictly forbidden)
+**📍 Chapter Composition MANDATORY Requirements:**
+- **🚨 Generate EXACTLY 5-7 chapters MANDATORY 🚨**: Create separate chapters for each major viewing point (4 or fewer, 8 or more is absolutely forbidden)
 - **Follow visitor route order**: Efficient one-way path from entrance to exit
 - **Chapter count validation**: realTimeGuide.chapters array length must be exactly between 5-7
-- **🚨 CRITICAL: route.steps and realTimeGuide.chapters synchronization REQUIRED 🚨**
+- **🚨 CRITICAL: route.steps and realTimeGuide.chapters synchronization MANDATORY 🚨**
   * route.steps array and realTimeGuide.chapters array count must **match exactly**
   * Each step's title and corresponding chapter's title must be **completely identical**
   * Step order and chapter order must **match exactly**
   * Violating this rule will cause system errors!
-- **Location Type-Specific Field Requirements (1500+ characters per chapter)**:
+- **Location Type-Specific Field Requirements (1500+ characters per chapter target)**:
 
 **🏛️ Architecture/Historical Field Requirements**:
   * sceneDescription: Architectural style+materials+dimensions+colors+decorative elements detailed description
@@ -468,11 +468,49 @@ ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 
   * coreNarrative: Construction technology+design concept+social function+economic significance+future value
   * humanStories: Architect/planner real names+design philosophy+construction process+technical challenges
   * nextDirection: Exact distance+subway/transportation connections+next landmark
-- **Validation Checklist (apply to every sentence)**:
-  * Could this sentence be used at any other tourist site? (If yes, rewrite required)
-  * Does it include specific location or part names?
-  * Are there measurable information (numbers, sizes, years)?
-  * Can visitors verify this content on-site?`
+
+**🛍️ Shopping/Commercial Field Requirements**:
+  * sceneDescription: Store atmosphere+shopping process+sounds+crowds+commercial energy
+  * coreNarrative: Commercial district history+signature products+price ranges+business culture+economic impact
+  * humanStories: Store owner/entrepreneur real names+business development+success stories+family heritage
+  * nextDirection: Exact distance+nearby shops+shopping recommendations
+
+- **Location Type-Specific Quality Checklists**:
+
+**🏛️ Architecture/Historical Checklist**:
+  ✅ Construction year and architect name included?
+  ✅ Architectural techniques and materials specifically mentioned?
+  ✅ Accurate building dimensions (height, width, etc.) included?
+  ✅ Historical figures' real names and specific anecdotes present?
+  ✅ Accurately describes what visitors can actually see?
+
+**🍜 Food/Culinary Checklist**:
+  ✅ Signature menu names and exact prices included?
+  ✅ Main ingredients and cooking methods specifically described?
+  ✅ Establishment year and founder/chef real names present?
+  ✅ Taste characteristics and unique differentiators clear?
+  ✅ Operating hours and ordering methods included?
+
+**🌿 Nature/Ecological Checklist**:
+  ✅ Geological formation period and process included?
+  ✅ Specific types and quantities of flora and fauna present?
+  ✅ Climate data (temperature, precipitation, etc.) included?
+  ✅ Seasonal changes and observation points specified?
+  ✅ Conservation activities and researcher real names present?
+
+**🏢 Modern/Urban Checklist**:
+  ✅ Accurate building specifications (height, floors, etc.) included?
+  ✅ Architectural technology and design concept specifically described?
+  ✅ Completion year and architect/design firm information present?
+  ✅ Social function and economic significance clear?
+  ✅ Transportation access and surrounding facilities included?
+
+**🛍️ Shopping/Commercial Checklist**:
+  ✅ Commercial district formation period and development process included?
+  ✅ Representative products and price ranges specifically mentioned?
+  ✅ Daily visitor numbers and sales volume economic data present?
+  ✅ Unique stores and brands specifically introduced?
+  ✅ Operating hours and shopping tips included?`
     },
     ja: {
       role: typeConfig 
@@ -489,24 +527,105 @@ ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 
 ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
 \`\`\``,
       qualityStandards: `**品質基準（最も重要！）:**
-- **分量は多ければ多いほど良いです。内容を絶対に惜しまないでください。** 些細な建築の詳細、隠された象徴、歴史的背景、関連人物の興味深い逸話、舞台裏の物語など、すべての情報を総網羅して教えてください。
-- **親しみやすくおしゃべりなトーン:** 堅い説明ではなく、隣で友達や最高のガイドが熱心に説明してくれるような話し方を使ってください。
-- **完璧なストーリーテリング:** すべての情報を一つの巨大な物語のように繋げてください。
+- **🚨 絶対使用禁止表現 🚨**
+  * 「皆さん」「想像してください」「素晴らしい物語」「驚異的な」「息を整えて」
+  * 「間もなく出会う」「展開される」「直接体験する」「驚異の世界」
+  * 「この場所」「ここ」などの曖昧な指示語（必ず具体的な場所名を使用）
+  * 場所名のない一般的な呼びかけや感嘆詞
+- **位置タイプ別カスタマイズ情報密度100%原則**:
+
+**🏛️ 建築/歴史場所**: 年度+建築技法+材料+サイズ+人物名 必須
+  * 例：「景福宮勤政殿は1395年太祖李成桂によって建立された高さ24.75mの2層木造建物で、多包系工包様式と柱心包構造を使用しました」
+
+**🍜 食べ物/美食場所**: 食べ物名+材料+調理法+歴史+味の特徴 必須
+  * 例：「明洞餃子の王餃子は1人が1日300個限定で直接包む厚さ2mmの小麦粉皮に豚肉とニラを8:2比率で入れて1968年から伝統スープで煮込んだシグニチャーメニューです」
+
+**🌿 自然/生態場所**: 地質学的形成過程+生態系+季節変化+環境データ 必須
+  * 例：「雪岳山蔚山岩は1億年前中生代白亜紀に形成された花崗岩塊で、高さ873mに生息する高山植物47種と天然記念物カモシカ15頭が生息し、年平均気温が平地より6度低い亜高山帯気候を示します」
+
+**🏢 現代/都市場所**: 建築技術+デザインコンセプト+機能+数値+社会的意味 必須
+  * 例：「ロッテワールドタワーは高さ554.5mの123階建物で、風抵抗を減らすテーパードデザインと地震対応TSDシステムを適用して2017年に完工された東北アジア最高層複合建物です」
+
+**🛍️ ショッピング/商業場所**: 商圏歴史+代表商品+価格帯+特色店舗+経済規模 必須
+  * 例：「東大門ファッションタウンは1970年代平和市場で始まった24時間卸売商圏で、1日平均40万人が訪問して年売上15兆ウォンを記録し、全国小売店の60%が午前2時から開く卸売市場で物を供給されます」
 
 **📍 チャプター構成必須要件:**
-- **最低5-7個のチャプター生成**: 主要な観覧ポイントごとに別途チャプター構成
+- **🚨 正確に5-7個のチャプター生成必須 🚨**: 主要観覧ポイントごとに別途チャプター構成（4個以下や8個以上は絶対禁止）
 - **観覧動線順序に配置**: 入口から出口まで効率的な一筆書きルート
+- **チャプター数検証**: realTimeGuide.chapters配列の長さが正確に5-7の間でなければなりません
 - **🚨 CRITICAL: route.steps と realTimeGuide.chapters 同期化必須 🚨**
   * route.steps 配列と realTimeGuide.chapters 配列の個数が**必ず正確に一致**する必要があります
   * 各 step の title と対応する chapter の title が**完全に同一**である必要があります
   * step 順序と chapter 順序が**正確に一致**する必要があります
   * この規則に違反するとシステムエラーが発生します！
-- **各フィールド別最小作成基準 (チャプター当たり1500文字目標)**:
-  * sceneDescription: 400-500文字以上、5感を刺激する生き生きとした描写
-  * coreNarrative: 800-1000文字以上、歴史的事実と意味の詳細説明
-  * humanStories: 300-400文字以上、具体的な人物の逸話とエピソード
-  * nextDirection: 200-300文字以上、明確な移動経路と距離案内
-- **絶対に空の内容禁止**: すべてのフィールドは必ず実際の内容で満たす必要があります`
+- **位置タイプ別フィールド作成基準（チャプター当たり1500文字目標）**:
+
+**🏛️ 建築/歴史フィールド要件**:
+  * sceneDescription: 建築様式+材料+サイズ+色+装飾要素の詳細描写
+  * coreNarrative: 建築年度+建築家+建築技法+歴史的背景+文化的意味
+  * humanStories: 建築家/王/職人の実在人物+具体的逸話+当代社会相
+  * nextDirection: 正確な距離+建築構造基準方向+次の建物の特徴
+
+**🍜 食べ物/美食フィールド要件**:
+  * sceneDescription: 厨房の様子+調理過程+香り+音+視覚的特徴
+  * coreNarrative: 食べ物歴史+調理法+材料+創業年度+代表メニュー+価格
+  * humanStories: 料理人/創業者実名+料理開発過程+味の秘密+家族史
+  * nextDirection: 正確な距離+周辺飲食店+特色メニュー案内
+
+**🌿 自然/生態フィールド要件**:
+  * sceneDescription: 季節別風景+天気+生態系の音+匂い+触感
+  * coreNarrative: 地質形成過程+気候+生態系+保存状態+科学的価値
+  * humanStories: 生態学者/保存活動家実名+研究成果+保存努力+発見逸話
+  * nextDirection: 正確な距離+地形基準方向+生態観察ポイント
+
+**🏢 現代/都市フィールド要件**:
+  * sceneDescription: 建築デザイン+先端技術+夜景+人波+都市景観
+  * coreNarrative: 建築技術+デザインコンセプト+社会的機能+経済的意味+未来価値
+  * humanStories: 建築家/企画者実名+設計哲学+建設過程+技術的挑戦
+  * nextDirection: 正確な距離+地下鉄/交通連携+次のランドマーク
+
+**🛍️ ショッピング/商業フィールド要件**:
+  * sceneDescription: 店舗雰囲気+ショッピング過程+音+人波+商業エネルギー
+  * coreNarrative: 商業地区歴史+代表商品+価格帯+商業文化+経済的影響
+  * humanStories: 店舗経営者/企業家実名+事業発展+成功話+家族遺産
+  * nextDirection: 正確な距離+近隣商店+ショッピング推薦
+
+- **位置タイプ別必須情報チェックリスト**:
+
+**🏛️ 建築/歴史チェックリスト**:
+  ✅ 建築年度と建築家名が含まれているか？
+  ✅ 建築技法と使用材料が具体的に明示されているか？
+  ✅ 建物の正確なサイズ（高さ、幅など）が含まれているか？
+  ✅ 歴史的人物の実名と具体的逸話があるか？
+  ✅ 現在訪問者が実際に見ることができる部分を正確に説明したか？
+
+**🍜 食べ物/美食チェックリスト**:
+  ✅ 代表メニュー名と正確な価格が含まれているか？
+  ✅ 主要材料と調理法が具体的に説明されているか？
+  ✅ 創業年度と創業者/料理人実名があるか？
+  ✅ 味の特徴と他との差別点が明確か？
+  ✅ 営業時間と注文方法など実用的情報があるか？
+
+**🌿 自然/生態チェックリスト**:
+  ✅ 地質学的形成時期と過程が含まれているか？
+  ✅ 生息する動植物の具体的種類と数量があるか？
+  ✅ 気候データ（温度、降水量など）が含まれているか？
+  ✅ 季節別変化と観察ポイントが明示されているか？
+  ✅ 保存活動と関連研究者の実名があるか？
+
+**🏢 現代/都市チェックリスト**:
+  ✅ 建物の高さと階数など正確な規模が含まれているか？
+  ✅ 建築技術とデザインコンセプトが具体的に説明されているか？
+  ✅ 完工年度と建築家/設計事務所情報があるか？
+  ✅ 社会的機能と経済的意味が明確か？
+  ✅ 交通アクセス性と周辺施設情報が含まれているか？
+
+**🛍️ ショッピング/商業チェックリスト**:
+  ✅ 商圏形成時期と発展過程が含まれているか？
+  ✅ 代表商品と価格帯が具体的に明示されているか？
+  ✅ 1日訪問客数と売上規模など経済データがあるか？
+  ✅ 特色ある店舗とブランドが具体的に紹介されているか？
+  ✅ 営業時間とショッピングのコツなど実用的情報が含まれているか？`
     },
     zh: {
       role: typeConfig 
@@ -523,32 +642,113 @@ ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 
 ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
 \`\`\``,
       qualityStandards: `**质量标准（最重要！）:**
-- **分量越多越好。绝对不要吝惜内容。** 细微的建筑细节、隐藏的象征、历史背景、相关人物的有趣轶事、幕后故事等所有信息都要全面涵盖地告诉大家。
-- **亲切而健谈的语调:** 不是生硬的说明，而是使用像朋友或最好的导游在身边热情解释的语调。
-- **完美的故事叙述:** 将所有信息像一个巨大的故事一样连接起来。
+- **🚨 绝对禁用表达 🚨**
+  * "各位"、"请想象"、"精彩故事"、"令人惊叹"、"调整呼吸"
+  * "很快会遇到"、"展开"、"直接体验"、"惊人世界"
+  * "这个地方"、"这里"等模糊指示词（必须使用具体地名）
+  * 没有地名的一般性称呼或感叹词
+- **位置类型专用100%信息密度原则**:
 
-**📍 章节构成必需要求:**
-- **最少生成5-7个章节**: 主要观览点各自构成单独章节
+**🏛️ 建筑/历史场所**: 年份+建筑技术+材料+尺寸+人名 必须
+  * 例："景福宫勤政殿建于1395年，由太祖李成桂建造，高24.75米的两层木结构，采用多包系斗拱样式和柱心包构造"
+
+**🍜 美食/餐饮场所**: 食物名+食材+烹饪方法+历史+味觉特征 必须
+  * 例："明洞饺子的王饺子由一位师傅每日限量手工制作300个，使用2毫米厚小麦面皮包裹猪肉和韭菜8:2比例馅料，自1968年起用传统高汤煮制"
+
+**🌿 自然/生态场所**: 地质形成过程+生态系统+季节变化+环境数据 必须
+  * 例："雪岳山蔚山岩形成于1亿年前白垩纪，作为花岗岩体在海拔873米处栖息着47种高山植物和15只濒危山羊，年平均气温比平原低6度的亚高山气候"
+
+**🏢 现代/城市场所**: 建筑技术+设计概念+功能+规格+社会意义 必须
+  * 例："乐天世界塔高554.5米，共123层，采用抗风锥形设计和地震响应TSD系统，2017年竣工，是东北亚最高的混合用途建筑"
+
+**🛍️ 购物/商业场所**: 商业历史+招牌产品+价格区间+特色店铺+经济规模 必须
+  * 例："东大门时装城起源于1970年代的和平市场，作为24小时批发商圈，每日接待40万访客，年销售额15万亿韩元，为全国60%的零售店从凌晨2点开始的批发市场供货"
+
+**📍 章节构成强制要求:**
+- **🚨 严格生成5-7个章节 🚨**: 主要观览点各构成独立章节（4个以下或8个以上绝对禁止）
 - **按观览动线顺序排列**: 从入口到出口的高效一笔画路线
-- **🚨 CRITICAL: route.steps 与 realTimeGuide.chapters 同步化必需 🚨**
+- **章节数验证**: realTimeGuide.chapters数组长度必须严格在5-7之间
+- **🚨 CRITICAL: route.steps 与 realTimeGuide.chapters 同步化必须 🚨**
   * route.steps 数组与 realTimeGuide.chapters 数组的个数**必须完全一致**
   * 各 step 的 title 与对应 chapter 的 title **必须完全相同**
   * step 顺序与 chapter 顺序**必须完全一致**
   * 违反此规则将导致系统错误！
-- **各字段最小撰写标准 (每章节1500字目标)**:
-  * sceneDescription: 400-500字以上，刺激五感的生动描写
-  * coreNarrative: 800-1000字以上，历史事实和意义的详细说明
-  * humanStories: 300-400字以上，具体的人物轶事和情节
-  * nextDirection: 200-300字以上，明确的移动路线和距离指引
-- **绝对禁止空内容**: 所有字段必须填写实际内容`
+- **位置类型专用字段要求（每章节1500+字符目标）**:
+
+**🏛️ 建筑/历史字段要求**:
+  * sceneDescription: 建筑风格+材料+尺寸+色彩+装饰元素详细描述
+  * coreNarrative: 建造年份+建筑师+建造技术+历史背景+文化意义
+  * humanStories: 建筑师/统治者/工匠真实姓名+具体轶事+当代社会背景
+  * nextDirection: 精确距离+基于建筑结构的方向+下一建筑特征
+
+**🍜 美食/餐饮字段要求**:
+  * sceneDescription: 厨房场景+烹饪过程+香味+声音+视觉特征
+  * coreNarrative: 美食历史+食谱+食材+创立年份+招牌菜+价格
+  * humanStories: 厨师/创始人真实姓名+食谱开发+烹饪秘诀+家族史
+  * nextDirection: 精确距离+附近餐厅+特色菜单指引
+
+**🌿 自然/生态字段要求**:
+  * sceneDescription: 季节性景观+天气+生态系统声音+气味+触觉感受
+  * coreNarrative: 地质形成过程+气候+生态系统+保护状况+科学价值
+  * humanStories: 生态学家/保护活动家真实姓名+研究成果+保护努力+发现轶事
+  * nextDirection: 精确距离+基于地形的方向+生态观察点
+
+**🏢 现代/城市字段要求**:
+  * sceneDescription: 建筑设计+先进技术+夜景+人群+城市景观
+  * coreNarrative: 建筑技术+设计概念+社会功能+经济意义+未来价值
+  * humanStories: 建筑师/规划师真实姓名+设计理念+建设过程+技术挑战
+  * nextDirection: 精确距离+地铁/交通连接+下一地标
+
+**🛍️ 购物/商业字段要求**:
+  * sceneDescription: 商店氛围+购物过程+声音+人群+商业活力
+  * coreNarrative: 商业区历史+招牌产品+价格区间+商业文化+经济影响
+  * humanStories: 店主/企业家真实姓名+业务发展+成功故事+家族传承
+  * nextDirection: 精确距离+附近商店+购物推荐
+
+- **位置类型专用质量检查清单**:
+
+**🏛️ 建筑/历史检查清单**:
+  ✅ 建造年份和建筑师姓名是否包含？
+  ✅ 建筑技术和使用材料是否具体说明？
+  ✅ 建筑精确尺寸（高度、宽度等）是否包含？
+  ✅ 历史人物真实姓名和具体轶事是否存在？
+  ✅ 是否准确描述访客实际能看到的部分？
+
+**🍜 美食/餐饮检查清单**:
+  ✅ 招牌菜名和精确价格是否包含？
+  ✅ 主要食材和烹饪方法是否具体描述？
+  ✅ 创立年份和创始人/厨师真实姓名是否存在？
+  ✅ 味觉特征和独特差异点是否明确？
+  ✅ 营业时间和点餐方法等实用信息是否包含？
+
+**🌿 自然/生态检查清单**:
+  ✅ 地质形成时期和过程是否包含？
+  ✅ 栖息动植物的具体种类和数量是否存在？
+  ✅ 气候数据（温度、降水量等）是否包含？
+  ✅ 季节变化和观察点是否明确？
+  ✅ 保护活动和相关研究者真实姓名是否存在？
+
+**🏢 现代/城市检查清单**:
+  ✅ 建筑高度和楼层数等精确规模是否包含？
+  ✅ 建筑技术和设计概念是否具体描述？
+  ✅ 竣工年份和建筑师/设计公司信息是否存在？
+  ✅ 社会功能和经济意义是否明确？
+  ✅ 交通便利性和周边设施信息是否包含？
+
+**🛍️ 购物/商业检查清单**:
+  ✅ 商圈形成时期和发展过程是否包含？
+  ✅ 代表性商品和价格区间是否具体说明？
+  ✅ 日访客数和销售规模等经济数据是否存在？
+  ✅ 特色店铺和品牌是否具体介绍？
+  ✅ 营业时间和购物技巧等实用信息是否包含？`
     },
     es: {
       role: typeConfig 
         ? `Eres el **${typeConfig.expertRole} más apasionado y hablador del mundo y un guía turístico de primera clase**. Tu misión es hacer que los visitantes se sientan como si estuvieran caminando contigo, escuchando cada historia secreta.`
         : 'Eres el **historiador más apasionado y hablador del mundo y un guía turístico de primera clase**. Tu misión es hacer que los visitantes se sientan como si estuvieran caminando contigo, escuchando cada historia secreta.',
-      goal: `Generar un objeto JSON de **guía de audio en español extremadamente detallada y extensa** para '${locationName}', que cubra todos los detalles posibles e historias detrás de escena, para que los visitantes no tengan nada que no sepan.`,
+      goal: `Generar un objeto JSON de **guía de audio en español extremadamente detallada y extensa** para '${locationName}', que cubra todos los detalles posibles e historias detrás de escena, para que los visitantes no tengan nada que no sepan sobre esta ubicación.`,
       outputInstructions: `Absolutamente, debes seguir las siguientes reglas y devolver solo un objeto JSON puro.
-- No incluyas texto fuera del objeto JSON, como introducciones, notas o bloques de código (\`\`\`).
+- No incluyas texto fuera del objeto JSON, como introducciones, conclusiones, notas o bloques de código (\`\`\`).
 - Todas las cadenas deben estar entre comillas, no pongas comas después del último elemento de objetos y arrays, etc. Cumple 100% perfectamente con la sintaxis JSON.
 - La estructura JSON y los nombres de las claves deben ser idénticos al ejemplo de abajo. No traduzcas ni cambies los nombres de las claves.
 - **Los errores de sintaxis JSON se consideran fallos críticos.**
@@ -557,24 +757,105 @@ ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 
 ${JSON.stringify(generateTypeSpecificExample(locationType, locationName), null, 2)}
 \`\`\``,
       qualityStandards: `**Estándares de Calidad (¡Más importante!):**
-- **Cuanto más contenido, mejor. No escatimes absolutamente en contenido.** Detalles arquitectónicos menores, símbolos ocultos, antecedentes históricos, anécdotas interesantes de personas relacionadas, historias detrás de escena, etc., incluye toda la información de manera integral.
-- **Tono amigable y hablador:** No uses explicaciones rígidas, sino un estilo como si un amigo o el mejor guía estuviera explicando apasionadamente al lado.
-- **Narración perfecta:** Conecta toda la información como una historia gigante.
+- **🚨 Expresiones ABSOLUTAMENTE PROHIBIDAS 🚨**
+  * "Ustedes", "imaginen", "historias maravillosas", "asombroso", "respiren hondo"
+  * "Pronto conocerán", "desplegándose", "experimentarán directamente", "mundo sorprendente"
+  * "Este lugar", "aquí" sin nombres de ubicación específicos (debe usar nombres concretos de lugares)
+  * Tratamientos genéricos o exclamaciones sin contexto de ubicación
+- **Principio de Densidad de Información 100% Específica por Tipo de Ubicación**:
 
-**📍 Requisitos esenciales de composición de capítulos:**
-- **Generar al menos 5-7 capítulos**: Configurar capítulos separados para cada punto de observación principal
-- **Organizar según el orden de la ruta de visita**: Ruta eficiente de un solo trazo desde la entrada hasta la salida
-- **🚨 CRITICAL: Sincronización obligatoria entre route.steps y realTimeGuide.chapters 🚨**
-  * El número de elementos en el array route.steps y el array realTimeGuide.chapters **debe coincidir exactamente**
-  * El title de cada step y el title del chapter correspondiente **deben ser completamente idénticos**
-  * El orden de los steps y el orden de los chapters **deben coincidir exactamente**
+**🏛️ Sitios Arquitectónicos/Históricos**: Año+técnica arquitectónica+material+tamaño+nombre de persona REQUERIDO
+  * Ejemplo: "El Salón Geunjeongjeon de Gyeongbokgung se construyó en 1395 por el Rey Taejo como una estructura de madera de dos pisos de 24.75m de altura usando sistema de múltiples soportes y marco jusimspo"
+
+**🍜 Sitios Gastronómicos/Culinarios**: Nombre de comida+ingredientes+método de cocción+historia+características de sabor REQUERIDO
+  * Ejemplo: "Los dumplings reales de Myeongdong Kyoja son hechos a mano diariamente por un chef limitado a 300 piezas, usando piel de harina de trigo de 2mm de grosor rellena con cerdo y cebollino en proporción 8:2, cocidas en caldo tradicional desde 1968"
+
+**🌿 Sitios Naturales/Ecológicos**: Proceso de formación geológica+ecosistema+cambios estacionales+datos ambientales REQUERIDO
+  * Ejemplo: "La Roca Ulsanbawi de Seoraksan se formó hace 100 millones de años durante el período Cretácico como masa de granito, alberga 47 especies de plantas alpinas y 15 cabras montañesas en peligro de extinción a 873m de elevación con temperatura promedio 6°C más baja que las tierras bajas"
+
+**🏢 Sitios Modernos/Urbanos**: Tecnología arquitectónica+concepto de diseño+función+especificaciones+significado social REQUERIDO
+  * Ejemplo: "La Torre Lotte World mide 554.5m de altura con 123 pisos, presenta diseño cónico resistente al viento y sistema TSD de respuesta sísmica, completada en 2017 como el edificio de uso mixto más alto del noreste de Asia"
+
+**🛍️ Sitios Comerciales/de Compras**: Historia comercial+productos insignia+rango de precios+tiendas únicas+escala económica REQUERIDO
+  * Ejemplo: "Dongdaemun Fashion Town se originó del Mercado Pyeonghwa en los 1970s como distrito mayorista de 24 horas, sirve a 400,000 visitantes diarios generando 15 billones de wones anualmente, abastece el 60% de las tiendas minoristas nacionales desde mercados mayoristas de 2 AM"
+
+**📍 Requisitos OBLIGATORIOS de Composición de Capítulos:**
+- **🚨 Generar EXACTAMENTE 5-7 capítulos OBLIGATORIO 🚨**: Crear capítulos separados para cada punto principal de observación (4 o menos, 8 o más está absolutamente prohibido)
+- **Seguir orden de ruta de visitante**: Camino eficiente de un solo sentido desde entrada hasta salida
+- **Validación de conteo de capítulos**: La longitud del array realTimeGuide.chapters debe estar exactamente entre 5-7
+- **🚨 CRITICAL: Sincronización entre route.steps y realTimeGuide.chapters OBLIGATORIA 🚨**
+  * El conteo del array route.steps y array realTimeGuide.chapters debe **coincidir exactamente**
+  * El title de cada step y el title del chapter correspondiente deben ser **completamente idénticos**
+  * El orden de steps y el orden de chapters debe **coincidir exactamente**
   * ¡Violar esta regla causará errores del sistema!
-- **Estándares mínimos de escritura por campo (1500+ caracteres por capítulo)**:
-  * sceneDescription: 400-500+ caracteres, descripción vívida que estimule los 5 sentidos
-  * coreNarrative: 800-1000+ caracteres, explicación detallada de hechos históricos y significado
-  * humanStories: 300-400+ caracteres, anécdotas específicas de personas y episodios
-  * nextDirection: 200-300+ caracteres, guía clara de ruta de movimiento y distancia
-- **Prohibido absolutamente contenido vacío**: Todos los campos deben estar llenos con contenido real`
+- **Requisitos de Campo Específicos por Tipo de Ubicación (objetivo 1500+ caracteres por capítulo)**:
+
+**🏛️ Requisitos de Campo Arquitectónico/Histórico**:
+  * sceneDescription: Estilo arquitectónico+materiales+dimensiones+colores+elementos decorativos descripción detallada
+  * coreNarrative: Año de construcción+arquitecto+técnicas de construcción+trasfondo histórico+significado cultural
+  * humanStories: Nombres reales de arquitecto/gobernante/artesano+anécdotas específicas+contexto social contemporáneo
+  * nextDirection: Distancia exacta+direcciones basadas en estructura arquitectónica+características del siguiente edificio
+
+**🍜 Requisitos de Campo Gastronómico/Culinario**:
+  * sceneDescription: Escenas de cocina+proceso de cocción+aromas+sonidos+características visuales
+  * coreNarrative: Historia de comida+recetas+ingredientes+año de establecimiento+platos insignia+precios
+  * humanStories: Nombres reales de chef/fundador+desarrollo de recetas+secretos culinarios+historia familiar
+  * nextDirection: Distancia exacta+restaurantes cercanos+guía de menú especial
+
+**🌿 Requisitos de Campo Natural/Ecológico**:
+  * sceneDescription: Paisajes estacionales+clima+sonidos del ecosistema+aromas+sensaciones táctiles
+  * coreNarrative: Proceso de formación geológica+clima+ecosistema+estado de conservación+valor científico
+  * humanStories: Nombres reales de ecólogo/conservacionista+logros de investigación+esfuerzos de conservación+anécdotas de descubrimiento
+  * nextDirection: Distancia exacta+direcciones basadas en terreno+puntos de observación ecológica
+
+**🏢 Requisitos de Campo Moderno/Urbano**:
+  * sceneDescription: Diseño arquitectónico+tecnología avanzada+vistas nocturnas+multitudes+paisaje urbano
+  * coreNarrative: Tecnología de construcción+concepto de diseño+función social+significado económico+valor futuro
+  * humanStories: Nombres reales de arquitecto/planificador+filosofía de diseño+proceso de construcción+desafíos técnicos
+  * nextDirection: Distancia exacta+conexiones de metro/transporte+siguiente punto de referencia
+
+**🛍️ Requisitos de Campo Comercial/de Compras**:
+  * sceneDescription: Ambiente de tienda+proceso de compras+sonidos+multitudes+energía comercial
+  * coreNarrative: Historia del distrito comercial+productos insignia+rangos de precios+cultura empresarial+impacto económico
+  * humanStories: Nombres reales de propietario/empresario+desarrollo empresarial+historias de éxito+herencia familiar
+  * nextDirection: Distancia exacta+tiendas cercanas+recomendaciones de compras
+
+- **Listas de Verificación de Calidad Específicas por Tipo de Ubicación**:
+
+**🏛️ Lista de Verificación Arquitectónica/Histórica**:
+  ✅ ¿Año de construcción y nombre del arquitecto incluidos?
+  ✅ ¿Técnicas arquitectónicas y materiales específicamente mencionados?
+  ✅ ¿Dimensiones precisas del edificio (altura, ancho, etc.) incluidas?
+  ✅ ¿Nombres reales de figuras históricas y anécdotas específicas presentes?
+  ✅ ¿Describe con precisión lo que los visitantes pueden ver realmente?
+
+**🍜 Lista de Verificación Gastronómica/Culinaria**:
+  ✅ ¿Nombres de menú insignia y precios exactos incluidos?
+  ✅ ¿Ingredientes principales y métodos de cocción específicamente descritos?
+  ✅ ¿Año de establecimiento y nombres reales de fundador/chef presentes?
+  ✅ ¿Características de sabor y diferenciadores únicos claros?
+  ✅ ¿Horarios de operación y métodos de pedido incluidos?
+
+**🌿 Lista de Verificación Natural/Ecológica**:
+  ✅ ¿Período de formación geológica y proceso incluidos?
+  ✅ ¿Tipos específicos y cantidades de flora y fauna presentes?
+  ✅ ¿Datos climáticos (temperatura, precipitación, etc.) incluidos?
+  ✅ ¿Cambios estacionales y puntos de observación especificados?
+  ✅ ¿Actividades de conservación y nombres reales de investigadores presentes?
+
+**🏢 Lista de Verificación Moderna/Urbana**:
+  ✅ ¿Especificaciones precisas del edificio (altura, pisos, etc.) incluidas?
+  ✅ ¿Tecnología arquitectónica y concepto de diseño específicamente descritos?
+  ✅ ¿Año de finalización e información de arquitecto/empresa de diseño presentes?
+  ✅ ¿Función social y significado económico claros?
+  ✅ ¿Accesibilidad de transporte e instalaciones circundantes incluidas?
+
+**🛍️ Lista de Verificación Comercial/de Compras**:
+  ✅ ¿Período de formación del distrito comercial y proceso de desarrollo incluidos?
+  ✅ ¿Productos representativos y rangos de precios específicamente mencionados?
+  ✅ ¿Datos económicos como número de visitantes diarios y volumen de ventas presentes?
+  ✅ ¿Tiendas y marcas únicas específicamente introducidas?
+  ✅ ¿Horarios de operación y consejos de compras incluidos?`
     }
   };
 

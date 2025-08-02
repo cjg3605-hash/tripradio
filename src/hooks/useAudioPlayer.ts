@@ -74,69 +74,6 @@ export const useAudioPlayer = ({ chapters, onChapterChange, onPlaybackEnd }: Use
     localStorage.setItem('navi-audio-bookmarks', JSON.stringify(bookmarks));
   }, [bookmarks]);
 
-  // 오디오 이벤트 리스너 설정
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleLoadStart = () => setStatus('loading');
-    const handleCanPlay = () => {
-      setDuration(audio.duration || 0);
-      if (status === 'loading') setStatus('paused');
-    };
-    const handlePlay = () => setStatus('playing');
-    const handlePause = () => setStatus('paused');
-    const handleEnded = () => {
-      setStatus('ended');
-      handleNext();
-    };
-    const handleError = () => setStatus('error');
-    const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-      updateBuffered();
-    };
-    const handleVolumeChange = () => {
-      setIsMuted(audio.muted);
-    };
-
-    const updateBuffered = () => {
-      if (audio.buffered.length > 0) {
-        const bufferedEnd = audio.buffered.end(audio.buffered.length - 1);
-        setBuffered((bufferedEnd / audio.duration) * 100);
-      }
-    };
-
-    audio.addEventListener('loadstart', handleLoadStart);
-    audio.addEventListener('canplay', handleCanPlay);
-    audio.addEventListener('play', handlePlay);
-    audio.addEventListener('pause', handlePause);
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('error', handleError);
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('volumechange', handleVolumeChange);
-
-    return () => {
-      audio.removeEventListener('loadstart', handleLoadStart);
-      audio.removeEventListener('canplay', handleCanPlay);
-      audio.removeEventListener('play', handlePlay);
-      audio.removeEventListener('pause', handlePause);
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('error', handleError);
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('volumechange', handleVolumeChange);
-    };
-  }, [status]);
-
-  // 오디오 설정 적용
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (audio) {
-      audio.volume = volume;
-      audio.playbackRate = playbackRate;
-      audio.muted = isMuted;
-    }
-  }, [volume, playbackRate, isMuted]);
-
   // 새 챕터 로드
   const loadChapter = useCallback(async (chapterIndex: number) => {
     const chapter = chapters[chapterIndex];
@@ -198,23 +135,6 @@ export const useAudioPlayer = ({ chapters, onChapterChange, onPlaybackEnd }: Use
     }
   }, [chapters.length, loadChapter, onChapterChange]);
 
-  // 재생/정지
-  const togglePlayPause = useCallback(async () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    try {
-      if (status === 'playing') {
-        audio.pause();
-      } else {
-        await audio.play();
-      }
-    } catch (error) {
-      console.error('Playback failed:', error);
-      setStatus('error');
-    }
-  }, [status]);
-
   // 다음 챕터
   const handleNext = useCallback(() => {
     if (repeatMode === 'one') {
@@ -248,6 +168,89 @@ export const useAudioPlayer = ({ chapters, onChapterChange, onPlaybackEnd }: Use
 
     goToChapter(nextIndex);
   }, [currentChapterIndex, chapters, repeatMode, shuffleMode, goToChapter, onPlaybackEnd]);
+
+  // 오디오 이벤트 리스너 설정
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleLoadStart = () => setStatus('loading');
+    const handleCanPlay = () => {
+      setDuration(audio.duration || 0);
+      if (status === 'loading') setStatus('paused');
+    };
+    const handlePlay = () => setStatus('playing');
+    const handlePause = () => setStatus('paused');
+    const handleEnded = () => {
+      setStatus('ended');
+      handleNext();
+    };
+    const handleError = () => setStatus('error');
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+      updateBuffered();
+    };
+    const handleVolumeChange = () => {
+      setIsMuted(audio.muted);
+    };
+
+    const updateBuffered = () => {
+      if (audio.buffered.length > 0) {
+        const bufferedEnd = audio.buffered.end(audio.buffered.length - 1);
+        setBuffered((bufferedEnd / audio.duration) * 100);
+      }
+    };
+
+    audio.addEventListener('loadstart', handleLoadStart);
+    audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('error', handleError);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('volumechange', handleVolumeChange);
+
+    return () => {
+      audio.removeEventListener('loadstart', handleLoadStart);
+      audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('error', handleError);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('volumechange', handleVolumeChange);
+    };
+  }, [status, handleNext]);
+
+  // 오디오 설정 적용
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.volume = volume;
+      audio.playbackRate = playbackRate;
+      audio.muted = isMuted;
+    }
+  }, [volume, playbackRate, isMuted]);
+
+
+
+  // 재생/정지
+  const togglePlayPause = useCallback(async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    try {
+      if (status === 'playing') {
+        audio.pause();
+      } else {
+        await audio.play();
+      }
+    } catch (error) {
+      console.error('Playback failed:', error);
+      setStatus('error');
+    }
+  }, [status]);
+
 
   // 이전 챕터
   const handlePrevious = useCallback(() => {
