@@ -156,6 +156,16 @@ export interface GuideData {
   route: GuideRoute;
   realTimeGuide?: RealTimeGuide;
   metadata: GuideMetadata;
+  // 좌표 생성 상태 관련 프로퍼티
+  coordinateGenerationFailed?: boolean;
+  coordinateFailureReason?: string;
+  missingCoordinatesCount?: number;
+  locationCoordinateStatus?: {
+    locationName: string;
+    coordinateSearchAttempted: boolean;
+    coordinateFound: boolean;
+    lastAttempt: string;
+  };
 }
 
 export interface ApiResponse {

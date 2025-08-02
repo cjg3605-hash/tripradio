@@ -47,6 +47,7 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
     <MultiLangGuideClient 
       locationName={locationName} 
       initialGuide={initialGuide}
+      requestedLanguage={requestedLang}
     />
   );
 }

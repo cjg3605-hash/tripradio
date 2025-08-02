@@ -4,6 +4,7 @@ import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
 
 export const runtime = 'nodejs';
 
+
 // Gemini 클라이언트 초기화 함수
 const getGeminiClient = () => {
   const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
@@ -139,8 +140,8 @@ export async function POST(request: NextRequest) {
                   const lat = parseFloat(coordMatch[0]);
                   const lng = parseFloat(coordMatch[1]);
                   
-                  // 유효한 좌표인지 확인 (에펠탑 주변 범위)
-                  if (lat >= 48.8 && lat <= 48.9 && lng >= 2.2 && lng <= 2.4) {
+                  // 유효한 좌표인지 확인 (전 세계 범위)
+                  if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
                     extractedCoordinates = {
                       lat: lat,
                       lng: lng,
@@ -157,31 +158,11 @@ export async function POST(request: NextRequest) {
               }
             }
             
-            // 좌표를 찾지 못한 경우 제목 기반 추론
+            // 좌표를 찾지 못한 경우 처리
             if (!foundCoordinates) {
-              const eiffelBaseCoords = { lat: 48.8584, lng: 2.2945 };
-              
-              // 챕터별 좌표 조정 (제목 기반)
-              if (chapter.title?.includes('트로카데로')) {
-                extractedCoordinates = { lat: 48.8620, lng: 2.2877, description: '트로카데로 광장' };
-              } else if (chapter.title?.includes('1층')) {
-                extractedCoordinates = { lat: 48.8584, lng: 2.2945, description: '에펠탑 1층' };
-              } else if (chapter.title?.includes('2층')) {
-                extractedCoordinates = { lat: 48.8584, lng: 2.2945, description: '에펠탑 2층' };
-              } else if (chapter.title?.includes('정상')) {
-                extractedCoordinates = { lat: 48.8584, lng: 2.2945, description: '에펠탑 정상' };
-              } else if (chapter.title?.includes('샹드마르스')) {
-                extractedCoordinates = { lat: 48.8556, lng: 2.2986, description: '샹드마르스 공원' };
-              } else {
-                // 기본 좌표에서 약간 오프셋
-                const offset = (chapter.id * 0.0001) || 0;
-                extractedCoordinates = {
-                  lat: eiffelBaseCoords.lat + offset,
-                  lng: eiffelBaseCoords.lng + offset,
-                  description: chapter.title || `챕터 ${chapter.id}`
-                };
-              }
-              console.log(`🔄 제목 기반 좌표 추론: ${chapter.title} → ${JSON.stringify(extractedCoordinates)}`);
+              console.log(`⚠️ 챕터 ${chapter.id} 좌표 추출 실패 - AI가 좌표를 생성하지 못함`);
+              // 좌표가 없음을 명시적으로 표시
+              extractedCoordinates = null;
             }
             
             // narrative 텍스트 정리
@@ -260,6 +241,109 @@ export async function POST(request: NextRequest) {
         route: { steps: [] },
         realTimeGuide: { chapters: [] }
       };
+    }
+
+    // 🎯 좌표 검증 및 재생성 로직
+    let missingCoordinatesCount = 0;
+    if (guideData.realTimeGuide?.chapters) {
+      missingCoordinatesCount = guideData.realTimeGuide.chapters.filter(
+        (chapter: any) => !chapter.coordinates || (!chapter.lat && !chapter.lng)
+      ).length;
+    }
+
+    // 좌표가 없는 챕터가 있으면 재생성 시도
+    if (missingCoordinatesCount > 0) {
+      console.log(`⚠️ ${missingCoordinatesCount}개 챕터에 좌표 누락 - 좌표 재생성 시도`);
+      
+      let coordinateRegenerateSuccess = false;
+      
+      try {
+        const coordinatePrompt = `
+Location: ${locationName}
+
+Please provide the exact coordinates (latitude, longitude) for this location.
+Respond ONLY in this format:
+
+Coordinates: [latitude], [longitude]
+Example: Coordinates: 40.4319, 116.5704
+
+If you cannot find exact coordinates, respond with "Coordinates not found".
+`;
+
+        const coordinateResponse = await genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
+          .generateContent(coordinatePrompt);
+        
+        const coordinateText = coordinateResponse.response.text();
+        console.log(`🔍 좌표 재생성 응답: ${coordinateText}`);
+
+        // 좌표 추출 시도 (영어 형식)
+        const coordMatch = coordinateText.match(/Coordinates:\s*(-?\d{1,2}\.\d{1,8}),\s*(-?\d{1,3}\.\d{1,8})/i);
+        
+        if (coordMatch) {
+          const baseLat = parseFloat(coordMatch[1]);
+          const baseLng = parseFloat(coordMatch[2]);
+          
+          if (baseLat >= -90 && baseLat <= 90 && baseLng >= -180 && baseLng <= 180) {
+            console.log(`✅ 좌표 재생성 성공: ${baseLat}, ${baseLng} (언어 무관 - 모든 버전에서 사용)`);
+            
+            // 누락된 좌표 채우기 (챕터별 약간의 오프셋)
+            guideData.realTimeGuide.chapters = guideData.realTimeGuide.chapters.map((chapter: any, index: number) => {
+              if (!chapter.coordinates || (!chapter.lat && !chapter.lng)) {
+                const offset = index * 0.0005;
+                const newCoords = {
+                  lat: baseLat + offset,
+                  lng: baseLng + offset,
+                  description: chapter.title || `Chapter ${index + 1}`
+                };
+                
+                return {
+                  ...chapter,
+                  coordinates: newCoords,
+                  lat: newCoords.lat,
+                  lng: newCoords.lng
+                };
+              }
+              return chapter;
+            });
+            
+            coordinateRegenerateSuccess = true;
+            console.log(`🎯 좌표 재생성으로 ${missingCoordinatesCount}개 챕터 좌표 복구 완료 (위치 기반 - 언어 무관)`);
+          } else {
+            console.log(`❌ 유효하지 않은 좌표 범위: ${baseLat}, ${baseLng}`);
+          }
+        } else if (coordinateText.toLowerCase().includes('coordinates not found')) {
+          console.log(`❌ AI가 좌표를 찾을 수 없다고 명시적으로 응답함`);
+        } else {
+          console.log(`❌ 좌표 형식을 인식할 수 없음: ${coordinateText}`);
+        }
+        
+      } catch (coordError) {
+        console.error(`❌ 좌표 재생성 API 호출 실패:`, coordError);
+      }
+      
+      // 재생성 실패 시에만 실패 정보 설정
+      if (!coordinateRegenerateSuccess) {
+        console.log(`🚫 좌표 재생성 최종 실패 - 사용자에게 알림`);
+        guideData.coordinateGenerationFailed = true;
+        guideData.coordinateFailureReason = "AI가 해당 위치의 정확한 좌표를 찾지 못했습니다.";
+        guideData.missingCoordinatesCount = missingCoordinatesCount;
+        
+        // 좌표 실패 정보를 위치 기반으로 저장 (다른 언어에서도 참조 가능)
+        guideData.locationCoordinateStatus = {
+          locationName: locationName,
+          coordinateSearchAttempted: true,
+          coordinateFound: false,
+          lastAttempt: new Date().toISOString()
+        };
+      } else {
+        // 좌표 성공 정보 저장
+        guideData.locationCoordinateStatus = {
+          locationName: locationName,
+          coordinateSearchAttempted: true,
+          coordinateFound: true,
+          lastAttempt: new Date().toISOString()
+        };
+      }
     }
 
     console.log(`✅ ${language} 가이드 생성 완료`);

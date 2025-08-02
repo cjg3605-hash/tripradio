@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { GuideData } from '@/types/guide';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage, SupportedLanguage } from '@/contexts/LanguageContext';
 import dynamic from 'next/dynamic';
 
 // 동적 import로 큰 컴포넌트 지연 로딩
@@ -22,6 +22,7 @@ import GuideLoading from '@/components/ui/GuideLoading';
 interface Props {
   locationName: string;
   initialGuide?: any;
+  requestedLanguage?: string;
 }
 
 // 🔥 핵심 수정: content 래핑 구조 올바른 처리
@@ -121,7 +122,7 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
   return normalizedData;
 };
 
-export default function MultiLangGuideClient({ locationName, initialGuide }: Props) {
+export default function MultiLangGuideClient({ locationName, initialGuide, requestedLanguage }: Props) {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
   const { data: session } = useSession();
@@ -158,7 +159,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
   }, [session, currentLanguage]);
 
   // 🌍 언어별 가이드 로드
-  const loadGuideForLanguage = useCallback(async (language = currentLanguage, forceRegenerate = false) => {
+  const loadGuideForLanguage = useCallback(async (language: SupportedLanguage = currentLanguage, forceRegenerate = false) => {
     setIsLoading(true);
     setError(null);
 
@@ -239,6 +240,9 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
   // 초기 로드 (서버에서 받은 initialGuide 우선 사용)
   useEffect(() => {
     const initializeGuide = async () => {
+      // 🔥 URL에서 요청된 언어가 있으면 우선 사용 (타입 안전성 보장)
+      const targetLanguage: SupportedLanguage = (requestedLanguage as SupportedLanguage) || currentLanguage;
+      
       if (initialGuide) {
         console.log('🎯 서버에서 받은 초기 가이드 사용:', initialGuide);
         try {
@@ -251,18 +255,18 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
         } catch (error) {
           console.error('초기 가이드 처리 오류:', error);
           // 초기 가이드 처리 실패시 새로 로드
-          await loadGuideForLanguage(currentLanguage);
+          await loadGuideForLanguage(targetLanguage);
         }
       } else {
-        console.log('🔄 새로운 가이드 로드 필요');
-        await loadGuideForLanguage(currentLanguage);
+        console.log(`🔄 새로운 가이드 로드 필요 (${targetLanguage})`);
+        await loadGuideForLanguage(targetLanguage);
       }
       
       await loadAvailableLanguages();
     };
 
     initializeGuide();
-  }, [locationName, initialGuide]); // currentLanguage 의존성 제거
+  }, [locationName, initialGuide, requestedLanguage]); // requestedLanguage 의존성 추가
 
   // 🔄 언어 변경 추적용 ref
   const lastLanguageRef = useRef<string | null>(null);
@@ -406,6 +410,57 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
               >
                 닫기
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 좌표 생성 실패 알림 - 재생성 시도 후에만 표시 */}
+      {guideData?.coordinateGenerationFailed && (
+        <div className="bg-orange-100 border-l-4 border-orange-500 p-4 mb-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-orange-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-orange-800">
+                {currentLanguage === 'ko' ? '지도 정보 제한' : 'Map Information Limited'}
+              </h3>
+              <div className="mt-2 text-sm text-orange-700">
+                <p>
+                  {currentLanguage === 'ko' ? (
+                    <>
+                      AI가 이 위치의 정확한 좌표를 찾지 못했습니다. 
+                      {guideData.missingCoordinatesCount && ` (${guideData.missingCoordinatesCount}개 챕터)`}
+                      <br />
+                      가이드 내용은 정상적으로 이용하실 수 있지만, 지도 기능은 제한될 수 있습니다.
+                    </>
+                  ) : (
+                    <>
+                      AI could not find exact coordinates for this location.
+                      {guideData.missingCoordinatesCount && ` (${guideData.missingCoordinatesCount} chapters)`}
+                      <br />
+                      The guide content is available normally, but map functionality may be limited.
+                    </>
+                  )}
+                </p>
+              </div>
+              <div className="mt-4">
+                <div className="-mx-2 -my-1.5 flex">
+                  <button
+                    onClick={handleRegenerateGuide}
+                    disabled={isRegenerating}
+                    className="bg-orange-50 px-2 py-1.5 rounded-md text-sm font-medium text-orange-800 hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-orange-50 focus:ring-orange-600 disabled:opacity-50"
+                  >
+                    {isRegenerating ? 
+                      (currentLanguage === 'ko' ? '다시 생성 중...' : 'Regenerating...') :
+                      (currentLanguage === 'ko' ? '가이드 다시 생성' : 'Regenerate Guide')
+                    }
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
