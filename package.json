@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "quality:check": "ts-node scripts/quality-check-manual.ts",
-    "quality:inspect": "ts-node scripts/quality-check-manual.ts inspect",
+    "quality:check": "node scripts/quality-check-manual.js",
+    "quality:inspect": "node scripts/quality-check-manual.js inspect",
     "quality:help": "echo '🎯 가이드 품질 검사 명령어:\\n  npm run quality:check - 전체 가이드 품질 검사\\n  npm run quality:inspect <위치명> [언어] - 개별 가이드 상세 검사\\n\\n예시:\\n  npm run quality:check\\n  npm run quality:inspect 경복궁 ko'"
   },
   "browserslist": {

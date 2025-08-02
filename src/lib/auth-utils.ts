@@ -7,34 +7,49 @@
 export function clearAllAuthCookies(): void {
   if (typeof window === 'undefined') return;
 
-  // NextAuth가 실제로 사용하는 쿠키명들
-  const authCookieNames = [
+  // 실제 존재하는 모든 쿠키를 찾아서 삭제
+  const allCookies = document.cookie.split(';');
+  const authCookieNames = new Set<string>();
+  
+  // NextAuth 관련 쿠키만 추려내기
+  allCookies.forEach(cookie => {
+    const cookieName = cookie.trim().split('=')[0];
+    if (cookieName.includes('next-auth') || cookieName.includes('__Secure-next-auth') || cookieName.includes('__Host-next-auth')) {
+      authCookieNames.add(cookieName);
+    }
+  });
+  
+  // 기본 NextAuth 쿠키명들도 추가 (혹시 누락된 것들을 위해)
+  const defaultAuthCookies = [
     'next-auth.session-token',
     'next-auth.callback-url', 
     'next-auth.csrf-token',
-    '__Secure-next-auth.session-token', // HTTPS에서 사용
-    '__Host-next-auth.csrf-token', // HTTPS에서 사용
-    // 개발환경용
-    'next-auth.session-token.localhost',
-    'next-auth.callback-url.localhost',
-    'next-auth.csrf-token.localhost'
+    '__Secure-next-auth.session-token',
+    '__Host-next-auth.csrf-token'
   ];
+  
+  defaultAuthCookies.forEach(name => authCookieNames.add(name));
+  
+  console.log('🔍 발견된 인증 쿠키들:', Array.from(authCookieNames));
 
-  // 가능한 모든 도메인과 경로에서 삭제
-  const domains = [
+  // 환경에 따른 도메인 설정
+  const isProduction = process.env.NODE_ENV === 'production';
+  const domains = isProduction ? [
+    'navidocent.com',
+    '.navidocent.com',
+    undefined
+  ] : [
     window.location.hostname,
     `.${window.location.hostname}`,
     'localhost',
     '.localhost',
     '127.0.0.1',
-    'navidocent.com',
-    '.navidocent.com',
-    undefined // 현재 도메인
+    undefined // 개발환경에서는 도메인 지정 안함
   ];
 
   const paths = ['/', '/auth', '/api', '/api/auth'];
 
-  authCookieNames.forEach(cookieName => {
+  Array.from(authCookieNames).forEach(cookieName => {
     domains.forEach(domain => {
       paths.forEach(path => {
         // 도메인 지정
@@ -137,7 +152,7 @@ export function clearBrowserCache(): void {
 /**
  * 완전한 로그아웃 실행 (NextAuth signOut 전에 호출)
  */
-export function performCompleteLogout(): void {
+export async function performCompleteLogout(): Promise<void> {
   console.log('🚀 완전한 로그아웃 프로세스 시작...');
   
   // 1. 모든 사용자 데이터 삭제
@@ -149,70 +164,82 @@ export function performCompleteLogout(): void {
   // 3. 모든 인증 쿠키 삭제
   clearAllAuthCookies();
   
-  // 4. NextAuth 및 Service Worker 캐시 정리
-  if (typeof window !== 'undefined') {
-    // NextAuth 내부 상태 강제 정리
-    try {
-      // @ts-ignore - NextAuth 내부 상태 접근
-      if (window.__NEXT_DATA__?.props?.pageProps?.session) {
-        window.__NEXT_DATA__.props.pageProps.session = null;
-      }
+  // 4. Service Worker 캐시 무효화 (NextAuth signOut 후에 실행)
+  console.log('✅ 클라이언트 사이드 정리 완료 - Service Worker 캐시는 별도 처리');
+}
+
+/**
+ * NextAuth signOut 완료 후 실행할 최종 정리 작업
+ */
+export async function finalizeLogout(): Promise<void> {
+  console.log('🔥 최종 로그아웃 정리 시작...');
+  await clearServiceWorkerCache();
+}
+
+/**
+ * Service Worker 캐시 강제 무효화
+ */
+async function clearServiceWorkerCache(): Promise<void> {
+  if (typeof window === 'undefined') return;
+
+  try {
+    console.log('🔄 Service Worker 캐시 강제 무효화 시작...');
+    
+    // 1. 모든 캐시 저장소 완전 삭제
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      console.log('📋 발견된 캐시 저장소:', cacheNames);
       
-      // Service Worker 캐시 강제 정리 (가장 중요!)
-      if ('caches' in window) {
-        caches.keys().then(names => {
-          console.log('🧹 발견된 캐시:', names);
-          names.forEach(name => {
-            // NextAuth 관련 캐시 삭제
-            if (name.includes('next-auth') || name.includes('session') || name.includes('apis')) {
-              console.log('🗑️ 캐시 삭제:', name);
-              caches.delete(name);
-            }
-          });
-        });
-        
-        // 특정 API 캐시 강제 삭제
-        caches.open('apis').then(cache => {
-          cache.keys().then(requests => {
-            requests.forEach(request => {
-              if (request.url.includes('/api/auth/') || request.url.includes('session')) {
-                console.log('🔥 인증 API 캐시 삭제:', request.url);
-                cache.delete(request);
-              }
-            });
-          });
-        }).catch(() => {
-          // 캐시가 없으면 무시
-        });
-        
-        // Next.js 빌드 관련 캐시도 정리
-        caches.open('next-data').then(cache => {
-          cache.keys().then(requests => {
-            requests.forEach(request => {
-              if (request.url.includes('_next/data') || request.url.includes('navi-guide')) {
-                console.log('🗑️ Next.js 데이터 캐시 삭제:', request.url);
-                cache.delete(request);
-              }
-            });
-          });
-        }).catch(() => {
-          // 캐시가 없으면 무시
-        });
-      }
+      // 모든 캐시를 병렬로 삭제
+      await Promise.all(
+        cacheNames.map(async cacheName => {
+          console.log(`🗑️ 캐시 저장소 삭제 중: ${cacheName}`);
+          return caches.delete(cacheName);
+        })
+      );
       
-      // Service Worker 자체에 메시지 전송
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({
-          type: 'CLEAR_AUTH_CACHE'
-        });
-        console.log('📨 Service Worker에 캐시 정리 메시지 전송');
-      }
-    } catch (error) {
-      console.warn('캐시 정리 중 오류:', error);
+      console.log('✅ 모든 캐시 저장소 삭제 완료');
     }
+    
+    // 2. Service Worker 강제 업데이트 및 재시작
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      
+      // 모든 Service Worker 등록 해제 후 재등록
+      await Promise.all(
+        registrations.map(async registration => {
+          console.log('🔄 Service Worker 등록 해제 중...');
+          await registration.unregister();
+          console.log('✅ Service Worker 등록 해제 완료');
+        })
+      );
+      
+      // 잠깐 대기 후 페이지 리로드 (Service Worker 재등록됨)
+      setTimeout(() => {
+        console.log('🔄 Service Worker 완전 재시작을 위한 페이지 리로드...');
+        window.location.reload();
+      }, 500);
+    }
+    
+    // 3. NextAuth 내부 상태 정리
+    // @ts-ignore - NextAuth 내부 상태 접근
+    if (window.__NEXT_DATA__?.props?.pageProps?.session) {
+      window.__NEXT_DATA__.props.pageProps.session = null;
+    }
+    
+    // 4. 브라우저의 기본 HTTP 캐시도 무효화
+    if ('location' in window && 'reload' in window.location) {
+      // Hard refresh 강제 실행
+      console.log('💨 브라우저 HTTP 캐시 무효화...');
+    }
+    
+  } catch (error) {
+    console.error('❌ Service Worker 캐시 정리 실패:', error);
+    
+    // 실패 시 최후의 수단: 강제 새로고침
+    console.log('🚨 캐시 정리 실패로 강제 새로고침 실행');
+    window.location.reload();
   }
-  
-  console.log('✅ 완전한 로그아웃 프로세스 완료');
 }
 
 /**

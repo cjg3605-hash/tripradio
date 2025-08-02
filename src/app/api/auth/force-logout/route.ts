@@ -23,8 +23,10 @@ export async function POST(request: NextRequest) {
 
     // 서버 사이드에서 쿠키 강제 삭제
     authCookieNames.forEach(cookieName => {
-      // 다양한 도메인과 경로로 삭제 시도
-      const domains = ['navidocent.com', '.navidocent.com', undefined];
+      // 환경에 따른 도메인 설정
+      const domains = process.env.NODE_ENV === 'production' 
+        ? ['navidocent.com', '.navidocent.com', undefined]
+        : [undefined]; // 개발환경에서는 도메인 설정 안함
       const paths = ['/', '/auth', '/api'];
       
       domains.forEach(domain => {
@@ -42,6 +44,7 @@ export async function POST(request: NextRequest) {
           }
           
           response.cookies.set(cookieName, '', cookieOptions);
+          console.log(`🍪 쿠키 삭제 시도: ${cookieName}, 도메인: ${domain || 'default'}, 경로: ${path}`);
         });
       });
     });

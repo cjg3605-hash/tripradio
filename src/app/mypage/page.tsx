@@ -842,7 +842,7 @@ export default function MyPage() {
                     try {
                       // 1. 완전한 로그아웃 프로세스 실행
                       const { performCompleteLogout } = await import('@/lib/auth-utils');
-                      performCompleteLogout();
+                      await performCompleteLogout();
                       
                       // 2. 서버 사이드 강제 로그아웃 API 호출
                       try {
@@ -865,10 +865,9 @@ export default function MyPage() {
                       
                       console.log('✅ NextAuth signOut 완료');
                       
-                      // 4. 강제 페이지 리로드로 모든 상태 완전 초기화
-                      setTimeout(() => {
-                        window.location.replace('/'); // href 대신 replace 사용으로 히스토리도 정리
-                      }, 100); // 더 빠른 리다이렉트
+                      // 4. 최종 Service Worker 캐시 정리 및 리로드
+                      const { finalizeLogout } = await import('@/lib/auth-utils');
+                      await finalizeLogout();
                       
                     } catch (error) {
                       console.error('❌ 로그아웃 중 오류 발생:', error);
@@ -876,7 +875,7 @@ export default function MyPage() {
                       // 에러 발생시에도 완전한 정리 시도
                       try {
                         const { performCompleteLogout } = await import('@/lib/auth-utils');
-                        performCompleteLogout();
+                        await performCompleteLogout();
                         
                         // 강제 로그아웃 API도 시도
                         await fetch('/api/auth/force-logout', { method: 'POST', credentials: 'include' });
@@ -885,7 +884,9 @@ export default function MyPage() {
                       }
                       
                       // 강제 새로고침
-                      window.location.replace('/');
+                      setTimeout(() => {
+                        window.location.href = '/';
+                      }, 1000);
                     }
                   }}
                   className="w-full bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors font-medium flex items-center justify-center"

@@ -2,9 +2,14 @@
 // 🎯 수동 가이드 품질 검사 도구
 // 필요할 때마다 실행하여 DB의 가이드 품질을 확인하고 문제가 있는 데이터 추려내기
 
+import { config } from 'dotenv';
+import { resolve } from 'path';
+
+// .env.local 파일 로드
+config({ path: resolve(process.cwd(), '.env.local') });
+
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { calculateComprehensiveQualityScore, QUALITY_THRESHOLDS } from '../src/lib/quality/quality-scoring';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -20,6 +25,47 @@ interface CheckResult {
   status: 'excellent' | 'good' | 'acceptable' | 'poor' | 'critical';
   issues: string[];
   needsAction: boolean;
+}
+
+// 간단한 품질 체크 함수
+function calculateSimpleQualityScore(guide: any): number {
+  let score = 100;
+  const issues = [];
+
+  // 기본 필드 존재 확인
+  if (!guide.locationName) score -= 20;
+  if (!guide.overview) score -= 15;
+  if (!guide.chapters || !Array.isArray(guide.chapters)) score -= 25;
+  
+  // 내용 길이 확인
+  if (guide.overview && guide.overview.length < 100) score -= 10;
+  if (guide.chapters && guide.chapters.length < 3) score -= 15;
+  
+  // 챕터 내용 확인
+  if (guide.chapters) {
+    guide.chapters.forEach((chapter: any, index: number) => {
+      if (!chapter.title) score -= 5;
+      if (!chapter.content || chapter.content.length < 50) score -= 5;
+    });
+  }
+
+  return Math.max(0, score);
+}
+
+// 품질 임계값
+const QUALITY_THRESHOLDS = {
+  EXCELLENT: 90,
+  GOOD: 75,
+  ACCEPTABLE: 60,
+  POOR: 40
+};
+
+function getQualityStatus(score: number): 'excellent' | 'good' | 'acceptable' | 'poor' | 'critical' {
+  if (score >= QUALITY_THRESHOLDS.EXCELLENT) return 'excellent';
+  if (score >= QUALITY_THRESHOLDS.GOOD) return 'good';
+  if (score >= QUALITY_THRESHOLDS.ACCEPTABLE) return 'acceptable';
+  if (score >= QUALITY_THRESHOLDS.POOR) return 'poor';
+  return 'critical';
 }
 
 interface SummaryResult {
@@ -125,10 +171,43 @@ async function checkSingleGuide(guide: any, genAI: GoogleGenerativeAI): Promise<
       language: guide.language,
       qualityScore: guide.quality_score,
       status,
-      issues: guide.quality_score < QUALITY_THRESHOLDS.ACCEPTABLE ? ['품질 점수가 낮습니다'] : [],
-      needsAction: guide.quality_score < QUALITY_THRESHOLDS.ACCEPTABLE
+      issues: guide.quality_score < 60 ? ['품질 점수가 낮습니다'] : [],
+      needsAction: guide.quality_score < 60
     };
   }
+
+  // 가이드 내용 파싱
+  let content;
+  try {
+    content = typeof guide.content === 'string' ? JSON.parse(guide.content) : guide.content;
+  } catch (parseError) {
+    return {
+      locationName: guide.location_name,
+      language: guide.language,
+      qualityScore: 0,
+      status: 'critical',
+      issues: ['JSON 파싱 실패'],
+      needsAction: true
+    };
+  }
+
+  // 간단한 품질 점수 계산
+  const score = calculateSimpleQualityScore(content);
+  const status = getQualityStatus(score);
+  
+  const issues: string[] = [];
+  if (!content.locationName) issues.push('위치명 누락');
+  if (!content.overview) issues.push('개요 누락');
+  if (!content.chapters || content.chapters.length < 3) issues.push('챕터 부족');
+
+  return {
+    locationName: guide.location_name,
+    language: guide.language,
+    qualityScore: score,
+    status,
+    issues,
+    needsAction: score < 60 || issues.length > 0
+  };
 
   // AI 검증 수행
   const model = genAI.getGenerativeModel({ 
@@ -183,14 +262,6 @@ async function checkSingleGuide(guide: any, genAI: GoogleGenerativeAI): Promise<
   }
 }
 
-// 품질 상태 결정
-function getQualityStatus(score: number): 'excellent' | 'good' | 'acceptable' | 'poor' | 'critical' {
-  if (score >= QUALITY_THRESHOLDS.EXCELLENT) return 'excellent';
-  if (score >= QUALITY_THRESHOLDS.GOOD) return 'good';
-  if (score >= QUALITY_THRESHOLDS.ACCEPTABLE) return 'acceptable';
-  if (score >= QUALITY_THRESHOLDS.POOR) return 'poor';
-  return 'critical';
-}
 
 // 결과 분류
 function categorizeResults(results: CheckResult[]): SummaryResult {

@@ -16,13 +16,12 @@ export default function SessionProvider({ children, session }: SessionProviderPr
     setIsClient(true);
   }, []);
 
-  // SSR/SSG 중에는 항상 SessionProvider로 감싸서 렌더링
-  // 로그아웃 후 세션 재갱신 방지를 위해 자동 갱신 비활성화
+  // 로그아웃 후 세션 상태 정확성을 위해 주기적 검증 활성화
   return (
     <NextAuthSessionProvider 
       session={session}
-      refetchInterval={0} // 자동 갱신 완전 비활성화
-      refetchOnWindowFocus={false} // 윈도우 포커스시 갱신 비활성화
+      refetchInterval={5 * 60} // 5분마다 세션 검증 (로그아웃 감지)
+      refetchOnWindowFocus={true} // 윈도우 포커스시 세션 재검증
       refetchWhenOffline={false}
     >
       {children}
