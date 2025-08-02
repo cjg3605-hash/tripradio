@@ -14,24 +14,22 @@ interface SEOConfig {
 
 const SEO_CONFIGS: Record<SupportedLanguage, SEOConfig> = {
   ko: {
-    title: 'NAVI - AI 개인화 여행 가이드',
-    description: 'AI가 실시간으로 생성하는 개인 맞춤형 여행 가이드. 세계 어디든 상세한 오디오 가이드를 경험해보세요.',
+    title: 'NaviDocent - AI 여행 도슨트 가이드',
+    description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.',
     keywords: [
-      'AI 가이드', '여행 가이드', '관광 가이드', '오디오 가이드', '개인화 여행',
-      '스마트 투어', '실시간 가이드', '여행 정보', '관광 앱', '여행 도우미'
+      'AI', '여행', '도슨트', '가이드', '관광', '투어', '음성가이드', '다국어', '한국여행', 'Korea tour', 'AI guide'
     ],
-    ogTitle: 'NAVI - AI로 만드는 개인화 여행 가이드',
-    ogDescription: 'AI가 실시간으로 생성하는 개인 맞춤형 여행 가이드를 전 세계 어디서든 발견하세요.'
+    ogTitle: 'NaviDocent - AI 여행 도슨트 가이드',
+    ogDescription: 'AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.'
   },
   en: {
-    title: 'NAVI - AI Personalized Travel Guide',
-    description: 'Personalized travel guides generated in real-time by AI. Experience detailed audio guides anywhere in the world.',
+    title: 'NaviDocent - AI Travel Docent Guide',
+    description: 'AI-powered personalized travel docent service. Experience perfect travel with real-time voice guides and multilingual support.',
     keywords: [
-      'AI guide', 'travel guide', 'tourist guide', 'audio guide', 'personalized travel',
-      'smart tour', 'real-time guide', 'travel information', 'tourism app', 'travel assistant'
+      'AI', 'travel', 'docent', 'guide', 'tourism', 'tour', 'voice guide', 'multilingual', 'Korea travel', 'AI guide'
     ],
-    ogTitle: 'NAVI - AI-Powered Personalized Travel Guides',
-    ogDescription: 'Discover AI-generated personalized travel guides in real-time, anywhere in the world.'
+    ogTitle: 'NaviDocent - AI Travel Docent Guide',
+    ogDescription: 'AI-powered personalized travel docent service. Experience perfect travel with real-time voice guides and multilingual support.'
   },
   ja: {
     title: 'NAVI - AIパーソナライズ旅行ガイド',
@@ -66,11 +64,11 @@ const SEO_CONFIGS: Record<SupportedLanguage, SEOConfig> = {
 };
 
 const BASE_DOMAINS: Record<SupportedLanguage, string> = {
-  ko: 'https://navi-guide.com',
-  en: 'https://en.navi-guide.com',
-  ja: 'https://ja.navi-guide.com',
-  zh: 'https://zh.navi-guide.com',
-  es: 'https://es.navi-guide.com',
+  ko: 'https://navidocent.com',
+  en: 'https://navidocent.com/en',
+  ja: 'https://navidocent.com/ja',
+  zh: 'https://navidocent.com/zh',
+  es: 'https://navidocent.com/es',
 };
 
 const LOCALE_MAP: Record<SupportedLanguage, string> = {
@@ -257,7 +255,7 @@ export const defaultViewport: Viewport = {
  * 사이트맵 URL 생성 (빌드 오류 해결)
  */
 export function generateSitemapUrls(guides: Array<{ name: string; slug?: string }>): MetadataRoute.Sitemap {
-  const baseUrl = 'https://navi-guide.com';
+  const baseUrl = 'https://navidocent.com';
   const languages: SupportedLanguage[] = ['ko', 'en', 'ja', 'zh', 'es'];
   const now = new Date();
   

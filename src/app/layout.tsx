@@ -22,36 +22,36 @@ export const viewport: Viewport = {
 // ✅ metadata에서 viewport 제거됨
 export const metadata: Metadata = {
   title: {
-    default: 'NAVI-GUIDE - AI 여행 가이드',
-    template: '%s | NAVI-GUIDE'
+    default: 'NaviDocent - AI 여행 도슨트 가이드',
+    template: '%s | NaviDocent'
   },
-  description: 'AI가 실시간으로 생성하는 개인 맞춤형 여행 가이드',
-  keywords: ['AI', '여행', '가이드', '관광', '투어', '여행지', '도슨트'],
-  authors: [{ name: 'NAVI-GUIDE Team' }],
-  creator: 'NAVI-GUIDE',
-  publisher: 'NAVI-GUIDE',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://navi-guide.com'),
+  description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.',
+  keywords: ['AI', '여행', '도슨트', '가이드', '관광', '투어', '음성가이드', '다국어', '한국여행', 'Korea tour', 'AI guide'],
+  authors: [{ name: 'NaviDocent Team' }],
+  creator: 'NaviDocent',
+  publisher: 'NaviDocent',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'),
   openGraph: {
     type: 'website',
     locale: 'ko_KR',
     url: '/',
-    siteName: 'NAVI-GUIDE',
-    title: 'NAVI-GUIDE - AI 여행 가이드',
-    description: 'AI가 실시간으로 생성하는 개인 맞춤형 여행 가이드',
+    siteName: 'NaviDocent',
+    title: 'NaviDocent - AI 여행 도슨트 가이드',
+    description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'NAVI-GUIDE'
+        alt: 'NaviDocent - AI 여행 도슨트'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@naviguide',
-    title: 'NAVI-GUIDE - AI 여행 가이드',
-    description: 'AI가 실시간으로 생성하는 개인 맞춤형 여행 가이드',
+    site: '@navidocent',
+    title: 'NaviDocent - AI 여행 도슨트 가이드',
+    description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.',
     images: ['/og-image.jpg']
   },
   robots: {
@@ -99,7 +99,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'NAVI-GUIDE',
+    title: 'NaviDocent',
   },
   other: {
     'msapplication-TileColor': '#000000',

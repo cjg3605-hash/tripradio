@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo, useCallback, Component, ReactNode
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import GuideGenerating from '@/components/guide/GuideGenerating';
+import StructuredData from '@/components/seo/StructuredData';
 
 // 에러 바운더리 클래스 컴포넌트
 class ErrorBoundary extends Component<
@@ -605,6 +606,10 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
+      {/* SEO Structured Data */}
+      <StructuredData type="WebSite" />
+      <StructuredData type="TravelAgency" />
+      <StructuredData type="SoftwareApplication" />
 
 
 

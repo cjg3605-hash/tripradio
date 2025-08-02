@@ -1,2 +1,28 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /sw.js
+Disallow: /workbox-*.js
+
+# Sitemap
+Sitemap: https://navidocent.com/sitemap.xml
+
+# Google Crawlers
+User-agent: Googlebot
+Allow: /
+
+# Bing Crawlers  
+User-agent: Bingbot
+Allow: /
+
+# Naver Crawlers
+User-agent: Yeti
+Allow: /
+
+# Social Media Crawlers
+User-agent: facebookexternalhit/*
+Allow: /
+User-agent: Twitterbot
+Allow: /
