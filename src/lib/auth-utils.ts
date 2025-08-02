@@ -175,8 +175,22 @@ export function performCompleteLogout(): void {
         caches.open('apis').then(cache => {
           cache.keys().then(requests => {
             requests.forEach(request => {
-              if (request.url.includes('/api/auth/')) {
+              if (request.url.includes('/api/auth/') || request.url.includes('session')) {
                 console.log('🔥 인증 API 캐시 삭제:', request.url);
+                cache.delete(request);
+              }
+            });
+          });
+        }).catch(() => {
+          // 캐시가 없으면 무시
+        });
+        
+        // Next.js 빌드 관련 캐시도 정리
+        caches.open('next-data').then(cache => {
+          cache.keys().then(requests => {
+            requests.forEach(request => {
+              if (request.url.includes('_next/data') || request.url.includes('navi-guide')) {
+                console.log('🗑️ Next.js 데이터 캐시 삭제:', request.url);
                 cache.delete(request);
               }
             });

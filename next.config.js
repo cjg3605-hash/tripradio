@@ -96,7 +96,12 @@ const withPWA = require('next-pwa')({
     },
     {
       urlPattern: ({ url }) => {
-        return url.origin === self.location.origin && url.pathname.startsWith('/api/') && !url.pathname.startsWith('/api/auth/');
+        // 세션 관련 API는 캐시에서 완전 제외
+        return url.origin === self.location.origin && 
+               url.pathname.startsWith('/api/') && 
+               !url.pathname.startsWith('/api/auth/') &&
+               !url.pathname.includes('session') &&
+               !url.pathname.includes('force-logout');
       },
       handler: 'NetworkFirst',
       options: {
@@ -180,9 +185,13 @@ const nextConfig = {
     }
     return config;
   },
-  // 빌드 ID를 고정값으로 변경하여 캐시 문제 해결
+  // 로그아웃 캐시 문제 해결을 위해 동적 빌드 ID 사용
   generateBuildId: async () => {
-    return 'navi-guide-build';
+    // 개발환경에서는 고정 ID, 프로덕션에서는 타임스탬프 기반
+    if (process.env.NODE_ENV === 'development') {
+      return 'navi-guide-dev';
+    }
+    return `navi-guide-${Date.now()}`;
   }
 };
 
