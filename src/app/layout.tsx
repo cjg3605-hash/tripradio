@@ -122,6 +122,9 @@ export default function RootLayout({
         {/* Preconnect for Critical Resources */}
         <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        
+        {/* Google Search Console Verification */}
+        <meta name="google-site-verification" content="ZGsBu9eojRsKlixPE6U5iGBcebJVNNBRhZo-UIVl3Hk" />
       </head>
       <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
         <SessionProvider>
