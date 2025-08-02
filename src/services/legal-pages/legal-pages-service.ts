@@ -292,7 +292,7 @@ export class LegalPagesService {
 회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보보호책임자를 지정하고 있습니다.
 
 **개인정보보호책임자**
-- 연락처: ${this.contactInfo?.email || 'contact@naviguide.ai'}
+- 연락처: ${this.contactInfo?.email || 'contact@navidocent.com'}
 
 ## 8. 개인정보 처리방침 변경
 
@@ -352,7 +352,7 @@ This website uses Google AdSense to serve advertisements:
 ## 7. Contact Us
 
 If you have any questions about this Privacy Policy, please contact us at:
-Email: ${this.contactInfo?.email || 'contact@naviguide.ai'}
+Email: ${this.contactInfo?.email || 'contact@navidocent.com'}
 
 This policy is effective as of ${new Date().toLocaleDateString('en-US')}.
       `;
@@ -553,7 +553,7 @@ Matters not specified in these terms will be governed by applicable laws and cus
 
 **사업자 정보**
 - 회사명: 네비가이드AI
-- 이메일: ${this.contactInfo?.email || 'contact@naviguide.ai'}
+- 이메일: ${this.contactInfo?.email || 'contact@navidocent.com'}
 - 주소: ${this.contactInfo?.serviceAddress?.city || '서울'}, ${this.contactInfo?.serviceAddress?.country || '대한민국'}
 
 **문의 유형**
@@ -622,7 +622,7 @@ We prioritize user privacy protection:
 
 **Business Information**
 - Company: NaviGuide AI
-- Email: ${this.contactInfo?.email || 'contact@naviguide.ai'}
+- Email: ${this.contactInfo?.email || 'contact@navidocent.com'}
 - Address: ${this.contactInfo?.serviceAddress?.city || 'Seoul'}, ${this.contactInfo?.serviceAddress?.country || 'South Korea'}
 
 **Contact Types**
@@ -691,7 +691,7 @@ A: 가이드 다운로드 기능을 통해 오프라인에서도 이용 가능�
 ## 🌐 소셜 미디어
 
 저희 소식을 소셜 미디어에서도 확인하세요:
-- **웹사이트**: https://navi-guide-ai-eight.vercel.app
+- **웹사이트**: https://navidocent.com
 - **블로그**: 준비 중
 - **뉴스레터**: 구독 신청 가능
 
@@ -745,15 +745,15 @@ A: It can be used offline through the guide download function.
 ## 🌐 Social Media
 
 Check our news on social media:
-- **Website**: https://navi-guide-ai-eight.vercel.app
+- **Website**: https://navidocent.com
 - **Blog**: Coming soon
 - **Newsletter**: Subscription available
 
 ## 📋 Feedback and Suggestions
 
 Please send us your valuable opinions for service improvement:
-- **Feedback**: feedback@naviguide.ai
-- **Feature Suggestions**: suggestions@naviguide.ai
+- **Feedback**: feedback@navidocent.com
+- **Feature Suggestions**: suggestions@navidocent.com
 
 ---
 

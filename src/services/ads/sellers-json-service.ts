@@ -39,8 +39,8 @@ export class SellersJsonService {
     this.businessConfig = {
       publicDisclosure: false, // 기본값: 내부용
       businessName: '네비가이드AI',
-      verifiedDomain: 'navi-guide-ai-eight.vercel.app',
-      contactEmail: 'contact@naviguide.ai',
+      verifiedDomain: 'navidocent.com',
+      contactEmail: 'contact@navidocent.com',
       businessAddress: '서울특별시 강남구',
       publisherType: 'content'
     };

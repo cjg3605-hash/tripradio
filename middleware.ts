@@ -152,14 +152,31 @@ export default withAuth(
       return securityResponse;
     }
     
-    // 2. 기본 인증 처리
+    // 2. 강제 로그아웃 감지 및 처리
+    const isForceLogout = req.nextUrl.pathname === '/api/auth/force-logout';
+    if (isForceLogout) {
+      // 강제 로그아웃 요청 시 토큰 캐시 무효화
+      console.log('🔥 미들웨어: 강제 로그아웃 감지, 토큰 캐시 무효화');
+      // NextAuth 토큰 강제 무효화
+      req.nextauth.token = null;
+    }
+    
+    // 3. 쿠키 기반 세션 검증 (토큰 캐시 우회)
+    const sessionToken = req.cookies.get('next-auth.session-token')?.value || 
+                        req.cookies.get('__Secure-next-auth.session-token')?.value;
+    
+    const hasValidSession = sessionToken && req.nextauth.token;
+    
+    // 4. 기본 인증 처리 (쿠키 검증 기반)
     let response: NextResponse;
     
-    if (!req.nextauth.token && req.nextUrl.pathname.startsWith('/mypage')) {
+    if (!hasValidSession && req.nextUrl.pathname.startsWith('/mypage')) {
+      console.log('🚪 미들웨어: 세션 없음, 로그인 페이지로 리다이렉트');
       response = NextResponse.redirect(
         new URL('/auth/signin?callbackUrl=' + encodeURIComponent(req.url), req.url)
       );
-    } else if (req.nextauth.token && req.nextUrl.pathname.startsWith('/auth/signin')) {
+    } else if (hasValidSession && req.nextUrl.pathname.startsWith('/auth/signin')) {
+      console.log('🔄 미들웨어: 로그인 상태에서 로그인 페이지 접근, 홈으로 리다이렉트');
       const callbackUrl = req.nextUrl.searchParams.get('callbackUrl');
       response = NextResponse.redirect(
         new URL(callbackUrl || '/', req.url)
@@ -197,7 +214,13 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         if (req.nextUrl.pathname.startsWith('/mypage')) {
-          return !!token;
+          // 쿠키 기반 세션 검증 (토큰 캐시 우회)
+          const sessionToken = req.cookies.get('next-auth.session-token')?.value || 
+                              req.cookies.get('__Secure-next-auth.session-token')?.value;
+          
+          const hasValidAuth = !!(token && sessionToken);
+          console.log(`🔐 미들웨어 authorized: mypage 접근, token: ${!!token}, sessionToken: ${!!sessionToken}, hasValidAuth: ${hasValidAuth}`);
+          return hasValidAuth;
         }
         return true;
       },

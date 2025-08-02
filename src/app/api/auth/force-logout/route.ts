@@ -5,6 +5,10 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🔥 강제 로그아웃 API 호출됨');
     
+    // NextAuth 내부 캐시 무효화 신호
+    const timestamp = Date.now();
+    console.log(`📡 강제 로그아웃 타임스탬프: ${timestamp}`);
+    
     // 모든 NextAuth 관련 쿠키 강제 삭제
     const cookieStore = cookies();
     const authCookieNames = [
@@ -18,8 +22,15 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ 
       success: true, 
       message: '강제 로그아웃 완료',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      cacheInvalidation: timestamp
     });
+
+    // 캐시 무효화 헤더 추가
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    response.headers.set('X-Auth-Cache-Invalidate', timestamp.toString());
 
     // 서버 사이드에서 쿠키 강제 삭제
     authCookieNames.forEach(cookieName => {

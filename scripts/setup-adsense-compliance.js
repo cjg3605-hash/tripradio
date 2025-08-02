@@ -90,7 +90,7 @@ if (missingEnvVars.length > 0) {
   console.log('   .env.local 파일에 다음을 추가해주세요:');
   missingEnvVars.forEach(envVar => {
     if (envVar === 'NEXT_PUBLIC_BASE_URL') {
-      console.log(`   ${envVar}=https://navi-guide-ai-eight.vercel.app`);
+      console.log(`   ${envVar}=https://navidocent.com`);
     } else if (envVar === 'NEXT_PUBLIC_ADSENSE_PUBLISHER_ID') {
       console.log(`   ${envVar}=pub-0000000000000000`);
     } else if (envVar === 'ADSENSE_PUBLISHER_ID') {
@@ -131,31 +131,31 @@ if (fs.existsSync(sitemapPath)) {
   const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://navi-guide-ai-eight.vercel.app/</loc>
+    <loc>https://navidocent.com/</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://navi-guide-ai-eight.vercel.app/legal/privacy</loc>
+    <loc>https://navidocent.com/legal/privacy</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://navi-guide-ai-eight.vercel.app/legal/terms</loc>
+    <loc>https://navidocent.com/legal/terms</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://navi-guide-ai-eight.vercel.app/legal/about</loc>
+    <loc>https://navidocent.com/legal/about</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://navi-guide-ai-eight.vercel.app/legal/contact</loc>
+    <loc>https://navidocent.com/legal/contact</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -185,7 +185,7 @@ Allow: /
 User-agent: Googlebot
 Allow: /
 
-Sitemap: https://navi-guide-ai-eight.vercel.app/sitemap.xml
+Sitemap: https://navidocent.com/sitemap.xml
 
 # Block access to ads.txt for non-advertising crawlers
 User-agent: *

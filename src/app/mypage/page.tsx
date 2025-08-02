@@ -234,7 +234,7 @@ export default function MyPage() {
   }
 
   if (status === 'unauthenticated') {
-    router.push('/auth/login');
+    router.push('/auth/signin');
     return null;
   }
 
