@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { GuideData } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -264,11 +264,29 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
     initializeGuide();
   }, [locationName, initialGuide]); // currentLanguage 의존성 제거
 
+  // 🔄 언어 변경 추적용 ref
+  const lastLanguageRef = useRef<string | null>(null);
+  const hasInitialLoadedRef = useRef(false);
+
   // 언어 변경시 자동 로드 (초기 로드 이후에만)
   useEffect(() => {
-    // 초기 로드가 완료되고, 현재 가이드의 언어와 다를 때만 로드
-    if (currentLanguage && !isLoading && guideData && guideData.metadata?.language !== currentLanguage) {
-      console.log(`🌍 언어 변경 감지: ${guideData.metadata?.language} → ${currentLanguage}`);
+    // 초기 로드 완료 표시
+    if (!isLoading && guideData && !hasInitialLoadedRef.current) {
+      hasInitialLoadedRef.current = true;
+      lastLanguageRef.current = guideData.metadata?.language || currentLanguage;
+      console.log(`✅ 초기 로드 완료: ${lastLanguageRef.current}`);
+      return;
+    }
+
+    // 언어 변경 감지 (중복 실행 방지)
+    if (currentLanguage && 
+        hasInitialLoadedRef.current && 
+        !isLoading && 
+        lastLanguageRef.current !== currentLanguage) {
+      
+      console.log(`🌍 언어 변경 감지: ${lastLanguageRef.current} → ${currentLanguage}`);
+      lastLanguageRef.current = currentLanguage; // 즉시 업데이트하여 중복 방지
+      
       // 직접 호출하여 dependency cycle 방지
       (async () => {
         setIsLoading(true);
@@ -292,12 +310,14 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
         } catch (err) {
           console.error('❌ 언어 변경 중 오류:', err);
           setError(err instanceof Error ? err.message : '언어 변경 중 오류가 발생했습니다.');
+          // 에러 시 언어 상태 복원
+          lastLanguageRef.current = guideData?.metadata?.language || lastLanguageRef.current;
         } finally {
           setIsLoading(false);
         }
       })();
     }
-  }, [currentLanguage, isLoading, guideData?.metadata?.language]);
+  }, [currentLanguage, isLoading]); // guideData 의존성 제거
 
   // 로딩 상태 표시
   if (isLoading) {
