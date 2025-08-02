@@ -125,6 +125,9 @@ export default function RootLayout({
         
         {/* Google Search Console Verification */}
         <meta name="google-site-verification" content="ZGsBu9eojRsKlixPE6U5iGBcebJVNNBRhZo-UIVl3Hk" />
+        
+        {/* Naver Search Advisor Verification */}
+        <meta name="naver-site-verification" content="dc5a0970077fc443190c84178a92820b04abeeef" />
       </head>
       <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
         <SessionProvider>
