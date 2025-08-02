@@ -130,6 +130,19 @@ export default function RootLayout({
         {/* Naver Search Advisor Verification */}
         <meta name="naver-site-verification" content="dc5a0970077fc443190c84178a92820b04abeeef" />
         
+        {/* Google Analytics */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZ7XSC2X43"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-MZ7XSC2X43');
+            `
+          }}
+        />
+        
         {/* Local Business Schema */}
         <LocalBusinessSchema />
       </head>
