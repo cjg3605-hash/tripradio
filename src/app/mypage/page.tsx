@@ -838,14 +838,35 @@ export default function MyPage() {
               <div className="p-6">
                 <button
                   onClick={async () => {
+                    console.log('🚀 마이페이지 로그아웃 시작...');
                     try {
-                      await signOut({ 
+                      console.log('🔄 signOut 호출 중...');
+                      const result = await signOut({ 
                         callbackUrl: '/',
-                        redirect: true 
+                        redirect: false
                       });
+                      console.log('✅ signOut 완료:', result);
+                      
+                      // 세션 및 쿠키 클리어
+                      if (typeof window !== 'undefined') {
+                        sessionStorage.clear();
+                        localStorage.removeItem('nextauth.session-token');
+                        localStorage.removeItem('next-auth.session-token');
+                        
+                        document.cookie.split(";").forEach((c) => {
+                          const eqPos = c.indexOf("=");
+                          const name = eqPos > -1 ? c.substr(0, eqPos) : c;
+                          if (name.trim().includes('next-auth') || name.trim().includes('nextauth')) {
+                            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
+                            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+                          }
+                        });
+                      }
+                      
+                      window.location.replace('/');
                     } catch (error) {
-                      console.error('로그아웃 중 오류 발생:', error);
-                      window.location.href = '/';
+                      console.error('❌ 로그아웃 중 오류 발생:', error);
+                      window.location.replace('/');
                     }
                   }}
                   className="w-full bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors font-medium flex items-center justify-center"

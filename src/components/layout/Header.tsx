@@ -126,17 +126,43 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
   }, [isLanguageMenuOpen, selectedLanguageIndex, handleLanguageChange, isProfileMenuOpen]);
 
   const handleSignOut = async () => {
+    console.log('🚀 로그아웃 시작...');
     try {
       setIsProfileMenuOpen(false);
-      // 로그아웃 후 페이지 새로고침으로 상태 확실히 초기화
-      await signOut({ 
+      console.log('🔄 signOut 호출 중...');
+      
+      // 1. NextAuth signOut 호출
+      const result = await signOut({ 
         callbackUrl: '/',
-        redirect: true
+        redirect: false // redirect를 false로 설정하여 수동 제어
       });
+      
+      console.log('✅ signOut 완료:', result);
+      
+      // 2. 세션 스토리지와 로컬 스토리지 클리어
+      if (typeof window !== 'undefined') {
+        sessionStorage.clear();
+        localStorage.removeItem('nextauth.session-token');
+        localStorage.removeItem('next-auth.session-token');
+        
+        // 모든 NextAuth 관련 쿠키 삭제
+        document.cookie.split(";").forEach((c) => {
+          const eqPos = c.indexOf("=");
+          const name = eqPos > -1 ? c.substr(0, eqPos) : c;
+          if (name.trim().includes('next-auth') || name.trim().includes('nextauth')) {
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+          }
+        });
+      }
+      
+      // 3. 강제 페이지 새로고침
+      window.location.replace('/');
+      
     } catch (error) {
-      console.error('로그아웃 중 오류 발생:', error);
-      // 에러 발생시에도 페이지 새로고침
-      window.location.href = '/';
+      console.error('❌ 로그아웃 중 오류 발생:', error);
+      // 에러 발생시에도 강제 새로고침
+      window.location.replace('/');
     }
   };
 
