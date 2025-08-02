@@ -231,13 +231,14 @@ export default withAuth(
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (public directory)
-     * - service worker and manifest files
+     * 인증이 필요한 경로만 미들웨어 적용
+     * - /mypage (마이페이지)
+     * - /api/auth/* (인증 API)
+     * - 보안 관련 API 경로들
      */
-    '/((?!_next/static|_next/image|favicon.ico|sw.js|workbox|manifest.json|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.svg$|.*\\.ico$|.*\\.webp$).*)',
+    '/mypage/:path*',
+    '/api/auth/:path*',
+    '/api/security/:path*',
+    '/api/monitoring/:path*'
   ],
 };
