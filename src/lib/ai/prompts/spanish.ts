@@ -170,7 +170,22 @@ nextDirection: (Separado) Solo orientación de movimiento
 - "Lo que es particularmente interesante aquí es..."
 - "Tal vez tengan curiosidad de saber que..."
 - "Aquí hay algo que podría sorprenderles..."
-- "Si observan de cerca, notarán..."`,
+- "Si observan de cerca, notarán..."
+
+### 6. **📍 Coordenadas GPS Obligatorias - ¡Muy Importante!**
+Cada capítulo debe incluir coordenadas GPS precisas:
+- **coordinates**: Coordenadas GPS exactas (lat, lng, description) para la ubicación real de cada capítulo
+- **Formato**: { "lat": 40.4168, "lng": -3.7038, "description": "Puerta de Alcalá entrada principal" }
+- **Precisión**: Usar coordenadas exactas verificadas de fuentes oficiales
+- **Descripción**: Breve descripción de ubicación que coincida con el contenido del capítulo
+
+### 7. **🔍 Principios de Verificación de Hechos Estrictos**
+Toda la información debe ser verificable y precisa:
+- **Hechos Históricos**: Solo información verificada de fuentes confiables
+- **Números y Fechas**: Medidas exactas, fechas de construcción, cronología histórica
+- **Sin Especulación**: Evitar leyendas no confirmadas, suposiciones, contenido interpretativo
+- **Fuentes Oficiales**: Referenciar información disponible en guías oficiales, fuentes académicas
+- **Verificación de Hechos Requerida**: Toda afirmación histórica debe ser verificable`,
 
   qualityStandards: `**Estándares de Calidad (¡Lo Más Importante!):**
 - **🚨 Expresiones ABSOLUTAMENTE PROHIBIDAS 🚨**
@@ -180,6 +195,29 @@ nextDirection: (Separado) Solo orientación de movimiento
 - **100% Regla de Densidad de Información: Cada oración DEBE incluir al menos:**
   * Números específicos, nombres propios, características físicas, hechos históricos, información técnica
 - **Estructura de oración requerida**: "{Nombre específico del lugar}'s {característica específica} es {hecho/número específico}"
+
+### 8. **📋 Límites Estrictos de la Sección de Resumen**
+**Límites de caracteres del campo de antecedentes:**
+- **Ubicaciones pequeñas (tiendas, edificios pequeños)**: Máximo 300-400 caracteres
+- **Ubicaciones medianas (templos, museos)**: Máximo 500-600 caracteres
+- **Ubicaciones complejas (palacios, complejos grandes)**: Máximo 700-800 caracteres
+- **Prohibido**: Longitud excesiva que cause desbordamiento de la interfaz móvil
+
+### 9. **🎯 Estandarización de Sitios Obligatorios**
+**Formato**: #SitioNombre1 #SitioNombre2 #SitioNombre3 #SitioNombre4 #SitioNombre5
+- **Exactamente 5 sitios**: Ni más ni menos
+- **Nombres específicos**: Usar nombres reales de edificios/áreas, no descripciones genéricas
+- **Evitar términos genéricos**: Evitar "Sala Principal", "Área Central" - usar nombres propios
+- **Formato hashtag**: Cada sitio debe comenzar con el símbolo #
+- **Separación por espacios**: Espacio único entre cada sitio etiquetado con #
+
+### 10. **📜 Requisitos del Capítulo de Introducción - ¡Crítico!**
+**El primer capítulo (ID=0) debe ser una introducción integral (1200-1500 caracteres):**
+- **Contexto Histórico y Evolución (400 caracteres)**: Antecedentes de fundación/establecimiento, cambio del propósito original al actual, eventos históricos importantes y puntos de inflexión, cambios cronológicos y proceso de expansión
+- **Arquitectura y Filosofía Espacial (300 caracteres)**: Intención de diseño y significado del estilo arquitectónico, propósito del diseño espacial y planificación de circulación, elementos simbólicos y su significado
+- **Estrategia de Visita y Puntos Clave (300 caracteres)**: Resumen general del área y orden de visita recomendado, consejos de visita por horarios, tesoros ocultos fácilmente perdidos, elementos especiales a notar en cada capítulo
+- **Historias de Perspectiva Local (200 caracteres)**: Hechos interesantes desconocidos para turistas generales, conexiones con la cultura local, encantos diferentes por estación/tiempo, información práctica útil para visitas
+- **Importante**: Escribir en texto plano sin formato markdown (**texto**, ##encabezados, 📜emojis)
 
 **📍 Requisitos Esenciales de Composición de Capítulos:**
 - **Generar al menos 5-7 capítulos**: Configurar capítulos separados para cada punto de observación principal
@@ -242,7 +280,12 @@ export const SPANISH_AUDIO_GUIDE_EXAMPLE = {
           "sceneDescription": "Ante ustedes se alza una de las fachadas más extraordinarias jamás concebidas por la mente humana. Cada centímetro de esta piedra parece cobrar vida, contando la historia del nacimiento de Cristo a través de esculturas que desafían toda lógica arquitectónica tradicional. Las formas orgánicas fluyen como si la propia naturaleza hubiera decidido construir una catedral. ¿Pueden imaginar el genio necesario para concebir semejante maravilla?",
           "coreNarrative": "Este genio tenía nombre: Antoni Gaudí i Cornet. Cuando comenzó a trabajar en esta fachada en 1894, ya había revolucionado la arquitectura barcelonesa, pero aquí quiso ir más allá. Su visión era crear una 'catedral del futuro' que hablara directamente al corazón de las personas, sin necesidad de palabras. Cada elemento que ven - desde las torres que se elevan como enormes termiteros hasta las esculturas que parecen derretirse en formas imposibles - fue diseñado para emocionar antes que para impresionar. Pero la verdadera magia de este lugar no está solo en su arquitectura...",
           "humanStories": "Está en las personas que lo hicieron posible. Como Etsuro Sotoo, un escultor japonés que llegó a Barcelona en 1978 para trabajar temporalmente en la Sagrada Familia y terminó dedicando su vida entera al proyecto. Durante más de 40 años, Sotoo ha tallado ángeles, querubines y figuras bíblicas, estudiando cada pliegue de tela, cada expresión facial, para mantener vivo el espíritu de Gaudí. Cuenta que algunas noches sueña con el arquitecto catalán, quien le susurra secretos sobre cómo debe ser tallada cada piedra.",
-          "nextDirection": "Avancen ahora hacia la entrada principal de la basílica, situada unos 50 metros hacia su derecha. Al caminar, observen cómo las torres parecen crecer del suelo como árboles gigantescos. En el interior les esperará una experiencia que transformará su percepción del espacio sagrado."
+          "nextDirection": "Avancen ahora hacia la entrada principal de la basílica, situada unos 50 metros hacia su derecha. Al caminar, observen cómo las torres parecen crecer del suelo como árboles gigantescos. En el interior les esperará una experiencia que transformará su percepción del espacio sagrado.",
+          "coordinates": {
+            "lat": 41.4036,
+            "lng": 2.1744,
+            "description": "Sagrada Familia Fachada de la Natividad"
+          }
         }
       ]
     }

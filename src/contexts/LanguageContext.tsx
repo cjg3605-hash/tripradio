@@ -1070,19 +1070,31 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   }, [currentLanguage]);
 
-  // 초기 언어 설정
+  // 초기 언어 설정 (URL 파라미터 우선)
   useEffect(() => {
     const initializeLanguage = async () => {
       if (typeof window === 'undefined') return;
       
-      // 저장된 언어 확인
-      const savedLanguage = localStorage.getItem('preferred-language') as SupportedLanguage;
-      
       let initialLanguage: SupportedLanguage;
-      if (savedLanguage && SUPPORTED_LANGUAGES.some(lang => lang.code === savedLanguage)) {
-        initialLanguage = savedLanguage;
+      
+      // 🔥 1순위: URL 파라미터 확인
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlLang = urlParams.get('lang');
+      
+      if (urlLang && ['ko', 'en', 'ja', 'zh', 'es'].includes(urlLang.toLowerCase())) {
+        initialLanguage = urlLang.toLowerCase() as SupportedLanguage;
+        console.log(`🌍 URL 파라미터로 언어 설정: ${initialLanguage}`);
       } else {
-        initialLanguage = detectBrowserLanguage();
+        // 🔥 2순위: localStorage 확인
+        const savedLanguage = localStorage.getItem('preferred-language') as SupportedLanguage;
+        if (savedLanguage && SUPPORTED_LANGUAGES.some(lang => lang.code === savedLanguage)) {
+          initialLanguage = savedLanguage;
+          console.log(`💾 저장된 언어 사용: ${initialLanguage}`);
+        } else {
+          // 🔥 3순위: 브라우저 언어 감지
+          initialLanguage = detectBrowserLanguage();
+          console.log(`🔍 브라우저 언어 감지: ${initialLanguage}`);
+        }
       }
       
       if (initialLanguage !== currentLanguage) {
@@ -1095,7 +1107,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     };
 
     initializeLanguage();
-  }, [currentLanguage, setLanguage]); // currentLanguage와 setLanguage 의존성 추가
+  }, []); // 🔥 의존성 배열 수정: 초기화는 한 번만 실행
 
   // 번역 함수
   const t = (key: string): string | string[] => {

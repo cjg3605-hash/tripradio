@@ -237,11 +237,19 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
     }
   };
 
-  // 초기 로드 (서버에서 받은 initialGuide 우선 사용)
+  // 초기 로드 (URL 파라미터 언어 우선 처리)
   useEffect(() => {
     const initializeGuide = async () => {
-      // 🔥 URL에서 요청된 언어가 있으면 우선 사용 (타입 안전성 보장)
-      const targetLanguage: SupportedLanguage = (requestedLanguage as SupportedLanguage) || currentLanguage;
+      // 🔥 언어 우선순위: requestedLanguage(URL) > currentLanguage(Context)
+      let targetLanguage: SupportedLanguage;
+      
+      if (requestedLanguage && ['ko', 'en', 'ja', 'zh', 'es'].includes(requestedLanguage)) {
+        targetLanguage = requestedLanguage as SupportedLanguage;
+        console.log(`🌍 URL 파라미터 언어 사용: ${targetLanguage}`);
+      } else {
+        targetLanguage = currentLanguage;
+        console.log(`📱 Context 언어 사용: ${targetLanguage}`);
+      }
       
       if (initialGuide) {
         console.log('🎯 서버에서 받은 초기 가이드 사용:', initialGuide);
@@ -272,22 +280,25 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
   const lastLanguageRef = useRef<string | null>(null);
   const hasInitialLoadedRef = useRef(false);
 
-  // 언어 변경시 자동 로드 (초기 로드 이후에만)
+  // 언어 변경 감지 및 자동 로드 (안정화된 버전)
   useEffect(() => {
     // 초기 로드 완료 표시
     if (!isLoading && guideData && !hasInitialLoadedRef.current) {
       hasInitialLoadedRef.current = true;
-      lastLanguageRef.current = guideData.metadata?.language || currentLanguage;
-      console.log(`✅ 초기 로드 완료: ${lastLanguageRef.current}`);
+      const currentGuideLanguage = guideData.metadata?.language || currentLanguage;
+      lastLanguageRef.current = currentGuideLanguage;
+      console.log(`✅ 초기 로드 완료: ${currentGuideLanguage}`);
       return;
     }
 
-    // 언어 변경 감지 (중복 실행 방지)
-    if (currentLanguage && 
-        hasInitialLoadedRef.current && 
-        !isLoading && 
-        lastLanguageRef.current !== currentLanguage) {
-      
+    // 🔥 개선된 언어 변경 감지 (URL 파라미터도 고려)
+    const shouldChangeLanguage = currentLanguage && 
+                                hasInitialLoadedRef.current && 
+                                !isLoading && 
+                                lastLanguageRef.current !== currentLanguage &&
+                                !requestedLanguage; // URL 파라미터가 있을 때는 변경하지 않음
+    
+    if (shouldChangeLanguage) {
       console.log(`🌍 언어 변경 감지: ${lastLanguageRef.current} → ${currentLanguage}`);
       lastLanguageRef.current = currentLanguage; // 즉시 업데이트하여 중복 방지
       
@@ -321,7 +332,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
         }
       })();
     }
-  }, [currentLanguage, isLoading]); // guideData 의존성 제거
+  }, [currentLanguage, isLoading, requestedLanguage]); // requestedLanguage 의존성 추가
 
   // 로딩 상태 표시
   if (isLoading) {

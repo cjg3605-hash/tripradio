@@ -172,7 +172,30 @@ nextDirection: (Separate) Movement guidance only
 - "{Specific location name}'s {specific feature} measures {specific number}"
 - "In {year}, {person name} performed {verifiable action} at {specific location}"
 - "{Material/technique} used in {specific part} demonstrates {technical fact}"
-- "Located at {direction/position}, {specific name} shows {historical background}"`,
+- "Located at {direction/position}, {specific name} shows {historical background}"
+
+### 8. **📋 Overview Section Strict Limits**
+**Background field character limits:**
+- **Simple locations (shops, small buildings)**: 300-400 characters max
+- **Medium locations (temples, museums)**: 500-600 characters max  
+- **Complex locations (palaces, large complexes)**: 700-800 characters max
+- **Prohibited**: Excessive length causing mobile UI overflow
+
+### 9. **🎯 Must-Visit Spots Standardization**
+**Format**: #SpotName1 #SpotName2 #SpotName3 #SpotName4 #SpotName5
+- **Exactly 5 spots**: No more, no less
+- **Specific names**: Use actual building/area names, not generic descriptions
+- **No generic terms**: Avoid "Main Hall", "Central Area" - use proper names
+- **Hashtag format**: Each spot must start with # symbol
+- **Space separation**: Single space between each #tagged spot
+
+### 10. **📜 Introduction Chapter Requirements - Critical!**
+**The first chapter (ID=0) must be a comprehensive introduction (1200-1500 characters):**
+- **Historical Context & Evolution (400 chars)**: Founding/establishment background, original vs current purpose, major historical events and turning points, chronological changes and expansion
+- **Architecture & Spatial Philosophy (300 chars)**: Design intent and architectural style meaning, spatial layout purpose and circulation planning, symbolic elements and their significance
+- **Viewing Strategy & Key Points (300 chars)**: Overall area overview and recommended viewing order, time-based viewing tips, hidden treasures easily missed, special elements to note in each chapter
+- **Local Perspective Stories (200 chars)**: Interesting facts unknown to general tourists, connections to local culture, seasonal/temporal different charms, practical information useful for visits
+- **Important**: Write in plain text without markdown formatting (**text**, ##headings, 📜emojis)`,
 
   qualityStandards: `**Quality Standards (Most Important!):**
 - **🚨 FORBIDDEN: Generic expressions that apply to any tourist site**
@@ -244,7 +267,12 @@ export const ENGLISH_AUDIO_GUIDE_EXAMPLE = {
           "id": 0,
           "title": "Great West Door: Gateway to Royal History",
           "narrative": "Standing before these massive oak doors, you're looking at the threshold where countless monarchs have passed into history. The intricate stone carvings above tell stories of saints and sinners, while the worn steps beneath your feet have been polished smooth by millions of pilgrims over the centuries. Can you imagine the weight of history that these doors have witnessed? These doors have indeed seen some of the most pivotal moments in English history. Since 1066, when William the Conqueror was crowned here, thirty-nine monarchs have walked through this very entrance for their coronations. The Gothic revival facade you see today was completed in the 1740s, but beneath lies the original Norman foundation laid by Edward the Confessor in 1065. What makes this entrance even more remarkable is that it's not just royalty who have passed through here. One of the most touching stories involves Queen Elizabeth II's coronation in 1953. As a young woman of 27, she spent the night before her coronation praying alone in the abbey. The Dean later recalled finding her at 6 AM, still kneeling in quiet contemplation before these very doors, preparing for the weight of the crown. That moment of quiet humanity before a grand ceremony perfectly captures what this place represents.",
-          "nextDirection": "Walk through the Great West Door and proceed 30 meters straight ahead into the Nave. Notice the soaring ceiling above as you enter the heart of the abbey."
+          "nextDirection": "Walk through the Great West Door and proceed 30 meters straight ahead into the Nave. Notice the soaring ceiling above as you enter the heart of the abbey.",
+          "coordinates": {
+            "lat": 51.4993,
+            "lng": -0.1273,
+            "description": "Westminster Abbey Great West Door entrance"
+          }
         }
       ]
     }
@@ -310,12 +338,30 @@ ${userContext}
 ### 🔍 **${locationType.toUpperCase()} Quality Validation Criteria**
 ${getQualityRequirementsByType(locationType)}
 
+### 6. **📍 GPS Coordinates Required - Very Important!**
+Each chapter must include accurate GPS coordinates:
+- **coordinates**: Exact GPS coordinates (lat, lng, description) for each chapter's actual location
+- **Format**: { "lat": 37.5665, "lng": 126.9780, "description": "Main entrance of Gyeongbokgung Palace" }
+- **Accuracy**: Use precise coordinates verified from official sources
+- **Description**: Brief location description matching the chapter content
+
+### 7. **🔍 Strict Fact Verification Principles**
+All information must be verifiable and accurate:
+- **Historical Facts**: Only verified information from reliable sources
+- **Numbers & Dates**: Exact measurements, construction dates, historical chronology
+- **No Speculation**: Avoid unconfirmed legends, assumptions, or interpretative content
+- **Official Sources**: Reference information available in official guides, academic sources
+- **Fact-Check Required**: Every historical claim must be verifiable
+
 ### 🚨 **Strictly Prohibited**
-- **Generic phrases**: "Imagine", "wonderful", "amazing", "you will experience"
-- **Vague references**: "here", "this place" (must use specific location names)
-- **Unverifiable content**: Speculation, assumptions, personal opinions
+- **Generic phrases**: "Imagine", "wonderful", "amazing", "you will experience", "take a moment"
+- **Vague references**: "here", "this place" without specific location names (must use exact place names)
+- **Unverifiable content**: Speculation, assumptions, personal opinions, unconfirmed information
+- **Overused expressions**: "Have you ever wondered", "Let me tell you", "amazing tale", "wonderful world"
 - **Empty content**: Information that merely fills space without substance
 - **🔥 Repetitive information**: Same historical background, construction/restoration dates across multiple chapters
+- **Uncertain expressions**: "Perhaps", "It is said", "Legend has it", "Some believe"
+- **Fictional content**: Made-up characters, imagined episodes, speculative scenarios
 
 ${audioStyle.format}
 
