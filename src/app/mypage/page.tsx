@@ -840,9 +840,10 @@ export default function MyPage() {
                   onClick={async () => {
                     console.log('🚀 마이페이지 로그아웃 시작...');
                     try {
-                      // 1. 완전한 로그아웃 프로세스 실행
-                      const { performCompleteLogout } = await import('@/lib/auth-utils');
+                      // 1. 클라이언트 정리 (쿠키, 스토리지, 간단한 캐시)
+                      const { performCompleteLogout, simpleCacheInvalidation } = await import('@/lib/auth-utils');
                       await performCompleteLogout();
+                      await simpleCacheInvalidation();
                       
                       // 2. 서버 사이드 강제 로그아웃 API 호출
                       try {
@@ -856,37 +857,27 @@ export default function MyPage() {
                         console.warn('⚠️ 서버 강제 로그아웃 실패:', apiError);
                       }
                       
-                      // 3. NextAuth signOut 호출
+                      // 3. NextAuth signOut 호출 (자동 리다이렉트 활성화)
                       console.log('🔄 NextAuth signOut 호출 중...');
                       await signOut({ 
                         callbackUrl: '/',
-                        redirect: false
+                        redirect: true  // 자동 리다이렉트 활성화
                       });
                       
-                      console.log('✅ NextAuth signOut 완료');
-                      
-                      // 4. 최종 Service Worker 캐시 정리 및 리로드
-                      const { finalizeLogout } = await import('@/lib/auth-utils');
-                      await finalizeLogout();
+                      // NextAuth가 자동으로 홈페이지로 리다이렉트하므로 추가 로직 불필요
                       
                     } catch (error) {
                       console.error('❌ 로그아웃 중 오류 발생:', error);
                       
-                      // 에러 발생시에도 완전한 정리 시도
+                      // 에러 발생시에도 기본 정리 및 리다이렉트
                       try {
-                        const { performCompleteLogout } = await import('@/lib/auth-utils');
-                        await performCompleteLogout();
-                        
-                        // 강제 로그아웃 API도 시도
                         await fetch('/api/auth/force-logout', { method: 'POST', credentials: 'include' });
                       } catch (cleanupError) {
                         console.error('정리 프로세스 실패:', cleanupError);
                       }
                       
-                      // 강제 새로고침
-                      setTimeout(() => {
-                        window.location.href = '/';
-                      }, 1000);
+                      // 강제 리다이렉트 (NextAuth 실패시 백업)
+                      window.location.href = '/';
                     }
                   }}
                   className="w-full bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors font-medium flex items-center justify-center"

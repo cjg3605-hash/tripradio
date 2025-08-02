@@ -169,11 +169,28 @@ export async function performCompleteLogout(): Promise<void> {
 }
 
 /**
- * NextAuth signOut 완료 후 실행할 최종 정리 작업
+ * 간단한 캐시 무효화 (NextAuth 리다이렉트 전에 실행)
  */
-export async function finalizeLogout(): Promise<void> {
-  console.log('🔥 최종 로그아웃 정리 시작...');
-  await clearServiceWorkerCache();
+export async function simpleCacheInvalidation(): Promise<void> {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    // 1. 모든 캐시 스토리지 삭제
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map(name => caches.delete(name)));
+      console.log('✅ 모든 캐시 삭제 완료');
+    }
+    
+    // 2. NextAuth 내부 상태 정리
+    // @ts-ignore
+    if (window.__NEXT_DATA__?.props?.pageProps?.session) {
+      window.__NEXT_DATA__.props.pageProps.session = null;
+    }
+    
+  } catch (error) {
+    console.warn('캐시 정리 중 오류:', error);
+  }
 }
 
 /**

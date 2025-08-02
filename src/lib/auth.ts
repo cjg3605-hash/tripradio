@@ -81,6 +81,7 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/auth/signin',
+    signOut: '/', // 로그아웃 후 홈페이지로 리다이렉트
   },
   cookies: {
     sessionToken: {
