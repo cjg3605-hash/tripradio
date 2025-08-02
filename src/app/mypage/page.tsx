@@ -837,7 +837,17 @@ export default function MyPage() {
               
               <div className="p-6">
                 <button
-                  onClick={() => signOut({ callbackUrl: '/' })}
+                  onClick={async () => {
+                    try {
+                      await signOut({ 
+                        callbackUrl: '/',
+                        redirect: true 
+                      });
+                    } catch (error) {
+                      console.error('로그아웃 중 오류 발생:', error);
+                      window.location.href = '/';
+                    }
+                  }}
                   className="w-full bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors font-medium flex items-center justify-center"
                 >
                   <LogOut className="h-4 w-4 mr-2" />

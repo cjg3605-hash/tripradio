@@ -484,13 +484,13 @@
       "unknown_error": "알 수 없는 오류가 발생했습니다"
     },
     "footer": {
-      "companyName": "GUIDE AI",
+      "companyName": "NaviDocent",
       "companyDescription": "AI 기반 개인화 여행 가이드 서비스",
-      "copyright": "© 2024 GUIDE AI. All rights reserved.",
+      "copyright": "© 2024 NaviDocent. All rights reserved.",
       "legalInfo": "법적 정보",
       "privacyPolicy": "개인정보 처리방침",
       "termsOfService": "이용약관",
-      "aboutUs": "회사소개",
+      "aboutUs": "서비스 소개",
       "contact": "문의하기",
       "support": "고객지원",
       "telegramChannel": "텔레그램 채널",
@@ -501,13 +501,13 @@
     "legal": {
       "terms": {
         "title": "이용약관",
-        "description": "GUIDE AI 서비스 이용약관",
+        "description": "NaviDocent 서비스 이용약관",
         "content": "서비스 이용에 관한 약관 내용",
         "lastUpdated": "최종 업데이트"
       },
       "privacy": {
         "title": "개인정보 처리방침",
-        "description": "GUIDE AI 개인정보 처리방침",
+        "description": "NaviDocent 개인정보 처리방침",
         "content": "개인정보 처리에 관한 방침 내용",
         "lastUpdated": "최종 업데이트"
       }
@@ -998,9 +998,9 @@
       "unknown_error": "An unknown error occurred"
     },
     "footer": {
-      "companyName": "GUIDE AI",
+      "companyName": "NaviDocent",
       "companyDescription": "AI-powered personalized travel guide service",
-      "copyright": "© 2024 GUIDE AI. All rights reserved.",
+      "copyright": "© 2024 NaviDocent. All rights reserved.",
       "legalInfo": "Legal Information",
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
@@ -1015,13 +1015,13 @@
     "legal": {
       "terms": {
         "title": "Terms of Service",
-        "description": "GUIDE AI Terms of Service",
+        "description": "NaviDocent Terms of Service",
         "content": "Terms of service content",
         "lastUpdated": "Last Updated"
       },
       "privacy": {
         "title": "Privacy Policy",
-        "description": "GUIDE AI Privacy Policy",
+        "description": "NaviDocent Privacy Policy",
         "content": "Privacy policy content",
         "lastUpdated": "Last Updated"
       }
@@ -1406,9 +1406,9 @@
       "unknown_error": "不明なエラーが発生しました"
     },
     "footer": {
-      "companyName": "GUIDE AI",
+      "companyName": "NaviDocent",
       "companyDescription": "AI基盤個人化旅行ガイドサービス",
-      "copyright": "© 2024 GUIDE AI. All rights reserved.",
+      "copyright": "© 2024 NaviDocent. All rights reserved.",
       "legalInfo": "法的情報",
       "privacyPolicy": "プライバシーポリシー",
       "termsOfService": "利用規約",
@@ -1423,13 +1423,13 @@
     "legal": {
       "terms": {
         "title": "利用規約",
-        "description": "GUIDE AI サービス利用規約",
+        "description": "NaviDocent サービス利用規約",
         "content": "サービス利用に関する規約内容",
         "lastUpdated": "最終更新"
       },
       "privacy": {
         "title": "プライバシーポリシー",
-        "description": "GUIDE AI プライバシーポリシー",
+        "description": "NaviDocent プライバシーポリシー",
         "content": "個人情報処理に関するポリシー内容",
         "lastUpdated": "最終更新"
       }
@@ -1814,9 +1814,9 @@
       "unknown_error": "发生未知错误"
     },
     "footer": {
-      "companyName": "GUIDE AI",
+      "companyName": "NaviDocent",
       "companyDescription": "AI驱动的个性化旅游指南服务",
-      "copyright": "© 2024 GUIDE AI. All rights reserved.",
+      "copyright": "© 2024 NaviDocent. All rights reserved.",
       "legalInfo": "法律信息",
       "privacyPolicy": "隐私政策",
       "termsOfService": "服务条款",
@@ -1831,13 +1831,13 @@
     "legal": {
       "terms": {
         "title": "服务条款",
-        "description": "GUIDE AI 服务条款",
+        "description": "NaviDocent 服务条款",
         "content": "服务条款内容",
         "lastUpdated": "最后更新"
       },
       "privacy": {
         "title": "隐私政策",
-        "description": "GUIDE AI 隐私政策",
+        "description": "NaviDocent 隐私政策",
         "content": "隐私政策内容",
         "lastUpdated": "最后更新"
       }
@@ -2222,9 +2222,9 @@
       "unknown_error": "Ocurrió un error desconocido"
     },
     "footer": {
-      "companyName": "GUIDE AI",
+      "companyName": "NaviDocent",
       "companyDescription": "Servicio de guía de viaje personalizada impulsado por IA",
-      "copyright": "© 2024 GUIDE AI. All rights reserved.",
+      "copyright": "© 2024 NaviDocent. All rights reserved.",
       "legalInfo": "Información Legal",
       "privacyPolicy": "Política de Privacidad",
       "termsOfService": "Términos de Servicio",
@@ -2239,13 +2239,13 @@
     "legal": {
       "terms": {
         "title": "Términos de Servicio",
-        "description": "Términos de Servicio de GUIDE AI",
+        "description": "Términos de Servicio de NaviDocent",
         "content": "Contenido de términos de servicio",
         "lastUpdated": "Última Actualización"
       },
       "privacy": {
         "title": "Política de Privacidad",
-        "description": "Política de Privacidad de GUIDE AI",
+        "description": "Política de Privacidad de NaviDocent",
         "content": "Contenido de política de privacidad",
         "lastUpdated": "Última Actualización"
       }

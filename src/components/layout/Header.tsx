@@ -126,8 +126,18 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
   }, [isLanguageMenuOpen, selectedLanguageIndex, handleLanguageChange, isProfileMenuOpen]);
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' });
-    setIsProfileMenuOpen(false);
+    try {
+      setIsProfileMenuOpen(false);
+      // 로그아웃 후 페이지 새로고침으로 상태 확실히 초기화
+      await signOut({ 
+        callbackUrl: '/',
+        redirect: true
+      });
+    } catch (error) {
+      console.error('로그아웃 중 오류 발생:', error);
+      // 에러 발생시에도 페이지 새로고침
+      window.location.href = '/';
+    }
   };
 
   return (

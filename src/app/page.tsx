@@ -3,7 +3,12 @@
 import { useState, useEffect, useRef, useMemo, useCallback, Component, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
-import GuideGenerating from '@/components/guide/GuideGenerating';
+import dynamic from 'next/dynamic';
+
+// 자주 사용되지 않는 컴포넌트는 동적 로딩
+const GuideGenerating = dynamic(() => import('@/components/guide/GuideGenerating'), {
+  loading: () => <div className="min-h-screen bg-white flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div></div>
+});
 import StructuredData from '@/components/seo/StructuredData';
 
 // 에러 바운더리 클래스 컴포넌트
@@ -1083,7 +1088,7 @@ function Home() {
       <footer className="relative z-10 bg-gray-50 border-t border-gray-200">
         <div className="max-w-6xl mx-auto px-6 py-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {/* Company Info */}
+            {/* Service Info */}
             <div className="md:col-span-2">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('footer.companyName')}</h3>
               <p className="text-sm text-gray-600 mb-4">

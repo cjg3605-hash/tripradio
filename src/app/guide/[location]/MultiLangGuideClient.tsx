@@ -4,7 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { GuideData } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
-import MinimalTourContent from './tour/components/TourContent';
+import dynamic from 'next/dynamic';
+
+// 동적 import로 큰 컴포넌트 지연 로딩
+const MinimalTourContent = dynamic(() => import('./tour/components/TourContent'), {
+  loading: () => <GuideLoading message="투어 콘텐츠 로딩 중..." />,
+  ssr: false
+});
 import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';

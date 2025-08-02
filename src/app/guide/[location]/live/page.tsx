@@ -12,10 +12,25 @@ import {
   Home,
   ArrowUp
 } from 'lucide-react';
-import LiveLocationTracker from '@/components/location/LiveLocationTracker';
-import SimpleAudioPlayer from '@/components/audio/SimpleAudioPlayer';
-import ChapterAudioPlayer from '@/components/audio/ChapterAudioPlayer';
-import MapWithRoute from '@/components/guide/MapWithRoute';
+import dynamic from 'next/dynamic';
+
+// 동적 import로 코드 스플리팅 적용
+const LiveLocationTracker = dynamic(() => import('@/components/location/LiveLocationTracker'), {
+  loading: () => <div className="flex items-center justify-center p-4"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div></div>
+});
+
+const SimpleAudioPlayer = dynamic(() => import('@/components/audio/SimpleAudioPlayer'), {
+  loading: () => <div className="h-16 bg-gray-100 rounded-lg animate-pulse"></div>
+});
+
+const ChapterAudioPlayer = dynamic(() => import('@/components/audio/ChapterAudioPlayer'), {
+  loading: () => <div className="h-32 bg-gray-100 rounded-lg animate-pulse"></div>
+});
+
+const MapWithRoute = dynamic(() => import('@/components/guide/MapWithRoute'), {
+  loading: () => <div className="h-64 bg-gray-100 rounded-lg animate-pulse flex items-center justify-center"><span className="text-gray-500">지도 로딩 중...</span></div>,
+  ssr: false // 지도는 클라이언트에서만 렌더링
+});
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AudioChapter } from '@/types/audio';
 import { enhanceGuideCoordinates } from '@/lib/coordinates/guide-coordinate-enhancer';

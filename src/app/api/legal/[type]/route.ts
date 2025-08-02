@@ -17,17 +17,14 @@ export async function GET(
     
     // 연락처 정보 설정 (최초 실행 시)
     legalPagesService.setContactInformation({
-      companyName: '네비가이드AI',
-      businessAddress: {
-        street: '테헤란로',
-        city: '안양시',
-        state: '경기도',
-        zipCode: '',
+      serviceName: 'NaviDocent',
+      serviceAddress: {
+        city: '서울',
+        state: '서울시',
         country: '대한민국'
       },
-      email: 'cjg5209@gmail.com',
-      phone: '070-0000-0000',
-      representativeName: 'cjg5209'
+      email: 'contact@navidocent.com',
+      developerName: 'NaviDocent Developer'
     });
 
     let page;

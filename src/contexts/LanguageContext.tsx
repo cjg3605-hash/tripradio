@@ -206,6 +206,20 @@ interface Translations {
     hide: string;
     exists: string;
     notExists: string;
+    confirmDelete: string;
+    daysAgo: string;
+    weeksAgo: string;
+    languagesGenerated: string;
+    total: string;
+    none: string;
+    sortLatest: string;
+    sortName: string;
+    sortChapters: string;
+    allLanguages: string;
+    chapters: string;
+    completed: string;
+    processing: string;
+    minutes: string;
   };
   history: {
     noResults: string;
@@ -247,13 +261,76 @@ interface Translations {
   mypage: {
     title: string;
     overview: string;
+    overviewShort: string;
     guides: string;
+    guidesShort: string;
     settings: string;
+    settingsShort: string;
     recentGuides: string;
     favoriteGuides: string;
+    favoritesShort: string;
+    fileGuides: string;
+    filesShort: string;
     totalGuides: string;
     completedTours: string;
     savedLocations: string;
+    primaryLanguage: string;
+    frequentPlaces: string;
+    personalizedDiagnosis: string;
+    diagnosisComplete: string;
+    diagnosisResult: string;
+    reliability: string;
+    diagnosed: string;
+    contentDepth: string;
+    guideStyle: string;
+    interaction: string;
+    emotionalTone: string;
+    aiSimulationInfo: string;
+    accuracy: string;
+    personalizedGuideProvided: string;
+    timeRequired: string;
+    countriesVerification: string;
+    retakeDiagnosis: string;
+    startDiagnosis: string;
+    personalizedGuideActive: string;
+    noFavoriteGuides: string;
+    addFavoriteGuides: string;
+    createGuideFromFile: string;
+    uploadFileDescription: string;
+    supportedFormats: string;
+    noUploadedFiles: string;
+    uploadFirstFile: string;
+    personalityTraits: {
+      openness: string;
+      conscientiousness: string;
+      extraversion: string;
+      agreeableness: string;
+      neuroticism: string;
+    };
+    contentDepthLevels: {
+      veryDetailed: string;
+      detailed: string;
+      moderate: string;
+      simple: string;
+    };
+    guideStyles: {
+      storytelling: string;
+      academic: string;
+      conversational: string;
+      practical: string;
+    };
+    interactionLevels: {
+      veryActive: string;
+      active: string;
+      moderate: string;
+      passive: string;
+    };
+    emotionalTones: {
+      enthusiastic: string;
+      friendly: string;
+      professional: string;
+      calm: string;
+    };
   };
   auth: {
     login: string;
@@ -559,7 +636,21 @@ const DEFAULT_TRANSLATIONS: Translations = {
     close: '닫기',
     hide: '숨기기',
     exists: '있음',
-    notExists: '없음'
+    notExists: '없음',
+    confirmDelete: '정말 삭제하시겠습니까?',
+    daysAgo: '일 전',
+    weeksAgo: '주 전',
+    languagesGenerated: '개 언어로 생성',
+    total: '총',
+    none: '없음',
+    sortLatest: '최신순',
+    sortName: '이름순',
+    sortChapters: '챕터순',
+    allLanguages: '모든 언어',
+    chapters: '개 챕터',
+    completed: '완료',
+    processing: '처리중',
+    minutes: '분'
   },
   history: {
     noResults: '검색 결과가 없습니다',
@@ -601,13 +692,76 @@ const DEFAULT_TRANSLATIONS: Translations = {
   mypage: {
     title: '마이페이지',
     overview: '개요',
-    guides: '가이드',
+    overviewShort: '개요',
+    guides: '내 가이드',
+    guidesShort: '가이드',
     settings: '설정',
+    settingsShort: '설정',
     recentGuides: '최근 가이드',
     favoriteGuides: '즐겨찾기 가이드',
+    favoritesShort: '즐겨찾기',
+    fileGuides: '파일 가이드',
+    filesShort: '파일',
     totalGuides: '전체 가이드',
     completedTours: '완료된 투어',
-    savedLocations: '저장된 장소'
+    savedLocations: '저장된 장소',
+    primaryLanguage: '주 사용 언어',
+    frequentPlaces: '자주 방문하는 장소들',
+    personalizedDiagnosis: '개인화 가이드 맞춤 진단',
+    diagnosisComplete: '진단 완료! 당신의 주도적 성격은',
+    diagnosisResult: '입니다',
+    reliability: '신뢰도',
+    diagnosed: '진단',
+    contentDepth: '콘텐츠 깊이',
+    guideStyle: '가이드 스타일',
+    interaction: '상호작용',
+    emotionalTone: '감정적 어조',
+    aiSimulationInfo: '100만명 AI 시뮬레이션으로 검증된 5문항 진단으로',
+    accuracy: '정확도',
+    personalizedGuideProvided: '의 개인화 가이드를 제공합니다',
+    timeRequired: '소요시간',
+    countriesVerification: '개국 문화적 공정성 검증',
+    retakeDiagnosis: '다시 진단하기',
+    startDiagnosis: '진단 시작하기',
+    personalizedGuideActive: '이제 모든 가이드가 당신의 성격에 맞게 자동으로 개인화됩니다!',
+    noFavoriteGuides: '즐겨찾기한 가이드가 없습니다',
+    addFavoriteGuides: '마음에 드는 가이드를 즐겨찾기로 추가해보세요!',
+    createGuideFromFile: '파일에서 가이드 생성',
+    uploadFileDescription: 'PDF, Word, 텍스트 파일을 업로드하여 가이드를 생성할 수 있습니다',
+    supportedFormats: '지원 형식: PDF, DOCX, TXT (최대 10MB)',
+    noUploadedFiles: '업로드된 파일이 없습니다',
+    uploadFirstFile: '첫 번째 파일을 업로드해보세요!',
+    personalityTraits: {
+      openness: '개방성',
+      conscientiousness: '성실성',
+      extraversion: '외향성',
+      agreeableness: '친화성',
+      neuroticism: '신경성'
+    },
+    contentDepthLevels: {
+      veryDetailed: '매우 상세',
+      detailed: '상세',
+      moderate: '보통',
+      simple: '간단'
+    },
+    guideStyles: {
+      storytelling: '스토리텔링',
+      academic: '학술적',
+      conversational: '대화형',
+      practical: '실용적'
+    },
+    interactionLevels: {
+      veryActive: '매우 활발',
+      active: '활발',
+      moderate: '보통',
+      passive: '수동적'
+    },
+    emotionalTones: {
+      enthusiastic: '열정적',
+      friendly: '친근한',
+      professional: '전문적',
+      calm: '차분한'
+    }
   },
   auth: {
     login: '로그인',
@@ -663,13 +817,13 @@ const DEFAULT_TRANSLATIONS: Translations = {
     chapter: '챕터'
   },
   footer: {
-    companyName: 'GUIDE AI',
-    companyDescription: 'AI 기반 개인화 여행 가이드 서비스',
-    copyright: '© 2024 GUIDE AI. All rights reserved.',
+    companyName: 'NaviDocent',
+    companyDescription: 'AI 기반 개인 맞춤형 여행 도슨트 서비스',
+    copyright: '© 2024 NaviDocent. All rights reserved.',
     legalInfo: '법적 정보',
     privacyPolicy: '개인정보 처리방침',
     termsOfService: '이용약관',
-    aboutUs: '회사소개',
+    aboutUs: '서비스 소개',
     contact: '문의하기',
     support: '고객지원',
     telegramChannel: '텔레그램 채널',
@@ -680,13 +834,13 @@ const DEFAULT_TRANSLATIONS: Translations = {
   legal: {
     terms: {
       title: '이용약관',
-      description: 'GUIDE AI 서비스 이용약관',
+      description: 'NaviDocent 서비스 이용약관',
       content: '서비스 이용에 관한 약관 내용',
       lastUpdated: '최종 업데이트'
     },
     privacy: {
       title: '개인정보 처리방침',
-      description: 'GUIDE AI 개인정보 처리방침',
+      description: 'NaviDocent 개인정보 처리방침',
       content: '개인정보 처리에 관한 방침 내용',
       lastUpdated: '최종 업데이트'
     }

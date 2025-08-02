@@ -5,6 +5,7 @@ import './globals.css';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import SessionProvider from '@/components/providers/SessionProvider';
 import ClientLayout from '@/components/layout/ClientLayout';
+import LocalBusinessSchema from '@/components/seo/LocalBusinessSchema';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -128,6 +129,9 @@ export default function RootLayout({
         
         {/* Naver Search Advisor Verification */}
         <meta name="naver-site-verification" content="dc5a0970077fc443190c84178a92820b04abeeef" />
+        
+        {/* Local Business Schema */}
+        <LocalBusinessSchema />
       </head>
       <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
         <SessionProvider>

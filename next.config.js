@@ -129,16 +129,56 @@ const nextConfig = {
   // output: 'export', // NextAuth와 충돌하므로 제거
   trailingSlash: true,
   images: {
-    unoptimized: true
+    unoptimized: false, // 이미지 최적화 활성화
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30일
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   experimental: {
     esmExternals: 'loose'
   },
+  // 압축 최적화
+  compress: true,
+  poweredByHeader: false,
   typescript: {
     ignoreBuildErrors: false,
   },
   eslint: {
     ignoreDuringBuilds: false,
+  },
+  // 번들 크기 최적화
+  webpack: (config, { isServer }) => {
+    // 클라이언트 빌드에서만 번들 분석 활성화
+    if (!isServer) {
+      config.optimization.splitChunks.chunks = 'all';
+      config.optimization.splitChunks.cacheGroups = {
+        ...config.optimization.splitChunks.cacheGroups,
+        // 큰 라이브러리들을 별도 청크로 분리
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+          minSize: 20000,
+          maxSize: 244000,
+        },
+        // 지도 관련 라이브러리 분리
+        maps: {
+          test: /[\\/]node_modules[\\/](leaflet|react-leaflet)[\\/]/,
+          name: 'maps',
+          chunks: 'all',
+          priority: 10,
+        },
+        // 오디오 관련 라이브러리 분리
+        audio: {
+          test: /[\\/](audio|sound|tts)[\\/]/,
+          name: 'audio',
+          chunks: 'all',
+          priority: 10,
+        }
+      };
+    }
+    return config;
   },
   // 빌드 ID를 고정값으로 변경하여 캐시 문제 해결
   generateBuildId: async () => {

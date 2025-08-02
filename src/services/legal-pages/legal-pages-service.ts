@@ -20,18 +20,15 @@ export interface LegalPageContent {
 }
 
 export interface ContactInformation {
-  companyName: string;
-  businessAddress: {
-    street: string;
+  serviceName: string;
+  serviceAddress?: {
     city: string;
     state: string;
-    zipCode: string;
     country: string;
   };
   email: string;
   phone?: string;
-  businessNumber?: string;
-  representativeName: string;
+  developerName: string;
 }
 
 export interface AdSenseComplianceMetrics {
@@ -39,7 +36,7 @@ export interface AdSenseComplianceMetrics {
   hasTermsOfService: boolean;
   hasAboutPage: boolean;
   hasContactInfo: boolean;
-  hasValidBusinessInfo: boolean;
+  hasValidServiceInfo: boolean;
   lastComplianceCheck: Date;
   complianceScore: number; // 0-100
   missingElements: string[];
@@ -51,17 +48,14 @@ export interface AdSenseComplianceMetrics {
 export class LegalPagesService {
   private static instance: LegalPagesService;
   private contactInfo: ContactInformation = {
-    companyName: '네비가이드AI 서비스',
-    representativeName: 'cjg5209',
-    businessAddress: {
-      street: '',
-      city: '',
-      state: '한국',
-      zipCode: '',
+    serviceName: 'NaviDocent',
+    developerName: 'NaviDocent Developer',
+    serviceAddress: {
+      city: '서울',
+      state: '서울시',
       country: '대한민국'
     },
-    email: 'cjg5209@gmail.com',
-    phone: '070-0000-0000'
+    email: 'contact@navidocent.com'
   };
   private pages = new Map<string, LegalPageContent>();
 
@@ -89,8 +83,8 @@ export class LegalPagesService {
       isPublished: true,
       seoMetadata: {
         description: language === 'ko' 
-          ? '네비가이드AI 개인정보처리방침 - 사용자 데이터 보호 및 처리 방침'
-          : 'NaviGuide AI Privacy Policy - User data protection and processing policy',
+          ? 'NaviDocent 개인정보처리방침 - 사용자 데이터 보호 및 처리 방침'
+          : 'NaviDocent Privacy Policy - User data protection and processing policy',
         keywords: ['privacy policy', 'data protection', '개인정보보호', 'GDPR', 'user privacy'],
         canonicalUrl: `/legal/privacy`
       }
@@ -117,8 +111,8 @@ export class LegalPagesService {
       isPublished: true,
       seoMetadata: {
         description: language === 'ko'
-          ? '네비가이드AI 이용약관 - 서비스 이용 조건 및 사용자 권리'
-          : 'NaviGuide AI Terms of Service - Service usage conditions and user rights',
+          ? 'NaviDocent 이용약관 - 서비스 이용 조건 및 사용자 권리'
+          : 'NaviDocent Terms of Service - Service usage conditions and user rights',
         keywords: ['terms of service', 'user agreement', '이용약관', 'service terms'],
         canonicalUrl: `/legal/terms`
       }
@@ -137,7 +131,7 @@ export class LegalPagesService {
     const page: LegalPageContent = {
       id: `about-${language}`,
       type: 'about',
-      title: language === 'ko' ? '회사 소개' : 'About Us',
+      title: language === 'ko' ? '서비스 소개' : 'About Us',
       content: aboutContent,
       lastUpdated: new Date(),
       version: '1.0.0',
@@ -145,9 +139,9 @@ export class LegalPagesService {
       isPublished: true,
       seoMetadata: {
         description: language === 'ko'
-          ? '네비가이드AI 소개 - AI 기반 여행 가이드 서비스 제공업체'
-          : 'About NaviGuide AI - AI-powered travel guide service provider',
-        keywords: ['about us', 'company', 'AI travel', '회사소개', 'travel technology'],
+          ? 'NaviDocent 소개 - AI 기반 여행 도슨트 서비스'
+          : 'About NaviDocent - AI-powered travel docent service',
+        keywords: ['about us', 'service', 'AI travel', '서비스소개', 'travel technology'],
         canonicalUrl: `/about`
       }
     };
@@ -192,21 +186,21 @@ export class LegalPagesService {
     const hasTermsOfService = this.pages.has('terms-ko') || this.pages.has('terms-en');
     const hasAboutPage = this.pages.has('about-ko') || this.pages.has('about-en');
     const hasContactInfo = this.pages.has('contact-ko') || this.pages.has('contact-en');
-    const hasValidBusinessInfo = this.contactInfo && this.contactInfo.email && this.contactInfo.businessAddress;
+    const hasValidServiceInfo = this.contactInfo && this.contactInfo.email && this.contactInfo.serviceName;
 
     const missingElements: string[] = [];
     if (!hasPrivacyPolicy) missingElements.push('Privacy Policy');
     if (!hasTermsOfService) missingElements.push('Terms of Service');
     if (!hasAboutPage) missingElements.push('About Us Page');
     if (!hasContactInfo) missingElements.push('Contact Information');
-    if (!hasValidBusinessInfo) missingElements.push('Valid Business Information');
+    if (!hasValidServiceInfo) missingElements.push('Valid Service Information');
 
     const complianceScore = Math.round(
       ((hasPrivacyPolicy ? 25 : 0) +
        (hasTermsOfService ? 25 : 0) +
        (hasAboutPage ? 20 : 0) +
        (hasContactInfo ? 15 : 0) +
-       (hasValidBusinessInfo ? 15 : 0))
+       (hasValidServiceInfo ? 15 : 0))
     );
 
     return {
@@ -214,7 +208,7 @@ export class LegalPagesService {
       hasTermsOfService,
       hasAboutPage,
       hasContactInfo,
-      hasValidBusinessInfo: !!hasValidBusinessInfo,
+      hasValidServiceInfo: !!hasValidServiceInfo,
       lastComplianceCheck: new Date(),
       complianceScore,
       missingElements
@@ -560,7 +554,7 @@ Matters not specified in these terms will be governed by applicable laws and cus
 **사업자 정보**
 - 회사명: 네비가이드AI
 - 이메일: ${this.contactInfo?.email || 'contact@naviguide.ai'}
-- 주소: ${this.contactInfo?.businessAddress?.street || '서울특별시 강남구 테헤란로'} ${this.contactInfo?.businessAddress?.city || ''}
+- 주소: ${this.contactInfo?.serviceAddress?.city || '서울'}, ${this.contactInfo?.serviceAddress?.country || '대한민국'}
 
 **문의 유형**
 - 일반 문의: 서비스 이용, 계정 관련
@@ -629,7 +623,7 @@ We prioritize user privacy protection:
 **Business Information**
 - Company: NaviGuide AI
 - Email: ${this.contactInfo?.email || 'contact@naviguide.ai'}
-- Address: ${this.contactInfo?.businessAddress?.street || 'Seoul, South Korea'}
+- Address: ${this.contactInfo?.serviceAddress?.city || 'Seoul'}, ${this.contactInfo?.serviceAddress?.country || 'South Korea'}
 
 **Contact Types**
 - General Inquiry: Service usage, account related
@@ -668,7 +662,7 @@ We have partnerships with various travel-related companies and continuously stri
 ## 🏢 사업자 정보
 
 **서비스명**: 네비가이드AI  
-**운영자**: ${this.contactInfo?.representativeName || 'cjg5209'}  
+**개발자**: ${this.contactInfo?.developerName || 'NaviDocent Developer'}  
 **주소**: 경기도 안양시
 
 ## 📞 전화 문의
@@ -722,7 +716,7 @@ If you need inquiries or support regarding NaviGuide AI, please use the informat
 ## 🏢 Business Information
 
 **Service Name**: NaviGuide AI  
-**Operator**: ${this.contactInfo?.representativeName || 'cjg5209'}  
+**Operator**: ${this.contactInfo?.developerName || 'cjg5209'}  
 **Address**: Gyeonggi-do, Anyang-si, South Korea
 
 ## 📞 Phone Inquiries

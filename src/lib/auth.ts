@@ -86,26 +86,26 @@ export const authOptions: NextAuthOptions = {
       name: 'next-auth.session-token',
       options: {
         httpOnly: true,
-        sameSite: 'strict', // CSRF 보호 강화
+        sameSite: 'lax', // 로그아웃 개선을 위해 lax로 변경
         path: '/',
-        secure: true, // 모든 환경에서 HTTPS 강제
+        secure: process.env.NODE_ENV === 'production', // 개발환경에서는 false
         domain: process.env.NODE_ENV === 'production' ? process.env.NEXTAUTH_URL?.replace(/https?:\/\//, '') : undefined
       }
     },
     callbackUrl: {
       name: 'next-auth.callback-url',
       options: {
-        sameSite: 'strict',
+        sameSite: 'lax',
         httpOnly: true,
-        secure: true
+        secure: process.env.NODE_ENV === 'production'
       }
     },
     csrfToken: {
       name: 'next-auth.csrf-token',
       options: {
-        sameSite: 'strict',
+        sameSite: 'lax',
         httpOnly: true,
-        secure: true
+        secure: process.env.NODE_ENV === 'production'
       }
     }
   },
