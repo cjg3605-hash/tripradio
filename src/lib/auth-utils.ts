@@ -27,6 +27,8 @@ export function clearAllAuthCookies(): void {
     'localhost',
     '.localhost',
     '127.0.0.1',
+    'navidocent.com',
+    '.navidocent.com',
     undefined // 현재 도메인
   ];
 
@@ -146,6 +148,55 @@ export function performCompleteLogout(): void {
   
   // 3. 모든 인증 쿠키 삭제
   clearAllAuthCookies();
+  
+  // 4. NextAuth 및 Service Worker 캐시 정리
+  if (typeof window !== 'undefined') {
+    // NextAuth 내부 상태 강제 정리
+    try {
+      // @ts-ignore - NextAuth 내부 상태 접근
+      if (window.__NEXT_DATA__?.props?.pageProps?.session) {
+        window.__NEXT_DATA__.props.pageProps.session = null;
+      }
+      
+      // Service Worker 캐시 강제 정리 (가장 중요!)
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          console.log('🧹 발견된 캐시:', names);
+          names.forEach(name => {
+            // NextAuth 관련 캐시 삭제
+            if (name.includes('next-auth') || name.includes('session') || name.includes('apis')) {
+              console.log('🗑️ 캐시 삭제:', name);
+              caches.delete(name);
+            }
+          });
+        });
+        
+        // 특정 API 캐시 강제 삭제
+        caches.open('apis').then(cache => {
+          cache.keys().then(requests => {
+            requests.forEach(request => {
+              if (request.url.includes('/api/auth/')) {
+                console.log('🔥 인증 API 캐시 삭제:', request.url);
+                cache.delete(request);
+              }
+            });
+          });
+        }).catch(() => {
+          // 캐시가 없으면 무시
+        });
+      }
+      
+      // Service Worker 자체에 메시지 전송
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'CLEAR_AUTH_CACHE'
+        });
+        console.log('📨 Service Worker에 캐시 정리 메시지 전송');
+      }
+    } catch (error) {
+      console.warn('캐시 정리 중 오류:', error);
+    }
+  }
   
   console.log('✅ 완전한 로그아웃 프로세스 완료');
 }

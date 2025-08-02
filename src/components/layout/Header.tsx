@@ -134,7 +134,19 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
       const { performCompleteLogout } = await import('@/lib/auth-utils');
       performCompleteLogout();
       
-      // 2. NextAuth signOut 호출
+      // 2. 서버 사이드 강제 로그아웃 API 호출
+      try {
+        console.log('🔥 서버 강제 로그아웃 호출 중...');
+        await fetch('/api/auth/force-logout', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        console.log('✅ 서버 강제 로그아웃 완료');
+      } catch (apiError) {
+        console.warn('⚠️ 서버 강제 로그아웃 실패:', apiError);
+      }
+      
+      // 3. NextAuth signOut 호출
       console.log('🔄 NextAuth signOut 호출 중...');
       await signOut({ 
         callbackUrl: '/',
@@ -143,10 +155,10 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
       
       console.log('✅ NextAuth signOut 완료');
       
-      // 3. 강제 페이지 리로드로 모든 상태 완전 초기화
+      // 4. 강제 페이지 리로드로 모든 상태 완전 초기화
       setTimeout(() => {
         window.location.replace('/'); // href 대신 replace 사용으로 히스토리도 정리
-      }, 500); // 조금 더 시간을 줘서 signOut이 완전히 처리되도록
+      }, 100); // 더 빠른 리다이렉트
       
     } catch (error) {
       console.error('❌ 로그아웃 중 오류 발생:', error);
@@ -155,6 +167,9 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
       try {
         const { performCompleteLogout } = await import('@/lib/auth-utils');
         performCompleteLogout();
+        
+        // 강제 로그아웃 API도 시도
+        await fetch('/api/auth/force-logout', { method: 'POST', credentials: 'include' });
       } catch (cleanupError) {
         console.error('정리 프로세스 실패:', cleanupError);
       }

@@ -87,10 +87,11 @@ export const authOptions: NextAuthOptions = {
       name: 'next-auth.session-token',
       options: {
         httpOnly: true,
-        sameSite: 'lax', // 로그아웃 개선을 위해 lax로 변경
+        sameSite: 'lax',
         path: '/',
-        secure: process.env.NODE_ENV === 'production', // 개발환경에서는 false
-        domain: process.env.NODE_ENV === 'production' ? process.env.NEXTAUTH_URL?.replace(/https?:\/\//, '') : undefined
+        secure: process.env.NODE_ENV === 'production',
+        // 프로덕션에서 명시적으로 도메인 설정
+        domain: process.env.NODE_ENV === 'production' ? '.navidocent.com' : undefined
       }
     },
     callbackUrl: {
@@ -98,7 +99,9 @@ export const authOptions: NextAuthOptions = {
       options: {
         sameSite: 'lax',
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production'
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        domain: process.env.NODE_ENV === 'production' ? '.navidocent.com' : undefined
       }
     },
     csrfToken: {
@@ -106,7 +109,9 @@ export const authOptions: NextAuthOptions = {
       options: {
         sameSite: 'lax',
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production'
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        domain: process.env.NODE_ENV === 'production' ? '.navidocent.com' : undefined
       }
     }
   },
