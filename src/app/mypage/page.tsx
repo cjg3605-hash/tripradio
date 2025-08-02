@@ -840,45 +840,37 @@ export default function MyPage() {
                   onClick={async () => {
                     console.log('🚀 마이페이지 로그아웃 시작...');
                     try {
-                      // 1. 모든 클라이언트 데이터 삭제
-                      if (typeof window !== 'undefined') {
-                        sessionStorage.clear();
-                        localStorage.clear();
-                        
-                        // 모든 쿠키 삭제
-                        const cookies = document.cookie.split(";");
-                        cookies.forEach((cookie) => {
-                          const eqPos = cookie.indexOf("=");
-                          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-                          
-                          const domains = [window.location.hostname, `.${window.location.hostname}`, 'localhost', '.localhost'];
-                          const paths = ['/', '/auth', '/api'];
-                          
-                          domains.forEach(domain => {
-                            paths.forEach(path => {
-                              document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=${path};domain=${domain}`;
-                              document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=${path}`;
-                            });
-                          });
-                        });
-                      }
+                      // 1. 완전한 로그아웃 프로세스 실행
+                      const { performCompleteLogout } = await import('@/lib/auth-utils');
+                      performCompleteLogout();
                       
-                      // 2. NextAuth signOut
+                      // 2. NextAuth signOut 호출
+                      console.log('🔄 NextAuth signOut 호출 중...');
                       await signOut({ 
                         callbackUrl: '/',
                         redirect: false
                       });
                       
-                      console.log('✅ signOut 완료');
+                      console.log('✅ NextAuth signOut 완료');
                       
-                      // 3. 페이지 리로드
+                      // 3. 강제 페이지 리로드로 모든 상태 완전 초기화
                       setTimeout(() => {
-                        window.location.href = '/';
-                      }, 100);
+                        window.location.replace('/'); // href 대신 replace 사용으로 히스토리도 정리
+                      }, 500); // 조금 더 시간을 줘서 signOut이 완전히 처리되도록
                       
                     } catch (error) {
                       console.error('❌ 로그아웃 중 오류 발생:', error);
-                      window.location.href = '/';
+                      
+                      // 에러 발생시에도 완전한 정리 시도
+                      try {
+                        const { performCompleteLogout } = await import('@/lib/auth-utils');
+                        performCompleteLogout();
+                      } catch (cleanupError) {
+                        console.error('정리 프로세스 실패:', cleanupError);
+                      }
+                      
+                      // 강제 새로고침
+                      window.location.replace('/');
                     }
                   }}
                   className="w-full bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors font-medium flex items-center justify-center"
