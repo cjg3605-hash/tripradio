@@ -9,8 +9,9 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "quality:check": "node scripts/quality-check-manual.js",
+    "quality:delete": "node scripts/quality-check-manual.js --delete",
     "quality:inspect": "node scripts/quality-check-manual.js inspect",
-    "quality:help": "echo '🎯 가이드 품질 검사 명령어:\\n  npm run quality:check - 전체 가이드 품질 검사\\n  npm run quality:inspect <위치명> [언어] - 개별 가이드 상세 검사\\n\\n예시:\\n  npm run quality:check\\n  npm run quality:inspect 경복궁 ko'"
+    "quality:help": "echo '🎯 가이드 품질 검사 명령어:\\n  npm run quality:check - 전체 가이드 품질 검사\\n  npm run quality:delete - 품질검사 후 75점 이하 자동 삭제\\n  npm run quality:inspect <위치명> [언어] - 개별 가이드 상세 검사\\n\\n예시:\\n  npm run quality:check\\n  npm run quality:delete\\n  npm run quality:inspect 경복궁 ko'"
   },
   "browserslist": {
     "production": [

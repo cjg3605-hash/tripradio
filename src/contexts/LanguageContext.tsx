@@ -367,6 +367,7 @@ interface Translations {
     termsAndConditions: string;
     privacyPolicy: string;
     secureConnection: string;
+    unknownError: string;
   };
   buttons: {
     submit: string;
@@ -797,7 +798,8 @@ const DEFAULT_TRANSLATIONS: Translations = {
     signup: '회원가입',
     termsAndConditions: '이용약관',
     privacyPolicy: '개인정보 처리방침',
-    secureConnection: '256-bit SSL 보안 연결로 보호됩니다'
+    secureConnection: '256-bit SSL 보안 연결로 보호됩니다',
+    unknownError: '알 수 없는 오류가 발생했습니다'
   },
   buttons: {
     submit: '제출',

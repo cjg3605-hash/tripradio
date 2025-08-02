@@ -11,35 +11,136 @@ const path_1 = require("path");
 (0, dotenv_1.config)({ path: (0, path_1.resolve)(process.cwd(), '.env.local') });
 const supabase_js_1 = require("@supabase/supabase-js");
 const generative_ai_1 = require("@google/generative-ai");
+
+// Node.js 18+ fetch 지원 확인
+const fetch = globalThis.fetch || require('node-fetch');
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const supabase = (0, supabase_js_1.createClient)(SUPABASE_URL, SUPABASE_ANON_KEY);
-// 간단한 품질 체크 함수
+// 간단한 품질 체크 함수 (실제 DB 구조에 맞게 수정)
 function calculateSimpleQualityScore(guide) {
     let score = 100;
     const issues = [];
-    // 기본 필드 존재 확인
-    if (!guide.locationName)
-        score -= 20;
-    if (!guide.overview)
-        score -= 15;
-    if (!guide.chapters || !Array.isArray(guide.chapters))
-        score -= 25;
-    // 내용 길이 확인
-    if (guide.overview && guide.overview.length < 100)
-        score -= 10;
-    if (guide.chapters && guide.chapters.length < 3)
-        score -= 15;
-    // 챕터 내용 확인
-    if (guide.chapters) {
-        guide.chapters.forEach((chapter, index) => {
-            if (!chapter.title)
-                score -= 5;
-            if (!chapter.content || chapter.content.length < 50)
-                score -= 5;
-        });
+    
+    // DB content 구조에 따른 검사
+    if (guide.content) {
+        // guides 테이블의 realTimeGuide 구조 확인 (우선)
+        if (guide.content.realTimeGuide) {
+            // 실제 guides 테이블 구조 (현재 사용중)
+            const rtGuide = guide.content.realTimeGuide;
+            if (!rtGuide.chapters || !Array.isArray(rtGuide.chapters)) score -= 25;
+            if (rtGuide.chapters && rtGuide.chapters.length < 3) score -= 15;
+            
+            rtGuide.chapters?.forEach((chapter, index) => {
+                if (!chapter.title) score -= 5;
+                if (!chapter.narrative || chapter.narrative.length < 100) score -= 5;
+                
+                // 인트로 챕터 (첫 번째 챕터) 특별 검사
+                if (index === 0) {
+                    // 인트로 챕터 길이 검사 (1200-1500자 기준)
+                    if (!chapter.narrative) {
+                        score -= 25; // 인트로 없으면 큰 감점
+                    } else {
+                        const length = chapter.narrative.length;
+                        if (length < 1200) {
+                            score -= 15; // 1200자 미만 큰 감점
+                        } else if (length > 1500) {
+                            score -= 5; // 1500자 초과 소감점 (너무 길어도 문제)
+                        }
+                    }
+                    
+                    // 인트로 챕터 인사말 검사
+                    if (chapter.narrative) {
+                        const greetingPatterns = [
+                            /안녕하세요/,
+                            /여러분/,
+                            /환영합니다/,
+                            /반갑습니다/,
+                            /함께.*하겠습니다/,
+                            /.*함께.*여행/,
+                            /.*가이드.*시작/,
+                            /.*소개.*드리겠습니다/
+                        ];
+                        
+                        const hasGreeting = greetingPatterns.some(pattern => 
+                            pattern.test(chapter.narrative)
+                        );
+                        
+                        if (!hasGreeting) {
+                            score -= 10; // 인사말이 없으면 감점
+                        }
+                    }
+                }
+            });
+            
+            // overview 체크
+            if (!rtGuide.overview || rtGuide.overview.length < 100) score -= 15;
+            
+        } else if (guide.content.content && guide.content.content.realTimeGuide) {
+            // 중첩된 구조인 경우
+            const rtGuide = guide.content.content.realTimeGuide;
+            if (!rtGuide.chapters || !Array.isArray(rtGuide.chapters)) score -= 25;
+            if (rtGuide.chapters && rtGuide.chapters.length < 3) score -= 15;
+            
+            rtGuide.chapters?.forEach((chapter, index) => {
+                if (!chapter.title) score -= 5;
+                if (!chapter.narrative || chapter.narrative.length < 100) score -= 5;
+                
+                // 인트로 챕터 (첫 번째 챕터) 특별 검사
+                if (index === 0) {
+                    // 인트로 챕터 길이 검사 (1200-1500자 기준)
+                    if (!chapter.narrative) {
+                        score -= 25; // 인트로 없으면 큰 감점
+                    } else {
+                        const length = chapter.narrative.length;
+                        if (length < 1200) {
+                            score -= 15; // 1200자 미만 큰 감점
+                        } else if (length > 1500) {
+                            score -= 5; // 1500자 초과 소감점 (너무 길어도 문제)
+                        }
+                    }
+                    
+                    // 인트로 챕터 인사말 검사
+                    if (chapter.narrative) {
+                        const greetingPatterns = [
+                            /안녕하세요/,
+                            /여러분/,
+                            /환영합니다/,
+                            /반갑습니다/,
+                            /함께.*하겠습니다/,
+                            /.*함께.*여행/,
+                            /.*가이드.*시작/,
+                            /.*소개.*드리겠습니다/
+                        ];
+                        
+                        const hasGreeting = greetingPatterns.some(pattern => 
+                            pattern.test(chapter.narrative)
+                        );
+                        
+                        if (!hasGreeting) {
+                            score -= 10; // 인사말이 없으면 감점
+                        }
+                    }
+                }
+            });
+        } else if (guide.content.raw) {
+            // guide_versions 테이블의 레거시 원시 JSON 문자열인 경우
+            try {
+                const jsonContent = JSON.parse(guide.content.content.replace(/```json\n/, '').replace(/\n```$/, ''));
+                if (!jsonContent.location) score -= 20;
+                if (!jsonContent.overview || jsonContent.overview.length < 100) score -= 15;
+                if (!jsonContent.highlights || !Array.isArray(jsonContent.highlights) || jsonContent.highlights.length < 3) score -= 25;
+            } catch (e) {
+                score -= 50; // JSON 파싱 실패
+            }
+        } else {
+            score -= 30; // 알 수 없는 구조
+        }
+    } else {
+        score -= 50; // 콘텐츠 없음
     }
+    
     return Math.max(0, score);
 }
 // 품질 임계값
@@ -64,8 +165,39 @@ function getQualityStatus(score) {
 async function checkGuideQuality() {
     console.log('🎯 가이드 품질 검사 시작...\n');
     try {
-        // 1. 프로덕션 가이드 조회
+        // 1. 실제 사용되는 guides 테이블에서 모든 가이드 조회 (우선)
         const { data: guides, error } = await supabase
+            .from('guides')
+            .select(`
+        id,
+        locationname,
+        language,
+        content,
+        updated_at
+      `)
+            .order('locationname', { ascending: true });
+            
+        if (error) {
+            throw new Error(`가이드 조회 실패: ${error.message}`);
+        }
+        
+        // guides 테이블 데이터를 표준 형식으로 변환
+        let allGuides = [];
+        if (guides && guides.length > 0) {
+            allGuides = guides.map(g => ({
+                id: g.id,
+                location_name: g.locationname,
+                language: g.language || 'ko',
+                content: g.content,
+                quality_score: null,
+                status: 'production',
+                updated_at: g.updated_at
+            }));
+            console.log(`📊 guides 테이블에서 ${guides.length}개 가이드 발견`);
+        }
+        
+        // 추가로 guide_versions 테이블도 확인 (레거시 데이터)
+        const { data: guideVersions, error: gvError } = await supabase
             .from('guide_versions')
             .select(`
         id,
@@ -73,24 +205,30 @@ async function checkGuideQuality() {
         language,
         content,
         quality_score,
+        status,
         updated_at
       `)
-            .eq('status', 'production')
+            .in('status', ['production', 'staging'])
             .order('location_name', { ascending: true });
-        if (error) {
-            throw new Error(`가이드 조회 실패: ${error.message}`);
+            
+        if (!gvError && guideVersions && guideVersions.length > 0) {
+            console.log(`📊 추가로 guide_versions 테이블에서 ${guideVersions.length}개 가이드 발견 (레거시)`);
+            allGuides.push(...guideVersions);
         }
-        if (!guides || guides.length === 0) {
-            console.log('✅ 검사할 프로덕션 가이드가 없습니다.');
+        
+        if (allGuides.length === 0) {
+            console.log('✅ 검사할 가이드가 없습니다.');
             return createEmptyResult();
         }
-        console.log(`📊 총 ${guides.length}개 프로덕션 가이드 발견`);
+        
+        console.log(`📊 총 검사 대상: ${allGuides.length}개 가이드`);
+        
         // 2. 각 가이드 검사
         const results = [];
         const genAI = new generative_ai_1.GoogleGenerativeAI(GEMINI_API_KEY);
-        for (let i = 0; i < guides.length; i++) {
-            const guide = guides[i];
-            console.log(`🔍 [${i + 1}/${guides.length}] ${guide.location_name} (${guide.language}) 검사 중...`);
+        for (let i = 0; i < allGuides.length; i++) {
+            const guide = allGuides[i];
+            console.log(`🔍 [${i + 1}/${allGuides.length}] ${guide.location_name} (${guide.language}) 검사 중...`);
             try {
                 const checkResult = await checkSingleGuide(guide, genAI);
                 results.push(checkResult);
@@ -137,31 +275,100 @@ async function checkSingleGuide(guide, genAI) {
             needsAction: guide.quality_score < 60
         };
     }
-    // 가이드 내용 파싱
-    let content;
-    try {
-        content = typeof guide.content === 'string' ? JSON.parse(guide.content) : guide.content;
-    }
-    catch (parseError) {
-        return {
-            locationName: guide.location_name,
-            language: guide.language,
-            qualityScore: 0,
-            status: 'critical',
-            issues: ['JSON 파싱 실패'],
-            needsAction: true
-        };
-    }
-    // 간단한 품질 점수 계산
-    const score = calculateSimpleQualityScore(content);
+    // 간단한 품질 점수 계산 (가이드 객체 자체를 전달)
+    const score = calculateSimpleQualityScore(guide);
     const status = getQualityStatus(score);
     const issues = [];
-    if (!content.locationName)
+    
+    // 실제 DB 구조에 맞는 이슈 체크
+    if (!guide.location_name)
         issues.push('위치명 누락');
-    if (!content.overview)
-        issues.push('개요 누락');
-    if (!content.chapters || content.chapters.length < 3)
-        issues.push('챕터 부족');
+        
+    if (guide.content) {
+        if (guide.content.realTimeGuide) {
+            // guides 테이블 구조 검사 (우선)
+            const rtGuide = guide.content.realTimeGuide;
+            if (!rtGuide.chapters || rtGuide.chapters.length < 3) issues.push('챕터 부족');
+            if (!rtGuide.overview) issues.push('개요 누락');
+            
+            // 인트로 챕터 검사
+            if (rtGuide.chapters && rtGuide.chapters.length > 0) {
+                const introChapter = rtGuide.chapters[0];
+                if (!introChapter.narrative) {
+                    issues.push('인트로 챕터 누락');
+                } else {
+                    const length = introChapter.narrative.length;
+                    if (length < 1200) {
+                        issues.push(`인트로 챕터 길이 부족 (${length}자 < 1200자)`);
+                    } else if (length > 1500) {
+                        issues.push(`인트로 챕터 너무 길음 (${length}자 > 1500자)`);
+                    }
+                }
+                
+                if (introChapter.narrative) {
+                    const greetingPatterns = [
+                        /안녕하세요/, /여러분/, /환영합니다/, /반갑습니다/,
+                        /함께.*하겠습니다/, /.*함께.*여행/, /.*가이드.*시작/, /.*소개.*드리겠습니다/
+                    ];
+                    
+                    const hasGreeting = greetingPatterns.some(pattern => 
+                        pattern.test(introChapter.narrative)
+                    );
+                    
+                    if (!hasGreeting) {
+                        issues.push('인트로 챕터 인사말 누락');
+                    }
+                }
+            }
+        } else if (guide.content.content && guide.content.content.realTimeGuide) {
+            // 중첩된 구조화된 가이드 검사
+            const rtGuide = guide.content.content.realTimeGuide;
+            if (!rtGuide.chapters || rtGuide.chapters.length < 3) issues.push('챕터 부족');
+            
+            // 인트로 챕터 검사
+            if (rtGuide.chapters && rtGuide.chapters.length > 0) {
+                const introChapter = rtGuide.chapters[0];
+                if (!introChapter.narrative) {
+                    issues.push('인트로 챕터 누락');
+                } else {
+                    const length = introChapter.narrative.length;
+                    if (length < 1200) {
+                        issues.push(`인트로 챕터 길이 부족 (${length}자 < 1200자)`);
+                    } else if (length > 1500) {
+                        issues.push(`인트로 챕터 너무 길음 (${length}자 > 1500자)`);
+                    }
+                }
+                
+                if (introChapter.narrative) {
+                    const greetingPatterns = [
+                        /안녕하세요/, /여러분/, /환영합니다/, /반갑습니다/,
+                        /함께.*하겠습니다/, /.*함께.*여행/, /.*가이드.*시작/, /.*소개.*드리겠습니다/
+                    ];
+                    
+                    const hasGreeting = greetingPatterns.some(pattern => 
+                        pattern.test(introChapter.narrative)
+                    );
+                    
+                    if (!hasGreeting) {
+                        issues.push('인트로 챕터 인사말 누락');
+                    }
+                }
+            }
+        } else if (guide.content.raw) {
+            // guide_versions 테이블 원시 JSON 데이터 검사 (레거시)
+            try {
+                const jsonContent = JSON.parse(guide.content.content.replace(/```json\n/, '').replace(/\n```$/, ''));
+                if (!jsonContent.overview) issues.push('개요 누락');
+                if (!jsonContent.highlights || jsonContent.highlights.length < 3) issues.push('하이라이트 부족');
+            } catch (e) {
+                issues.push('JSON 파싱 실패');
+            }
+        } else {
+            issues.push('알 수 없는 콘텐츠 구조');
+        }
+    } else {
+        issues.push('콘텐츠 없음');
+    }
     return {
         locationName: guide.location_name,
         language: guide.language,
@@ -318,7 +525,8 @@ function sleep(ms) {
 async function inspectSpecificGuide(locationName, language = 'ko') {
     console.log(`🔍 ${locationName} (${language}) 상세 검사 중...\n`);
     try {
-        const { data: guide, error } = await supabase
+        // guide_versions 테이블에서 먼저 찾기
+        let { data: guide, error } = await supabase
             .from('guide_versions')
             .select(`
         id,
@@ -326,17 +534,45 @@ async function inspectSpecificGuide(locationName, language = 'ko') {
         language,
         content,
         quality_score,
+        status,
         created_at,
         updated_at
       `)
             .eq('location_name', locationName)
             .eq('language', language)
-            .eq('status', 'production')
-            .single();
-        if (error || !guide) {
+            .in('status', ['production', 'staging'])
+            .limit(1);
+            
+        // guide_versions에서 찾지 못하면 guides 테이블에서 찾기
+        if (error || !guide || guide.length === 0) {
+            const { data: guidesTableData, error: guidesError } = await supabase
+                .from('guides')
+                .select('id, locationname, language, content, updated_at')
+                .eq('locationname', locationName)
+                .eq('language', language)
+                .limit(1);
+                
+            if (!guidesError && guidesTableData && guidesTableData.length > 0) {
+                guide = [{
+                    id: guidesTableData[0].id,
+                    location_name: guidesTableData[0].locationname,
+                    language: guidesTableData[0].language || 'ko',
+                    content: guidesTableData[0].content,
+                    quality_score: null,
+                    status: 'guides_table',
+                    created_at: null,
+                    updated_at: guidesTableData[0].updated_at
+                }];
+                error = null;
+            }
+        }
+        
+        if (error || !guide || guide.length === 0) {
             console.error('❌ 가이드를 찾을 수 없습니다');
             return;
         }
+        
+        guide = guide[0]; // 첫 번째 결과 사용
         // 기본 정보
         console.log(`📍 위치: ${guide.location_name}`);
         console.log(`🌐 언어: ${guide.language}`);
@@ -380,6 +616,58 @@ async function inspectSpecificGuide(locationName, language = 'ko') {
         console.error('❌ 가이드 검사 실패:', error);
     }
 }
+// 🗑️ 75점 이하 가이드 삭제
+async function deleteLowQualityGuides(lowQualityGuides) {
+    if (lowQualityGuides.length === 0) {
+        console.log('✅ 삭제할 가이드가 없습니다.');
+        return;
+    }
+    
+    console.log(`\n⚠️ 다음 ${lowQualityGuides.length}개 가이드를 삭제합니다:`);
+    lowQualityGuides.forEach(guide => {
+        console.log(`  - ${guide.locationName} (${guide.language}): ${guide.qualityScore}점`);
+    });
+    
+    console.log('\n🚨 주의: 이 작업은 되돌릴 수 없습니다!');
+    console.log('계속하려면 5초 후 진행됩니다...');
+    
+    // 5초 대기
+    for (let i = 5; i > 0; i--) {
+        process.stdout.write(`\r⏰ ${i}초 남음... (Ctrl+C로 취소)`);
+        await sleep(1000);
+    }
+    console.log('\n');
+    
+    console.log(`🗑️ ${lowQualityGuides.length}개 가이드 삭제 시작...`);
+    
+    let deletedCount = 0;
+    for (const guide of lowQualityGuides) {
+        console.log(`\n🗑️ [삭제] ${guide.locationName} (${guide.language}) - ${guide.qualityScore}점`);
+        
+        try {
+            // guides 테이블에서 해당 가이드 삭제
+            const { error: deleteError } = await supabase
+                .from('guides')
+                .delete()
+                .eq('locationname', guide.locationName)
+                .eq('language', guide.language);
+                
+            if (deleteError) {
+                console.error(`   ❌ 삭제 실패: ${deleteError.message}`);
+                continue;
+            }
+            
+            console.log(`   ✅ 삭제 완료`);
+            deletedCount++;
+            
+        } catch (error) {
+            console.error(`   💥 처리 실패: ${error.message}`);
+        }
+    }
+    
+    console.log(`\n🎉 삭제 작업 완료! (${deletedCount}/${lowQualityGuides.length}개 성공)`);
+}
+
 // 🎯 CLI 진입점
 async function main() {
     const args = process.argv.slice(2);
@@ -389,10 +677,12 @@ async function main() {
 
 사용법:
   npm run quality:check                    # 전체 가이드 검사
+  npm run quality:check --delete           # 품질검사 후 75점 이하 자동 삭제
   npm run quality:inspect <위치명> [언어]   # 개별 가이드 상세 검사
 
 예시:
   npm run quality:check
+  npm run quality:check --delete
   npm run quality:inspect 경복궁 ko
   npm run quality:inspect 덕수궁
     `);
@@ -412,8 +702,25 @@ async function main() {
     }
     // 전체 가이드 검사
     try {
-        await checkGuideQuality();
+        const results = await checkGuideQuality();
         console.log('\n🎉 품질 검사 완료!');
+        
+        // --delete 또는 --regenerate 플래그가 있으면 75점 이하 가이드 삭제
+        if (args.includes('--delete') || args.includes('--regenerate')) {
+            const lowQualityGuides = [
+                ...results.poor.filter(g => g.qualityScore <= 75),
+                ...results.critical
+            ];
+            
+            if (lowQualityGuides.length > 0) {
+                console.log(`\n⚠️ 75점 이하 가이드 ${lowQualityGuides.length}개 발견!`);
+                console.log('🗑️ 자동 삭제를 시작합니다...');
+                
+                await deleteLowQualityGuides(lowQualityGuides);
+            } else {
+                console.log('\n✅ 모든 가이드가 75점 이상입니다!');
+            }
+        }
     }
     catch (error) {
         console.error('❌ 실행 실패:', error);

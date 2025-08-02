@@ -5,6 +5,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { UserProfile } from '@/types/guide';
 import { EnhancedChapterSelectionSystem } from './enhanced-chapter-system';
 import { DataIntegrationOrchestrator } from '../data-sources/orchestrator/data-orchestrator';
+import { HallucinationPreventionSystem, verifyMultipleChapters } from './hallucination-prevention';
 
 /**
  * 🌍 범용 Must-See 챕터 생성기
@@ -14,11 +15,13 @@ export class UniversalChapterGenerationAI {
   private genAI: GoogleGenerativeAI;
   private enhancedSystem: EnhancedChapterSelectionSystem;
   private dataOrchestrator: DataIntegrationOrchestrator;
+  private hallucinationPrevention: HallucinationPreventionSystem;
 
   constructor(apiKey: string) {
     this.genAI = new GoogleGenerativeAI(apiKey);
     this.enhancedSystem = new EnhancedChapterSelectionSystem();
     this.dataOrchestrator = DataIntegrationOrchestrator.getInstance();
+    this.hallucinationPrevention = new HallucinationPreventionSystem(apiKey);
   }
 
   /**
@@ -352,27 +355,38 @@ ${candidatesText}
   }
 
   /**
-   * 🔧 품질 필터링 및 최종 정제
+   * 🔧 품질 필터링 및 최종 정제 (강화된 할루시네이션 방지)
    */
   private async applyQualityFilters(
     structure: IntegratedChapterStructure,
     locationName: string
   ): Promise<ChapterGenerationResult> {
-    console.log('🔧 품질 필터링 적용 중...');
+    console.log('🔧 강화된 품질 필터링 적용 중...');
 
-    // 🚫 존재성 필터 (실제 존재하지 않는 장소 제거)
-    const existenceFiltered = structure.mainChapters.filter(chapter => 
-      !this.isLikelyHallucination(chapter.title, locationName)
+    // 🛡️ 1단계: 강화된 할루시네이션 방지 시스템
+    const realityVerifications = await this.performEnhancedRealityCheck(
+      structure.mainChapters,
+      locationName
     );
 
-    // 🔄 중복 제거 필터
-    const deduplicatedChapters = this.removeDuplicateChapters(existenceFiltered);
+    // 실존성 검증 통과한 챕터만 필터링
+    const realityFiltered = structure.mainChapters.filter((_, index) => 
+      realityVerifications[index].isReal && realityVerifications[index].confidence > 0.6
+    );
 
-    // 🎯 다양성 보장 필터 (같은 유형만 선택되는 것 방지)
+    console.log(`🛡️ 할루시네이션 필터링: ${structure.mainChapters.length}개 → ${realityFiltered.length}개`);
+
+    // 🔄 2단계: 중복 제거 필터  
+    const deduplicatedChapters = this.removeDuplicateChapters(realityFiltered);
+
+    // 🎯 3단계: 다양성 보장 필터 (같은 유형만 선택되는 것 방지)
     const diversifiedChapters = this.ensureDiversity(deduplicatedChapters);
 
-    // 📊 신뢰도 점수 계산
-    const confidenceScore = this.calculateOverallConfidence(structure.validationResults);
+    // 📊 4단계: 종합 신뢰도 점수 계산 (할루시네이션 방지 결과 반영)
+    const confidenceScore = this.calculateEnhancedConfidenceScore(
+      structure.validationResults,
+      realityVerifications
+    );
 
     return {
       success: true,
@@ -612,16 +626,95 @@ ${candidatesText}
     });
   }
 
-  private isLikelyHallucination(chapterTitle: string, locationName: string): boolean {
-    // 할루시네이션 가능성이 높은 패턴 감지
+  /**
+   * 🛡️ 강화된 실존성 검증 (다층적 할루시네이션 방지)
+   */
+  private async performEnhancedRealityCheck(
+    chapters: any[],
+    locationName: string
+  ): Promise<Array<import('./hallucination-prevention').RealityVerificationResult>> {
+    console.log('🛡️ 강화된 할루시네이션 검증 시작...');
+
+    try {
+      // 배치 검증으로 성능 최적화
+      const chaptersForVerification = chapters.map(chapter => ({
+        title: chapter.title,
+        content: chapter.content
+      }));
+
+      const verificationResults = await verifyMultipleChapters(
+        chaptersForVerification,
+        locationName,
+        process.env.GEMINI_API_KEY!
+      );
+
+      // 검증 결과 로깅
+      const realCount = verificationResults.filter(r => r.isReal).length;
+      const fakeCount = verificationResults.length - realCount;
+      
+      console.log(`🛡️ 할루시네이션 검증 완료: 실존 ${realCount}개, 의심 ${fakeCount}개`);
+
+      if (fakeCount > 0) {
+        console.warn('⚠️ 할루시네이션 의심 챕터들:');
+        verificationResults
+          .filter(r => !r.isReal)
+          .forEach(r => console.warn(`  - ${r.chapterTitle}: ${r.reason} (신뢰도: ${r.confidence})`));
+      }
+
+      return verificationResults;
+
+    } catch (error) {
+      console.error('❌ 강화된 할루시네이션 검증 실패:', error);
+      
+      // 폴백: 기본 패턴 검증
+      return chapters.map(chapter => ({
+        isReal: !this.isLikelyHallucinationBasic(chapter.title, locationName),
+        confidence: 0.7,
+        reason: 'fallback_pattern_check',
+        details: '강화된 검증 실패로 기본 패턴 검증 사용'
+      }));
+    }
+  }
+
+  /**
+   * 🚨 기본 할루시네이션 검증 (폴백용)
+   */
+  private isLikelyHallucinationBasic(chapterTitle: string, locationName: string): boolean {
     const suspiciousPatterns = [
-      /\b(가상|상상|임의|예시)\b/,
+      /\b(가상|상상|임의|예시|테스트)\b/i,
       /\b(존재하지\s*않는|없는)\b/,
       /\b(OO|XX|YY|ZZ)\b/,
-      /\b(임시|테스트)\b/
+      /\b(AI\s*생성|자동\s*생성)\b/i,
+      /\[\s*.*\s*\]/
     ];
 
     return suspiciousPatterns.some(pattern => pattern.test(chapterTitle));
+  }
+
+  /**
+   * 📊 강화된 신뢰도 점수 계산 (할루시네이션 방지 결과 반영)
+   */
+  private calculateEnhancedConfidenceScore(
+    validationResults: any,
+    realityVerifications: Array<import('./hallucination-prevention').RealityVerificationResult>
+  ): number {
+    // 기존 검증 점수
+    const baseConfidence = this.calculateOverallConfidence(validationResults);
+    
+    // 할루시네이션 방지 점수
+    const realityScores = realityVerifications.map(r => r.isReal ? r.confidence : 0);
+    const avgRealityScore = realityScores.reduce((sum, score) => sum + score, 0) / realityScores.length;
+    
+    // 가중 평균 (기존 70% + 할루시네이션 방지 30%)
+    const enhancedConfidence = baseConfidence * 0.7 + avgRealityScore * 0.3;
+    
+    console.log('📊 신뢰도 점수:', {
+      기존검증: baseConfidence.toFixed(3),
+      실존성검증: avgRealityScore.toFixed(3),
+      최종점수: enhancedConfidence.toFixed(3)
+    });
+
+    return enhancedConfidence;
   }
 
   private removeDuplicateChapters(chapters: any[]): any[] {

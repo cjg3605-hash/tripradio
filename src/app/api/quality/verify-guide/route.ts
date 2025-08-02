@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { HallucinationPreventionSystem } from '@/lib/ai/hallucination-prevention';
 
 export const runtime = 'nodejs';
 
@@ -131,7 +132,7 @@ async function performQualityVerification(
   return combinedResults;
 }
 
-// 구조적 검증 (JSON 구조, 필수 필드 등)
+// 구조적 검증 (JSON 구조, 필수 필드 등) + 할루시네이션 방지
 async function performStructuralVerification(
   guideContent: any,
   expectedElements?: string[]
@@ -141,6 +142,63 @@ async function performStructuralVerification(
   const recommendations: string[] = [];
   
   let completenessScore = 100;
+
+  // 🛡️ 할루시네이션 방지 검증 추가
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey && guideContent.realTimeGuide?.chapters) {
+      const hallucinationPrevention = new HallucinationPreventionSystem(apiKey);
+      
+      // 챕터 제목들에 대한 빠른 할루시네이션 검증
+      for (let i = 0; i < guideContent.realTimeGuide.chapters.length; i++) {
+        const chapter = guideContent.realTimeGuide.chapters[i];
+        if (chapter.title) {
+          const verification = await hallucinationPrevention.verifyChapterReality(
+            chapter.title,
+            guideContent.location || 'Unknown',
+            chapter
+          );
+          
+          if (!verification.isReal && verification.confidence > 0.7) {
+            issues.push({
+              category: 'factual',
+              severity: 'high',
+              description: `챕터 "${chapter.title}"가 실존하지 않을 가능성이 높습니다`,
+              location: `chapters[${i}].title`,
+              suggestion: verification.suggestions?.[0] || '실제 존재하는 장소명으로 수정해주세요'
+            });
+            completenessScore -= 15;
+          } else if (!verification.isReal && verification.confidence > 0.5) {
+            issues.push({
+              category: 'factual',
+              severity: 'medium',
+              description: `챕터 "${chapter.title}"의 실존성에 의문이 있습니다`,
+              location: `chapters[${i}].title`,
+              suggestion: '실제 장소인지 재확인 필요'
+            });
+            completenessScore -= 8;
+          }
+        }
+      }
+    }
+  } catch (hallucinationError) {
+    console.warn('⚠️ 할루시네이션 검증 실패:', hallucinationError);
+    // 기본 패턴 검증으로 폴백
+    if (guideContent.realTimeGuide?.chapters) {
+      guideContent.realTimeGuide.chapters.forEach((chapter: any, index: number) => {
+        if (chapter.title && hasHallucinationPatterns(chapter.title)) {
+          issues.push({
+            category: 'factual',
+            severity: 'medium',
+            description: `챕터 "${chapter.title}"에 의심스러운 패턴이 발견되었습니다`,
+            location: `chapters[${index}].title`,
+            suggestion: '더 구체적이고 실제적인 장소명으로 수정해주세요'
+          });
+          completenessScore -= 10;
+        }
+      });
+    }
+  }
   
   try {
     // 기본 구조 검증
@@ -418,6 +476,19 @@ function getQualityLevel(score: number): string {
 function hasElement(guideContent: any, element: string): boolean {
   const searchText = JSON.stringify(guideContent).toLowerCase();
   return searchText.includes(element.toLowerCase());
+}
+
+// 헬퍼 함수: 기본 할루시네이션 패턴 확인 (폴백용)
+function hasHallucinationPatterns(text: string): boolean {
+  const patterns = [
+    /\b(가상|상상|임의|예시|테스트)\b/i,
+    /\b(존재하지\s*않는|없는)\b/,
+    /\b(OO|XX|YY|ZZ)\b/,
+    /\b(AI\s*생성|자동\s*생성)\b/i,
+    /\[\s*.*\s*\]/
+  ];
+  
+  return patterns.some(pattern => pattern.test(text));
 }
 
 export async function OPTIONS() {

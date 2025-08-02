@@ -262,16 +262,42 @@ export default function MultiLangGuideClient({ locationName, initialGuide }: Pro
     };
 
     initializeGuide();
-  }, [locationName, initialGuide, currentLanguage, loadAvailableLanguages, loadGuideForLanguage, saveToHistory]);
+  }, [locationName, initialGuide]); // currentLanguage 의존성 제거
 
   // 언어 변경시 자동 로드 (초기 로드 이후에만)
   useEffect(() => {
     // 초기 로드가 완료되고, 현재 가이드의 언어와 다를 때만 로드
     if (currentLanguage && !isLoading && guideData && guideData.metadata?.language !== currentLanguage) {
       console.log(`🌍 언어 변경 감지: ${guideData.metadata?.language} → ${currentLanguage}`);
-      loadGuideForLanguage(currentLanguage);
+      // 직접 호출하여 dependency cycle 방지
+      (async () => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+          const result = await MultiLangGuideManager.smartLanguageSwitch(
+            locationName,
+            currentLanguage
+          );
+
+          if (result.success && result.data) {
+            const normalizedData = normalizeGuideData(result.data, locationName);
+            setGuideData(normalizedData);
+            setSource((result as any).source || 'unknown');
+            await saveToHistory(normalizedData);
+            console.log(`✅ ${currentLanguage} 가이드 로드 완료`);
+          } else {
+            throw new Error((result as any).error?.message || result.error || '가이드 로드 실패');
+          }
+        } catch (err) {
+          console.error('❌ 언어 변경 중 오류:', err);
+          setError(err instanceof Error ? err.message : '언어 변경 중 오류가 발생했습니다.');
+        } finally {
+          setIsLoading(false);
+        }
+      })();
     }
-  }, [currentLanguage, isLoading, guideData, loadGuideForLanguage]);
+  }, [currentLanguage, isLoading, guideData?.metadata?.language]);
 
   // 로딩 상태 표시
   if (isLoading) {
