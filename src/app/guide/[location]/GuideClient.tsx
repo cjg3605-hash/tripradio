@@ -14,8 +14,7 @@ import GuideLoading from '@/components/ui/GuideLoading';
 export default function GuideClient({ locationName, initialGuide }: { locationName: string, initialGuide: any }) {
     const router = useRouter();
     const { currentLanguage, t } = useLanguage();
-    const sessionResult = useSession();
-    const session = sessionResult?.data;
+    const { data: session } = useSession();
 
     // 🔥 핵심 수정: content 래핑 구조 올바른 처리
     const normalizeGuideData = useCallback((data: any, locationName: string): GuideData => {

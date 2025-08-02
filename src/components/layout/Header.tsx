@@ -147,12 +147,16 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
         console.warn('⚠️ 서버 강제 로그아웃 실패:', apiError);
       }
       
-      // 3. NextAuth signOut 호출 (자동 리다이렉트 활성화)
+      // 3. NextAuth signOut 호출 (리다이렉트 비활성화로 제어권 확보)
       console.log('🔄 NextAuth signOut 호출 중...');
       await signOut({ 
         callbackUrl: '/',
-        redirect: true  // 자동 리다이렉트 활성화
+        redirect: false  // 수동 리다이렉트로 변경
       });
+      
+      // 4. 수동 리다이렉트 (확실한 제어)
+      console.log('🏠 홈페이지로 리다이렉트...');
+      window.location.href = '/';
       
       // NextAuth가 자동으로 홈페이지로 리다이렉트하므로 추가 로직 불필요
       

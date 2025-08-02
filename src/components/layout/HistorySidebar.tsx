@@ -34,8 +34,7 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
-  const sessionResult = useSession();
-const session = sessionResult?.data;
+  const { data: session } = useSession();
 
   // 히스토리 로드 (Supabase/localStorage 병행)
   const loadHistory = useCallback(async () => {

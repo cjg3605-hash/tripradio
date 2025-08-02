@@ -124,8 +124,7 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
 export default function MultiLangGuideClient({ locationName, initialGuide }: Props) {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
-  const sessionResult = useSession();
-  const session = sessionResult?.data;
+  const { data: session } = useSession();
 
   const [guideData, setGuideData] = useState<GuideData | null>(null);
   const [isLoading, setIsLoading] = useState(true);

@@ -20,7 +20,7 @@ export default function SessionProvider({ children, session }: SessionProviderPr
   return (
     <NextAuthSessionProvider 
       session={session}
-      refetchInterval={5 * 60} // 5분마다 세션 검증 (로그아웃 감지)
+      refetchInterval={0} // 자동 갱신 비활성화 (로그아웃 즉시 반영)
       refetchOnWindowFocus={true} // 윈도우 포커스시 세션 재검증
       refetchWhenOffline={false}
     >
