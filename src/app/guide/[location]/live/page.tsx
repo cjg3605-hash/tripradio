@@ -248,7 +248,7 @@ const LiveTourPage: React.FC = () => {
     };
 
     loadGuideDataDirectly();
-  }, [locationName]);
+  }, [locationName, currentLanguage]);
 
   const audioChapters: AudioChapter[] = poisWithChapters
     .filter(poi => poi.audioChapter)

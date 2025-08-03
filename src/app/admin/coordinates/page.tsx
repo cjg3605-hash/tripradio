@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { CoordinateStats, CoordinateCandidateInfo, CoordinateRegenerationResponse } from '@/types/guide';
 
 interface StatsResponse {
@@ -25,7 +25,7 @@ export default function CoordinateManagementPage() {
   const [message, setMessage] = useState('');
 
   // 통계 조회
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
       const url = selectedGuideId 
@@ -45,10 +45,10 @@ export default function CoordinateManagementPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedGuideId]);
 
   // 재생성 대상 조회
-  const fetchCandidates = async () => {
+  const fetchCandidates = useCallback(async () => {
     try {
       const url = selectedGuideId
         ? `/api/coordinates/regenerate?guideId=${selectedGuideId}&minAccuracy=${minAccuracy}`
@@ -65,7 +65,7 @@ export default function CoordinateManagementPage() {
     } catch (error) {
       setMessage(`재생성 대상 조회 오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
-  };
+  }, [selectedGuideId, minAccuracy]);
 
   // 좌표 재생성 실행
   const regenerateCoordinates = async () => {
@@ -100,7 +100,7 @@ export default function CoordinateManagementPage() {
   useEffect(() => {
     fetchStats();
     fetchCandidates();
-  }, [selectedGuideId, minAccuracy]);
+  }, [selectedGuideId, minAccuracy, fetchStats, fetchCandidates]);
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">

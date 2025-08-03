@@ -271,7 +271,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
     };
 
     initializeGuide();
-  }, [locationName, initialGuide, requestedLanguage, currentLanguage]); // currentLanguage 의존성 추가
+  }, [locationName, initialGuide, requestedLanguage, currentLanguage, loadAvailableLanguages, loadGuideForLanguage, saveToHistory]); // 모든 의존성 추가
 
   // 🔄 언어 변경 추적용 ref
   const lastLanguageRef = useRef<string | null>(null);
@@ -330,7 +330,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
         }
       })();
     }
-  }, [currentLanguage, isLoading]); // 헤더 언어 변경 감지 전용
+  }, [currentLanguage, isLoading, guideData, locationName, saveToHistory]); // 모든 의존성 추가
 
   // 로딩 상태 표시
   if (isLoading) {

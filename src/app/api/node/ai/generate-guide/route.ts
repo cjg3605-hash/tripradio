@@ -28,6 +28,7 @@ import {
   hasChapterDetails 
 } from '@/lib/supabaseGuideHistory';
 import { validateJsonResponse, createErrorResponse } from '@/lib/utils';
+import { logGuideGeneration, detectLocationInfo } from '@/lib/analytics';
 
 // 🎯 Phase 1 통합 시스템 import
 import { personalityGuideSystem, generatePersonalizedGuide } from '@/lib/integration/personality-guide-system';

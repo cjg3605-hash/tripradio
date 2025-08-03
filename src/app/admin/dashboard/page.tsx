@@ -8,112 +8,57 @@ import {
   TrendingUp, 
   MapPin, 
   FileText, 
-  Globe, 
-  Clock, 
+  Globe,
   Activity,
   Server,
-  AlertTriangle,
-  Calendar,
   BarChart3,
-  PieChart,
-  Target,
   Zap,
   RefreshCw
 } from 'lucide-react';
+import { DashboardStats } from '@/types/dashboard';
 
-// 타입 정의
-interface DashboardStats {
+// 에러 발생시 사용할 기본 데이터
+const getDefaultStats = (): DashboardStats => ({
   users: {
-    total: number;
-    dailyActive: number;
-    weeklyActive: number;
-    monthlyActive: number;
-    newSignups: number;
-    retentionRate: number;
-  };
-  guides: {
-    totalGenerated: number;
-    dailyGenerated: number;
-    weeklyGenerated: number;
-    completionRate: number;
-    averageLength: number;
-    topLanguages: Array<{ language: string; count: number; percentage: number }>;
-  };
-  locations: {
-    popularDestinations: Array<{ name: string; count: number; percentage: number }>;
-    totalLocations: number;
-  };
-  system: {
-    uptime: number;
-    avgResponseTime: number;
-    errorRate: number;
-    serverLoad: number;
-  };
-  engagement: {
-    avgSessionDuration: number;
-    pageViews: number;
-    bounceRate: number;
-    engagementRate: number;
-  };
-}
-
-// 모의 데이터 (실제 구현시 API에서 가져옴)
-const mockStats: DashboardStats = {
-  users: {
-    total: 12548,
-    dailyActive: 847,
-    weeklyActive: 3421,
-    monthlyActive: 8932,
-    newSignups: 156,
-    retentionRate: 73.5
+    total: 0,
+    dailyActive: 0,
+    weeklyActive: 0,
+    monthlyActive: 0,
+    newSignups: 0,
+    retentionRate: 0
   },
   guides: {
-    totalGenerated: 45621,
-    dailyGenerated: 312,
-    weeklyGenerated: 1987,
-    completionRate: 84.2,
-    averageLength: 8.5,
+    totalGenerated: 0,
+    dailyGenerated: 0,
+    weeklyGenerated: 0,
+    completionRate: 0,
+    averageLength: 0,
     topLanguages: [
-      { language: 'Korean', count: 28473, percentage: 62.4 },
-      { language: 'English', count: 9124, percentage: 20.0 },
-      { language: 'Japanese', count: 4562, percentage: 10.0 },
-      { language: 'Chinese', count: 2281, percentage: 5.0 },
-      { language: 'Spanish', count: 1181, percentage: 2.6 }
+      { language: 'Korean', count: 0, percentage: 100 }
     ]
   },
   locations: {
-    popularDestinations: [
-      { name: '경복궁', count: 3842, percentage: 8.4 },
-      { name: '제주도', count: 3156, percentage: 6.9 },
-      { name: '부산', count: 2843, percentage: 6.2 },
-      { name: '경주', count: 2567, percentage: 5.6 },
-      { name: '서울타워', count: 2234, percentage: 4.9 },
-      { name: '인사동', count: 1987, percentage: 4.4 },
-      { name: '명동', count: 1823, percentage: 4.0 },
-      { name: '홍대', count: 1654, percentage: 3.6 },
-      { name: '강남', count: 1432, percentage: 3.1 },
-      { name: '대구', count: 1287, percentage: 2.8 }
-    ],
-    totalLocations: 1247
+    popularDestinations: [],
+    totalLocations: 0
   },
   system: {
-    uptime: 99.7,
-    avgResponseTime: 245,
-    errorRate: 0.3,
-    serverLoad: 34.2
+    uptime: 0,
+    avgResponseTime: 0,
+    errorRate: 0,
+    serverLoad: 0
   },
   engagement: {
-    avgSessionDuration: 12.4,
-    pageViews: 127834,
-    bounceRate: 23.8,
-    engagementRate: 67.3
+    avgSessionDuration: 0,
+    pageViews: 0,
+    bounceRate: 0,
+    engagementRate: 0
   }
-};
+});
 
 export default function AdminDashboard() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [stats, setStats] = useState<DashboardStats>(mockStats);
+  const [stats, setStats] = useState<DashboardStats>(getDefaultStats());
   const [loading, setLoading] = useState(true);
   const [selectedTimeRange, setSelectedTimeRange] = useState<'24h' | '7d' | '30d'>('24h');
 
@@ -185,8 +130,8 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error('대시보드 데이터 로드 실패:', error);
       
-      // 에러 발생시 fallback으로 모의 데이터 사용
-      setStats(mockStats);
+      // 에러 발생시 fallback으로 기본 데이터 사용
+      setStats(getDefaultStats());
       
       // 사용자에게 에러 알림 (선택사항)
       // alert('대시보드 데이터를 불러올 수 없습니다. 일부 데이터는 임시 데이터로 표시됩니다.');
