@@ -23,11 +23,12 @@ import {
   verifyWithExternalData
 } from './validation/accuracy-validator';
 
-// Import adaptive persona system
+// Import universal persona system
 import { 
-  createAdaptivePersonaPrompt, 
-  shouldUseAdaptivePersona 
-} from './prompts/adaptive-persona';
+  createUniversalPersonaPrompt,
+  shouldUseUniversalPersona,
+  selectOptimalPersona
+} from './personas/integration-layer';
 
 // Import data orchestrator for fact verification
 import { DataIntegrationOrchestrator } from '../data-sources/orchestrator/data-orchestrator';
@@ -233,7 +234,7 @@ export async function generatePersonalizedGuide(
     };
 
     // 🔥 Critical: 사실 기반 프롬프트 생성
-    const factBasedPrompt = createFactBasedPrompt(
+    const factBasedPrompt = await createFactBasedPrompt(
       location, 
       safeProfile, 
       dataIntegrationResult
@@ -447,22 +448,27 @@ export async function generatePersonalizedGuide(
 }
 
 // 🔥 새로 추가할 함수 - 업그레이드된 정확성 강화 프롬프트 사용
-function createFactBasedPrompt(
+async function createFactBasedPrompt(
   location: string, 
   profile: UserProfile, 
   dataResult: any
-): string {
-  // 🎭 AI 자동 페르소나 선택 시스템 적용 여부 결정
-  const useAdaptivePersona = shouldUseAdaptivePersona(location);
+): Promise<string> {
+  // 🌍 Universal 페르소나 시스템 사용 (전 세계 지원)
+  const useUniversalPersona = shouldUseUniversalPersona(location);
   
-  console.log(`🎭 Persona 시스템: ${location} → ${useAdaptivePersona ? 'Adaptive Persona' : 'Korean Standard'}`);
+  console.log(`🎭 Universal Persona 시스템: ${location} → ${useUniversalPersona ? 'Universal AI Persona' : 'Korean Standard'}`);
   
   let basePrompt: string;
   
-  if (useAdaptivePersona) {
-    // 🌍 전세계 장소에 대해 AI 자동 페르소나 선택 시스템 사용
-    console.log('🌍 적응형 페르소나 시스템 활성화 - 문화적으로 적절한 전문가 자동 선택');
-    basePrompt = createAdaptivePersonaPrompt(location, profile.language || 'ko');
+  if (useUniversalPersona) {
+    // 🌍 전세계 장소에 대해 AI 기반 유니버설 페르소나 시스템 사용
+    console.log('🌍 유니버설 페르소나 시스템 활성화 - AI 기반 글로벌 전문가 자동 선택');
+    try {
+      basePrompt = await createUniversalPersonaPrompt(location, profile.language || 'ko');
+    } catch (personaError) {
+      console.warn('⚠️ 유니버설 페르소나 시스템 실패, 정확성 강화 시스템으로 폴백:', personaError);
+      basePrompt = createAccuracyEnhancedKoreanPrompt(location, profile);
+    }
   } else {
     // 🇰🇷 한국 장소에 대해서는 기존 정확성 강화 시스템 사용
     console.log('🇰🇷 한국형 정확성 강화 시스템 사용');
@@ -471,7 +477,7 @@ function createFactBasedPrompt(
   
   // 외부 데이터가 없는 경우의 처리
   if (!dataResult?.success || !dataResult?.data) {
-    const dataLimitationNotice = useAdaptivePersona ? 
+    const dataLimitationNotice = useUniversalPersona ? 
       `⚠️ **Data Limitation Notice**: Limited external verification data available for "${location}". The guide will be generated based on general knowledge with strict accuracy standards. No speculative information will be included.` :
       `⚠️ **데이터 제한 안내**: ${location}에 대한 외부 검증 데이터가 부족합니다. 일반적인 정보만을 바탕으로 제한된 가이드를 생성하며, 정확성을 보장할 수 없습니다. 더욱 엄격한 정확성 기준을 적용하여 추측성 정보는 절대 포함하지 마세요.`;
     
@@ -482,7 +488,7 @@ ${dataLimitationNotice}`;
 
   const factualInfo = formatFactualData(dataResult.data);
   
-  const verifiedDataSection = useAdaptivePersona ? 
+  const verifiedDataSection = useUniversalPersona ? 
     `🔍 **Verified Factual Information** (Use only the information below):
 ${factualInfo}
 
@@ -502,7 +508,7 @@ ${factualInfo}
 ⚠️ **중요**: 위에 제시된 검증된 정보만을 사용하여 가이드를 생성하세요.
 확인되지 않은 정보는 절대 포함하지 마세요.`;
 
-  const userSettingsSection = useAdaptivePersona ?
+  const userSettingsSection = useUniversalPersona ?
     `🎯 **User Personalization Settings**:
 - Interests: ${profile.interests?.join(', ') || 'General'}
 - Desired Duration: ${profile.tourDuration || 90} minutes
