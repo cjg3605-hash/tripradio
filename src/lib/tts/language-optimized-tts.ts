@@ -27,8 +27,8 @@ export const LANGUAGE_OPTIMIZED_TTS_CONFIGS: Record<string, LanguageOptimizedTTS
   // 🇰🇷 한국어 - 서울 표준어 기반 자연스러운 음성
   'ko-KR': {
     languageCode: 'ko-KR',
-    voiceName: 'ko-KR-Neural2-C', // 가장 자연스러운 여성 음성
-    ssmlGender: 'FEMALE',
+    voiceName: 'ko-KR-Neural2-C', // 가장 자연스러운 남성 음성
+    ssmlGender: 'MALE',
     audioEncoding: 'MP3',
     speakingRate: 1.1, // 한국어 표준 속도 (약간 느리게)
     pitch: 0.5, // 부드러운 음조
@@ -98,8 +98,8 @@ export const LANGUAGE_OPTIMIZED_TTS_CONFIGS: Record<string, LanguageOptimizedTTS
 
   // 🇨🇳 중국어 간체 - 북경 표준어 (명확한 발음)
   'zh-CN': {
-    languageCode: 'zh-CN',
-    voiceName: 'zh-CN-Neural2-D', // 명확하고 표준적인 여성 음성
+    languageCode: 'zh',
+    voiceName: 'zh-Standard-A', // 명확하고 표준적인 여성 음성 (Standard 모델)
     ssmlGender: 'FEMALE',
     audioEncoding: 'MP3',
     speakingRate: 1.0, // 중국어 표준 속도

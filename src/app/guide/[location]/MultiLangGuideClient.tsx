@@ -159,7 +159,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
   }, [session, currentLanguage]);
 
   // 🌍 언어별 가이드 로드
-  const loadGuideForLanguage = useCallback(async (language: SupportedLanguage = currentLanguage, forceRegenerate = false) => {
+  const loadGuideForLanguage = useCallback(async (language: SupportedLanguage, forceRegenerate = false) => {
     setIsLoading(true);
     setError(null);
 
@@ -206,7 +206,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
       setIsLoading(false);
       setIsRegenerating(false);
     }
-  }, [currentLanguage, locationName, saveToHistory]);
+  }, [locationName, saveToHistory]); // currentLanguage 의존성 제거 (매개변수로 전달되므로)
 
   // 🌍 사용 가능한 언어 목록 로드
   const loadAvailableLanguages = useCallback(async () => {
@@ -240,16 +240,13 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
   // 초기 로드 (URL 파라미터 언어 우선 처리)
   useEffect(() => {
     const initializeGuide = async () => {
-      // 🔥 언어 우선순위: requestedLanguage(URL) > currentLanguage(Context)
+      // 🎯 언어 우선순위: currentLanguage(헤더) > requestedLanguage(URL)
+      // 헤더 언어 설정이 가장 중요!
       let targetLanguage: SupportedLanguage;
       
-      if (requestedLanguage && ['ko', 'en', 'ja', 'zh', 'es'].includes(requestedLanguage)) {
-        targetLanguage = requestedLanguage as SupportedLanguage;
-        console.log(`🌍 URL 파라미터 언어 사용: ${targetLanguage}`);
-      } else {
-        targetLanguage = currentLanguage;
-        console.log(`📱 Context 언어 사용: ${targetLanguage}`);
-      }
+      // 🎯 헤더 언어 설정이 최우선! (localStorage 기반)
+      targetLanguage = currentLanguage;
+      console.log(`🎯 헤더 언어 설정 우선 사용: ${targetLanguage}`);
       
       if (initialGuide) {
         console.log('🎯 서버에서 받은 초기 가이드 사용:', initialGuide);
@@ -274,7 +271,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
     };
 
     initializeGuide();
-  }, [locationName, initialGuide, requestedLanguage]); // requestedLanguage 의존성 추가
+  }, [locationName, initialGuide, requestedLanguage, currentLanguage]); // currentLanguage 의존성 추가
 
   // 🔄 언어 변경 추적용 ref
   const lastLanguageRef = useRef<string | null>(null);
@@ -291,12 +288,13 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
       return;
     }
 
-    // 🔥 개선된 언어 변경 감지 (URL 파라미터도 고려)
+    // 🔥 개선된 언어 변경 감지 (헤더 언어 설정 우선)
     const shouldChangeLanguage = currentLanguage && 
                                 hasInitialLoadedRef.current && 
                                 !isLoading && 
-                                lastLanguageRef.current !== currentLanguage &&
-                                !requestedLanguage; // URL 파라미터가 있을 때는 변경하지 않음
+                                lastLanguageRef.current !== currentLanguage;
+    
+    // 🎯 핵심: 헤더 언어 설정이 가장 우선
     
     if (shouldChangeLanguage) {
       console.log(`🌍 언어 변경 감지: ${lastLanguageRef.current} → ${currentLanguage}`);
@@ -332,7 +330,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
         }
       })();
     }
-  }, [currentLanguage, isLoading, requestedLanguage]); // requestedLanguage 의존성 추가
+  }, [currentLanguage, isLoading]); // 헤더 언어 변경 감지 전용
 
   // 로딩 상태 표시
   if (isLoading) {

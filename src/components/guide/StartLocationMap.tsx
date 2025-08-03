@@ -47,7 +47,7 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
               {chapters.length > 0 ? (t('guide.viewingOrderMap') || '관람순서 지도') : (t('guide.tourStartLocation') || '투어 시작 위치')}
             </h3>
             <p className="text-sm text-black/60 font-medium mt-0.5">
-              {chapters.length > 0 ? `${chapters.length}개 챕터 경로` : startPoint.name}
+              {chapters.length > 0 ? `${chapters.length}${t('common.chapters') || ' chapters'} ${t('guide.route') || '경로'}` : startPoint.name}
             </p>
           </div>
         </div>
