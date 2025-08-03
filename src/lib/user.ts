@@ -7,12 +7,13 @@ export interface User {
   email: string;
   name: string;
   hashedPassword: string; // 필수 필드로 변경 (undefined 제거)
+  isAdmin?: boolean; // 관리자 권한 필드 추가
   createdAt: Date;
   updatedAt?: Date;
 }
 
 // 사용자 생성 (이메일 회원가입용)
-export async function createUser(email: string, name: string, password: string): Promise<User> {
+export async function createUser(email: string, name: string, password: string, isAdmin: boolean = false): Promise<User> {
   try {
     // 1. 이메일 중복 체크
     const existingUser = await getUserByEmail(email);
@@ -31,6 +32,7 @@ export async function createUser(email: string, name: string, password: string):
       email,
       name,
       password: hashedPassword, // 기존 테이블의 'password' 컬럼 사용
+      is_admin: isAdmin, // 관리자 권한 추가
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
@@ -53,6 +55,7 @@ export async function createUser(email: string, name: string, password: string):
       email: data.email,
       name: data.name,
       hashedPassword: data.password, // 기존 테이블의 'password' 컬럼
+      isAdmin: data.is_admin || false, // 관리자 권한 추가
       createdAt: new Date(data.created_at)
     };
 
@@ -101,6 +104,66 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   }
 }
 
+// 관리자 계정 생성 또는 업데이트 함수
+export async function createOrUpdateAdmin(): Promise<User> {
+  const adminEmail = 'naviadmin@navidocent.com';
+  const adminName = 'NaviAdmin';
+  const adminPassword = 'naviadmin1134';
+
+  try {
+    // 기존 관리자 계정 확인
+    const existingAdmin = await getUserByEmail(adminEmail);
+    
+    if (existingAdmin) {
+      console.log('✅ 관리자 계정이 이미 존재합니다:', adminEmail);
+      
+      // 관리자 권한이 없다면 업데이트
+      if (!existingAdmin.isAdmin) {
+        const { data, error } = await supabase
+          .from('users')
+          .update({ 
+            is_admin: true,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingAdmin.id)
+          .select()
+          .single();
+
+        if (error) {
+          console.error('관리자 권한 업데이트 실패:', error);
+          throw new Error('관리자 권한 업데이트 실패');
+        }
+
+        const updatedUser: User = {
+          id: data.id,
+          email: data.email,
+          name: data.name,
+          hashedPassword: data.password,
+          isAdmin: true,
+          createdAt: new Date(data.created_at),
+          updatedAt: new Date(data.updated_at)
+        };
+
+        console.log('✅ 관리자 권한 업데이트 완료');
+        return updatedUser;
+      }
+      
+      return existingAdmin;
+    }
+
+    // 새 관리자 계정 생성
+    console.log('🔧 새 관리자 계정 생성 중...');
+    const adminUser = await createUser(adminEmail, adminName, adminPassword, true);
+    console.log('✅ 관리자 계정 생성 완료:', { email: adminEmail, name: adminName });
+    
+    return adminUser;
+
+  } catch (error) {
+    console.error('❌ 관리자 계정 생성/업데이트 실패:', error);
+    throw error;
+  }
+}
+
 // ID로 사용자 조회
 export async function getUserById(id: string): Promise<User | null> {
   try {
@@ -125,6 +188,7 @@ export async function getUserById(id: string): Promise<User | null> {
       email: data.email,
       name: data.name,
       hashedPassword: data.password, // 기존 테이블의 'password' 컬럼
+      isAdmin: data.is_admin || false, // 관리자 권한 추가
       createdAt: new Date(data.created_at),
       updatedAt: data.updated_at ? new Date(data.updated_at) : undefined
     };
@@ -171,6 +235,7 @@ export async function updateUser(id: string, updates: Partial<Pick<User, 'name' 
       email: data.email,
       name: data.name,
       hashedPassword: data.password, // 기존 테이블의 'password' 컬럼
+      isAdmin: data.is_admin || false, // 관리자 권한 추가
       createdAt: new Date(data.created_at),
       updatedAt: new Date(data.updated_at)
     };

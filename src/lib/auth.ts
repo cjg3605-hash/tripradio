@@ -122,6 +122,11 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
+        
+        // 사용자 정보에서 관리자 권한 확인
+        const { getUserByEmail } = await import('./user');
+        const userWithRole = await getUserByEmail(user.email || '');
+        token.isAdmin = userWithRole?.isAdmin || false;
       }
       return token;
     },
@@ -130,6 +135,8 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
+        // @ts-ignore - NextAuth 타입 확장
+        session.user.isAdmin = token.isAdmin as boolean;
       }
       return session;
     }

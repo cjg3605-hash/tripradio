@@ -924,6 +924,17 @@ export default function MyPage() {
             
             <div className="flex items-center"
                  style={{ gap: 'var(--space-4)' }}>
+              {/* 관리자 대시보드 버튼 */}
+              {/* @ts-ignore - NextAuth 타입 확장 */}
+              {session?.user?.isAdmin && (
+                <button
+                  onClick={() => router.push('/admin/dashboard')}
+                  className="px-3 py-2 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  관리자 대시보드
+                </button>
+              )}
+              
               <div className="flex items-center"
                    style={{ gap: 'var(--space-2)' }}>
                 <div className="bg-black rounded-full flex items-center justify-center touch-target"
@@ -935,6 +946,12 @@ export default function MyPage() {
                 </div>
                 <span className="text-fluid-sm font-medium text-black">
                   {session?.user?.name || t('profile.user') || '사용자'}
+                  {/* @ts-ignore - NextAuth 타입 확장 */}
+                  {session?.user?.isAdmin && (
+                    <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">
+                      관리자
+                    </span>
+                  )}
                 </span>
               </div>
             </div>
