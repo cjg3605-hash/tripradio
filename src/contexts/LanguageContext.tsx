@@ -107,6 +107,7 @@ interface Translations {
     };
     regionTitles: {
       popularCountries: string;
+      korea: string;
       europe: string;
       asia: string;
       americas: string;
@@ -114,6 +115,7 @@ interface Translations {
     regionDescription: string;
     countryAttraction: string;
     startGuide: string;
+    clickAttraction: string;
     destinations: string;
     scrollHint: string;
     popularBadge: string;
@@ -469,6 +471,7 @@ const DEFAULT_TRANSLATIONS: Translations = {
     },
     regionTitles: {
       popularCountries: '인기 여행 국가',
+      korea: '한국',
       europe: '유럽',
       asia: '아시아',
       americas: '아메리카'
@@ -476,6 +479,7 @@ const DEFAULT_TRANSLATIONS: Translations = {
     regionDescription: '다양한 지역의 인기 여행지를 둘러보세요',
     countryAttraction: 'TOP ATTRACTIONS',
     startGuide: 'Start Guide',
+    clickAttraction: '명소를 클릭하세요',
     destinations: 'destinations',
     scrollHint: '좌우로 스크롤하여 더 많은 국가를 확인하세요',
     popularBadge: 'POPULAR',
@@ -492,6 +496,26 @@ const DEFAULT_TRANSLATIONS: Translations = {
       selfTour: '셀프투어'
     },
     countries: {
+      seoul: {
+        name: '서울',
+        attractions: ['경복궁', '남산타워', '명동'],
+        description: '전통과 현대가 어우러진 대한민국의 수도'
+      },
+      busan: {
+        name: '부산',
+        attractions: ['해운대해수욕장', '감천문화마을', '자갈치시장'],
+        description: '아름다운 바다와 항구의 도시'
+      },
+      jeju: {
+        name: '제주',
+        attractions: ['한라산', '성산일출봉', '중문관광단지'],
+        description: '환상적인 자연경관의 섬'
+      },
+      gyeongju: {
+        name: '경주',
+        attractions: ['불국사', '석굴암', '첨성대'],
+        description: '천년고도 신라의 역사가 살아있는 도시'
+      },
       france: {
         name: '프랑스',
         attractions: ['에펠탑', '루브르 박물관', '베르사유 궁전'],

@@ -140,7 +140,7 @@ function Home() {
   );
   
   // 지역별 탭 상태
-  const [activeRegion, setActiveRegion] = useState('europe');
+  const [activeRegion, setActiveRegion] = useState('korea');
   
   // API 요청 관리
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -164,6 +164,7 @@ function Home() {
     // 번역 데이터 유효성 검증
     if (!isValidCountriesData(countries)) {
       return {
+        korea: [],
         europe: [],
         asia: [],
         americas: []
@@ -171,6 +172,36 @@ function Home() {
     }
     
     return {
+      korea: [
+        { 
+          id: 'seoul', 
+          name: countries.seoul?.name || '서울', 
+          flag: '🏙️', 
+          attractions: countries.seoul?.attractions || ['경복궁', '남산타워', '명동'],
+          description: countries.seoul?.description || '전통과 현대가 어우러진 대한민국의 수도'
+        },
+        { 
+          id: 'busan', 
+          name: countries.busan?.name || '부산', 
+          flag: '🌊', 
+          attractions: countries.busan?.attractions || ['해운대해수욕장', '감천문화마을', '자갈치시장'],
+          description: countries.busan?.description || '아름다운 바다와 항구의 도시'
+        },
+        { 
+          id: 'jeju', 
+          name: countries.jeju?.name || '제주', 
+          flag: '🌺', 
+          attractions: countries.jeju?.attractions || ['한라산', '성산일출봉', '중문관광단지'],
+          description: countries.jeju?.description || '환상적인 자연경관의 섬'
+        },
+        { 
+          id: 'gyeongju', 
+          name: countries.gyeongju?.name || '경주', 
+          flag: '🏛️', 
+          attractions: countries.gyeongju?.attractions || ['불국사', '석굴암', '첨성대'],
+          description: countries.gyeongju?.description || '천년고도 신라의 역사가 살아있는 도시'
+        }
+      ],
       europe: [
         { 
           id: 'france', 
@@ -576,16 +607,6 @@ function Home() {
     router.push(`/guide/${encodeURIComponent(query.trim())}/tour`);
   }, [query, audioPlaying, router, t, setLoadingState]);
 
-  // 국가 클릭 처리 (지연 제거, 분리된 로딩 상태)
-  const handleCountryClick = useCallback((country: any) => {
-    if (!isMountedRef.current) return;
-    
-    // 해당 국가의 첫 번째 유명 관광지로 검색
-    const firstAttraction = country.attractions[0];
-    if (isMountedRef.current) setQuery(firstAttraction);
-    setLoadingState('country', true);
-    router.push(`/guide/${encodeURIComponent(firstAttraction)}`);
-  }, [router, setLoadingState]);
 
   // 가이드 생성 중일 때 새로운 컴포넌트 표시 (분리된 로딩 상태)
   if (isAnyLoading) {
@@ -958,6 +979,7 @@ function Home() {
               <div className="bg-white rounded-xl p-1 shadow-sm border border-gray-100">
                 <div className="flex space-x-1">
                   {[
+                    { id: 'korea', label: t('home.regionTitles.korea') },
                     { id: 'europe', label: t('home.regionTitles.europe') },
                     { id: 'asia', label: t('home.regionTitles.asia') },
                     { id: 'americas', label: t('home.regionTitles.americas') }
@@ -993,12 +1015,9 @@ function Home() {
             >
               <div className="flex space-x-6 min-w-max px-2">
                 {regionCountries[activeRegion as keyof typeof regionCountries].map((country, index) => (
-                  <button
+                  <div
                     key={country.id}
-                    onClick={() => handleCountryClick(country)}
-                    className="flex-shrink-0 w-64 group cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black rounded-2xl text-left"
-                    aria-label={`${country.name} 여행 가이드 보기`}
-                    type="button"
+                    className="flex-shrink-0 w-64 group"
                   >
                     {/* 메인 카드 - 모던 모노크롬 스타일 */}
                     <div className="relative bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-500 overflow-hidden group-hover:scale-[1.02]">
@@ -1033,39 +1052,45 @@ function Home() {
                           {country.description}
                         </p>
 
-                        {/* 인기 관광지 */}
+                        {/* 인기 관광지 - 클릭 가능한 버튼들 */}
                         <div className="space-y-3 mb-5">
                           <h4 className="text-xs font-medium text-gray-900 uppercase tracking-[0.1em] letter-spacing-wider">
                             {t('home.countryAttraction')}
                           </h4>
                           {country.attractions.slice(0, 3).map((attraction, idx) => (
-                            <div
+                            <button
                               key={idx}
-                              className="flex items-center text-sm text-gray-700 group-hover:text-gray-900 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setLoadingState('country', true);
+                                router.push(`/guide/${encodeURIComponent(attraction)}`);
+                              }}
+                              className="flex items-center text-sm text-gray-700 hover:text-black transition-colors w-full text-left py-1 px-2 -mx-2 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-20"
+                              aria-label={`${attraction} 가이드 생성하기`}
                             >
                               <div className="w-1 h-1 bg-black rounded-full mr-4 group-hover:scale-125 transition-transform duration-300"></div>
-                              <span className="font-light tracking-wide">{attraction}</span>
-                            </div>
+                              <span className="font-light tracking-wide underline-offset-2 hover:underline">{attraction}</span>
+                            </button>
                           ))}
                         </div>
 
-                        {/* CTA 버튼 */}
+                        {/* 정보 표시 영역 */}
                         <div className="pt-4 border-t border-gray-100">
                           <div className="flex items-center justify-between">
                             <span className="text-xs text-gray-500 font-light tracking-wide">
                               {country.attractions.length} {t('home.destinations')}
                             </span>
-                            <div className="flex items-center text-sm font-light text-gray-700 group-hover:text-black transition-colors">
-                              <span className="tracking-wide">{t('home.startGuide')}</span>
-                              <svg className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            <div className="flex items-center text-sm font-light text-gray-600">
+                              <span className="tracking-wide">{t('home.clickAttraction')}</span>
+                              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672L13.684 21.017l-.073-.046a.5.5 0 01-.179-.704l5.93-8.395-5.93-8.395a.5.5 0 01.179-.704l.073-.046 1.358-.655a.5.5 0 01.721.273l6.5 11.5a.5.5 0 010 .454l-6.5 11.5a.5.5 0 01-.721.273z" />
                               </svg>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             </div>
