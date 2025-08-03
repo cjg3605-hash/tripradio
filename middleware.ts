@@ -233,7 +233,6 @@ export const config = {
     /*
      * 인증이 필요한 경로만 미들웨어 적용
      * - /mypage (마이페이지)
-     * - /admin/* (관리자 페이지)
      * - /api/auth/* (인증 API)
      * - 보안 관련 API 경로들
      */

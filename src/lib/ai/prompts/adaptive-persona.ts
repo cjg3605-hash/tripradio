@@ -1,7 +1,20 @@
 // AI 자동 페르소나 선택 및 적응형 프롬프트 시스템
 
 export const createAdaptivePersonaPrompt = (locationName: string, language: string = 'ko'): string => {
+  // 🧠 스마트 분류기로 최적 페르소나 미리 선택
+  const smartClassificationResult = SmartPersonaClassifier.selectOptimalPersona(locationName);
+  
+  console.log('🎯 스마트 분류기 추천 페르소나:', smartClassificationResult);
+  
   return `# 🎭 AI 자동 페르소나 선택 및 가이드 생성 시스템
+
+## 🧠 스마트 분류기 추천 결과
+**추천 페르소나**: ${smartClassificationResult.persona}
+**신뢰도**: ${(smartClassificationResult.confidence * 100).toFixed(1)}%
+**추천 이유**: ${smartClassificationResult.reasoning.join(', ')}
+
+## 🎯 최종 페르소나 선택 가이드라인
+위의 스마트 분류기 추천을 **우선적으로 고려**하되, "${locationName}"의 구체적 특성을 분석하여 최종 결정하세요.
 
 ## 🎯 1단계: 장소 분석 및 최적 페르소나 자동 선택
 
@@ -184,11 +197,285 @@ export const createAdaptivePersonaPrompt = (locationName: string, language: stri
 **지금 "${locationName}"를 분석하고 최적의 페르소나를 선택하여 자연스럽고 전문적인 가이드를 생성해주세요!**`;
 };
 
+// 🧠 스마트 분류기 시스템
+interface PersonaScore {
+  persona: string;
+  confidence: number;
+  reasoning: string[];
+}
+
+interface ContextAnalysis {
+  architecture: number;
+  nature: number;
+  tourism: number;
+  cultural: number;
+  modern: number;
+  religious: number;
+}
+
+/**
+ * 🎯 스마트 페르소나 분류기 - 다단계 분석으로 최적 페르소나 선택
+ */
+export class SmartPersonaClassifier {
+  
+  // 🏗️ 토큰별 가중치 시스템
+  private static tokenWeights = {
+    // 건축물 강력 신호
+    architecture: {
+      '타워': 0.9, '빌딩': 0.8, '전망대': 0.9, '건물': 0.7, '아파트': 0.6,
+      '궁궐': 0.9, '궁': 0.9, '성': 0.8, '성당': 0.9, '대성당': 0.9,
+      '절': 0.8, '사찰': 0.8, '교회': 0.8, '모스크': 0.8, '신전': 0.9,
+      '박물관': 0.8, '미술관': 0.8, '갤러리': 0.7, '전시관': 0.7,
+      '극장': 0.7, '콘서트홀': 0.7, '오페라하우스': 0.8
+    },
+    
+    // 자연 지형
+    nature: {
+      '산': 0.6, '강': 0.7, '바다': 0.8, '해변': 0.8, '숲': 0.8,
+      '공원': 0.5, '정원': 0.6, '호수': 0.7, '폭포': 0.8, '계곡': 0.7,
+      '섬': 0.7, '해안': 0.7, '동굴': 0.7, '온천': 0.6
+    },
+    
+    // 관광/현대 시설
+    tourism: {
+      '관광지': 0.8, '명소': 0.8, '랜드마크': 0.8, '여행': 0.6,
+      '테마파크': 0.8, '놀이공원': 0.8, '워터파크': 0.7,
+      '쇼핑몰': 0.7, '백화점': 0.6, '시장': 0.6, '거리': 0.5
+    },
+    
+    // 문화/역사
+    cultural: {
+      '문화': 0.7, '역사': 0.7, '전통': 0.7, '유적': 0.8, '유산': 0.8,
+      '고궁': 0.8, '고택': 0.7, '한옥': 0.7, '민속': 0.6
+    },
+    
+    // 현대성
+    modern: {
+      '현대': 0.7, '신도시': 0.7, '마천루': 0.8, '스카이라인': 0.7,
+      '고층': 0.6, '신축': 0.6, '최신': 0.6
+    },
+    
+    // 종교성
+    religious: {
+      '신성': 0.8, '성지': 0.9, '순례': 0.8, '예배': 0.7, '기도': 0.7
+    }
+  };
+  
+  // 📍 한국 랜드마크 특별 규칙 (신뢰도 95%+)
+  private static koreanLandmarkRules: Record<string, string> = {
+    // 서울 주요 랜드마크
+    'n서울타워': '🏗️ 근현대 건축 전문가',
+    '남산타워': '🏗️ 근현대 건축 전문가',
+    '서울타워': '🏗️ 근현대 건축 전문가',
+    '롯데월드타워': '🏗️ 근현대 건축 전문가',
+    '63빌딩': '🏗️ 근현대 건축 전문가',
+    '동대문디자인플라자': '🏗️ 근현대 건축 전문가',
+    
+    // 궁궐
+    '경복궁': '🏰 궁궐/왕실 전문가',
+    '창덕궁': '🏰 궁궐/왕실 전문가',
+    '덕수궁': '🏰 궁궐/왕실 전문가',
+    '창경궁': '🏰 궁궐/왕실 전문가',
+    '종묘': '🏰 궁궐/왕실 전문가',
+    
+    // 종교 시설
+    '조계사': '⛪ 종교/영성 전문가',
+    '불국사': '⛪ 종교/영성 전문가',
+    '해인사': '⛪ 종교/영성 전문가',
+    '석굴암': '⛪ 종교/영성 전문가',
+    '명동성당': '⛪ 종교/영성 전문가',
+    
+    // 자연 명소
+    '한라산': '🌿 자연/생태 전문가',
+    '설악산': '🌿 자연/생태 전문가',
+    '제주도': '🌿 자연/생태 전문가',
+    '울릉도': '🌿 자연/생태 전문가',
+    '한강공원': '🌿 자연/생태 전문가',
+    
+    // 문화/예술
+    '국립중앙박물관': '🎨 예술/문화 전문가',
+    '국립현대미술관': '🎨 예술/문화 전문가',
+    '세종문화회관': '🎨 예술/문화 전문가',
+    
+    // 쇼핑/상업
+    '명동': '🛍️ 쇼핑/라이프스타일 전문가',
+    '강남': '🛍️ 쇼핑/라이프스타일 전문가',
+    '홍대': '🛍️ 쇼핑/라이프스타일 전문가',
+    '이태원': '🛍️ 쇼핑/라이프스타일 전문가'
+  };
+  
+  /**
+   * 🎯 메인 분류 함수 - 스마트 페르소나 선택
+   */
+  static selectOptimalPersona(locationName: string): PersonaScore {
+    console.log('🧠 스마트 페르소나 분류기 시작:', locationName);
+    
+    const normalizedName = locationName.toLowerCase().trim();
+    
+    // 1️⃣ 한국 랜드마크 우선 체크 (최고 신뢰도)
+    const koreanMatch = this.checkKoreanLandmarks(normalizedName);
+    if (koreanMatch) {
+      return {
+        persona: koreanMatch,
+        confidence: 0.95,
+        reasoning: ['한국 랜드마크 데이터베이스 매칭', '신뢰도 최상급']
+      };
+    }
+    
+    // 2️⃣ 컨텍스트 분석
+    const contextAnalysis = this.analyzeContext(normalizedName);
+    console.log('📊 컨텍스트 분석 결과:', contextAnalysis);
+    
+    // 3️⃣ 페르소나 점수 계산
+    const personaScores = this.calculatePersonaScores(contextAnalysis, normalizedName);
+    
+    // 4️⃣ 최고 점수 페르소나 선택
+    const topPersona = personaScores.reduce((max, current) => 
+      current.confidence > max.confidence ? current : max
+    );
+    
+    console.log('🎯 선택된 페르소나:', topPersona);
+    
+    // 5️⃣ 신뢰도 임계값 체크
+    if (topPersona.confidence < 0.6) {
+      return {
+        persona: '🎨 예술/문화 전문가', // 안전한 기본값
+        confidence: 0.8,
+        reasoning: ['신뢰도 부족으로 안전한 기본 페르소나 적용', '문화 전문가는 범용성이 높음']
+      };
+    }
+    
+    return topPersona;
+  }
+  
+  /**
+   * 📍 한국 랜드마크 체크
+   */
+  private static checkKoreanLandmarks(normalizedName: string): string | null {
+    for (const [keyword, persona] of Object.entries(this.koreanLandmarkRules)) {
+      if (normalizedName.includes(keyword)) {
+        console.log('✅ 한국 랜드마크 매칭:', keyword, '→', persona);
+        return persona;
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * 📊 컨텍스트 분석 - 토큰별 가중치 계산
+   */
+  private static analyzeContext(normalizedName: string): ContextAnalysis {
+    const analysis: ContextAnalysis = {
+      architecture: 0,
+      nature: 0,
+      tourism: 0,
+      cultural: 0,
+      modern: 0,
+      religious: 0
+    };
+    
+    // 각 카테고리별 토큰 매칭 및 점수 계산
+    Object.entries(this.tokenWeights).forEach(([category, tokens]) => {
+      Object.entries(tokens).forEach(([token, weight]) => {
+        if (normalizedName.includes(token)) {
+          const categoryKey = category as keyof ContextAnalysis;
+          analysis[categoryKey] += weight;
+          console.log(`📍 토큰 매칭: "${token}" → ${category} (+${weight})`);
+        }
+      });
+    });
+    
+    return analysis;
+  }
+  
+  /**
+   * 🎯 페르소나 점수 계산
+   */
+  private static calculatePersonaScores(context: ContextAnalysis, locationName: string): PersonaScore[] {
+    const scores: PersonaScore[] = [];
+    
+    // 🏗️ 근현대 건축 전문가
+    if (context.architecture > 0.7) {
+      scores.push({
+        persona: '🏗️ 근현대 건축 전문가',
+        confidence: Math.min(0.9, context.architecture + context.modern * 0.3),
+        reasoning: ['강한 건축 신호 감지', '현대적 건축물로 판단']
+      });
+    }
+    
+    // 🏰 궁궐/왕실 전문가
+    if (context.cultural > 0.6 && context.architecture > 0.6) {
+      scores.push({
+        persona: '🏰 궁궐/왕실 전문가',
+        confidence: Math.min(0.9, (context.cultural + context.architecture) * 0.5),
+        reasoning: ['전통 건축과 문화적 요소 결합', '역사적 중요성 감지']
+      });
+    }
+    
+    // ⛪ 종교/영성 전문가
+    if (context.religious > 0.5 || (context.cultural > 0.5 && context.architecture > 0.5)) {
+      scores.push({
+        persona: '⛪ 종교/영성 전문가',
+        confidence: Math.min(0.9, context.religious + context.cultural * 0.4),
+        reasoning: ['종교적 요소 감지', '영성과 건축의 조화']
+      });
+    }
+    
+    // 🌿 자연/생태 전문가
+    if (context.nature > 0.6) {
+      scores.push({
+        persona: '🌿 자연/생태 전문가',
+        confidence: Math.min(0.9, context.nature + (context.architecture < 0.3 ? 0.2 : -0.2)),
+        reasoning: ['자연 환경 요소 우세', '생태학적 접근 적합']
+      });
+    }
+    
+    // 🎨 예술/문화 전문가
+    if (context.cultural > 0.4) {
+      scores.push({
+        persona: '🎨 예술/문화 전문가',
+        confidence: Math.min(0.8, context.cultural + context.tourism * 0.2),
+        reasoning: ['문화적 가치 중시', '예술적 접근 적합']
+      });
+    }
+    
+    // 🛍️ 쇼핑/라이프스타일 전문가
+    if (context.tourism > 0.6 && context.modern > 0.3) {
+      scores.push({
+        persona: '🛍️ 쇼핑/라이프스타일 전문가',
+        confidence: Math.min(0.8, context.tourism + context.modern * 0.4),
+        reasoning: ['관광 상업지역 특성', '현대적 라이프스타일 공간']
+      });
+    }
+    
+    // 기본값 추가 (빈 배열 방지)
+    if (scores.length === 0) {
+      scores.push({
+        persona: '🎨 예술/문화 전문가',
+        confidence: 0.6,
+        reasoning: ['명확한 카테고리 없음', '범용 문화 전문가 적용']
+      });
+    }
+    
+    return scores;
+  }
+}
+
 // 기존 프롬프트와의 통합을 위한 헬퍼 함수
 export const shouldUseAdaptivePersona = (locationName: string): boolean => {
   const normalizedName = locationName.toLowerCase();
   
-  // 한국 장소 키워드 (더 포괄적으로 확장)
+  // 🧠 스마트 분류기로 페르소나 분석
+  const personaResult = SmartPersonaClassifier.selectOptimalPersona(locationName);
+  
+  console.log('🎯 스마트 분류기 결과:', {
+    location: locationName,
+    selectedPersona: personaResult.persona,
+    confidence: personaResult.confidence,
+    reasoning: personaResult.reasoning
+  });
+  
+  // 한국 랜드마크 특별 규칙 체크
   const koreanKeywords = [
     // 전통 건축
     '궁궐', '궁', '절', '사찰', '암자', '향교', '서원', '한옥',
@@ -232,18 +519,28 @@ export const shouldUseAdaptivePersona = (locationName: string): boolean => {
     normalizedName.includes(keyword.toLowerCase())
   );
   
-  // 결정 로직:
-  // 1. 명확한 해외 키워드가 있으면 적응형 페르소나 사용
-  // 2. 한국 키워드나 패턴이 있으면 한국 시스템 사용
-  // 3. 애매한 경우 적응형 페르소나 사용 (더 포괄적 대응)
+  // 🎯 스마트 분류기 우선 결정 로직:
+  // 1. 해외 키워드 있으면 무조건 적응형 페르소나 
+  // 2. 스마트 분류기 신뢰도 0.7 이상이면 적응형 페르소나
+  // 3. 한국 키워드 있고 신뢰도 낮으면 한국 시스템
+  // 4. 기본값: 적응형 페르소나 사용
+  
   if (hasForeignKeyword) {
+    console.log('🌍 해외 키워드 감지 → 적응형 페르소나 강제 사용');
     return true;
   }
   
-  if (isKoreanLocation || hasKoreanPattern) {
+  if (personaResult.confidence >= 0.7) {
+    console.log('🎯 스마트 분류기 고신뢰도 → 적응형 페르소나 사용');
+    return true;
+  }
+  
+  if ((isKoreanLocation || hasKoreanPattern) && personaResult.confidence < 0.7) {
+    console.log('🇰🇷 한국 키워드 + 저신뢰도 → 한국 시스템 사용');
     return false;
   }
   
   // 기본값: 적응형 페르소나 사용 (전 세계 대응)
+  console.log('🔄 기본값 → 적응형 페르소나 사용');
   return true;
 };

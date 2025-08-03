@@ -101,7 +101,7 @@ const LiveTourPage: React.FC = () => {
           .from('guides')
           .select('content')
           .eq('locationname', normalizedLocation)
-          .eq('language', 'ko')
+          .eq('language', currentLanguage)
           .maybeSingle();
         
         if (error) {
