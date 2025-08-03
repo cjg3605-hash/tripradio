@@ -5,7 +5,7 @@ import { aiRateLimiter } from '@/lib/rate-limiter';
 import { compressResponse } from '@/middleware/compression';
 import { trackAIGeneration } from '@/lib/monitoring';
 import { DataIntegrationOrchestrator } from '@/lib/data-sources/orchestrator/data-orchestrator';
-import { enhanceGuideCoordinates } from '@/lib/coordinates/guide-coordinate-enhancer';
+import { enhanceGuideCoordinates, validateTitleCoordinateConsistency } from '@/lib/coordinates/guide-coordinate-enhancer';
 import { UniversalChapterGenerationAI } from '@/lib/ai/chapter-generation-ai';
 import { 
   enhancedCache, 
@@ -237,6 +237,7 @@ export async function POST(request: NextRequest) {
     // 🎯 3단계: 좌표 정확도 향상 (AI 지도 분석 시스템 적용)
     let enhancedGuideData = guideData;
     let coordinateEnhancementResult: any = null;
+    let titleCoordinateConsistencyResult: any = null;
     
     // enhanceCoordinates 플래그가 있거나 기본적으로 좌표 향상 실행
     const shouldEnhanceCoordinates = body.enhanceCoordinates !== false; // 기본값: true
@@ -271,6 +272,33 @@ export async function POST(request: NextRequest) {
             } : null,
             allFacilities: analysis.allFacilities.length
           });
+        }
+
+        // 🎯 4단계: 제목-좌표 일치성 검증
+        console.log('🎯 제목-좌표 일치성 검증 시작...');
+        try {
+          titleCoordinateConsistencyResult = await validateTitleCoordinateConsistency(
+            enhancedGuideData,
+            location.trim()
+          );
+          
+          console.log('✅ 제목-좌표 일치성 검증 완료:', {
+            isConsistent: titleCoordinateConsistencyResult.isConsistent,
+            consistencyScore: Math.round(titleCoordinateConsistencyResult.consistencyScore * 100),
+            analysedChapters: titleCoordinateConsistencyResult.chapterAnalysis.length,
+            issues: titleCoordinateConsistencyResult.overallIssues.length
+          });
+
+          // 일치성 문제가 발견된 경우 로깅
+          if (!titleCoordinateConsistencyResult.isConsistent) {
+            console.warn('⚠️ 제목-좌표 불일치 발견:', titleCoordinateConsistencyResult.overallIssues);
+            if (titleCoordinateConsistencyResult.recommendations.length > 0) {
+              console.log('💡 개선 권장사항:', titleCoordinateConsistencyResult.recommendations);
+            }
+          }
+          
+        } catch (validationError) {
+          console.warn('⚠️ 제목-좌표 일치성 검증 실패:', validationError);
         }
         
       } catch (enhanceError) {
@@ -307,6 +335,14 @@ export async function POST(request: NextRequest) {
         improvements: coordinateEnhancementResult.improvements,
         chapter0AIAnalysis: coordinateEnhancementResult.chapter0AIAnalysis,
         processingTimeMs: coordinateEnhancementResult.processingTimeMs
+      } : null,
+      // 🎯 제목-좌표 일치성 검증 결과
+      titleCoordinateConsistency: titleCoordinateConsistencyResult ? {
+        isConsistent: titleCoordinateConsistencyResult.isConsistent,
+        consistencyScore: titleCoordinateConsistencyResult.consistencyScore,
+        chapterAnalysis: titleCoordinateConsistencyResult.chapterAnalysis,
+        overallIssues: titleCoordinateConsistencyResult.overallIssues,
+        recommendations: titleCoordinateConsistencyResult.recommendations
       } : null,
       // 🎯 Enhanced 챕터 생성 결과 (새로 추가)
       enhancedChapterGeneration: chapterGenerationResult ? {

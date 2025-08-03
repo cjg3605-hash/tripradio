@@ -369,7 +369,7 @@ export class AIMapAnalysisSystem {
   }
 
   /**
-   * 🧠 3단계: AI가 지도 분석하여 최적 시작점 선택
+   * 🧠 3단계: AI가 지도 분석하여 최적 시작점 선택 (챕터 컨텍스트 포함)
    */
   private async analyzeMapAndSelectStartingPoint(
     locationName: string,
@@ -385,28 +385,46 @@ export class AIMapAnalysisSystem {
       `${index + 1}. ${f.name} (${f.types.slice(0, 3).join(', ')}) - ${f.rating ? f.rating + '★' : '평점없음'} - 좌표: ${f.geometry.location.lat}, ${f.geometry.location.lng}`
     ).join('\n');
 
-    const prompt = `# 🎯 AI 관광 시작점 분석
+    // 🎯 챕터 컨텍스트 분석을 통한 구체적 장소명 추출
+    const chapterContext = this.extractChapterLocationContext(chapterDescription);
+    const isSpecificLocation = chapterContext && chapterContext !== locationName;
 
-**분석 대상:** ${locationName}
+    const prompt = `# 🎯 AI 관광 시작점 분석 (컨텍스트 기반)
+
+**메인 관광지:** ${locationName}
 **메인 장소:** ${mainLocation.name} (${mainLocation.geometry.location.lat}, ${mainLocation.geometry.location.lng})
 **챕터 설명:** ${chapterDescription || '제공되지 않음'}
+${isSpecificLocation ? `**🎯 중요: 챕터에서 언급하는 구체적 장소:** "${chapterContext}"` : ''}
 
 ## 주변 시설 목록 (1km 반경)
 ${facilitiesInfo}
 
 ## 분석 요청
-관광객이 **${locationName}** 관람을 시작하기에 **가장 적절한 장소**를 하나 선택해주세요.
+${isSpecificLocation ? 
+  `**특별 요구사항**: 챕터에서 "${chapterContext}"를 언급하고 있습니다. 이는 "${locationName}"과는 다른 구체적인 시작 지점을 의미합니다. 
+  
+  관광객이 **"${chapterContext}"에서 시작**하여 **${locationName}** 관람을 진행하기에 가장 적절한 장소를 선택해주세요.` :
+  `관광객이 **${locationName}** 관람을 시작하기에 **가장 적절한 장소**를 하나 선택해주세요.`}
 
 ### 선택 기준 (우선순위 순)
-1. **메인 입구/정문** - 관광객이 자연스럽게 도착하는 곳
-2. **방문자센터/안내소** - 정보 제공 및 시작점 역할
-3. **매표소/티켓부스** - 입장권 구매 후 시작하는 곳
-4. **교통 연결점** - 지하철/기차역 출구 등
-5. **중앙 광장/로비** - 랜드마크가 되는 중심 공간
+${isSpecificLocation ? 
+  `1. **"${chapterContext}" 관련 시설** - 챕터에서 명시한 구체적 장소 우선
+  2. **교통 연결점** - ${chapterContext}로 가는 접근 경로
+  3. **메인 입구/정문** - ${chapterContext}의 출입구
+  4. **매표소/티켓부스** - ${chapterContext} 이용을 위한 티켓 구매처
+  5. **안내소/정보센터** - ${chapterContext} 관련 정보 제공처` :
+  `1. **메인 입구/정문** - 관광객이 자연스럽게 도착하는 곳
+  2. **방문자센터/안내소** - 정보 제공 및 시작점 역할
+  3. **매표소/티켓부스** - 입장권 구매 후 시작하는 곳
+  4. **교통 연결점** - 지하철/기차역 출구 등
+  5. **중앙 광장/로비** - 랜드마크가 되는 중심 공간`}
 
 ### 고려사항
 - 관광객 접근성 (대중교통, 도보)
-- 시설명에서 "entrance", "main", "center", "information" 등의 키워드
+${isSpecificLocation ? 
+  `- "${chapterContext}" 키워드가 포함된 시설명 우선 고려
+  - ${chapterContext}와 직접 연관된 시설이나 장소` :
+  `- 시설명에서 "entrance", "main", "center", "information" 등의 키워드`}
 - 평점이 높고 잘 알려진 곳
 - ${locationName}와 직접 연관된 곳
 
@@ -419,7 +437,7 @@ ${facilitiesInfo}
     "coordinate": { "lat": 위도, "lng": 경도 },
     "placeId": "place_id"
   },
-  "reasoning": "선택 근거 설명 (2-3문장)",
+  "reasoning": "선택 근거 설명 (2-3문장)${isSpecificLocation ? `, 특히 ${chapterContext}와의 연관성 설명` : ''}",
   "confidence": 신뢰도 (0.0-1.0)
 }`;
 
@@ -650,6 +668,88 @@ ${facilitiesInfo}
     const commonWords = words1.filter(word => words2.includes(word));
     
     return commonWords.length / Math.max(words1.length, words2.length);
+  }
+
+  /**
+   * 🎯 챕터 설명에서 구체적인 장소 컨텍스트 추출
+   */
+  private extractChapterLocationContext(chapterDescription: string): string | null {
+    if (!chapterDescription || chapterDescription.length < 5) {
+      return null;
+    }
+
+    // 구체적인 장소명을 나타내는 패턴들
+    const locationPatterns = [
+      // 케이블카, 교통수단
+      /(?:남산)?케이블카/gi,
+      /(?:남산)?곤돌라/gi,
+      /(?:남산)?로프웨이/gi,
+      
+      // 출입구, 역, 정류장
+      /(?:\w+)?역/gi,
+      /(?:\w+)?출입구/gi,
+      /(?:\w+)?정문/gi,
+      /(?:\w+)?입구/gi,
+      /(?:\w+)?게이트/gi,
+      /(?:\w+)?터미널/gi,
+      /(?:\w+)?정류장/gi,
+      
+      // 시설명
+      /(?:\w+)?센터/gi,
+      /(?:\w+)?타워/gi,
+      /(?:\w+)?전망대/gi,
+      /(?:\w+)?매표소/gi,
+      /(?:\w+)?안내소/gi,
+      /(?:\w+)?광장/gi,
+      /(?:\w+)?공원/gi,
+      /(?:\w+)?박물관/gi,
+      /(?:\w+)?미술관/gi,
+      
+      // 방향/위치
+      /(?:\w+)?쪽/gi,
+      /(?:\w+)?편/gi,
+      /(?:\w+)?구역/gi,
+      /(?:\w+)?층/gi,
+      /(?:\w+)?홀/gi,
+      /(?:\w+)?관/gi
+    ];
+
+    // 모든 패턴에서 매치되는 항목들 수집
+    const foundLocations: string[] = [];
+    
+    for (const pattern of locationPatterns) {
+      const matches = chapterDescription.match(pattern);
+      if (matches) {
+        foundLocations.push(...matches.map(match => match.trim()));
+      }
+    }
+
+    if (foundLocations.length === 0) {
+      return null;
+    }
+
+    // 중복 제거 및 가장 구체적인 것 선택
+    const uniqueLocations = [...new Set(foundLocations)];
+    
+    // 우선순위: 교통수단 > 구체적 시설명 > 일반적 위치
+    const priorities = [
+      /케이블카|곤돌라|로프웨이/i,
+      /역|터미널|정류장/i,
+      /센터|타워|전망대|매표소|안내소/i,
+      /출입구|정문|입구|게이트/i,
+      /광장|공원|박물관|미술관/i,
+      /쪽|편|구역|층|홀|관/i
+    ];
+
+    for (const priority of priorities) {
+      const priorityMatch = uniqueLocations.find(loc => priority.test(loc));
+      if (priorityMatch) {
+        return priorityMatch;
+      }
+    }
+
+    // 우선순위 매치가 없으면 첫 번째 반환
+    return uniqueLocations[0];
   }
 }
 

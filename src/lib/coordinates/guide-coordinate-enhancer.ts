@@ -113,63 +113,100 @@ export async function enhanceGuideCoordinates(
             console.log('🎯 챕터 0 관광 시작점 분석 시작...');
             
             try {
-              const aiAnalysis = await generateChapter0CoordinateWithAI(
-                locationName,
-                chapter.description || chapter.narrative || ''
-              );
+              // 🎯 챕터 제목 기반 좌표 검색 우선 시도
+              const chapterTitle = chapter.title || '';
+              const chapterDescription = chapter.description || chapter.narrative || '';
+              let titleBasedCoords: { lat: number; lng: number } | null = null;
 
-              result.chapter0AIAnalysis = aiAnalysis;
+              // 챕터 제목이 메인 위치명과 다르면 제목 기반 검색 수행
+              if (chapterTitle && chapterTitle !== locationName && isSpecificLocationTitle(chapterTitle, locationName)) {
+                console.log(`🎯 챕터 0 제목 기반 검색 시도: "${chapterTitle}"`);
+                titleBasedCoords = await searchByChapterTitle(chapterTitle, locationName, baseCoordinates);
+                
+                if (titleBasedCoords) {
+                  console.log(`✅ 제목 기반 검색 성공: ${titleBasedCoords.lat}, ${titleBasedCoords.lng}`);
+                  
+                  const distanceImprovement = originalCoords ? calculateDistance(
+                    originalCoords.lat, originalCoords.lng,
+                    titleBasedCoords.lat, titleBasedCoords.lng
+                  ) : 0;
 
-              if (aiAnalysis.success && aiAnalysis.selectedStartingPoint) {
-                // AI 지도 분석 성공: AI가 선택한 최적 좌표 사용
-                const aiSelectedCoords = aiAnalysis.selectedStartingPoint.coordinate;
-                chapter.coordinates = aiSelectedCoords;
+                  chapter.coordinates = titleBasedCoords;
 
-                const distanceImprovement = originalCoords ? calculateDistance(
-                  originalCoords.lat, originalCoords.lng,
-                  aiSelectedCoords.lat, aiSelectedCoords.lng
-                ) : 0;
+                  result.improvements.push({
+                    chapterId: i,
+                    originalCoords: originalCoords || { lat: 0, lng: 0 },
+                    enhancedCoords: titleBasedCoords,
+                    distanceImprovement,
+                    method: 'real-location-search'
+                  });
 
-                result.improvements.push({
-                  chapterId: i,
-                  originalCoords: originalCoords || { lat: 0, lng: 0 },
-                  enhancedCoords: aiSelectedCoords,
-                  distanceImprovement,
-                  method: 'ai-map-analysis'
-                });
+                  result.enhancedCount++;
+                  console.log(`✅ 챕터 0 제목 기반 좌표 설정 완료: ${chapterTitle}`);
+                }
+              }
 
-                result.enhancedCount++;
-                console.log(`✅ 챕터 0 AI 분석 성공: ${aiAnalysis.selectedStartingPoint.name}`);
-                console.log(`📍 좌표: ${aiSelectedCoords.lat}, ${aiSelectedCoords.lng}`);
-                console.log(`🧠 선택 근거: ${aiAnalysis.selectedStartingPoint.reasoning}`);
-                console.log(`📊 신뢰도: ${Math.round(aiAnalysis.confidence * 100)}%`);
-              } else {
-                // AI 분석 실패: 기존 Enhanced Location Service로 폴백
-                console.log('⚠️ 챕터 0 AI 분석 실패, Enhanced Location Service로 폴백');
-                const enhancedCoords = generateChapterCoordinate(
-                  baseCoordinates, 
-                  i, 
-                  chapters.length,
-                  chapter.title || `Chapter ${i}`
+              // 제목 기반 검색 실패 시에만 AI 지도 분석 수행
+              if (!titleBasedCoords) {
+                console.log('🎯 챕터 0 AI 지도 분석 시작...');
+                const aiAnalysis = await generateChapter0CoordinateWithAI(
+                  locationName,
+                  chapterDescription
                 );
 
-                const distanceImprovement = originalCoords ? calculateDistance(
-                  originalCoords.lat, originalCoords.lng,
-                  enhancedCoords.lat, enhancedCoords.lng
-                ) : 0;
+                result.chapter0AIAnalysis = aiAnalysis;
 
-                chapter.coordinates = enhancedCoords;
+                if (aiAnalysis.success && aiAnalysis.selectedStartingPoint) {
+                  // AI 지도 분석 성공: AI가 선택한 최적 좌표 사용
+                  const aiSelectedCoords = aiAnalysis.selectedStartingPoint.coordinate;
+                  chapter.coordinates = aiSelectedCoords;
 
-                result.improvements.push({
-                  chapterId: i,
-                  originalCoords: originalCoords || { lat: 0, lng: 0 },
-                  enhancedCoords,
-                  distanceImprovement,
-                  method: 'fallback'
-                });
+                  const distanceImprovement = originalCoords ? calculateDistance(
+                    originalCoords.lat, originalCoords.lng,
+                    aiSelectedCoords.lat, aiSelectedCoords.lng
+                  ) : 0;
 
-                result.enhancedCount++;
-                console.log(`🔄 챕터 0 폴백 보정: ${Math.round(distanceImprovement)}m`);
+                  result.improvements.push({
+                    chapterId: i,
+                    originalCoords: originalCoords || { lat: 0, lng: 0 },
+                    enhancedCoords: aiSelectedCoords,
+                    distanceImprovement,
+                    method: 'ai-map-analysis'
+                  });
+
+                  result.enhancedCount++;
+                  console.log(`✅ 챕터 0 AI 분석 성공: ${aiAnalysis.selectedStartingPoint.name}`);
+                  console.log(`📍 좌표: ${aiSelectedCoords.lat}, ${aiSelectedCoords.lng}`);
+                  console.log(`🧠 선택 근거: ${aiAnalysis.selectedStartingPoint.reasoning}`);
+                  console.log(`📊 신뢰도: ${Math.round(aiAnalysis.confidence * 100)}%`);
+                } else {
+                  // AI 분석 실패: 기존 Enhanced Location Service로 폴백
+                  console.log('⚠️ 챕터 0 AI 분석 실패, Enhanced Location Service로 폴백');
+                  const enhancedCoords = generateChapterCoordinate(
+                    baseCoordinates, 
+                    i, 
+                    chapters.length,
+                    chapter.title || `Chapter ${i}`
+                  );
+
+                  const distanceImprovement = originalCoords ? calculateDistance(
+                    originalCoords.lat, originalCoords.lng,
+                    enhancedCoords.lat, enhancedCoords.lng
+                  ) : 0;
+
+                  chapter.coordinates = enhancedCoords;
+
+                  result.improvements.push({
+                    chapterId: i,
+                    originalCoords: originalCoords || { lat: 0, lng: 0 },
+                    enhancedCoords,
+                    distanceImprovement,
+                    method: 'fallback'
+                  });
+
+                  result.enhancedCount++;
+                  console.log(`🔄 챕터 0 폴백 보정: ${Math.round(distanceImprovement)}m`);
+                }
               }
             } catch (error) {
               console.error('❌ 챕터 0 AI 분석 오류:', error);
@@ -592,6 +629,299 @@ function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: numbe
             Math.sin(dLng/2) * Math.sin(dLng/2);
             
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+/**
+ * 🎯 챕터 제목이 구체적인 장소를 나타내는지 판단
+ */
+function isSpecificLocationTitle(chapterTitle: string, mainLocationName: string): boolean {
+  if (!chapterTitle || chapterTitle === mainLocationName) {
+    return false;
+  }
+
+  // 구체적인 장소를 나타내는 키워드들
+  const specificLocationKeywords = [
+    '케이블카', '곤돌라', '로프웨이',
+    '역', '출입구', '정문', '입구', '게이트', '터미널', '정류장',
+    '센터', '전망대', '매표소', '안내소', '광장', '공원',
+    '홀', '관', '층', '구역', '쪽', '편'
+  ];
+
+  return specificLocationKeywords.some(keyword => chapterTitle.includes(keyword));
+}
+
+/**
+ * 🔍 챕터 제목 기반 좌표 검색
+ */
+async function searchByChapterTitle(
+  chapterTitle: string, 
+  mainLocationName: string, 
+  baseCoordinates: { lat: number; lng: number }
+): Promise<{ lat: number; lng: number } | null> {
+  try {
+    console.log(`🔍 제목 기반 검색: "${chapterTitle}" (기준: ${mainLocationName})`);
+
+    // Enhanced Location Service를 사용하여 구체적인 장소 검색
+    const locationResult = await enhancedLocationService.findLocation({
+      query: `${mainLocationName} ${chapterTitle}`,
+      language: 'ko',
+      context: 'tourist entrance starting point access cable car transportation'
+    });
+
+    if (locationResult.error || !locationResult.coordinates) {
+      console.warn(`⚠️ 제목 기반 검색 실패: ${chapterTitle}`);
+      return null;
+    }
+
+    // 기준점과의 거리 검증 (5km 이내만 허용)
+    const distance = calculateDistance(
+      baseCoordinates.lat, baseCoordinates.lng,
+      locationResult.coordinates.lat, locationResult.coordinates.lng
+    );
+
+    if (distance > 5000) { // 5km 초과시 제외
+      console.warn(`⚠️ 제목 기반 검색 결과가 너무 멀음: ${chapterTitle} (${Math.round(distance)}m)`);
+      return null;
+    }
+
+    console.log(`✅ 제목 기반 검색 성공: ${chapterTitle} (${Math.round(distance)}m 거리)`);
+    return locationResult.coordinates;
+
+  } catch (error) {
+    console.error('제목 기반 검색 오류:', error);
+    return null;
+  }
+}
+
+/**
+ * 🎯 제목-좌표 일치성 검증 시스템
+ */
+export interface TitleCoordinateConsistencyResult {
+  isConsistent: boolean;
+  consistencyScore: number; // 0-1
+  chapterAnalysis: Array<{
+    chapterId: number;
+    title: string;
+    hasSpecificLocation: boolean;
+    titleLocationKeyword: string | null;
+    consistencyScore: number;
+    issues: string[];
+  }>;
+  overallIssues: string[];
+  recommendations: string[];
+}
+
+/**
+ * 챕터 제목과 좌표 일치성 검증
+ */
+export async function validateTitleCoordinateConsistency(
+  guide: GuideData,
+  locationName: string
+): Promise<TitleCoordinateConsistencyResult> {
+  console.log('🎯 제목-좌표 일치성 검증 시작');
+  
+  const result: TitleCoordinateConsistencyResult = {
+    isConsistent: true,
+    consistencyScore: 1.0,
+    chapterAnalysis: [],
+    overallIssues: [],
+    recommendations: []
+  };
+
+  if (!guide.realTimeGuide?.chapters) {
+    result.isConsistent = false;
+    result.consistencyScore = 0;
+    result.overallIssues.push('No chapters found');
+    return result;
+  }
+
+  const chapters = guide.realTimeGuide.chapters;
+  let totalConsistencyScore = 0;
+  let analyzedChapters = 0;
+
+  // 각 챕터 분석
+  for (const chapter of chapters) {
+    const chapterAnalysis = await analyzeChapterTitleConsistency(
+      chapter,
+      locationName
+    );
+    
+    result.chapterAnalysis.push(chapterAnalysis);
+    
+    if (chapterAnalysis.hasSpecificLocation) {
+      totalConsistencyScore += chapterAnalysis.consistencyScore;
+      analyzedChapters++;
+      
+      // 일치성 문제가 있는 경우
+      if (chapterAnalysis.consistencyScore < 0.7) {
+        result.isConsistent = false;
+        result.overallIssues.push(
+          `Chapter ${chapterAnalysis.chapterId}: "${chapterAnalysis.title}" - 좌표와 제목 불일치 (${Math.round(chapterAnalysis.consistencyScore * 100)}%)`
+        );
+        
+        // 개선 권장사항 추가
+        if (chapterAnalysis.titleLocationKeyword) {
+          result.recommendations.push(
+            `Chapter ${chapterAnalysis.chapterId}: "${chapterAnalysis.titleLocationKeyword}" 키워드에 맞는 좌표로 업데이트 필요`
+          );
+        }
+      }
+    }
+  }
+
+  // 전체 일치성 점수 계산
+  if (analyzedChapters > 0) {
+    result.consistencyScore = totalConsistencyScore / analyzedChapters;
+  }
+
+  // 전체 일치성 판단
+  if (result.consistencyScore < 0.8) {
+    result.isConsistent = false;
+  }
+
+  console.log(`✅ 제목-좌표 일치성 검증 완료: ${Math.round(result.consistencyScore * 100)}% 일치`);
+  
+  return result;
+}
+
+/**
+ * 개별 챕터의 제목-좌표 일치성 분석
+ */
+async function analyzeChapterTitleConsistency(
+  chapter: any,
+  locationName: string
+): Promise<{
+  chapterId: number;
+  title: string;
+  hasSpecificLocation: boolean;
+  titleLocationKeyword: string | null;
+  consistencyScore: number;
+  issues: string[];
+}> {
+  const analysis = {
+    chapterId: chapter.id || 0,
+    title: chapter.title || '',
+    hasSpecificLocation: false,
+    titleLocationKeyword: null as string | null,
+    consistencyScore: 1.0,
+    issues: [] as string[]
+  };
+
+  if (!chapter.title || !chapter.coordinates) {
+    analysis.consistencyScore = 0;
+    analysis.issues.push('Missing title or coordinates');
+    return analysis;
+  }
+
+  // 구체적인 장소명이 포함된 제목인지 검사
+  const specificLocationKeyword = extractSpecificLocationFromTitle(chapter.title, locationName);
+  
+  if (specificLocationKeyword) {
+    analysis.hasSpecificLocation = true;
+    analysis.titleLocationKeyword = specificLocationKeyword;
+    
+    // 제목의 구체적 장소와 좌표 일치성 검증
+    const consistencyScore = await validateLocationKeywordConsistency(
+      specificLocationKeyword,
+      locationName,
+      chapter.coordinates
+    );
+    
+    analysis.consistencyScore = consistencyScore;
+    
+    if (consistencyScore < 0.7) {
+      analysis.issues.push(
+        `Title mentions "${specificLocationKeyword}" but coordinates may not match this specific location`
+      );
+    }
+  }
+
+  return analysis;
+}
+
+/**
+ * 제목에서 구체적인 장소명 추출
+ */
+function extractSpecificLocationFromTitle(title: string, mainLocationName: string): string | null {
+  if (!title || title === mainLocationName) {
+    return null;
+  }
+
+  // 구체적인 장소를 나타내는 키워드 패턴들
+  const specificLocationPatterns = [
+    // 교통수단
+    /케이블카|곤돌라|로프웨이/i,
+    // 출입구, 역, 정류장
+    /\w*역|\w*출입구|\w*정문|\w*입구|\w*게이트|\w*터미널|\w*정류장/i,
+    // 시설명
+    /\w*센터|\w*타워|\w*전망대|\w*매표소|\w*안내소|\w*광장|\w*공원/i,
+    // 박물관, 미술관
+    /\w*박물관|\w*미술관|\w*홀|\w*관/i,
+    // 방향/위치
+    /\w*쪽|\w*편|\w*구역|\w*층/i
+  ];
+
+  for (const pattern of specificLocationPatterns) {
+    const match = title.match(pattern);
+    if (match) {
+      return match[0].trim();
+    }
+  }
+
+  return null;
+}
+
+/**
+ * 장소 키워드와 좌표 일치성 검증
+ */
+async function validateLocationKeywordConsistency(
+  locationKeyword: string,
+  mainLocationName: string,
+  coordinates: { lat: number; lng: number }
+): Promise<number> {
+  try {
+    // Enhanced Location Service를 사용하여 키워드에 해당하는 실제 좌표 검색
+    const expectedLocationResult = await enhancedLocationService.findLocation({
+      query: `${mainLocationName} ${locationKeyword}`,
+      language: 'ko',
+      context: 'tourist attraction specific location'
+    });
+
+    if (expectedLocationResult.error || !expectedLocationResult.coordinates) {
+      // 검색 실패 시 중간 점수 반환 (검증 불가)
+      return 0.5;
+    }
+
+    // 실제 좌표와 예상 좌표 간 거리 계산
+    const distance = calculateDistance(
+      coordinates.lat, coordinates.lng,
+      expectedLocationResult.coordinates.lat, expectedLocationResult.coordinates.lng
+    );
+
+    // 거리에 따른 일치성 점수 계산
+    let consistencyScore: number;
+    if (distance <= 50) {
+      consistencyScore = 1.0; // 50m 이내: 완전 일치
+    } else if (distance <= 100) {
+      consistencyScore = 0.9; // 100m 이내: 높은 일치
+    } else if (distance <= 200) {
+      consistencyScore = 0.8; // 200m 이내: 양호한 일치
+    } else if (distance <= 500) {
+      consistencyScore = 0.6; // 500m 이내: 보통 일치
+    } else if (distance <= 1000) {
+      consistencyScore = 0.4; // 1km 이내: 낮은 일치
+    } else {
+      consistencyScore = 0.2; // 1km 초과: 매우 낮은 일치
+    }
+
+    console.log(`🔍 키워드 "${locationKeyword}" 일치성: ${Math.round(distance)}m 거리, ${Math.round(consistencyScore * 100)}% 일치`);
+    
+    return consistencyScore;
+
+  } catch (error) {
+    console.warn('장소 키워드 일치성 검증 실패:', error);
+    return 0.5; // 오류 시 중간 점수
+  }
 }
 
 /**

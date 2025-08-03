@@ -222,7 +222,9 @@
       "precaution3": "배터리 소모를 고려하여 휴대용 충전기를 준비하세요",
       "precaution4": "주변 상황을 항상 주의 깊게 살피며 안전을 우선으로 하세요",
       "noGuides": "가이드가 없습니다",
-      "createNewGuide": "새로운 가이드를 생성해보세요!"
+      "createNewGuide": "새로운 가이드를 생성해보세요!",
+      "recommendedStartPoint": "추천 시작지점",
+      "accurateIntroLocation": "정확한 인트로 위치"
     },
     "live": {
       "shareTitle": "AI 가이드 공유",
@@ -736,7 +738,9 @@
       "precaution3": "Prepare a portable charger considering battery consumption",
       "precaution4": "Always pay attention to your surroundings and prioritize safety",
       "noGuides": "No guides available",
-      "createNewGuide": "Create a new guide!"
+      "createNewGuide": "Create a new guide!",
+      "recommendedStartPoint": "Recommended Start Point",
+      "accurateIntroLocation": "Accurate Intro Location"
     },
     "live": {
       "shareTitle": "Share AI Guide",
@@ -1248,7 +1252,9 @@
       "precaution1": "イヤホンやヘッドホンを着用してオーディオガイドを聞いてください",
       "precaution2": "信号の弱い屋内では正確な位置追跡が困難な場合があります",
       "precaution3": "バッテリー消費を考慮してポータブル充電器を準備してください",
-      "precaution4": "周囲の状況を常に注意深く観察し、安全を最優先にしてください"
+      "precaution4": "周囲の状況を常に注意深く観察し、安全を最優先にしてください",
+      "recommendedStartPoint": "推奨開始地点",
+      "accurateIntroLocation": "正確なイントロ位置"
     },
     "live": {
       "shareTitle": "AIガイド共有",
@@ -1718,7 +1724,9 @@
       "precaution1": "佩戴耳机或头戴式耳机收听音频指南",
       "precaution2": "在信号较弱的室内，GPS追踪可能不够准确",
       "precaution3": "考虑到电池消耗，请准备便携式充电器",
-      "precaution4": "时刻关注周围环境，以安全为第一要务"
+      "precaution4": "时刻关注周围环境，以安全为第一要务",
+      "recommendedStartPoint": "推荐起点",
+      "accurateIntroLocation": "精确介绍位置"
     },
     "live": {
       "shareTitle": "分享AI指南",
@@ -2188,7 +2196,9 @@
       "precaution1": "Usa auriculares para escuchar las guías de audio",
       "precaution2": "El seguimiento GPS puede ser inexacto en interiores donde las señales son débiles",
       "precaution3": "Prepara un cargador portátil considerando el consumo de batería",
-      "precaution4": "Presta siempre atención a tu entorno y prioriza la seguridad"
+      "precaution4": "Presta siempre atención a tu entorno y prioriza la seguridad",
+      "recommendedStartPoint": "Punto de Inicio Recomendado",
+      "accurateIntroLocation": "Ubicación Exacta de Introducción"
     },
     "live": {
       "shareTitle": "Compartir Guía IA",
