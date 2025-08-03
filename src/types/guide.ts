@@ -93,6 +93,14 @@ export interface GuideChapter {
     lng: number;
   };
   
+  // 좌표 정확도 및 검증 관련 필드
+  coordinateAccuracy?: number; // 0-1 사이 값
+  regenerationAttempts?: number;
+  validationStatus?: 'pending' | 'verified' | 'failed' | 'manual';
+  lastValidatedAt?: string;
+  validationSource?: string; // 'google_places', 'manual', 'ai_generated' 등
+  coordinateConfidence?: number; // 0-1 사이 값
+  
   // 기존 호환성을 위해 유지하되 deprecated 표시
   /** @deprecated use location.lat instead */
   lat?: number;
@@ -209,3 +217,70 @@ export interface GuideRecord {
 
 // 언어별 설정 타입은 LanguageContext에서 import하도록 변경됨
 // export interface LanguageConfig는 src/contexts/LanguageContext.tsx에서 관리
+
+// ========================================
+// 좌표 관리 관련 타입들
+// ========================================
+
+export interface CoordinateValidation {
+  accuracy: number; // 0-1 사이 정확도 점수
+  confidence: number; // 0-1 사이 신뢰도 점수
+  attempts: number; // 재생성 시도 횟수
+  status: 'pending' | 'verified' | 'failed' | 'manual';
+  lastValidatedAt?: string;
+  source: 'google_places' | 'manual' | 'ai_generated' | 'ai_regenerated';
+}
+
+export interface CoordinateRegenerationRequest {
+  guideId?: string;
+  locationName?: string;
+  minAccuracy?: number;
+  maxAttempts?: number;
+  forceRegenerate?: boolean;
+  chapterIds?: string[]; // 특정 챕터들만 재생성
+}
+
+export interface CoordinateRegenerationResponse {
+  success: boolean;
+  message: string;
+  regeneratedCount: number;
+  totalCandidates: number;
+  coordinates: GeneratedCoordinate[];
+  failedUpdates?: {
+    chapterId: string;
+    error: any;
+  }[];
+}
+
+export interface GeneratedCoordinate {
+  chapterId: string;
+  chapterIndex: number;
+  title: string;
+  latitude: number;
+  longitude: number;
+  confidence: number;
+  reasoning: string;
+  validationStatus?: 'pending' | 'verified' | 'failed';
+}
+
+export interface CoordinateCandidateInfo {
+  id: string;
+  guideId: string;
+  chapterIndex: number;
+  title: string;
+  latitude?: number;
+  longitude?: number;
+  coordinateAccuracy?: number;
+  regenerationAttempts?: number;
+  validationStatus?: string;
+}
+
+export interface CoordinateStats {
+  totalChapters: number;
+  withCoordinates: number;
+  highAccuracy: number; // accuracy >= 0.8
+  mediumAccuracy: number; // 0.5 <= accuracy < 0.8
+  lowAccuracy: number; // accuracy < 0.5
+  needsRegeneration: number;
+  averageAccuracy: number;
+}

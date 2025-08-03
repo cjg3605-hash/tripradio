@@ -24,6 +24,8 @@ interface StartLocationMapProps {
   chapters?: Array<{ id: number; title: string; lat: number; lng: number; narrative?: string; originalIndex: number }>;
   pois: Array<{ id: string; name: string; lat: number; lng: number; description: string }>;
   className?: string;
+  // 새로운 플로우: 인트로 챕터만 표시 여부
+  showIntroOnly?: boolean;
 }
 
 const StartLocationMap: React.FC<StartLocationMapProps> = ({
@@ -31,9 +33,15 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
   startPoint,
   chapters = [],
   pois,
-  className = ''
+  className = '',
+  showIntroOnly = false
 }) => {
   const { t } = useLanguage();
+  
+  // 🎯 새로운 플로우: 인트로 챕터만 필터링
+  const displayChapters = showIntroOnly 
+    ? chapters.filter(chapter => chapter.id === 0 || chapter.originalIndex === 0)
+    : chapters;
   return (
     <div className={`bg-white border border-black/8 rounded-3xl shadow-lg shadow-black/3 overflow-hidden ${className}`}>
       {/* 모던 모노크롬 헤더 */}
@@ -44,10 +52,14 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
           </div>
           <div>
             <h3 className="text-xl font-bold text-black tracking-tight">
-              {chapters.length > 0 ? (t('guide.viewingOrderMap') || '관람순서 지도') : (t('guide.tourStartLocation') || '투어 시작 위치')}
+              {showIntroOnly ? (t('guide.recommendedStartPoint') || '추천 시작지점') : 
+               displayChapters.length > 0 ? (t('guide.viewingOrderMap') || '관람순서 지도') : 
+               (t('guide.tourStartLocation') || '투어 시작 위치')}
             </h3>
             <p className="text-sm text-black/60 font-medium mt-0.5">
-              {chapters.length > 0 ? `${chapters.length}${t('common.chapters') || ' chapters'} ${t('guide.route') || '경로'}` : startPoint.name}
+              {showIntroOnly ? `${t('guide.accurateIntroLocation') || '정확한 인트로 위치'}` :
+               displayChapters.length > 0 ? `${displayChapters.length}${t('common.chapters') || ' chapters'} ${t('guide.route') || '경로'}` : 
+               startPoint.name}
             </p>
           </div>
         </div>
@@ -56,8 +68,8 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
       {/* Enhanced 지도 */}
       <div className="h-64">
         <MapWithRoute
-          chapters={chapters.length > 0 ? chapters : undefined}
-          pois={chapters.length === 0 ? pois.map(poi => ({
+          chapters={displayChapters.length > 0 ? displayChapters : undefined}
+          pois={displayChapters.length === 0 ? pois.map(poi => ({
             id: poi.id,
             name: poi.name,
             lat: poi.lat,
@@ -66,8 +78,8 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
           })) : undefined}
           currentLocation={null}
           center={{ lat: startPoint.lat, lng: startPoint.lng }}
-          zoom={15}
-          showRoute={chapters.length > 0}
+          zoom={showIntroOnly ? 16 : 15} // 인트로만 표시할 때 더 확대
+          showRoute={!showIntroOnly && displayChapters.length > 0} // 인트로만 표시시 루트 숨김
           showUserLocation={false}
           onMarkerClick={(chapterIndex) => {
             console.log('Chapter marker clicked:', chapterIndex);

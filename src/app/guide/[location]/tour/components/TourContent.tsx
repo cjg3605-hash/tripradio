@@ -606,6 +606,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                       chapters={chaptersForMap} // 🔥 실제 챕터 데이터 전달
                       pois={[]} // POI는 비워둠 (챕터 우선)
                       className="w-full"
+                      showIntroOnly={true} // 🎯 새로운 플로우: 인트로 챕터만 표시
                     />
                   );
                 })()}

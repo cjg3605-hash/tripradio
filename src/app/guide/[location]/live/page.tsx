@@ -419,12 +419,38 @@ const LiveTourPage: React.FC = () => {
             {poisWithChapters.map((poi, index) => (
               <div key={poi.id} className="border border-gray-100 rounded-lg p-4">
                 <div className="flex items-start gap-3 mb-3">
-                  <div className="w-6 h-6 bg-black text-white text-xs rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    {index + 1}
+                  <div className={`w-6 h-6 text-white text-xs rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                    index === 0 ? 'bg-blue-600' : 'bg-black'
+                  }`}>
+                    {index === 0 ? '🎯' : index + 1}
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-900 mb-1">{poi.name}</h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-medium text-gray-900">{poi.name}</h3>
+                      {index === 0 && (
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                          {t('guide.startLocation') || '시작지점'}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-600">{poi.description}</p>
+                    
+                    {/* 인트로가 아닌 경우 방향 안내 강조 */}
+                    {index > 0 && poi.audioChapter?.text && (
+                      <div className="mt-2 p-2 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                        <div className="flex items-start gap-2">
+                          <Compass className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <h4 className="text-sm font-medium text-gray-900 mb-1">
+                              {t('guide.directionGuidance') || '방향 안내'}
+                            </h4>
+                            <p className="text-sm text-gray-700">
+                              이전 위치에서 방향 안내를 따라 이동하세요
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
@@ -521,31 +547,45 @@ const LiveTourPage: React.FC = () => {
           </div>
         )}
 
-        {/* Map (시작 후에만 표시) */}
+        {/* 추천 시작지점 지도 (시작 후에만 표시) - 인트로 챕터만 */}
         {showMap && (
-          <div className="h-96 bg-white border border-gray-100 rounded-lg overflow-hidden">
-            <MapWithRoute
-              pois={poisWithChapters.map(poi => ({
-                id: poi.id,
-                name: poi.name,
-                lat: poi.lat,
-                lng: poi.lng,
-                description: poi.description || ''
-              }))}
-              currentLocation={currentLocation}
-              center={mapCenter}
-              zoom={15}
-              showRoute={true}
-              showUserLocation={true}
-              onPoiClick={(poiId) => {
-                const poiIndex = poisWithChapters.findIndex(poi => poi.id === poiId);
-                if (poiIndex !== -1) {
-                  setCurrentChapter(poiIndex);
-                }
-              }}
-              className="w-full h-full"
-              locationName={locationName}
-            />
+          <div className="mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <MapPin className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-lg font-medium">{t('guide.recommendedStartPoint') || '추천 시작지점'}</h2>
+                <p className="text-sm text-gray-600">{t('guide.accurateIntroLocation') || '정확한 인트로 위치'}</p>
+              </div>
+            </div>
+            
+            <div className="h-64 bg-white border border-gray-100 rounded-lg overflow-hidden">
+              <MapWithRoute
+                pois={poisWithChapters
+                  .filter((poi, index) => index === 0) // 🎯 인트로 POI만 표시 (첫 번째만)
+                  .map(poi => ({
+                    id: poi.id,
+                    name: poi.name,
+                    lat: poi.lat,
+                    lng: poi.lng,
+                    description: poi.description || ''
+                  }))}
+                currentLocation={currentLocation}
+                center={mapCenter}
+                zoom={16} // 더 확대된 뷰
+                showRoute={false} // 루트 표시 안 함
+                showUserLocation={true}
+                onPoiClick={(poiId) => {
+                  const poiIndex = poisWithChapters.findIndex(poi => poi.id === poiId);
+                  if (poiIndex !== -1) {
+                    setCurrentChapter(poiIndex);
+                  }
+                }}
+                className="w-full h-full"
+                locationName={locationName}
+              />
+            </div>
           </div>
         )}
 

@@ -60,6 +60,14 @@ CREATE TABLE IF NOT EXISTS guide_chapters (
     latitude DECIMAL,
     longitude DECIMAL,
     
+    -- 좌표 정확도 및 검증 필드
+    coordinate_accuracy DECIMAL(3,2) DEFAULT 0.0 CHECK (coordinate_accuracy >= 0.0 AND coordinate_accuracy <= 1.0),
+    regeneration_attempts INTEGER DEFAULT 0,
+    validation_status VARCHAR(20) DEFAULT 'pending' CHECK (validation_status IN ('pending', 'verified', 'failed', 'manual')),
+    last_validated_at TIMESTAMPTZ,
+    validation_source VARCHAR(50), -- 'google_places', 'manual', 'ai_generated' 등
+    coordinate_confidence DECIMAL(3,2) DEFAULT 0.0 CHECK (coordinate_confidence >= 0.0 AND coordinate_confidence <= 1.0),
+    
     -- 메타데이터
     duration_seconds INTEGER,
     audio_generated BOOLEAN DEFAULT FALSE,
@@ -117,24 +125,134 @@ ALTER TABLE guides ENABLE ROW LEVEL SECURITY;
 ALTER TABLE guide_chapters ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audio_files ENABLE ROW LEVEL SECURITY;
 
--- 10. RLS 정책 생성
-CREATE POLICY "Anyone can read guides" ON guides FOR SELECT USING (true);
-CREATE POLICY "Service role can insert guides" ON guides FOR INSERT WITH CHECK (true);
-CREATE POLICY "Service role can update guides" ON guides FOR UPDATE USING (true);
-CREATE POLICY "Service role can delete guides" ON guides FOR DELETE USING (true);
+-- 10. RLS 정책 생성 (안전한 방식)
+DO $$
+BEGIN
+    -- guides 테이블 정책들
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'guides' AND policyname = 'Anyone can read guides') THEN
+        CREATE POLICY "Anyone can read guides" ON guides FOR SELECT USING (true);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'guides' AND policyname = 'Service role can insert guides') THEN
+        CREATE POLICY "Service role can insert guides" ON guides FOR INSERT WITH CHECK (true);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'guides' AND policyname = 'Service role can update guides') THEN
+        CREATE POLICY "Service role can update guides" ON guides FOR UPDATE USING (true);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'guides' AND policyname = 'Service role can delete guides') THEN
+        CREATE POLICY "Service role can delete guides" ON guides FOR DELETE USING (true);
+    END IF;
 
-CREATE POLICY "Anyone can read guide chapters" ON guide_chapters FOR SELECT USING (true);
-CREATE POLICY "Service role can insert guide chapters" ON guide_chapters FOR INSERT WITH CHECK (true);
-CREATE POLICY "Service role can update guide chapters" ON guide_chapters FOR UPDATE USING (true);
-CREATE POLICY "Service role can delete guide chapters" ON guide_chapters FOR DELETE USING (true);
+    -- guide_chapters 테이블 정책들
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'guide_chapters' AND policyname = 'Anyone can read guide chapters') THEN
+        CREATE POLICY "Anyone can read guide chapters" ON guide_chapters FOR SELECT USING (true);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'guide_chapters' AND policyname = 'Service role can insert guide chapters') THEN
+        CREATE POLICY "Service role can insert guide chapters" ON guide_chapters FOR INSERT WITH CHECK (true);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'guide_chapters' AND policyname = 'Service role can update guide chapters') THEN
+        CREATE POLICY "Service role can update guide chapters" ON guide_chapters FOR UPDATE USING (true);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'guide_chapters' AND policyname = 'Service role can delete guide chapters') THEN
+        CREATE POLICY "Service role can delete guide chapters" ON guide_chapters FOR DELETE USING (true);
+    END IF;
 
-CREATE POLICY "Anyone can read audio files" ON audio_files FOR SELECT USING (true);
-CREATE POLICY "Service role can insert audio files" ON audio_files FOR INSERT WITH CHECK (true);
-CREATE POLICY "Service role can update audio files" ON audio_files FOR UPDATE USING (true);
-CREATE POLICY "Service role can delete audio files" ON audio_files FOR DELETE USING (true);
+    -- audio_files 테이블 정책들
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'audio_files' AND policyname = 'Anyone can read audio files') THEN
+        CREATE POLICY "Anyone can read audio files" ON audio_files FOR SELECT USING (true);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'audio_files' AND policyname = 'Service role can insert audio files') THEN
+        CREATE POLICY "Service role can insert audio files" ON audio_files FOR INSERT WITH CHECK (true);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'audio_files' AND policyname = 'Service role can update audio files') THEN
+        CREATE POLICY "Service role can update audio files" ON audio_files FOR UPDATE USING (true);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'audio_files' AND policyname = 'Service role can delete audio files') THEN
+        CREATE POLICY "Service role can delete audio files" ON audio_files FOR DELETE USING (true);
+    END IF;
+END $$;
 
--- 11. 성공 메시지
-SELECT 'Guides 테이블 설정 완료! 🎉' as status;
+-- 11. 좌표 동기화 함수 생성
+CREATE OR REPLACE FUNCTION sync_coordinates_to_guides()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- guide_chapters의 좌표가 변경되면 guides 테이블의 JSONB도 자동 업데이트
+    UPDATE guides 
+    SET 
+        content = jsonb_set(
+            content,
+            '{realTimeGuide,chapters}',
+            (
+                SELECT jsonb_agg(
+                    CASE 
+                        WHEN (chapter_data->>'id')::INTEGER = NEW.chapter_index 
+                        THEN jsonb_set(
+                            jsonb_set(
+                                chapter_data,
+                                '{location,lat}',
+                                to_jsonb(NEW.latitude)
+                            ),
+                            '{location,lng}',
+                            to_jsonb(NEW.longitude)
+                        )
+                        ELSE chapter_data
+                    END
+                )
+                FROM jsonb_array_elements(content->'realTimeGuide'->'chapters') AS chapter_data
+                WHERE content->'realTimeGuide'->'chapters' IS NOT NULL
+            )
+        ),
+        updated_at = NOW()
+    WHERE id = NEW.guide_id
+    AND content->'realTimeGuide'->'chapters' IS NOT NULL;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 12. 좌표 동기화 트리거 생성
+DROP TRIGGER IF EXISTS sync_coordinates_trigger ON guide_chapters;
+CREATE TRIGGER sync_coordinates_trigger
+    AFTER UPDATE OF latitude, longitude ON guide_chapters
+    FOR EACH ROW
+    WHEN (NEW.latitude IS DISTINCT FROM OLD.latitude OR NEW.longitude IS DISTINCT FROM OLD.longitude)
+    EXECUTE FUNCTION sync_coordinates_to_guides();
+
+-- 13. 좌표 정확도 업데이트 함수
+CREATE OR REPLACE FUNCTION update_coordinate_accuracy()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- 좌표가 수동으로 설정되거나 검증되면 accuracy 향상
+    IF NEW.validation_status = 'verified' AND OLD.validation_status != 'verified' THEN
+        NEW.coordinate_accuracy = GREATEST(NEW.coordinate_accuracy, 0.9);
+        NEW.last_validated_at = NOW();
+    ELSIF NEW.validation_status = 'manual' THEN
+        NEW.coordinate_accuracy = 1.0;
+        NEW.coordinate_confidence = 1.0;
+        NEW.last_validated_at = NOW();
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 14. 좌표 정확도 트리거 생성
+DROP TRIGGER IF EXISTS update_coordinate_accuracy_trigger ON guide_chapters;
+CREATE TRIGGER update_coordinate_accuracy_trigger
+    BEFORE UPDATE ON guide_chapters
+    FOR EACH ROW
+    EXECUTE FUNCTION update_coordinate_accuracy();
+
+-- 15. 성공 메시지
+SELECT 'Guides 테이블 및 좌표 동기화 시스템 설정 완료! 🎉' as status;
 
 -- 12. 설정 확인 쿼리 (선택사항)
 -- SELECT 'Guides 테이블을 성공적으로 설정했습니다!' as status;
