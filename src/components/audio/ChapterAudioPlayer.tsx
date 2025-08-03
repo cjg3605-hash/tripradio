@@ -19,6 +19,8 @@ interface ChapterAudioPlayerProps {
   onChapterUpdate?: (updatedChapter: AudioChapter) => void;
   locationName?: string;
   guideId?: string;
+  // 🌍 언어별 최적화된 TTS를 위한 언어 정보
+  contentLanguage?: string;
 }
 
 const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
@@ -26,9 +28,10 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
   className = '',
   onChapterUpdate,
   locationName = 'guide',
-  guideId = 'default'
+  guideId = 'default',
+  contentLanguage
 }) => {
-  const { t } = useLanguage();
+  const { t, currentLanguage, currentConfig } = useLanguage();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -130,7 +133,7 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
     audioRef.current.muted = newMuted;
   };
 
-  // 🎙️ Ultra-Natural TTS (100만명 시뮬레이션) - 단일 최고 품질 TTS
+  // 🌍 언어별 최적화된 TTS 생성 (Neural2 기반 네이티브 음성)
   const generateTTS = async () => {
     if (!chapter.text || isGeneratingTTS) return;
 
@@ -144,13 +147,21 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
     }
 
     try {
-      console.log('🤖 Ultra-Natural TTS 생성 시작 (100만명 시뮬레이션):', { 
+      // 🎯 언어 자동 감지: 우선순위 - contentLanguage > chapter.language > context ttsLang > ko-KR
+      const detectedLanguage = contentLanguage || chapter.language || currentConfig.ttsLang || 'ko-KR';
+      
+      console.log('🌍 언어별 최적화된 TTS 생성 시작:', { 
         chapterId: chapter.id, 
         textLength: chapter.text.length,
-        language: chapter.language || 'ko'
+        contentLanguage,
+        chapterLanguage: chapter.language,
+        contextLanguage: currentLanguage,
+        contextTtsLang: currentConfig.ttsLang,
+        detectedLanguage,
+        preview: chapter.text.substring(0, 50) + '...'
       });
 
-      // 🧬 Ultra-Natural TTS API 호출
+      // 🧬 언어별 최적화된 TTS API 호출
       const response = await fetch('/api/tts', {
         method: 'POST',
         headers: {
@@ -158,8 +169,8 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
         },
         body: JSON.stringify({
           text: chapter.text,
-          language: 'ko-KR',
-          speakingRate: 1.2
+          language: detectedLanguage,
+          quality: 'high' // Neural2 품질 사용
         })
       });
 
@@ -185,18 +196,26 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
           });
         }
 
-        console.log('✅ Ultra-Natural TTS 생성 완료:', { 
+        console.log('✅ 언어별 최적화된 TTS 생성 완료:', { 
           chapterId: chapter.id,
           audioSize: result.audioData?.length || 0,
           mimeType: result.mimeType,
-          language: result.language
+          language: result.language,
+          voiceName: result.voiceName,
+          quality: result.quality,
+          culturalAdaptation: result.culturalAdaptation,
+          requestedLanguage: detectedLanguage
         });
 
         // 🎵 생성 완료 후 자동 재생
         setTimeout(async () => {
-          if (audioRef.current && result.audioUrl) {
+          if (audioRef.current && audioUrl) {
             try {
-              console.log('🎵 Ultra-Natural TTS 생성 완료 - 자동 재생 시작');
+              console.log('🎵 언어별 최적화된 TTS 생성 완료 - 자동 재생 시작:', {
+                language: result.language,
+                voice: result.voiceName,
+                quality: result.quality
+              });
               await audioRef.current.play();
               // 상태는 play 이벤트 리스너에서 자동 업데이트됨
             } catch (error) {
@@ -210,10 +229,10 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
       }
 
       // 실패시 명확한 에러 메시지
-      throw new Error(result.error || 'Ultra-Natural TTS 생성에 실패했습니다.');
+      throw new Error(result.error || '언어별 최적화된 TTS 생성에 실패했습니다.');
 
     } catch (error) {
-      console.error('❌ Ultra-Natural TTS 생성 실패:', error);
+      console.error('❌ 언어별 최적화된 TTS 생성 실패:', error);
       const errorMessage = error instanceof Error ? error.message : '알 수 없는 TTS 오류가 발생했습니다.';
       
       // 에러 상태 업데이트

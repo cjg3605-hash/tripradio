@@ -337,7 +337,7 @@ export async function createStructurePrompt(
       case 'en': {
         try {
           const englishModule = await import('./english');
-          return englishModule.createEnglishStructurePrompt(locationName, language, userProfile);
+          return englishModule.createEnglishGuidePrompt(locationName, userProfile);
         } catch {
           const koreanModule = await import('./korean');
           return koreanModule.createKoreanStructurePrompt(locationName, language, userProfile);
@@ -405,7 +405,9 @@ export async function createChapterPrompt(
       case 'en': {
         try {
           const englishModule = await import('./english');
-          return englishModule.createEnglishChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
+          // 영어는 한국어 Chapter 함수 사용
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
         } catch {
           const koreanModule = await import('./korean');
           return koreanModule.createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
@@ -471,7 +473,9 @@ export async function createFinalGuidePrompt(
       case 'en': {
         try {
           const englishModule = await import('./english');
-          return englishModule.createEnglishFinalPrompt(locationName, researchData, userProfile);
+          // 영어는 한국어 Final 함수 사용
+          const koreanModule = await import('./korean');
+          return koreanModule.createKoreanFinalPrompt(locationName, researchData, userProfile);
         } catch {
           const koreanModule = await import('./korean');
           return koreanModule.createKoreanFinalPrompt(locationName, researchData, userProfile);

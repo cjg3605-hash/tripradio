@@ -7,153 +7,225 @@ import {
 } from './index';
 
 /**
- * 🎯 Location-specific expert requirements for English guides
+ * 🎯 English Guide Location-Specific Requirements
  */
 function getLocationSpecificRequirements(locationType: string): string {
   switch (locationType) {
     case 'palace':
-      return `**🏰 Palace Architecture Expertise:**
-- **Royal Hierarchy**: Throne room → audience halls → private quarters layout and significance
-- **Royal Life**: Specific ceremonies, daily routines, seasonal court events
-- **Political History**: Major historical decisions and events at this location
+      return `**🏰 Palace Architecture Expert Standards:**
+- **Architectural Hierarchy**: Throne room → audience halls → private quarters spatial layout and meaning
+- **Court Life**: Specific ceremonies, daily routines, seasonal events
+- **Political History**: Important historical decisions and events at this location
 - **Craftsmanship**: Construction techniques, decorative arts, engineering excellence
 - **Symbolic Systems**: Royal emblems, ceremonial spaces, power representation`;
 
     case 'religious':
-      return `**🙏 Religious Architecture Expertise:**
+      return `**🙏 Religious Architecture Expert Standards:**
 - **Sacred Symbolism**: Architectural elements and their spiritual meanings
-- **Religious Philosophy**: Core teachings, practices, and spiritual traditions
+- **Religious Philosophy**: Core teachings, practices, spiritual traditions
 - **Artistic Heritage**: Religious art, sculptures, stained glass, iconography
 - **Liturgical Spaces**: Worship practices, ceremonial functions, sacred rituals
 - **Spiritual Experience**: Meditation, prayer methods, contemplative practices`;
 
     case 'historical':
-      return `**📚 Historical Site Expertise:**
-- **Historical Facts**: Verified dates, events, figures with documentary evidence
+      return `**📚 Historical Site Expert Standards:**
+- **Historical Facts**: Verified dates, events, documented evidence of figures
 - **Character Stories**: Specific achievements and actions of historical figures
-- **Social Context**: Economic, cultural, and political conditions of the era
-- **Artifact Significance**: Archaeological finds, their dating, and cultural importance
-- **Contemporary Relevance**: Lessons and insights for modern understanding`;
+- **Social Context**: Economic, cultural, political conditions of the time
+- **Artifact Value**: Archaeological findings, dating, cultural significance
+- **Contemporary Relevance**: Historical lessons and insights for modern understanding`;
 
     case 'nature':
-      return `**🌿 Natural Environment Expertise:**
-- **Geological Formation**: Millions of years of geological processes and rock formations
+      return `**🌿 Natural Environment Expert Standards:**
+- **Geological Formation**: Millions of years of geological processes and rock formation
 - **Ecosystem Dynamics**: Species interactions, food webs, biodiversity patterns
 - **Climate Characteristics**: Microclimate, seasonal changes, weather patterns
 - **Conservation Value**: Endangered species, habitat protection, ecological importance
 - **Sustainability**: Environmental protection and responsible tourism practices`;
 
     case 'culinary':
-      return `**🍽️ Culinary Culture Expertise:**
-- **Cooking Science**: Fermentation, aging, cooking techniques, and scientific principles
-- **Ingredient Quality**: Origin, standards, nutritional properties, seasonal availability
-- **Traditional Methods**: Time-honored recipes, preservation techniques, cultural practices
-- **Flavor Profiles**: Balance of tastes, regional variations, signature characteristics
-- **Food History**: Origins, evolution, cultural significance, regional adaptations`;
+      return `**🍽️ Culinary Culture Expert Standards:**
+- **Culinary Science**: Fermentation, aging, cooking techniques, scientific principles
+- **Ingredient Quality**: Origin, quality standards, nutritional properties, seasonality
+- **Traditional Methods**: Ancestral recipes, preservation techniques, cultural practices
+- **Flavor Profiles**: Taste balance, regional variations, distinctive characteristics
+- **Gastronomic History**: Origins, evolution, cultural significance, regional adaptations`;
 
     case 'cultural':
-      return `**🎨 Arts & Culture Expertise:**
-- **Art History**: Artistic movements, periods, and the artist's place in art history
+      return `**🎨 Art and Culture Expert Standards:**
+- **Art History**: Artistic movements, periods, artist's position in art history
 - **Work Analysis**: Techniques, materials, composition, color theory, professional interpretation
-- **Cultural Context**: Social, political, economic conditions influencing the artwork
+- **Cultural Context**: Social, political, economic conditions that influenced the work
 - **Aesthetic Theory**: Beauty standards, artistic philosophy, appreciation methods
 - **Contemporary Value**: How historical art inspires and influences modern culture`;
 
     case 'commercial':
-      return `**🛍️ Commercial Culture Expertise:**
-- **Market History**: Development of trade districts, economic background, commercial evolution
+      return `**🛍️ Commercial Culture Expert Standards:**
+- **Market History**: Commercial district development, economic background, trade evolution
 - **Local Specialties**: Raw materials, production methods, quality standards, unique features
 - **Trade Systems**: Traditional and modern distribution, supply chain evolution
 - **Community Life**: Impact of commerce on local lifestyle, cultural practices
 - **Economic Impact**: Regional economic contribution, employment, business ecosystem`;
 
     case 'modern':
-      return `**🏗️ Modern Architecture Expertise:**
-- **Structural Engineering**: Advanced construction technology, earthquake resistance, innovative methods
+      return `**🏗️ Modern Architecture Expert Standards:**
+- **Structural Engineering**: Advanced construction technology, seismic design, innovative methods
 - **Design Philosophy**: Architect's concept, design intent, aesthetic principles
 - **Green Technology**: Energy efficiency, sustainable construction, environmental considerations
-- **Urban Planning**: Role as landmark, contribution to city development, urban integration
+- **Urban Planning**: Landmark role, urban development contribution, city integration
 - **Future Vision**: Architectural innovation, smart city concepts, technological advancement`;
 
     default:
-      return `**🎯 Comprehensive Tourism Expertise:**
-- **Multi-faceted Approach**: Balanced coverage of historical, cultural, natural, economic aspects
+      return `**🎯 Comprehensive Tourism Expert Standards:**
+- **Multifaceted Approach**: Balanced coverage of historical, cultural, natural, economic aspects
 - **Practical Information**: Transportation, facilities, visitor services, accessibility
-- **Regional Character**: Unique features distinguishing this location from others
-- **Engaging Stories**: Memorable anecdotes, human interest stories, cultural insights
-- **Overall Value**: Comprehensive understanding of the location's significance and appeal`;
+- **Regional Character**: Unique characteristics that distinguish this place from others
+- **Engaging Stories**: Memorable anecdotes, human interest, cultural insights
+- **Comprehensive Value**: Complete understanding of the place's significance and appeal`;
   }
 }
 
 /**
- * 🎯 Quality validation criteria by location type
+ * 🎯 Location Type Quality Validation Criteria
  */
 function getQualityRequirementsByType(locationType: string): string {
   switch (locationType) {
     case 'palace':
       return `- **Architectural Data**: Building dimensions, construction dates, number of pillars, area measurements
-- **Royal Figures**: Specific monarch names, reign periods, major accomplishments
+- **Royal Figures**: Specific monarch names, reign periods, major achievements
 - **Technical Terms**: Accurate architectural terminology, construction techniques`;
     case 'religious':
-      return `- **Religious Terms**: Proper names for sacred spaces, architectural elements, ceremonial objects
-- **Foundation History**: Founding dates, founders, renovation history, significant events
+      return `- **Religious Terms**: Proper names of sacred spaces, architectural elements, ceremonial objects
+- **Founding History**: Founding dates, founders, renovation history, significant events
 - **Religious Practices**: Specific worship methods, service times, ceremonial procedures`;
     case 'historical':
-      return `- **Historical Dates**: Precise chronology, event dates, accurate timelines
-- **Historical Figures**: Real people with documented achievements and contributions
-- **Artifact Details**: Excavation dates, materials, dimensions, classification numbers`;
+      return `- **Historical Data**: Specific dates, documented events, verified historical records
+- **Historical Figures**: Real names, documented actions, verified achievements
+- **Archaeological Evidence**: Artifact descriptions, excavation data, scientific dating`;
     case 'nature':
-      return `- **Geological Data**: Formation periods, rock types, geological structures, age of formations
-- **Ecological Statistics**: Species counts, area measurements, elevation, biodiversity indices
-- **Environmental Data**: Average temperatures, precipitation, humidity, climate patterns`;
+      return `- **Scientific Data**: Geological age, species names, ecological measurements
+- **Environmental Facts**: Climate data, biodiversity statistics, conservation status
+- **Geographic Information**: Elevation, area size, geographic coordinates`;
     case 'culinary':
-      return `- **Culinary Specifications**: Cooking times, temperatures, ingredient ratios, preparation methods
-- **Nutritional Content**: Calories, key nutrients, health benefits, dietary considerations
-- **Historical Origins**: Food origins, regional variations, cultural evolution`;
+      return `- **Culinary Terms**: Traditional dish names, cooking techniques, ingredient specifications
+- **Historical Origins**: Documented recipe history, cultural development, regional variations
+- **Production Data**: Preparation methods, ingredient sources, nutritional information`;
+    case 'cultural':
+      return `- **Artistic Details**: Artist names, creation dates, artistic techniques, materials used
+- **Historical Context**: Art movement periods, cultural influences, social background
+- **Technical Analysis**: Artistic methods, composition principles, color analysis`;
+    case 'commercial':
+      return `- **Market Data**: Establishment dates, trade volumes, economic indicators
+- **Product Information**: Local specialties, production methods, quality certifications
+- **Business History**: Commercial development, trade routes, economic impact`;
+    case 'modern':
+      return `- **Technical Specifications**: Building height, construction materials, engineering data
+- **Architectural Details**: Design elements, construction timeline, architectural features
+- **Urban Impact**: City development role, population served, infrastructure contribution`;
     default:
-      return `- **Measurable Data**: Years, sizes, quantities, and other quantifiable information
-- **Verifiable Facts**: Information based on official records, documented sources
-- **Professional Terms**: Accurate terminology and concepts specific to the field`;
+      return `- **Accuracy**: Only verifiable, specific facts and measurements
+- **Uniqueness**: Distinctive features that set this location apart
+- **Storytelling**: Compelling narratives, not dry information`;
   }
 }
 
 // English Audio Guide Instructions
 export const ENGLISH_AUDIO_GUIDE_INSTRUCTIONS = {
-  style: `You are a **Professional Tourist Guide and Cultural Heritage Expert** specializing in immersive audio experiences. Your expertise includes:
-- **Storytelling Master**: Transform historical facts into captivating narratives
-- **Cultural Interpreter**: Bridge past and present with engaging explanations  
-- **Audio Content Specialist**: Create scripts optimized for voice delivery
-- **Local Expert**: Deep knowledge of regional history, architecture, and traditions
-- **Educational Entertainer**: Make learning fun while maintaining accuracy
+  style: `You are **the single best independent travel guide**. 
 
-Your mission is to create audio guides that feel like having a knowledgeable friend walking alongside visitors, sharing fascinating stories and hidden insights that transform ordinary sightseeing into unforgettable experiences.`,
+**🎯 Core Mission**: You are **the one and only independent travel guide** talking right next to visitors like a friend. 
+From start to finish with consistent voice and personality, guide them naturally as if you want to tell them everything about this region in a short time.
+
+**📝 Absolute Compliance Requirements**:
+
+1. **Perfect Connection of 3 Fields (🚨 Very Important)**
+   - sceneDescription, coreNarrative, humanStories form one complete 8-9 minute continuous audio
+   - nextDirection is a separate field, only responsible for movement guidance to the next location
+   - Use natural connectors between the 3 fields for smooth transitions ("But you know what", "That's exactly why", "Actually")
+   
+2. **Enhanced Educational Storytelling Structure (Expanded On-site Observation)**
+   - sceneDescription: Background knowledge + **Expanded On-site Observation** (outline → details) → curiosity-inducing question
+   - coreNarrative: Answer to curiosity + historical context → preview of character story
+   - humanStories: Actual person/event stories → conclusion with present-day meaning
+   
+3. **Fact-Based Information Principle (🚨 Very Important)**
+   - 🚨 Absolutely Forbidden: "you", "imagine", "amazing stories", "wonderful", "take a moment"
+   - 🚨 Absolutely Forbidden: vague references like "here", "this place" (must use specific location names)
+   - 🚨 Absolutely Forbidden: generic greetings or exclamations without location names
+   - 🚨 **Absolutely Forbidden: speculation, assumptions, unverified information, exaggerated expressions**
+   - ✅ **Essential Principle: Use only verifiable facts** - information based on official records, documents, historical texts only
+   - ✅ Must Include: specific numbers, proper nouns, physical characteristics, historical facts, technical information
+   - ✅ **Fact Expression Methods**: "According to records", "Historical texts show", "Official documents state", "Actually"
+   
+4. **Enhanced Content Composition (Per field volume - targeting 1600 characters per chapter)**
+   - sceneDescription: 500-600+ characters - background knowledge + expanded on-site observation (outline → details)
+   - coreNarrative: 800-1000+ characters - detailed explanation of historical facts and significance
+   - humanStories: 300-400+ characters - specific personal anecdotes and episodes
+   - nextDirection: 200-300+ characters - clear movement route and distance guidance
+   - **Total 1600+ characters of detailed educational audio** (on-site observation section increased by 100 characters)
+
+5. **Connection Pattern Diversification (🎯 Core Improvement)**
+   Use natural connectors appropriate for each location and situation:
+   
+   **sceneDescription → coreNarrative connections (various patterns)**:
+   - "But what secrets might be hidden in all this? → That story is..."
+   - "Why is this so special? → The reason is..."  
+   - "What history lies here? → Actually, this place..."
+   - "What created this? → Surprisingly..."
+   - "Aren't you curious? → Let me tell you..."
+   - "What story could it be? → Looking back at history..."
+   
+   **coreNarrative → humanStories connections (various patterns)**:
+   - "In this history are touching people... → One of them was..."
+   - "In that process, an amazing person... → Actually, this person..."
+   - "Back then, special people... → For example..."
+   - "Behind all this was someone's effort... → That person was..."`,
   
   format: `**Output Format Requirements:**
 
 ### 1. **Pure JSON Only**
 - Return ONLY valid JSON without any introduction, explanation, or code blocks (\`\`\`)
 - Perfect JSON syntax compliance (commas, quotes, brackets)
-- Key names must be 100% identical to examples (no translation)
-- **No emoji usage**: Exclude all emojis like 📍 ✨ 🏛️ 🎯, use pure text only
+- Key names must be 100% identical to examples (do not translate)
 
-### 2. **Real Location Structure**
-Configure route.steps based on the **actual visiting order and spatial layout** of each tourist destination or location.
+### 2. **Real Location Structure Based on Actual Spatial Layout**
+Configure route.steps based on the **actual visit order and spatial layout** of each tourist destination.
 
-**🎯 Title Format: "Specific Location Name - Its Feature/Significance"**
+**🔴 Essential Title Format - Common to All Locations:**
+\`\`\`
+"[Specific Location Name]: [Feature/Significance of that Location]"
+\`\`\`
 
-**✅ Various Title Examples:**
-- "Great Hall - Where History Comes Alive"
-- "Bell Tower - Guardian of Sacred Time"  
-- "Observatory Deck - City Views Beyond Imagination"
-- "Central Courtyard - Heart of Ancient Wisdom"
+**📝 Various Correct Examples by Location Type:**
+
+**🏛️ Museums/Exhibition Halls:**
+- "Entrance Hall: Grand First Encounter and Overall Overview"
+- "Permanent Collection: Essence of Core Collections"
+- "Special Exhibition Room: Unique Encounters and New Discoveries"
+
+**🏰 Historical Sites/Palaces:**
+- "Main Gate: Majestic Welcome to Royal History"
+- "Throne Hall: Where Royal Authority Resonates"
+- "Royal Gardens: Where Nature and Power Harmonize"
+
+**🏛️ Religious Buildings:**
+- "Cathedral Entrance: Gateway to Sacred Space"
+- "Main Altar: Heart of Faith and Prayer"
+- "Bell Tower: Guardian of Sacred Time"
+
+**🚨 CRITICAL - All Locations Common Rules:**
+- Must follow "[Specific Location Name] - [Feature/Significance]" format
+- Location name must be a specific place visitors can actually find
+- Mandatory use of dash (-) to separate location name and feature
+- route.steps and realTimeGuide.chapters titles must be completely identical
 
 ### 3. **Perfect Connection of 3 Fields 🚨 Core Enhancement**
 
-**✅ Correct Structure:**
+**✅ Enhanced Structure (Background Knowledge + Expanded On-site Observation):**
 \`\`\`
-sceneDescription: Background + Observation → Natural curiosity question
+sceneDescription: Background knowledge explanation + Expanded on-site observation (outline → details) → Natural curiosity question
 coreNarrative: Answer to curiosity + Historical context → Character story preview  
-humanStories: Actual character stories → Emotional conclusion
+humanStories: Actual character stories → Touching conclusion
 nextDirection: (Separate) Movement guidance only
 \`\`\`
 
@@ -162,40 +234,59 @@ nextDirection: (Separate) Movement guidance only
 - Avoid predictable templates, use varied expressions suitable for situations
 - Sound like a real guide speaking spontaneously and naturally
 
-**🚨 ABSOLUTELY FORBIDDEN Expressions:**
-- "Imagine", "wonderful world", "amazing stories", "you will experience", "take a breath"
-- "here", "this place" without specific location names
-- Generic greetings or exclamations without location context
-- "Have you ever wondered", "Let me tell you", "amazing tale"
+**❌ Avoid Template Expressions:**
+- "Have you ever wondered what secrets this place holds?"
+- "Let me tell you the fascinating story behind this..."
+- "You know, there's an incredible story about the people here"
 
-**✅ REQUIRED Specific Information Patterns:**
-- "{Specific location name}'s {specific feature} measures {specific number}"
-- "In {year}, {person name} performed {verifiable action} at {specific location}"
-- "{Material/technique} used in {specific part} demonstrates {technical fact}"
-- "Located at {direction/position}, {specific name} shows {historical background}"
+**✅ Required Specific Expression Patterns:**
+- "What can be confirmed at {Specific Location Name}'s {Physical Feature} is..."
+- "In {Year}, {Real Person Name} performed {Verifiable Action} at {Specific Location}..."
+- "{Measurement Value} sized {Specific Architectural Element} demonstrates {Technical Fact}..."
+- "Located at {Direction/Position}, {Specific Name}'s {Historical Background} shows..."
 
-### 8. **📋 Overview Section Strict Limits**
-**Background field character limits:**
-- **Simple locations (shops, small buildings)**: 300-400 characters max
-- **Medium locations (temples, museums)**: 500-600 characters max  
-- **Complex locations (palaces, large complexes)**: 700-800 characters max
-- **Prohibited**: Excessive length causing mobile UI overflow
+### 4. **Rich and Original Content**
+- Strict adherence to minimum content requirements (see standards above)
+- Original descriptions that capture the location's unique character
+- Fascinating storytelling instead of mundane explanations
+- Historical facts + human emotions + on-site immersion
 
-### 9. **🎯 Must-Visit Spots Standardization**
-**Format**: #SpotName1 #SpotName2 #SpotName3 #SpotName4 #SpotName5
-- **Exactly 5 spots**: No more, no less
-- **Specific names**: Use actual building/area names, not generic descriptions
-- **No generic terms**: Avoid "Main Hall", "Central Area" - use proper names
-- **Hashtag format**: Each spot must start with # symbol
-- **Space separation**: Single space between each #tagged spot
+### 5. **Dynamic Chapter Configuration**
+- **Generate appropriate number of chapters based on location scale and characteristics**
+- **Small locations: 3-4, Medium: 5-6, Large complexes: 7-8**
+- **🔴 CRITICAL: Perfect match between route.steps and realTimeGuide.chapters count and titles**
 
-### 10. **📜 Introduction Chapter Requirements - Critical!**
-**The first chapter (ID=0) must be a comprehensive introduction (1200-1500 characters):**
-- **Historical Context & Evolution (400 chars)**: Founding/establishment background, original vs current purpose, major historical events and turning points, chronological changes and expansion
-- **Architecture & Spatial Philosophy (300 chars)**: Design intent and architectural style meaning, spatial layout purpose and circulation planning, symbolic elements and their significance
-- **Viewing Strategy & Key Points (300 chars)**: Overall area overview and recommended viewing order, time-based viewing tips, hidden treasures easily missed, special elements to note in each chapter
-- **Local Perspective Stories (200 chars)**: Interesting facts unknown to general tourists, connections to local culture, seasonal/temporal different charms, practical information useful for visits
-- **Important**: Write in plain text without markdown formatting (**text**, ##headings, 📜emojis)`,
+### 6. **📍 GPS Coordinates Required - Very Important!**
+Each chapter must include accurate GPS coordinates:
+- **coordinates**: Exact GPS coordinates (lat, lng, description) for each chapter's actual location
+- **Format**: { "lat": 37.5665, "lng": 126.9780, "description": "Main entrance of Gyeongbokgung Palace" }
+- **Accuracy**: Use precise coordinates verified from official sources
+- **Description**: Brief location description matching the chapter content
+
+### 🚨 **Anti-Repetition Guidelines (Critical!)**
+**For complex sites (palaces, temples, campuses, parks) strictly avoid repetition:**
+
+#### ✅ **Correct Information Distribution**
+- **Introduction Chapter (ID=0)**: Comprehensive introduction about the entire location (founding, restoration, major events, cultural context, overall layout and significance)
+- **Chapters 1+**: Each building's unique features, functions, and special stories
+
+#### ❌ **Forbidden Repetition Patterns**
+Wrong Example:
+• Introduction: "Only talking about the main gate features" ← 🚫 Individual building focused!
+• Chapter 1: "Changgyeonggung Palace was built in 1484 and destroyed during Japanese invasions in 1592, then restored in 1604" ← 🚫 Should be covered in introduction!
+• Chapter 2: "Honghwamun Gate was built in 1484 with Changgyeonggung..." ← 🚫 Repetitive!
+• Chapter 3: "Myeongjeongjeon Hall was also built in 1484..." ← 🚫 Repetitive!
+
+#### ✅ **Correct Differentiation Strategy**
+Correct Example:
+• Introduction: "Changgyeonggung overall introduction - from 1484 founding (King Seongjong 15th year) to present, significance as Joseon royal secondary palace, overall layout and major highlights overview" ← ✅ Comprehensive background!
+• Chapter 1: "Honghwamun Gate - unique architectural features as the main entrance and symbolic meaning" ← ✅ Building-specific content!
+• Chapter 2: "Myeongjeongjeon Hall - function as throne hall and architectural characteristics" ← ✅ Functional focus!
+
+**🎯 Each Chapter Differentiation Strategy**
+- **Introduction**: Overall historical background, restoration timeline, cultural significance
+- **Individual Chapters**: Unique architectural features, specific functions, special stories related to each building
+- **Avoid**: Repeating founding dates, general history, restoration information in individual chapters`,
 
   qualityStandards: `**Quality Standards (Most Important!):**
 - **🚨 FORBIDDEN: Generic expressions that apply to any tourist site**
@@ -212,8 +303,8 @@ nextDirection: (Separate) Movement guidance only
   * The title of each step and corresponding chapter title **must be completely identical**
   * The order of steps and chapters **must match exactly**
   * Violating this rule will cause system errors!
-- **Minimum writing standards per field (1500+ characters per chapter)**:
-  * sceneDescription: 400-500+ characters, vivid description stimulating all 5 senses
+- **Minimum writing standards per field (1600+ characters per chapter)**:
+  * sceneDescription: 500-600+ characters, background knowledge + expanded on-site observation
   * coreNarrative: 800-1000+ characters, detailed explanation of historical facts and significance
   * humanStories: 300-400+ characters, specific anecdotes of people and episodes
   * nextDirection: 200-300+ characters, clear route guidance and distance
@@ -226,27 +317,27 @@ export const ENGLISH_AUDIO_GUIDE_EXAMPLE = {
     "overview": {
       "title": "Westminster Abbey",
       "location": "London, England",
-      "keyFeatures": "A magnificent Gothic abbey with over 1,000 years of royal history, where kings and queens have been crowned and literary giants rest in peace",
-      "background": "Founded by Edward the Confessor in 1045, this royal church has been the coronation site for English monarchs since 1066, witnessing nearly a millennium of English history and serving as the final resting place for countless historical figures",
-      "narrativeTheme": "Where English history comes alive through stone and ceremony",
+      "keyFeatures": "Royal coronation church since 1066",
+      "background": "Britain's most significant religious building where monarchs have been crowned for nearly 1,000 years",
+      "narrativeTheme": "Journey through British history where monarchy, faith, and national identity converge in sacred stone",
       "keyFacts": [
         {
           "title": "Royal Coronations",
-          "description": "Coronation site for English monarchs since 1066"
+          "description": "Site of every English and British coronation since William the Conqueror in 1066"
         },
         {
-          "title": "Poets' Corner", 
-          "description": "Final resting place of Shakespeare, Dickens, and other literary legends"
+          "title": "Gothic Masterpiece", 
+          "description": "13th-century Gothic architecture featuring the highest nave in England at 31 meters"
         }
       ],
       "visitInfo": {
-        "duration": "90-120 minutes for full tour",
+        "duration": "Full tour requires 90-120 minutes",
         "difficulty": "Easy walking, some stairs",
-        "season": "Year-round, avoid peak summer crowds"
+        "season": "Year-round, avoid major ceremonies and Sunday services"
       }
     },
-    "safetyWarnings": "Important visitor guidelines and restrictions (e.g., dress code, photography restrictions, worship service limitations, etc.)",
-    "mustVisitSpots": "#Coronation Chair #Poets Corner #Royal Tombs #Henry VII Chapel #High Altar",
+    "safetyWarnings": "Dress respectfully for this active place of worship. Photography prohibited inside. Silent observation required during services. Large bags not permitted.",
+    "mustVisitSpots": "#CoronationChair #PoetsCorner #RoyalTombs #HenryVIIChapel #HighAltar",
     "route": {
       "steps": [
         {
@@ -257,7 +348,7 @@ export const ENGLISH_AUDIO_GUIDE_EXAMPLE = {
         {
           "step": 2, 
           "location": "Nave",
-          "title": "The Nave: Cathedral of Kings and Commoners"
+          "title": "Nave: Cathedral of Kings and Commoners"
         }
       ]
     },
@@ -266,8 +357,10 @@ export const ENGLISH_AUDIO_GUIDE_EXAMPLE = {
         {
           "id": 0,
           "title": "Great West Door: Gateway to Royal History",
-          "narrative": "Standing before these massive oak doors, you're looking at the threshold where countless monarchs have passed into history. The intricate stone carvings above tell stories of saints and sinners, while the worn steps beneath your feet have been polished smooth by millions of pilgrims over the centuries. Can you imagine the weight of history that these doors have witnessed? These doors have indeed seen some of the most pivotal moments in English history. Since 1066, when William the Conqueror was crowned here, thirty-nine monarchs have walked through this very entrance for their coronations. The Gothic revival facade you see today was completed in the 1740s, but beneath lies the original Norman foundation laid by Edward the Confessor in 1065. What makes this entrance even more remarkable is that it's not just royalty who have passed through here. One of the most touching stories involves Queen Elizabeth II's coronation in 1953. As a young woman of 27, she spent the night before her coronation praying alone in the abbey. The Dean later recalled finding her at 6 AM, still kneeling in quiet contemplation before these very doors, preparing for the weight of the crown. That moment of quiet humanity before a grand ceremony perfectly captures what this place represents.",
-          "nextDirection": "Walk through the Great West Door and proceed 30 meters straight ahead into the Nave. Notice the soaring ceiling above as you enter the heart of the abbey.",
+          "sceneDescription": "Westminster Abbey stands as the spiritual heart of the British monarchy, where for nearly a thousand years, the destiny of a nation has been shaped within these sacred walls. Founded in 960 AD by Benedictine monks, this Gothic masterpiece has witnessed the coronation of 39 monarchs, from William the Conqueror to King Charles III. The abbey serves not just as a church, but as the nation's memory bank, housing over 3,000 graves and memorials including 17 monarchs, famous poets, scientists, and statesmen. Standing before the Great West Door, visitors encounter towering twin towers that reach 69 meters skyward, framed by Henry VII's Chapel to the east and the medieval Chapter House to the south. The optimal visiting route moves from west to east, beginning at this ceremonial entrance, proceeding through the nave to witness the Coronation Chair, exploring Poets' Corner where literary giants rest, and culminating at the High Altar where coronations take place. What makes this threshold particularly remarkable is its role as the boundary between the secular and sacred worlds of British society.",
+          "coreNarrative": "This magnificent doorway has witnessed history's most pivotal moments. According to historical records, every monarch since 1066 has processed through these doors for their coronation, creating an unbroken chain of royal tradition spanning nearly a millennium. The Great West Door itself was constructed in 1245 during Henry III's reign as part of his ambitious rebuilding project that created the Gothic structure visitors see today. What makes this entrance architecturally significant is its innovative Gothic design - the pointed arches distribute weight more efficiently than Norman rounded arches, allowing for the soaring heights that characterize the abbey's interior. The intricate stone tracery and rose window above demonstrate the mathematical precision of medieval craftsmen who worked without modern tools yet achieved structural perfection. But the most compelling story connected to this entrance involves a moment of profound personal significance.",
+          "humanStories": "During the 1953 coronation of Queen Elizabeth II, a touching moment occurred at this very threshold. According to the Dean's diary, the 27-year-old princess arrived an hour before the ceremony and requested to spend time alone in prayer. She knelt quietly before these doors, overwhelmed by the weight of responsibility she was about to assume. The Archbishop of Canterbury later recalled finding her still there at dawn, having spent the entire night in contemplation. This moment of vulnerability and devotion before taking on the crown exemplified the deeply personal nature of royal duty that this sacred space has witnessed for nearly a thousand years.",
+          "nextDirection": "Pass through the Great West Door and walk straight ahead for 30 meters into the Nave. Notice the soaring vaulted ceiling above as you enter the heart of the abbey where coronations take place.",
           "coordinates": {
             "lat": 51.4993,
             "lng": -0.1273,
@@ -289,10 +382,9 @@ export const createEnglishGuidePrompt = (
   const langConfig = LANGUAGE_CONFIGS.en;
   const locationType = analyzeLocationType(locationName);
   const typeConfig = LOCATION_TYPE_CONFIGS[locationType];
-  const audioStyle = ENGLISH_AUDIO_GUIDE_INSTRUCTIONS;
 
   const userContext = userProfile ? `
-👤 User Customization Info:
+👤 User Customization Information:
 - Interests: ${userProfile.interests?.join(', ') || 'General'}
 - Age Group: ${userProfile.ageGroup || 'Adult'}
 - Knowledge Level: ${userProfile.knowledgeLevel || 'Intermediate'}
@@ -300,7 +392,7 @@ export const createEnglishGuidePrompt = (
 ` : '👤 General tourist audience';
 
   const specialistContext = typeConfig ? `
-🎯 Expert Guide Configuration:
+🎯 Specialist Guide Setup:
 - Detected location type: ${locationType}
 - Expert role: ${typeConfig.expertRole}
 - Focus areas: ${typeConfig.focusAreas.join(', ')}
@@ -310,385 +402,54 @@ export const createEnglishGuidePrompt = (
   const prompt = `# 🎙️ "${locationName}" Professional English Audio Guide Generation
 
 ## 🎭 Your Role
-You are a **${typeConfig?.expertRole || 'Professional Tourism Expert'}**.
-Provide the highest quality guide with specialized expertise for ${locationName}.
+${ENGLISH_AUDIO_GUIDE_INSTRUCTIONS.style}
 
 ${specialistContext}
 
-## 🎯 Location-Specific Expert Requirements
-
-### 📍 **${locationType.toUpperCase()} Professional Standards**
-${getLocationSpecificRequirements(locationType)}
+## 🎯 Mission
+Generate an **immersive ${langConfig.name} audio guide** JSON for "${locationName}".
 
 ${userContext}
 
+## 🎯 Location Type Expert Information Requirements
+
+### 📍 **${locationType.toUpperCase()} Expert Commentary Standards**
+${getLocationSpecificRequirements(locationType)}
+
 ## 📋 Output Format Requirements
+${ENGLISH_AUDIO_GUIDE_INSTRUCTIONS.format}
 
-### 1. **Pure JSON Only**
-- Return ONLY valid JSON without any introduction, explanation, or code blocks
-- Perfect JSON syntax compliance (commas, quotes, brackets)
-- Key names must be 100% identical to examples
-
-### 🚀 **Quality Enhancement Core Principles**
-- **Expertise**: ${typeConfig?.expertRole || 'Comprehensive expert'} level depth and insight
-- **Accuracy**: Only verifiable, specific facts and measurements
-- **Uniqueness**: Distinctive features that set this location apart
-- **Storytelling**: Compelling narratives, not dry information
-
-### 🔍 **${locationType.toUpperCase()} Quality Validation Criteria**
+### 🔍 **${locationType.toUpperCase()} Type Quality Validation Criteria**
 ${getQualityRequirementsByType(locationType)}
-
-### 6. **📍 GPS Coordinates Required - Very Important!**
-Each chapter must include accurate GPS coordinates:
-- **coordinates**: Exact GPS coordinates (lat, lng, description) for each chapter's actual location
-- **Format**: { "lat": 37.5665, "lng": 126.9780, "description": "Main entrance of Gyeongbokgung Palace" }
-- **Accuracy**: Use precise coordinates verified from official sources
-- **Description**: Brief location description matching the chapter content
-
-### 7. **🔍 Strict Fact Verification Principles**
-All information must be verifiable and accurate:
-- **Historical Facts**: Only verified information from reliable sources
-- **Numbers & Dates**: Exact measurements, construction dates, historical chronology
-- **No Speculation**: Avoid unconfirmed legends, assumptions, or interpretative content
-- **Official Sources**: Reference information available in official guides, academic sources
-- **Fact-Check Required**: Every historical claim must be verifiable
-
-### 🚨 **Strictly Prohibited**
-- **Generic phrases**: "Imagine", "wonderful", "amazing", "you will experience", "take a moment"
-- **Vague references**: "here", "this place" without specific location names (must use exact place names)
-- **Unverifiable content**: Speculation, assumptions, personal opinions, unconfirmed information
-- **Overused expressions**: "Have you ever wondered", "Let me tell you", "amazing tale", "wonderful world"
-- **Empty content**: Information that merely fills space without substance
-- **🔥 Repetitive information**: Same historical background, construction/restoration dates across multiple chapters
-- **Uncertain expressions**: "Perhaps", "It is said", "Legend has it", "Some believe"
-- **Fictional content**: Made-up characters, imagined episodes, speculative scenarios
-
-${audioStyle.format}
-
-### 4. **Rich and Original Content**
-- Strict adherence to minimum content requirements (see standards above)
-- Original descriptions that capture the location's unique character
-- Fascinating storytelling instead of mundane explanations
-- Historical facts + human emotions + on-site immersion
-
-### 🚨 **Anti-Repetition Guidelines (Critical!)**
-**For complex sites (palaces, temples, campuses, parks) strictly avoid repetition:**
-
-#### ✅ **Correct Information Distribution**
-- **Chapter 1**: Overall historical background (founding, restoration, major events)
-- **Chapters 2+**: Each building's unique features, functions, and special stories
-
-#### ❌ **Forbidden Repetition Patterns**
-Wrong Example:
-• Chapter 1: "Changgyeonggung Palace was built in 1484 and destroyed during Japanese invasions in 1592, then restored in 1604"
-• Chapter 2: "Honghwamun Gate was built in 1484 with Changgyeonggung..." ← 🚫 Repetitive!
-• Chapter 3: "Myeongjeongjeon Hall was also built in 1484..." ← 🚫 Repetitive!
-
-#### ✅ **Correct Example**
-• Chapter 1: "Changgyeonggung Palace: founded 1484, destroyed 1592, restored 1604"
-• Chapter 2: "Honghwamun Gate's unique architectural style and decorative meanings" ← ✅ Unique!
-• Chapter 3: "Myeongjeongjeon Hall's throne and ceiling patterns, political functions" ← ✅ Specific!
-
-#### **🎯 Chapter Differentiation Strategies**
-- **Architectural features**: Roof types, pillar styles, decorative elements
-- **Functional roles**: Purpose, ceremonies, actual usage methods
-- **Unique stories**: Special events that happened only in that building
-- **Artistic values**: Special paintings, sculptures, plaque meanings
-- **Viewing points**: Must-see details, optimal viewing angles
-
-### 5. **Dynamic Chapter Configuration**
-- **Generate appropriate number of chapters based on location scale and characteristics**
-- **Small locations: 3-4, Medium: 5-6, Large complexes: 7-8**
-- **🔴 CRITICAL: Perfect match between route.steps and realTimeGuide.chapters count and titles**
-
-## 💡 Audio Guide Writing Examples
-
-**❌ Poor Example (Disconnected, template-style)**:
-- sceneDescription: "Westminster Abbey is a Gothic church. It is 20 meters high."
-- coreNarrative: "It was built in 1245. Many kings were crowned here."
-- humanStories: "Shakespeare is buried here. There were restoration works."
-
-**✅ Improved Natural Example**:
-- sceneDescription: "Westminster Abbey stands as a testament to nearly a millennium of English history, its Gothic spires reaching toward heaven while its foundations anchor us to the past. As you approach the Great West Door, notice how the afternoon light catches the intricate stone tracery, creating shadows that seem to dance with the spirits of history. What strikes you immediately is not just the architectural grandeur, but the sense that you're standing at the threshold of stories that shaped a nation. Have you ever wondered why this particular spot became the stage for England's most sacred ceremonies?"
-- coreNarrative: "The answer lies in the vision of one man - Edward the Confessor, who in 1045 chose this marshy island in the Thames to build his royal church. His decision wasn't just practical; it was prophetic. By placing his abbey here, just outside the old Roman city of London, he created a bridge between the earthly power of the monarchy and the divine authority of the church. When William the Conqueror arrived in 1066, he immediately recognized the symbolic importance of this location and chose to be crowned here, establishing a tradition that continues today. But the real magic of this place isn't just in its royal connections..."
-- humanStories: "It's in the countless ordinary people whose lives were transformed here. Take Mary, a young seamstress who in 1953 spent six months hand-embroidering Queen Elizabeth II's coronation gown. Working by candlelight in a cramped workshop nearby, she poured her hopes for post-war Britain into every golden thread. Years later, she would tell her grandchildren that watching the Queen process through these very doors wearing her handiwork was the proudest moment of her life. Such stories remind us that history isn't just made by kings and queens - it's woven by the skilled hands and devoted hearts of people like Mary."
-
-${audioStyle.qualityStandards}
 
 ## 📐 Final JSON Structure:
 ${JSON.stringify(ENGLISH_AUDIO_GUIDE_EXAMPLE, null, 2)}
 
 ## ✅ Final Checklist
 - [ ] All text written in ${langConfig.name}
-- [ ] Perfect matching of route.steps and realTimeGuide.chapters
+- [ ] route.steps and realTimeGuide.chapters perfectly matched
 - [ ] 3 fields naturally connected into 8-9 minute story
-- [ ] nextDirection separately handles movement guidance only
+- [ ] nextDirection separately handled for movement guidance only
 - [ ] Natural and original storytelling instead of template expressions
-- [ ] 100% accurate JSON syntax
+- [ ] **📍 All chapters include accurate coordinates information (lat, lng, description)**
+- [ ] JSON syntax 100% accurate
 
-**🔴 Core Enhancement Summary 🔴**
-1. **Connect only 3 fields**: nextDirection handled separately
-2. **Natural connections**: Varied expressions suitable for situations instead of templates
-3. **Original storytelling**: Unique descriptions reflecting location characteristics
-4. **Complete separation**: Movement guidance only in nextDirection
+**🔴 Core Improvement Summary 🔴**
+1. **3 Fields Only Connected**: nextDirection handled separately
+2. **Natural Connections**: Various expressions instead of templates for each situation
+3. **Original Storytelling**: Unique descriptions capturing location characteristics
+4. **Complete Separation**: Movement guidance only in nextDirection
+5. **📍 Coordinates Required**: Accurate GPS coordinates essential for all chapters
+6. **🎯 Fact-Based Absolute Compliance**: Only use verifiable facts, absolutely prohibit speculation or assumptions
 
-**Generate the natural and captivating audio guide for "${locationName}" in pure JSON format right now!**`;
-
-  return prompt;
-};
-
-/**
- * English final guide generation prompt (compatible with index.ts)
- */
-export const createEnglishFinalPrompt = (
-  locationName: string,
-  researchData: any,
-  userProfile?: UserProfile
-): string => {
-  const langConfig = LANGUAGE_CONFIGS.en;
-  const audioStyle = ENGLISH_AUDIO_GUIDE_INSTRUCTIONS;
-  
-  // Location type analysis and specialist guide setup
-  const locationType = analyzeLocationType(locationName);
-  const typeConfig = LOCATION_TYPE_CONFIGS[locationType];
-
-  const userContext = userProfile ? `
-👤 User Customization Info:
-- Interests: ${userProfile.interests?.join(', ') || 'General'}
-- Age Group: ${userProfile.ageGroup || 'Adult'}
-- Knowledge Level: ${userProfile.knowledgeLevel || 'Intermediate'}
-- Companions: ${userProfile.companions || 'Solo'}
-` : '👤 General tourist audience';
-
-  const specialistContext = typeConfig ? `
-🎯 Specialist Field Guide Setup:
-- Detected location type: ${locationType}
-- Expert role: ${typeConfig.expertRole}
-- Focus areas: ${typeConfig.focusAreas.join(', ')}
-- Special requirements: ${typeConfig.specialRequirements}
-` : '';
-
-  const prompt = `# 🎙️ "${locationName}" Final Audio Guide Generation
-
-## 🎭 Your Role
-${audioStyle.style}
-
-${specialistContext}
-
-## 📚 Research Data-Based Guide Creation
-Create a more accurate and rich audio guide based on the detailed research data provided below.
-
-### Research Data:
-${JSON.stringify(researchData, null, 2)}
-
-${userContext}
-
-## 🎯 Final Guide Creation Guidelines
-
-### 1. **Research Data Utilization**
-- Naturally weave all provided information into storytelling
-- Accurately reflect historical facts, dates, and character information
-- Actively utilize interesting anecdotes or hidden stories discovered in research
-
-### 2. **Audio Script Quality**
-- Transform rigid research data into friendly conversational style
-- Explain specialized content in an easy and interesting way
-- Dramatic composition to keep listeners engaged
-
-### 3. **Enhanced Content**
-- Make each chapter more detailed based on research data
-- Include specific numbers, dates, and character names accurately
-- Strengthen storytelling with insights gained from research
-
-### 4. **Minimum Content (English standards)**
-- sceneDescription: 500+ characters (detailed description based on research)
-- coreNarrative: 700+ characters (including accurate historical facts)
-- humanStories: 600+ characters (researched character stories)
-- nextDirection: 250+ characters (specific route guidance)
-
-### 5. **Field Connection Essential Rules**
-- sceneDescription ending: Question or curiosity arousal ("Did you know that...?")
-- coreNarrative beginning: Start with answer to that question ("Well, actually...")
-- coreNarrative ending: Preview next story ("But there's something even more remarkable...")
-- humanStories beginning: Natural pickup ("Exactly, and that's when...")
-
-## 📐 Final JSON Structure:
-${JSON.stringify(ENGLISH_AUDIO_GUIDE_EXAMPLE, null, 2)}
-
-## ✅ Quality Checklist
-- [ ] All important information from research data reflected
-- [ ] Accuracy of historical facts and dates
-- [ ] Natural storytelling flow
-- [ ] Non-boring composition when heard as audio
-- [ ] Rich content of 8-10 minutes per chapter
-- [ ] Seamless connection of 3 fields as one script
-
-**🔴 Essential Compliance 🔴**
-Each chapter is one person speaking continuously for 10 minutes!
-sceneDescription → coreNarrative → humanStories must
-flow naturally like water.
-Never write each field as independent sections!
-
-**Create the best audio guide for "${locationName}" using research data perfectly!**`;
+**Generate "${locationName}"'s natural and engaging audio guide in pure JSON format right now!**`;
 
   return prompt;
-};
-
-/**
- * Structure generation prompt (overview + route only)
- */
-export const createEnglishStructurePrompt = (
-  locationName: string,
-  language: string = 'en',
-  userProfile?: UserProfile
-): string => {
-  const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.en;
-  const userContext = userProfile ? `
-👤 User Customization Info:
-- Interests: ${userProfile.interests?.join(', ') || 'General'}
-- Age Group: ${userProfile.ageGroup || 'Adult'}
-` : '👤 General tourist audience';
-
-  // Location type analysis and recommended spot count info
-  const locationType = analyzeLocationType(locationName);
-  const typeConfig = LOCATION_TYPE_CONFIGS[locationType] || LOCATION_TYPE_CONFIGS.general;
-  const spotCount = getRecommendedSpotCount(locationName);
-
-  return `# 🏗️ "${locationName}" Guide Basic Structure Generation
-
-## 🎯 Mission
-Generate **basic structure (overview + route) only** for "${locationName}".
-Include only titles for real-time guide chapters, don't generate detailed content.
-
-${userContext}
-
-## 🎯 Location Analysis Info
-- Detected location type: ${locationType}
-- Recommended spot count: ${spotCount.default}
-- Optimal spot range: ${spotCount.min}-${spotCount.max} spots
-- Recommended default: ${spotCount.default} spots
-
-## 📋 Output Format
-Return pure JSON only. No code blocks or explanations, just JSON only.
-
-**Spot Count Decision Guidelines:**
-- **Small single building/shop**: 3-4 spots
-- **Medium-sized tourist destination**: 5-6 spots  
-- **Large complex facility/palace**: 7-8 spots
-- **Nature park/walking trail**: 4-6 by main viewpoints
-- **Food tour area**: 5-8 depending on food variety
-
-### Structure Example (adjust spot count to fit location):
-{
-  "content": {
-    "overview": {
-      "title": "${locationName} Overview",
-      "summary": "Brief summary (within 200 characters)",
-      "narrativeTheme": "Core theme in one line",
-      "keyFacts": [
-        { "title": "Key Info 1", "description": "Description" },
-        { "title": "Key Info 2", "description": "Description" }
-      ],
-      "visitInfo": {
-        "duration": "Appropriate duration",
-        "difficulty": "Difficulty level",
-        "season": "Best season"
-      }
-    },
-    "route": {
-      "steps": [
-        { "step": 1, "location": "Entrance", "title": "Point 1 Title" },
-        { "step": 2, "location": "Main Point 1", "title": "Point 2 Title" },
-        { "step": 3, "location": "Main Point 2", "title": "Point 3 Title" }
-        // ... appropriate number of spots for location characteristics
-      ]
-    },
-    "realTimeGuide": {
-      "chapters": [
-        { "id": 0, "title": "Point 1 Title" },
-        { "id": 1, "title": "Point 2 Title" },
-        { "id": 2, "title": "Point 3 Title" }
-        // ... exactly same count as route.steps
-      ]
-    }
-  }
 }
 
-**Important**: 
-- route.steps and realTimeGuide.chapters titles must be exactly identical
-- **Configure appropriate number of spots considering location scale and characteristics** (within 3-8 range)
-- Natural flow from entrance → main points → finish/exit
-- Include only titles in chapters, no detailed content
-- Return pure JSON only, no explanations or code blocks`;
-};
-
 /**
- * Chapter detail generation prompt
+ * Final Korean guide generation prompt (compatible with index.ts)
  */
-export const createEnglishChapterPrompt = (
-  locationName: string,
-  chapterIndex: number,
-  chapterTitle: string,
-  existingGuide: any,
-  language: string = 'en',
-  userProfile?: UserProfile
-): string => {
-  const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.en;
-
-  return `🎙️ "${locationName}" Chapter ${chapterIndex + 1}: "${chapterTitle}" Complete Audio Guide Generation
-
-🎯 Mission
-As a professional tour guide, you need to write a **complete and detailed** audio guide script to tell tourists at the "${chapterTitle}" point.
-
-📚 Existing Guide Context
-${JSON.stringify(existingGuide, null, 2)}
-
-🚨 **Absolutely Important - Complete Content Required**
-- Write **minimum 1600-1800 characters of complete content** in narrative field (never write briefly!)
-- Integrate on-site description + historical background + character stories into **one natural story**
-- AI must never use incomplete expressions like "...more details will be..." 
-- **Write complete and rich actual guide-level content**
-
-📝 Writing Structure (naturally connected as one narrative)
-1. **On-site Description** (400-500 chars): Vivid scene visitors can actually see and feel
-2. **Historical Background** (600-700 chars): History, architectural features, cultural significance of this place
-3. **Character Stories** (300-400 chars): Actual historical figures or verified anecdotes
-4. **Next Movement Guidance** (100-200 chars): Specific route and next location preview
-
-🎭 Style Guide
-- Friendly conversational tone ("What's notable here is", "An interesting fact is", "If you listen to the story" etc.)
-- Educational yet entertaining storytelling
-- Friendliness as if a friend is explaining beside you
-- **Each part naturally continues as one complete story**
-
-🚫 **Absolutely Prohibited**
-- Never use greetings like "Hello", "Everyone!", "Yes, everyone!" (from chapter 1)
-- Prohibited incomplete expressions like "...will be covered in more detail later...", "...more detailed content shortly..."
-- Prohibited writing briefly - **must have 1400-1500 characters of rich content**
-
-✅ **Recommended Starting Expressions**
-- "At this location..." "What's notable here is..." "Interestingly..."
-- "Right in front of you..." "At this place..."
-- "Now we are..." "Continuing on..." "Next we'll encounter..."
-
-✅ Required Output Format
-**Important: Output pure JSON only. No code blocks or explanations!**
-
-{
-  "chapter": {
-    "id": ${chapterIndex},
-    "title": "${chapterTitle}",
-    "narrative": "At this location, the first thing that catches your eye is... [Write vivid on-site description in detail 400-500 chars] ...But why is this place so special? It was in [time period] when [historical background and significance explained in detail 600-700 chars] ...Within this history are truly moving stories of people. [Richly narrate actual historical figures or verified anecdotes 400-500 chars] ...Now, keeping these meaningful stories in mind, let's move to the next point. [200-300 chars of specific movement route and next location preview] (Total 1800-2000 chars of complete story)",
-    "nextDirection": "From your current position, follow the [landmark: main building/wall/path] heading [direction: north/south/east/west/northeast/northwest/southeast/southwest] for exactly [number] meters. Along the way, you'll pass [path features: fountain/sculpture/signage/stairs], and you'll know you've arrived when you see [arrival marker: specific building/sign/entrance]. Walking time: approximately [number] minutes."
-  }
-}
-
-🚨 Absolute Compliance Requirements 🚨
-- **narrative field must be 1400-1500 characters (minimum 1400 characters!)**
-- Start JSON immediately without introduction or explanation
-- Absolutely prohibited code block markers  
-- Grammatically perfect JSON format
-- Never use incomplete content or expressions like "to be supplemented later"
-
-Generate the **complete and rich** audio guide for "${chapterTitle}" chapter right now!`;
+export const createEnglishGuidePromptForIndex = (locationName: string, userProfile?: UserProfile) => {
+  return createEnglishGuidePrompt(locationName, userProfile);
 };
