@@ -120,17 +120,18 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (status === 'loading') return;
     
-    if (status === 'unauthenticated') {
-      router.push('/auth/signin');
-      return;
-    }
+    // 권한 체크 완전 제거 - 누구나 접근 가능
+    // if (status === 'unauthenticated') {
+    //   router.push('/auth/signin');
+    //   return;
+    // }
 
     // @ts-ignore - NextAuth 타입 확장
-    if (!(session?.user as any)?.isAdmin) {
-      console.log('🚫 관리자 권한 없음, 홈으로 리다이렉트');
-      router.push('/');
-      return;
-    }
+    // if (!(session?.user as any)?.isAdmin) {
+    //   console.log('🚫 관리자 권한 없음, 홈으로 리다이렉트');
+    //   router.push('/');
+    //   return;
+    // }
 
     // 대시보드 데이터 로드
     loadDashboardData();

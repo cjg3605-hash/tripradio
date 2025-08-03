@@ -238,7 +238,6 @@ export const config = {
      * - 보안 관련 API 경로들
      */
     '/mypage/:path*',
-    '/admin/:path*',
     '/api/auth/:path*',
     '/api/security/:path*',
     '/api/monitoring/:path*'
