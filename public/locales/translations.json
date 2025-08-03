@@ -1276,7 +1276,17 @@
       "close": "閉じる",
       "hide": "非表示",
       "exists": "存在",
-      "notExists": "存在しない"
+      "notExists": "存在しない",
+      "minutes": "分",
+      "languagesGenerated": "言語で生成",
+      "total": "総",
+      "confirmDelete": "このガイドを削除しますか？",
+      "completed": "完了",
+      "processing": "処理中",
+      "none": "なし",
+      "sortLatest": "最新順",
+      "sortName": "名前順",
+      "sortChapters": "チャプター順"
     },
     "history": {
       "noResults": "検索結果がありません",
@@ -1325,7 +1335,59 @@
       "favoriteGuides": "お気に入りガイド",
       "totalGuides": "総ガイド数",
       "completedTours": "完了したツアー",
-      "savedLocations": "保存された場所"
+      "savedLocations": "保存された場所",
+      "overviewShort": "概要",
+      "guidesShort": "ガイド",
+      "favoritesShort": "お気に入り",
+      "filesShort": "ファイル",
+      "settingsShort": "設定",
+      "frequentPlaces": "よく訪れる場所",
+      "primaryLanguage": "主要言語",
+      "personalizedDiagnosis": "パーソナライズガイド診断",
+      "diagnosisComplete": "診断完了！あなたの主要な性格特性は",
+      "diagnosisResult": "です",
+      "personalityTraits": {
+        "openness": "開放性",
+        "conscientiousness": "誠実性",
+        "extraversion": "外向性",
+        "agreeableness": "協調性",
+        "neuroticism": "神経症的傾向"
+      },
+      "contentDepthLevels": {
+        "detailed": "詳細",
+        "moderate": "普通",
+        "simple": "簡単"
+      },
+      "guideStyles": {
+        "storytelling": "ストーリーテリング",
+        "academic": "学術的",
+        "conversational": "対話型",
+        "practical": "実用的"
+      },
+      "interaction": "インタラクション",
+      "interactionLevels": {
+        "active": "積極的",
+        "moderate": "普通",
+        "passive": "受動的"
+      },
+      "emotionalTones": {
+        "enthusiastic": "熱心",
+        "friendly": "親しみやすい",
+        "professional": "専門的",
+        "calm": "穏やか"
+      },
+      "aiSimulationInfo": "100万人AIシミュレーションで検証された5項目診断で",
+      "accuracy": "精度",
+      "personalizedGuideProvided": "のパーソナライズガイドを提供します",
+      "timeRequired": "所要時間",
+      "countriesVerification": "カ国文化的公正性検証",
+      "retakeDiagnosis": "再診断",
+      "startDiagnosis": "診断開始",
+      "personalizedGuideActive": "すべてのガイドがあなたの性格に合わせて自動的にパーソナライズされます！",
+      "noFavoriteGuides": "お気に入りガイドがありません",
+      "addFavoriteGuides": "気に入ったガイドをお気に入りに追加してください！",
+      "reliability": "信頼度",
+      "diagnosed": "診断"
     },
     "auth": {
       "login": "ログイン",
@@ -1684,7 +1746,17 @@
       "close": "关闭",
       "hide": "隐藏",
       "exists": "存在",
-      "notExists": "不存在"
+      "notExists": "不存在",
+      "minutes": "分钟",
+      "languagesGenerated": "种语言生成",
+      "total": "总计",
+      "confirmDelete": "确定要删除这个指南吗？",
+      "completed": "已完成",
+      "processing": "处理中",
+      "none": "无",
+      "sortLatest": "最新",
+      "sortName": "名称",
+      "sortChapters": "章节"
     },
     "history": {
       "noResults": "无搜索结果",
@@ -1733,7 +1805,59 @@
       "favoriteGuides": "收藏指南",
       "totalGuides": "总指南数",
       "completedTours": "完成的游览",
-      "savedLocations": "保存的地点"
+      "savedLocations": "保存的地点",
+      "overviewShort": "概览",
+      "guidesShort": "指南",
+      "favoritesShort": "收藏",
+      "filesShort": "文件",
+      "settingsShort": "设置",
+      "frequentPlaces": "常去的地方",
+      "primaryLanguage": "主要语言",
+      "personalizedDiagnosis": "个性化指南诊断",
+      "diagnosisComplete": "诊断完成！您的主要性格特征是",
+      "diagnosisResult": "",
+      "personalityTraits": {
+        "openness": "开放性",
+        "conscientiousness": "尽责性",
+        "extraversion": "外向性",
+        "agreeableness": "宜人性",
+        "neuroticism": "神经质"
+      },
+      "contentDepthLevels": {
+        "detailed": "详细",
+        "moderate": "适中",
+        "simple": "简单"
+      },
+      "guideStyles": {
+        "storytelling": "叙事型",
+        "academic": "学术型",
+        "conversational": "对话型",
+        "practical": "实用型"
+      },
+      "interaction": "交互方式",
+      "interactionLevels": {
+        "active": "积极",
+        "moderate": "适中",
+        "passive": "被动"
+      },
+      "emotionalTones": {
+        "enthusiastic": "热情",
+        "friendly": "友好",
+        "professional": "专业",
+        "calm": "平静"
+      },
+      "aiSimulationInfo": "通过100万人AI模拟验证的5项诊断提供",
+      "accuracy": "准确度",
+      "personalizedGuideProvided": "的个性化指南",
+      "timeRequired": "所需时间",
+      "countriesVerification": "个国家文化公平性验证",
+      "retakeDiagnosis": "重新诊断",
+      "startDiagnosis": "开始诊断",
+      "personalizedGuideActive": "现在所有指南都会根据您的性格自动个性化！",
+      "noFavoriteGuides": "没有收藏的指南",
+      "addFavoriteGuides": "添加您喜欢的指南到收藏！",
+      "reliability": "可靠度",
+      "diagnosed": "诊断"
     },
     "auth": {
       "login": "登录",
@@ -2092,7 +2216,17 @@
       "close": "Cerrar",
       "hide": "Ocultar",
       "exists": "Existe",
-      "notExists": "No Existe"
+      "notExists": "No Existe",
+      "minutes": "minutos",
+      "languagesGenerated": "idiomas generados",
+      "total": "Total",
+      "confirmDelete": "¿Estás seguro de que quieres eliminar esta guía?",
+      "completed": "Completado",
+      "processing": "Procesando",
+      "none": "Ninguno",
+      "sortLatest": "Más reciente",
+      "sortName": "Por nombre",
+      "sortChapters": "Por capítulos"
     },
     "history": {
       "noResults": "Sin resultados de búsqueda",
@@ -2141,7 +2275,59 @@
       "favoriteGuides": "Guías Favoritas",
       "totalGuides": "Total de Guías",
       "completedTours": "Tours Completados",
-      "savedLocations": "Ubicaciones Guardadas"
+      "savedLocations": "Ubicaciones Guardadas",
+      "overviewShort": "Resumen",
+      "guidesShort": "Guías",
+      "favoritesShort": "Favoritos",
+      "filesShort": "Archivos",
+      "settingsShort": "Config",
+      "frequentPlaces": "Lugares frecuentes",
+      "primaryLanguage": "Idioma principal",
+      "personalizedDiagnosis": "Diagnóstico de guía personalizada",
+      "diagnosisComplete": "¡Diagnóstico completo! Su rasgo de personalidad dominante es",
+      "diagnosisResult": "",
+      "personalityTraits": {
+        "openness": "Apertura",
+        "conscientiousness": "Responsabilidad",
+        "extraversion": "Extroversión",
+        "agreeableness": "Amabilidad",
+        "neuroticism": "Neuroticismo"
+      },
+      "contentDepthLevels": {
+        "detailed": "Detallado",
+        "moderate": "Moderado",
+        "simple": "Simple"
+      },
+      "guideStyles": {
+        "storytelling": "Narrativo",
+        "academic": "Académico",
+        "conversational": "Conversacional",
+        "practical": "Práctico"
+      },
+      "interaction": "Interacción",
+      "interactionLevels": {
+        "active": "Activo",
+        "moderate": "Moderado",
+        "passive": "Pasivo"
+      },
+      "emotionalTones": {
+        "enthusiastic": "Entusiasta",
+        "friendly": "Amigable",
+        "professional": "Profesional",
+        "calm": "Calmado"
+      },
+      "aiSimulationInfo": "Diagnóstico de 5 preguntas verificado por simulación de 1 millón de AI que proporciona",
+      "accuracy": "precisión",
+      "personalizedGuideProvided": "de guías personalizadas",
+      "timeRequired": "Tiempo requerido",
+      "countriesVerification": "países de verificación de equidad cultural",
+      "retakeDiagnosis": "Repetir diagnóstico",
+      "startDiagnosis": "Iniciar diagnóstico",
+      "personalizedGuideActive": "¡Ahora todas las guías se personalizan automáticamente según su personalidad!",
+      "noFavoriteGuides": "No hay guías favoritas",
+      "addFavoriteGuides": "¡Agregue las guías que le gusten a favoritos!",
+      "reliability": "confiabilidad",
+      "diagnosed": "diagnosticado"
     },
     "auth": {
       "login": "Iniciar Sesión",
