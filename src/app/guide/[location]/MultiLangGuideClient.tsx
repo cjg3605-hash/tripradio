@@ -221,7 +221,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
   }, [locationName]);
 
   // 🔄 재생성 함수
-  const handleRegenerateGuide = async () => {
+  const handleRegenerateGuide = useCallback(async () => {
     setIsRegenerating(true);
     setError(null);
     
@@ -235,7 +235,20 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
       console.error('❌ 재생성 오류:', error);
       setError(error instanceof Error ? error.message : '재생성 중 오류 발생');
     }
-  };
+  }, [currentLanguage, locationName, loadGuideForLanguage]);
+
+  // 재생성 함수를 전역에 노출 (TourContent에서 사용)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).handleRegenerateGuide = handleRegenerateGuide;
+    }
+    
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete (window as any).handleRegenerateGuide;
+      }
+    };
+  }, [handleRegenerateGuide]);
 
   // 🔥 개선된 초기 로드 (서버-클라이언트 언어 동기화 우선)
   useEffect(() => {

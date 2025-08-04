@@ -15,7 +15,9 @@ import {
   Sparkles,
   AlertTriangle,
   Route,
-  ChevronDown
+  ChevronDown,
+  Heart,
+  RefreshCw
 } from 'lucide-react';
 import { GuideData, GuideChapter } from '@/types/guide';
 import { AudioChapter } from '@/types/audio';
@@ -28,6 +30,9 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getLocationCoordinates, DEFAULT_SEOUL_CENTER } from '@/data/locations';
+import { useSession } from 'next-auth/react';
+import { saveFavoriteGuide, isFavoriteGuide } from '@/lib/supabaseGuideHistory';
+import PopupNotification from '@/components/ui/PopupNotification';
 
 interface TourContentProps {
   guide: GuideData;
@@ -38,11 +43,19 @@ interface TourContentProps {
 const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   const { currentLanguage, t } = useLanguage();
   const router = useRouter();
+  const { data: session } = useSession();
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [expandedChapters, setExpandedChapters] = useState<number[]>([0]);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showScrollButtons, setShowScrollButtons] = useState(false);
   const [componentKey, setComponentKey] = useState(0);
+  
+  // 새로운 상태들
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isBookmarking, setIsBookmarking] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   // 가이드 데이터를 전역에 노출 (라이브 페이지에서 사용)
   useEffect(() => {
@@ -199,6 +212,63 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
   }, []);
 
   // 컴포넌트 언마운트 시 오디오 정리는 AdvancedAudioPlayer에서 관리됨
+
+  // 즐겨찾기 상태 확인
+  useEffect(() => {
+    const checkBookmarkStatus = async () => {
+      if (session?.user && guide?.metadata?.originalLocationName) {
+        const bookmarked = await isFavoriteGuide(session.user, guide.metadata.originalLocationName);
+        setIsBookmarked(bookmarked);
+      }
+    };
+    
+    checkBookmarkStatus();
+  }, [session, guide?.metadata?.originalLocationName]);
+
+  // 즐겨찾기 핸들러
+  const handleBookmark = async () => {
+    if (!session?.user) {
+      // 비회원은 로그인 페이지로 리다이렉트
+      router.push('/auth/signin');
+      return;
+    }
+
+    if (!guide?.metadata?.originalLocationName) return;
+
+    setIsBookmarking(true);
+    try {
+      const result = await saveFavoriteGuide(
+        session.user, 
+        guide, 
+        guide.metadata.originalLocationName
+      );
+
+      if (result.success) {
+        setIsBookmarked(true);
+        setShowSuccessPopup(true);
+      } else {
+        console.error('즐겨찾기 저장 실패:', result.error);
+      }
+    } catch (error) {
+      console.error('즐겨찾기 오류:', error);
+    } finally {
+      setIsBookmarking(false);
+    }
+  };
+
+  // 재생성 확인 핸들러
+  const handleRegenerateConfirm = () => {
+    setShowRegenerateConfirm(false);
+    setIsRegenerating(true);
+    
+    // 기존 재생성 로직 호출 (MultiLangGuideClient의 handleRegenerateGuide와 동일)
+    if (typeof window !== 'undefined' && (window as any).handleRegenerateGuide) {
+      (window as any).handleRegenerateGuide();
+    } else {
+      // 페이지 새로고침으로 폴백
+      window.location.reload();
+    }
+  };
 
   // 맨 위로 스크롤
   const scrollToTop = () => {
@@ -738,6 +808,37 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                 </div>
               </div>
 
+              {/* 하단 액션 버튼들 */}
+              <div className="mt-8 mb-4 px-4">
+                <div className="flex gap-4">
+                  {/* 즐겨찾기 버튼 */}
+                  <button
+                    onClick={handleBookmark}
+                    disabled={isBookmarking || isBookmarked}
+                    className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-black rounded-2xl font-semibold text-black transition-all duration-300 hover:bg-black hover:text-white active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black disabled:active:scale-100"
+                  >
+                    <Heart className={`w-5 h-5 ${isBookmarked ? 'fill-current' : ''}`} />
+                    <span>
+                      {isBookmarking ? '저장중...' : 
+                       isBookmarked ? '저장됨' : 
+                       String(t('guide.bookmarkGuide'))}
+                    </span>
+                  </button>
+
+                  {/* 재생성 버튼 */}
+                  <button
+                    onClick={() => setShowRegenerateConfirm(true)}
+                    disabled={isRegenerating}
+                    className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-black rounded-2xl font-semibold text-black transition-all duration-300 hover:bg-black hover:text-white active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black disabled:active:scale-100"
+                  >
+                    <RefreshCw className={`w-5 h-5 ${isRegenerating ? 'animate-spin' : ''}`} />
+                    <span>
+                      {isRegenerating ? '생성중...' : String(t('guide.regenerateGuide'))}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
               {/* Bottom spacing */}
               <div className="h-8" />
             </Stack>
@@ -838,6 +939,29 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
         </>,
         document.body
       )}
+
+      {/* 팝업들 */}
+      <PopupNotification
+        isOpen={showSuccessPopup}
+        onClose={() => setShowSuccessPopup(false)}
+        type="success"
+        title={String(t('guide.bookmarkGuide'))}
+        message={String(t('guide.bookmarkSuccess'))}
+        autoClose={true}
+        autoCloseDelay={1000}
+      />
+
+      <PopupNotification
+        isOpen={showRegenerateConfirm}
+        onClose={() => setShowRegenerateConfirm(false)}
+        type="confirm"
+        title={String(t('guide.regenerateGuide'))}
+        message={String(t('guide.regenerateConfirm'))}
+        onConfirm={handleRegenerateConfirm}
+        onCancel={() => setShowRegenerateConfirm(false)}
+        confirmText={String(t('guide.yes'))}
+        cancelText={String(t('guide.no'))}
+      />
     </div>
   );
 };

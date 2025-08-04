@@ -246,7 +246,13 @@
       "noGuides": "가이드가 없습니다",
       "createNewGuide": "새로운 가이드를 생성해보세요!",
       "recommendedStartPoint": "추천 시작지점",
-      "accurateIntroLocation": "정확한 인트로 위치"
+      "accurateIntroLocation": "정확한 인트로 위치",
+      "bookmarkGuide": "즐겨찾기",
+      "regenerateGuide": "재생성",
+      "bookmarkSuccess": "저장되었습니다",
+      "regenerateConfirm": "가이드를 삭제 후 다시 생성하시겠습니까?",
+      "yes": "예",
+      "no": "아니요"
     },
     "live": {
       "shareTitle": "AI 가이드 공유",
@@ -1002,7 +1008,13 @@
       "noGuides": "No guides available",
       "createNewGuide": "Create a new guide!",
       "recommendedStartPoint": "Recommended Start Point",
-      "accurateIntroLocation": "Accurate Intro Location"
+      "accurateIntroLocation": "Accurate Intro Location",
+      "bookmarkGuide": "Bookmark",
+      "regenerateGuide": "Regenerate",
+      "bookmarkSuccess": "Saved successfully",
+      "regenerateConfirm": "Do you want to delete and regenerate the guide?",
+      "yes": "Yes",
+      "no": "No"
     },
     "live": {
       "shareTitle": "Share AI Guide",
@@ -1756,7 +1768,13 @@
       "precaution3": "バッテリー消費を考慮してポータブル充電器を準備してください",
       "precaution4": "周囲の状況を常に注意深く観察し、安全を最優先にしてください",
       "recommendedStartPoint": "推奨開始地点",
-      "accurateIntroLocation": "正確なイントロ位置"
+      "accurateIntroLocation": "正確なイントロ位置",
+      "bookmarkGuide": "お気に入り",
+      "regenerateGuide": "再生成",
+      "bookmarkSuccess": "保存されました",
+      "regenerateConfirm": "ガイドを削除して再生成しますか？",
+      "yes": "はい",
+      "no": "いいえ"
     },
     "live": {
       "shareTitle": "AIガイド共有",
@@ -2475,7 +2493,13 @@
       "precaution3": "考虑到电池消耗，请准备便携式充电器",
       "precaution4": "时刻关注周围环境，以安全为第一要务",
       "recommendedStartPoint": "推荐起点",
-      "accurateIntroLocation": "精确介绍位置"
+      "accurateIntroLocation": "精确介绍位置",
+      "bookmarkGuide": "收藏",
+      "regenerateGuide": "重新生成",
+      "bookmarkSuccess": "保存成功",
+      "regenerateConfirm": "确定要删除并重新生成指南吗？",
+      "yes": "是",
+      "no": "否"
     },
     "live": {
       "shareTitle": "分享AI指南",
@@ -3194,7 +3218,13 @@
       "precaution3": "Prepara un cargador portátil considerando el consumo de batería",
       "precaution4": "Presta siempre atención a tu entorno y prioriza la seguridad",
       "recommendedStartPoint": "Punto de Inicio Recomendado",
-      "accurateIntroLocation": "Ubicación Exacta de Introducción"
+      "accurateIntroLocation": "Ubicación Exacta de Introducción",
+      "bookmarkGuide": "Favoritos",
+      "regenerateGuide": "Regenerar",
+      "bookmarkSuccess": "Guardado exitosamente",
+      "regenerateConfirm": "¿Desea eliminar y regenerar la guía?",
+      "yes": "Sí",
+      "no": "No"
     },
     "live": {
       "shareTitle": "Compartir Guía IA",

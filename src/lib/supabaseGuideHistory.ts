@@ -297,4 +297,144 @@ export async function hasChapterDetails(guideId: string, chapterIndex: number): 
     console.error('❌ 챕터 내용 확인 중 오류:', error);
     return false;
   }
+}
+
+// ===============================
+// 🌟 즐겨찾기 관리 함수들
+// ===============================
+
+/**
+ * 즐겨찾기 가이드 저장
+ */
+export async function saveFavoriteGuide(user: any, guideData: any, locationName: string) {
+  if (!user?.id) {
+    console.warn('❌ saveFavoriteGuide: user.id가 없습니다');
+    return { success: false, error: 'User not authenticated' };
+  }
+
+  try {
+    console.log('💖 즐겨찾기 저장 시작:', { userId: user.id, locationName });
+
+    const { error } = await supabase
+      .from('user_favorites')
+      .insert([{
+        user_id: user.id,
+        location_name: locationName,
+        guide_data: guideData,
+        created_at: new Date().toISOString()
+      }]);
+
+    if (error) {
+      console.error('❌ 즐겨찾기 저장 실패:', error);
+      return { success: false, error };
+    }
+
+    console.log('✅ 즐겨찾기 저장 완료');
+    return { success: true };
+
+  } catch (error) {
+    console.error('❌ saveFavoriteGuide 오류:', error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * 즐겨찾기 가이드인지 확인
+ */
+export async function isFavoriteGuide(user: any, locationName: string): Promise<boolean> {
+  if (!user?.id) {
+    return false;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('user_favorites')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('location_name', locationName)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116은 "not found" 에러
+      console.error('❌ 즐겨찾기 확인 실패:', error);
+      return false;
+    }
+
+    return !!data;
+
+  } catch (error) {
+    console.error('❌ isFavoriteGuide 오류:', error);
+    return false;
+  }
+}
+
+/**
+ * 즐겨찾기 가이드 제거
+ */
+export async function removeFavoriteGuide(user: any, locationName: string) {
+  if (!user?.id) {
+    console.warn('❌ removeFavoriteGuide: user.id가 없습니다');
+    return { success: false, error: 'User not authenticated' };
+  }
+
+  try {
+    console.log('💔 즐겨찾기 제거 시작:', { userId: user.id, locationName });
+
+    const { error } = await supabase
+      .from('user_favorites')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('location_name', locationName);
+
+    if (error) {
+      console.error('❌ 즐겨찾기 제거 실패:', error);
+      return { success: false, error };
+    }
+
+    console.log('✅ 즐겨찾기 제거 완료');
+    return { success: true };
+
+  } catch (error) {
+    console.error('❌ removeFavoriteGuide 오류:', error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * 사용자의 모든 즐겨찾기 가이드 조회
+ */
+export async function getFavoriteGuides(user: any) {
+  if (!user?.id) {
+    console.warn('❌ getFavoriteGuides: user.id가 없습니다');
+    return [];
+  }
+
+  try {
+    console.log('🔍 즐겨찾기 목록 조회 중...', { userId: user.id });
+
+    const { data, error } = await supabase
+      .from('user_favorites')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('❌ 즐겨찾기 조회 실패:', error);
+      return [];
+    }
+
+    const favoriteGuides = (data || []).map(entry => ({
+      id: entry.id,
+      locationName: entry.location_name,
+      guideData: entry.guide_data,
+      createdAt: entry.created_at,
+      preview: entry.guide_data?.realTimeGuide?.chapters?.[0]?.title || '즐겨찾기 가이드',
+    }));
+
+    console.log('✅ 즐겨찾기 조회 완료:', { count: favoriteGuides.length });
+    return favoriteGuides;
+
+  } catch (error) {
+    console.error('❌ getFavoriteGuides 오류:', error);
+    return [];
+  }
 } 
