@@ -6,6 +6,8 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import SessionProvider from '@/components/providers/SessionProvider';
 import ClientLayout from '@/components/layout/ClientLayout';
 import LocalBusinessSchema from '@/components/seo/LocalBusinessSchema';
+import { cookies } from 'next/headers';
+import { detectPreferredLanguage, LANGUAGE_COOKIE_NAME } from '@/lib/utils';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -113,8 +115,19 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // 🔥 서버에서 쿠키 기반 언어 감지
+  const cookieStore = cookies();
+  const cookieLanguage = cookieStore.get(LANGUAGE_COOKIE_NAME)?.value;
+  
+  // 서버-클라이언트 일관성을 위한 언어 감지
+  const serverLanguage = detectPreferredLanguage({
+    cookieValue: cookieLanguage
+  });
+  
+  console.log(`🌍 서버 언어 감지: ${serverLanguage} (쿠키: ${cookieLanguage})`);
+  
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang={serverLanguage} suppressHydrationWarning>
       <head>
         {/* DNS Prefetch for Performance */}
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />

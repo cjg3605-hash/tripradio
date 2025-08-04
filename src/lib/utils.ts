@@ -341,6 +341,84 @@ export function safeLanguageCode(lang: any): string {
 }
 
 /**
+ * 서버-클라이언트 언어 동기화를 위한 쿠키 기반 언어 관리
+ */
+export const LANGUAGE_COOKIE_NAME = 'preferred-language';
+export const LANGUAGE_COOKIE_MAX_AGE = 365 * 24 * 60 * 60; // 1년
+
+/**
+ * 클라이언트에서 언어 쿠키 설정
+ */
+export function setLanguageCookie(language: string): void {
+  if (typeof window === 'undefined') return;
+  
+  const safeLanguage = safeLanguageCode(language);
+  document.cookie = `${LANGUAGE_COOKIE_NAME}=${safeLanguage}; max-age=${LANGUAGE_COOKIE_MAX_AGE}; path=/; samesite=lax`;
+  console.log(`🍪 언어 쿠키 설정: ${safeLanguage}`);
+}
+
+/**
+ * 클라이언트에서 언어 쿠키 읽기
+ */
+export function getLanguageCookie(): string | null {
+  if (typeof window === 'undefined') return null;
+  
+  const match = document.cookie.match(new RegExp(`(^| )${LANGUAGE_COOKIE_NAME}=([^;]+)`));
+  const cookieValue = match ? match[2] : null;
+  
+  return cookieValue ? safeLanguageCode(cookieValue) : null;
+}
+
+/**
+ * 서버-클라이언트 통합 언어 감지 (우선순위 기반)
+ * 1순위: 쿠키 (서버-클라이언트 공통)
+ * 2순위: localStorage (클라이언트만)
+ * 3순위: URL 파라미터
+ * 4순위: 브라우저 언어
+ * 5순위: 기본값 (ko)
+ */
+export function detectPreferredLanguage(options: {
+  cookieValue?: string;
+  urlLang?: string;
+  storageValue?: string;
+  browserLang?: string;
+} = {}): string {
+  const { cookieValue, urlLang, storageValue, browserLang } = options;
+  
+  // 1순위: 쿠키 (서버-클라이언트 동기화)
+  if (cookieValue) {
+    const safeCookieLang = safeLanguageCode(cookieValue);
+    console.log(`🎯 언어 감지 - 쿠키: ${safeCookieLang}`);
+    return safeCookieLang;
+  }
+  
+  // 2순위: localStorage (클라이언트만)
+  if (storageValue) {
+    const safeStorageLang = safeLanguageCode(storageValue);
+    console.log(`🎯 언어 감지 - localStorage: ${safeStorageLang}`);
+    return safeStorageLang;
+  }
+  
+  // 3순위: URL 파라미터
+  if (urlLang) {
+    const safeUrlLang = safeLanguageCode(urlLang);
+    console.log(`🎯 언어 감지 - URL: ${safeUrlLang}`);
+    return safeUrlLang;
+  }
+  
+  // 4순위: 브라우저 언어
+  if (browserLang) {
+    const safeBrowserLang = safeLanguageCode(browserLang.split('-')[0]);
+    console.log(`🎯 언어 감지 - 브라우저: ${safeBrowserLang}`);
+    return safeBrowserLang;
+  }
+  
+  // 5순위: 기본값
+  console.log(`🎯 언어 감지 - 기본값: ko`);
+  return 'ko';
+}
+
+/**
  * 안전한 객체 JSON 직렬화 (순환 참조 방지)
  */
 export function safeJsonStringify(obj: any, space?: number): string {

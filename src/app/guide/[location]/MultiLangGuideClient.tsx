@@ -237,16 +237,27 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
     }
   };
 
-  // 초기 로드 (URL 파라미터 언어 우선 처리)
+  // 🔥 개선된 초기 로드 (서버-클라이언트 언어 동기화 우선)
   useEffect(() => {
     const initializeGuide = async () => {
-      // 🎯 언어 우선순위: currentLanguage(헤더) > requestedLanguage(URL)
-      // 헤더 언어 설정이 가장 중요!
+      // 🎯 새로운 언어 우선순위: 
+      // 1순위: 서버에서 감지된 언어 (requestedLanguage - 쿠키 기반)
+      // 2순위: 현재 헤더 언어 (currentLanguage)
       let targetLanguage: SupportedLanguage;
       
-      // 🎯 헤더 언어 설정이 최우선! (localStorage 기반)
-      targetLanguage = currentLanguage;
-      console.log(`🎯 헤더 언어 설정 우선 사용: ${targetLanguage}`);
+      // 🔥 서버 감지 언어가 있고, 헤더 언어와 같다면 서버 언어 사용
+      if (requestedLanguage && requestedLanguage === currentLanguage) {
+        targetLanguage = requestedLanguage as SupportedLanguage;
+        console.log(`🎯 서버-클라이언트 언어 일치: ${targetLanguage}`);
+      } else if (requestedLanguage) {
+        // 서버 언어는 있지만 헤더와 다를 때 - 서버 우선 (쿠키 기반)
+        targetLanguage = requestedLanguage as SupportedLanguage;
+        console.log(`🎯 서버 언어 우선 사용: ${targetLanguage} (헤더: ${currentLanguage})`);
+      } else {
+        // 서버 언어 없으면 헤더 언어 사용
+        targetLanguage = currentLanguage;
+        console.log(`🎯 헤더 언어 사용: ${targetLanguage}`);
+      }
       
       if (initialGuide) {
         console.log('🎯 서버에서 받은 초기 가이드 사용:', initialGuide);

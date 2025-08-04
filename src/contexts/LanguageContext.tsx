@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { detectPreferredLanguage, setLanguageCookie, getLanguageCookie } from '@/lib/utils';
 
 // 지원 언어 타입
 export type SupportedLanguage = 'ko' | 'en' | 'ja' | 'zh' | 'es';
@@ -1071,7 +1072,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
   const isRTL = currentConfig?.dir === 'rtl';
 
-  // 언어 변경 함수
+  // 🔥 개선된 언어 변경 함수 (쿠키 + localStorage 동기화)
   const setLanguage = useCallback(async (language: SupportedLanguage) => {
     if (language === currentLanguage) return;
     
@@ -1081,12 +1082,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       setTranslations(newTranslations);
       setCurrentLanguage(language);
       
-      // 로컬 스토리지에 저장
+      // 🔥 쿠키와 localStorage 동시 업데이트 (서버-클라이언트 동기화)
       if (typeof window !== 'undefined') {
         localStorage.setItem('preferred-language', language);
+        setLanguageCookie(language); // 쿠키도 설정
       }
       
-      console.log(`언어 변경됨: ${language}`);
+      console.log(`✅ 언어 변경됨: ${language} (쿠키 + localStorage 동기화)`);
     } catch (error) {
       console.error('언어 변경 오류:', error);
     } finally {
@@ -1094,43 +1096,39 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   }, [currentLanguage]);
 
-  // 초기 언어 설정 (저장된 언어 우선)
+  // 🔥 개선된 초기 언어 설정 (통합 우선순위 시스템)
   useEffect(() => {
     const initializeLanguage = async () => {
       if (typeof window === 'undefined') return;
       
-      let initialLanguage: SupportedLanguage;
-      
-      // 🔥 1순위: URL 파라미터 확인
+      // 🔥 통합 언어 감지 시스템 사용
       const urlParams = new URLSearchParams(window.location.search);
       const urlLang = urlParams.get('lang');
+      const cookieLanguage = getLanguageCookie();
+      const storageLanguage = localStorage.getItem('preferred-language');
+      const browserLanguage = navigator.language;
       
-      if (urlLang && ['ko', 'en', 'ja', 'zh', 'es'].includes(urlLang.toLowerCase())) {
-        initialLanguage = urlLang.toLowerCase() as SupportedLanguage;
-        console.log(`🌍 URL 파라미터로 언어 설정: ${initialLanguage}`);
-      } else {
-        // 🔥 2순위: localStorage 확인 (우선 적용)
-        const savedLanguage = localStorage.getItem('preferred-language') as SupportedLanguage;
-        if (savedLanguage && SUPPORTED_LANGUAGES.some(lang => lang.code === savedLanguage)) {
-          initialLanguage = savedLanguage;
-          console.log(`💾 저장된 언어 사용: ${initialLanguage}`);
-        } else {
-          // 🔥 3순위: 브라우저 언어 감지 (저장된 언어 없을 때만)
-          initialLanguage = detectBrowserLanguage();
-          console.log(`🔍 브라우저 언어 감지: ${initialLanguage}`);
-        }
-      }
+      const initialLanguage = detectPreferredLanguage({
+        cookieValue: cookieLanguage || undefined,
+        storageValue: storageLanguage || undefined,
+        urlLang: urlLang || undefined,
+        browserLang: browserLanguage
+      }) as SupportedLanguage;
       
-      // 🔧 수정: 초기값과 비교하지 말고 직접 설정
+      // 🔧 서버와 일치하는 언어로 설정
       setCurrentLanguage(initialLanguage);
       const initialTranslations = await loadTranslations(initialLanguage);
       setTranslations(initialTranslations);
       
-      console.log(`✅ 언어 초기화 완료: ${initialLanguage}`);
+      // 🔥 쿠키와 localStorage 동기화 (초기화 시에도)
+      localStorage.setItem('preferred-language', initialLanguage);
+      setLanguageCookie(initialLanguage);
+      
+      console.log(`✅ 언어 초기화 완료: ${initialLanguage} (서버-클라이언트 동기화)`);
     };
 
     initializeLanguage();
-  }, []); // 🔥 의존성 배열 수정: 초기화는 한 번만 실행
+  }, []); // 🔥 의존성 배열: 초기화는 한 번만 실행
 
   // 번역 함수
   const t = (key: string): string | string[] => {

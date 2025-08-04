@@ -1,6 +1,7 @@
 import MultiLangGuideClient from './MultiLangGuideClient';
 import { supabase } from '@/lib/supabaseClient';
-import { safeLanguageCode } from '@/lib/utils';
+import { safeLanguageCode, detectPreferredLanguage, LANGUAGE_COOKIE_NAME } from '@/lib/utils';
+import { cookies } from 'next/headers';
 
 export const revalidate = 0;
 
@@ -18,26 +19,42 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
   const requestedLang = safeLanguageCode(searchParams?.lang);
   const normLocation = normalizeString(locationName);
   
-  // 🔍 디버깅: URL 파라미터 로깅
-  console.log('🔍 가이드 페이지 파라미터:', {
+  // 🔥 서버에서 통합 언어 감지 (쿠키 우선)
+  const cookieStore = cookies();
+  const cookieLanguage = cookieStore.get(LANGUAGE_COOKIE_NAME)?.value;
+  
+  // 서버-클라이언트 일관성을 위한 언어 우선순위
+  const serverDetectedLanguage = detectPreferredLanguage({
+    cookieValue: cookieLanguage,
+    urlLang: requestedLang
+  });
+  
+  // 🔍 디버깅: 언어 감지 로깅
+  console.log('🔍 가이드 페이지 언어 감지:', {
     rawLocation: params.location,
     decodedLocation: locationName,
     normalizedLocation: normLocation,
-    requestedLang
+    requestedLang,
+    cookieLanguage,
+    serverDetectedLanguage,
+    finalLanguage: serverDetectedLanguage
   });
   
-  // 서버에서 요청된 언어의 가이드 조회
+  // 🔥 서버에서 감지된 언어로 가이드 조회 (쿠키 우선)
   let initialGuide: { content: any } | null = null;
   try {
     const { data, error } = await supabase
       .from('guides')
       .select('content')
       .eq('locationname', normLocation)
-      .eq('language', requestedLang.toLowerCase())
+      .eq('language', serverDetectedLanguage.toLowerCase())
       .maybeSingle();
     
     if (!error && data && data.content) {
       initialGuide = { content: data.content };
+      console.log(`✅ 서버에서 ${serverDetectedLanguage} 가이드 발견`);
+    } else {
+      console.log(`⚠️ 서버에서 ${serverDetectedLanguage} 가이드 없음, 클라이언트에서 생성`);
     }
   } catch (e) {
     console.error('서버 사이드 가이드 조회 오류:', e);
@@ -47,7 +64,7 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
     <MultiLangGuideClient 
       locationName={locationName} 
       initialGuide={initialGuide}
-      requestedLanguage={requestedLang}
+      requestedLanguage={serverDetectedLanguage}
     />
   );
 }
