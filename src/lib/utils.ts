@@ -353,8 +353,20 @@ export function setLanguageCookie(language: string): void {
   if (typeof window === 'undefined') return;
   
   const safeLanguage = safeLanguageCode(language);
-  document.cookie = `${LANGUAGE_COOKIE_NAME}=${safeLanguage}; max-age=${LANGUAGE_COOKIE_MAX_AGE}; path=/; samesite=lax`;
-  console.log(`🍪 언어 쿠키 설정: ${safeLanguage}`);
+  
+  // HTTPS 환경에서 secure 플래그 추가
+  const isSecure = window.location.protocol === 'https:';
+  const secureFlag = isSecure ? '; secure' : '';
+  
+  document.cookie = `${LANGUAGE_COOKIE_NAME}=${safeLanguage}; max-age=${LANGUAGE_COOKIE_MAX_AGE}; path=/; samesite=lax${secureFlag}`;
+  
+  // 쿠키 저장 검증
+  const savedValue = getLanguageCookie();
+  if (savedValue === safeLanguage) {
+    console.log(`✅ 언어 쿠키 저장 성공: ${safeLanguage}`);
+  } else {
+    console.warn(`❌ 언어 쿠키 저장 실패: 설정=${safeLanguage}, 읽기=${savedValue}`);
+  }
 }
 
 /**
