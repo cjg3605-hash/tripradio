@@ -512,6 +512,50 @@
         "description": "NaviDocent 개인정보 처리방침",
         "content": "개인정보 처리에 관한 방침 내용",
         "lastUpdated": "최종 업데이트"
+      },
+      "feedback": {
+        "rateGuide": "가이드 평가하기",
+        "modalTitle": "\"{locationName}\" 가이드 평가",
+        "detailedEvaluation": "상세 평가 (96% 만족도 목표)",
+        "improvementNeeded": "개선이 필요한 부분",
+        "additionalComments": "추가 의견이나 제안사항",
+        "commentsPlaceholder": "더 좋은 가이드를 위한 의견을 자유롭게 작성해주세요...",
+        "commentsHelp": "가이드 개선을 위한 자유로운 의견을 작성해주세요",
+        "submitButton": "피드백 제출하기",
+        "cancelButton": "취소",
+        "submitting": "제출 중...",
+        "submitSuccess": "🎉 소중한 피드백 감사합니다! 더 나은 가이드로 발전시키겠습니다.",
+        "submitFailed": "피드백 제출에 실패했습니다. 다시 시도해주세요.",
+        "openButtonAria": "가이드 품질 평가 상자 열기",
+        "closeButtonAria": "평가 상자 닫기",
+        "cancelButtonAria": "평가 취소하기",
+        "submitButtonAria": "피드백 제출하기",
+        "submittingAria": "피드백 제출 중",
+        "points": "점",
+        "ratings": {
+          "1": "매우 불만족",
+          "2": "불만족",
+          "3": "보통",
+          "4": "만족",
+          "5": "매우 만족"
+        },
+        "categories": {
+          "accuracy": "사실 정확성 (역사, 수치, 인명 등)",
+          "expertise": "전문성 깊이 (전문가 수준의 설명)",
+          "storytelling": "스토리텔링 (흥미롭고 몰입감 있는 설명)",
+          "culturalRespect": "문화적 존중 (현지 문화에 대한 적절한 표현)",
+          "overallSatisfaction": "전체 만족도 (종합적 평가)"
+        },
+        "improvements": {
+          "moreHistoricalFacts": "더 구체적인 역사적 사실 필요",
+          "moreStories": "재미있는 스토리 부족",
+          "explainTerms": "전문 용어 설명 필요",
+          "culturalBackground": "문화적 배경 설명 부족",
+          "personalInterests": "개인적 관심사 반영 부족",
+          "practicalInfo": "실용적 정보 부족",
+          "tooLong": "내용이 너무 길어서 지루함",
+          "tooShort": "내용이 너무 짧아서 아쉬움"
+        }
       }
     }
   },
@@ -1028,6 +1072,50 @@
         "description": "NaviDocent Privacy Policy",
         "content": "Privacy policy content",
         "lastUpdated": "Last Updated"
+      },
+      "feedback": {
+        "rateGuide": "Rate Guide",
+        "modalTitle": "Rate \"{locationName}\" Guide",
+        "detailedEvaluation": "Detailed Evaluation (96% satisfaction goal)",
+        "improvementNeeded": "Areas Needing Improvement",
+        "additionalComments": "Additional Comments or Suggestions",
+        "commentsPlaceholder": "Please freely share your thoughts for a better guide...",
+        "commentsHelp": "Please write your free opinions for guide improvement",
+        "submitButton": "Submit Feedback",
+        "cancelButton": "Cancel",
+        "submitting": "Submitting...",
+        "submitSuccess": "🎉 Thank you for your valuable feedback! We'll work to make an even better guide.",
+        "submitFailed": "Failed to submit feedback. Please try again.",
+        "openButtonAria": "Open guide quality evaluation box",
+        "closeButtonAria": "Close evaluation box",
+        "cancelButtonAria": "Cancel evaluation",
+        "submitButtonAria": "Submit feedback",
+        "submittingAria": "Submitting feedback",
+        "points": "points",
+        "ratings": {
+          "1": "Very Dissatisfied",
+          "2": "Dissatisfied",
+          "3": "Average",
+          "4": "Satisfied",
+          "5": "Very Satisfied"
+        },
+        "categories": {
+          "accuracy": "Factual Accuracy (history, numbers, names, etc.)",
+          "expertise": "Depth of Expertise (professional-level explanations)",
+          "storytelling": "Storytelling (engaging and immersive descriptions)",
+          "culturalRespect": "Cultural Respect (appropriate expressions of local culture)",
+          "overallSatisfaction": "Overall Satisfaction (comprehensive evaluation)"
+        },
+        "improvements": {
+          "moreHistoricalFacts": "Need more specific historical facts",
+          "moreStories": "Lack of interesting stories",
+          "explainTerms": "Need explanation of technical terms",
+          "culturalBackground": "Lack of cultural background explanation",
+          "personalInterests": "Insufficient reflection of personal interests",
+          "practicalInfo": "Lack of practical information",
+          "tooLong": "Content too long and boring",
+          "tooShort": "Content too short and disappointing"
+        }
       }
     }
   },
@@ -1500,6 +1588,50 @@
         "description": "NaviDocent プライバシーポリシー",
         "content": "個人情報処理に関するポリシー内容",
         "lastUpdated": "最終更新"
+      },
+      "feedback": {
+        "rateGuide": "ガイドを評価する",
+        "modalTitle": "\"{locationName}\" ガイドの評価",
+        "detailedEvaluation": "詳細な評価（96％満足度目標）",
+        "improvementNeeded": "改善が必要な部分",
+        "additionalComments": "追加のご意見やご提案",
+        "commentsPlaceholder": "より良いガイドのためのご意見を自由にお書きください...",
+        "commentsHelp": "ガイド改善のための自由なご意見をお書きください",
+        "submitButton": "フィードバックを送信",
+        "cancelButton": "キャンセル",
+        "submitting": "送信中...",
+        "submitSuccess": "🎉 貴重なフィードバックをありがとうございます！より良いガイドに発展させます。",
+        "submitFailed": "フィードバックの送信に失敗しました。もう一度お試しください。",
+        "openButtonAria": "ガイド品質評価ボックスを開く",
+        "closeButtonAria": "評価ボックスを閉じる",
+        "cancelButtonAria": "評価をキャンセルする",
+        "submitButtonAria": "フィードバックを送信する",
+        "submittingAria": "フィードバック送信中",
+        "points": "点",
+        "ratings": {
+          "1": "非常に不満",
+          "2": "不満",
+          "3": "普通",
+          "4": "満足",
+          "5": "非常に満足"
+        },
+        "categories": {
+          "accuracy": "事実の正確性（歴史、数値、人名など）",
+          "expertise": "専門性の深さ（専門家レベルの説明）",
+          "storytelling": "ストーリーテリング（興味深く没入感のある説明）",
+          "culturalRespect": "文化的敬意（現地文化への適切な表現）",
+          "overallSatisfaction": "全体的な満足度（総合的評価）"
+        },
+        "improvements": {
+          "moreHistoricalFacts": "より具体的な歴史的事実が必要",
+          "moreStories": "面白いストーリーが不足",
+          "explainTerms": "専門用語の説明が必要",
+          "culturalBackground": "文化的背景の説明が不足",
+          "personalInterests": "個人的興味の反映が不足",
+          "practicalInfo": "実用的な情報が不足",
+          "tooLong": "内容が長すぎて退屈",
+          "tooShort": "内容が短すぎて物足りない"
+        }
       }
     }
   },
@@ -1972,6 +2104,50 @@
         "description": "NaviDocent 隐私政策",
         "content": "隐私政策内容",
         "lastUpdated": "最后更新"
+      },
+      "feedback": {
+        "rateGuide": "评价导游",
+        "modalTitle": "评价 \"{locationName}\" 导游",
+        "detailedEvaluation": "详细评价（96%满意度目标）",
+        "improvementNeeded": "需要改进的部分",
+        "additionalComments": "其他意见或建议",
+        "commentsPlaceholder": "请自由分享您对更好导游的想法...",
+        "commentsHelp": "请为导游改进写下您的自由意见",
+        "submitButton": "提交反馈",
+        "cancelButton": "取消",
+        "submitting": "提交中...",
+        "submitSuccess": "🎉 感谢您的宝贵反馈！我们将努力打造更好的导游。",
+        "submitFailed": "反馈提交失败。请重试。",
+        "openButtonAria": "打开导游质量评价框",
+        "closeButtonAria": "关闭评价框",
+        "cancelButtonAria": "取消评价",
+        "submitButtonAria": "提交反馈",
+        "submittingAria": "正在提交反馈",
+        "points": "分",
+        "ratings": {
+          "1": "非常不满意",
+          "2": "不满意",
+          "3": "一般",
+          "4": "满意",
+          "5": "非常满意"
+        },
+        "categories": {
+          "accuracy": "事实准确性（历史、数字、姓名等）",
+          "expertise": "专业深度（专业级解释）",
+          "storytelling": "故事讲述（引人入胜的描述）",
+          "culturalRespect": "文化尊重（对当地文化的适当表达）",
+          "overallSatisfaction": "整体满意度（综合评价）"
+        },
+        "improvements": {
+          "moreHistoricalFacts": "需要更具体的历史事实",
+          "moreStories": "缺乏有趣的故事",
+          "explainTerms": "需要解释专业术语",
+          "culturalBackground": "缺乏文化背景说明",
+          "personalInterests": "个人兴趣反映不足",
+          "practicalInfo": "缺乏实用信息",
+          "tooLong": "内容太长，令人厌烦",
+          "tooShort": "内容太短，令人失望"
+        }
       }
     }
   },
@@ -2444,6 +2620,50 @@
         "description": "Política de Privacidad de NaviDocent",
         "content": "Contenido de política de privacidad",
         "lastUpdated": "Última Actualización"
+      },
+      "feedback": {
+        "rateGuide": "Calificar Guía",
+        "modalTitle": "Calificar Guía de \"{locationName}\"",
+        "detailedEvaluation": "Evaluación Detallada (objetivo 96% satisfacción)",
+        "improvementNeeded": "Áreas que Necesitan Mejora",
+        "additionalComments": "Comentarios o Sugerencias Adicionales",
+        "commentsPlaceholder": "Por favor comparta libremente sus pensamientos para una mejor guía...",
+        "commentsHelp": "Por favor escriba sus opiniones libres para mejorar la guía",
+        "submitButton": "Enviar Comentarios",
+        "cancelButton": "Cancelar",
+        "submitting": "Enviando...",
+        "submitSuccess": "🎉 ¡Gracias por sus valiosos comentarios! Trabajaremos para hacer una guía aún mejor.",
+        "submitFailed": "Error al enviar comentarios. Por favor intente de nuevo.",
+        "openButtonAria": "Abrir caja de evaluación de calidad de guía",
+        "closeButtonAria": "Cerrar caja de evaluación",
+        "cancelButtonAria": "Cancelar evaluación",
+        "submitButtonAria": "Enviar comentarios",
+        "submittingAria": "Enviando comentarios",
+        "points": "puntos",
+        "ratings": {
+          "1": "Muy Insatisfecho",
+          "2": "Insatisfecho",
+          "3": "Promedio",
+          "4": "Satisfecho",
+          "5": "Muy Satisfecho"
+        },
+        "categories": {
+          "accuracy": "Precisión Factual (historia, números, nombres, etc.)",
+          "expertise": "Profundidad de Expertise (explicaciones nivel profesional)",
+          "storytelling": "Narrativa (descripciones atractivas e inmersivas)",
+          "culturalRespect": "Respeto Cultural (expresiones apropiadas de cultura local)",
+          "overallSatisfaction": "Satisfacción General (evaluación integral)"
+        },
+        "improvements": {
+          "moreHistoricalFacts": "Necesita más hechos históricos específicos",
+          "moreStories": "Falta de historias interesantes",
+          "explainTerms": "Necesita explicación de términos técnicos",
+          "culturalBackground": "Falta explicación de trasfondo cultural",
+          "personalInterests": "Reflejo insuficiente de intereses personales",
+          "practicalInfo": "Falta de información práctica",
+          "tooLong": "Contenido demasiado largo y aburrido",
+          "tooShort": "Contenido demasiado corto y decepcionante"
+        }
       }
     }
   }

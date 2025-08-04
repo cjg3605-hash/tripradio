@@ -109,11 +109,7 @@ function Home() {
   const [currentWord, setCurrentWord] = useState(0);
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const [suggestions, setSuggestions] = useState<TranslatedSuggestion[]>([
-    { name: '에펠탑', location: '프랑스 파리' },
-    { name: '타지마할', location: '인도 아그라' },
-    { name: '마추픽추', location: '페루 쿠스코' }
-  ]);
+  const [suggestions, setSuggestions] = useState<TranslatedSuggestion[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
@@ -381,11 +377,17 @@ function Home() {
         if (isMountedRef.current) setSuggestions(translated);
       } else {
         if (isMountedRef.current) {
-          setSuggestions([
-            { name: '에펠탑', location: '프랑스 파리' },
-            { name: '타지마할', location: '인도 아그라' },
-            { name: '마추픽추', location: '페루 쿠스코' }
-          ]);
+          const defaultSuggestions = t('home.defaultSuggestions');
+          if (isValidSuggestionsArray(defaultSuggestions)) {
+            setSuggestions(defaultSuggestions);
+          } else {
+            // 번역이 없을 경우 기본값
+            setSuggestions([
+              { name: '에펠탑', location: '프랑스 파리' },
+              { name: '타지마할', location: '인도 아그라' },
+              { name: '마추픽추', location: '페루 쿠스코' }
+            ]);
+          }
         }
       }
       return;

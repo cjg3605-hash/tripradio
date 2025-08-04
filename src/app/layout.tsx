@@ -25,36 +25,36 @@ export const viewport: Viewport = {
 // ✅ metadata에서 viewport 제거됨
 export const metadata: Metadata = {
   title: {
-    default: 'NaviDocent - AI 여행 도슨트 가이드',
+    default: 'NaviDocent - AI Travel Guide',
     template: '%s | NaviDocent'
   },
-  description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.',
-  keywords: ['AI', '여행', '도슨트', '가이드', '관광', '투어', '음성가이드', '다국어', '한국여행', 'Korea tour', 'AI guide'],
+  description: 'AI-powered personalized travel docent service. Providing perfect travel experiences with real-time voice guides and multilingual support.',
+  keywords: ['AI', 'travel', 'docent', 'guide', 'tourism', 'tour', 'voice guide', 'multilingual', 'Korea travel', 'Korea tour', 'AI guide'],
   authors: [{ name: 'NaviDocent Team' }],
   creator: 'NaviDocent',
   publisher: 'NaviDocent',
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'),
   openGraph: {
     type: 'website',
-    locale: 'ko_KR',
+    locale: 'en_US',
     url: '/',
     siteName: 'NaviDocent',
-    title: 'NaviDocent - AI 여행 도슨트 가이드',
-    description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.',
+    title: 'NaviDocent - AI Travel Docent Guide',
+    description: 'AI-powered personalized travel docent service. Providing perfect travel experiences with real-time voice guides and multilingual support.',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'NaviDocent - AI 여행 도슨트'
+        alt: 'NaviDocent - AI Travel Docent'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
     site: '@navidocent',
-    title: 'NaviDocent - AI 여행 도슨트 가이드',
-    description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.',
+    title: 'NaviDocent - AI Travel Docent Guide',
+    description: 'AI-powered personalized travel docent service. Providing perfect travel experiences with real-time voice guides and multilingual support.',
     images: ['/og-image.jpg']
   },
   robots: {
