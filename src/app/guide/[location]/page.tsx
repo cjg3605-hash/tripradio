@@ -23,10 +23,11 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
   const cookieStore = cookies();
   const cookieLanguage = cookieStore.get(LANGUAGE_COOKIE_NAME)?.value;
   
-  // 서버-클라이언트 일관성을 위한 언어 우선순위
+  // 서버-클라이언트 일관성을 위한 언어 우선순위 (URL 우선)
   const serverDetectedLanguage = detectPreferredLanguage({
     cookieValue: cookieLanguage,
-    urlLang: requestedLang
+    urlLang: requestedLang,
+    prioritizeUrl: true
   });
   
   // 🔍 디버깅: 언어 감지 로깅

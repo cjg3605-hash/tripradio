@@ -394,8 +394,16 @@ export function detectPreferredLanguage(options: {
   urlLang?: string;
   storageValue?: string;
   browserLang?: string;
+  prioritizeUrl?: boolean;
 } = {}): string {
-  const { cookieValue, urlLang, storageValue, browserLang } = options;
+  const { cookieValue, urlLang, storageValue, browserLang, prioritizeUrl = false } = options;
+  
+  // URL 우선 모드: URL 파라미터를 최우선으로 처리
+  if (prioritizeUrl && urlLang) {
+    const safeUrlLang = safeLanguageCode(urlLang);
+    console.log(`🎯 언어 감지 - URL (우선): ${safeUrlLang}`);
+    return safeUrlLang;
+  }
   
   // 1순위: 쿠키 (서버-클라이언트 동기화)
   if (cookieValue) {
@@ -411,8 +419,8 @@ export function detectPreferredLanguage(options: {
     return safeStorageLang;
   }
   
-  // 3순위: URL 파라미터
-  if (urlLang) {
+  // 3순위: URL 파라미터 (일반 모드)
+  if (!prioritizeUrl && urlLang) {
     const safeUrlLang = safeLanguageCode(urlLang);
     console.log(`🎯 언어 감지 - URL: ${safeUrlLang}`);
     return safeUrlLang;
