@@ -99,11 +99,11 @@ export const LANGUAGE_OPTIMIZED_TTS_CONFIGS: Record<string, LanguageOptimizedTTS
   // 🇨🇳 중국어 간체 - 북경 표준어 (명확한 발음)
   'zh-CN': {
     languageCode: 'cmn-CN',
-    voiceName: 'cmn-CN-Neural2-A', // 안정적이고 자연스러운 여성 음성 (Neural2 모델)
-    ssmlGender: 'FEMALE',
+    voiceName: 'cmn-CN-Wavenet-D', // 고품질 Wavenet 남성 음성
+    ssmlGender: 'MALE',
     audioEncoding: 'MP3',
-    speakingRate: 1.0, // 중국어 표준 속도
-    pitch: 1.0, // 여성 음성에 맞는 자연스러운 음조
+    speakingRate: 0.95, // 약간 느린 속도
+    pitch: -1.0, // -1.0 semitones (낮은 음조)
     volumeGainDb: 1.0,
     effectsProfile: ['medium-bluetooth-speaker-class-device'],
     languageSpecific: {

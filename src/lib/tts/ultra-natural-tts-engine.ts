@@ -716,8 +716,8 @@ class UltraNaturalTTSEngine {
           
           const config = {
             text: ssml.replace(/<[^>]*>/g, '').trim(), // SSML 태그 제거
-            languageCode: voiceParams.neural2Settings?.languageCode || 'ko-KR',
-            name: voiceParams.neural2Settings?.name || 'ko-KR-Neural2-C',
+            languageCode: voiceParams.neural2Settings?.languageCode,
+            name: voiceParams.neural2Settings?.name,
             ssmlGender: voiceParams.neural2Settings?.ssmlGender || 'FEMALE',
             audioEncoding: 'MP3' as const,
             speakingRate: voiceParams.neural2Settings?.audioConfig?.speakingRate || 1.0,
@@ -726,6 +726,14 @@ class UltraNaturalTTSEngine {
             sampleRateHertz: voiceParams.neural2Settings?.audioConfig?.sampleRateHertz || 24000,
             effectsProfileId: voiceParams.neural2Settings?.audioConfig?.effectsProfileId || []
           };
+
+          console.log('🎙️ Google Cloud TTS 호출 설정:', {
+            languageCode: config.languageCode,
+            voiceName: config.name,
+            ssmlGender: config.ssmlGender,
+            hasNeuralSettings: !!voiceParams.neural2Settings,
+            originalVoiceParams: voiceParams.neural2Settings
+          });
 
           // Direct Google Cloud TTS 호출
           const result = await directGoogleCloudTTS.synthesizeSpeech(config);
