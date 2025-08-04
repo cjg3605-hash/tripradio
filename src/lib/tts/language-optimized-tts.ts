@@ -114,6 +114,23 @@ export const LANGUAGE_OPTIMIZED_TTS_CONFIGS: Record<string, LanguageOptimizedTTS
     }
   },
 
+  // 🇨🇳 중국어 간체 - cmn-CN 키 (zh-CN과 동일한 설정)
+  'cmn-CN': {
+    languageCode: 'cmn-CN',
+    voiceName: 'cmn-CN-Wavenet-D', // 고품질 Wavenet 남성 음성
+    ssmlGender: 'MALE',
+    audioEncoding: 'MP3',
+    speakingRate: 0.95, // 약간 느린 속도
+    pitch: -1.0, // -1.0 semitones (낮은 음조)
+    volumeGainDb: 1.0,
+    effectsProfile: ['medium-bluetooth-speaker-class-device'],
+    languageSpecific: {
+      naturalPauses: true,
+      emphasisStyle: 'moderate',
+      intonationPattern: 'expressive', // 성조 언어 특성
+      culturalAdaptation: true
+    }
+  },
 
   // 🇪🇸 스페인어 - 이베리아 반도 표준어 (열정적 톤)
   'es-ES': {
@@ -253,9 +270,9 @@ export class LanguageOptimizedTTSSelector {
       return config;
     }
     
-    // 최종 대체: 한국어 설정
-    console.log(`❌ 지원되지 않는 언어: ${languageCode}, 한국어 설정으로 대체`);
-    return LANGUAGE_OPTIMIZED_TTS_CONFIGS['ko-KR'];
+    // 지원되지 않는 언어는 에러 처리 (폴백 없음)
+    console.error(`❌ 지원되지 않는 언어: ${languageCode}`);
+    throw new Error(`지원되지 않는 언어입니다: ${languageCode}`);
   }
   
   /**
