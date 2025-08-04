@@ -26,7 +26,7 @@ export class SimpleTTS {
       'ko': 'ko-KR',
       'en': 'en-US',
       'ja': 'ja-JP',
-      'zh': 'zh-CN',
+      'zh': 'cmn-CN',
       'es': 'es-ES'
     };
     return languageMap[language] || 'ko-KR';

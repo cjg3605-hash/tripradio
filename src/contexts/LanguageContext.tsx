@@ -53,7 +53,7 @@ export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
     nativeName: '中文',
     dir: 'ltr',
     fontFamily: 'var(--font-noto-sans-sc)',
-    ttsLang: 'zh-CN'
+    ttsLang: 'cmn-CN'
   },
   { 
     code: 'es', 

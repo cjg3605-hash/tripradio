@@ -58,10 +58,11 @@ export async function POST(req: NextRequest) {
       setTimeout(() => reject(new Error('TTS 생성 시간 초과')), TTS_TIMEOUT_MS);
     });
 
-    // Ultra-Natural TTS로 생성
+    // Ultra-Natural TTS로 생성 (언어 정보 추가)
     const result = await Promise.race([
       ultraNaturalTTS.generateUltraNaturalTTS({
         text: text,
+        language: language, // 언어 정보 전달
         context: 'tour_guide',
         targetAudience: {
           ageGroup: 'middle',

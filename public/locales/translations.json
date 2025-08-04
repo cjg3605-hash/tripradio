@@ -32,6 +32,7 @@
       "description": "AI가 찾아낸 가장 완벽한 가이드해설",
       "regionTitles": {
         "popularCountries": "🌍 인기 여행 국가",
+        "korea": "한국",
         "europe": "유럽",
         "asia": "아시아",
         "americas": "미주"
@@ -613,6 +614,7 @@
       "description": "The most perfect guide commentary found by AI",
       "regionTitles": {
         "popularCountries": "🌍 Popular Travel Countries",
+        "korea": "Korea",
         "europe": "Europe",
         "asia": "Asia",
         "americas": "Americas"
@@ -1194,6 +1196,7 @@
       "description": "AIが見つけた最も完璧なガイド解説",
       "regionTitles": {
         "popularCountries": "🌍 人気旅行国",
+        "korea": "韓国",
         "europe": "ヨーロッパ",
         "asia": "アジア",
         "americas": "アメリカ大陸"
@@ -1731,6 +1734,7 @@
       "description": "AI发现的最完美指南解说",
       "regionTitles": {
         "popularCountries": "🌍 热门旅游国家",
+        "korea": "韩国",
         "europe": "欧洲",
         "asia": "亚洲",
         "americas": "美洲"
@@ -2268,6 +2272,7 @@
       "description": "El comentario de guía más perfecto encontrado por IA",
       "regionTitles": {
         "popularCountries": "🌍 Países de Viaje Populares",
+        "korea": "Corea",
         "europe": "Europa",
         "asia": "Asia",
         "americas": "Américas"

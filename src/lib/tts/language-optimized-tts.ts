@@ -114,23 +114,6 @@ export const LANGUAGE_OPTIMIZED_TTS_CONFIGS: Record<string, LanguageOptimizedTTS
     }
   },
 
-  // 🇹🇼 중국어 번체 - 대만 표준어
-  'zh-TW': {
-    languageCode: 'zh-TW',
-    voiceName: 'zh-TW-Neural2-C', // 대만 억양 여성 음성
-    ssmlGender: 'FEMALE',
-    audioEncoding: 'MP3',
-    speakingRate: 0.98, // 대만식으로 약간 느리게
-    pitch: 1.2, // 대만 특유의 높은 음조
-    volumeGainDb: 0.8,
-    effectsProfile: ['headphone-class-device'],
-    languageSpecific: {
-      naturalPauses: true,
-      emphasisStyle: 'moderate',
-      intonationPattern: 'expressive',
-      culturalAdaptation: true
-    }
-  },
 
   // 🇪🇸 스페인어 - 이베리아 반도 표준어 (열정적 톤)
   'es-ES': {
@@ -367,7 +350,6 @@ export const LanguageOptimizedTTSUtils = {
       'zh': 'zh-CN',
       'chinese': 'zh-CN',
       'zh-hans': 'zh-CN',
-      'zh-hant': 'zh-TW',
       'es': 'es-ES',
       'spanish': 'es-ES',
       'fr': 'fr-FR',

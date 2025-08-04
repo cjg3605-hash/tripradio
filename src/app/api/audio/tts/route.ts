@@ -320,7 +320,7 @@ function generateOptimizationSuggestions(text: string, personality: string, lang
 }
 
 function getSupportedTTSLanguages() {
-  return ['ko-KR', 'en-US', 'ja-JP', 'zh-CN', 'es-ES'];
+  return ['ko-KR', 'en-US', 'ja-JP', 'cmn-CN', 'es-ES'];
 }
 
 /**

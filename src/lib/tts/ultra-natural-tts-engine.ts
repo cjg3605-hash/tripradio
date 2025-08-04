@@ -8,9 +8,11 @@ import {
   OPTIMIZED_NATURALNESS_BENCHMARKS,
   type PremiumSeoulSpeakerProfile
 } from './optimized-speaker-profiles';
+import { LanguageOptimizedTTSSelector } from './language-optimized-tts';
 
 interface UltraNaturalTTSRequest {
   text: string;
+  language?: string; // 언어 코드 (예: 'ko', 'en', 'ja', 'zh', 'es')
   context: 'business' | 'casual' | 'educational' | 'tour_guide';
   targetAudience: {
     ageGroup: 'young' | 'middle' | 'mature';
@@ -557,24 +559,35 @@ class UltraNaturalTTSEngine {
   }
   
   private calculateOptimalVoiceParameters(speaker: SeoulStandardSpeakerProfile, request: UltraNaturalTTSRequest) {
+    // 언어별 최적화된 TTS 설정 가져오기
+    const requestLanguage = request.language || 'ko';
+    const languageConfig = LanguageOptimizedTTSSelector.getOptimizedConfig(requestLanguage);
+    
+    console.log('🎯 언어별 TTS 설정 적용:', {
+      requestLanguage,
+      voiceName: languageConfig.voiceName,
+      languageCode: languageConfig.languageCode,
+      ssmlGender: languageConfig.ssmlGender
+    });
+    
     // 시뮬레이션 기반 최적 음성 파라미터
     return {
       speakingRate: speaker.voiceCharacteristics.speakingRate,
       pitch: speaker.voiceCharacteristics.pitch,
       volume: speaker.voiceCharacteristics.volume,
       clarity: speaker.voiceCharacteristics.clarity,
-      // Neural2 특화 파라미터
+      // Neural2 특화 파라미터 - 언어별 동적 설정
       neural2Settings: {
-        name: 'ko-KR-Neural2-C',
-        languageCode: 'ko-KR',
-        ssmlGender: speaker.gender === 'female' ? 'FEMALE' : 'MALE' as 'FEMALE' | 'MALE',
+        name: languageConfig.voiceName,
+        languageCode: languageConfig.languageCode,
+        ssmlGender: languageConfig.ssmlGender,
         audioConfig: {
-          audioEncoding: 'MP3' as const,
-          speakingRate: speaker.voiceCharacteristics.speakingRate,
-          pitch: speaker.voiceCharacteristics.pitch,
-          volumeGainDb: this.volumeToGainDb(speaker.voiceCharacteristics.volume),
+          audioEncoding: languageConfig.audioEncoding as 'MP3',
+          speakingRate: languageConfig.speakingRate,
+          pitch: languageConfig.pitch,
+          volumeGainDb: languageConfig.volumeGainDb,
           sampleRateHertz: 24000,
-          effectsProfileId: this.selectOptimalEffectsProfile(speaker, request.context)
+          effectsProfileId: languageConfig.effectsProfile || this.selectOptimalEffectsProfile(speaker, request.context)
         }
       }
     };

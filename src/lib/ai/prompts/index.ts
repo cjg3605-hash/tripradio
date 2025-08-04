@@ -57,7 +57,7 @@ export const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = {
     nativeName: '中文',
     dir: 'ltr',
     fontFamily: 'var(--font-noto-sans-sc)',
-    ttsLang: 'zh-CN'
+    ttsLang: 'cmn-CN'
   },
   es: { 
     code: 'es', 
