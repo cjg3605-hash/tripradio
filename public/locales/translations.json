@@ -275,6 +275,7 @@
       "hide": "숨기기",
       "exists": "있음",
       "notExists": "없음",
+      "pleaseWait": "잠시만 기다려주세요...",
       "minutes": "분",
       "languagesGenerated": "개 언어로 생성",
       "total": "총",
@@ -406,12 +407,72 @@
       "personalizedGuideActive": "이제 모든 가이드가 당신의 성격에 맞게 자동으로 개인화됩니다!",
       "noFavoriteGuides": "즐겨찾기한 가이드가 없습니다",
       "addFavoriteGuides": "마음에 드는 가이드를 즐겨찾기로 추가해보세요!",
+      "history": "나의 가이드",
+      "historyShort": "가이드",
+      "offline": "오프라인 다운로드",
+      "offlineShort": "오프라인",
       "createGuideFromFile": "파일에서 가이드 생성",
       "uploadFileDescription": "PDF, Word, 텍스트 파일을 업로드하여 가이드를 생성할 수 있습니다",
       "supportedFormats": "지원 형식: PDF, DOCX, TXT (최대 10MB)",
       "noUploadedFiles": "업로드된 파일이 없습니다",
       "uploadFirstFile": "첫 번째 파일을 업로드해보세요!",
-      "fileGuides": "파일 가이드"
+      "fileGuides": "파일 가이드",
+      "historyTitle": "나의 가이드",
+      "historyDescription": "조회했던 가이드들의 히스토리입니다",
+      "totalGuides": "총 {count}개 가이드",
+      "searchPlaceholder": "가이드 검색...",
+      "allLanguages": "모든 언어",
+      "chapters": "개 챕터",
+      "noHistoryTitle": "가이드 히스토리가 없습니다",
+      "noHistoryDescription": "새로운 장소를 검색하여 가이드를 생성해보세요!",
+      "createGuideButton": "가이드 생성하기",
+      "favoritesTitle": "즐겨찾기 가이드",
+      "favoritesDescription": "실시간 가이드에서 즐겨찾기한 가이드들입니다",
+      "totalFavorites": "{count}개 즐겨찾기",
+      "noFavoritesTitle": "즐겨찾기한 가이드가 없습니다",
+      "noFavoritesDescription": "실시간 가이드를 보며 별표 버튼을 클릭하여 즐겨찾기를 추가해보세요!",
+      "offlineTitle": "오프라인 다운로드",
+      "offlineDescription": "오프라인에서도 이용할 수 있도록 다운로드한 가이드들입니다",
+      "totalDownloads": "{count}개 다운로드",
+      "offlineAvailable": "오프라인 사용 가능",
+      "downloaded": "다운로드됨",
+      "offlinePlay": "오프라인 재생",
+      "deleteOffline": "오프라인 파일 삭제",
+      "noOfflineTitle": "오프라인 다운로드된 가이드가 없습니다",
+      "noOfflineDescription": "실시간 가이드를 보며 다운로드 버튼을 클릭하여 오프라인에서도 이용할 수 있도록 저장해보세요!",
+      "offlineInfoTitle": "오프라인 기능 안내",
+      "offlineFeature1": "인터넷 연결 없이도 가이드 이용 가능",
+      "offlineFeature2": "오디오 파일까지 함께 저장",
+      "offlineFeature3": "모바일 저장 공간에 안전하게 보관",
+      "personalityTitle": "개인화 가이드 맞춤 진단",
+      "diagnosisComplete": "진단 완료",
+      "diagnosisCompleteDesc": "당신의 성격 유형에 맞는 개인화된 가이드가 제공됩니다.",
+      "accuracy": "정확도",
+      "timeRequired": "소요시간",
+      "verifiedCountries": "검증국가",
+      "retakeDiagnosis": "다시 진단하기",
+      "diagnosisInfo": "100만명 AI 시뮬레이션으로 검증된 5문항 진단으로 95%의 정확도로 개인화 가이드를 제공합니다. 20개국 문화적 공정성 검증 완료.",
+      "changesAfterDiagnosis": "진단 후 변화",
+      "feature1": "당신의 성격에 맞는 콘텐츠 깊이 조절",
+      "feature2": "개인 맞춤형 가이드 스타일 적용",
+      "feature3": "상호작용 레벨 최적화",
+      "feature4": "감정적 어조 개인화",
+      "startDiagnosis": "진단 시작하기",
+      "accountSettings": "계정 설정",
+      "nameLabel": "이름",
+      "namePlaceholder": "이름을 입력하세요",
+      "emailLabel": "이메일",
+      "emailNotEditableNote": "이메일은 변경할 수 없습니다",
+      "defaultLanguage": "기본 언어",
+      "notificationSettings": "알림 설정",
+      "newFeatureNotifications": "새로운 기능 알림",
+      "guideCompleteNotifications": "가이드 생성 완료 알림",
+      "marketingEmails": "마케팅 이메일 수신",
+      "dataManagement": "데이터 관리",
+      "exportData": "데이터 내보내기",
+      "exportDescription": "모든 가이드 데이터를 JSON 형태로 다운로드",
+      "deleteAllData": "모든 데이터 삭제",
+      "deleteAllDescription": "저장된 모든 가이드와 설정을 삭제합니다"
     },
     "auth": {
       "login": "로그인",
@@ -577,6 +638,119 @@
           "practicalInfo": "실용적 정보 부족",
           "tooLong": "내용이 너무 길어서 지루함",
           "tooShort": "내용이 너무 짧아서 아쉬움"
+        }
+      }
+    },
+    "diagnosis": {
+      "title": "개인화 가이드 맞춤 진단",
+      "closeButtonLabel": "진단 창 닫기",
+      "completed": "완료",
+      "processing": "AI가 분석 중입니다...",
+      "processingDescription": "100만명 시뮬레이션 데이터 기반으로 당신의 성격을 분석하고 있습니다.",
+      "resultTitle": "진단 완료!",
+      "confidenceText": "신뢰도 {confidence}%로 분석되었습니다",
+      "dominantTrait": "주도적 성격",
+      "guideStyle": "당신만의 가이드 스타일",
+      "applySettings": "개인화 설정 적용하기",
+      "traits": {
+        "openness": "개방성",
+        "conscientiousness": "성실성",
+        "extraversion": "외향성",
+        "agreeableness": "친화성",
+        "neuroticism": "안정성"
+      },
+      "contentDepth": {
+        "comprehensive": "매우 상세함",
+        "detailed": "상세함",
+        "moderate": "적당함",
+        "minimal": "간단함"
+      },
+      "narrativeStyle": {
+        "storytelling": "스토리텔링",
+        "academic": "학술적",
+        "conversational": "대화형",
+        "factual": "사실적"
+      },
+      "interactionLevel": {
+        "highly_interactive": "매우 활발",
+        "interactive": "활발",
+        "moderate": "적당",
+        "passive": "차분"
+      },
+      "emotionalTone": {
+        "enthusiastic": "열정적",
+        "warm": "따뜻함",
+        "professional": "전문적",
+        "neutral": "중성적"
+      },
+      "settings": {
+        "contentDepth": "설명 깊이",
+        "narrativeStyle": "스타일",
+        "interactionLevel": "상호작용",
+        "emotionalTone": "감정 톤"
+      },
+      "navigation": {
+        "previous": "이전",
+        "next": "다음",
+        "viewResult": "결과 보기",
+        "previousQuestion": "이전 질문으로 가기",
+        "nextQuestion": "다음 질문으로 가기",
+        "viewResults": "진단 결과 보기"
+      },
+      "verification": {
+        "title": "100만명 AI 시뮬레이션 검증",
+        "description": "84.96% 정확도로 과학적 검증된 5문항 진단으로 당신만의 개인화 가이드를 제공합니다."
+      },
+      "questions": {
+        "travel": {
+          "text": "새로운 여행지를 선택할 때 가장 중요하게 생각하는 것은?",
+          "options": [
+            "안전하고 검증된 인기 관광지",
+            "현지인들이 추천하는 숨은 명소",
+            "역사와 문화적 의미가 깊은 곳",
+            "아무도 가보지 않은 완전히 새로운 곳",
+            "편안함과 모험의 적절한 균형"
+          ]
+        },
+        "planning": {
+          "text": "여행을 계획할 때 당신의 접근 방식은?",
+          "options": [
+            "즉흥적으로, 그 순간의 기분에 따라",
+            "대략적인 틀만 잡고 현장에서 유연하게",
+            "핵심 일정은 미리 정하고 세부사항은 조정",
+            "상세한 계획과 대안까지 철저히 준비",
+            "완벽한 계획과 모든 위험요소 사전 검토"
+          ]
+        },
+        "energy": {
+          "text": "여행 중 가장 활력을 느끼는 순간은?",
+          "options": [
+            "혼자만의 조용한 시간과 공간에서",
+            "가까운 사람들과의 깊은 대화",
+            "적당한 규모의 사람들과 자연스러운 교류",
+            "많은 사람들과 활발한 소통과 활동",
+            "대규모 이벤트나 축제의 열기 속에서"
+          ]
+        },
+        "social": {
+          "text": "다른 여행객들과 함께 있을 때 당신의 자연스러운 모습은?",
+          "options": [
+            "나만의 공간을 찾아 조용히 이동",
+            "적당한 거리를 두며 관찰하는 편",
+            "자연스럽게 어울리되 무리하지 않음",
+            "먼저 다가가서 친근하게 대화 시작",
+            "분위기를 주도하며 모두가 즐겁게 참여하도록"
+          ]
+        },
+        "stress": {
+          "text": "예상과 완전히 다른 상황이 갑자기 생겼을 때?",
+          "options": [
+            "\"오히려 좋네, 새로운 경험이잖아\"",
+            "\"이런 일도 있는 거지, 별로 놀랍지 않아\"",
+            "\"일단 상황을 정확히 파악해보자\"",
+            "\"어떻게 하지? 계획이 완전히 틀어졌는데\"",
+            "\"정말 최악이야, 모든 게 엉망이 됐어\""
+          ]
         }
       }
     }
@@ -857,6 +1031,7 @@
       "hide": "Hide",
       "exists": "Exists",
       "notExists": "Not Exists",
+      "pleaseWait": "Please wait...",
       "minutes": "minutes",
       "languagesGenerated": "languages generated",
       "total": "Total",
@@ -988,12 +1163,72 @@
       "personalizedGuideActive": "All guides are now automatically personalized to your personality!",
       "noFavoriteGuides": "No favorite guides",
       "addFavoriteGuides": "Add guides you like to favorites!",
+      "history": "My Guides",
+      "historyShort": "Guides",
+      "offline": "Offline Downloads",
+      "offlineShort": "Offline",
       "createGuideFromFile": "Create Guide from File",
       "uploadFileDescription": "Upload PDF, Word, or text files to create guides",
       "supportedFormats": "Supported formats: PDF, DOCX, TXT (max 10MB)",
       "noUploadedFiles": "No uploaded files",
       "uploadFirstFile": "Upload your first file!",
-      "fileGuides": "File Guides"
+      "fileGuides": "File Guides",
+      "historyTitle": "My Guides",
+      "historyDescription": "History of guides you have viewed",
+      "totalGuides": "Total {count} guides",
+      "searchPlaceholder": "Search guides...",
+      "allLanguages": "All languages",
+      "chapters": " chapters",
+      "noHistoryTitle": "No guide history",
+      "noHistoryDescription": "Search for new places to create guides!",
+      "createGuideButton": "Create Guide",
+      "favoritesTitle": "Favorite Guides",
+      "favoritesDescription": "Guides you have favorited from real-time guides",
+      "totalFavorites": "{count} favorites",
+      "noFavoritesTitle": "No favorite guides",
+      "noFavoritesDescription": "Click the star button while viewing real-time guides to add favorites!",
+      "offlineTitle": "Offline Downloads",
+      "offlineDescription": "Guides downloaded for offline use",
+      "totalDownloads": "{count} downloads",
+      "offlineAvailable": "Available offline",
+      "downloaded": "Downloaded",
+      "offlinePlay": "Play offline",
+      "deleteOffline": "Delete offline file",
+      "noOfflineTitle": "No offline downloaded guides",
+      "noOfflineDescription": "Click the download button while viewing real-time guides to save for offline use!",
+      "offlineInfoTitle": "Offline Feature Guide",
+      "offlineFeature1": "Use guides without internet connection",
+      "offlineFeature2": "Audio files saved together",
+      "offlineFeature3": "Safely stored in mobile storage",
+      "personalityTitle": "Personalized Guide Diagnosis",
+      "diagnosisComplete": "Diagnosis Complete",
+      "diagnosisCompleteDesc": "Personalized guides tailored to your personality type are provided.",
+      "accuracy": "Accuracy",
+      "timeRequired": "Time Required",
+      "verifiedCountries": "Verified Countries",
+      "retakeDiagnosis": "Retake Diagnosis",
+      "diagnosisInfo": "Provides personalized guides with 95% accuracy through 5-question diagnosis verified by 1 million AI simulations. Cultural fairness verification completed in 20 countries.",
+      "changesAfterDiagnosis": "Changes After Diagnosis",
+      "feature1": "Content depth adjusted to your personality",
+      "feature2": "Personalized guide style applied",
+      "feature3": "Interaction level optimization",
+      "feature4": "Emotional tone personalization",
+      "startDiagnosis": "Start Diagnosis",
+      "accountSettings": "Account Settings",
+      "nameLabel": "Name",
+      "namePlaceholder": "Enter your name",
+      "emailLabel": "Email",
+      "emailNotEditableNote": "Email cannot be changed",
+      "defaultLanguage": "Default Language",
+      "notificationSettings": "Notification Settings",
+      "newFeatureNotifications": "New feature notifications",
+      "guideCompleteNotifications": "Guide completion notifications",
+      "marketingEmails": "Marketing emails",
+      "dataManagement": "Data Management",
+      "exportData": "Export Data",
+      "exportDescription": "Download all guide data in JSON format",
+      "deleteAllData": "Delete All Data",
+      "deleteAllDescription": "Delete all saved guides and settings"
     },
     "auth": {
       "login": "Login",
@@ -1159,6 +1394,119 @@
           "practicalInfo": "Lack of practical information",
           "tooLong": "Content too long and boring",
           "tooShort": "Content too short and disappointing"
+        }
+      }
+    },
+    "diagnosis": {
+      "title": "Personalized Guide Customization Diagnosis",
+      "closeButtonLabel": "Close diagnosis window",
+      "completed": "Complete",
+      "processing": "AI is analyzing...",
+      "processingDescription": "We are analyzing your personality based on 1 million simulation data.",
+      "resultTitle": "Diagnosis Complete!",
+      "confidenceText": "Analyzed with {confidence}% confidence",
+      "dominantTrait": "Dominant Personality",
+      "guideStyle": "Your Personal Guide Style",
+      "applySettings": "Apply Personalized Settings",
+      "traits": {
+        "openness": "Openness",
+        "conscientiousness": "Conscientiousness",
+        "extraversion": "Extraversion",
+        "agreeableness": "Agreeableness",
+        "neuroticism": "Emotional Stability"
+      },
+      "contentDepth": {
+        "comprehensive": "Very Detailed",
+        "detailed": "Detailed",
+        "moderate": "Moderate",
+        "minimal": "Simple"
+      },
+      "narrativeStyle": {
+        "storytelling": "Storytelling",
+        "academic": "Academic",
+        "conversational": "Conversational",
+        "factual": "Factual"
+      },
+      "interactionLevel": {
+        "highly_interactive": "Highly Interactive",
+        "interactive": "Interactive",
+        "moderate": "Moderate",
+        "passive": "Calm"
+      },
+      "emotionalTone": {
+        "enthusiastic": "Enthusiastic",
+        "warm": "Warm",
+        "professional": "Professional",
+        "neutral": "Neutral"
+      },
+      "settings": {
+        "contentDepth": "Content Depth",
+        "narrativeStyle": "Style",
+        "interactionLevel": "Interaction",
+        "emotionalTone": "Emotional Tone"
+      },
+      "navigation": {
+        "previous": "Previous",
+        "next": "Next",
+        "viewResult": "View Results",
+        "previousQuestion": "Go to previous question",
+        "nextQuestion": "Go to next question",
+        "viewResults": "View diagnosis results"
+      },
+      "verification": {
+        "title": "1 Million AI Simulation Verified",
+        "description": "Scientifically verified 5-question diagnosis with 84.96% accuracy provides your personalized guide."
+      },
+      "questions": {
+        "travel": {
+          "text": "When choosing a new travel destination, what is most important to you?",
+          "options": [
+            "Safe and verified popular tourist spots",
+            "Hidden gems recommended by locals",
+            "Places with deep historical and cultural significance",
+            "Completely new places no one has been to",
+            "The right balance of comfort and adventure"
+          ]
+        },
+        "planning": {
+          "text": "What is your approach when planning a trip?",
+          "options": [
+            "Spontaneously, depending on the moment",
+            "Set a rough framework and be flexible on-site",
+            "Plan key schedules in advance, adjust details",
+            "Thoroughly prepare detailed plans and alternatives",
+            "Perfect planning and prior review of all risks"
+          ]
+        },
+        "energy": {
+          "text": "When do you feel most energized while traveling?",
+          "options": [
+            "In quiet time and space alone",
+            "Deep conversations with close people",
+            "Natural interaction with a moderate number of people",
+            "Active communication and activities with many people",
+            "In the excitement of large-scale events or festivals"
+          ]
+        },
+        "social": {
+          "text": "What is your natural behavior when with other travelers?",
+          "options": [
+            "Find my own space and move quietly",
+            "Keep a moderate distance and observe",
+            "Naturally blend in without forcing",
+            "Approach first and start friendly conversations",
+            "Lead the atmosphere and make everyone participate happily"
+          ]
+        },
+        "stress": {
+          "text": "When a completely unexpected situation suddenly arises?",
+          "options": [
+            "\"Actually good, it's a new experience\"",
+            "\"These things happen, not surprising\"",
+            "\"Let's first understand the situation accurately\"",
+            "\"What should I do? The plan is completely ruined\"",
+            "\"This is the worst, everything is messed up\""
+          ]
         }
       }
     }
@@ -1437,6 +1785,7 @@
       "hide": "非表示",
       "exists": "存在",
       "notExists": "存在しない",
+      "pleaseWait": "少々お待ちください...",
       "minutes": "分",
       "languagesGenerated": "言語で生成",
       "total": "総",
@@ -1513,11 +1862,16 @@
         "agreeableness": "協調性",
         "neuroticism": "神経症的傾向"
       },
+      "reliability": "信頼性",
+      "diagnosed": "診断済み",
+      "contentDepth": "コンテンツの深さ",
       "contentDepthLevels": {
+        "veryDetailed": "非常に詳細",
         "detailed": "詳細",
         "moderate": "普通",
         "simple": "簡単"
       },
+      "guideStyle": "ガイドスタイル",
       "guideStyles": {
         "storytelling": "ストーリーテリング",
         "academic": "学術的",
@@ -1526,10 +1880,12 @@
       },
       "interaction": "インタラクション",
       "interactionLevels": {
+        "veryActive": "非常に積極的",
         "active": "積極的",
         "moderate": "普通",
         "passive": "受動的"
       },
+      "emotionalTone": "感情的トーン",
       "emotionalTones": {
         "enthusiastic": "熱心",
         "friendly": "親しみやすい",
@@ -1546,8 +1902,68 @@
       "personalizedGuideActive": "すべてのガイドがあなたの性格に合わせて自動的にパーソナライズされます！",
       "noFavoriteGuides": "お気に入りガイドがありません",
       "addFavoriteGuides": "気に入ったガイドをお気に入りに追加してください！",
+      "history": "私のガイド",
+      "historyShort": "ガイド",
+      "offline": "オフラインダウンロード",
+      "offlineShort": "オフライン",
       "reliability": "信頼度",
-      "diagnosed": "診断"
+      "diagnosed": "診断",
+      "historyTitle": "私のガイド",
+      "historyDescription": "閲覧したガイドの履歴です",
+      "totalGuides": "合計{count}個のガイド",
+      "searchPlaceholder": "ガイドを検索...",
+      "allLanguages": "すべての言語",
+      "chapters": "個のチャプター",
+      "noHistoryTitle": "ガイド履歴がありません",
+      "noHistoryDescription": "新しい場所を検索してガイドを作成してみましょう！",
+      "createGuideButton": "ガイドを作成",
+      "favoritesTitle": "お気に入りガイド",
+      "favoritesDescription": "リアルタイムガイドでお気に入りにしたガイドです",
+      "totalFavorites": "{count}個のお気に入り",
+      "noFavoritesTitle": "お気に入りガイドがありません",
+      "noFavoritesDescription": "リアルタイムガイドを見ながら星ボタンをクリックしてお気に入りを追加してみてください！",
+      "offlineTitle": "オフラインダウンロード",
+      "offlineDescription": "オフラインでも利用できるようにダウンロードしたガイドです",
+      "totalDownloads": "{count}個のダウンロード",
+      "offlineAvailable": "オフライン利用可能",
+      "downloaded": "ダウンロード済み",
+      "offlinePlay": "オフライン再生",
+      "deleteOffline": "オフラインファイル削除",
+      "noOfflineTitle": "オフラインダウンロードされたガイドがありません",
+      "noOfflineDescription": "リアルタイムガイドを見ながらダウンロードボタンをクリックしてオフラインでも利用できるように保存してみてください！",
+      "offlineInfoTitle": "オフライン機能案内",
+      "offlineFeature1": "インターネット接続なしでもガイド利用可能",
+      "offlineFeature2": "オーディオファイルも一緒に保存",
+      "offlineFeature3": "モバイルストレージに安全に保管",
+      "personalityTitle": "パーソナライズガイド診断",
+      "diagnosisComplete": "診断完了",
+      "diagnosisCompleteDesc": "あなたの性格タイプに合わせたパーソナライズガイドが提供されます。",
+      "accuracy": "精度",
+      "timeRequired": "所要時間",
+      "verifiedCountries": "検証国",
+      "retakeDiagnosis": "再診断",
+      "diagnosisInfo": "100万人AI シミュレーションで検証された5項目診断で95%の精度でパーソナライズガイドを提供します。20カ国文化的公正性検証完了。",
+      "changesAfterDiagnosis": "診断後の変化",
+      "feature1": "あなたの性格に合わせたコンテンツ深度調整",
+      "feature2": "個人カスタマイズガイドスタイル適用",
+      "feature3": "インタラクションレベル最適化",
+      "feature4": "感情的トーンパーソナライゼーション",
+      "startDiagnosis": "診断開始",
+      "accountSettings": "アカウント設定",
+      "nameLabel": "名前",
+      "namePlaceholder": "名前を入力してください",
+      "emailLabel": "メール",
+      "emailNotEditableNote": "メールは変更できません",
+      "defaultLanguage": "デフォルト言語",
+      "notificationSettings": "通知設定",
+      "newFeatureNotifications": "新機能通知",
+      "guideCompleteNotifications": "ガイド作成完了通知",
+      "marketingEmails": "マーケティングメール受信",
+      "dataManagement": "データ管理",
+      "exportData": "データエクスポート",
+      "exportDescription": "すべてのガイドデータをJSON形式でダウンロード",
+      "deleteAllData": "すべてのデータ削除",
+      "deleteAllDescription": "保存されたすべてのガイドと設定を削除します"
     },
     "auth": {
       "login": "ログイン",
@@ -1697,6 +2113,119 @@
           "practicalInfo": "実用的な情報が不足",
           "tooLong": "内容が長すぎて退屈",
           "tooShort": "内容が短すぎて物足りない"
+        }
+      }
+    },
+    "diagnosis": {
+      "title": "パーソナライズガイドカスタム診断",
+      "closeButtonLabel": "診断ウィンドウを閉じる",
+      "completed": "完了",
+      "processing": "AIが分析中です...",
+      "processingDescription": "100万人シミュレーションデータに基づいてあなたの性格を分析しています。",
+      "resultTitle": "診断完了！",
+      "confidenceText": "信頼度{confidence}%で分析されました",
+      "dominantTrait": "主導的性格",
+      "guideStyle": "あなただけのガイドスタイル",
+      "applySettings": "パーソナライズ設定を適用",
+      "traits": {
+        "openness": "開放性",
+        "conscientiousness": "誠実性",
+        "extraversion": "外向性",
+        "agreeableness": "協調性",
+        "neuroticism": "安定性"
+      },
+      "contentDepth": {
+        "comprehensive": "非常に詳細",
+        "detailed": "詳細",
+        "moderate": "適度",
+        "minimal": "簡単"
+      },
+      "narrativeStyle": {
+        "storytelling": "ストーリーテリング",
+        "academic": "学術的",
+        "conversational": "会話型",
+        "factual": "事実的"
+      },
+      "interactionLevel": {
+        "highly_interactive": "非常に活発",
+        "interactive": "活発",
+        "moderate": "適度",
+        "passive": "穏やか"
+      },
+      "emotionalTone": {
+        "enthusiastic": "情熱的",
+        "warm": "温かい",
+        "professional": "専門的",
+        "neutral": "中性的"
+      },
+      "settings": {
+        "contentDepth": "説明の深さ",
+        "narrativeStyle": "スタイル",
+        "interactionLevel": "相互作用",
+        "emotionalTone": "感情トーン"
+      },
+      "navigation": {
+        "previous": "前へ",
+        "next": "次へ",
+        "viewResult": "結果を見る",
+        "previousQuestion": "前の質問へ",
+        "nextQuestion": "次の質問へ",
+        "viewResults": "診断結果を見る"
+      },
+      "verification": {
+        "title": "100万人AI シミュレーション検証",
+        "description": "84.96%の精度で科学的に検証された5問診断で、あなただけのパーソナライズガイドを提供します。"
+      },
+      "questions": {
+        "travel": {
+          "text": "新しい旅行先を選ぶとき、最も重要に考えることは？",
+          "options": [
+            "安全で確認済みの人気観光地",
+            "地元の人が推薦する隠れた名所",
+            "歴史と文化的意味が深い場所",
+            "誰も行ったことのない全く新しい場所",
+            "快適さと冒険の適切なバランス"
+          ]
+        },
+        "planning": {
+          "text": "旅行を計画するとき、あなたのアプローチは？",
+          "options": [
+            "衝動的に、その瞬間の気分に従って",
+            "大まかな枠組みだけ決めて現地で柔軟に",
+            "核心日程は事前に決めて詳細は調整",
+            "詳細な計画と代案まで徹底的に準備",
+            "完璧な計画とすべてのリスク要素の事前レビュー"
+          ]
+        },
+        "energy": {
+          "text": "旅行中に最も活力を感じる瞬間は？",
+          "options": [
+            "一人だけの静かな時間と空間で",
+            "親しい人との深い会話",
+            "適度な規模の人々との自然な交流",
+            "多くの人との活発なコミュニケーションと活動",
+            "大規模イベントや祭りの熱気の中で"
+          ]
+        },
+        "social": {
+          "text": "他の旅行者と一緒にいるとき、あなたの自然な姿は？",
+          "options": [
+            "自分だけの空間を見つけて静かに移動",
+            "適度な距離を置いて観察する方",
+            "自然に溶け込むが無理はしない",
+            "最初に近づいて親しく会話を始める",
+            "雰囲気を主導し、みんなが楽しく参加するように"
+          ]
+        },
+        "stress": {
+          "text": "予想と全く違う状況が突然起きたとき？",
+          "options": [
+            "「むしろ良いね、新しい経験じゃない」",
+            "「こういうこともあるよね、別に驚かない」",
+            "「まず状況を正確に把握してみよう」",
+            "「どうしよう？計画が完全に崩れた」",
+            "「本当に最悪、すべてがめちゃくちゃになった」"
+          ]
         }
       }
     }
@@ -1975,6 +2504,7 @@
       "hide": "隐藏",
       "exists": "存在",
       "notExists": "不存在",
+      "pleaseWait": "请稍等...",
       "minutes": "分钟",
       "languagesGenerated": "种语言生成",
       "total": "总计",
@@ -2051,11 +2581,16 @@
         "agreeableness": "宜人性",
         "neuroticism": "神经质"
       },
+      "reliability": "可靠性",
+      "diagnosed": "已诊断",
+      "contentDepth": "内容深度",
       "contentDepthLevels": {
+        "veryDetailed": "非常详细",
         "detailed": "详细",
         "moderate": "适中",
         "simple": "简单"
       },
+      "guideStyle": "指南风格",
       "guideStyles": {
         "storytelling": "叙事型",
         "academic": "学术型",
@@ -2064,10 +2599,12 @@
       },
       "interaction": "交互方式",
       "interactionLevels": {
+        "veryActive": "非常积极",
         "active": "积极",
         "moderate": "适中",
         "passive": "被动"
       },
+      "emotionalTone": "情感语调",
       "emotionalTones": {
         "enthusiastic": "热情",
         "friendly": "友好",
@@ -2084,8 +2621,68 @@
       "personalizedGuideActive": "现在所有指南都会根据您的性格自动个性化！",
       "noFavoriteGuides": "没有收藏的指南",
       "addFavoriteGuides": "添加您喜欢的指南到收藏！",
+      "history": "我的指南",
+      "historyShort": "指南",
+      "offline": "离线下载",
+      "offlineShort": "离线",
       "reliability": "可靠度",
-      "diagnosed": "诊断"
+      "diagnosed": "诊断",
+      "historyTitle": "我的指南",
+      "historyDescription": "您查看过的指南历史记录",
+      "totalGuides": "总共{count}个指南",
+      "searchPlaceholder": "搜索指南...",
+      "allLanguages": "所有语言",
+      "chapters": "个章节",
+      "noHistoryTitle": "没有指南历史记录",
+      "noHistoryDescription": "搜索新地点来创建指南吧！",
+      "createGuideButton": "创建指南",
+      "favoritesTitle": "收藏指南",
+      "favoritesDescription": "从实时指南中收藏的指南",
+      "totalFavorites": "{count}个收藏",
+      "noFavoritesTitle": "没有收藏的指南",
+      "noFavoritesDescription": "观看实时指南时点击星星按钮来添加收藏吧！",
+      "offlineTitle": "离线下载",
+      "offlineDescription": "为离线使用而下载的指南",
+      "totalDownloads": "{count}个下载",
+      "offlineAvailable": "离线可用",
+      "downloaded": "已下载",
+      "offlinePlay": "离线播放",
+      "deleteOffline": "删除离线文件",
+      "noOfflineTitle": "没有离线下载的指南",
+      "noOfflineDescription": "观看实时指南时点击下载按钮来保存以供离线使用！",
+      "offlineInfoTitle": "离线功能指南",
+      "offlineFeature1": "无需网络连接即可使用指南",
+      "offlineFeature2": "音频文件一起保存",
+      "offlineFeature3": "安全存储在移动设备中",
+      "personalityTitle": "个性化指南诊断",
+      "diagnosisComplete": "诊断完成",
+      "diagnosisCompleteDesc": "提供适合您性格类型的个性化指南。",
+      "accuracy": "准确度",
+      "timeRequired": "所需时间",
+      "verifiedCountries": "验证国家",
+      "retakeDiagnosis": "重新诊断",
+      "diagnosisInfo": "通过100万人AI模拟验证的5项诊断，以95%的准确度提供个性化指南。已完成20个国家的文化公正性验证。",
+      "changesAfterDiagnosis": "诊断后的变化",
+      "feature1": "根据您的性格调整内容深度",
+      "feature2": "应用个人定制指南风格",
+      "feature3": "互动级别优化",
+      "feature4": "情感语调个性化",
+      "startDiagnosis": "开始诊断",
+      "accountSettings": "账户设置",
+      "nameLabel": "姓名",
+      "namePlaceholder": "请输入您的姓名",
+      "emailLabel": "邮箱",
+      "emailNotEditableNote": "邮箱无法更改",
+      "defaultLanguage": "默认语言",
+      "notificationSettings": "通知设置",
+      "newFeatureNotifications": "新功能通知",
+      "guideCompleteNotifications": "指南创建完成通知",
+      "marketingEmails": "营销邮件接收",
+      "dataManagement": "数据管理",
+      "exportData": "导出数据",
+      "exportDescription": "以JSON格式下载所有指南数据",
+      "deleteAllData": "删除所有数据",
+      "deleteAllDescription": "删除所有保存的指南和设置"
     },
     "auth": {
       "login": "登录",
@@ -2235,6 +2832,119 @@
           "practicalInfo": "缺乏实用信息",
           "tooLong": "内容太长，令人厌烦",
           "tooShort": "内容太短，令人失望"
+        }
+      }
+    },
+    "diagnosis": {
+      "title": "个性化指南定制诊断",
+      "closeButtonLabel": "关闭诊断窗口",
+      "completed": "完成",
+      "processing": "AI正在分析中...",
+      "processingDescription": "基于100万人仿真数据分析您的性格。",
+      "resultTitle": "诊断完成！",
+      "confidenceText": "以{confidence}%的可信度进行分析",
+      "dominantTrait": "主导性格",
+      "guideStyle": "您专属的指南风格",
+      "applySettings": "应用个性化设置",
+      "traits": {
+        "openness": "开放性",
+        "conscientiousness": "尽责性",
+        "extraversion": "外向性",
+        "agreeableness": "宜人性",
+        "neuroticism": "情绪稳定性"
+      },
+      "contentDepth": {
+        "comprehensive": "非常详细",
+        "detailed": "详细",
+        "moderate": "适中",
+        "minimal": "简单"
+      },
+      "narrativeStyle": {
+        "storytelling": "故事叙述",
+        "academic": "学术性",
+        "conversational": "对话式",
+        "factual": "事实性"
+      },
+      "interactionLevel": {
+        "highly_interactive": "高度互动",
+        "interactive": "互动",
+        "moderate": "适中",
+        "passive": "平静"
+      },
+      "emotionalTone": {
+        "enthusiastic": "热情",
+        "warm": "温暖",
+        "professional": "专业",
+        "neutral": "中性"
+      },
+      "settings": {
+        "contentDepth": "内容深度",
+        "narrativeStyle": "风格",
+        "interactionLevel": "互动",
+        "emotionalTone": "情感语调"
+      },
+      "navigation": {
+        "previous": "上一个",
+        "next": "下一个",
+        "viewResult": "查看结果",
+        "previousQuestion": "前往上一个问题",
+        "nextQuestion": "前往下一个问题",
+        "viewResults": "查看诊断结果"
+      },
+      "verification": {
+        "title": "100万人AI仿真验证",
+        "description": "经过科学验证的5题诊断，准确率84.96%，为您提供个性化指南。"
+      },
+      "questions": {
+        "travel": {
+          "text": "选择新的旅行目的地时，您最重视什么？",
+          "options": [
+            "安全且经过验证的热门旅游景点",
+            "当地人推荐的隐藏景点",
+            "具有深厚历史文化意义的地方",
+            "没有人去过的全新地方",
+            "舒适与冒险的恰当平衡"
+          ]
+        },
+        "planning": {
+          "text": "计划旅行时，您的方法是什么？",
+          "options": [
+            "随性而行，根据当时心情",
+            "只定大概框架，现场灵活调整",
+            "提前定核心行程，细节可调整",
+            "详细计划，连备选方案都准备",
+            "完美计划，事先审查所有风险因素"
+          ]
+        },
+        "energy": {
+          "text": "旅行中什么时候最有活力？",
+          "options": [
+            "独自享受安静的时间和空间",
+            "与亲近的人深入交谈",
+            "与适量人群自然交流",
+            "与许多人积极沟通和活动",
+            "在大型活动或节庆的热烈氛围中"
+          ]
+        },
+        "social": {
+          "text": "与其他旅行者在一起时，您的自然表现是？",
+          "options": [
+            "寻找自己的空间，安静移动",
+            "保持适当距离，观察为主",
+            "自然融入但不勉强",
+            "主动接近，友好开始对话",
+            "主导气氛，让大家开心参与"
+          ]
+        },
+        "stress": {
+          "text": "突然遇到完全意外的情况时？",
+          "options": [
+            "「其实挺好的，这是新体验」",
+            "「这种事也会发生，不意外」",
+            "「先准确了解情况」",
+            "「怎么办？计划完全被打乱了」",
+            "「真是糟透了，一切都乱套了」"
+          ]
         }
       }
     }
@@ -2513,6 +3223,7 @@
       "hide": "Ocultar",
       "exists": "Existe",
       "notExists": "No Existe",
+      "pleaseWait": "Por favor espere...",
       "minutes": "minutos",
       "languagesGenerated": "idiomas generados",
       "total": "Total",
@@ -2589,11 +3300,16 @@
         "agreeableness": "Amabilidad",
         "neuroticism": "Neuroticismo"
       },
+      "reliability": "Confiabilidad",
+      "diagnosed": "Diagnosticado",
+      "contentDepth": "Profundidad del Contenido",
       "contentDepthLevels": {
+        "veryDetailed": "Muy Detallado",
         "detailed": "Detallado",
         "moderate": "Moderado",
         "simple": "Simple"
       },
+      "guideStyle": "Estilo de Guía",
       "guideStyles": {
         "storytelling": "Narrativo",
         "academic": "Académico",
@@ -2602,10 +3318,12 @@
       },
       "interaction": "Interacción",
       "interactionLevels": {
+        "veryActive": "Muy Activo",
         "active": "Activo",
         "moderate": "Moderado",
         "passive": "Pasivo"
       },
+      "emotionalTone": "Tono Emocional",
       "emotionalTones": {
         "enthusiastic": "Entusiasta",
         "friendly": "Amigable",
@@ -2622,8 +3340,68 @@
       "personalizedGuideActive": "¡Ahora todas las guías se personalizan automáticamente según su personalidad!",
       "noFavoriteGuides": "No hay guías favoritas",
       "addFavoriteGuides": "¡Agregue las guías que le gusten a favoritos!",
+      "history": "Mis Guías",
+      "historyShort": "Guías",
+      "offline": "Descargas Sin Conexión",
+      "offlineShort": "Sin Conexión",
       "reliability": "confiabilidad",
-      "diagnosed": "diagnosticado"
+      "diagnosed": "diagnosticado",
+      "historyTitle": "Mis Guías",
+      "historyDescription": "Historial de guías que has visto",
+      "totalGuides": "Total {count} guías",
+      "searchPlaceholder": "Buscar guías...",
+      "allLanguages": "Todos los idiomas",
+      "chapters": " capítulos",
+      "noHistoryTitle": "No hay historial de guías",
+      "noHistoryDescription": "¡Busca nuevos lugares para crear guías!",
+      "createGuideButton": "Crear Guía",
+      "favoritesTitle": "Guías Favoritas",
+      "favoritesDescription": "Guías que has marcado como favoritas en guías en tiempo real",
+      "totalFavorites": "{count} favoritos",
+      "noFavoritesTitle": "No hay guías favoritas",
+      "noFavoritesDescription": "¡Haz clic en el botón estrella mientras ves guías en tiempo real para agregar favoritos!",
+      "offlineTitle": "Descargas Sin Conexión",
+      "offlineDescription": "Guías descargadas para uso sin conexión",
+      "totalDownloads": "{count} descargas",
+      "offlineAvailable": "Disponible sin conexión",
+      "downloaded": "Descargado",
+      "offlinePlay": "Reproducir sin conexión",
+      "deleteOffline": "Eliminar archivo sin conexión",
+      "noOfflineTitle": "No hay guías descargadas sin conexión",
+      "noOfflineDescription": "¡Haz clic en el botón de descarga mientras ves guías en tiempo real para guardar para uso sin conexión!",
+      "offlineInfoTitle": "Guía de Funciones Sin Conexión",
+      "offlineFeature1": "Usar guías sin conexión a internet",
+      "offlineFeature2": "Archivos de audio guardados juntos",
+      "offlineFeature3": "Almacenado de forma segura en el dispositivo móvil",
+      "personalityTitle": "Diagnóstico de Guía Personalizada",
+      "diagnosisComplete": "Diagnóstico Completo",
+      "diagnosisCompleteDesc": "Se proporcionan guías personalizadas adaptadas a tu tipo de personalidad.",
+      "accuracy": "Precisión",
+      "timeRequired": "Tiempo Requerido",
+      "verifiedCountries": "Países Verificados",
+      "retakeDiagnosis": "Repetir Diagnóstico",
+      "diagnosisInfo": "Proporciona guías personalizadas con 95% de precisión a través de diagnóstico de 5 preguntas verificado por 1 millón de simulaciones de IA. Verificación de equidad cultural completada en 20 países.",
+      "changesAfterDiagnosis": "Cambios Después del Diagnóstico",
+      "feature1": "Profundidad de contenido ajustada a tu personalidad",
+      "feature2": "Estilo de guía personalizada aplicado",
+      "feature3": "Optimización del nivel de interacción",
+      "feature4": "Personalización del tono emocional",
+      "startDiagnosis": "Iniciar Diagnóstico",
+      "accountSettings": "Configuración de Cuenta",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Ingresa tu nombre",
+      "emailLabel": "Correo",
+      "emailNotEditableNote": "El correo no se puede cambiar",
+      "defaultLanguage": "Idioma Predeterminado",
+      "notificationSettings": "Configuración de Notificaciones",
+      "newFeatureNotifications": "Notificaciones de nuevas funciones",
+      "guideCompleteNotifications": "Notificaciones de guías completadas",
+      "marketingEmails": "Correos de marketing",
+      "dataManagement": "Gestión de Datos",
+      "exportData": "Exportar Datos",
+      "exportDescription": "Descargar todos los datos de guías en formato JSON",
+      "deleteAllData": "Eliminar Todos los Datos",
+      "deleteAllDescription": "Eliminar todas las guías y configuraciones guardadas"
     },
     "auth": {
       "login": "Iniciar Sesión",
@@ -2773,6 +3551,119 @@
           "practicalInfo": "Falta de información práctica",
           "tooLong": "Contenido demasiado largo y aburrido",
           "tooShort": "Contenido demasiado corto y decepcionante"
+        }
+      }
+    },
+    "diagnosis": {
+      "title": "Diagnóstico de Personalización de Guía",
+      "closeButtonLabel": "Cerrar ventana de diagnóstico",
+      "completed": "Completar",
+      "processing": "IA analizando...",
+      "processingDescription": "Analizamos tu personalidad basándonos en datos de simulación de 1 millón de personas.",
+      "resultTitle": "¡Diagnóstico Completado!",
+      "confidenceText": "Analizado con {confidence}% de confianza",
+      "dominantTrait": "Personalidad Dominante",
+      "guideStyle": "Tu Estilo de Guía Personal",
+      "applySettings": "Aplicar Configuración Personalizada",
+      "traits": {
+        "openness": "Apertura",
+        "conscientiousness": "Responsabilidad",
+        "extraversion": "Extroversión",
+        "agreeableness": "Amabilidad",
+        "neuroticism": "Estabilidad Emocional"
+      },
+      "contentDepth": {
+        "comprehensive": "Muy Detallado",
+        "detailed": "Detallado",
+        "moderate": "Moderado",
+        "minimal": "Simple"
+      },
+      "narrativeStyle": {
+        "storytelling": "Narrativo",
+        "academic": "Académico",
+        "conversational": "Conversacional",
+        "factual": "Factual"
+      },
+      "interactionLevel": {
+        "highly_interactive": "Muy Interactivo",
+        "interactive": "Interactivo",
+        "moderate": "Moderado",
+        "passive": "Tranquilo"
+      },
+      "emotionalTone": {
+        "enthusiastic": "Entusiasta",
+        "warm": "Cálido",
+        "professional": "Profesional",
+        "neutral": "Neutral"
+      },
+      "settings": {
+        "contentDepth": "Profundidad del Contenido",
+        "narrativeStyle": "Estilo",
+        "interactionLevel": "Interacción",
+        "emotionalTone": "Tono Emocional"
+      },
+      "navigation": {
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "viewResult": "Ver Resultados",
+        "previousQuestion": "Ir a pregunta anterior",
+        "nextQuestion": "Ir a siguiente pregunta",
+        "viewResults": "Ver resultados del diagnóstico"
+      },
+      "verification": {
+        "title": "Verificado por Simulación de IA de 1 Millón",
+        "description": "Diagnóstico científicamente verificado de 5 preguntas con 84.96% de precisión proporciona tu guía personalizada."
+      },
+      "questions": {
+        "travel": {
+          "text": "¿Qué es lo más importante al elegir un nuevo destino de viaje?",
+          "options": [
+            "Lugares turísticos populares seguros y verificados",
+            "Joyas ocultas recomendadas por lugareños",
+            "Lugares con profundo significado histórico y cultural",
+            "Lugares completamente nuevos donde nadie ha estado",
+            "El equilibrio adecuado entre comodidad y aventura"
+          ]
+        },
+        "planning": {
+          "text": "¿Cuál es tu enfoque al planificar un viaje?",
+          "options": [
+            "Espontáneamente, dependiendo del momento",
+            "Establecer un marco general y ser flexible en el sitio",
+            "Planificar horarios clave por adelantado, ajustar detalles",
+            "Preparar planes detallados y alternativas minuciosamente",
+            "Planificación perfecta y revisión previa de todos los riesgos"
+          ]
+        },
+        "energy": {
+          "text": "¿Cuándo te sientes más energizado mientras viajas?",
+          "options": [
+            "En tiempo tranquilo y espacio solo",
+            "Conversaciones profundas con personas cercanas",
+            "Interacción natural con un número moderado de personas",
+            "Comunicación activa y actividades con muchas personas",
+            "En la emoción de eventos o festivales a gran escala"
+          ]
+        },
+        "social": {
+          "text": "¿Cuál es tu comportamiento natural cuando estás con otros viajeros?",
+          "options": [
+            "Encontrar mi propio espacio y moverme silenciosamente",
+            "Mantener una distancia moderada y observar",
+            "Integrarme naturalmente sin forzar",
+            "Acercarme primero e iniciar conversaciones amistosas",
+            "Liderar el ambiente y hacer que todos participen felizmente"
+          ]
+        },
+        "stress": {
+          "text": "¿Cuando surge repentinamente una situación completamente inesperada?",
+          "options": [
+            "\"En realidad es bueno, es una nueva experiencia\"",
+            "\"Estas cosas pasan, no es sorprendente\"",
+            "\"Primero entendamos la situación con precisión\"",
+            "\"¿Qué debo hacer? El plan está completamente arruinado\"",
+            "\"Esto es lo peor, todo está desordenado\""
+          ]
         }
       }
     }

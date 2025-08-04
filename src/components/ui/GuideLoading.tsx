@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Sparkles, MapPin, BookOpen, Volume2 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface GuideLoadingProps {
   message?: string;
@@ -47,6 +48,7 @@ export default function GuideLoading({
   showProgress = false,
   className = ''
 }: GuideLoadingProps) {
+  const { t } = useLanguage();
   const [messageIndex, setMessageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
 
@@ -114,7 +116,7 @@ export default function GuideLoading({
               />
             </div>
             <p className="text-xs text-gray-500">
-              잠시만 기다려주세요...
+              {t('common.pleaseWait')}
             </p>
           </div>
         )}

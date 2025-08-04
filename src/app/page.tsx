@@ -3,13 +3,10 @@
 import { useState, useEffect, useRef, useMemo, useCallback, Component, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
-import dynamic from 'next/dynamic';
 
-// 자주 사용되지 않는 컴포넌트는 동적 로딩
-const GuideGenerating = dynamic(() => import('@/components/guide/GuideGenerating'), {
-  loading: () => <div className="min-h-screen bg-white flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div></div>
-});
 import StructuredData from '@/components/seo/StructuredData';
+import GuideLoading from '@/components/ui/GuideLoading';
+import OptimalAdSense from '@/components/ads/OptimalAdSense';
 
 // 에러 바운더리 클래스 컴포넌트
 class ErrorBoundary extends Component<
@@ -610,25 +607,18 @@ function Home() {
   }, [query, audioPlaying, router, t, setLoadingState]);
 
 
-  // 가이드 생성 중일 때 새로운 컴포넌트 표시 (분리된 로딩 상태)
+  // 가이드 생성 중일 때 모노크롬 로딩 화면 표시
   if (isAnyLoading) {
     const currentLoadingType = Object.entries(loadingStates).find(([_, loading]) => loading)?.[0] || 'search';
     return (
-      <GuideGenerating
-        locationName={query}
-        onCancel={() => {
-          setLoadingStates({ search: false, guide: false, tour: false, country: false });
-        }}
-        onComplete={() => {
-          setLoadingStates({ search: false, guide: false, tour: false, country: false });
-          router.push(`/guide/${encodeURIComponent(query.trim())}`);
-        }}
-        userPreferences={{
-          interests: ['문화', '역사', '건축'],
-          ageGroup: '30대',
-          language: currentLanguage
-        }}
-      />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <GuideLoading 
+          type="generating"
+          message={`"${query}" 가이드 생성 중...`}
+          subMessage="AI가 맞춤형 가이드를 만들고 있어요"
+          showProgress={true}
+        />
+      </div>
     );
   }
 
@@ -960,6 +950,14 @@ function Home() {
               )}
             </div>
           </div>
+
+          {/* 전략적 광고 배치 1: 검색박스 하단 */}
+          <div className="max-w-4xl mx-auto px-6 py-8">
+            <OptimalAdSense 
+              placement="homepage-hero" 
+              className="text-center"
+            />
+          </div>
         </section>
 
         {/* Regional Countries Section */}
@@ -1105,6 +1103,14 @@ function Home() {
                 </svg>
                 <span className="font-medium">{t('home.scrollHint')}</span>
               </div>
+            </div>
+
+            {/* 전략적 광고 배치 2: 지역별 국가 섹션 하단 */}
+            <div className="max-w-4xl mx-auto px-6 py-8">
+              <OptimalAdSense 
+                placement="homepage-countries" 
+                className="text-center"
+              />
             </div>
           </div>
         </section>

@@ -158,11 +158,36 @@ export default function RootLayout({
             `
           }}
         />
+
+        {/* Google AdSense Auto Ads Script - 통합 최적화 */}
+        <script 
+          async 
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8225961966676319"
+          crossOrigin="anonymous"
+        />
+        
+        {/* Google AdSense 자동 광고 초기화 스크립트 */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.addEventListener('load', function() {
+                if (typeof window.adsbygoogle !== 'undefined') {
+                  (window.adsbygoogle = window.adsbygoogle || []).push({
+                    google_ad_client: "ca-pub-8225961966676319",
+                    enable_page_level_ads: true
+                  });
+                }
+              });
+            `
+          }}
+        />
         
         {/* Local Business Schema */}
         <LocalBusinessSchema />
       </head>
       <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
+        {/* AMP 자동 광고는 일반 React 앱에서는 사용하지 않고, 대신 AutoAdSense 컴포넌트 사용 */}
+        
         <SessionProvider>
           <LanguageProvider>
             <ClientLayout>

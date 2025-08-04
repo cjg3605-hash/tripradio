@@ -317,8 +317,28 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
         setError(null);
 
         try {
+          // 🔄 장소명 번역 처리: URL의 장소명을 한국어로 역번역 후 사용
+          let translatedLocationName = locationName;
+          
+          // 현재 가이드 데이터가 있고 해당 언어가 한국어가 아닌 경우
+          if (guideData?.metadata?.language && guideData.metadata.language !== 'ko') {
+            const { MicrosoftTranslator } = await import('@/lib/location/microsoft-translator');
+            console.log(`🔄 장소명 역번역 시도: ${locationName} (${guideData.metadata.language} → ko)`);
+            
+            try {
+              translatedLocationName = await MicrosoftTranslator.reverseTranslateLocationName(
+                locationName, 
+                guideData.metadata.language as any
+              );
+              console.log(`✅ 장소명 역번역 완료: ${locationName} → ${translatedLocationName}`);
+            } catch (error) {
+              console.error('❌ 장소명 역번역 실패:', error);
+              // 실패 시 원본 사용
+            }
+          }
+
           const result = await MultiLangGuideManager.smartLanguageSwitch(
-            locationName,
+            translatedLocationName,
             currentLanguage
           );
 

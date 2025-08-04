@@ -7,6 +7,7 @@ import L from 'leaflet';
 import { useEffect, useState, useCallback } from 'react';
 // 기본 좌표 매핑만 사용
 import type { GuideChapter } from '@/types/guide';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // @ts-ignore
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.MapContainer })), { ssr: false });
@@ -262,9 +263,26 @@ export default function MapWithRoute({
   locationName
 }: MapWithRouteProps) {
   
+  const { currentLanguage } = useLanguage();
+  
   // GPS 위치 추적
   const geolocation = useSimpleGeolocation();
   const [showMyLocation, setShowMyLocation] = useState(false);
+
+  // 언어에 따른 Google Maps 타일 URL 생성
+  const getGoogleMapsUrl = (language: string) => {
+    // 언어 코드 매핑 (Google Maps에서 지원하는 형식으로)
+    const languageMap: { [key: string]: string } = {
+      'ko': 'ko',      // 한국어
+      'en': 'en',      // 영어
+      'ja': 'ja',      // 일본어
+      'zh': 'zh-CN',   // 중국어 (간체)
+      'es': 'es'       // 스페인어
+    };
+    
+    const googleLangCode = languageMap[language] || 'en';
+    return `https://mt1.google.com/vt/lyrs=m&hl=${googleLangCode}&x={x}&y={y}&z={z}`;
+  };
 
   // 기본 좌표 매핑만 사용 - 단순화
   console.log('🗺️ MapWithRoute 렌더링:', {
@@ -349,17 +367,18 @@ export default function MapWithRoute({
       return (
         <div className="w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
           <MapContainer 
-            {...({center: [center.lat, center.lng], zoom: customZoom || 15} as any)}
+            {...({center: [center.lat, center.lng], zoom: customZoom || 15, key: `default-map-${currentLanguage}`} as any)}
             className="w-full h-full"
             scrollWheelZoom={true}
             zoomControl={true}
           >
-            {/* 🌍 Google Maps 스타일 타일 (가장 인기) */}
+            {/* 🌍 Google Maps 스타일 타일 (언어별 동적 로딩) */}
             <TileLayer
               {...({
-                url: "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+                url: getGoogleMapsUrl(currentLanguage),
                 attribution: '&copy; <a href="https://www.google.com/maps">Google Maps</a>',
-                maxZoom: 20
+                maxZoom: 20,
+                key: currentLanguage // 언어 변경 시 타일 다시 로드
               } as any)}
             />
             
@@ -466,17 +485,18 @@ export default function MapWithRoute({
   return (
     <div className="relative w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
       <MapContainer 
-        {...({center: mapCenter, zoom} as any)}
+        {...({center: mapCenter, zoom, key: `map-${currentLanguage}`} as any)}
         className="w-full h-full"
         scrollWheelZoom={true}
         zoomControl={true}
       >
-        {/* 🌍 Google Maps 스타일 */}
+        {/* 🌍 Google Maps 스타일 (언어별 동적 로딩) */}
         <TileLayer
           {...({
-            url: "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+            url: getGoogleMapsUrl(currentLanguage),
             attribution: '&copy; <a href="https://www.google.com/maps">Google Maps</a>',
-            maxZoom: 20
+            maxZoom: 20,
+            key: currentLanguage // 언어 변경 시 타일 다시 로드
           } as any)}
         />
         
