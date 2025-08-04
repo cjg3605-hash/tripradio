@@ -38,6 +38,16 @@ export interface LocationResult {
     country: string;
     validatedAt: Date;
     processingTimeMs: number;
+    // 🆕 Precision Mode 필드들
+    precisionMode?: boolean;
+    clusterRadius?: number;
+    enhancedMetadata?: {
+      specificStartingPoint?: any;
+      methodUsed?: string;
+      candidatesFound?: number;
+    };
+    fallbackReason?: string;
+    errorReason?: string;
   };
   quality: {
     consensusScore: number; // API 간 합의 점수
@@ -335,18 +345,51 @@ export class EnhancedLocationService {
   }
 
   /**
-   * 🎯 메인 위치 검색 함수
+   * 🎯 메인 위치 검색 함수 - Enhanced with Precision Mode
    */
   async findLocation(input: LocationInput): Promise<LocationResult> {
+    // 🆕 Precision Mode 지원 (하위 호환성 유지)
+    return this.findLocationWithMode(input, false);
+  }
+
+  /**
+   * 🎯 고정밀 위치 검색 함수 (새로운 기능)
+   */
+  async findLocationWithPrecision(input: LocationInput): Promise<LocationResult> {
+    return this.findLocationWithMode(input, true);
+  }
+
+  /**
+   * 🔧 내부 위치 검색 로직 (모드별 처리)
+   */
+  private async findLocationWithMode(input: LocationInput, precisionMode: boolean): Promise<LocationResult> {
     const startTime = Date.now();
     
     try {
-      // 캐시 확인
-      const cacheKey = this.generateCacheKey(input);
+      // 캐시 확인 (모드별 구분)
+      const cacheKey = this.generateCacheKey(input, precisionMode);
       const cached = this.cache.get(cacheKey);
       if (cached && this.isCacheValid(cached)) {
+        console.log(`💾 캐시 히트 (${precisionMode ? 'precision' : 'standard'} 모드)`);
         return cached;
       }
+
+      // 🎯 Precision Mode인 경우 새로운 시스템 시도
+      if (precisionMode) {
+        try {
+          const precisionResult = await this.tryPrecisionLocationSystem(input, startTime);
+          if (precisionResult) {
+            // 캐시 저장
+            this.cache.set(cacheKey, precisionResult);
+            return precisionResult;
+          }
+        } catch (error) {
+          console.warn('⚠️ Precision 시스템 실패, 기존 방식으로 폴백:', error);
+        }
+      }
+
+      // 기존 로직 실행
+      console.log(`🔍 ${precisionMode ? 'Precision 폴백' : 'Standard'} 모드 실행`);
 
       // Phase 1: AI 정규화
       console.log('🤖 Phase 1: 위치 정규화 시작');
@@ -359,32 +402,13 @@ export class EnhancedLocationService {
       
       if (apiResults.length === 0) {
         console.warn('모든 API에서 결과를 찾을 수 없음, 기본 좌표 반환');
-        // 완전히 실패하는 대신 기본 좌표 반환
-        return {
-          coordinates: { lat: 37.5665, lng: 126.9780 }, // 서울 시청 기본값
-          confidence: 0.1,
-          accuracy: 'low',
-          sources: ['fallback'],
-          metadata: {
-            officialName: normalized.officialName,
-            address: 'Location not found',
-            placeType: normalized.locationType,
-            country: normalized.country || 'Unknown',
-            validatedAt: new Date(),
-            processingTimeMs: Date.now() - startTime
-          },
-          quality: {
-            consensusScore: 0.1,
-            distanceVariance: 999999,
-            addressMatch: 0
-          },
-          error: 'No API results found, using fallback coordinates'
-        };
+        return this.getFallbackResult(normalized, input, startTime);
       }
 
-      // Phase 3: 합의 알고리즘 & 품질 검증
+      // Phase 3: 합의 알고리즘 & 품질 검증 (정밀도 조정)
       console.log('⚖️ Phase 3: 합의 알고리즘 실행');
-      const consensusResult = await this.findConsensus(apiResults, normalized);
+      const clusterRadius = precisionMode ? 10 : 1000; // 🎯 Precision Mode: 10m vs Standard: 1km
+      const consensusResult = await this.findConsensus(apiResults, normalized, clusterRadius);
       
       // 최종 품질 검증
       const qualityScore = await this.validateQuality(consensusResult, normalized);
@@ -392,7 +416,7 @@ export class EnhancedLocationService {
       const result: LocationResult = {
         coordinates: consensusResult.coordinates,
         confidence: consensusResult.confidence,
-        accuracy: this.determineAccuracy(qualityScore),
+        accuracy: this.determineAccuracy(qualityScore, precisionMode),
         sources: apiResults.map(r => r.source),
         metadata: {
           officialName: normalized.officialName,
@@ -400,7 +424,10 @@ export class EnhancedLocationService {
           placeType: normalized.locationType,
           country: normalized.country,
           validatedAt: new Date(),
-          processingTimeMs: Date.now() - startTime
+          processingTimeMs: Date.now() - startTime,
+          // 🆕 Precision Mode 메타데이터
+          precisionMode,
+          clusterRadius
         },
         quality: qualityScore
       };
@@ -408,32 +435,71 @@ export class EnhancedLocationService {
       // 캐시 저장
       this.cache.set(cacheKey, result);
       
-      console.log(`✅ 위치 검색 완료: ${result.metadata.officialName} (정확도: ${result.accuracy})`);
+      console.log(`✅ 위치 검색 완료: ${result.metadata.officialName} (정확도: ${result.accuracy}, 모드: ${precisionMode ? 'precision' : 'standard'})`);
       return result;
 
     } catch (error) {
       console.error('❌ 위치 검색 실패:', error);
+      return this.getErrorResult(input, startTime, error);
+    }
+  }
+
+  /**
+   * 🎯 Precision Location System 시도
+   */
+  private async tryPrecisionLocationSystem(input: LocationInput, startTime: number): Promise<LocationResult | null> {
+    try {
+      // 동적 import로 새로운 시스템 사용
+      const { PrecisionLocationService } = await import('@/lib/location/precision-location-service');
+      const precisionService = new PrecisionLocationService();
+
+      console.log('🎯 Precision Location System 시도');
       
-      return {
-        coordinates: { lat: 0, lng: 0 },
-        confidence: 0,
-        accuracy: 'low',
-        sources: [],
-        metadata: {
-          officialName: input.query,
-          address: '',
-          placeType: 'unknown',
-          country: '',
-          validatedAt: new Date(),
-          processingTimeMs: Date.now() - startTime
-        },
-        quality: {
-          consensusScore: 0,
-          distanceVariance: 999999,
-          addressMatch: 0
-        },
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
+      const precisionResponse = await precisionService.findPrecisionLocation({
+        locationName: input.query,
+        config: {
+          enableAI: true,
+          enableWikipedia: true,
+          precisionMode: 'high',
+          fallbackToExistingSystem: false, // 폴백 비활성화 (여기서 직접 처리)
+          cacheEnabled: false // 여기서 캐시 관리
+        }
+      });
+
+      if (precisionResponse.success) {
+        // PrecisionLocationResponse를 LocationResult로 변환
+        return {
+          coordinates: precisionResponse.coordinates,
+          confidence: precisionResponse.accuracy.confidence,
+          accuracy: this.mapPrecisionAccuracy(precisionResponse.accuracy.expectedErrorRange),
+          sources: ['precision_location_service'],
+          metadata: {
+            officialName: precisionResponse.specificStartingPoint.name,
+            address: precisionResponse.specificStartingPoint.description,
+            placeType: precisionResponse.specificStartingPoint.type,
+            country: 'Unknown', // Precision 시스템에서는 제공하지 않음
+            validatedAt: new Date(),
+            processingTimeMs: Date.now() - startTime,
+            precisionMode: true,
+            enhancedMetadata: {
+              specificStartingPoint: precisionResponse.specificStartingPoint,
+              methodUsed: precisionResponse.metadata.methodUsed,
+              candidatesFound: precisionResponse.metadata.candidatesFound
+            }
+          },
+          quality: {
+            consensusScore: precisionResponse.accuracy.confidence,
+            distanceVariance: this.parseDistanceVariance(precisionResponse.accuracy.expectedErrorRange),
+            addressMatch: 0.8 // 추정값
+          }
+        };
+      }
+
+      return null;
+
+    } catch (error) {
+      console.warn('Precision Location System 실패:', error);
+      return null;
     }
   }
 
@@ -463,17 +529,18 @@ export class EnhancedLocationService {
   }
 
   /**
-   * 합의 알고리즘: 여러 API 결과에서 최적 좌표 선택
+   * 합의 알고리즘: 여러 API 결과에서 최적 좌표 선택 (클러스터 반경 조정 가능)
    */
   private async findConsensus(
     results: Array<APIResult & { source: string }>, 
-    normalized: any
+    normalized: any,
+    clusterRadius = 1000
   ): Promise<APIResult & { source: string }> {
     
     if (results.length === 1) return results[0];
 
-    // 1. 거리 기반 클러스터링
-    const clusters = this.clusterByDistance(results, 1000); // 1km 반경
+    // 1. 거리 기반 클러스터링 (반경 조정)
+    const clusters = this.clusterByDistance(results, clusterRadius);
     
     // 2. 가장 큰 클러스터 선택
     const mainCluster = clusters.reduce((a, b) => a.length > b.length ? a : b);
@@ -483,7 +550,7 @@ export class EnhancedLocationService {
       current.confidence > best.confidence ? current : best
     );
 
-    console.log(`🎯 합의 결과: ${(bestResult as any).source} (클러스터: ${mainCluster.length}개)`);
+    console.log(`🎯 합의 결과 (반경: ${clusterRadius}m): ${(bestResult as any).source} (클러스터: ${mainCluster.length}개)`);
     return bestResult as APIResult & { source: string };
   }
 
@@ -602,14 +669,29 @@ export class EnhancedLocationService {
     return matrix[str2.length][str1.length];
   }
 
-  private determineAccuracy(quality: LocationResult['quality']): 'high' | 'medium' | 'low' {
+  /**
+   * 정확도 결정 (정밀도 모드 고려)
+   */
+  private determineAccuracy(quality: LocationResult['quality'], precisionMode = false): 'high' | 'medium' | 'low' {
+    // Precision mode에서는 더 엄격한 기준 적용
+    if (precisionMode) {
+      if (quality.consensusScore >= 0.9 && quality.addressMatch >= 0.8) return 'high';
+      if (quality.consensusScore >= 0.7 && quality.addressMatch >= 0.6) return 'medium';
+      return 'low';
+    }
+    
+    // Standard mode 기준
     if (quality.consensusScore >= 0.8 && quality.addressMatch >= 0.7) return 'high';
     if (quality.consensusScore >= 0.6 && quality.addressMatch >= 0.5) return 'medium';
     return 'low';
   }
 
-  private generateCacheKey(input: LocationInput): string {
-    return `${input.query}_${input.language || 'ko'}_${input.context || ''}`;
+  /**
+   * 캐시 키 생성 (모드별 구분)
+   */
+  private generateCacheKey(input: LocationInput, precisionMode = false): string {
+    const modePrefix = precisionMode ? 'precision' : 'standard';
+    return `${modePrefix}_${input.query}_${input.language || 'ko'}_${input.context || ''}`;
   }
 
   private isCacheValid(cached: LocationResult): boolean {
@@ -632,6 +714,106 @@ export class EnhancedLocationService {
    */
   clearCache(): void {
     this.cache.clear();
+  }
+
+  /**
+   * 🔄 폴백 결과 생성
+   */
+  private getFallbackResult(
+    normalized: any,
+    input: LocationInput,
+    startTime: number
+  ): LocationResult {
+    console.log('🔄 폴백 결과 생성');
+    
+    // 기본 좌표 (서울 시청 좌표를 임시로 사용)
+    const fallbackCoords = {
+      lat: 37.5665,
+      lng: 126.9780
+    };
+
+    return {
+      coordinates: fallbackCoords,
+      confidence: 0.1, // 매우 낮은 신뢰도
+      accuracy: 'low',
+      sources: ['fallback'],
+      metadata: {
+        officialName: normalized.officialName || input.query,
+        address: '위치 정보를 찾을 수 없음',
+        placeType: normalized.locationType || 'general',
+        country: normalized.country || 'Unknown',
+        validatedAt: new Date(),
+        processingTimeMs: Date.now() - startTime,
+        precisionMode: false,
+        fallbackReason: '모든 API에서 결과를 찾을 수 없음'
+      },
+      quality: {
+        consensusScore: 0.1,
+        distanceVariance: 0,
+        addressMatch: 0
+      },
+      error: '위치 정보를 찾을 수 없어 기본 좌표를 반환했습니다.'
+    };
+  }
+
+  /**
+   * ❌ 오류 결과 생성
+   */
+  private getErrorResult(
+    input: LocationInput,
+    startTime: number,
+    error: any
+  ): LocationResult {
+    console.log('❌ 오류 결과 생성:', error);
+    
+    const fallbackCoords = {
+      lat: 37.5665,
+      lng: 126.9780
+    };
+
+    return {
+      coordinates: fallbackCoords,
+      confidence: 0,
+      accuracy: 'low',
+      sources: ['error'],
+      metadata: {
+        officialName: input.query,
+        address: '처리 중 오류 발생',
+        placeType: input.locationType || 'general',
+        country: 'Unknown',
+        validatedAt: new Date(),
+        processingTimeMs: Date.now() - startTime,
+        precisionMode: false,
+        errorReason: error instanceof Error ? error.message : 'Unknown error'
+      },
+      quality: {
+        consensusScore: 0,
+        distanceVariance: 0,
+        addressMatch: 0
+      },
+      error: `위치 검색 중 오류가 발생했습니다: ${error instanceof Error ? error.message : 'Unknown error'}`
+    };
+  }
+
+  /**
+   * 🎯 Precision 정확도 매핑
+   */
+  private mapPrecisionAccuracy(expectedErrorRange: string): 'high' | 'medium' | 'low' {
+    if (expectedErrorRange.includes('10') || expectedErrorRange.includes('15')) return 'high';
+    if (expectedErrorRange.includes('25') || expectedErrorRange.includes('50')) return 'medium';
+    return 'low';
+  }
+
+  /**
+   * 📏 거리 변화 파싱
+   */
+  private parseDistanceVariance(expectedErrorRange: string): number {
+    // "10-15m", "25-50m" 형태에서 숫자 추출
+    const numbers = expectedErrorRange.match(/\d+/g);
+    if (numbers && numbers.length > 0) {
+      return parseInt(numbers[0], 10);
+    }
+    return 100; // 기본값
   }
 }
 

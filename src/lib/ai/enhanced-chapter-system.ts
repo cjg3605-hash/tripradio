@@ -705,11 +705,44 @@ export class EnhancedChapterSelectionSystem {
   }
 
   private async determineOptimalStartingPoint(locationData: LocationData) {
-    return {
-      type: 'entrance' as const,
-      coordinates: locationData.coordinates,
-      description: `${locationData.name} 정문 입구`
-    };
+    // 🎯 Enhanced 시작점 시스템과 통합 (intro-chapter-generator와 동일한 로직)
+    try {
+      const { SpecificStartingPointGenerator } = await import('@/lib/location/specific-starting-point-generator');
+      const { WikipediaLocationSearcher } = await import('@/lib/location/wikipedia-location-searcher');
+      const { SpatialReasoningAI } = await import('@/lib/location/spatial-reasoning-ai');
+
+      const specificGenerator = new SpecificStartingPointGenerator();
+      const wikipediaSearcher = new WikipediaLocationSearcher();
+      const spatialAI = new SpatialReasoningAI();
+
+      // AI 기반 구체적 시작점 생성
+      const specificPoint = await specificGenerator.generateConcreteStartingPoint(locationData);
+      const candidateCoords = await wikipediaSearcher.searchSpecificCoordinates(
+        locationData.name,
+        specificPoint
+      );
+      const preciseResult = await spatialAI.selectOptimalCoordinate(
+        locationData.coordinates,
+        candidateCoords,
+        specificPoint
+      );
+
+      return {
+        type: specificPoint.type,
+        coordinates: preciseResult.coordinates,
+        description: `${specificPoint.specificName} - ${specificPoint.description}`
+      };
+
+    } catch (error) {
+      console.warn('⚠️ Enhanced 시작점 시스템 실패, 기존 방식 사용:', error);
+      
+      // 기존 방식으로 폴백
+      return {
+        type: 'entrance' as const,
+        coordinates: locationData.coordinates,
+        description: `${locationData.name} 정문 입구`
+      };
+    }
   }
 
   private async generateHistoricalBackground(locationData: LocationData): Promise<string> {

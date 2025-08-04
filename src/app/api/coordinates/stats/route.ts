@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
 import { CoordinateStats } from '@/types/guide';
 
+// 동적 라우트 설정 (정적 렌더링 방지)
+export const dynamic = 'force-dynamic';
+
 interface StatsQuery {
   guideId?: string;
   locationName?: string;
@@ -11,11 +14,11 @@ interface StatsQuery {
 
 export async function GET(request: NextRequest) {
   try {
-    // URL에서 searchParams 추출 (정적 렌더링 방지를 위해)
-    const url = new URL(request.url);
-    const guideId = url.searchParams.get('guideId');
-    const locationName = url.searchParams.get('locationName');
-    const includeDetails = url.searchParams.get('includeDetails') === 'true';
+    // searchParams를 직접 사용 (정적 렌더링 방지를 위해)
+    const { searchParams } = request.nextUrl;
+    const guideId = searchParams.get('guideId');
+    const locationName = searchParams.get('locationName');
+    const includeDetails = searchParams.get('includeDetails') === 'true';
 
     // 1. 기본 쿼리 구성
     let query = supabase

@@ -69,7 +69,9 @@ export interface IntroChapter {
   type: 'introduction';
   title: string;
   location: {
-    type: 'entrance' | 'starting_point' | 'visitor_center';
+    type: 'entrance' | 'starting_point' | 'visitor_center' | 
+          'entrance_gate' | 'ticket_booth' | 'main_building_entrance' | 
+          'courtyard_center' | 'information_center' | 'parking_area';
     coordinates: {
       lat: number;
       lng: number;

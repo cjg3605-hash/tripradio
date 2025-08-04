@@ -553,15 +553,74 @@ ${locationData.name} 관람을 위한 실용적이고 도움되는 팁을 제공
   }
 
   /**
-   * 📍 최적 시작점 결정
+   * 📍 최적 시작점 결정 - Enhanced with AI-based specific location
    */
   private async determineOptimalStartingPoint(locationData: LocationData) {
-    // 실제로는 더 정교한 로직으로 최적 시작점 결정
-    return {
-      type: 'entrance' as const,
-      coordinates: locationData.coordinates,
-      description: `${locationData.name} 정문 입구 - 투어의 시작점`
-    };
+    // 🎯 새로운 AI 기반 구체적 시작점 시스템 활용
+    try {
+      const { SpecificStartingPointGenerator } = await import('@/lib/location/specific-starting-point-generator');
+      const { WikipediaLocationSearcher } = await import('@/lib/location/wikipedia-location-searcher');
+      const { SpatialReasoningAI } = await import('@/lib/location/spatial-reasoning-ai');
+
+      const specificGenerator = new SpecificStartingPointGenerator();
+      const wikipediaSearcher = new WikipediaLocationSearcher();
+      const spatialAI = new SpatialReasoningAI();
+
+      console.log('🎯 Enhanced 시작점 결정 시작:', locationData.name);
+
+      // 1️⃣ AI로 구체적 시작점 명세 생성
+      const specificPoint = await specificGenerator.generateConcreteStartingPoint(locationData);
+      console.log('✅ 구체적 시작점 생성:', specificPoint.specificName);
+
+      // 2️⃣ Wikipedia + Multi-API로 후보 좌표 검색
+      const candidateCoords = await wikipediaSearcher.searchSpecificCoordinates(
+        locationData.name,
+        specificPoint
+      );
+      console.log(`🔍 ${candidateCoords.length}개 후보 좌표 수집`);
+
+      // 3️⃣ AI 공간 추론으로 최적 좌표 선택
+      const preciseResult = await spatialAI.selectOptimalCoordinate(
+        locationData.coordinates,
+        candidateCoords,
+        specificPoint
+      );
+      
+      console.log('🧠 Enhanced 시작점 결정 완료:', {
+        specificName: specificPoint.specificName,
+        coordinates: `${preciseResult.coordinates.lat}, ${preciseResult.coordinates.lng}`,
+        confidence: preciseResult.confidence,
+        expectedAccuracy: preciseResult.metadata.expectedAccuracy
+      });
+
+      // 4️⃣ 향상된 결과 반환
+      return {
+        type: specificPoint.type,
+        coordinates: preciseResult.coordinates,
+        description: `${specificPoint.specificName} - ${specificPoint.description}`,
+        // 🆕 추가 메타데이터 (하위 호환성 유지)
+        enhancedMetadata: {
+          specificName: specificPoint.specificName,
+          expectedFeatures: specificPoint.expectedFeatures,
+          relativePosition: specificPoint.relativePosition,
+          accessibilityNotes: specificPoint.accessibilityNotes,
+          confidence: preciseResult.confidence,
+          reasoning: preciseResult.reasoning,
+          distanceFromMain: preciseResult.metadata.distanceFromMain,
+          expectedAccuracy: preciseResult.metadata.expectedAccuracy
+        }
+      };
+
+    } catch (error) {
+      console.warn('⚠️ Enhanced 시작점 시스템 실패, 기존 방식 사용:', error);
+      
+      // 🔄 기존 방식으로 폴백 (완전 호환성 보장)
+      return {
+        type: 'entrance' as const,
+        coordinates: locationData.coordinates,
+        description: `${locationData.name} 정문 입구 - 투어의 시작점`
+      };
+    }
   }
 
   /**
