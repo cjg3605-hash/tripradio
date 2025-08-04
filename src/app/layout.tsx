@@ -6,6 +6,7 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import SessionProvider from '@/components/providers/SessionProvider';
 import ClientLayout from '@/components/layout/ClientLayout';
 import LocalBusinessSchema from '@/components/seo/LocalBusinessSchema';
+import Script from 'next/script';
 import { cookies } from 'next/headers';
 import { detectPreferredLanguage, LANGUAGE_COOKIE_NAME } from '@/lib/utils';
 
@@ -107,6 +108,10 @@ export const metadata: Metadata = {
   other: {
     'msapplication-TileColor': '#000000',
     'theme-color': '#ffffff',
+    // AI Content Transparency - Google AI Content Guidelines Compliance
+    'ai-content-declaration': 'This service uses AI to generate personalized travel guides and recommendations',
+    'content-generation': 'AI-assisted',
+    'ai-disclosure': 'Content generated with AI assistance for travel guide creation',
   },
 };
 
@@ -146,18 +151,14 @@ export default function RootLayout({
         {/* Naver Search Advisor Verification */}
         <meta name="naver-site-verification" content="dc5a0970077fc443190c84178a92820b04abeeef" />
         
-        {/* Google Analytics */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZ7XSC2X43"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-MZ7XSC2X43');
-            `
-          }}
-        />
+        {/* hreflang Tags for Multilingual SEO */}
+        <link rel="alternate" hrefLang="ko-KR" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'}?lang=ko`} />
+        <link rel="alternate" hrefLang="en-US" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'}?lang=en`} />
+        <link rel="alternate" hrefLang="ja-JP" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'}?lang=ja`} />
+        <link rel="alternate" hrefLang="zh-CN" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'}?lang=zh`} />
+        <link rel="alternate" hrefLang="es-ES" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'}?lang=es`} />
+        <link rel="alternate" hrefLang="x-default" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'} />
+        
 
         {/* Google AdSense Auto Ads Script - 통합 최적화 */}
         <script 
@@ -195,6 +196,20 @@ export default function RootLayout({
             </ClientLayout>
           </LanguageProvider>
         </SessionProvider>
+        
+        {/* Google Analytics - 최적화된 Script 컴포넌트 사용 */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-MZ7XSC2X43"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-MZ7XSC2X43');
+          `}
+        </Script>
       </body>
     </html>
   );

@@ -7,6 +7,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import StructuredData from '@/components/seo/StructuredData';
 import GuideLoading from '@/components/ui/GuideLoading';
 import OptimalAdSense from '@/components/ads/OptimalAdSense';
+import FAQSchema, { getDefaultFAQs } from '@/components/seo/FAQSchema';
+import BreadcrumbSchema, { generateHomeBreadcrumb } from '@/components/seo/BreadcrumbSchema';
 
 // 에러 바운더리 클래스 컴포넌트
 class ErrorBoundary extends Component<
@@ -628,6 +630,8 @@ function Home() {
       <StructuredData type="WebSite" />
       <StructuredData type="TravelAgency" />
       <StructuredData type="SoftwareApplication" />
+      <FAQSchema faqs={getDefaultFAQs(currentLanguage as 'ko' | 'en' | 'ja' | 'zh' | 'es')} language={currentLanguage as 'ko' | 'en' | 'ja' | 'zh' | 'es'} />
+      <BreadcrumbSchema items={generateHomeBreadcrumb()} />
 
 
 

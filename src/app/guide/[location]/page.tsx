@@ -2,6 +2,8 @@ import MultiLangGuideClient from './MultiLangGuideClient';
 import { supabase } from '@/lib/supabaseClient';
 import { safeLanguageCode, detectPreferredLanguage, LANGUAGE_COOKIE_NAME } from '@/lib/utils';
 import { cookies } from 'next/headers';
+import { generateMetadataFromGuide } from '@/lib/seo/dynamicMetadata';
+import { Metadata } from 'next';
 
 export const revalidate = 0;
 
@@ -12,6 +14,24 @@ interface PageProps {
 
 function normalizeString(str: string): string {
   return str.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+// 동적 메타데이터 생성
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
+  const locationName = decodeURIComponent(params.location || '');
+  const requestedLang = safeLanguageCode(searchParams?.lang);
+  
+  // 서버에서 쿠키 기반 언어 감지
+  const cookieStore = cookies();
+  const cookieLanguage = cookieStore.get(LANGUAGE_COOKIE_NAME)?.value;
+  
+  const serverDetectedLanguage = detectPreferredLanguage({
+    cookieValue: cookieLanguage,
+    urlLang: requestedLang,
+    prioritizeUrl: true
+  });
+  
+  return generateMetadataFromGuide(locationName, serverDetectedLanguage);
 }
 
 export default async function GuidePage({ params, searchParams }: PageProps) {
