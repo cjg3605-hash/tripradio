@@ -40,6 +40,7 @@
       "countryAttraction": "TOP ATTRACTIONS",
       "startGuide": "Start Guide",
       "destinations": "destinations",
+      "clickAttraction": "명소를 클릭하세요",
       "scrollHint": "좌우로 스크롤하여 더 많은 국가를 확인하세요",
       "popularBadge": "POPULAR",
       "stepTitles": {
@@ -82,6 +83,26 @@
         "selfTour": "셀프투어"
       },
       "countries": {
+        "seoul": {
+          "name": "서울",
+          "attractions": ["경복궁", "남산타워", "명동"],
+          "description": "전통과 현대가 어우러진 대한민국의 수도"
+        },
+        "busan": {
+          "name": "부산",
+          "attractions": ["해운대해수욕장", "감천문화마을", "자갈치시장"],
+          "description": "아름다운 바다와 항구의 도시"
+        },
+        "jeju": {
+          "name": "제주",
+          "attractions": ["한라산", "성산일출봉", "중문관광단지"],
+          "description": "환상적인 자연경관의 섬"
+        },
+        "gyeongju": {
+          "name": "경주",
+          "attractions": ["불국사", "석굴암", "첨성대"],
+          "description": "천년고도 신라의 역사가 살아있는 도시"
+        },
         "france": {
           "name": "프랑스",
           "attractions": ["에펠탑", "루브르 박물관", "베르사유 궁전"],
@@ -600,6 +621,7 @@
       "countryAttraction": "TOP ATTRACTIONS",
       "startGuide": "Start Guide",
       "destinations": "destinations",
+      "clickAttraction": "Click attractions",
       "scrollHint": "Scroll left and right to see more countries",
       "popularBadge": "POPULAR",
       "stepTitles": {
@@ -642,6 +664,26 @@
         "selfTour": "Self Tour"
       },
       "countries": {
+        "seoul": {
+          "name": "Seoul",
+          "attractions": ["Gyeongbokgung Palace", "Namsan Tower", "Myeongdong"],
+          "description": "Capital of South Korea where tradition meets modernity"
+        },
+        "busan": {
+          "name": "Busan",
+          "attractions": ["Haeundae Beach", "Gamcheon Culture Village", "Jagalchi Market"],
+          "description": "Beautiful coastal city with stunning beaches and harbors"
+        },
+        "jeju": {
+          "name": "Jeju",
+          "attractions": ["Hallasan Mountain", "Seongsan Ilchulbong", "Jungmun Resort"],
+          "description": "Enchanting island with spectacular natural landscapes"
+        },
+        "gyeongju": {
+          "name": "Gyeongju",
+          "attractions": ["Bulguksa Temple", "Seokguram Grotto", "Cheomseongdae"],
+          "description": "Ancient capital city preserving thousand years of Silla history"
+        },
         "france": {
           "name": "France",
           "attractions": ["Eiffel Tower", "Louvre Museum", "Palace of Versailles"],
@@ -1160,6 +1202,7 @@
       "countryAttraction": "TOP ATTRACTIONS",
       "startGuide": "Start Guide",
       "destinations": "destinations",
+      "clickAttraction": "名所をクリック",
       "scrollHint": "左右にスクロールしてより多くの国を確認してください",
       "popularBadge": "POPULAR",
       "stepTitles": {
@@ -1202,6 +1245,26 @@
         "selfTour": "セルフツアー"
       },
       "countries": {
+        "seoul": {
+          "name": "ソウル",
+          "attractions": ["景福宮", "南山タワー", "明洞"],
+          "description": "伝統と現代が調和する韓国の首都"
+        },
+        "busan": {
+          "name": "釜山",
+          "attractions": ["海雲台海水浴場", "甘川文化村", "チャガルチ市場"],
+          "description": "美しい海と港の都市"
+        },
+        "jeju": {
+          "name": "済州",
+          "attractions": ["漢拏山", "城山日出峰", "中文観光団地"],
+          "description": "幻想的な自然景観の島"
+        },
+        "gyeongju": {
+          "name": "慶州",
+          "attractions": ["仏国寺", "石窟庵", "瞻星台"],
+          "description": "千年古都新羅の歴史が息づく都市"
+        },
         "france": {
           "name": "フランス",
           "attractions": ["エッフェル塔", "ルーブル美術館", "ベルサイユ宮殿"],
@@ -1676,6 +1739,7 @@
       "countryAttraction": "TOP ATTRACTIONS",
       "startGuide": "Start Guide",
       "destinations": "destinations",
+      "clickAttraction": "点击景点",
       "scrollHint": "左右滑动查看更多国家",
       "popularBadge": "POPULAR",
       "stepTitles": {
@@ -1718,6 +1782,26 @@
         "selfTour": "自助游"
       },
       "countries": {
+        "seoul": {
+          "name": "首尔",
+          "attractions": ["景福宫", "南山塔", "明洞"],
+          "description": "传统与现代交融的韩国首都"
+        },
+        "busan": {
+          "name": "釜山",
+          "attractions": ["海云台海水浴场", "甘川文化村", "札嘎其市场"],
+          "description": "美丽的海滨港口城市"
+        },
+        "jeju": {
+          "name": "济州",
+          "attractions": ["汉拿山", "城山日出峰", "中文旅游区"],
+          "description": "拥有绝美自然风光的岛屿"
+        },
+        "gyeongju": {
+          "name": "庆州",
+          "attractions": ["佛国寺", "石窟庵", "瞻星台"],
+          "description": "千年古都新罗历史文化名城"
+        },
         "france": {
           "name": "法国",
           "attractions": ["埃菲尔铁塔", "卢浮宫", "凡尔赛宫"],
@@ -2192,6 +2276,7 @@
       "countryAttraction": "TOP ATTRACTIONS",
       "startGuide": "Start Guide",
       "destinations": "destinations",
+      "clickAttraction": "Haz clic en atracciones",
       "scrollHint": "Desplázate a la izquierda y derecha para ver más países",
       "popularBadge": "POPULAR",
       "stepTitles": {
@@ -2234,6 +2319,26 @@
         "selfTour": "Auto Tour"
       },
       "countries": {
+        "seoul": {
+          "name": "Seúl",
+          "attractions": ["Palacio Gyeongbokgung", "Torre Namsan", "Myeongdong"],
+          "description": "Capital de Corea del Sur donde la tradición se encuentra con la modernidad"
+        },
+        "busan": {
+          "name": "Busan",
+          "attractions": ["Playa Haeundae", "Pueblo Cultural Gamcheon", "Mercado Jagalchi"],
+          "description": "Hermosa ciudad costera con playas espectaculares y puertos"
+        },
+        "jeju": {
+          "name": "Jeju",
+          "attractions": ["Monte Hallasan", "Seongsan Ilchulbong", "Complejo Jungmun"],
+          "description": "Isla encantadora con paisajes naturales espectaculares"
+        },
+        "gyeongju": {
+          "name": "Gyeongju",
+          "attractions": ["Templo Bulguksa", "Gruta Seokguram", "Cheomseongdae"],
+          "description": "Antigua capital que preserva mil años de historia de Silla"
+        },
         "france": {
           "name": "Francia",
           "attractions": ["Torre Eiffel", "Museo del Louvre", "Palacio de Versalles"],
