@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
 import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
+import { useLocationTranslation } from '@/hooks/useLocationTranslation';
 import { Volume2, Globe, User, ChevronDown, LogIn, LogOut } from 'lucide-react';
 
 interface HeaderProps {
@@ -18,6 +19,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
   
   const { data: session, status } = useSession();
   const { currentLanguage, currentConfig, setLanguage, t } = useLanguage();
+  const { changeLanguageWithLocationTranslation } = useLocationTranslation();
   const router = useRouter();
   const languageMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
@@ -32,13 +34,24 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
   const handleLanguageChange = useCallback(async (langCode: string) => {
     console.log('🔥 Language changing to:', langCode);
     try {
+      // 1. 장소명 번역과 URL 업데이트 시도 (비동기)
+      const wasTranslated = await changeLanguageWithLocationTranslation(
+        langCode as any, 
+        currentLanguage
+      );
+      
+      // 2. 언어 컨텍스트 업데이트
       await setLanguage(langCode as any);
       setIsLanguageMenuOpen(false);
-      console.log('✅ Language changed successfully to:', langCode);
+      
+      console.log('✅ Language changed successfully:', { 
+        newLanguage: langCode, 
+        locationTranslated: wasTranslated 
+      });
     } catch (error) {
       console.error('❌ Language change failed:', error);
     }
-  }, [setLanguage]);
+  }, [setLanguage, changeLanguageWithLocationTranslation, currentLanguage]);
 
   // 키보드 네비게이션 및 외부 클릭 처리
   useEffect(() => {

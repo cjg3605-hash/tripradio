@@ -13,6 +13,7 @@ import {
   ArrowUp
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { MicrosoftTranslator } from '@/lib/location/microsoft-translator';
 
 // 동적 import로 코드 스플리팅 적용
 const LiveLocationTracker = dynamic(() => import('@/components/location/LiveLocationTracker'), {
@@ -95,7 +96,23 @@ const LiveTourPage: React.FC = () => {
         
         // DB에서 직접 조회 (안전한 경로)
         const { supabase } = await import('@/lib/supabaseClient');
-        const normalizedLocation = locationName.trim().toLowerCase().replace(/\s+/g, ' ');
+        
+        // 🌐 다국어 장소명 처리: 현재 언어가 한국어가 아니면 한국어로 역번역
+        let dbLocationName = locationName;
+        if (currentLanguage !== 'ko') {
+          try {
+            dbLocationName = await MicrosoftTranslator.reverseTranslateLocationName(
+              locationName, 
+              currentLanguage
+            );
+            console.log(`🔄 DB 조회용 역번역: ${locationName} → ${dbLocationName} (${currentLanguage} → ko)`);
+          } catch (error) {
+            console.warn('⚠️ 역번역 실패, 원본 사용:', error);
+            dbLocationName = locationName;
+          }
+        }
+        
+        const normalizedLocation = dbLocationName.trim().toLowerCase().replace(/\s+/g, ' ');
         
         const { data, error } = await supabase
           .from('guides')
