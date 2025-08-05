@@ -44,9 +44,42 @@ export async function generateGuideMetadata({
   const template = metadataTemplates[language as keyof typeof metadataTemplates] || metadataTemplates.ko;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
   
+  // 가이드 내용에서 실제 정보 추출
+  let extractedDescription = template.descriptionTemplate.replace(/{location}/g, locationName);
+  let extractedImage = '';
+  let duration = '';
+  
+  if (guideContent?.content) {
+    try {
+      const content = typeof guideContent.content === 'string' 
+        ? JSON.parse(guideContent.content) 
+        : guideContent.content;
+      
+      // 실제 가이드 설명 사용
+      if (content.overview || content.description) {
+        const overview = content.overview || content.description;
+        extractedDescription = overview.length > 160 
+          ? overview.substring(0, 157) + '...' 
+          : overview;
+      }
+      
+      // 이미지 URL 추출
+      if (content.images && content.images.length > 0) {
+        extractedImage = content.images[0];
+      }
+      
+      // 소요시간 추출
+      if (content.duration) {
+        duration = content.duration;
+      }
+    } catch (e) {
+      console.log('가이드 메타데이터 추출 실패:', e);
+    }
+  }
+  
   // 템플릿에서 {location} 치환
   const title = template.titleTemplate.replace(/{location}/g, locationName);
-  const description = template.descriptionTemplate.replace(/{location}/g, locationName);
+  const description = extractedDescription;
   
   // 가이드 내용에서 추가 키워드 추출 (선택적)
   let additionalKeywords: string[] = [];
@@ -86,9 +119,16 @@ export async function generateGuideMetadata({
       description,
       type: 'article',
       locale: getOpenGraphLocale(language),
-      url: `/guide/${encodeURIComponent(locationName)}`,
+      url: `${baseUrl}/guide/${encodeURIComponent(locationName)}`,
       siteName: 'NaviDocent',
-      images: [
+      images: extractedImage ? [
+        {
+          url: extractedImage,
+          width: 1200,
+          height: 630,
+          alt: `${locationName} Travel Guide - NaviDocent AI`
+        }
+      ] : [
         {
           url: `/og-image.jpg`,
           width: 1200,
@@ -101,7 +141,7 @@ export async function generateGuideMetadata({
       card: 'summary_large_image',
       title,
       description,
-      images: [`/og-image.jpg`]
+      images: extractedImage ? [extractedImage] : [`/og-image.jpg`]
     },
     alternates: {
       canonical: `${baseUrl}/guide/${encodeURIComponent(locationName)}`,

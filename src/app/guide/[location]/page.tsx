@@ -4,6 +4,7 @@ import { safeLanguageCode, detectPreferredLanguage, LANGUAGE_COOKIE_NAME } from 
 import { cookies } from 'next/headers';
 import { generateMetadataFromGuide } from '@/lib/seo/dynamicMetadata';
 import { Metadata } from 'next';
+import StructuredData from '@/components/seo/StructuredData';
 
 export const revalidate = 0;
 
@@ -81,11 +82,35 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
     console.error('서버 사이드 가이드 조회 오류:', e);
   }
   
+  // 구조화된 데이터를 위한 정보 준비
+  const structuredData = {
+    name: locationName,
+    description: `${locationName}의 상세한 AI 여행 가이드입니다. 실시간 음성 안내로 ${locationName}의 숨겨진 이야기를 발견해보세요.`,
+    url: `https://navidocent.com/guide/${encodeURIComponent(locationName)}`,
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'KR',
+      addressLocality: locationName
+    },
+    geo: initialGuide?.content?.coordinates ? {
+      '@type': 'GeoCoordinates',
+      latitude: initialGuide.content.coordinates.lat,
+      longitude: initialGuide.content.coordinates.lng
+    } : undefined,
+    potentialAction: {
+      '@type': 'ListenAction',
+      target: `https://navidocent.com/guide/${encodeURIComponent(locationName)}/tour`
+    }
+  };
+
   return (
-    <MultiLangGuideClient 
-      locationName={locationName} 
-      initialGuide={initialGuide}
-      requestedLanguage={serverDetectedLanguage}
-    />
+    <>
+      <StructuredData type="TouristAttraction" data={structuredData} />
+      <MultiLangGuideClient 
+        locationName={locationName} 
+        initialGuide={initialGuide}
+        requestedLanguage={serverDetectedLanguage}
+      />
+    </>
   );
 }
