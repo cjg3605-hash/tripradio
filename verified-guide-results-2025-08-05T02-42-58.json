@@ -1,0 +1,30 @@
+{
+  "timestamp": "2025-08-05T02:42:58.182Z",
+  "method": "실제 가이드 생성 API 호출 및 DB 저장 검증",
+  "summary": {
+    "total": 285,
+    "completed": 2,
+    "success": 0,
+    "skipped": 2,
+    "failed": 0,
+    "successRate": "0.0%"
+  },
+  "errors": [],
+  "results": [
+    {
+      "success": true,
+      "skipped": true,
+      "attraction": "경복궁",
+      "translatedName": "경복궁",
+      "language": "ko"
+    },
+    {
+      "success": true,
+      "skipped": true,
+      "attraction": "경복궁",
+      "translatedName": "경복궁",
+      "language": "en"
+    }
+  ],
+  "duration": "0.2분"
+}

@@ -1,0 +1,2296 @@
+{
+  "timestamp": "2025-08-05T06:25:33.734Z",
+  "method": "병렬 가이드 생성 및 DB 저장 (MultiLangGuideManager 로직)",
+  "summary": {
+    "total": 285,
+    "completed": 285,
+    "success": 150,
+    "skipped": 135,
+    "failed": 0,
+    "successRate": "100.0%"
+  },
+  "errors": [],
+  "results": [
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "경복궁",
+      "translatedName": "경복궁",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "경복궁",
+      "translatedName": "Gyeongbokgung Palace",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "경복궁",
+      "translatedName": "景福宫",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "경복궁",
+      "translatedName": "景福宮",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "경복궁",
+      "translatedName": "Palacio de Gyeongbokgung",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "남산타워",
+      "translatedName": "남산타워",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "남산타워",
+      "translatedName": "Namsan Tower",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "남산타워",
+      "translatedName": "南山タワー",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "남산타워",
+      "translatedName": "南山塔",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "남산타워",
+      "translatedName": "Torre Namsan",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "명동",
+      "translatedName": "명동",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "명동",
+      "translatedName": "Myeongdong",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "명동",
+      "translatedName": "明洞",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "명동",
+      "translatedName": "明洞",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "명동",
+      "translatedName": "Myeongdong",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "해운대해수욕장",
+      "translatedName": "해운대해수욕장",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "해운대해수욕장",
+      "translatedName": "Haeundae Beach",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "해운대해수욕장",
+      "translatedName": "海雲台海水浴場",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "해운대해수욕장",
+      "translatedName": "海云台海水浴场",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "해운대해수욕장",
+      "translatedName": "Playa de Haeundae",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "감천문화마을",
+      "translatedName": "감천문화마을",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "감천문화마을",
+      "translatedName": "甘川文化村",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "감천문화마을",
+      "translatedName": "Gamcheon Culture Village",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "감천문화마을",
+      "translatedName": "Aldea cultural de Gamcheon",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "감천문화마을",
+      "translatedName": "甘川文化村",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "자갈치시장",
+      "translatedName": "자갈치시장",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "자갈치시장",
+      "translatedName": "Jagalchi Market",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "자갈치시장",
+      "translatedName": "Mercado de Jagalchi",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "자갈치시장",
+      "translatedName": "チャガルチ市場",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "자갈치시장",
+      "translatedName": "札嘎其市场",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "한라산",
+      "translatedName": "한라산",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "한라산",
+      "translatedName": "Montaña Hallasan",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "한라산",
+      "translatedName": "Hallasan Mountain",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "한라산",
+      "translatedName": "汉拿山",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "한라산",
+      "translatedName": "漢拏山",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "성산일출봉",
+      "translatedName": "성산일출봉",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "성산일출봉",
+      "translatedName": "Seongsan Ilchulbong Peak",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "성산일출봉",
+      "translatedName": "城山日出峰",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "성산일출봉",
+      "translatedName": "Pico Seongsan Ilchulbong",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "성산일출봉",
+      "translatedName": "城山日出峰",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "중문관광단지",
+      "translatedName": "중문관광단지",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "중문관광단지",
+      "translatedName": "Complejo turístico Jungmun",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "중문관광단지",
+      "translatedName": "Jungmun Tourist Complex",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "중문관광단지",
+      "translatedName": "中文旅游综合体",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "중문관광단지",
+      "translatedName": "中文観光団地",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "불국사",
+      "translatedName": "불국사",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "불국사",
+      "translatedName": "Bulguksa Temple",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "불국사",
+      "translatedName": "佛国寺",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "불국사",
+      "translatedName": "仏国寺",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "불국사",
+      "translatedName": "Templo de Bulguksa",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "석굴암",
+      "translatedName": "석굴암",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "석굴암",
+      "translatedName": "Seokguram",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "석굴암",
+      "translatedName": "石窟庵",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "석굴암",
+      "translatedName": "Seokguram",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "석굴암",
+      "translatedName": "石窟庵",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "첨성대",
+      "translatedName": "첨성대",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "첨성대",
+      "translatedName": "Cheomseong University",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "첨성대",
+      "translatedName": "瞻城大学",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "첨성대",
+      "translatedName": "Universidad de Cheomseong",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "첨성대",
+      "translatedName": "瞻城大学",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Eiffel Tower",
+      "translatedName": "에펠탑",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Eiffel Tower",
+      "translatedName": "エッフェル塔",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Eiffel Tower",
+      "translatedName": "Eiffel Tower",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Eiffel Tower",
+      "translatedName": "Torre Eiffel",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Eiffel Tower",
+      "translatedName": "埃菲尔铁塔",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Louvre Museum",
+      "translatedName": "Louvre Museum",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Louvre Museum",
+      "translatedName": "루브르 박물관",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Louvre Museum",
+      "translatedName": "ルーブル美術館",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Louvre Museum",
+      "translatedName": "Museo del Louvre",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Louvre Museum",
+      "translatedName": "卢浮宫博物馆",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Palace of Versailles",
+      "translatedName": "Palace of Versailles",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Palace of Versailles",
+      "translatedName": "베르사유 궁전",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Palace of Versailles",
+      "translatedName": "凡尔赛宫",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Palace of Versailles",
+      "translatedName": "Palacio de Versalles",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Palace of Versailles",
+      "translatedName": "ベルサイユ宮殿",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Colosseum",
+      "translatedName": "콜로세움",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Colosseum",
+      "translatedName": "Coliseo",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Colosseum",
+      "translatedName": "コロッセオ",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Colosseum",
+      "translatedName": "Colosseum",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Colosseum",
+      "translatedName": "斗 兽 场",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Leaning Tower of Pisa",
+      "translatedName": "Leaning Tower of Pisa",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Leaning Tower of Pisa",
+      "translatedName": "ピサの斜塔",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Leaning Tower of Pisa",
+      "translatedName": "Torre inclinada de Pisa",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Leaning Tower of Pisa",
+      "translatedName": "피사의 사탑",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Leaning Tower of Pisa",
+      "translatedName": "比萨斜塔",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Vatican",
+      "translatedName": "바티칸",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Vatican",
+      "translatedName": "梵蒂冈",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Vatican",
+      "translatedName": "Vatican",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Vatican",
+      "translatedName": "バチカン",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Vatican",
+      "translatedName": "Vaticano",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Sagrada Familia",
+      "translatedName": "サグラダ・ファミリア",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Sagrada Familia",
+      "translatedName": "Sagrada Familia",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Sagrada Familia",
+      "translatedName": "사그라다 파밀리아",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Sagrada Familia",
+      "translatedName": "Sagrada Familia",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Sagrada Familia",
+      "translatedName": "圣家堂",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Alhambra",
+      "translatedName": "Alhambra",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Alhambra",
+      "translatedName": "알람 브라",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Alhambra",
+      "translatedName": "アルハンブラ",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Alhambra",
+      "translatedName": "Alhambra",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Alhambra",
+      "translatedName": "阿尔罕布拉",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Park Güell",
+      "translatedName": "Park Güell",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Park Güell",
+      "translatedName": "グエル公園",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Park Güell",
+      "translatedName": "구엘 공원",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Park Güell",
+      "translatedName": "Parque Güell",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Park Güell",
+      "translatedName": "桂尔公园",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Big Ben",
+      "translatedName": "ビッグベン",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Big Ben",
+      "translatedName": "大本钟",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Big Ben",
+      "translatedName": "Big Ben",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Big Ben",
+      "translatedName": "빅벤",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Big Ben",
+      "translatedName": "Big Ben",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Tower Bridge",
+      "translatedName": "타워 브리지",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Tower Bridge",
+      "translatedName": "Tower Bridge",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Tower Bridge",
+      "translatedName": "タワーブリッジ",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Tower Bridge",
+      "translatedName": "塔桥",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Tower Bridge",
+      "translatedName": "Puente de la Torre",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Buckingham Palace",
+      "translatedName": "Buckingham Palace",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Buckingham Palace",
+      "translatedName": "白金汉宫",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Buckingham Palace",
+      "translatedName": "버킹엄 궁전",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Buckingham Palace",
+      "translatedName": "Palacio de Buckingham",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Buckingham Palace",
+      "translatedName": "バッキンガム宮殿",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Brandenburg Gate",
+      "translatedName": "Brandenburg Gate",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Brandenburg Gate",
+      "translatedName": "勃兰登堡门",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Brandenburg Gate",
+      "translatedName": "Brandenburgo",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Brandenburg Gate",
+      "translatedName": "브란덴부르크 문",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Brandenburg Gate",
+      "translatedName": "ブランデンブルク門",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Neuschwanstein Castle",
+      "translatedName": "ノイシュヴァンシュタイン城",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Neuschwanstein Castle",
+      "translatedName": "新天鹅堡",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Neuschwanstein Castle",
+      "translatedName": "노이슈반슈타인 성",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Neuschwanstein Castle",
+      "translatedName": "Castillo de Neuschwanstein",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Neuschwanstein Castle",
+      "translatedName": "Neuschwanstein Castle",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Cologne Cathedral",
+      "translatedName": "Cologne Cathedral",
+      "language": "en",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Cologne Cathedral",
+      "translatedName": "ケルン大聖堂",
+      "language": "ja",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Cologne Cathedral",
+      "translatedName": "Catedral de Colonia",
+      "language": "es",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Cologne Cathedral",
+      "translatedName": "科隆大教堂",
+      "language": "zh",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "cache",
+      "attraction": "Cologne Cathedral",
+      "translatedName": "쾰른 대성당",
+      "language": "ko",
+      "skipped": true
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Mount Fuji",
+      "translatedName": "富士山",
+      "language": "zh",
+      "dataSize": 2322
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Mount Fuji",
+      "translatedName": "富士山",
+      "language": "ja",
+      "dataSize": 5307
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Mount Fuji",
+      "translatedName": "Mount Fuji",
+      "language": "en",
+      "dataSize": 11182
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Mount Fuji",
+      "translatedName": "후지산",
+      "language": "ko",
+      "dataSize": 6327
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Mount Fuji",
+      "translatedName": "Monte Fuji",
+      "language": "es",
+      "dataSize": 23823
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Kiyomizu-dera",
+      "translatedName": "清水寺",
+      "language": "zh",
+      "dataSize": 2553
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Kiyomizu-dera",
+      "translatedName": "Kiyomizu-dera",
+      "language": "en",
+      "dataSize": 10805
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Kiyomizu-dera",
+      "translatedName": "기요미즈데라",
+      "language": "ko",
+      "dataSize": 5105
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Kiyomizu-dera",
+      "translatedName": "清水寺",
+      "language": "ja",
+      "dataSize": 6327
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Kiyomizu-dera",
+      "translatedName": "Kiyomizu-dera",
+      "language": "es",
+      "dataSize": 19624
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Senso-ji",
+      "translatedName": "浅草寺",
+      "language": "zh",
+      "dataSize": 2519
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Senso-ji",
+      "translatedName": "浅草寺",
+      "language": "ja",
+      "dataSize": 5178
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Senso-ji",
+      "translatedName": "센소지",
+      "language": "ko",
+      "dataSize": 6414
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Senso-ji",
+      "translatedName": "Senso-ji",
+      "language": "en",
+      "dataSize": 18858
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Senso-ji",
+      "translatedName": "Senso-ji",
+      "language": "es",
+      "dataSize": 23701
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Great Wall",
+      "translatedName": "长城",
+      "language": "zh",
+      "dataSize": 2832
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Great Wall",
+      "translatedName": "Great Wall",
+      "language": "en",
+      "dataSize": 12441
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Great Wall",
+      "translatedName": "万里の長城",
+      "language": "ja",
+      "dataSize": 6192
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Great Wall",
+      "translatedName": "만리장성",
+      "language": "ko",
+      "dataSize": 6662
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Great Wall",
+      "translatedName": "Gran Muralla",
+      "language": "es",
+      "dataSize": 23605
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Forbidden City",
+      "translatedName": "紫禁城",
+      "language": "zh",
+      "dataSize": 5414
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Forbidden City",
+      "translatedName": "紫禁城",
+      "language": "ja",
+      "dataSize": 6509
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Forbidden City",
+      "translatedName": "Forbidden City",
+      "language": "en",
+      "dataSize": 16660
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Forbidden City",
+      "translatedName": "Ciudad Prohibida",
+      "language": "es",
+      "dataSize": 21873
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Forbidden City",
+      "translatedName": "자금성",
+      "language": "ko",
+      "dataSize": 8276
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Tiananmen Square",
+      "translatedName": "Tiananmen Square",
+      "language": "en",
+      "dataSize": 10936
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Tiananmen Square",
+      "translatedName": "天安门广场",
+      "language": "zh",
+      "dataSize": 3079
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Tiananmen Square",
+      "translatedName": "天安門広場",
+      "language": "ja",
+      "dataSize": 4802
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Tiananmen Square",
+      "translatedName": "천안문 광장",
+      "language": "ko",
+      "dataSize": 7228
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Tiananmen Square",
+      "translatedName": "Tiananmen",
+      "language": "es",
+      "dataSize": 20161
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Taj Mahal",
+      "translatedName": "泰姬陵",
+      "language": "zh",
+      "dataSize": 2667
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Taj Mahal",
+      "translatedName": "Taj Mahal",
+      "language": "en",
+      "dataSize": 11180
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Taj Mahal",
+      "translatedName": "타지마",
+      "language": "ko",
+      "dataSize": 4970
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Taj Mahal",
+      "translatedName": "タージマハル",
+      "language": "ja",
+      "dataSize": 6084
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Taj Mahal",
+      "translatedName": "Taj Mahal",
+      "language": "es",
+      "dataSize": 22814
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Red Fort",
+      "translatedName": "红堡",
+      "language": "zh",
+      "dataSize": 2579
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Red Fort",
+      "translatedName": "レッドフォート",
+      "language": "ja",
+      "dataSize": 4922
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Red Fort",
+      "translatedName": "레드 포트",
+      "language": "ko",
+      "dataSize": 6033
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Red Fort",
+      "translatedName": "Red Fort",
+      "language": "en",
+      "dataSize": 19565
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Red Fort",
+      "translatedName": "Fuerte Rojo",
+      "language": "es",
+      "dataSize": 20507
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Ganges River",
+      "translatedName": "恒河",
+      "language": "zh",
+      "dataSize": 2923
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Ganges River",
+      "translatedName": "Ganges River",
+      "language": "en",
+      "dataSize": 11835
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Ganges River",
+      "translatedName": "ガンジス川",
+      "language": "ja",
+      "dataSize": 6017
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Ganges River",
+      "translatedName": "갠지스 강",
+      "language": "ko",
+      "dataSize": 10319
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Ganges River",
+      "translatedName": "Río Ganges",
+      "language": "es",
+      "dataSize": 21495
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Wat Arun",
+      "translatedName": "郑王庙",
+      "language": "zh",
+      "dataSize": 1692
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Wat Arun",
+      "translatedName": "왓 아룬",
+      "language": "ko",
+      "dataSize": 5847
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Wat Arun",
+      "translatedName": "ワット・アルン",
+      "language": "ja",
+      "dataSize": 5518
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Wat Arun",
+      "translatedName": "Wat Arun",
+      "language": "en",
+      "dataSize": 15362
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Wat Arun",
+      "translatedName": "Wat Arun",
+      "language": "es",
+      "dataSize": 22777
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Grand Palace",
+      "translatedName": "大皇宫",
+      "language": "zh",
+      "dataSize": 2591
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Grand Palace",
+      "translatedName": "Grand Palace",
+      "language": "en",
+      "dataSize": 13129
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Grand Palace",
+      "translatedName": "왕궁",
+      "language": "ko",
+      "dataSize": 7085
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Grand Palace",
+      "translatedName": "王宮",
+      "language": "ja",
+      "dataSize": 6313
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Grand Palace",
+      "translatedName": "Gran Palacio",
+      "language": "es",
+      "dataSize": 23271
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Wat Pho",
+      "translatedName": "卧佛寺",
+      "language": "zh",
+      "dataSize": 2371
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Wat Pho",
+      "translatedName": "ワット・ポー",
+      "language": "ja",
+      "dataSize": 4383
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Wat Pho",
+      "translatedName": "왓 포",
+      "language": "ko",
+      "dataSize": 6370
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Wat Pho",
+      "translatedName": "Wat Pho",
+      "language": "es",
+      "dataSize": 24879
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Wat Pho",
+      "translatedName": "Wat Pho",
+      "language": "en",
+      "dataSize": 17861
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Marina Bay Sands",
+      "translatedName": "滨海湾金沙",
+      "language": "zh",
+      "dataSize": 2431
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Marina Bay Sands",
+      "translatedName": "Marina Bay Sands",
+      "language": "en",
+      "dataSize": 10711
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Marina Bay Sands",
+      "translatedName": "마리나 베이 샌즈",
+      "language": "ko",
+      "dataSize": 6320
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Marina Bay Sands",
+      "translatedName": "Marina Bay Sands",
+      "language": "es",
+      "dataSize": 22084
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Marina Bay Sands",
+      "translatedName": "マリーナベイ・サンズ",
+      "language": "ja",
+      "dataSize": 237
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Gardens by the Bay",
+      "translatedName": "滨海湾花园",
+      "language": "zh",
+      "dataSize": 2711
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Gardens by the Bay",
+      "translatedName": "Gardens by the Bay",
+      "language": "en",
+      "dataSize": 18129
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Gardens by the Bay",
+      "translatedName": "가든스 바이 더 베이",
+      "language": "ko",
+      "dataSize": 8355
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Gardens by the Bay",
+      "translatedName": "Jardines junto a la bahía",
+      "language": "es",
+      "dataSize": 21914
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Gardens by the Bay",
+      "translatedName": "ガーデンズ・バイ・ザ・ベイ",
+      "language": "ja",
+      "dataSize": 8033
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Merlion",
+      "translatedName": "Merlion",
+      "language": "en",
+      "dataSize": 7717
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Merlion",
+      "translatedName": "鱼尾狮",
+      "language": "zh",
+      "dataSize": 2401
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Merlion",
+      "translatedName": "멀라이언",
+      "language": "ko",
+      "dataSize": 5294
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Merlion",
+      "translatedName": "マーライオン",
+      "language": "ja",
+      "dataSize": 3982
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Merlion",
+      "translatedName": "Merlion",
+      "language": "es",
+      "dataSize": 16916
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Statue of Liberty",
+      "translatedName": "自由女神像",
+      "language": "zh",
+      "dataSize": 2265
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Statue of Liberty",
+      "translatedName": "Statue of Liberty",
+      "language": "en",
+      "dataSize": 11219
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Statue of Liberty",
+      "translatedName": "自由の女神",
+      "language": "ja",
+      "dataSize": 3699
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Statue of Liberty",
+      "translatedName": "자유의 여신상",
+      "language": "ko",
+      "dataSize": 5523
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Statue of Liberty",
+      "translatedName": "Estatua de la Libertad",
+      "language": "es",
+      "dataSize": 18260
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Grand Canyon",
+      "translatedName": "大峡谷",
+      "language": "zh",
+      "dataSize": 2969
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Grand Canyon",
+      "translatedName": "Grand Canyon",
+      "language": "en",
+      "dataSize": 11032
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Grand Canyon",
+      "translatedName": "그랜드 캐년",
+      "language": "ko",
+      "dataSize": 7122
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Grand Canyon",
+      "translatedName": "Gran Cañón",
+      "language": "es",
+      "dataSize": 22048
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Grand Canyon",
+      "translatedName": "グランドキャニオン",
+      "language": "ja",
+      "dataSize": 6680
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Times Square",
+      "translatedName": "时代广场",
+      "language": "zh",
+      "dataSize": 2138
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Times Square",
+      "translatedName": "タイムズスクエア",
+      "language": "ja",
+      "dataSize": 5707
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Times Square",
+      "translatedName": "Times Square",
+      "language": "en",
+      "dataSize": 11460
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Times Square",
+      "translatedName": "타임스퀘어",
+      "language": "ko",
+      "dataSize": 5140
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Times Square",
+      "translatedName": "Times Square",
+      "language": "es",
+      "dataSize": 23671
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Niagara Falls",
+      "translatedName": "尼亚加拉瀑布",
+      "language": "zh",
+      "dataSize": 2904
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Niagara Falls",
+      "translatedName": "나이아가라 폭포",
+      "language": "ko",
+      "dataSize": 5349
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Niagara Falls",
+      "translatedName": "Niagara Falls",
+      "language": "en",
+      "dataSize": 13103
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Niagara Falls",
+      "translatedName": "Cataratas del Niágara",
+      "language": "es",
+      "dataSize": 25057
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Niagara Falls",
+      "translatedName": "ナイアガラの滝",
+      "language": "ja",
+      "dataSize": 9874
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "CN Tower",
+      "translatedName": "加拿大国家电视塔",
+      "language": "zh",
+      "dataSize": 1802
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "CN Tower",
+      "translatedName": "CN Tower",
+      "language": "en",
+      "dataSize": 13664
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "CN Tower",
+      "translatedName": "CN 타워",
+      "language": "ko",
+      "dataSize": 5373
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "CN Tower",
+      "translatedName": "CNタワー",
+      "language": "ja",
+      "dataSize": 5404
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "CN Tower",
+      "translatedName": "Torre CN",
+      "language": "es",
+      "dataSize": 18989
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Banff National Park",
+      "translatedName": "班夫国家公园",
+      "language": "zh",
+      "dataSize": 3322
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Banff National Park",
+      "translatedName": "Banff National Park",
+      "language": "en",
+      "dataSize": 14763
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Banff National Park",
+      "translatedName": "バンフ国立公園",
+      "language": "ja",
+      "dataSize": 8156
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Banff National Park",
+      "translatedName": "밴프 국립공원",
+      "language": "ko",
+      "dataSize": 8843
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Banff National Park",
+      "translatedName": "Parque Nacional Banff",
+      "language": "es",
+      "dataSize": 23934
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Christ the Redeemer",
+      "translatedName": "救赎主基督",
+      "language": "zh",
+      "dataSize": 1906
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Christ the Redeemer",
+      "translatedName": "구속주 그리스도",
+      "language": "ko",
+      "dataSize": 5106
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Christ the Redeemer",
+      "translatedName": "Christ the Redeemer",
+      "language": "en",
+      "dataSize": 11124
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Christ the Redeemer",
+      "translatedName": "救い主キリスト",
+      "language": "ja",
+      "dataSize": 5926
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Christ the Redeemer",
+      "translatedName": "Cristo Redentor",
+      "language": "es",
+      "dataSize": 15825
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Iguazu Falls",
+      "translatedName": "伊瓜苏瀑布",
+      "language": "zh",
+      "dataSize": 3479
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Iguazu Falls",
+      "translatedName": "이과수 폭포",
+      "language": "ko",
+      "dataSize": 6240
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Iguazu Falls",
+      "translatedName": "イグアスの滝",
+      "language": "ja",
+      "dataSize": 6631
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Iguazu Falls",
+      "translatedName": "Iguazu Falls",
+      "language": "en",
+      "dataSize": 20536
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Iguazu Falls",
+      "translatedName": "Cataratas del Iguazú",
+      "language": "es",
+      "dataSize": 27496
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Maracanã Stadium",
+      "translatedName": "马拉卡纳体育场",
+      "language": "zh",
+      "dataSize": 2900
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Maracanã Stadium",
+      "translatedName": "마라카낭 스타디움",
+      "language": "ko",
+      "dataSize": 4787
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Maracanã Stadium",
+      "translatedName": "マラカナンスタジアム",
+      "language": "ja",
+      "dataSize": 5989
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Maracanã Stadium",
+      "translatedName": "Maracanã Stadium",
+      "language": "en",
+      "dataSize": 16678
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Maracanã Stadium",
+      "translatedName": "Estadio Maracaná",
+      "language": "es",
+      "dataSize": 17879
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Machu Picchu",
+      "translatedName": "马丘比丘",
+      "language": "zh",
+      "dataSize": 2765
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Machu Picchu",
+      "translatedName": "マチュピチュ",
+      "language": "ja",
+      "dataSize": 5005
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Machu Picchu",
+      "translatedName": "Machu Picchu",
+      "language": "en",
+      "dataSize": 18126
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Machu Picchu",
+      "translatedName": "마추픽추",
+      "language": "ko",
+      "dataSize": 6411
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Machu Picchu",
+      "translatedName": "Machu Picchu",
+      "language": "es",
+      "dataSize": 25063
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Cusco",
+      "translatedName": "库斯科",
+      "language": "zh",
+      "dataSize": 3323
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Cusco",
+      "translatedName": "쿠스코",
+      "language": "ko",
+      "dataSize": 6995
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Cusco",
+      "translatedName": "Cusco",
+      "language": "en",
+      "dataSize": 19946
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Cusco",
+      "translatedName": "Cusco",
+      "language": "es",
+      "dataSize": 21559
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Cusco",
+      "translatedName": "クスコ",
+      "language": "ja",
+      "dataSize": 5934
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Nazca Lines",
+      "translatedName": "纳斯卡线",
+      "language": "zh",
+      "dataSize": 2110
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Nazca Lines",
+      "translatedName": "Nazca Lines",
+      "language": "en",
+      "dataSize": 9084
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Nazca Lines",
+      "translatedName": "나스카 라인",
+      "language": "ko",
+      "dataSize": 7982
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Nazca Lines",
+      "translatedName": "ナスカライン",
+      "language": "ja",
+      "dataSize": 8103
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Nazca Lines",
+      "translatedName": "Líneas de Nazca",
+      "language": "es",
+      "dataSize": 23556
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Chichen Itza",
+      "translatedName": "奇琴伊察",
+      "language": "zh",
+      "dataSize": 3140
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Chichen Itza",
+      "translatedName": "Chichen Itza",
+      "language": "en",
+      "dataSize": 18141
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Chichen Itza",
+      "translatedName": "チチェン・イッツァ",
+      "language": "ja",
+      "dataSize": 7366
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Chichen Itza",
+      "translatedName": "치첸이차",
+      "language": "ko",
+      "dataSize": 7197
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Chichen Itza",
+      "translatedName": "Chichén Itzá",
+      "language": "es",
+      "dataSize": 24551
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Teotihuacan",
+      "translatedName": "特奥蒂瓦坎",
+      "language": "zh",
+      "dataSize": 2938
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Teotihuacan",
+      "translatedName": "Teotihuacan",
+      "language": "en",
+      "dataSize": 20600
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Teotihuacan",
+      "translatedName": "テオティワカン",
+      "language": "ja",
+      "dataSize": 6114
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Teotihuacan",
+      "translatedName": "테오티우아칸",
+      "language": "ko",
+      "dataSize": 6230
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Teotihuacan",
+      "translatedName": "Teotihuacan",
+      "language": "es",
+      "dataSize": 21115
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Cancun",
+      "translatedName": "坎昆",
+      "language": "zh",
+      "dataSize": 1959
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Cancun",
+      "translatedName": "Cancun",
+      "language": "en",
+      "dataSize": 11547
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Cancun",
+      "translatedName": "칸쿤",
+      "language": "ko",
+      "dataSize": 5140
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Cancun",
+      "translatedName": "カンクン",
+      "language": "ja",
+      "dataSize": 7899
+    },
+    {
+      "success": true,
+      "source": "generated",
+      "attraction": "Cancun",
+      "translatedName": "Cancún",
+      "language": "es",
+      "dataSize": 25506
+    }
+  ],
+  "duration": "15.5분"
+}
