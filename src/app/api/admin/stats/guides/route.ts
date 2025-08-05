@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withAdminAuth } from '@/lib/admin-auth';
 import { supabase } from '@/lib/supabaseClient';
 
-async function getGuideStatsHandler() {
+export async function GET() {
   try {
     // 날짜 계산
     const now = new Date();
@@ -142,4 +141,4 @@ async function getGuideStatsHandler() {
   }
 }
 
-export const GET = withAdminAuth(getGuideStatsHandler);
+// export const GET = withAdminAuth(getGuideStatsHandler);

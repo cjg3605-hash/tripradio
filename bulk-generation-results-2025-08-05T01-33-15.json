@@ -1,0 +1,1344 @@
+{
+  "timestamp": "2025-08-05T01:33:15.446Z",
+  "summary": {
+    "total": 285,
+    "completed": 285,
+    "success": 0,
+    "cached": 19,
+    "failed": 266,
+    "successRate": "6.7%"
+  },
+  "errors": [
+    {
+      "attraction": "경복궁",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "경복궁",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "경복궁",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "경복궁",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "경복궁",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "남산타워",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "남산타워",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "남산타워",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "남산타워",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "남산타워",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "명동",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "명동",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "명동",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "명동",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "명동",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "해운대해수욕장",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "해운대해수욕장",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "해운대해수욕장",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "해운대해수욕장",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "해운대해수욕장",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "감천문화마을",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "감천문화마을",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "감천문화마을",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "감천문화마을",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "감천문화마을",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "자갈치시장",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "자갈치시장",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "자갈치시장",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "자갈치시장",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "자갈치시장",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "한라산",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "한라산",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "한라산",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "한라산",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "한라산",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "성산일출봉",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "성산일출봉",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "성산일출봉",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "성산일출봉",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "성산일출봉",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "중문관광단지",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "중문관광단지",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "중문관광단지",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "중문관광단지",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "중문관광단지",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "불국사",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "불국사",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "불국사",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "불국사",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "불국사",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "석굴암",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "석굴암",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "석굴암",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "석굴암",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "석굴암",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "첨성대",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "첨성대",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "첨성대",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "첨성대",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "첨성대",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Eiffel Tower",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Eiffel Tower",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Eiffel Tower",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Eiffel Tower",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Louvre Museum",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Louvre Museum",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Louvre Museum",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Louvre Museum",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Louvre Museum",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Palace of Versailles",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Palace of Versailles",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Palace of Versailles",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Palace of Versailles",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Palace of Versailles",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Colosseum",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Colosseum",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Colosseum",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Colosseum",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Colosseum",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Leaning Tower of Pisa",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Leaning Tower of Pisa",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Leaning Tower of Pisa",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Leaning Tower of Pisa",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Leaning Tower of Pisa",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Vatican",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Vatican",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Vatican",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Vatican",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Vatican",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Sagrada Familia",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Sagrada Familia",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Sagrada Familia",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Sagrada Familia",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Sagrada Familia",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Alhambra",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Alhambra",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Alhambra",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Alhambra",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Alhambra",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Park Güell",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Park Güell",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Park Güell",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Big Ben",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Big Ben",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Big Ben",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Big Ben",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Tower Bridge",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Tower Bridge",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Tower Bridge",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Tower Bridge",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Buckingham Palace",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Buckingham Palace",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Buckingham Palace",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Buckingham Palace",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Buckingham Palace",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Brandenburg Gate",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Brandenburg Gate",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Brandenburg Gate",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Brandenburg Gate",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Brandenburg Gate",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Neuschwanstein Castle",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Neuschwanstein Castle",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Neuschwanstein Castle",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Cologne Cathedral",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Cologne Cathedral",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Cologne Cathedral",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Cologne Cathedral",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Cologne Cathedral",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Mount Fuji",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Mount Fuji",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Mount Fuji",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Mount Fuji",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Mount Fuji",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Kiyomizu-dera",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Kiyomizu-dera",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Kiyomizu-dera",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Kiyomizu-dera",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Senso-ji",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Senso-ji",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Senso-ji",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Senso-ji",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Senso-ji",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Great Wall",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Great Wall",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Great Wall",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Great Wall",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Great Wall",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Forbidden City",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Forbidden City",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Forbidden City",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Forbidden City",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Forbidden City",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Tiananmen Square",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Tiananmen Square",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Tiananmen Square",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Tiananmen Square",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Tiananmen Square",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Taj Mahal",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Taj Mahal",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Taj Mahal",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Taj Mahal",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Taj Mahal",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Red Fort",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Red Fort",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Red Fort",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Red Fort",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Red Fort",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Ganges River",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Ganges River",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Ganges River",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Ganges River",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Wat Arun",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Wat Arun",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Grand Palace",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Grand Palace",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Grand Palace",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Grand Palace",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Grand Palace",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Wat Pho",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Wat Pho",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Wat Pho",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Wat Pho",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Wat Pho",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Marina Bay Sands",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Marina Bay Sands",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Marina Bay Sands",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Marina Bay Sands",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Marina Bay Sands",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Gardens by the Bay",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Gardens by the Bay",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Gardens by the Bay",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Gardens by the Bay",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Merlion",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Merlion",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Merlion",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Merlion",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Statue of Liberty",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Statue of Liberty",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Statue of Liberty",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Statue of Liberty",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Statue of Liberty",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Grand Canyon",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Grand Canyon",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Grand Canyon",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Times Square",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Times Square",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Times Square",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Times Square",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Times Square",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Niagara Falls",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Niagara Falls",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Niagara Falls",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Niagara Falls",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Niagara Falls",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "CN Tower",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "CN Tower",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "CN Tower",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "CN Tower",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Banff National Park",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Banff National Park",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Banff National Park",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Banff National Park",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Christ the Redeemer",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Christ the Redeemer",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Christ the Redeemer",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Christ the Redeemer",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Christ the Redeemer",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Iguazu Falls",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Iguazu Falls",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Iguazu Falls",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Iguazu Falls",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Iguazu Falls",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Maracanã Stadium",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Maracanã Stadium",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Maracanã Stadium",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Maracanã Stadium",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Machu Picchu",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Machu Picchu",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Machu Picchu",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Machu Picchu",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Machu Picchu",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Cusco",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Cusco",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Cusco",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Cusco",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Cusco",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Nazca Lines",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Nazca Lines",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Nazca Lines",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Nazca Lines",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Nazca Lines",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Chichen Itza",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Chichen Itza",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Chichen Itza",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Chichen Itza",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Chichen Itza",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Teotihuacan",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Teotihuacan",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Teotihuacan",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Teotihuacan",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Teotihuacan",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Cancun",
+      "language": "ko",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Cancun",
+      "language": "en",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Cancun",
+      "language": "ja",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Cancun",
+      "language": "zh",
+      "error": "HTTP 500: Internal Server Error"
+    },
+    {
+      "attraction": "Cancun",
+      "language": "es",
+      "error": "HTTP 500: Internal Server Error"
+    }
+  ],
+  "duration": "2922.2초"
+}

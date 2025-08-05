@@ -1,0 +1,1094 @@
+{
+  "timestamp": "2025-08-05T01:33:16.505Z",
+  "summary": {
+    "total": 285,
+    "completed": 285,
+    "success": 0,
+    "cached": 69,
+    "failed": 216,
+    "successRate": "24.2%"
+  },
+  "errors": [
+    {
+      "attraction": "불국사",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "불국사",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "석굴암",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "석굴암",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "석굴암",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "석굴암",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "석굴암",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "첨성대",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "첨성대",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "첨성대",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "첨성대",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "첨성대",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Eiffel Tower",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Eiffel Tower",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Eiffel Tower",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Eiffel Tower",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Louvre Museum",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Louvre Museum",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Louvre Museum",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Louvre Museum",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Louvre Museum",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Palace of Versailles",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Palace of Versailles",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Palace of Versailles",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Palace of Versailles",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Colosseum",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Colosseum",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Colosseum",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Colosseum",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Colosseum",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Leaning Tower of Pisa",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Leaning Tower of Pisa",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Leaning Tower of Pisa",
+      "language": "ja",
+      "error": "timeout of 30000ms exceeded"
+    },
+    {
+      "attraction": "Vatican",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Vatican",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Vatican",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Vatican",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Sagrada Familia",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Sagrada Familia",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Sagrada Familia",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Sagrada Familia",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Alhambra",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Alhambra",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Alhambra",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Alhambra",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Alhambra",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Park Güell",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Park Güell",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Park Güell",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Park Güell",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Big Ben",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Big Ben",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Big Ben",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Big Ben",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Tower Bridge",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Tower Bridge",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Tower Bridge",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Tower Bridge",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Tower Bridge",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Buckingham Palace",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Buckingham Palace",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Buckingham Palace",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Buckingham Palace",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Buckingham Palace",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Brandenburg Gate",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Brandenburg Gate",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Brandenburg Gate",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Brandenburg Gate",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Neuschwanstein Castle",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Neuschwanstein Castle",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Neuschwanstein Castle",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Neuschwanstein Castle",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Cologne Cathedral",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Cologne Cathedral",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Cologne Cathedral",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Cologne Cathedral",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Cologne Cathedral",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Mount Fuji",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Mount Fuji",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Mount Fuji",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Mount Fuji",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Kiyomizu-dera",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Kiyomizu-dera",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Kiyomizu-dera",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Kiyomizu-dera",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Senso-ji",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Senso-ji",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Senso-ji",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Senso-ji",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Great Wall",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Great Wall",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Great Wall",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Great Wall",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Great Wall",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Forbidden City",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Forbidden City",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Forbidden City",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Forbidden City",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Forbidden City",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Tiananmen Square",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Tiananmen Square",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Tiananmen Square",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Tiananmen Square",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Tiananmen Square",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Taj Mahal",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Taj Mahal",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Taj Mahal",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Taj Mahal",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Taj Mahal",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Red Fort",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Red Fort",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Red Fort",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Red Fort",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Red Fort",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Ganges River",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Ganges River",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Ganges River",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Ganges River",
+      "language": "es",
+      "error": "timeout of 30000ms exceeded"
+    },
+    {
+      "attraction": "Wat Arun",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Wat Arun",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Wat Arun",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Grand Palace",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Grand Palace",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Grand Palace",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Grand Palace",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Grand Palace",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Wat Pho",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Wat Pho",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Wat Pho",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Wat Pho",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Marina Bay Sands",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Marina Bay Sands",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Marina Bay Sands",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Marina Bay Sands",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Marina Bay Sands",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Gardens by the Bay",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Gardens by the Bay",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Gardens by the Bay",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Gardens by the Bay",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Merlion",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Merlion",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Merlion",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Merlion",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Merlion",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Statue of Liberty",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Statue of Liberty",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Statue of Liberty",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Statue of Liberty",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Statue of Liberty",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Grand Canyon",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Grand Canyon",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Grand Canyon",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Grand Canyon",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Grand Canyon",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Times Square",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Times Square",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Times Square",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Times Square",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Times Square",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Niagara Falls",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Niagara Falls",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Niagara Falls",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Niagara Falls",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Niagara Falls",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "CN Tower",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "CN Tower",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "CN Tower",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "CN Tower",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "CN Tower",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Banff National Park",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Banff National Park",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Banff National Park",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Banff National Park",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Banff National Park",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Christ the Redeemer",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Christ the Redeemer",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Christ the Redeemer",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Christ the Redeemer",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Christ the Redeemer",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Iguazu Falls",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Iguazu Falls",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Iguazu Falls",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Iguazu Falls",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Iguazu Falls",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Maracanã Stadium",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Maracanã Stadium",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Maracanã Stadium",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Maracanã Stadium",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Maracanã Stadium",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Machu Picchu",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Machu Picchu",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Machu Picchu",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Machu Picchu",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Cusco",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Cusco",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Cusco",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Cusco",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Cusco",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Nazca Lines",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Nazca Lines",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Nazca Lines",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Nazca Lines",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Nazca Lines",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Chichen Itza",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Chichen Itza",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Chichen Itza",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Chichen Itza",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Chichen Itza",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Teotihuacan",
+      "language": "en",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Teotihuacan",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Teotihuacan",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Teotihuacan",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Cancun",
+      "language": "ko",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Cancun",
+      "language": "ja",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Cancun",
+      "language": "zh",
+      "error": "Request failed with status code 500"
+    },
+    {
+      "attraction": "Cancun",
+      "language": "es",
+      "error": "Request failed with status code 500"
+    }
+  ],
+  "duration": "2463.7초"
+}
