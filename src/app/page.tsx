@@ -956,7 +956,7 @@ function Home() {
           </div>
 
           {/* 전략적 광고 배치 1: 검색박스 하단 */}
-          <div className="max-w-4xl mx-auto px-6 py-8">
+          <div className="max-w-4xl mx-auto px-6 py-4">
             <OptimalAdSense 
               placement="homepage-hero" 
               className="text-center"
@@ -965,11 +965,11 @@ function Home() {
         </section>
 
         {/* Regional Countries Section */}
-        <section className="relative z-10 py-8 bg-gradient-to-b from-gray-50 to-white">
+        <section className="relative z-10 py-6 bg-gradient-to-b from-gray-50 to-white">
           <div className="max-w-6xl mx-auto px-6">
             
             {/* 섹션 제목 */}
-            <div className="text-center mb-10">
+            <div className="text-center mb-8">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
                 {t('home.regionTitles.popularCountries')}
               </h2>
@@ -979,7 +979,7 @@ function Home() {
             </div>
             
             {/* 지역별 탭 */}
-            <div className="flex justify-center mb-8">
+            <div className="flex justify-center mb-6">
               <div className="bg-white rounded-xl p-1 shadow-sm border border-gray-100">
                 <div className="flex space-x-1">
                   {[
@@ -1107,7 +1107,7 @@ function Home() {
             </div>
 
             {/* 전략적 광고 배치 2: 지역별 국가 섹션 하단 */}
-            <div className="max-w-4xl mx-auto px-6 py-8">
+            <div className="max-w-4xl mx-auto px-6 py-4">
               <OptimalAdSense 
                 placement="homepage-countries" 
                 className="text-center"
