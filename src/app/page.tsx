@@ -965,7 +965,7 @@ function Home() {
         </section>
 
         {/* Regional Countries Section */}
-        <section className="relative z-10 py-12 bg-gradient-to-b from-gray-50 to-white">
+        <section className="relative z-10 py-8 bg-gradient-to-b from-gray-50 to-white">
           <div className="max-w-6xl mx-auto px-6">
             
             {/* 섹션 제목 */}
@@ -1080,10 +1080,7 @@ function Home() {
 
                         {/* 정보 표시 영역 */}
                         <div className="pt-4 border-t border-gray-100">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-500 font-light tracking-wide">
-                              {country.attractions.length} {t('home.destinations')}
-                            </span>
+                          <div className="flex items-center justify-end">
                             <div className="flex items-center text-sm font-light text-gray-600">
                               <span className="tracking-wide">{t('home.clickAttraction')}</span>
                               <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
