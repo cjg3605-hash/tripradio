@@ -33,55 +33,80 @@ interface CacheItem {
 const VALID_LANGUAGES = ['ko', 'en', 'ja', 'zh', 'es'] as const;
 type Language = typeof VALID_LANGUAGES[number];
 
-// 크기 제한이 있는 LRU 캐시 구현
-class LRUCache<T> {
-  private cache = new Map<string, T>();
-  private maxSize = 100; // 최대 100개 항목
-
-  get(key: string): T | null {
-    const value = this.cache.get(key);
-    if (value) {
-      // LRU: 접근한 항목을 맨 뒤로 이동
-      this.cache.delete(key);
-      this.cache.set(key, value);
-      return value;
-    }
-    return null;
-  }
-
-  set(key: string, value: T): void {
-    if (this.cache.has(key)) {
-      this.cache.delete(key);
-    } else if (this.cache.size >= this.maxSize) {
-      // 가장 오래된 항목 제거
-      const firstKey = this.cache.keys().next().value;
-      if (firstKey !== undefined) {
-        this.cache.delete(firstKey);
+// 🚀 환경별 통일된 캐시 전략 (성능 최적화)
+const kv = process.env.NODE_ENV === 'development' 
+  ? (() => {
+      // 개발환경: 5분 TTL 메모리 캐시로 반복 테스트 성능 향상
+      class DevCache<T> {
+        private cache = new Map<string, { value: T; expiry: number }>();
+        
+        get(key: string): T | null {
+          const item = this.cache.get(key);
+          if (item && item.expiry > Date.now()) {
+            return item.value;
+          }
+          if (item) {
+            this.cache.delete(key); // 만료된 항목 제거
+          }
+          return null;
+        }
+        
+        setex(key: string, seconds: number, value: T): void {
+          this.cache.set(key, {
+            value,
+            expiry: Date.now() + (seconds * 1000)
+          });
+        }
       }
-    }
-    this.cache.set(key, value);
-  }
+      
+      const devCache = new DevCache<any>();
+      return {
+        get: async <T>(key: string): Promise<T | null> => devCache.get(key) as T | null,
+        set: async (key: string, value: any): Promise<'OK'> => { devCache.setex(key, 300, value); return 'OK'; }, // 5분 TTL
+        setex: async (key: string, seconds: number, value: any): Promise<'OK'> => { devCache.setex(key, seconds, value); return 'OK'; }
+      };
+    })()
+  : (() => {
+      // 프로덕션환경: 최적화된 LRU 캐시
+      class LRUCache<T> {
+        private cache = new Map<string, T>();
+        private maxSize = 50; // 메모리 최적화: 100→50
 
-  setex(key: string, seconds: number, value: T): void {
-    this.set(key, value);
-    setTimeout(() => this.cache.delete(key), seconds * 1000);
-  }
-}
+        get(key: string): T | null {
+          const value = this.cache.get(key);
+          if (value) {
+            this.cache.delete(key);
+            this.cache.set(key, value);
+            return value;
+          }
+          return null;
+        }
 
-const cache = new LRUCache<any>();
-const kv = {
-  get: async <T>(key: string): Promise<T | null> => {
-    return cache.get(key) as T | null;
-  },
-  set: async (key: string, value: any): Promise<'OK'> => {
-    cache.set(key, value);
-    return 'OK';
-  },
-  setex: async (key: string, seconds: number, value: any): Promise<'OK'> => {
-    cache.setex(key, seconds, value);
-    return 'OK';
-  }
-} as const;
+        set(key: string, value: T): void {
+          if (this.cache.has(key)) {
+            this.cache.delete(key);
+          } else if (this.cache.size >= this.maxSize) {
+            const firstKey = this.cache.keys().next().value;
+            if (firstKey !== undefined) {
+              this.cache.delete(firstKey);
+            }
+          }
+          this.cache.set(key, value);
+        }
+
+        setex(key: string, seconds: number, value: T): void {
+          this.set(key, value);
+          setTimeout(() => this.cache.delete(key), seconds * 1000);
+        }
+      }
+
+      const cache = new LRUCache<any>();
+      return {
+        get: async <T>(key: string): Promise<T | null> => cache.get(key) as T | null,
+        set: async (key: string, value: any): Promise<'OK'> => { cache.set(key, value); return 'OK'; },
+        setex: async (key: string, seconds: number, value: any): Promise<'OK'> => { cache.setex(key, seconds, value); return 'OK'; }
+      };
+    })();
 
 // Rate limiting implementation
 class RateLimiter {
@@ -131,8 +156,8 @@ class RateLimiter {
   }
 }
 
-// Rate limiter instance (10 requests per 10 seconds)
-const rateLimiter = new RateLimiter(10, 10 * 1000);
+// Rate limiter instance (20 requests per 5 seconds - 개선된 UX)
+const rateLimiter = new RateLimiter(20, 5 * 1000);
 
 // 🚀 요청 중복 제거 시스템 (80% 중복 방지)
 class RequestCoalescer {
@@ -211,23 +236,20 @@ function sanitizeInput(input: string): string {
 // Create optimized autocomplete prompt (minimal tokens)
 function createSearchPrompt(query: string, language: Language): string {
   const prompts = {
-    ko: `'${query}' 관련 관광지 추천 4개:
-- ${query} 자체와 주요 구역들
-- ${query} 주변 명소들  
-- 비슷한 성격의 다른 관광지들
-JSON만: [{"name": "장소명", "location": "도시, 국가", "metadata": {"isOfficial": true/false, "category": "관광지/박물관/자연", "popularity": 1-10}}]`,
+    ko: `'${query}' 관련 유명한 관광명소 5개를 JSON 배열로:
+[{"name": "장소명", "location": "도시, 국가"}]`,
     
-    en: `Autocomplete '${query}': 4 places containing input text. Include variations. JSON array only:
-[{"name": "place name", "location": "city, country", "metadata": {"isOfficial": true/false, "category": "tourist/museum/nature", "popularity": 1-10}}]`,
+    en: `'${query}' related famous tourist attractions, 5 places as JSON array:
+[{"name": "place name", "location": "city, country"}]`,
     
-    ja: `'${query}' 自動完成: 入力文字を含む場所4件. 様々な表現含む. JSON配列のみ:
-[{"name": "場所名", "location": "都市, 国", "metadata": {"isOfficial": true/false, "category": "観光地/博物館/自然", "popularity": 1-10}}]`,
+    ja: `'${query}' 関連の有名な観光地5ヶ所をJSON配列で:
+[{"name": "場所名", "location": "都市, 国"}]`,
     
-    zh: `'${query}' 自动完成: 包含输入文本的地点4个. 包含多种表达. 仅JSON数组:
-[{"name": "地点名", "location": "城市, 国家", "metadata": {"isOfficial": true/false, "category": "旅游/博物馆/自然", "popularity": 1-10}}]`,
+    zh: `'${query}' 相关的著名旅游景点5个，JSON数组格式:
+[{"name": "地点名", "location": "城市, 国家"}]`,
     
-    es: `Autocompletar '${query}': 4 lugares con texto. Incluir variaciones. Solo JSON:
-[{"name": "lugar", "location": "ciudad, país", "metadata": {"isOfficial": true/false, "category": "turístico/museo/natural", "popularity": 1-10}}]`
+    es: `'${query}' lugares turísticos famosos relacionados, 5 lugares como JSON:
+[{"name": "lugar", "location": "ciudad, país"}]`
   };
   return prompts[language] || prompts.ko;
 }
@@ -368,8 +390,8 @@ export async function GET(request: NextRequest) {
         const model = gemini.getGenerativeModel({ 
           model: 'gemini-2.5-flash-lite',
           generationConfig: {
-            temperature: 0.2,    // 다양성을 위해 약간 증가
-            maxOutputTokens: 400, // 4개 장소 JSON 응답을 위한 적정 토큰
+            temperature: 0.1,    // 더 일관된 응답 (0.2 → 0.1)
+            maxOutputTokens: 300, // 5개 장소, 메타데이터 제거 (400 → 300)
             topP: 0.9,           // 더 다양한 결과
             topK: 20             // 선택 범위 확대
           }
@@ -450,7 +472,7 @@ export async function GET(request: NextRequest) {
           
           // 중복 제거 및 대표 장소 선택 적용
           const deduplicationConfig: DeduplicationConfig = {
-            maxResults: 4,
+            maxResults: 5,
             similarityThreshold: 0.85,
             preferOfficialNames: false
           };

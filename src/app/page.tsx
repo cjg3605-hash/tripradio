@@ -9,6 +9,7 @@ import GuideLoading from '@/components/ui/GuideLoading';
 import OptimalAdSense from '@/components/ads/OptimalAdSense';
 import FAQSchema, { getDefaultFAQs } from '@/components/seo/FAQSchema';
 import BreadcrumbSchema, { generateHomeBreadcrumb } from '@/components/seo/BreadcrumbSchema';
+import ErrorModal, { ErrorModalProps } from '@/components/errors/ErrorModal';
 
 // 에러 바운더리 클래스 컴포넌트
 class ErrorBoundary extends Component<
@@ -112,6 +113,7 @@ function Home() {
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const [currentLoadingQuery, setCurrentLoadingQuery] = useState('');
   
   // 기능 상태 (분리된 로딩 상태)
   const [loadingStates, setLoadingStates] = useState({
@@ -142,6 +144,41 @@ function Home() {
   
   // 컴포넌트 마운트 상태
   const isMountedRef = useRef(true);
+  
+  // 에러 모달 상태
+  const [errorModal, setErrorModal] = useState<{
+    isOpen: boolean;
+    title?: string;
+    message: string;
+    errorType?: 'network' | 'timeout' | 'server' | 'validation' | 'config' | 'unknown';
+    details?: string;
+    retryAction?: () => void;
+  }>({
+    isOpen: false,
+    message: ''
+  });
+
+  // 에러 표시 헬퍼 함수
+  const showError = useCallback((
+    message: string,
+    options?: {
+      title?: string;
+      errorType?: 'network' | 'timeout' | 'server' | 'validation' | 'config' | 'unknown';
+      details?: string;
+      retryAction?: () => void;
+    }
+  ) => {
+    setErrorModal({
+      isOpen: true,
+      message,
+      ...options
+    });
+  }, []);
+
+  // 에러 모달 닫기
+  const closeErrorModal = useCallback(() => {
+    setErrorModal(prev => ({ ...prev, isOpen: false }));
+  }, []);
   
   // 간격 참조
   const intervalRefs = useRef<{
@@ -447,23 +484,33 @@ function Home() {
 
   // 디바운스된 검색 함수 (메모리 안전)
   useEffect(() => {
+    console.log('🔍 디바운스 트리거:', { query: query.trim(), isFocused, isMountedRef: isMountedRef.current });
     if (!isMountedRef.current) return;
     
     const timeoutId = setTimeout(() => {
+      console.log('⏰ 디바운스 실행 전:', { query: query.trim(), isFocused, isMountedRef: isMountedRef.current });
       if (query.trim() && isFocused && isMountedRef.current) {
+        console.log('✅ 자동완성 API 호출:', query.trim());
         fetchSuggestions(query.trim());
+      } else {
+        console.log('❌ 자동완성 조건 불충족:', { hasQuery: !!query.trim(), isFocused, isMounted: isMountedRef.current });
       }
     }, 200); // 200ms 디바운스 (최적화)
 
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [query, currentLanguage, isFocused, fetchSuggestions, isMountedRef]);
+  }, [query, currentLanguage, isFocused, fetchSuggestions]);
 
-  // 컴포넌트 언마운트 시 정리 작업
+  // 컴포넌트 마운트/언마운트 관리 (React Strict Mode 대응)
   useEffect(() => {
+    // 컴포넌트 마운트 시 초기화
+    isMountedRef.current = true;
+    console.log('🚀 컴포넌트 마운트: isMountedRef =', isMountedRef.current);
+    
     return () => {
       // 컴포넌트 언마운트 표시
+      console.log('🔚 컴포넌트 언마운트: isMountedRef 설정 false');
       isMountedRef.current = false;
       
       // 진행 중인 API 요청 취소
@@ -477,6 +524,7 @@ function Home() {
   const handleSearch = useCallback(async () => {
     if (!query.trim() || !isMountedRef.current) return;
     
+    setCurrentLoadingQuery(query.trim());
     setLoadingState('search', true);
     try {
       router.push(`/guide/${encodeURIComponent(query.trim())}`);
@@ -485,6 +533,7 @@ function Home() {
     } finally {
       if (isMountedRef.current) {
         setLoadingState('search', false);
+        setCurrentLoadingQuery('');
       }
     }
   }, [query, router, setLoadingState]);
@@ -529,32 +578,71 @@ function Home() {
 
 
 
-  // AI 가이드 생성
+  // AI 가이드 생성 (강화된 에러 처리 및 디버깅)
   const handleAIGeneration = async () => {
     if (!query.trim()) {
-      alert(t('home.alerts.enterLocation'));
+      showError(t('home.alerts.enterLocation') as string, {
+        errorType: 'validation',
+        title: '입력 확인'
+      });
       return;
     }
 
+    const location = query.trim();
+    setCurrentLoadingQuery(location);
     setLoadingState('guide', true);
-    try {
-      console.log('🚀 AI 가이드 생성 요청 시작:', {
-        url: '/api/ai/generate-guide-with-gemini',
-        method: 'POST',
-        location: query.trim(),
-        language: currentLanguage,
-        library: 'Gemini 완전 라이브러리'
-      });
+    
+    console.group('🚀 AI 가이드 생성 시작');
+    console.log('📍 요청 정보:', {
+      location,
+      language: currentLanguage,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: window.location.href
+    });
 
-      // 완전한 Gemini 라이브러리 사용으로 변경
+    try {
+      // 1단계: 환경 변수 사전 체크
+      console.log('🔍 1단계: 환경 설정 체크 중...');
+      const envCheck = await fetch('/api/debug/env', {
+        method: 'GET',
+        cache: 'no-cache'
+      });
+      
+      if (envCheck.ok) {
+        const envData = await envCheck.json();
+        console.log('🔧 환경 설정 상태:', envData.diagnostics);
+        
+        if (envData.criticalMissing.length > 0) {
+          console.error('🚨 필수 환경 변수 누락:', envData.criticalMissing);
+          showError(
+            `서비스 설정에 문제가 있습니다. 관리자에게 문의하세요.`,
+            {
+              errorType: 'config',
+              title: '설정 오류',
+              details: `누락된 설정: ${envData.criticalMissing.join(', ')}`,
+              retryAction: () => handleAIGeneration()
+            }
+          );
+          return;
+        }
+      } else {
+        console.warn('⚠️ 환경 설정 체크 실패, 계속 진행');
+      }
+
+      // 2단계: AI 가이드 생성 API 호출
+      console.log('🤖 2단계: AI 가이드 생성 요청 시작');
+      const startTime = Date.now();
+      
       const response = await fetch('/api/ai/generate-guide-with-gemini', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'User-Agent': 'GuideAI/1.0'
         },
         body: JSON.stringify({
-          location: query.trim(),
+          location,
           userProfile: {
             language: currentLanguage,
             interests: ['문화', '역사'],
@@ -563,46 +651,205 @@ function Home() {
             preferredStyle: '친근함',
             tourDuration: 90,
             companions: 'solo'
-          }
+          },
+          enhanceCoordinates: true,
+          useEnhancedChapters: true
         }),
+        signal: AbortSignal.timeout(60000) // 60초 타임아웃
       });
 
-      console.log('📡 응답 수신:', {
+      const responseTime = Date.now() - startTime;
+      console.log('📡 API 응답 수신:', {
         status: response.status,
         statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries())
+        responseTime: `${responseTime}ms`,
+        contentType: response.headers.get('content-type'),
+        contentLength: response.headers.get('content-length')
       });
 
       if (response.ok) {
-        const data = await response.json();
-        console.log('✅ 가이드 생성 성공:', data);
-        router.push(`/guide/${encodeURIComponent(query.trim())}/tour`);
+        try {
+          const data = await response.json();
+          console.log('✅ 가이드 생성 성공:', {
+            success: data.success,
+            location: data.location,
+            language: data.language,
+            hasData: !!data.data,
+            dataIntegration: data.dataIntegration?.hasIntegratedData,
+            coordinateEnhancement: data.coordinateEnhancement?.success,
+            cached: data.cached,
+            totalTime: `${responseTime}ms`
+          });
+          
+          // 3단계: 성공적인 페이지 이동
+          console.log('🔄 가이드 페이지로 이동 중...');
+          router.push(`/guide/${encodeURIComponent(location)}/tour`);
+          
+        } catch (jsonError) {
+          console.error('❌ JSON 파싱 오류:', jsonError);
+          const responseText = await response.text();
+          console.log('원본 응답 텍스트 (처음 500자):', responseText);
+          showError(
+            '서버 응답 처리 중 오류가 발생했습니다. 다시 시도해주세요.',
+            {
+              errorType: 'server',
+              title: '서버 응답 오류',
+              details: `JSON 파싱 실패: ${jsonError instanceof Error ? jsonError.message : 'Unknown error'}`,
+              retryAction: () => handleAIGeneration()
+            }
+          );
+        }
       } else {
-        const errorData = await response.json().catch(() => ({ 
-          error: `HTTP ${response.status}: ${response.statusText}` 
-        }));
-        console.error('❌ 가이드 생성 실패:', {
+        // 4단계: API 에러 처리
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { 
+            error: `HTTP ${response.status}: ${response.statusText}`,
+            details: '서버에서 오류 응답을 받았습니다.'
+          };
+        }
+        
+        console.error('❌ API 가이드 생성 실패:', {
           status: response.status,
           statusText: response.statusText,
-          errorData
+          error: errorData.error,
+          details: errorData.details,
+          retryAfter: response.headers.get('retry-after'),
+          responseTime: `${responseTime}ms`
         });
-        alert(errorData.error || `${t('home.alerts.generationFailed')} (${response.status})`);
+
+        // 사용자 친화적 에러 메시지
+        if (response.status === 429) {
+          const retryAfter = response.headers.get('retry-after') || '60';
+          showError(
+            `요청 한도를 초과했습니다. ${retryAfter}초 후 다시 시도해주세요.`,
+            {
+              errorType: 'server',
+              title: '요청 제한',
+              details: `HTTP 429: Rate limit exceeded. Retry after ${retryAfter} seconds`,
+              retryAction: () => {
+                setTimeout(() => handleAIGeneration(), parseInt(retryAfter) * 1000);
+              }
+            }
+          );
+        } else if (response.status === 500) {
+          showError(
+            'AI 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.',
+            {
+              errorType: 'server',
+              title: '서버 오류',
+              details: `HTTP 500: ${errorData.error || 'Internal Server Error'}`,
+              retryAction: () => handleAIGeneration()
+            }
+          );
+        } else if (response.status === 400) {
+          showError(
+            '입력하신 장소 정보를 확인해주세요.',
+            {
+              errorType: 'validation',
+              title: '입력 오류',
+              details: `HTTP 400: ${errorData.error || 'Bad Request'}`,
+              retryAction: () => handleAIGeneration()
+            }
+          );
+        } else {
+          const defaultMessage = errorData.error || `${t('home.alerts.generationFailed')} (${response.status})`;
+          showError(
+            defaultMessage,
+            {
+              errorType: 'server',
+              title: '가이드 생성 실패',
+              details: `HTTP ${response.status}: ${response.statusText}`,
+              retryAction: () => handleAIGeneration()
+            }
+          );
+        }
       }
     } catch (error) {
-      console.error('❌ AI 생성 오류:', error);
-      alert(t('home.alerts.networkError'));
+      const responseTime = Date.now() - Date.now();
+      console.error('❌ AI 생성 예외 발생:', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        name: error instanceof Error ? error.name : 'UnknownError',
+        location,
+        language: currentLanguage,
+        timestamp: new Date().toISOString()
+      });
+
+      // 네트워크 에러별 사용자 친화적 메시지
+      if (error instanceof Error) {
+        if (error.name === 'AbortError' || error.message.includes('timeout')) {
+          showError(
+            '요청 시간이 초과되었습니다. 네트워크 연결을 확인하고 다시 시도해주세요.',
+            {
+              errorType: 'timeout',
+              title: '시간 초과',
+              details: `${error.name}: ${error.message}`,
+              retryAction: () => handleAIGeneration()
+            }
+          );
+        } else if (error.message.includes('Failed to fetch')) {
+          showError(
+            '네트워크 연결에 문제가 있습니다. 인터넷 연결을 확인해주세요.',
+            {
+              errorType: 'network',
+              title: '연결 실패',
+              details: `Network Error: ${error.message}`,
+              retryAction: () => handleAIGeneration()
+            }
+          );
+        } else if (error.message.includes('NetworkError')) {
+          showError(
+            '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+            {
+              errorType: 'network',
+              title: '네트워크 오류',
+              details: `Network Error: ${error.message}`,
+              retryAction: () => handleAIGeneration()
+            }
+          );
+        } else {
+          showError(
+            t('home.alerts.networkError') as string,
+            {
+              errorType: 'unknown',
+              title: '알 수 없는 오류',
+              details: `${error.name}: ${error.message}`,
+              retryAction: () => handleAIGeneration()
+            }
+          );
+        }
+      } else {
+        showError(
+          t('home.alerts.networkError') as string,
+          {
+            errorType: 'unknown',
+            title: '알 수 없는 오류',
+            details: `Unknown error: ${String(error)}`,
+            retryAction: () => handleAIGeneration()
+          }
+        );
+      }
     } finally {
+      console.groupEnd();
       setLoadingState('guide', false);
+      setCurrentLoadingQuery('');
     }
   };
 
   // 오디오 재생 (지연 제거, 분리된 로딩 상태)
   const handleAudioPlayback = useCallback(() => {
     if (!query.trim() || !isMountedRef.current) {
-      alert(t('home.alerts.enterLocation'));
+      showError(t('home.alerts.enterLocation') as string, {
+        errorType: 'validation',
+        title: '입력 확인'
+      });
       return;
     }
 
+    setCurrentLoadingQuery(query.trim());
     if (isMountedRef.current) setAudioPlaying(!audioPlaying);
     setLoadingState('tour', true);
     router.push(`/guide/${encodeURIComponent(query.trim())}/tour`);
@@ -616,7 +863,7 @@ function Home() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <GuideLoading 
           type="generating"
-          message={`"${query}" 가이드 생성 중...`}
+          message={`"${currentLoadingQuery || query}" 가이드 생성 중...`}
           subMessage="AI가 맞춤형 가이드를 만들고 있어요"
           showProgress={true}
         />
@@ -1117,6 +1364,18 @@ function Home() {
         </section>
 
       </main>
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={closeErrorModal}
+        title={errorModal.title}
+        message={errorModal.message}
+        errorType={errorModal.errorType}
+        details={errorModal.details}
+        retryAction={errorModal.retryAction}
+        helpUrl="https://t.me/naviguideai"
+      />
 
       {/* Footer with Legal Links */}
       <footer className="relative z-10 bg-gray-50 border-t border-gray-200">

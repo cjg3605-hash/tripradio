@@ -1,0 +1,8 @@
+
+      <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="#000000"/>
+        <circle cx="50%" cy="40%" r="2.4" fill="#ffffff"/>
+        <text x="50%" y="65%" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.28" fill="#ffffff" font-weight="bold">NaviDocent</text>
+        <text x="50%" y="80%" text-anchor="middle" font-family="Arial, sans-serif" font-size="0.64" fill="#cccccc">AI Travel Guide</text>
+      </svg>
+    

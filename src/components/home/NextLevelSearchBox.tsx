@@ -42,17 +42,27 @@ export default function NextLevelSearchBox() {
   // Advanced search suggestions
   useEffect(() => {
     if (query.length >= 2) {
+      // 최소 로딩 시간 보장으로 깜빡임 방지
+      const startTime = Date.now();
       setIsTyping(true);
+      
       const timer = setTimeout(async () => {
         try {
           const response = await fetch(`/api/locations/search?q=${encodeURIComponent(query)}&lang=${currentLanguage}`);
           const data = await response.json();
-          setSuggestions(data.success ? data.data.slice(0, 5) : []);
+          setSuggestions(data.success ? data.data : []);
           setSelectedIndex(-1);
         } catch (error) {
-          setSuggestions([]);
+          // 에러 시 이전 결과 유지 (빈 배열로 초기화하지 않음)
+          console.warn('검색 제안 오류:', error);
         } finally {
-          setIsTyping(false);
+          // 최소 500ms 로딩 표시로 깜빡임 방지
+          const elapsed = Date.now() - startTime;
+          const minDelay = Math.max(0, 500 - elapsed);
+          
+          setTimeout(() => {
+            setIsTyping(false);
+          }, minDelay);
         }
       }, 200); // 200ms 디바운스 (최적화)
       return () => clearTimeout(timer);
@@ -62,7 +72,7 @@ export default function NextLevelSearchBox() {
       setSelectedIndex(-1);
       return undefined;
     }
-  }, [query, currentLanguage]);
+  }, [query, currentLanguage]); // currentLanguage 필요 - API 호출에 사용됨
 
   // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -240,89 +250,108 @@ export default function NextLevelSearchBox() {
           </div>
 
           {/* Enhanced Suggestions Dropdown */}
-          {suggestions.length > 0 && isFocused && !isSubmitting && (
+          {isFocused && !isSubmitting && query.length >= 2 && (
             <div 
-              id="search-suggestions"
               className="absolute top-full left-0 right-0 mt-3 bg-white border border-gray-100 overflow-hidden z-10 shadow-dropdown"
               style={{
                 borderRadius: 'var(--radius-xl)'
               }}
-              role="listbox"
-              aria-label={String(t('search.suggestions'))}
             >
-              {suggestions.map((suggestion, index) => (
-                <button
-                  key={`${suggestion.id || suggestion.name}-${index}`}
-                  id={`suggestion-${index}`}
-                  onClick={() => handleSuggestionClick(suggestion)}
-                  role="option"
-                  aria-selected={selectedIndex === index}
-                  aria-label={`${suggestion.name}, ${suggestion.location}`}
-                  className={`
-                    w-full text-left transition-all duration-200 ease-out
-                    group focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset
-                    touch-target-comfortable
-                    ${selectedIndex === index 
-                      ? 'bg-blue-50 border-l-4 border-l-blue-500 text-blue-900' 
-                      : 'hover:bg-gray-50'
-                    }
-                  `}
-                  style={{
-                    padding: 'var(--space-4) var(--space-6)'
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <div className={`
-                          font-medium transition-colors
-                          ${selectedIndex === index ? 'text-blue-900' : 'text-gray-900 group-hover:text-black'}
-                        `}>
-                          {suggestion.name}
+              {isTyping ? (
+                /* 로딩 상태 */
+                <div className="px-6 py-4 flex items-center gap-3">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
+                  <span className="text-sm text-gray-600">검색 중...</span>
+                </div>
+              ) : suggestions.length > 0 ? (
+                /* 검색 결과가 있을 때 */
+                <div role="listbox" aria-label={String(t('search.suggestions'))}>
+                  {suggestions.map((suggestion, index) => (
+                    <button
+                      key={`${suggestion.id || suggestion.name}-${index}`}
+                      id={`suggestion-${index}`}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      role="option"
+                      aria-selected={selectedIndex === index}
+                      aria-label={`${suggestion.name}, ${suggestion.location}`}
+                      className={`
+                        w-full text-left transition-all duration-200 ease-out
+                        group focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset
+                        touch-target-comfortable
+                        ${selectedIndex === index 
+                          ? 'bg-blue-50 border-l-4 border-l-blue-500 text-blue-900' 
+                          : 'hover:bg-gray-50'
+                        }
+                      `}
+                      style={{
+                        padding: 'var(--space-4) var(--space-6)'
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <div className={`
+                              font-medium transition-colors
+                              ${selectedIndex === index ? 'text-blue-900' : 'text-gray-900 group-hover:text-black'}
+                            `}>
+                              {suggestion.name}
+                            </div>
+                            {suggestion.metadata?.isOfficial && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                {t('search.official')}
+                              </span>
+                            )}
+                            {suggestion.metadata?.category && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                                {suggestion.metadata.category}
+                              </span>
+                            )}
+                          </div>
+                          <div className={`text-sm mt-1 ${
+                            selectedIndex === index ? 'text-blue-700' : 'text-gray-500'
+                          }`}>
+                            {suggestion.location}
+                          </div>
                         </div>
-                        {suggestion.metadata?.isOfficial && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                            {t('search.official')}
+                        <div className={`
+                          flex items-center gap-2 transition-all duration-200
+                          ${selectedIndex === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 group-hover:opacity-60 group-hover:translate-x-0'}
+                        `}>
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            selectedIndex === index ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
+                          }`}>
+                            {t('search.clickToComplete')}
                           </span>
-                        )}
-                        {suggestion.metadata?.category && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
-                            {suggestion.metadata.category}
-                          </span>
-                        )}
+                          <svg 
+                            className={`w-4 h-4 ${
+                              selectedIndex === index ? 'text-blue-600' : 'text-gray-400'
+                            }`} 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
                       </div>
-                      <div className={`text-sm mt-1 ${
-                        selectedIndex === index ? 'text-blue-700' : 'text-gray-500'
-                      }`}>
-                        {suggestion.location}
-                      </div>
-                    </div>
-                    <div className={`
-                      flex items-center gap-2 transition-all duration-200
-                      ${selectedIndex === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 group-hover:opacity-60 group-hover:translate-x-0'}
-                    `}>
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        selectedIndex === index ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
-                      }`}>
-                        {t('search.clickToComplete')}
-                      </span>
-                      <svg 
-                        className={`w-4 h-4 ${
-                          selectedIndex === index ? 'text-blue-600' : 'text-gray-400'
-                        }`} 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                /* 검색 결과가 없을 때 */
+                <div className="px-6 py-4">
+                  <div className="text-sm text-gray-500 text-center">
+                    <svg className="mx-auto h-6 w-6 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    &ldquo;{query}&rdquo;에 대한 검색 결과가 없습니다
                   </div>
-                </button>
-              ))}
+                </div>
+              )}
             </div>
           )}
+
         </div>
       </div>
     </>

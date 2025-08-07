@@ -485,19 +485,19 @@ export default function MapWithRoute({
   return (
     <div className="relative w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
       <MapContainer 
-        {...({center: mapCenter, zoom, key: `map-${currentLanguage}`} as any)}
+        key={`map-${currentLanguage}`}
+        center={mapCenter}
+        zoom={zoom}
         className="w-full h-full"
         scrollWheelZoom={true}
         zoomControl={true}
       >
         {/* 🌍 Google Maps 스타일 (언어별 동적 로딩) */}
         <TileLayer
-          {...({
-            url: getGoogleMapsUrl(currentLanguage),
-            attribution: '&copy; <a href="https://www.google.com/maps">Google Maps</a>',
-            maxZoom: 20,
-            key: currentLanguage // 언어 변경 시 타일 다시 로드
-          } as any)}
+          key={currentLanguage} // 언어 변경 시 타일 다시 로드
+          url={getGoogleMapsUrl(currentLanguage)}
+          attribution='&copy; <a href="https://www.google.com/maps">Google Maps</a>'
+          maxZoom={20}
         />
         
         {/* 활성 챕터로 지도 이동 */}

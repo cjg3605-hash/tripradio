@@ -1,0 +1,240 @@
+name: 🚀 CI/CD Pipeline
+
+on:
+  push:
+    branches: [master, main, develop]
+  pull_request:
+    branches: [master, main, develop]
+
+env:
+  NODE_VERSION: '18'
+  CACHE_PATHS: |
+    ~/.npm
+    .next/cache
+
+jobs:
+  # 📋 품질 검사
+  quality-checks:
+    name: 🔍 Code Quality & Security
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+
+      - name: 🔍 Lint check
+        run: npm run lint
+
+      - name: 📝 Type check
+        run: npm run type-check
+
+      - name: 🔒 Security audit
+        run: npm run security:audit
+
+      - name: 📊 Deployment check
+        run: npm run deploy:check
+        continue-on-error: true # 환경변수 누락은 허용
+
+  # 🏗️ 빌드 테스트
+  build-test:
+    name: 🔨 Build & Test
+    runs-on: ubuntu-latest
+    needs: quality-checks
+    
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+
+      - name: 🔍 Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: |
+            .next/cache
+          key: nextjs-build-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          restore-keys: |
+            nextjs-build-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-
+            nextjs-build-${{ runner.os }}-
+
+      - name: 🏗️ Build application
+        run: npm run build
+        env:
+          # 더미 환경변수로 빌드 테스트
+          GEMINI_API_KEY: dummy_test_key_for_ci_build_only
+          GOOGLE_CLOUD_PROJECT: ci-test-project
+          DATABASE_URL: sqlite://memory
+          NEXTAUTH_SECRET: ci-test-secret-key-for-build-validation-only
+          NEXTAUTH_URL: https://example.com
+
+      - name: 📊 Build analysis
+        run: |
+          echo "📦 Build size analysis:"
+          du -sh .next/
+          echo "📁 Static pages count:"
+          find .next/static -name "*.js" | wc -l
+
+      - name: 💾 Upload build artifacts
+        if: matrix.node-version == '18' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-files
+          path: .next
+          retention-days: 1
+
+  # 🎯 성능 테스트
+  performance-test:
+    name: ⚡ Performance Testing  
+    runs-on: ubuntu-latest
+    needs: build-test
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 💾 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-files
+          path: .next
+
+      - name: 🏁 Start application
+        run: |
+          npm run start &
+          sleep 10
+        env:
+          PORT: 3000
+          GEMINI_API_KEY: dummy_test_key_for_performance_test_only
+          GOOGLE_CLOUD_PROJECT: performance-test-project
+          DATABASE_URL: sqlite://memory
+          NEXTAUTH_SECRET: performance-test-secret-key-for-validation-only
+          NEXTAUTH_URL: http://localhost:3000
+
+      - name: ⚡ Lighthouse performance audit
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            http://localhost:3000
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  # 🚀 배포 시뮬레이션 
+  deploy-simulation:
+    name: 🌐 Deploy Simulation
+    runs-on: ubuntu-latest
+    needs: [quality-checks, build-test]
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 💾 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-files  
+          path: .next
+
+      - name: 🎯 Production readiness check
+        run: |
+          echo "🏗️ Verifying production build..."
+          npm run deploy:check || echo "⚠️ Environment variables needed for production"
+          
+          echo "📊 Build statistics:"
+          echo "Build size: $(du -sh .next/ | cut -f1)"
+          echo "Static files: $(find .next/static -type f | wc -l)"
+          echo "Pages: $(find .next/server/pages -name "*.js" 2>/dev/null | wc -l)"
+          
+          echo "✅ Production simulation complete"
+
+      - name: 📋 Deployment report
+        run: |
+          cat << EOF > deployment-report.md
+          # 🚀 배포 준비 리포트
+          
+          ## ✅ 품질 검증 완료
+          - 린트 검사: 통과
+          - 타입 검사: 통과  
+          - 보안 감사: 통과
+          
+          ## 🏗️ 빌드 검증 완료
+          - Node.js 18, 20 호환성: 확인
+          - 프로덕션 빌드: 성공
+          - 번들 크기: $(du -sh .next/ | cut -f1)
+          
+          ## 📊 배포 권장사항
+          - 환경변수 설정 필수
+          - HTTPS 인증서 준비
+          - 데이터베이스 연결 확인
+          - 모니터링 도구 설정
+          
+          EOF
+
+      - name: 💾 Upload deployment report
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-report
+          path: deployment-report.md
+          retention-days: 7
+
+  # 🧹 정리 작업
+  cleanup:
+    name: 🧹 Cleanup
+    runs-on: ubuntu-latest
+    needs: [quality-checks, build-test, performance-test, deploy-simulation]
+    if: always()
+
+    steps:
+      - name: 📋 Job summary
+        run: |
+          echo "## 🎯 CI/CD Pipeline 완료" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| 단계 | 상태 |" >> $GITHUB_STEP_SUMMARY  
+          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 품질 검사 | ${{ needs.quality-checks.result == 'success' && '✅ 성공' || '❌ 실패' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 빌드 테스트 | ${{ needs.build-test.result == 'success' && '✅ 성공' || '❌ 실패' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 성능 테스트 | ${{ needs.performance-test.result == 'success' && '✅ 성공' || needs.performance-test.result == 'skipped' && '⏭️ 건너뜀' || '❌ 실패' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 배포 시뮬레이션 | ${{ needs.deploy-simulation.result == 'success' && '✅ 성공' || needs.deploy-simulation.result == 'skipped' && '⏭️ 건너뜀' || '❌ 실패' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🚀 **배포 준비 완료!**" >> $GITHUB_STEP_SUMMARY

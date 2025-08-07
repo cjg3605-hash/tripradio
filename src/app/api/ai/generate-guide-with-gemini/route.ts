@@ -381,17 +381,71 @@ export async function POST(request: NextRequest) {
     console.error('❌ 가이드 생성 실패:', error);
     
     const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다';
+    const errorName = error instanceof Error ? error.name : 'UnknownError';
+    
+    // 에러 타입별 사용자 친화적 메시지
+    let userFriendlyMessage = errorMessage;
+    let statusCode = 500;
+    
+    if (error instanceof Error) {
+      if (error.message.includes('GEMINI_API_KEY')) {
+        userFriendlyMessage = 'AI 서비스 설정에 문제가 있습니다. 관리자에게 문의하세요.';
+        statusCode = 503;
+      } else if (error.message.includes('quota') || error.message.includes('limit')) {
+        userFriendlyMessage = '일일 사용량을 초과했습니다. 내일 다시 시도해주세요.';
+        statusCode = 429;
+      } else if (error.message.includes('timeout') || error.message.includes('ECONNRESET')) {
+        userFriendlyMessage = 'AI 응답 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.';
+        statusCode = 408;
+      } else if (error.message.includes('SUPABASE') || error.message.includes('database')) {
+        userFriendlyMessage = '데이터베이스 연결에 문제가 있습니다. 잠시 후 다시 시도해주세요.';
+        statusCode = 503;
+      } else if (error.message.includes('Invalid API key') || error.message.includes('unauthorized')) {
+        userFriendlyMessage = 'API 인증에 실패했습니다. 관리자에게 문의하세요.';
+        statusCode = 401;
+      }
+    }
+    
+    // 에러 로깅 (모니터링용)
+    console.error('🚨 API 에러 상세 로그:', {
+      timestamp: new Date().toISOString(),
+      errorName,
+      errorMessage,
+      userFriendlyMessage,
+      statusCode,
+      location: 'unknown',
+      userProfile: 'unknown',
+      stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined,
+      requestHeaders: {
+        userAgent: request.headers.get('user-agent'),
+        referer: request.headers.get('referer'),
+        origin: request.headers.get('origin')
+      }
+    });
     
     return NextResponse.json(
       { 
         success: false, 
-        error: `가이드 생성 실패: ${errorMessage}`,
+        error: userFriendlyMessage,
+        errorCode: errorName,
         details: process.env.NODE_ENV === 'development' ? {
+          originalError: errorMessage,
           stack: error instanceof Error ? error.stack : undefined,
-          name: error instanceof Error ? error.name : undefined
-        } : undefined
+          name: errorName,
+          timestamp: new Date().toISOString()
+        } : undefined,
+        retryable: statusCode === 408 || statusCode === 503 || statusCode === 429,
+        retryAfter: statusCode === 429 ? 3600 : statusCode === 503 ? 300 : undefined // 초 단위
       },
-      { status: 500 }
+      { 
+        status: statusCode,
+        headers: {
+          ...(statusCode === 429 && { 'Retry-After': '3600' }),
+          ...(statusCode === 503 && { 'Retry-After': '300' }),
+          'X-Error-Code': errorName,
+          'X-Request-ID': `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        }
+      }
     );
   }
 }

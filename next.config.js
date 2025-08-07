@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const withPWA = require('next-pwa')({
   dest: 'public',
-  register: true,
-  skipWaiting: true,
+  register: process.env.NODE_ENV !== 'development',
+  skipWaiting: process.env.NODE_ENV !== 'development',
   disable: process.env.NODE_ENV === 'development',
   // PWA 설정 최적화
   runtimeCaching: [
@@ -132,7 +132,7 @@ const withPWA = require('next-pwa')({
 
 const nextConfig = {
   // output: 'export', // NextAuth와 충돌하므로 제거
-  trailingSlash: true,
+  trailingSlash: false,
   images: {
     unoptimized: false, // 이미지 최적화 활성화
     formats: ['image/webp', 'image/avif'],

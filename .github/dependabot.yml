@@ -1,0 +1,61 @@
+# 🔄 Dependabot 자동 의존성 업데이트 설정
+version: 2
+updates:
+  # 📦 npm 의존성 업데이트
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Seoul"
+    
+    # 업데이트 옵션
+    open-pull-requests-limit: 5
+    reviewers:
+      - "repository-owner"
+    
+    # 커밋 메시지 설정
+    commit-message:
+      prefix: "⬆️"
+      prefix-development: "⬆️ dev"
+      include: "scope"
+
+    # 자동 병합 설정 (마이너/패치만)
+    allow:
+      - dependency-type: "direct"
+        update-type: "version-update:semver-patch"
+      - dependency-type: "direct"  
+        update-type: "version-update:semver-minor"
+      - dependency-type: "indirect"
+        update-type: "version-update:semver-patch"
+
+    # 무시할 패키지
+    ignore:
+      # 메이저 버전 업데이트는 수동 처리
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"] 
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+
+  # 🐳 Docker 이미지 업데이트 (사용하는 경우)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "Asia/Seoul"
+    open-pull-requests-limit: 2
+
+  # 🔧 GitHub Actions 업데이트
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "1"
+      time: "09:00"
+      timezone: "Asia/Seoul"
+    open-pull-requests-limit: 3

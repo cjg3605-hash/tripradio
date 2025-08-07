@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>자동완성 테스트</title>
+    <meta charset="utf-8">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5; 
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .suggestions {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+        }
+        .suggestion {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        .suggestion:hover {
+            background: #f0f0f0;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 자동완성 API 테스트</h1>
+        
+        <div id="status" class="status"></div>
+        
+        <input type="text" id="searchBox" placeholder="장소를 입력하세요 (예: 서울, 에펠탑)" autocomplete="off">
+        
+        <div id="suggestions" class="suggestions" style="display: none;"></div>
+        
+        <div style="margin-top: 20px;">
+            <h3>테스트 단계:</h3>
+            <ol>
+                <li>위 검색박스에 2글자 이상 입력</li>
+                <li>자동완성 결과 확인</li>
+                <li>한국어, 영어 모두 테스트</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const searchBox = document.getElementById('searchBox');
+        const suggestions = document.getElementById('suggestions');
+        const status = document.getElementById('status');
+        
+        let timeoutId;
+        
+        function setStatus(message, type) {
+            status.textContent = message;
+            status.className = 'status ' + type;
+        }
+        
+        function showSuggestions(data) {
+            if (data && data.length > 0) {
+                suggestions.innerHTML = data.map(item => 
+                    `<div class="suggestion" onclick="selectSuggestion('${item.name}')">
+                        <strong>${item.name}</strong><br>
+                        <small>${item.location}</small>
+                    </div>`
+                ).join('');
+                suggestions.style.display = 'block';
+                setStatus(`✅ ${data.length}개의 제안을 받았습니다`, 'success');
+            } else {
+                suggestions.innerHTML = '<div class="suggestion">검색 결과가 없습니다</div>';
+                suggestions.style.display = 'block';
+                setStatus('⚠️ 검색 결과가 없습니다', 'error');
+            }
+        }
+        
+        function selectSuggestion(name) {
+            searchBox.value = name;
+            suggestions.style.display = 'none';
+            setStatus(`선택됨: ${name}`, 'success');
+        }
+        
+        async function fetchSuggestions(query) {
+            try {
+                setStatus('🔄 검색 중...', 'success');
+                
+                const url = `http://localhost:3012/api/locations/search?q=${encodeURIComponent(query)}&lang=ko`;
+                console.log('API 호출:', url);
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('API 응답:', data);
+                
+                if (data.success && data.data) {
+                    showSuggestions(data.data);
+                } else {
+                    setStatus(`❌ API 오류: ${data.error || '알 수 없는 오류'}`, 'error');
+                    suggestions.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                setStatus(`❌ 연결 오류: ${error.message}`, 'error');
+                suggestions.style.display = 'none';
+            }
+        }
+        
+        searchBox.addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+            
+            clearTimeout(timeoutId);
+            
+            if (query.length < 2) {
+                suggestions.style.display = 'none';
+                setStatus('2글자 이상 입력해주세요', 'error');
+                return;
+            }
+            
+            timeoutId = setTimeout(() => {
+                fetchSuggestions(query);
+            }, 300);
+        });
+        
+        // 페이지 로드 시 상태 확인
+        setStatus('준비 완료. 검색어를 입력하세요.', 'success');
+    </script>
+</body>
+</html>

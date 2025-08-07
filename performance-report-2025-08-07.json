@@ -1,0 +1,110 @@
+{
+  "metadata": {
+    "generatedAt": "2025-08-07T01:58:10.914Z",
+    "version": "1.0.0",
+    "project": "GuideAI"
+  },
+  "systemInfo": {
+    "platform": "win32",
+    "nodeVersion": "v22.13.1",
+    "totalMemory": "31GB",
+    "cpuCount": 16,
+    "timestamp": "2025-08-07T01:57:15.732Z"
+  },
+  "buildPerformance": {
+    "buildTime": "54s",
+    "buildSize": "644.44 MB",
+    "staticFiles": 68,
+    "success": true
+  },
+  "bundleAnalysis": {
+    "totalJSSize": "1.41 MB",
+    "totalCSSSize": "105.7 KB",
+    "largestJSFiles": [
+      {
+        "name": "chunks\\fd9d1056-7edcca4a6c62f270.js",
+        "size": "168.78 KB"
+      },
+      {
+        "name": "chunks\\framework-a63c59c368572696.js",
+        "size": "136.7 KB"
+      },
+      {
+        "name": "chunks\\37-23ec177f80a492f0.js",
+        "size": "135.62 KB"
+      },
+      {
+        "name": "chunks\\2117-07a9df80d1123e60.js",
+        "size": "120.63 KB"
+      },
+      {
+        "name": "chunks\\main-ac8620d7a0dfee20.js",
+        "size": "116.21 KB"
+      },
+      {
+        "name": "chunks\\polyfills-42372ed130431b0a.js",
+        "size": "109.96 KB"
+      },
+      {
+        "name": "chunks\\749-c884151f2976a285.js",
+        "size": "50.04 KB"
+      },
+      {
+        "name": "chunks\\app\\guide\\[location]\\live\\page-84263c89565d31e3.js",
+        "size": "48.11 KB"
+      },
+      {
+        "name": "chunks\\app\\page-ac7d6f60e1fc6b90.js",
+        "size": "44.93 KB"
+      },
+      {
+        "name": "chunks\\app\\mypage\\page-eab009f202682713.js",
+        "size": "39.71 KB"
+      }
+    ],
+    "largestCSSFiles": [
+      {
+        "name": "css\\77e4b8d60472d209.css",
+        "size": "86.56 KB"
+      },
+      {
+        "name": "css\\f14be91b0bbdbaec.css",
+        "size": "19.13 KB"
+      }
+    ],
+    "totalFiles": {
+      "js": 59,
+      "css": 2
+    }
+  },
+  "packageAnalysis": {
+    "totalDependencies": 86,
+    "devDependencies": 7,
+    "nodeModulesSize": "668.04 MB",
+    "majorDependencies": [
+      {
+        "name": "next",
+        "version": "^14.0.0"
+      },
+      {
+        "name": "react",
+        "version": "^18.2.0"
+      },
+      {
+        "name": "react-dom",
+        "version": "^18.2.0"
+      },
+      {
+        "name": "tailwindcss",
+        "version": "^3.3.5"
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "type": "bundle",
+      "priority": "medium",
+      "message": "총 JS 크기가 1.41 MB입니다. 코드 분할과 tree shaking을 검토하세요."
+    }
+  ]
+}
