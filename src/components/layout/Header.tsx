@@ -195,7 +195,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
              padding: 'var(--space-3) var(--space-4)'
            }}>
         {/* 로고 */}
-        <div className="flex items-center" style={{ gap: 'var(--space-3)' }}>
+        <div className="flex items-center" style={{ gap: 'var(--space-1-5)' }}>
           {/* 스피커 아이콘을 원형 테두리로 감싸기 */}
           <div className="border-2 border-gray-300 rounded-full flex items-center justify-center touch-target"
                style={{
@@ -211,7 +211,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
               padding: 'var(--space-2) var(--space-1)'
             }}
           >
-            NAVI : GUIDE
+{currentLanguage === 'ko' ? '네비가이드AI' : 'NaviDocent'}
           </button>
         </div>
 
