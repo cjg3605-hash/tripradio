@@ -9,8 +9,8 @@ import StructuredData from '@/components/seo/StructuredData';
 export const revalidate = 0;
 
 interface PageProps {
-  params: { location: string };
-  searchParams?: { lang?: string };
+  params: Promise<{ location: string }>;
+  searchParams?: Promise<{ lang?: string }>;
 }
 
 function normalizeString(str: string): string {
@@ -19,8 +19,10 @@ function normalizeString(str: string): string {
 
 // 동적 메타데이터 생성
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
-  const locationName = decodeURIComponent(params.location || '');
-  const requestedLang = safeLanguageCode(searchParams?.lang);
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const locationName = decodeURIComponent(resolvedParams.location || '');
+  const requestedLang = safeLanguageCode(resolvedSearchParams?.lang);
   
   // 서버에서 쿠키 기반 언어 감지
   const cookieStore = cookies();
@@ -36,8 +38,10 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
 }
 
 export default async function GuidePage({ params, searchParams }: PageProps) {
-  const locationName = decodeURIComponent(params.location || '');
-  const requestedLang = safeLanguageCode(searchParams?.lang);
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const locationName = decodeURIComponent(resolvedParams.location || '');
+  const requestedLang = safeLanguageCode(resolvedSearchParams?.lang);
   const normLocation = normalizeString(locationName);
   
   // 🔥 서버에서 통합 언어 감지 (쿠키 우선)
@@ -53,7 +57,7 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
   
   // 🔍 디버깅: 언어 감지 로깅
   console.log('🔍 가이드 페이지 언어 감지:', {
-    rawLocation: params.location,
+    rawLocation: resolvedParams.location,
     decodedLocation: locationName,
     normalizedLocation: normLocation,
     requestedLang,

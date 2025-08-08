@@ -8,10 +8,10 @@ import { legalPagesService } from '@/services/legal-pages/legal-pages-service';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { type: string } }
+  { params }: { params: Promise<{ type: string }> }
 ) {
   try {
-    const { type } = params;
+    const { type } = await params;
     const { searchParams } = new URL(request.url);
     const language = searchParams.get('lang') || 'ko';
     
@@ -73,10 +73,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { type: string } }
+  { params }: { params: Promise<{ type: string }> }
 ) {
   try {
-    const { type } = params;
+    const { type } = await params;
     
     if (type === 'contact-info') {
       const contactInfo = await request.json();

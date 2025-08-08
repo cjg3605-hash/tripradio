@@ -116,13 +116,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // 🔥 서버에서 쿠키 기반 언어 감지
-  const cookieStore = cookies();
+  // 🔥 서버에서 쿠키 기반 언어 감지 (Next.js 15 호환)
+  const cookieStore = await cookies();
   const cookieLanguage = cookieStore.get(LANGUAGE_COOKIE_NAME)?.value;
   
   // 서버-클라이언트 일관성을 위한 언어 감지
@@ -168,21 +168,22 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         
-        {/* Google AdSense 자동 광고 초기화 스크립트 */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.addEventListener('load', function() {
-                if (typeof window.adsbygoogle !== 'undefined') {
-                  (window.adsbygoogle = window.adsbygoogle || []).push({
-                    google_ad_client: "ca-pub-8225961966676319",
-                    enable_page_level_ads: true
-                  });
-                }
-              });
-            `
-          }}
-        />
+        {/* Google AdSense 자동 광고 초기화 - Script 컴포넌트 사용 */}
+        <Script
+          id="google-adsense-init"
+          strategy="afterInteractive"
+        >
+          {`
+            window.addEventListener('load', function() {
+              if (typeof window.adsbygoogle !== 'undefined') {
+                (window.adsbygoogle = window.adsbygoogle || []).push({
+                  google_ad_client: "ca-pub-8225961966676319",
+                  enable_page_level_ads: true
+                });
+              }
+            });
+          `}
+        </Script>
         
         {/* Local Business Schema */}
         <LocalBusinessSchema />

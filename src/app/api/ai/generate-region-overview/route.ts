@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { classifyLocation } from '@/lib/location/location-classification';
 
+// 동적 렌더링 강제
+export const dynamic = 'force-dynamic';
+
 // Types
 interface RegionData {
   name: string;

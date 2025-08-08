@@ -106,7 +106,6 @@ function Home() {
   // 상태 관리
   const [isLoaded, setIsLoaded] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [currentWord, setCurrentWord] = useState(0);
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [suggestions, setSuggestions] = useState<TranslatedSuggestion[]>([]);
@@ -348,13 +347,38 @@ function Home() {
     };
   }, [t]);
 
-  // 회전하는 단어들 (audioguide 맞춤)
-  const words = useMemo(() => [
-    t('home.features.personalGuide') || '개인가이드',
-    t('home.features.audioCommentary') || '오디오해설',
-    t('home.features.tourDocent') || '투어도슨트',
-    t('home.features.selfTour') || '셀프투어'
-  ], [t]);
+
+  // 회전하는 세계명소들 (구체적 장소 검색 유도) - 7개 핵심 명소
+  const landmarks = useMemo(() => [
+    '에펠탑',
+    '콜로세움', 
+    '타지마할',
+    '자유의 여신상',
+    '경복궁',
+    '마추픽추',
+    '사그라다 파밀리아'
+  ], []);
+
+  // 명소별 배경 이미지 매핑 (개발환경 캐시 버스팅 포함)
+  const landmarkImages = useMemo(() => {
+    const isDev = process.env.NODE_ENV === 'development';
+    // 캐시 버스팅을 위한 고정 타임스탬프 (컴포넌트 마운트 시점)
+    const cacheBuster = isDev ? `?t=${1723122651000}` : ''; // 고정 타임스탬프 사용
+    
+    return {
+      '에펠탑': `/images/landmarks/eiffel-tower.png${cacheBuster}`,
+      '콜로세움': `/images/landmarks/colosseum.png${cacheBuster}`,
+      '타지마할': `/images/landmarks/taj-mahal.png${cacheBuster}`,
+      '자유의 여신상': `/images/landmarks/statue-of-liberty.png${cacheBuster}`,
+      '경복궁': `/images/landmarks/gyeongbokgung.png${cacheBuster}`,
+      '마추픽추': `/images/landmarks/machu-picchu.png${cacheBuster}`,
+      '사그라다 파밀리아': `/images/landmarks/sagrada-familia.png${cacheBuster}`
+    };
+  }, []);
+
+  const [currentLandmarkIndex, setCurrentLandmarkIndex] = useState(0);
+  const [imageLoadErrors, setImageLoadErrors] = useState<Set<string>>(new Set());
+  const [imagesPreloaded, setImagesPreloaded] = useState(false);
 
   // 회전하는 플레이스홀더 (다국어 지원)
   const placeholders = useMemo(() => {
@@ -373,27 +397,91 @@ function Home() {
   // 언어 변경 시 인덱스 리셋
   useEffect(() => {
     setPlaceholderIndex(0);
-    setCurrentWord(0);
+    setCurrentLandmarkIndex(0);
   }, [currentLanguage]);
 
   useEffect(() => {
     setIsLoaded(true);
     
-    // 단어 회전
-    const wordInterval = setInterval(() => {
-      setCurrentWord((prev) => (prev + 1) % words.length);
-    }, 3000);
-
     // 플레이스홀더 회전
     const placeholderInterval = setInterval(() => {
       setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
     }, 3000);
 
+    // 명소 회전 (천천히 - 6초)
+    const landmarkInterval = setInterval(() => {
+      setCurrentLandmarkIndex((prev) => (prev + 1) % landmarks.length);
+    }, 6000);
+
     return () => {
-      clearInterval(wordInterval);
       clearInterval(placeholderInterval);
+      clearInterval(landmarkInterval);
     };
-  }, [currentLanguage, words.length, placeholders.length]); // currentLanguage 의존성 추가
+  }, [currentLanguage, placeholders.length, landmarks.length]);
+
+  // 이미지 프리로드 및 에러 처리
+  useEffect(() => {
+    const preloadImages = async () => {
+      const imagePromises = landmarks.map((landmark) => {
+        return new Promise<void>((resolve) => {
+          const img = new Image();
+          
+          const handleLoad = () => {
+            console.log(`✅ 이미지 로드 성공: ${landmark} (${landmarkImages[landmark]})`);
+            resolve();
+          };
+          
+          const handleError = (e: Event) => {
+            console.error(`❌ 이미지 로드 실패: ${landmark}`, {
+              src: landmarkImages[landmark],
+              error: e,
+              naturalWidth: img.naturalWidth,
+              naturalHeight: img.naturalHeight
+            });
+            setImageLoadErrors(prev => new Set([...prev, landmark]));
+            resolve();
+          };
+          
+          img.addEventListener('load', handleLoad);
+          img.addEventListener('error', handleError);
+          
+          // 캐시 무시하고 항상 새로 로드
+          img.crossOrigin = 'anonymous'; // CORS 이슈 방지
+          
+          img.src = landmarkImages[landmark];
+        });
+      });
+
+      try {
+        await Promise.all(imagePromises);
+        console.log('🎉 모든 이미지 프리로드 완료');
+        setImagesPreloaded(true);
+      } catch (error) {
+        console.error('이미지 프리로드 중 오류:', error);
+        setImagesPreloaded(true); // 에러가 있어도 UI는 표시
+      }
+    };
+
+    preloadImages();
+  }, [landmarks, landmarkImages]);
+
+  // 이미지 로드 에러 처리 헬퍼
+  const getBackgroundStyle = useCallback((landmark: string) => {
+    const hasError = imageLoadErrors.has(landmark);
+    if (hasError) {
+      // 폴백: 그라데이션 배경
+      return {
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+      };
+    }
+    
+    return {
+      backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('${landmarkImages[landmark]}')`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    };
+  }, [imageLoadErrors, landmarkImages]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -913,35 +1001,7 @@ function Home() {
             pb-4 px-4 transform transition-all duration-1000
             ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
           `}>
-            {/* Main Title */}
-            <h1 className="text-2xl md:text-3xl font-thin tracking-[-0.02em] text-black mb-4">
-              <div>
-                {/* 상단: 내손안의 (왼쪽 정렬) */}
-                <div className="mb-4 text-left">
-                  <span className="block font-bold text-3xl md:text-5xl md:text-[1.5rem] lg:text-[2.5rem]">
-                    {t('home.brandTitle') || '내 손안의'}
-                  </span>
-                </div>
-                
-                {/* 하단 중앙: 회전하는 단어들 */}
-                <div className="flex justify-center">
-                  <div className="overflow-hidden" style={{ height: '48px', lineHeight: '48px' }}>
-                    <span 
-                      className="inline-block transition-transform duration-1000 ease-out font-bold text-3xl md:text-5xl md:text-[1.5rem] lg:text-[2.5rem]"
-                      style={{
-                        transform: `translateY(-${currentWord * 48}px)`
-                      }}
-                    >
-                      {words.map((word, index) => (
-                        <span key={index} className="block" style={{ height: '48px', lineHeight: '48px' }}>
-                          {word}
-                        </span>
-                      ))}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </h1>
+            {/* Main Title 제거 - 명소 배경으로 대체됨 */}
 
             {/* Decorative Element */}
             <div className="flex items-center justify-center gap-8 mb-6 relative z-0">
@@ -960,9 +1020,69 @@ function Home() {
               <p className="text-lg text-gray-700 font-light tracking-wide">
                 {t('home.subtitle2')}
               </p>
-              <p className="text-base text-black font-light tracking-wide">
-                {t('home.description')}
-              </p>
+            </div>
+          </div>
+
+          {/* 오디오가이드 강조 문구 - 배경 이미지와 함께 */}
+          <div className="relative mb-12 mx-auto max-w-4xl overflow-hidden rounded-2xl" 
+               style={{ height: 'clamp(180px, 25vw, 250px)' }}>
+            {/* 배경 이미지들 */}
+            {landmarks.map((landmark, index) => {
+              const hasError = imageLoadErrors.has(landmark);
+              return (
+                <div
+                  key={landmark}
+                  className={`absolute inset-0 transition-opacity duration-2000 ease-in-out ${
+                    index === currentLandmarkIndex ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  style={{
+                    backgroundImage: hasError ? 'none' : `url("${landmarkImages[landmark]}")`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundColor: hasError ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.3)'
+                  }}
+                  role="img"
+                  aria-label={hasError ? `${landmark} 배경 (이미지 로드 실패)` : `${landmark} 배경 이미지`}
+                />
+              );
+            })}
+            
+            {/* 텍스트 오버레이 - 오른쪽 정렬로 이미지와 겹치지 않게 */}
+            <div className="absolute inset-0 flex items-center justify-end z-10">
+              <div className="text-right px-8 md:px-12 text-white">
+                <p className="text-xl md:text-2xl font-bold tracking-wide mb-2">
+                  <span className="inline-block overflow-hidden align-bottom" style={{ height: '32px', lineHeight: '32px', width: '120px' }}>
+                    <span 
+                      className="inline-block transition-transform duration-1000 ease-out"
+                      style={{
+                        transform: `translateY(-${currentLandmarkIndex * 32}px)`
+                      }}
+                    >
+                      {landmarks.map((landmark, index) => (
+                        <span key={index} className="block font-bold" style={{ height: '32px', lineHeight: '32px' }}>
+                          {landmark}
+                        </span>
+                      ))}
+                    </span>
+                  </span>
+                  <span className="ml-1">앞에 섰을 때 들리는 이야기</span>
+                </p>
+                <p className="text-lg md:text-xl font-light mb-1 tracking-wide">
+                  가이드없이 자유롭게
+                </p>
+                <p className="text-lg md:text-xl font-light tracking-wide">
+                  여행은 깊이있게
+                </p>
+                
+                {/* 로딩 표시 */}
+                {!imagesPreloaded && (
+                  <div className="mt-4 flex items-center justify-center">
+                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span className="ml-2 text-sm text-white/80">이미지 준비 중...</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -982,10 +1102,6 @@ function Home() {
                   </div>
                   <div className="min-h-16 sm:min-h-20 flex flex-col justify-start pt-2">
                     <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-2">{t('home.stepTitles.inputLocation')}</div>
-                    <div className="text-xs sm:text-sm lg:text-base text-gray-500 leading-relaxed">
-                      {String(t('home.stepDescriptions.inputLocation')).split(' ').slice(0, 2).join(' ')}<br />
-                      {String(t('home.stepDescriptions.inputLocation')).split(' ').slice(2).join(' ')}
-                    </div>
                   </div>
                 </div>
 
@@ -1017,10 +1133,6 @@ function Home() {
                   </button>
                   <div className="min-h-16 sm:min-h-20 flex flex-col justify-start pt-2">
                     <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-2">{t('home.stepTitles.aiGenerate')}</div>
-                    <div className="text-xs sm:text-sm lg:text-base text-gray-500 leading-relaxed">
-                      {String(t('home.stepDescriptions.aiGenerate')).split(' ').slice(0, 1).join(' ')}<br />
-                      {String(t('home.stepDescriptions.aiGenerate')).split(' ').slice(1).join(' ')}
-                    </div>
                   </div>
                 </div>
 
@@ -1054,10 +1166,6 @@ function Home() {
                   </button>
                   <div className="min-h-16 sm:min-h-20 flex flex-col justify-start pt-2">
                     <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-2">{t('home.stepTitles.audioPlay')}</div>
-                    <div className="text-xs sm:text-sm lg:text-base text-gray-500 leading-relaxed">
-                      {String(t('home.stepDescriptions.audioPlay')).split(' ').slice(0, 2).join(' ')}<br />
-                      {String(t('home.stepDescriptions.audioPlay')).split(' ').slice(2).join(' ')}
-                    </div>
                   </div>
                 </div>
               </div>

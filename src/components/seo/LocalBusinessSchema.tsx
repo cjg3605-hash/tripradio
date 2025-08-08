@@ -135,8 +135,9 @@ export default function LocalBusinessSchema({
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify(localBusinessSchema, null, 2)
+        __html: JSON.stringify(localBusinessSchema)
       }}
+      suppressHydrationWarning
     />
   );
 }

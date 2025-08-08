@@ -7,12 +7,13 @@ import BreadcrumbSchema, { generateTourBreadcrumb } from '@/components/seo/Bread
 
 interface TourLayoutProps {
   children: React.ReactNode;
-  params: { location: string };
+  params: Promise<{ location: string }>;
 }
 
 // 동적 메타데이터 생성
-export async function generateMetadata({ params }: { params: { location: string } }): Promise<Metadata> {
-  const locationName = decodeURIComponent(params.location || '');
+export async function generateMetadata({ params }: { params: Promise<{ location: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const locationName = decodeURIComponent(resolvedParams.location || '');
   const cookieStore = cookies();
   const cookieLanguage = cookieStore.get(LANGUAGE_COOKIE_NAME)?.value;
   
@@ -116,8 +117,9 @@ function getOpenGraphLocale(language: string): string {
   return localeMap[language] || 'ko_KR';
 }
 
-export default function TourLayout({ children, params }: TourLayoutProps) {
-  const locationName = decodeURIComponent(params.location || '');
+export default async function TourLayout({ children, params }: TourLayoutProps) {
+  const resolvedParams = await params;
+  const locationName = decodeURIComponent(resolvedParams.location || '');
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
   
   return (

@@ -8,14 +8,16 @@ import { notFound } from 'next/navigation';
 import { legalPagesService } from '@/services/legal-pages/legal-pages-service';
 
 interface LegalPageProps {
-  params: { type: string };
-  searchParams: { lang?: string };
+  params: Promise<{ type: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }
 
 // SEO 메타데이터 생성
 export async function generateMetadata({ params, searchParams }: LegalPageProps): Promise<Metadata> {
-  const { type } = params;
-  const lang = searchParams.lang || 'ko';
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { type } = resolvedParams;
+  const lang = resolvedSearchParams.lang || 'ko';
   
   try {
     // 서버사이드에서 직접 서비스 호출 (API 우회)
@@ -89,8 +91,10 @@ export async function generateMetadata({ params, searchParams }: LegalPageProps)
 const validPageTypes = ['privacy', 'terms', 'about', 'contact'];
 
 export default async function LegalPage({ params, searchParams }: LegalPageProps) {
-  const { type } = params;
-  const lang = searchParams.lang || 'ko';
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const { type } = resolvedParams;
+  const lang = resolvedSearchParams.lang || 'ko';
   
   // 유효하지 않은 페이지 타입 체크
   if (!validPageTypes.includes(type)) {

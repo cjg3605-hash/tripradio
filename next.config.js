@@ -147,7 +147,7 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: false,

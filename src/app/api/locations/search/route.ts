@@ -3,6 +3,9 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { routeLocationQueryCached, LocationRoutingResult } from '@/lib/location/location-router';
 import { PageType } from '@/lib/location/location-classification';
 
+// 동적 렌더링 강제
+export const dynamic = 'force-dynamic';
+
 // Types
 interface LocationSuggestion {
   name: string;
@@ -665,7 +668,7 @@ function parseAIResponse<T>(text: string): T | null {
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(request.nextUrl);
     const query = searchParams.get('q');
     const language = (searchParams.get('lang') || 'ko') as Language;
 
