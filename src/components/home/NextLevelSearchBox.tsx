@@ -15,15 +15,23 @@ interface Suggestion {
   };
 }
 
+interface ExplorationSuggestion {
+  title: string;
+  items: Suggestion[];
+  searchable: boolean;
+}
+
 export default function NextLevelSearchBox() {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [explorationSuggestions, setExplorationSuggestions] = useState<ExplorationSuggestion[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [hasAttemptedSearch, setHasAttemptedSearch] = useState(false);
+  const [showExploration, setShowExploration] = useState(false);
   
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -71,6 +79,8 @@ export default function NextLevelSearchBox() {
           const response = await fetch(`/api/locations/search?q=${encodeURIComponent(query)}&lang=${currentLanguage}`);
           const data = await response.json();
           setSuggestions(data.success ? data.data : []);
+          setExplorationSuggestions(data.explorationSuggestions || []);
+          setShowExploration(data.hasExploration || false);
           setSelectedIndex(-1);
           setHasAttemptedSearch(true); // 검색 시도 완료
         } catch (error) {
@@ -90,6 +100,8 @@ export default function NextLevelSearchBox() {
       return () => clearTimeout(timer);
     } else {
       setSuggestions([]);
+      setExplorationSuggestions([]);
+      setShowExploration(false);
       setIsTyping(false);
       setSelectedIndex(-1);
       setHasAttemptedSearch(false); // 검색 시도 초기화
@@ -139,12 +151,29 @@ export default function NextLevelSearchBox() {
     // 자동완성 드롭다운 닫기
     setIsFocused(false);
     setSuggestions([]);
+    setExplorationSuggestions([]);
+    setShowExploration(false);
     setSelectedIndex(-1);
     
     // 입력창에 포커스 유지 (사용자가 Enter를 누르거나 검색 버튼을 클릭할 수 있도록)
     setTimeout(() => {
       inputRef.current?.focus();
     }, 50);
+  };
+
+  const handleExplorationClick = (suggestion: Suggestion) => {
+    // 탐색 추천을 클릭하면 바로 검색 실행
+    setQuery(suggestion.name);
+    setIsFocused(false);
+    setSuggestions([]);
+    setExplorationSuggestions([]);
+    setShowExploration(false);
+    setSelectedIndex(-1);
+    setIsSubmitting(true);
+    
+    setTimeout(() => {
+      router.push(`/guide/${encodeURIComponent(suggestion.name)}`);
+    }, 100);
   };
 
   const handleFocus = () => {
@@ -360,6 +389,51 @@ export default function NextLevelSearchBox() {
                       </div>
                     </button>
                   ))}
+                  
+                  {/* Exploration Suggestions */}
+                  {showExploration && explorationSuggestions.length > 0 && (
+                    <div className="border-t border-gray-100 pt-4 pb-2">
+                      <div className="px-6 pb-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">
+                          🌟 더 탐색해보세요
+                        </h4>
+                      </div>
+                      {explorationSuggestions.map((category, categoryIndex) => (
+                        <div key={categoryIndex} className="mb-4 last:mb-0">
+                          <div className="px-6 pb-2">
+                            <h5 className="text-xs font-medium text-gray-600">
+                              {category.title}
+                            </h5>
+                          </div>
+                          <div className="space-y-1">
+                            {category.items.map((item, itemIndex) => (
+                              <button
+                                key={`${categoryIndex}-${itemIndex}`}
+                                onClick={() => handleExplorationClick(item)}
+                                className="w-full text-left px-6 py-2 hover:bg-blue-50 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset group"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex-1">
+                                    <div className="text-sm text-gray-800 group-hover:text-blue-800 font-medium">
+                                      {item.name}
+                                    </div>
+                                    <div className="text-xs text-gray-500 group-hover:text-blue-600">
+                                      {item.location}
+                                    </div>
+                                  </div>
+                                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ) : hasAttemptedSearch ? (
                 /* 검색 시도 후 결과가 없을 때만 표시 */

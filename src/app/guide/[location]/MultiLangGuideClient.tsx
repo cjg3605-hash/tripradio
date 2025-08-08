@@ -18,6 +18,13 @@ import { UserProfile } from '@/types/guide';
 import { MultiLangGuideManager } from '@/lib/multilang-guide-manager';
 import { safeUserProfile } from '@/lib/utils';
 import GuideLoading from '@/components/ui/GuideLoading';
+import { routeLocationQueryCached } from '@/lib/location/location-router';
+
+// RegionExploreHub 동적 로드
+const RegionExploreHub = dynamic(() => import('./RegionExploreHub'), {
+  loading: () => <GuideLoading message="탐색 허브 로딩 중..." />,
+  ssr: false
+});
 
 interface Props {
   locationName: string;
@@ -133,6 +140,8 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
   const [source, setSource] = useState<'cache' | 'generated' | null>(null);
   const [availableLanguages, setAvailableLanguages] = useState<string[]>([]);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [routingResult, setRoutingResult] = useState<any>(null);
+  const [shouldShowExploreHub, setShouldShowExploreHub] = useState(false);
 
   // 히스토리 저장 함수
   const saveToHistory = useCallback(async (guideData: GuideData) => {
@@ -220,6 +229,28 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
     }
   }, [locationName]);
 
+  // 🎯 라우팅 분석 함수
+  const analyzeRouting = useCallback(async () => {
+    try {
+      console.log('🚀 위치 라우팅 분석 시작:', locationName);
+      const result = await routeLocationQueryCached(locationName, currentLanguage);
+      setRoutingResult(result);
+      
+      // RegionExploreHub 페이지 여부 결정
+      const shouldShowHub = result.pageType === 'RegionExploreHub';
+      setShouldShowExploreHub(shouldShowHub);
+      
+      console.log('📍 라우팅 분석 완료:', { 
+        pageType: result.pageType,
+        confidence: result.confidence,
+        showHub: shouldShowHub
+      });
+    } catch (error) {
+      console.warn('⚠️ 라우팅 분석 실패, 기본 가이드 페이지 사용:', error);
+      setShouldShowExploreHub(false);
+    }
+  }, [locationName, currentLanguage]);
+
   // 🔄 재생성 함수
   const handleRegenerateGuide = useCallback(async () => {
     setIsRegenerating(true);
@@ -250,10 +281,13 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
     };
   }, [handleRegenerateGuide]);
 
-  // 🔥 개선된 초기 로드 (서버-클라이언트 언어 동기화 우선)
+  // 🔥 개선된 초기 로드 (라우팅 분석 + 서버-클라이언트 언어 동기화)
   useEffect(() => {
     const initializeGuide = async () => {
-      // 🎯 새로운 언어 우선순위: 
+      // 🎯 1단계: 라우팅 분석 먼저 수행
+      await analyzeRouting();
+      
+      // 🎯 2단계: 새로운 언어 우선순위: 
       // 1순위: 서버에서 감지된 언어 (requestedLanguage - 쿠키 기반)
       // 2순위: 현재 헤더 언어 (currentLanguage)
       let targetLanguage: SupportedLanguage;
@@ -538,10 +572,19 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
           </div>
         )}
         
-        <MinimalTourContent 
-          guide={guideData}
-          language={currentLanguage}
-        />
+        {/* 🎯 라우팅 결과에 따른 컴포넌트 선택 */}
+        {shouldShowExploreHub ? (
+          <RegionExploreHub 
+            locationName={locationName}
+            routingResult={routingResult}
+            language={currentLanguage}
+          />
+        ) : (
+          <MinimalTourContent 
+            guide={guideData}
+            language={currentLanguage}
+          />
+        )}
       </div>
 
 

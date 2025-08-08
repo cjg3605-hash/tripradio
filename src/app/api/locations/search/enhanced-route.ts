@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { routeLocationQueryCached, LocationRoutingResult } from '@/lib/location/location-router';
-import { PageType } from '@/lib/location/location-classification';
 
 // Types
 interface LocationSuggestion {
@@ -27,15 +25,6 @@ interface LocationAnalysis {
   locationType: 'country' | 'province' | 'city' | 'district' | 'landmark' | 'multiple' | 'unknown';
   confidence: number;
   suggestions: LocationSuggestion[];
-  explorationSuggestions?: ExplorationSuggestion[];
-  routingResult?: LocationRoutingResult; // 라우팅 결과 추가
-  recommendedPageType?: PageType; // 추천 페이지 타입 추가
-}
-
-interface ExplorationSuggestion {
-  title: string;
-  items: LocationSuggestion[];
-  searchable: boolean;
 }
 
 // Valid languages
@@ -371,263 +360,6 @@ Proporciona hasta 5 recomendaciones solo en formato JSON array:
   return prompts[language] || prompts.ko;
 }
 
-// 3단계: 탐색 유도 프롬프트 (계층적 추천)
-function createExplorationPrompt(locationInfo: LocationSuggestion, language: Language): string {
-  const prompts = {
-    ko: `${LOCATION_EXPERT_PERSONA}
-
-사용자가 "${locationInfo.name}"를 검색했습니다. 
-위치 유형: ${locationInfo.category}
-
-사용자의 탐색을 유도하기 위해 다음 카테고리별로 추천을 제공해주세요:
-
-1. 주변 지역 (인근 도시나 지역)
-2. 주요 명소 (꼭 가봐야 할 곳들)  
-3. 숨은 보석 (현지인 추천 장소)
-4. 관련 지역 (비슷한 성격의 다른 지역)
-
-각 카테고리별로 3-4개씩 추천해주세요. JSON 형식으로 응답:
-
-{
-  "explorationSuggestions": [
-    {
-      "title": "🌏 주변 지역",
-      "searchable": true,
-      "items": [
-        {
-          "name": "지역명",
-          "location": "상세 위치",
-          "category": "지역",
-          "confidence": 0.9,
-          "metadata": {
-            "popularity": 8,
-            "accessibility": "good"
-          }
-        }
-      ]
-    },
-    {
-      "title": "🏛️ 주요 명소", 
-      "searchable": true,
-      "items": [...]
-    },
-    {
-      "title": "💎 숨은 보석",
-      "searchable": true, 
-      "items": [...]
-    },
-    {
-      "title": "🔗 관련 지역",
-      "searchable": true,
-      "items": [...]
-    }
-  ]
-}`,
-
-    en: `${LOCATION_EXPERT_PERSONA}
-
-User searched for "${locationInfo.name}".
-Location type: ${locationInfo.category}
-
-To encourage user exploration, provide recommendations in these categories:
-
-1. Nearby Areas (adjacent cities or regions)
-2. Major Attractions (must-visit places)
-3. Hidden Gems (local recommendations)
-4. Related Regions (similar character areas)
-
-Recommend 3-4 items per category. Respond in JSON format:
-
-{
-  "explorationSuggestions": [
-    {
-      "title": "🌏 Nearby Areas",
-      "searchable": true,
-      "items": [
-        {
-          "name": "area name",
-          "location": "detailed location",
-          "category": "region",
-          "confidence": 0.9,
-          "metadata": {
-            "popularity": 8,
-            "accessibility": "good"
-          }
-        }
-      ]
-    },
-    {
-      "title": "🏛️ Major Attractions",
-      "searchable": true,
-      "items": [...]
-    },
-    {
-      "title": "💎 Hidden Gems",
-      "searchable": true,
-      "items": [...]
-    },
-    {
-      "title": "🔗 Related Regions", 
-      "searchable": true,
-      "items": [...]
-    }
-  ]
-}`,
-
-    ja: `${LOCATION_EXPERT_PERSONA}
-
-ユーザーが「${locationInfo.name}」を検索しました。
-場所タイプ: ${locationInfo.category}
-
-ユーザーの探索を促すため、以下のカテゴリ別に推奨を提供してください:
-
-1. 周辺エリア（近隣の都市や地域）
-2. 主要観光地（必見スポット）
-3. 隠れた名所（地元おすすめ）
-4. 関連地域（似た性格の他地域）
-
-各カテゴリ3-4個ずつ推奨してください。JSON形式で回答:
-
-{
-  "explorationSuggestions": [
-    {
-      "title": "🌏 周辺エリア",
-      "searchable": true,
-      "items": [
-        {
-          "name": "エリア名",
-          "location": "詳細位置",
-          "category": "地域",
-          "confidence": 0.9,
-          "metadata": {
-            "popularity": 8,
-            "accessibility": "good"
-          }
-        }
-      ]
-    },
-    {
-      "title": "🏛️ 主要観光地",
-      "searchable": true,
-      "items": [...]
-    },
-    {
-      "title": "💎 隠れた名所",
-      "searchable": true,
-      "items": [...]
-    },
-    {
-      "title": "🔗 関連地域",
-      "searchable": true,
-      "items": [...]
-    }
-  ]
-}`,
-
-    zh: `${LOCATION_EXPERT_PERSONA}
-
-用户搜索了"${locationInfo.name}"。
-位置类型: ${locationInfo.category}
-
-为了鼓励用户探索，请按以下类别提供推荐:
-
-1. 周边地区（邻近城市或地区）
-2. 主要景点（必游之地）
-3. 隐藏瑰宝（当地推荐）
-4. 相关地区（性质相似的其他地区）
-
-每个类别推荐3-4个。以JSON格式回复:
-
-{
-  "explorationSuggestions": [
-    {
-      "title": "🌏 周边地区",
-      "searchable": true,
-      "items": [
-        {
-          "name": "地区名",
-          "location": "详细位置",
-          "category": "地区",
-          "confidence": 0.9,
-          "metadata": {
-            "popularity": 8,
-            "accessibility": "good"
-          }
-        }
-      ]
-    },
-    {
-      "title": "🏛️ 主要景点",
-      "searchable": true,
-      "items": [...]
-    },
-    {
-      "title": "💎 隐藏瑰宝",
-      "searchable": true,
-      "items": [...]
-    },
-    {
-      "title": "🔗 相关地区",
-      "searchable": true,
-      "items": [...]
-    }
-  ]
-}`,
-
-    es: `${LOCATION_EXPERT_PERSONA}
-
-El usuario buscó "${locationInfo.name}".
-Tipo de ubicación: ${locationInfo.category}
-
-Para fomentar la exploración del usuario, proporciona recomendaciones en estas categorías:
-
-1. Áreas Cercanas (ciudades o regiones adyacentes)
-2. Atracciones Principales (lugares imperdibles)
-3. Joyas Ocultas (recomendaciones locales)
-4. Regiones Relacionadas (áreas de carácter similar)
-
-Recomienda 3-4 elementos por categoría. Responde en formato JSON:
-
-{
-  "explorationSuggestions": [
-    {
-      "title": "🌏 Áreas Cercanas",
-      "searchable": true,
-      "items": [
-        {
-          "name": "nombre del área",
-          "location": "ubicación detallada",
-          "category": "región",
-          "confidence": 0.9,
-          "metadata": {
-            "popularity": 8,
-            "accessibility": "good"
-          }
-        }
-      ]
-    },
-    {
-      "title": "🏛️ Atracciones Principales",
-      "searchable": true,
-      "items": [...]
-    },
-    {
-      "title": "💎 Joyas Ocultas",
-      "searchable": true,
-      "items": [...]
-    },
-    {
-      "title": "🔗 Regiones Relacionadas",
-      "searchable": true,
-      "items": [...]
-    }
-  ]
-}`
-  };
-
-  return prompts[language] || prompts.ko;
-}
-
 // Sanitize input
 function sanitizeInput(input: string): string {
   if (typeof input !== 'string') return '';
@@ -679,14 +411,9 @@ export async function GET(request: NextRequest) {
     const sanitizedQuery = sanitizeInput(query);
     const lang = VALID_LANGUAGES.includes(language) ? language : 'ko';
 
-    // 🎯 새로운 라우팅 시스템 통합
-    console.log('🚀 통합 라우팅 시스템 시작:', sanitizedQuery);
-    const routingResult = await routeLocationQueryCached(sanitizedQuery, lang);
-    console.log('📍 라우팅 결과:', routingResult);
-
     const gemini = getGeminiClient();
     const model = gemini.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash-thinking-exp-1219',
       generationConfig: {
         temperature: 0.1,
         maxOutputTokens: 800,
@@ -695,7 +422,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // 1단계: 위치 분석 (라우팅 결과 참고)
+    // 1단계: 위치 분석
     console.log('🔍 위치 분석 시작:', sanitizedQuery);
     const analysisPrompt = createLocationAnalysisPrompt(sanitizedQuery, lang);
     const analysisResult = await model.generateContent(analysisPrompt);
@@ -740,24 +467,6 @@ export async function GET(request: NextRequest) {
     
     const recommendations = parseAIResponse<LocationSuggestion[]>(recommendationText) || [];
     
-    // 3단계: 탐색 유도 추천 생성 (국가/지역인 경우)
-    let explorationSuggestions: ExplorationSuggestion[] = [];
-    
-    if (analysis.locationType === 'country' || analysis.locationType === 'province' || analysis.locationType === 'city') {
-      console.log('🔍 탐색 유도 추천 생성 시작:', analysis.locationType);
-      
-      const explorationPrompt = createExplorationPrompt(primaryLocation, lang);
-      const explorationResult = await model.generateContent(explorationPrompt);
-      const explorationText = await explorationResult.response.text();
-      
-      console.log('🌟 탐색 유도 응답:', explorationText);
-      
-      const explorationData = parseAIResponse<{ explorationSuggestions: ExplorationSuggestion[] }>(explorationText);
-      if (explorationData?.explorationSuggestions) {
-        explorationSuggestions = explorationData.explorationSuggestions;
-      }
-    }
-    
     // 결과 조합: 분석된 위치 + 관광 추천
     const finalSuggestions = [
       ...analysis.suggestions.slice(0, 2), // 분석된 주요 위치 최대 2개
@@ -767,24 +476,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: finalSuggestions,
-      explorationSuggestions: explorationSuggestions,
       cached: false,
       enhanced: true,
-      hasExploration: explorationSuggestions.length > 0,
-      // 🎯 라우팅 정보 추가
-      routing: {
-        recommendedPageType: routingResult.pageType,
-        confidence: routingResult.confidence,
-        processingMethod: routingResult.processingMethod,
-        reasoning: routingResult.reasoning
-      },
       debug: process.env.NODE_ENV === 'development' ? {
         originalQuery: query,
         analysisConfidence: analysis.confidence,
         locationType: analysis.locationType,
-        correctedQuery: analysis.correctedQuery,
-        explorationCount: explorationSuggestions.length,
-        routingResult: routingResult
+        correctedQuery: analysis.correctedQuery
       } : undefined
     });
 
