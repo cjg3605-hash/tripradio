@@ -26,7 +26,7 @@
       "title": "내손안의 도슨트", 
       "subtitle": "가이드없이 자유롭게,",
       "subtitle2": "여행은 깊이있게",
-      "searchPlaceholder": "어디로 떠나고 싶으신가요?",
+      "searchPlaceholder": "어디 앞에 계신가요?",
       "searchButton": "가이드 생성",
       "popularDestinations": "인기 여행지",
       "description": "",
@@ -46,8 +46,11 @@
       "popularBadge": "POPULAR",
       "stepTitles": {
         "inputLocation": "장소 입력",
-        "aiGenerate": "AI 생성",
-        "audioPlay": "오디오 재생"
+        "inputLocationSub": "(특정 장소)",
+        "aiGenerate": "검색 클릭",
+        "aiGenerateSub": "(바로 가이드 생성)",
+        "audioPlay": "재생버튼 누르면",
+        "audioPlaySub": "투어시작!"
       },
       "stepDescriptions": {
         "inputLocation": "궁금한 곳의 이름을 입력하세요",
@@ -189,7 +192,7 @@
         "마추픽추": "마추픽추",
         "사그라다 파밀리아": "사그라다 파밀리아"
       },
-      "landmarkSuffix": "앞에 섰을 때 들리는 이야기"
+      "landmarkSuffix": "앞에서 만드는 오디오 가이드"
     },
     "search": {
       "placeholder": "검색어를 입력하세요",
@@ -800,7 +803,7 @@
       "title": "Your Pocket Docent",
       "subtitle": "Travel freely without guides,",
       "subtitle2": "yet experience deeply",
-      "searchPlaceholder": "Where would you like to go?",
+      "searchPlaceholder": "Where are you standing in front of?",
       "searchButton": "Generate Guide",
       "popularDestinations": "Popular Destinations",
       "description": "The most perfect guide commentary found by AI",
@@ -820,8 +823,11 @@
       "popularBadge": "POPULAR",
       "stepTitles": {
         "inputLocation": "Enter Location",
-        "aiGenerate": "AI Generate",
-        "audioPlay": "Audio Playback"
+        "inputLocationSub": "(Specific Place)",
+        "aiGenerate": "Click Search",
+        "aiGenerateSub": "(Generate Guide)",
+        "audioPlay": "Press Play Button",
+        "audioPlaySub": "Start Tour!"
       },
       "stepDescriptions": {
         "inputLocation": "Enter the name of the place you're curious about",
@@ -963,7 +969,7 @@
         "마추픽추": "Machu Picchu",
         "사그라다 파밀리아": "Sagrada Familia"
       },
-      "landmarkSuffix": "Stories you hear when standing in front of"
+      "landmarkSuffix": "Audio guide created in front of"
     },
     "search": {
       "placeholder": "Enter search term",
@@ -1574,7 +1580,7 @@
       "title": "あなたのポケットドーセント",
       "subtitle": "ガイドなしで自由に、",
       "subtitle2": "旅行は深く",
-      "searchPlaceholder": "どこに行きたいですか？",
+      "searchPlaceholder": "どちらの前に立っていらっしゃいますか？",
       "searchButton": "ガイド生成",
       "popularDestinations": "人気の目的地",
       "description": "AIが見つけた最も完璧なガイド解説",
@@ -1594,8 +1600,11 @@
       "popularBadge": "POPULAR",
       "stepTitles": {
         "inputLocation": "場所入力",
-        "aiGenerate": "AI生成",
-        "audioPlay": "オーディオ再生"
+        "inputLocationSub": "（特定の場所）",
+        "aiGenerate": "検索クリック",
+        "aiGenerateSub": "（ガイド生成）",
+        "audioPlay": "再生ボタンを押すと",
+        "audioPlaySub": "ツアー開始！"
       },
       "stepDescriptions": {
         "inputLocation": "気になる場所の名前を入力してください",
@@ -1737,7 +1746,7 @@
         "마추픽추": "マチュピチュ",
         "사그라다 파밀리아": "サグラダファミリア"
       },
-      "landmarkSuffix": "の前に立った時に聞こえる物語"
+      "landmarkSuffix": "の前で作るオーディオガイド"
     },
     "search": {
       "placeholder": "検索語を入力してください",
@@ -2311,7 +2320,7 @@
       "title": "您的口袋导览员",
       "subtitle": "无导游自由旅行，",
       "subtitle2": "却能深度体验",
-      "searchPlaceholder": "您想去哪里？",
+      "searchPlaceholder": "您现在站在哪里面前？",
       "searchButton": "生成指南",
       "popularDestinations": "热门目的地",
       "description": "AI发现的最完美指南解说",
@@ -2331,8 +2340,11 @@
       "popularBadge": "POPULAR",
       "stepTitles": {
         "inputLocation": "输入地点",
-        "aiGenerate": "AI生成",
-        "audioPlay": "音频播放"
+        "inputLocationSub": "（特定场所）",
+        "aiGenerate": "点击搜索",
+        "aiGenerateSub": "（直接生成指南）",
+        "audioPlay": "点击播放按钮",
+        "audioPlaySub": "开始旅程！"
       },
       "stepDescriptions": {
         "inputLocation": "输入您好奇的地点名称",
@@ -2474,7 +2486,7 @@
         "마추픽추": "马丘比丘",
         "사그라다 파밀리아": "圣家堂"
       },
-      "landmarkSuffix": "站在面前时听到的故事"
+      "landmarkSuffix": "面前制作的音频导览"
     },
     "search": {
       "placeholder": "输入搜索词",
@@ -3048,7 +3060,7 @@
       "title": "Tu Docente de Bolsillo",
       "subtitle": "Viaja libremente sin guías,",
       "subtitle2": "pero experimenta profundamente",
-      "searchPlaceholder": "¿Dónde te gustaría ir?",
+      "searchPlaceholder": "¿Dónde estás parado en frente?",
       "searchButton": "Generar Guía",
       "popularDestinations": "Destinos Populares",
       "description": "El comentario de guía más perfecto encontrado por IA",
@@ -3068,8 +3080,11 @@
       "popularBadge": "POPULAR",
       "stepTitles": {
         "inputLocation": "Ingresar Ubicación",
-        "aiGenerate": "Generar IA",
-        "audioPlay": "Reproducir Audio"
+        "inputLocationSub": "(Lugar Específico)",
+        "aiGenerate": "Hacer Clic en Buscar",
+        "aiGenerateSub": "(Generar Guía)",
+        "audioPlay": "Presionar Botón Reproducir",
+        "audioPlaySub": "¡Comenzar Tour!"
       },
       "stepDescriptions": {
         "inputLocation": "Ingrese el nombre del lugar que le interesa",
@@ -3211,7 +3226,7 @@
         "마추픽추": "Machu Picchu",
         "사그라다 파밀리아": "Sagrada Familia"
       },
-      "landmarkSuffix": "Historias que escuchas al estar frente a"
+      "landmarkSuffix": "Guía de audio creada frente a"
     },
     "search": {
       "placeholder": "Ingrese término de búsqueda",

@@ -110,7 +110,6 @@ function Home() {
   const [isFocused, setIsFocused] = useState(false);
   const [suggestions, setSuggestions] = useState<TranslatedSuggestion[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
-  const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const [currentLoadingQuery, setCurrentLoadingQuery] = useState('');
   
@@ -182,10 +181,8 @@ function Home() {
   // 간격 참조
   const intervalRefs = useRef<{
     word: NodeJS.Timeout | null;
-    placeholder: NodeJS.Timeout | null;
   }>({
-    word: null,
-    placeholder: null
+    word: null
   });
   
   // 지역별 인기 국가 데이터 (번역키 사용)
@@ -379,45 +376,36 @@ function Home() {
   const [currentLandmarkIndex, setCurrentLandmarkIndex] = useState(0);
   const [imageLoadErrors, setImageLoadErrors] = useState<Set<string>>(new Set());
   const [imagesPreloaded, setImagesPreloaded] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // 회전하는 플레이스홀더 (다국어 지원)
-  const placeholders = useMemo(() => {
-    const translated = t('home.searchPlaceholders');
+  // 화면 크기 감지
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
     
-    
-    return Array.isArray(translated) ? translated : [
-      '에펠탑',
-      '타지마할',
-      '마추픽추',
-      '콜로세움',
-      '자유의 여신상'
-    ];
-  }, [t]);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // 언어 변경 시 인덱스 리셋
   useEffect(() => {
-    setPlaceholderIndex(0);
     setCurrentLandmarkIndex(0);
   }, [currentLanguage]);
 
   useEffect(() => {
     setIsLoaded(true);
     
-    // 플레이스홀더 회전
-    const placeholderInterval = setInterval(() => {
-      setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
-    }, 3000);
-
     // 명소 회전 (천천히 - 6초)
     const landmarkInterval = setInterval(() => {
       setCurrentLandmarkIndex((prev) => (prev + 1) % landmarks.length);
     }, 6000);
 
     return () => {
-      clearInterval(placeholderInterval);
       clearInterval(landmarkInterval);
     };
-  }, [currentLanguage, placeholders.length, landmarks.length]);
+  }, [currentLanguage, landmarks.length]);
 
   // 이미지 프리로드 및 에러 처리
   useEffect(() => {
@@ -961,8 +949,8 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-white font-sans relative">
-      {/* 배경 - 헤더 컨테이너 크기에 맞춰서 Hero 섹션까지만 제한 */}
-      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 overflow-hidden max-w-6xl w-full" style={{ height: '85vh' }}>
+      {/* 배경 - 헤더 컨테이너 크기에 맞춰서 Hero 섹션까지만 제한 - 모바일 반응형 */}
+      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 overflow-hidden w-full max-w-6xl px-2 sm:px-4 md:px-6" style={{ height: '85vh' }}>
         {/* 회전하는 배경 이미지들 */}
         {landmarks.map((landmark, index) => (
           <div
@@ -991,123 +979,137 @@ function Home() {
 
       {/* Main Content */}
       <main className="relative z-10 overflow-hidden">
-        {/* Hero Section */}
-        <section className="relative flex flex-col items-center justify-center px-6 pt-32 pb-12 min-h-screen">
+        {/* Hero Section - 모바일 반응형 패딩 */}
+        <section className="relative flex flex-col items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-32 pb-6 sm:pb-8 md:pb-12 min-h-screen">
             
-            {/* 중앙 명소 텍스트 - 30% 축소 (한줄 표시) */}
-            <div className="text-center text-white mb-6">
-              <div className="text-lg md:text-xl font-bold mb-1" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
-                <span className="inline-block overflow-hidden whitespace-nowrap" style={{ height: '28px', lineHeight: '28px', minWidth: '200px' }}>
+            {/* 중앙 명소 텍스트 - 모바일 반응형 (명소 부분만 회전) */}
+            <div className="text-center text-white mb-4 sm:mb-6 px-2 sm:px-4 md:px-6">
+              <div className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold mb-1 flex items-center justify-center" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)', height: isMobile ? '24px' : '32px' }}>
+                <span className="inline-block overflow-hidden whitespace-nowrap" style={{ 
+                  height: isMobile ? '24px' : '32px', 
+                  lineHeight: isMobile ? '24px' : '32px', 
+                  width: isMobile ? '180px' : '220px',
+                  textAlign: 'right',
+                  marginRight: '4px'
+                }}>
                   <span 
                     className="inline-block transition-transform duration-1000 ease-out"
                     style={{
-                      transform: `translateY(-${currentLandmarkIndex * 28}px)`
+                      transform: `translateY(-${currentLandmarkIndex * (isMobile ? 24 : 32)}px)`
                     }}
                   >
                     {landmarks.map((landmark, index) => (
-                      <span key={index} className="block font-bold whitespace-nowrap" style={{ height: '28px', lineHeight: '28px' }}>
-                        {t(`home.landmarks.${landmark}` as any) || landmark} {t('home.landmarkSuffix')}
+                      <span key={index} className="block font-bold whitespace-nowrap" style={{ 
+                        height: isMobile ? '24px' : '32px', 
+                        lineHeight: isMobile ? '24px' : '32px',
+                        textAlign: 'right'
+                      }}>
+                        {t(`home.landmarks.${landmark}` as any) || landmark}
                       </span>
                     ))}
                   </span>
                 </span>
+                <span>{t('home.landmarkSuffix')}</span>
               </div>
-              <div className="text-sm md:text-base font-light mb-1" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
+              <div className="text-xs sm:text-sm md:text-base lg:text-lg font-light mb-1" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
                 {t('home.subtitle')}
               </div>
-              <div className="text-sm md:text-base font-light" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
+              <div className="text-xs sm:text-sm md:text-base lg:text-lg font-light" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
                 {t('home.subtitle2')}
               </div>
             </div>
 
-            {/* How to Use - 3 Steps */}
-            <div className="relative z-10 py-8 w-full max-w-6xl">
-            <div className="max-w-6xl mx-auto px-6">
-              {/* 모든 화면에서 가로 배열 */}
-              <div className="flex flex-row justify-center items-start gap-2 sm:gap-4 md:gap-8">
+            {/* How to Use - 3 Steps - 모바일 반응형 */}
+            <div className="relative z-10 py-4 sm:py-6 md:py-8 w-full max-w-6xl">
+            <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6">
+              {/* 모든 화면에서 가로 배열 - 모바일 간격 최적화 */}
+              <div className="flex flex-row justify-center items-start gap-1 sm:gap-2 md:gap-4 lg:gap-6 xl:gap-8">
                 
-                {/* 장소 입력 */}
-                <div className="text-center relative z-10 flex-1 max-w-32 sm:max-w-xs">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center bg-black text-white mb-3 sm:mb-4 shadow-lg">
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/* 장소 입력 - 모바일 최적화 */}
+                <div className="text-center relative z-10 flex-1 max-w-20 sm:max-w-24 md:max-w-32 lg:max-w-xs">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mx-auto rounded-full flex items-center justify-center bg-black text-white mb-2 sm:mb-3 md:mb-4 shadow-lg">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
-                  <div className="min-h-16 sm:min-h-20 flex flex-col justify-start pt-2">
-                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-white mb-2" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.inputLocation')}</div>
+                  <div className="min-h-10 sm:min-h-12 md:min-h-16 lg:min-h-20 flex flex-col justify-start pt-1 sm:pt-2">
+                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-white mb-0 sm:mb-1" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.inputLocation')}</div>
+                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-white opacity-80" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.inputLocationSub')}</div>
                   </div>
                 </div>
 
-                {/* 화살표 1 */}
-                <div className="flex items-center justify-center pt-6 sm:pt-8">
-                  <svg className="w-4 h-4 sm:w-6 sm:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/* 화살표 1 - 모바일 최적화 */}
+                <div className="flex items-center justify-center pt-3 sm:pt-4 md:pt-6 lg:pt-8">
+                  <svg className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-6 lg:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
 
-                {/* AI 생성 */}
-                <div className="text-center relative z-10 flex-1 max-w-32 sm:max-w-xs">
+                {/* AI 생성 - 모바일 최적화 */}
+                <div className="text-center relative z-10 flex-1 max-w-20 sm:max-w-24 md:max-w-32 lg:max-w-xs">
                   <button 
                     onClick={handleAIGeneration}
                     disabled={!query.trim() || loadingStates.search}
-                    className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-3 sm:mb-4 bg-black text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black ${
+                    className={`w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-2 sm:mb-3 md:mb-4 bg-black text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black ${
                       loadingStates.search ? 'animate-pulse' : ''
                     } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
                     aria-label={loadingStates.guide ? 'AI 가이드 생성 중...' : String(t('home.stepTitles.aiGenerate'))}
                     aria-disabled={!query.trim() || loadingStates.search}
                   >
                     {loadingStates.guide ? (
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     ) : (
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                     )}
                   </button>
-                  <div className="min-h-16 sm:min-h-20 flex flex-col justify-start pt-2">
-                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-white mb-2" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.aiGenerate')}</div>
+                  <div className="min-h-10 sm:min-h-12 md:min-h-16 lg:min-h-20 flex flex-col justify-start pt-1 sm:pt-2">
+                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-white mb-0 sm:mb-1" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.aiGenerate')}</div>
+                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-white opacity-80" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.aiGenerateSub')}</div>
                   </div>
                 </div>
 
-                {/* 화살표 2 */}
-                <div className="flex items-center justify-center pt-6 sm:pt-8">
-                  <svg className="w-4 h-4 sm:w-6 sm:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/* 화살표 2 - 모바일 최적화 */}
+                <div className="flex items-center justify-center pt-3 sm:pt-4 md:pt-6 lg:pt-8">
+                  <svg className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-6 lg:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
 
-                {/* 오디오 재생 */}
-                <div className="text-center relative z-10 flex-1 max-w-32 sm:max-w-xs">
+                {/* 오디오 재생 - 모바일 최적화 */}
+                <div className="text-center relative z-10 flex-1 max-w-20 sm:max-w-24 md:max-w-32 lg:max-w-xs">
                   <button 
                     onClick={handleAudioPlayback}
                     disabled={!query.trim()}
-                    className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-3 sm:mb-4 bg-black text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black ${
+                    className={`w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-2 sm:mb-3 md:mb-4 bg-black text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black ${
                       audioPlaying ? 'animate-pulse' : ''
                     } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
                     aria-label={audioPlaying ? '오디오 일시정지' : String(t('home.stepTitles.audioPlay'))}
                     aria-pressed={audioPlaying}
                   >
                     {audioPlaying ? (
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
                       </svg>
                     ) : (
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z"/>
                       </svg>
                     )}
                   </button>
-                  <div className="min-h-16 sm:min-h-20 flex flex-col justify-start pt-2">
-                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-white mb-2" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.audioPlay')}</div>
+                  <div className="min-h-10 sm:min-h-12 md:min-h-16 lg:min-h-20 flex flex-col justify-start pt-1 sm:pt-2">
+                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-white mb-0 sm:mb-1" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.audioPlay')}</div>
+                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-white opacity-80" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.audioPlaySub')}</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Search Box */}
-          <div className="relative z-[9998] w-full max-w-2xl mx-auto">
+          {/* Search Box - 모바일 반응형 */}
+          <div className="relative z-[9998] w-full max-w-2xl mx-auto px-3 sm:px-4 md:px-6 lg:px-0">
             <div className={`
               relative transition-all duration-700 ease-out
               ${isFocused 
@@ -1135,8 +1137,8 @@ function Home() {
                       setIsFocused(false);
                     }
                   }}
-                  placeholder={placeholders[placeholderIndex]}
-                  className="w-full px-8 py-6 text-xl font-light text-black bg-transparent rounded-3xl focus:outline-none transition-all duration-300 placeholder-gray-400 focus:ring-2 focus:ring-black focus:ring-opacity-20"
+                  placeholder={String(t('home.searchPlaceholder'))}
+                  className="w-full px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 lg:py-6 text-base sm:text-lg md:text-xl font-light text-black bg-transparent rounded-3xl focus:outline-none transition-all duration-300 placeholder-gray-400 focus:ring-2 focus:ring-black focus:ring-opacity-20"
                   aria-label={String(t('home.searchPlaceholder'))}
                   aria-describedby="search-help"
                   aria-expanded={isFocused && suggestions.length > 0}
@@ -1150,8 +1152,8 @@ function Home() {
                   onClick={handleSearch}
                   disabled={!query.trim() || loadingStates.search}
                   className={`
-                    absolute right-4 top-1/2 transform -translate-y-1/2
-                    w-14 h-14 rounded-2xl transition-all duration-300
+                    absolute right-2 sm:right-3 md:right-4 top-1/2 transform -translate-y-1/2
+                    w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-2xl transition-all duration-300
                     flex items-center justify-center group
                     focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black
                     ${query.trim() && !loadingStates.search
@@ -1163,9 +1165,9 @@ function Home() {
                   type="submit"
                 >
                   {loadingStates.search ? (
-                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <svg className="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   )}

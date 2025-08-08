@@ -169,81 +169,76 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
 
   return (
     <ResponsiveContainer>
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-gray-50">
+      <div className="min-h-screen bg-white">
         
         {/* 헤더 섹션 */}
-        <div className="relative p-6 mb-6 bg-white rounded-xl shadow-sm">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-xl" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-              <MapPin className="w-4 h-4" />
-              <span>{regionData?.country}</span>
-            </div>
-            
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              {regionData?.name}
-            </h1>
-            
-            <p className="text-lg text-gray-700 leading-relaxed max-w-3xl">
-              {regionData?.description}
-            </p>
-            
-            {/* 빠른 정보 */}
-            {regionData?.quickFacts && Object.keys(regionData.quickFacts).length > 0 && (
-              <div className="flex flex-wrap gap-4 mt-6">
-                {regionData.quickFacts.area && (
-                  <div className="flex items-center gap-2 px-3 py-1 bg-white/80 rounded-full text-sm">
-                    <span className="font-medium">면적:</span>
-                    <span>{regionData.quickFacts.area}</span>
-                  </div>
-                )}
-                {regionData.quickFacts.population && (
-                  <div className="flex items-center gap-2 px-3 py-1 bg-white/80 rounded-full text-sm">
-                    <Users className="w-4 h-4" />
-                    <span>{regionData.quickFacts.population}</span>
-                  </div>
-                )}
-                {regionData.quickFacts.bestTime && (
-                  <div className="flex items-center gap-2 px-3 py-1 bg-white/80 rounded-full text-sm">
-                    <Calendar className="w-4 h-4" />
-                    <span>{regionData.quickFacts.bestTime}</span>
-                  </div>
-                )}
-              </div>
-            )}
+        <div className="max-w-4xl mx-auto p-6 border-b border-gray-100">
+          <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+            <MapPin className="w-4 h-4" />
+            <span>{regionData?.country}</span>
           </div>
+          
+          <h1 className="text-2xl font-light text-gray-900 mb-4">
+            {regionData?.name}
+          </h1>
+          
+          <p className="text-gray-600 leading-relaxed max-w-3xl">
+            {regionData?.description}
+          </p>
+          
+          {/* 빠른 정보 */}
+          {regionData?.quickFacts && Object.keys(regionData.quickFacts).length > 0 && (
+            <div className="flex flex-wrap gap-4 mt-6">
+              {regionData.quickFacts.area && (
+                <div className="flex items-center gap-2 px-3 py-1 border border-gray-200 rounded-full text-sm">
+                  <span className="font-medium text-gray-600">면적:</span>
+                  <span className="text-gray-500">{regionData.quickFacts.area}</span>
+                </div>
+              )}
+              {regionData.quickFacts.population && (
+                <div className="flex items-center gap-2 px-3 py-1 border border-gray-200 rounded-full text-sm">
+                  <Users className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-500">{regionData.quickFacts.population}</span>
+                </div>
+              )}
+              {regionData.quickFacts.bestTime && (
+                <div className="flex items-center gap-2 px-3 py-1 border border-gray-200 rounded-full text-sm">
+                  <Calendar className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-500">{regionData.quickFacts.bestTime}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        <div className="space-y-6">
+        <div className="max-w-4xl mx-auto space-y-8">
           {/* 하이라이트 섹션 */}
           {regionData?.highlights && regionData.highlights.length > 0 && (
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Star className="w-5 h-5 text-yellow-500" />
+            <div className="p-6 border-b border-gray-100">
+              <h2 className="text-lg font-medium text-gray-900 mb-4">
                 주요 특징
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {regionData.highlights.map((highlight, index) => (
                   <div 
                     key={index}
-                    className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg"
+                    className="flex items-start gap-3 p-3"
                   >
-                    <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
-                    <span className="text-sm">{highlight}</span>
+                    <div className="w-1.5 h-1.5 bg-gray-900 rounded-full flex-shrink-0 mt-2" />
+                    <span className="text-sm text-gray-600">{highlight}</span>
                   </div>
                 ))}
               </div>
-            </Card>
+            </div>
           )}
 
           {/* 인터랙티브 지도 */}
           {regionData?.coordinates && (
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-blue-500" />
+            <div className="p-6 border-b border-gray-100">
+              <h2 className="text-lg font-medium text-gray-900 mb-4">
                 탐색 지도
               </h2>
-              <div className="h-80 bg-gray-100 rounded-lg overflow-hidden">
+              <div className="h-80 bg-gray-50 border border-gray-200 rounded-lg overflow-hidden">
                 <StartLocationMap
                   locationName={regionData.name}
                   startPoint={{
@@ -261,52 +256,51 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
                   showIntroOnly={true}
                 />
               </div>
-            </Card>
+            </div>
           )}
 
           {/* 추천 여행지 그리드 */}
-          <Card className="p-6">
+          <div className="p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
-                <ArrowRight className="w-5 h-5 text-green-500" />
+              <h2 className="text-lg font-medium text-gray-900">
                 추천 여행지 ({filteredSpots.length})
               </h2>
               
               {/* 카테고리 필터 */}
               <div className="flex flex-wrap gap-2">
                 {categories.map(category => (
-                  <Button
+                  <button
                     key={category.id}
-                    variant={selectedCategory === category.id ? "default" : "outline"}
-                    size="sm"
                     onClick={() => setSelectedCategory(category.id)}
-                    className="text-xs"
+                    className={`px-3 py-1.5 text-xs border border-gray-200 rounded-full transition-all ${
+                      selectedCategory === category.id 
+                        ? 'bg-gray-900 text-white border-gray-900' 
+                        : 'bg-white text-gray-600 hover:border-gray-300'
+                    }`}
                   >
                     {category.emoji} {category.name}
-                  </Button>
+                  </button>
                 ))}
               </div>
             </div>
 
             {error && (
-              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div className="mb-4 p-4 border border-gray-200 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <p className="text-red-700">{error}</p>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
+                  <p className="text-gray-600">{error}</p>
+                  <button 
                     onClick={handleRetryGeneration}
-                    className="text-red-600"
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs border border-gray-200 rounded-full hover:border-gray-300 transition-colors"
                   >
-                    <RefreshCw className="w-4 h-4 mr-1" />
+                    <RefreshCw className="w-3 h-3" />
                     다시 시도
-                  </Button>
+                  </button>
                 </div>
               </div>
             )}
 
             {filteredSpots.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-gray-400">
                 <MapPin className="w-12 h-12 mx-auto mb-4 opacity-30" />
                 <p>해당 카테고리의 추천 장소가 없습니다.</p>
                 <p className="text-sm mt-1">다른 카테고리를 선택해보세요.</p>
@@ -314,30 +308,30 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredSpots.map((spot, index) => (
-                  <Card
+                  <div
                     key={spot.id}
-                    className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-102 overflow-hidden"
+                    className="group cursor-pointer border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 transition-all"
                     onClick={() => handleSpotClick(spot)}
                   >
                     {/* 이미지 영역 */}
-                    <div className="h-48 bg-gradient-to-br from-blue-100 to-purple-100 relative overflow-hidden">
+                    <div className="h-48 bg-gray-50 relative overflow-hidden">
                       {spot.image ? (
                         <img 
                           src={spot.image} 
                           alt={spot.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-cover"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <MapPin className="w-16 h-16 text-blue-400" />
+                          <MapPin className="w-12 h-12 text-gray-300" />
                         </div>
                       )}
                       
                       {/* 인기도 배지 */}
                       <div className="absolute top-3 right-3">
-                        <div className="flex items-center gap-1 px-2 py-1 bg-white/90 rounded-full text-xs font-medium">
-                          <Star className="w-3 h-3 text-yellow-500" />
-                          <span>{spot.popularity}/10</span>
+                        <div className="flex items-center gap-1 px-2 py-1 bg-white/90 border border-gray-200 rounded-full text-xs">
+                          <Star className="w-3 h-3 text-gray-600" />
+                          <span className="text-gray-600">{spot.popularity}/10</span>
                         </div>
                       </div>
                     </div>
@@ -345,25 +339,25 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
                     {/* 콘텐츠 영역 */}
                     <div className="p-4">
                       <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-semibold text-lg group-hover:text-blue-600 transition-colors">
+                        <h3 className="font-medium text-gray-900 group-hover:text-black transition-colors">
                           {spot.name}
                         </h3>
-                        <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                        <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors flex-shrink-0" />
                       </div>
                       
-                      <p className="text-sm text-gray-600 mb-2">{spot.location}</p>
-                      <p className="text-sm text-gray-700 mb-3 line-clamp-2">{spot.description}</p>
+                      <p className="text-sm text-gray-500 mb-2">{spot.location}</p>
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{spot.description}</p>
                       
                       {/* 메타 정보 */}
                       <div className="flex flex-wrap gap-2 mb-3">
-                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${getDifficultyColor(spot.difficulty)}`}>
+                        <span className="text-xs px-2 py-1 border border-gray-200 text-gray-600 rounded-full">
                           {getDifficultyLabel(spot.difficulty)}
                         </span>
-                        <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">
+                        <span className="text-xs px-2 py-1 border border-gray-200 text-gray-600 rounded-full">
                           <Clock className="w-3 h-3 inline mr-1" />
                           {spot.estimatedDays}일
                         </span>
-                        <span className="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded-full font-medium">
+                        <span className="text-xs px-2 py-1 border border-gray-200 text-gray-600 rounded-full">
                           {spot.seasonality}
                         </span>
                       </div>
@@ -372,19 +366,19 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
                       {spot.highlights && spot.highlights.length > 0 && (
                         <div className="space-y-1">
                           {spot.highlights.slice(0, 2).map((highlight, idx) => (
-                            <div key={idx} className="flex items-center gap-1 text-xs text-gray-600">
-                              <div className="w-1 h-1 bg-green-500 rounded-full flex-shrink-0" />
+                            <div key={idx} className="flex items-start gap-2 text-xs text-gray-500">
+                              <div className="w-1 h-1 bg-gray-900 rounded-full flex-shrink-0 mt-1.5" />
                               <span className="line-clamp-1">{highlight}</span>
                             </div>
                           ))}
                         </div>
                       )}
                     </div>
-                  </Card>
+                  </div>
                 ))}
               </div>
             )}
-          </Card>
+          </div>
         </div>
       </div>
     </ResponsiveContainer>
