@@ -308,9 +308,9 @@ export default function MyPage() {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     if (hours > 0) {
-      return `${hours}시간 ${mins}분`;
+      return `${hours}${t('common.hours') || '시간'} ${mins}${t('common.minutes') || '분'}`;
     }
-    return `${mins}분`;
+    return `${mins}${t('common.minutes') || '분'}`;
   };
 
   // 탭 컨텐츠 렌더링
@@ -322,11 +322,11 @@ export default function MyPage() {
             {/* 히스토리 헤더 */}
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-semibold text-black">나의 가이드</h2>
-                <p className="text-gray-500 text-sm">조회했던 가이드들의 히스토리입니다</p>
+                <h2 className="text-xl font-semibold text-black">{t('mypage.historyTitle') || '나의 가이드'}</h2>
+                <p className="text-gray-500 text-sm">{t('mypage.historyDescription') || '조회했던 가이드들의 히스토리입니다'}</p>
               </div>
               <div className="text-sm text-gray-500">
-                총 {filteredGuides.length}개 가이드
+                총 {filteredGuides.length}개 {t('mypage.guides') || '가이드'}
               </div>
             </div>
 
@@ -335,7 +335,7 @@ export default function MyPage() {
               <div className="flex-1">
                 <input
                   type="text"
-                  placeholder="가이드 검색..."
+                  placeholder={String(t('mypage.searchPlaceholder') || '가이드 검색...')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
@@ -346,12 +346,12 @@ export default function MyPage() {
                 onChange={(e) => setFilterLanguage(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
               >
-                <option value="all">모든 언어</option>
-                <option value="ko">한국어</option>
-                <option value="en">English</option>
-                <option value="ja">日本語</option>
-                <option value="zh">中文</option>
-                <option value="es">Español</option>
+                <option value="all">{t('mypage.allLanguages') || '모든 언어'}</option>
+                <option value="ko">{t('languages.korean') || '한국어'}</option>
+                <option value="en">{t('languages.english') || 'English'}</option>
+                <option value="ja">{t('languages.japanese') || '日本語'}</option>
+                <option value="zh">{t('languages.chinese') || '中文'}</option>
+                <option value="es">{t('languages.spanish') || 'Español'}</option>
               </select>
             </div>
 
@@ -372,7 +372,7 @@ export default function MyPage() {
                       <p className="text-sm text-gray-500 mb-2">📍 {guide.location}</p>
                       <div className="flex items-center gap-4 text-xs text-gray-400">
                         <span>🗓 {formatDate(guide.createdAt)}</span>
-                        <span>📚 {guide.chapters}개 챕터</span>
+                        <span>📚 {guide.chapters}{t('mypage.chapters') || '개 챕터'}</span>
                         <span>🌐 {guide.language.toUpperCase()}</span>
                         {guide.lastAccessed && (
                           <span>👁 {formatDate(guide.lastAccessed)}</span>
@@ -403,13 +403,13 @@ export default function MyPage() {
             {filteredGuides.length === 0 && (
               <div className="text-center py-12">
                 <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-black mb-2">가이드 히스토리가 없습니다</h3>
-                <p className="text-gray-500 mb-4">새로운 장소를 검색하여 가이드를 생성해보세요!</p>
+                <h3 className="text-lg font-medium text-black mb-2">{t('mypage.noHistoryTitle') || '가이드 히스토리가 없습니다'}</h3>
+                <p className="text-gray-500 mb-4">{t('mypage.noHistoryDescription') || '새로운 장소를 검색하여 가이드를 생성해보세요!'}</p>
                 <button
                   onClick={() => router.push('/')}
                   className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
                 >
-                  가이드 생성하기
+                  {t('mypage.createGuideButton') || '가이드 생성하기'}
                 </button>
               </div>
             )}
@@ -417,7 +417,7 @@ export default function MyPage() {
         );
 
 
-      case 'favorites':
+      case 'favorites': {
         const favoriteGuides = filteredGuides.filter(guide => guide.isFavorite);
         
         return (
@@ -425,11 +425,11 @@ export default function MyPage() {
             {/* 즐겨찾기 헤더 */}
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-semibold text-black">즐겨찾기 가이드</h2>
-                <p className="text-gray-500 text-sm">실시간 가이드에서 즐겨찾기한 가이드들입니다</p>
+                <h2 className="text-xl font-semibold text-black">{t('mypage.favoritesTitle') || '즐겨찾기 가이드'}</h2>
+                <p className="text-gray-500 text-sm">{t('mypage.favoritesDescription') || '실시간 가이드에서 즐겨찾기한 가이드들입니다'}</p>
               </div>
               <div className="text-sm text-gray-500">
-                {favoriteGuides.length}개 즐겨찾기
+                {favoriteGuides.length}개 {t('mypage.favoritesShort') || '즐겨찾기'}
               </div>
             </div>
 
@@ -468,20 +468,21 @@ export default function MyPage() {
             {favoriteGuides.length === 0 && (
               <div className="text-center py-12">
                 <Star className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-black mb-2">즐겨찾기한 가이드가 없습니다</h3>
-                <p className="text-gray-500 mb-4">실시간 가이드를 보며 별표 버튼을 클릭하여 즐겨찾기를 추가해보세요!</p>
+                <h3 className="text-lg font-medium text-black mb-2">{t('mypage.noFavoritesTitle') || '즐겨찾기한 가이드가 없습니다'}</h3>
+                <p className="text-gray-500 mb-4">{t('mypage.noFavoritesDescription') || '실시간 가이드를 보며 별표 버튼을 클릭하여 즐겨찾기를 추가해보세요!'}</p>
                 <button
                   onClick={() => router.push('/')}
                   className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
                 >
-                  가이드 생성하기
+                  {t('mypage.createGuideButton') || '가이드 생성하기'}
                 </button>
               </div>
             )}
           </div>
         );
+      }
 
-      case 'offline':
+      case 'offline': {
         // 오프라인 다운로드된 가이드들 (향후 구현을 위한 mock 데이터)
         const offlineGuides: LocalGuideEntry[] = [];
         
@@ -490,11 +491,11 @@ export default function MyPage() {
             {/* 오프라인 헤더 */}
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-semibold text-black">오프라인 다운로드</h2>
-                <p className="text-gray-500 text-sm">오프라인에서도 이용할 수 있도록 다운로드한 가이드들입니다</p>
+                <h2 className="text-xl font-semibold text-black">{t('mypage.offlineTitle') || '오프라인 다운로드'}</h2>
+                <p className="text-gray-500 text-sm">{t('mypage.offlineDescription') || '오프라인에서도 이용할 수 있도록 다운로드한 가이드들입니다'}</p>
               </div>
               <div className="text-sm text-gray-500">
-                {offlineGuides.length}개 다운로드
+                {offlineGuides.length}개 {t('common.downloads') || '다운로드'}
               </div>
             </div>
 
@@ -510,26 +511,26 @@ export default function MyPage() {
                       <div className="flex items-center gap-2 mb-2">
                         <h3 className="font-medium text-black">{guide.title}</h3>
                         <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                          오프라인 사용 가능
+                          {t('mypage.offlineAvailable') || '오프라인 사용 가능'}
                         </span>
                       </div>
                       <p className="text-sm text-gray-500 mb-2">📍 {guide.location}</p>
                       <div className="flex items-center gap-4 text-xs text-gray-400">
-                        <span>📚 {guide.chapters}개 챕터</span>
+                        <span>📚 {guide.chapters}{t('mypage.chapters') || '개 챕터'}</span>
                         <span>🌐 {guide.language.toUpperCase()}</span>
-                        <span>💾 다운로드됨</span>
+                        <span>💾 {t('mypage.downloaded') || '다운로드됨'}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 ml-4">
                       <button
                         className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                        title="오프라인 재생"
+                        title={String(t('mypage.offlinePlay') || '오프라인 재생')}
                       >
                         <Play className="h-4 w-4" />
                       </button>
                       <button
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="오프라인 파일 삭제"
+                        title={String(t('mypage.deleteOffline') || '오프라인 파일 삭제')}
                       >
                         <Trash className="h-4 w-4" />
                       </button>
@@ -542,10 +543,9 @@ export default function MyPage() {
             {offlineGuides.length === 0 && (
               <div className="text-center py-12">
                 <Download className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-black mb-2">오프라인 다운로드된 가이드가 없습니다</h3>
+                <h3 className="text-lg font-medium text-black mb-2">{t('mypage.noOfflineTitle') || '오프라인 다운로드된 가이드가 없습니다'}</h3>
                 <p className="text-gray-500 mb-4">
-                  실시간 가이드를 보며 다운로드 버튼을 클릭하여<br />
-                  오프라인에서도 이용할 수 있도록 저장해보세요!
+                  {t('mypage.noOfflineDescription') || '실시간 가이드를 보며 다운로드 버튼을 클릭하여 오프라인에서도 이용할 수 있도록 저장해보세요!'}
                 </p>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
                   <div className="flex items-start gap-3">
@@ -553,11 +553,11 @@ export default function MyPage() {
                       <Download className="h-5 w-5 text-blue-600" />
                     </div>
                     <div className="text-left">
-                      <h4 className="font-medium text-blue-900 mb-1">오프라인 기능 안내</h4>
+                      <h4 className="font-medium text-blue-900 mb-1">{t('mypage.offlineInfoTitle') || '오프라인 기능 안내'}</h4>
                       <p className="text-sm text-blue-700">
-                        • 인터넷 연결 없이도 가이드 이용 가능<br />
-                        • 오디오 파일까지 함께 저장<br />
-                        • 모바일 저장 공간에 안전하게 보관
+                        • {t('mypage.offlineFeature1') || '인터넷 연결 없이도 가이드 이용 가능'}<br />
+                        • {t('mypage.offlineFeature2') || '오디오 파일까지 함께 저장'}<br />
+                        • {t('mypage.offlineFeature3') || '모바일 저장 공간에 안전하게 보관'}
                       </p>
                     </div>
                   </div>
@@ -566,6 +566,7 @@ export default function MyPage() {
             )}
           </div>
         );
+      }
 
       case 'settings':
         return (
@@ -575,7 +576,7 @@ export default function MyPage() {
               <div className="flex items-center gap-3 mb-4">
                 <Brain className="w-6 h-6 text-black" />
                 <h3 className="text-lg font-semibold text-black">
-                  개인화 가이드 맞춤 진단
+                  {t('mypage.personalityTitle') || '개인화 가이드 맨춤 진단'}
                 </h3>
                 <Sparkles className="w-5 h-5 text-gray-600" />
               </div>
@@ -585,28 +586,28 @@ export default function MyPage() {
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm font-medium text-green-800">진단 완료</span>
+                      <span className="text-sm font-medium text-green-800">{t('mypage.diagnosisComplete') || '진단 완료'}</span>
                     </div>
                     <p className="text-green-700 text-sm">
-                      당신의 성격 유형에 맞는 개인화된 가이드가 제공됩니다.
+                      {t('mypage.diagnosisCompleteDesc') || '당신의 성격 유형에 맞는 개인화된 가이드가 제공됩니다.'}
                     </p>
                   </div>
                   
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <div className="text-sm text-gray-600 mb-1">신뢰도</div>
+                      <div className="text-sm text-gray-600 mb-1">{t('mypage.reliability') || '신뢰도'}</div>
                       <div className="text-lg font-semibold text-black">95%</div>
                     </div>
                     <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <div className="text-sm text-gray-600 mb-1">정확도</div>
+                      <div className="text-sm text-gray-600 mb-1">{t('mypage.accuracy') || '정확도'}</div>
                       <div className="text-lg font-semibold text-black">92%</div>
                     </div>
                     <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <div className="text-sm text-gray-600 mb-1">소요시간</div>
+                      <div className="text-sm text-gray-600 mb-1">{t('mypage.timeRequired') || '소요시간'}</div>
                       <div className="text-lg font-semibold text-black">2분</div>
                     </div>
                     <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <div className="text-sm text-gray-600 mb-1">검증국가</div>
+                      <div className="text-sm text-gray-600 mb-1">{t('mypage.verifiedCountries') || '검증국가'}</div>
                       <div className="text-lg font-semibold text-black">20개국</div>
                     </div>
                   </div>
@@ -615,23 +616,22 @@ export default function MyPage() {
                     onClick={() => setShowPersonalityModal(true)}
                     className="w-full md:w-auto px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    다시 진단하기
+                    {t('mypage.retakeDiagnosis') || '다시 진단하기'}
                   </button>
                 </div>
               ) : (
                 <div className="space-y-4">
                   <p className="text-gray-600 leading-relaxed">
-                    100만명 AI 시뮬레이션으로 검증된 5문항 진단으로 95%의 정확도로 
-                    개인화 가이드를 제공합니다. 20개국 문화적 공정성 검증 완료.
+                    {t('mypage.diagnosisInfo') || '100만명 AI 시뮬레이션으로 검증된 5문항 진단으로 95%의 정확도로 개인화 가이드를 제공합니다. 20개국 문화적 공정성 검증 완룼.'}
                   </p>
                   
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 className="font-medium text-blue-900 mb-2">진단 후 변화</h4>
+                    <h4 className="font-medium text-blue-900 mb-2">{t('mypage.changesAfterDiagnosis') || '진단 후 변화'}</h4>
                     <ul className="text-sm text-blue-700 space-y-1">
-                      <li>• 당신의 성격에 맞는 콘텐츠 깊이 조절</li>
-                      <li>• 개인 맞춤형 가이드 스타일 적용</li>
-                      <li>• 상호작용 레벨 최적화</li>
-                      <li>• 감정적 어조 개인화</li>
+                      <li>• {t('mypage.feature1') || '당신의 성격에 맞는 콘텐츠 깊이 조절'}</li>
+                      <li>• {t('mypage.feature2') || '개인 맞춤형 가이드 스타일 적용'}</li>
+                      <li>• {t('mypage.feature3') || '상호작용 레벨 최적화'}</li>
+                      <li>• {t('mypage.feature4') || '감정적 어조 개인화'}</li>
                     </ul>
                   </div>
 
@@ -639,7 +639,7 @@ export default function MyPage() {
                     onClick={() => setShowPersonalityModal(true)}
                     className="w-full md:w-auto bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors"
                   >
-                    진단 시작하기
+                    {t('mypage.startDiagnosis') || '진단 시작하기'}
                   </button>
                 </div>
               )}
@@ -647,38 +647,38 @@ export default function MyPage() {
 
             {/* 계정 설정 */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-black mb-4">계정 설정</h3>
+              <h3 className="text-lg font-semibold text-black mb-4">{t('mypage.accountSettings') || '계정 설정'}</h3>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">이름</label>
+                  <label className="block text-sm font-medium text-black mb-2">{t('mypage.nameLabel') || '이름'}</label>
                   <input
                     type="text"
                     value={session?.user?.name || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                    placeholder="이름을 입력하세요"
+                    placeholder={String(t('mypage.namePlaceholder') || '이름을 입력하세요')}
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">이메일</label>
+                  <label className="block text-sm font-medium text-black mb-2">{t('mypage.emailLabel') || '이메일'}</label>
                   <input
                     type="email"
                     value={session?.user?.email || ''}
                     disabled
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
                   />
-                  <p className="text-xs text-gray-400 mt-1">이메일은 변경할 수 없습니다</p>
+                  <p className="text-xs text-gray-400 mt-1">{t('mypage.emailNotEditableNote') || '이메일은 변경할 수 없습니다'}</p>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">기본 언어</label>
+                  <label className="block text-sm font-medium text-black mb-2">{t('mypage.defaultLanguage') || '기본 언어'}</label>
                   <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent">
-                    <option value="ko">한국어</option>
-                    <option value="en">English</option>
-                    <option value="ja">日本語</option>
-                    <option value="zh">中文</option>
-                    <option value="es">Español</option>
+                    <option value="ko">{t('languages.korean') || '한국어'}</option>
+                    <option value="en">{t('languages.english') || 'English'}</option>
+                    <option value="ja">{t('languages.japanese') || '日本語'}</option>
+                    <option value="zh">{t('languages.chinese') || '中文'}</option>
+                    <option value="es">{t('languages.spanish') || 'Español'}</option>
                   </select>
                 </div>
               </div>
@@ -686,34 +686,34 @@ export default function MyPage() {
 
             {/* 알림 설정 */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-black mb-4">알림 설정</h3>
+              <h3 className="text-lg font-semibold text-black mb-4">{t('mypage.notificationSettings') || '알림 설정'}</h3>
               
               <div className="space-y-3">
                 <label className="flex items-center">
                   <input type="checkbox" className="rounded border-gray-300 text-black focus:ring-black" defaultChecked />
-                  <span className="ml-3 text-sm text-gray-700">새로운 기능 알림</span>
+                  <span className="ml-3 text-sm text-gray-700">{t('mypage.newFeatureNotifications') || '새로운 기능 알림'}</span>
                 </label>
                 <label className="flex items-center">
                   <input type="checkbox" className="rounded border-gray-300 text-black focus:ring-black" defaultChecked />
-                  <span className="ml-3 text-sm text-gray-700">가이드 생성 완료 알림</span>
+                  <span className="ml-3 text-sm text-gray-700">{t('mypage.guideCompleteNotifications') || '가이드 생성 완료 알림'}</span>
                 </label>
                 <label className="flex items-center">
                   <input type="checkbox" className="rounded border-gray-300 text-black focus:ring-black" />
-                  <span className="ml-3 text-sm text-gray-700">마케팅 이메일 수신</span>
+                  <span className="ml-3 text-sm text-gray-700">{t('mypage.marketingEmails') || '마케팅 이메일 수신'}</span>
                 </label>
               </div>
             </div>
 
             {/* 데이터 관리 */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-black mb-4">데이터 관리</h3>
+              <h3 className="text-lg font-semibold text-black mb-4">{t('mypage.dataManagement') || '데이터 관리'}</h3>
               
               <div className="space-y-3">
                 <button className="w-full text-left p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium text-black mb-1">데이터 내보내기</div>
-                      <div className="text-sm text-gray-500">모든 가이드 데이터를 JSON 형태로 다운로드</div>
+                      <div className="font-medium text-black mb-1">{t('mypage.exportData') || '데이터 내보내기'}</div>
+                      <div className="text-sm text-gray-500">{t('mypage.exportDescription') || '모든 가이드 데이터를 JSON 형태로 다운로드'}</div>
                     </div>
                     <Download className="h-5 w-5 text-gray-400" />
                   </div>
@@ -722,8 +722,8 @@ export default function MyPage() {
                 <button className="w-full text-left p-4 border border-red-200 rounded-lg hover:bg-red-50 transition-colors text-red-600">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium mb-1">모든 데이터 삭제</div>
-                      <div className="text-sm text-red-400">저장된 모든 가이드와 설정을 삭제합니다</div>
+                      <div className="font-medium mb-1">{t('mypage.deleteAllData') || '모든 데이터 삭제'}</div>
+                      <div className="text-sm text-red-400">{t('mypage.deleteAllDescription') || '저장된 모든 가이드와 설정을 삭제합니다'}</div>
                     </div>
                     <Trash className="h-5 w-5" />
                   </div>
@@ -777,7 +777,7 @@ export default function MyPage() {
                 className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg hover:bg-black transition-colors font-medium flex items-center justify-center"
               >
                 <LogOut className="h-4 w-4 mr-2" />
-                로그아웃
+                {t('auth.logout') || '로그아웃'}
               </button>
             </div>
 
