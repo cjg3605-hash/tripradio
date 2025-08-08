@@ -385,7 +385,10 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
            }}>
         <GuideLoading 
           type="fetching"
-          message={currentLanguage === 'ko' ? `"${locationName}" 가이드 불러오는 중` : `Loading "${locationName}" guide`}
+          message={currentLanguage === 'ko' 
+            ? `"${locationName || '여행지'}" 가이드 불러오는 중` 
+            : `Loading "${locationName || 'destination'}" guide`
+          }
           subMessage={currentLanguage === 'ko' ? '다국어 가이드 데이터를 준비하고 있어요...' : 'Preparing multilingual guide data...'}
           showProgress={true}
         />
