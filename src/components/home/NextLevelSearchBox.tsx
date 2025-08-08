@@ -23,6 +23,7 @@ export default function NextLevelSearchBox() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [hasAttemptedSearch, setHasAttemptedSearch] = useState(false);
   
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -39,12 +40,31 @@ export default function NextLevelSearchBox() {
     return () => clearInterval(interval);
   }, [placeholders.length]);
 
+  // 검색어가 유효한지 확인하는 함수
+  const isValidQuery = (text: string): boolean => {
+    if (text.length < 2) return false;
+    
+    // 한글의 경우: 완성된 글자가 최소 1개 이상 있거나, 전체 길이가 3글자 이상
+    const koreanCompleteChars = text.match(/[가-힣]/g);
+    if (koreanCompleteChars && koreanCompleteChars.length >= 1) return true;
+    
+    // 영문/숫자의 경우: 최소 2글자 이상
+    const englishChars = text.match(/[a-zA-Z0-9]/g);
+    if (englishChars && englishChars.length >= 2) return true;
+    
+    // 전체 길이가 3글자 이상인 경우 (자음+모음 조합 등)
+    if (text.length >= 3) return true;
+    
+    return false;
+  };
+
   // Advanced search suggestions
   useEffect(() => {
-    if (query.length >= 2) {
+    if (isValidQuery(query)) {
       // 최소 로딩 시간 보장으로 깜빡임 방지
       const startTime = Date.now();
       setIsTyping(true);
+      setHasAttemptedSearch(false); // 새 검색 시도 시작
       
       const timer = setTimeout(async () => {
         try {
@@ -52,9 +72,11 @@ export default function NextLevelSearchBox() {
           const data = await response.json();
           setSuggestions(data.success ? data.data : []);
           setSelectedIndex(-1);
+          setHasAttemptedSearch(true); // 검색 시도 완료
         } catch (error) {
           // 에러 시 이전 결과 유지 (빈 배열로 초기화하지 않음)
           console.warn('검색 제안 오류:', error);
+          setHasAttemptedSearch(true); // 에러도 검색 시도로 간주
         } finally {
           // 최소 500ms 로딩 표시로 깜빡임 방지
           const elapsed = Date.now() - startTime;
@@ -70,6 +92,7 @@ export default function NextLevelSearchBox() {
       setSuggestions([]);
       setIsTyping(false);
       setSelectedIndex(-1);
+      setHasAttemptedSearch(false); // 검색 시도 초기화
       return undefined;
     }
   }, [query, currentLanguage]); // currentLanguage 필요 - API 호출에 사용됨
@@ -250,7 +273,7 @@ export default function NextLevelSearchBox() {
           </div>
 
           {/* Enhanced Suggestions Dropdown */}
-          {isFocused && !isSubmitting && query.length >= 2 && (
+          {isFocused && !isSubmitting && isValidQuery(query) && (
             <div 
               className="absolute top-full left-0 right-0 mt-3 bg-white border border-gray-100 overflow-hidden z-10 shadow-dropdown"
               style={{
@@ -338,8 +361,8 @@ export default function NextLevelSearchBox() {
                     </button>
                   ))}
                 </div>
-              ) : (
-                /* 검색 결과가 없을 때 */
+              ) : hasAttemptedSearch ? (
+                /* 검색 시도 후 결과가 없을 때만 표시 */
                 <div className="px-6 py-4">
                   <div className="text-sm text-gray-500 text-center">
                     <svg className="mx-auto h-6 w-6 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -348,7 +371,7 @@ export default function NextLevelSearchBox() {
                     &ldquo;{query}&rdquo;에 대한 검색 결과가 없습니다
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
           )}
 

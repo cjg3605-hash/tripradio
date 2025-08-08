@@ -236,19 +236,19 @@ function sanitizeInput(input: string): string {
 // Create optimized autocomplete prompt (minimal tokens)
 function createSearchPrompt(query: string, language: Language): string {
   const prompts = {
-    ko: `'${query}' 관련 유명한 관광명소 5개를 JSON 배열로:
+    ko: `'${query}' 관련 여행 목적지 5개를 JSON 배열로 (도시, 지역, 관광명소 포함):
 [{"name": "장소명", "location": "도시, 국가"}]`,
     
-    en: `'${query}' related famous tourist attractions, 5 places as JSON array:
+    en: `'${query}' related travel destinations, 5 places as JSON array (cities, regions, attractions):
 [{"name": "place name", "location": "city, country"}]`,
     
-    ja: `'${query}' 関連の有名な観光地5ヶ所をJSON配列で:
+    ja: `'${query}' 関連の旅行先5ヶ所をJSON配列で (都市、地域、観光地含む):
 [{"name": "場所名", "location": "都市, 国"}]`,
     
-    zh: `'${query}' 相关的著名旅游景点5个，JSON数组格式:
+    zh: `'${query}' 相关的旅行目的地5个，JSON数组格式 (城市、地区、景点):
 [{"name": "地点名", "location": "城市, 国家"}]`,
     
-    es: `'${query}' lugares turísticos famosos relacionados, 5 lugares como JSON:
+    es: `'${query}' destinos de viaje relacionados, 5 lugares como JSON (ciudades, regiones, atracciones):
 [{"name": "lugar", "location": "ciudad, país"}]`
   };
   return prompts[language] || prompts.ko;
