@@ -139,6 +139,10 @@ interface Translations {
         description: string;
       };
     };
+    landmarks: {
+      [landmarkKey: string]: string;
+    };
+    landmarkSuffix: string;
   };
   guide: {
     loading: string;
@@ -594,7 +598,17 @@ const DEFAULT_TRANSLATIONS: Translations = {
         attractions: ['치첸이트사', '테오티우아칸', '칸쿤'],
         description: '마야 문명과 카리브해의 낙원'
       }
-    }
+    },
+    landmarks: {
+      '에펠탑': '에펠탑',
+      '콜로세움': '콜로세움', 
+      '타지마할': '타지마할',
+      '자유의 여신상': '자유의 여신상',
+      '경복궁': '경복궁',
+      '마추픽추': '마추픽추',
+      '사그라다 파밀리아': '사그라다 파밀리아'
+    },
+    landmarkSuffix: '앞에 섰을 때 들리는 이야기'
   },
   guide: {
     loading: '가이드 로딩 중...',
@@ -883,7 +897,7 @@ interface LanguageContextType {
   currentLanguage: SupportedLanguage;
   currentConfig: LanguageConfig;
   setLanguage: (language: SupportedLanguage) => void;
-  t: (key: string) => string | string[];
+  t: (key: string, params?: Record<string, string>) => string | string[];
   translations: Translations;
   isLoading: boolean;
   isRTL: boolean;
@@ -1135,7 +1149,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, []); // 🔥 의존성 배열: 초기화는 한 번만 실행
 
   // 번역 함수
-  const t = (key: string): string | string[] => {
+  const t = (key: string, params?: Record<string, string>): string | string[] => {
     const keys = key.split('.');
     let value: any = translations;
     
@@ -1146,6 +1160,15 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         console.warn(`Translation key not found: ${key}`);
         return key; // 키를 그대로 반환
       }
+    }
+    
+    // 매개변수가 있고 value가 문자열이면 치환
+    if (params && typeof value === 'string') {
+      let result = value;
+      for (const [paramKey, paramValue] of Object.entries(params)) {
+        result = result.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), paramValue);
+      }
+      return result;
     }
     
     return value; // 원래 값 그대로 반환 (string 또는 array)

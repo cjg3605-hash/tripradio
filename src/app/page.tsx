@@ -366,13 +366,13 @@ function Home() {
     const cacheBuster = isDev ? `?t=${1723122651000}` : ''; // 고정 타임스탬프 사용
     
     return {
-      '에펠탑': `/images/landmarks/eiffel-tower.png${cacheBuster}`,
-      '콜로세움': `/images/landmarks/colosseum.png${cacheBuster}`,
-      '타지마할': `/images/landmarks/taj-mahal.png${cacheBuster}`,
-      '자유의 여신상': `/images/landmarks/statue-of-liberty.png${cacheBuster}`,
-      '경복궁': `/images/landmarks/gyeongbokgung.png${cacheBuster}`,
-      '마추픽추': `/images/landmarks/machu-picchu.png${cacheBuster}`,
-      '사그라다 파밀리아': `/images/landmarks/sagrada-familia.png${cacheBuster}`
+      '에펠탑': `/images/landmarks/eiffel-tower.png`,
+      '콜로세움': `/images/landmarks/colosseum.png`,
+      '타지마할': `/images/landmarks/taj-mahal.png`,
+      '자유의 여신상': `/images/landmarks/statue-of-liberty.png`,
+      '경복궁': `/images/landmarks/gyeongbokgung.png`,
+      '마추픽추': `/images/landmarks/machu-picchu.png`,
+      '사그라다 파밀리아': `/images/landmarks/sagrada-familia.png`
     };
   }, []);
 
@@ -469,14 +469,14 @@ function Home() {
   const getBackgroundStyle = useCallback((landmark: string) => {
     const hasError = imageLoadErrors.has(landmark);
     if (hasError) {
-      // 폴백: 그라데이션 배경
+      // 폴백: 그라데이션 배경 (텍스트 가독성을 위한 오버레이 추가)
       return {
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)'
       };
     }
     
     return {
-      backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('${landmarkImages[landmark]}')`,
+      backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('${landmarkImages[landmark]}')`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat'
@@ -951,8 +951,8 @@ function Home() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <GuideLoading 
           type="generating"
-          message={`"${currentLoadingQuery || query}" 가이드 생성 중...`}
-          subMessage="AI가 맞춤형 가이드를 만들고 있어요"
+          message={t('guide.generatingWithLocation', { location: currentLoadingQuery || query })}
+          subMessage={t('guide.generatingSubMessage')}
           showProgress={true}
         />
       </div>
@@ -960,7 +960,28 @@ function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white font-sans relative">
+      {/* 배경 - 헤더 컨테이너 크기에 맞춰서 Hero 섹션까지만 제한 */}
+      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 overflow-hidden max-w-6xl w-full" style={{ height: '85vh' }}>
+        {/* 회전하는 배경 이미지들 */}
+        {landmarks.map((landmark, index) => (
+          <div
+            key={landmark}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              index === currentLandmarkIndex ? 'opacity-100' : 'opacity-0'
+            }`}
+            style={{
+              backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('${landmarkImages[landmark]}')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              zIndex: -2,
+              borderRadius: '0 0 24px 24px'
+            }}
+          />
+        ))}
+      </div>
+
       {/* SEO Structured Data */}
       <StructuredData type="WebSite" />
       <StructuredData type="TravelAgency" />
@@ -968,126 +989,39 @@ function Home() {
       <FAQSchema faqs={getDefaultFAQs(currentLanguage as 'ko' | 'en' | 'ja' | 'zh' | 'es')} language={currentLanguage as 'ko' | 'en' | 'ja' | 'zh' | 'es'} />
       <BreadcrumbSchema items={generateHomeBreadcrumb()} />
 
-
-
       {/* Main Content */}
-      <main className="relative overflow-hidden">
-        {/* Geometric Background Elements */}
-        <div className="absolute inset-0 pointer-events-none z-0">
-          <div 
-            className="absolute w-96 h-96 border border-black/5 rounded-full transition-transform duration-1000 z-0"
-            style={{
-              top: '10%',
-              right: '10%',
-              transform: `translate(${mousePosition.x * -0.02}px, ${mousePosition.y * -0.02}px)`
-            }}
-          />
-          
-          <div 
-            className="absolute w-20 h-px bg-black opacity-15 transition-transform duration-700 z-0"
-            style={{
-              top: '35%',
-              left: '8%',
-              transform: `translate(${mousePosition.x * -0.01}px, ${mousePosition.y * 0.01}px)`
-            }}
-          />
-        </div>
-
+      <main className="relative z-10 overflow-hidden">
         {/* Hero Section */}
-        <section className="relative z-10 flex flex-col items-center justify-center px-6 pt-12 pb-4">
-          
-          {/* Hero Typography */}
-          <div className={`
-            pb-4 px-4 transform transition-all duration-1000
-            ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}
-          `}>
-            {/* Main Title 제거 - 명소 배경으로 대체됨 */}
-
-            {/* Decorative Element */}
-            <div className="flex items-center justify-center gap-8 mb-6 relative z-0">
-              <div className="w-12 h-px bg-black opacity-30"></div>
-              <div className="w-1 h-1 bg-black rounded-full opacity-50"></div>
-              <div className="w-1 h-1 bg-black rounded-full opacity-30"></div>
-              <div className="w-1 h-1 bg-black rounded-full opacity-20"></div>
-              <div className="w-12 h-px bg-black opacity-30"></div>
-            </div>
-
-            {/* Subtitle */}
-            <div className="text-center space-y-1 mb-1">
-              <p className="text-base text-gray-500 font-light tracking-wide">
-                {t('home.subtitle')}
-              </p>
-              <p className="text-lg text-gray-700 font-light tracking-wide">
-                {t('home.subtitle2')}
-              </p>
-            </div>
-          </div>
-
-          {/* 오디오가이드 강조 문구 - 배경 이미지와 함께 */}
-          <div className="relative mb-12 mx-auto max-w-4xl overflow-hidden rounded-2xl" 
-               style={{ height: 'clamp(180px, 25vw, 250px)' }}>
-            {/* 배경 이미지들 */}
-            {landmarks.map((landmark, index) => {
-              const hasError = imageLoadErrors.has(landmark);
-              return (
-                <div
-                  key={landmark}
-                  className={`absolute inset-0 transition-opacity duration-2000 ease-in-out ${
-                    index === currentLandmarkIndex ? 'opacity-100' : 'opacity-0'
-                  }`}
-                  style={{
-                    backgroundImage: hasError ? 'none' : `url("${landmarkImages[landmark]}")`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundColor: hasError ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.3)'
-                  }}
-                  role="img"
-                  aria-label={hasError ? `${landmark} 배경 (이미지 로드 실패)` : `${landmark} 배경 이미지`}
-                />
-              );
-            })}
+        <section className="relative flex flex-col items-center justify-center px-6 pt-32 pb-12 min-h-screen">
             
-            {/* 텍스트 오버레이 - 오른쪽 정렬로 이미지와 겹치지 않게 */}
-            <div className="absolute inset-0 flex items-center justify-end z-10">
-              <div className="text-right px-8 md:px-12 text-white">
-                <p className="text-xl md:text-2xl font-bold tracking-wide mb-2">
-                  <span className="inline-block overflow-hidden align-bottom" style={{ height: '32px', lineHeight: '32px', width: '120px' }}>
-                    <span 
-                      className="inline-block transition-transform duration-1000 ease-out"
-                      style={{
-                        transform: `translateY(-${currentLandmarkIndex * 32}px)`
-                      }}
-                    >
-                      {landmarks.map((landmark, index) => (
-                        <span key={index} className="block font-bold" style={{ height: '32px', lineHeight: '32px' }}>
-                          {landmark}
-                        </span>
-                      ))}
-                    </span>
+            {/* 중앙 명소 텍스트 - 30% 축소 (한줄 표시) */}
+            <div className="text-center text-white mb-6">
+              <div className="text-lg md:text-xl font-bold mb-1" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
+                <span className="inline-block overflow-hidden whitespace-nowrap" style={{ height: '28px', lineHeight: '28px', minWidth: '200px' }}>
+                  <span 
+                    className="inline-block transition-transform duration-1000 ease-out"
+                    style={{
+                      transform: `translateY(-${currentLandmarkIndex * 28}px)`
+                    }}
+                  >
+                    {landmarks.map((landmark, index) => (
+                      <span key={index} className="block font-bold whitespace-nowrap" style={{ height: '28px', lineHeight: '28px' }}>
+                        {t(`home.landmarks.${landmark}` as any) || landmark} {t('home.landmarkSuffix')}
+                      </span>
+                    ))}
                   </span>
-                  <span className="ml-1">앞에 섰을 때 들리는 이야기</span>
-                </p>
-                <p className="text-lg md:text-xl font-light mb-1 tracking-wide">
-                  가이드없이 자유롭게
-                </p>
-                <p className="text-lg md:text-xl font-light tracking-wide">
-                  여행은 깊이있게
-                </p>
-                
-                {/* 로딩 표시 */}
-                {!imagesPreloaded && (
-                  <div className="mt-4 flex items-center justify-center">
-                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span className="ml-2 text-sm text-white/80">이미지 준비 중...</span>
-                  </div>
-                )}
+                </span>
+              </div>
+              <div className="text-sm md:text-base font-light mb-1" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
+                {t('home.subtitle')}
+              </div>
+              <div className="text-sm md:text-base font-light" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
+                {t('home.subtitle2')}
               </div>
             </div>
-          </div>
 
-          {/* How to Use - 3 Steps - 깔끔한 디자인 */}
-          <div className="relative z-10 py-4 mb-4">
+            {/* How to Use - 3 Steps */}
+            <div className="relative z-10 py-8 w-full max-w-6xl">
             <div className="max-w-6xl mx-auto px-6">
               {/* 모든 화면에서 가로 배열 */}
               <div className="flex flex-row justify-center items-start gap-2 sm:gap-4 md:gap-8">
@@ -1101,7 +1035,7 @@ function Home() {
                     </svg>
                   </div>
                   <div className="min-h-16 sm:min-h-20 flex flex-col justify-start pt-2">
-                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-2">{t('home.stepTitles.inputLocation')}</div>
+                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-white mb-2" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.inputLocation')}</div>
                   </div>
                 </div>
 
@@ -1132,7 +1066,7 @@ function Home() {
                     )}
                   </button>
                   <div className="min-h-16 sm:min-h-20 flex flex-col justify-start pt-2">
-                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-2">{t('home.stepTitles.aiGenerate')}</div>
+                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-white mb-2" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.aiGenerate')}</div>
                   </div>
                 </div>
 
@@ -1165,7 +1099,7 @@ function Home() {
                     )}
                   </button>
                   <div className="min-h-16 sm:min-h-20 flex flex-col justify-start pt-2">
-                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-2">{t('home.stepTitles.audioPlay')}</div>
+                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-white mb-2" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.audioPlay')}</div>
                   </div>
                 </div>
               </div>

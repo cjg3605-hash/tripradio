@@ -189,7 +189,7 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className="bg-white border-b border-gray-200 relative z-20">
       <div className="max-w-6xl mx-auto flex items-center justify-between"
            style={{
              padding: 'var(--space-3) var(--space-4)'

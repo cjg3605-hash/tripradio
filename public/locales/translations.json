@@ -179,7 +179,17 @@
           "attractions": ["치첸이트사", "테오티우아칸", "칸쿤"],
           "description": "마야 문명과 카리브해의 낙원"
         }
-      }
+      },
+      "landmarks": {
+        "에펠탑": "에펠탑",
+        "콜로세움": "콜로세움",
+        "타지마할": "타지마할",
+        "자유의 여신상": "자유의 여신상",
+        "경복궁": "경복궁",
+        "마추픽추": "마추픽추",
+        "사그라다 파밀리아": "사그라다 파밀리아"
+      },
+      "landmarkSuffix": "앞에 섰을 때 들리는 이야기"
     },
     "search": {
       "placeholder": "검색어를 입력하세요",
@@ -234,6 +244,8 @@
       "aiCustomAudioGuide": "AI 맞춤형 오디오 가이드",
       "generating": "가이드 생성 중...",
       "generatingSubtitle": "AI가 맞춤형 가이드를 생성하고 있습니다",
+      "generatingWithLocation": "\"{location}\" 가이드 생성 중...",
+      "generatingSubMessage": "AI가 맞춤형 가이드를 만들고 있어요",
       "startRealtimeGuide": "실시간 가이드 시작",
       "step1": "GPS 위치 서비스를 활성화하고 투어를 시작하세요",
       "step2": "각 관광지에 도착하면 자동으로 오디오 가이드가 재생됩니다",
@@ -941,7 +953,17 @@
           "attractions": ["Chichen Itza", "Teotihuacan", "Cancun"],
           "description": "Mayan civilization and Caribbean paradise"
         }
-      }
+      },
+      "landmarks": {
+        "에펠탑": "Eiffel Tower",
+        "콜로세움": "Colosseum",
+        "타지마할": "Taj Mahal",
+        "자유의 여신상": "Statue of Liberty",
+        "경복궁": "Gyeongbokgung Palace",
+        "마추픽추": "Machu Picchu",
+        "사그라다 파밀리아": "Sagrada Familia"
+      },
+      "landmarkSuffix": "Stories you hear when standing in front of"
     },
     "search": {
       "placeholder": "Enter search term",
@@ -996,6 +1018,8 @@
       "aiCustomAudioGuide": "AI Custom Audio Guide",
       "generating": "Generating guide...",
       "generatingSubtitle": "AI is generating a customized guide",
+      "generatingWithLocation": "Generating \"{location}\" guide...",
+      "generatingSubMessage": "AI is creating your personalized guide",
       "startRealtimeGuide": "Start Real-time Guide",
       "step1": "Enable GPS location services and start the tour",
       "step2": "Audio guides will automatically play when you arrive at each attraction",
@@ -1703,7 +1727,17 @@
           "attractions": ["チチェンイッツァ", "テオティワカン", "カンクン"],
           "description": "マヤ文明とカリブ海の楽園"
         }
-      }
+      },
+      "landmarks": {
+        "에펠탑": "エッフェル塔",
+        "콜로세움": "コロッセオ",
+        "타지마할": "タージマハル",
+        "자유의 여신상": "自由の女神",
+        "경복궁": "景福宮",
+        "마추픽추": "マチュピチュ",
+        "사그라다 파밀리아": "サグラダファミリア"
+      },
+      "landmarkSuffix": "の前に立った時に聞こえる物語"
     },
     "search": {
       "placeholder": "検索語を入力してください",
@@ -1758,6 +1792,8 @@
       "aiCustomAudioGuide": "AIカスタムオーディオガイド",
       "generating": "ガイド生成中...",
       "generatingSubtitle": "AIがカスタマイズされたガイドを生成中",
+      "generatingWithLocation": "\"{location}\" ガイド生成中...",
+      "generatingSubMessage": "AIがパーソナライズされたガイドを作成中",
       "startRealtimeGuide": "リアルタイムガイド開始",
       "step1": "GPS位置サービスを有効にしてツアーを開始してください",
       "step2": "各観光地に到着すると自動的にオーディオガイドが再生されます",
@@ -2428,7 +2464,17 @@
           "attractions": ["奇琴伊察", "特奥蒂瓦坎", "坎昆"],
           "description": "玛雅文明和加勒比海天堂"
         }
-      }
+      },
+      "landmarks": {
+        "에펠탑": "埃菲尔铁塔",
+        "콜로세움": "斗兽场",
+        "타지마할": "泰姬陵",
+        "자유의 여신상": "自由女神像",
+        "경복궁": "景福宫",
+        "마추픽추": "马丘比丘",
+        "사그라다 파밀리아": "圣家堂"
+      },
+      "landmarkSuffix": "站在面前时听到的故事"
     },
     "search": {
       "placeholder": "输入搜索词",
@@ -2483,6 +2529,8 @@
       "aiCustomAudioGuide": "AI定制音频指南",
       "generating": "生成指南中...",
       "generatingSubtitle": "AI正在生成定制化指南",
+      "generatingWithLocation": "正在生成\"{location}\"指南...",
+      "generatingSubMessage": "AI正在创建您的个性化指南",
       "startRealtimeGuide": "开始实时指南",
       "step1": "启用GPS位置服务并开始游览",
       "step2": "到达各景点时会自动播放音频指南",
@@ -3153,7 +3201,17 @@
           "attractions": ["Chichén Itzá", "Teotihuacán", "Cancún"],
           "description": "Civilización maya y paraíso caribeño"
         }
-      }
+      },
+      "landmarks": {
+        "에펠탑": "Torre Eiffel",
+        "콜로세움": "Coliseo",
+        "타지마할": "Taj Mahal",
+        "자유의 여신상": "Estatua de la Libertad",
+        "경복궁": "Palacio Gyeongbokgung",
+        "마추픽추": "Machu Picchu",
+        "사그라다 파밀리아": "Sagrada Familia"
+      },
+      "landmarkSuffix": "Historias que escuchas al estar frente a"
     },
     "search": {
       "placeholder": "Ingrese término de búsqueda",
@@ -3208,6 +3266,8 @@
       "aiCustomAudioGuide": "Guía de Audio Personalizada IA",
       "generating": "Generando guía...",
       "generatingSubtitle": "IA está generando una guía personalizada",
+      "generatingWithLocation": "Generando guía de \"{location}\"...",
+      "generatingSubMessage": "IA está creando tu guía personalizada",
       "startRealtimeGuide": "Iniciar Guía en Tiempo Real",
       "step1": "Habilita los servicios de ubicación GPS e inicia el tour",
       "step2": "Las guías de audio se reproducirán automáticamente al llegar a cada atracción",
