@@ -152,6 +152,81 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
+  // SEO를 위한 헤더 설정
+  async headers() {
+    return [
+      {
+        // 일반 페이지들 - SEO 친화적 캐싱
+        source: '/((?!api|auth|mypage|admin).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=1800, stale-while-revalidate=86400', // 30분 캐시, 1일 stale
+          },
+          {
+            key: 'X-Robots-Tag',
+            value: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
+          },
+        ],
+      },
+      {
+        // 사이트맵과 robots.txt - 긴 캐싱
+        source: '/(sitemap.xml|robots.txt)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=3600, max-age=3600', // 1시간 캐시
+          },
+          {
+            key: 'X-Robots-Tag',
+            value: 'index, follow',
+          },
+        ],
+      },
+      {
+        // 가이드 페이지들 - 적극적 색인
+        source: '/guide/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=1800, stale-while-revalidate=86400',
+          },
+          {
+            key: 'X-Robots-Tag',
+            value: 'index, follow, max-snippet:-1, max-image-preview:large',
+          },
+        ],
+      },
+      {
+        // 인증 관련 페이지 - 캐시 비활성화
+        source: '/(auth|mypage|admin)/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'private, no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow',
+          },
+        ],
+      },
+      {
+        // API 경로 - 캐시 비활성화
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'private, no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow',
+          },
+        ],
+      }
+    ];
+  },
   // 번들 크기 최적화
   webpack: (config, { isServer }) => {
     // 클라이언트 빌드에서만 번들 분석 활성화

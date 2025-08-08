@@ -200,13 +200,7 @@ export default withAuth(
       "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://maps.googleapis.com https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.openai.com https:; frame-src 'self' https://www.google.com;"
     );
     
-    // 4. 인증 관련 경로에 추가 보안 헤더
-    if (req.nextUrl.pathname.startsWith('/auth') || req.nextUrl.pathname.startsWith('/api/auth')) {
-      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-      response.headers.set('Pragma', 'no-cache');
-      response.headers.set('Expires', '0');
-      response.headers.set('Surrogate-Control', 'no-store');
-    }
+    // 4. 인증 관련 경로에 추가 보안 헤더 (Next.js headers()에서 처리되므로 여기서는 제거)
 
     return response;
   },

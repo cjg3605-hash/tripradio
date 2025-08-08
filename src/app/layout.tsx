@@ -6,6 +6,7 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import SessionProvider from '@/components/providers/SessionProvider';
 import ClientLayout from '@/components/layout/ClientLayout';
 import LocalBusinessSchema from '@/components/seo/LocalBusinessSchema';
+import WebsiteSchema from '@/components/seo/WebsiteSchema';
 import Script from 'next/script';
 import { cookies } from 'next/headers';
 import { detectPreferredLanguage, LANGUAGE_COOKIE_NAME } from '@/lib/utils';
@@ -185,6 +186,9 @@ export default function RootLayout({
         
         {/* Local Business Schema */}
         <LocalBusinessSchema />
+        
+        {/* Website Schema for SEO */}
+        <WebsiteSchema />
       </head>
       <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
         {/* AMP 자동 광고는 일반 React 앱에서는 사용하지 않고, 대신 AutoAdSense 컴포넌트 사용 */}
