@@ -30,6 +30,9 @@ import {
 import { validateJsonResponse, createErrorResponse } from '@/lib/utils';
 import { logGuideGeneration, detectLocationInfo } from '@/lib/analytics';
 
+// 🔍 자동 색인 서비스 import
+import { indexingService } from '@/lib/seo/indexingService';
+
 // 🎯 Phase 1 통합 시스템 import
 import { personalityGuideSystem, generatePersonalizedGuide } from '@/lib/integration/personality-guide-system';
 
@@ -938,6 +941,28 @@ export async function POST(request: NextRequest) {
           }),
           { status: 500, headers }
         );
+      }
+
+      // 🚀 새로운 가이드가 생성된 경우 자동 색인 요청
+      if (saveResult.isNew) {
+        console.log('🔍 새 가이드 색인 요청 시작:', locationName);
+        
+        try {
+          // 비동기로 색인 요청 (응답 속도에 영향 주지 않음)
+          indexingService.requestIndexingForNewGuide(locationName)
+            .then((indexingResult) => {
+              if (indexingResult.success) {
+                console.log(`✅ 색인 요청 완료: ${indexingResult.successfulUrls.length}/${indexingResult.totalRequested} 성공`);
+              } else {
+                console.log(`⚠️ 색인 요청 일부 실패: ${indexingResult.successfulUrls.length}/${indexingResult.totalRequested} 성공`);
+              }
+            })
+            .catch((indexingError) => {
+              console.error('❌ 색인 요청 오류:', indexingError);
+            });
+        } catch (error) {
+          console.error('❌ 색인 서비스 호출 실패:', error);
+        }
       }
     }
 
