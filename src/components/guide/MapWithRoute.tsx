@@ -9,18 +9,12 @@ import { useEffect, useState, useCallback } from 'react';
 import type { GuideChapter } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-// @ts-ignore
-const MapContainer = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.MapContainer })), { ssr: false });
-// @ts-ignore
-const TileLayer = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.TileLayer })), { ssr: false });
-// @ts-ignore
-const Polyline = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.Polyline })), { ssr: false });
-// @ts-ignore
-const Marker = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.Marker })), { ssr: false });
-// @ts-ignore
-const Tooltip = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.Tooltip })), { ssr: false });
-// @ts-ignore
-const useMap = dynamic(() => import('react-leaflet').then(mod => mod.useMap), { ssr: false });
+const MapContainer = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.MapContainer })), { ssr: false }) as any;
+const TileLayer = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.TileLayer })), { ssr: false }) as any;
+const Polyline = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.Polyline })), { ssr: false }) as any;
+const Marker = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.Marker })), { ssr: false }) as any;
+const Tooltip = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.Tooltip })), { ssr: false }) as any;
+const useMap = dynamic(() => import('react-leaflet').then(mod => mod.useMap), { ssr: false }) as any;
 
 // 내 위치 버튼 훅
 import { useSimpleGeolocation } from '@/hooks/useSimpleGeolocation';
