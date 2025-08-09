@@ -1,5 +1,6 @@
 // src/lib/multilang-guide-manager.ts
 import { supabase } from '@/lib/supabaseClient';
+import { normalizeLocationName } from '@/lib/utils';
 
 export class MultiLangGuideManager {
   /**
@@ -12,27 +13,28 @@ export class MultiLangGuideManager {
     source: 'cache' | 'database';
   }> {
     try {
-      // 위치명 정규화 (한글 처리 개선)
-      const normalizedLocation = locationName
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, ' ')
-        .replace(/[^\w\s가-힣]/g, ''); // 특수문자 제거, 한글 유지
+      // 🔥 통일된 위치명 정규화 사용 (page.tsx와 동일)
+      const normalizedLocation = normalizeLocationName(locationName);
+      
+      console.log(`🔍 DB 조회: "${locationName}" → "${normalizedLocation}" (${language})`);
       
       const { data, error } = await supabase
         .from('guides')
         .select('*')
         .eq('locationname', normalizedLocation)
-        .eq('language', language)
+        .eq('language', language.toLowerCase())
         .single();
 
       if (error) {
         if (error.code === 'PGRST116') {
+          console.log(`❌ DB에서 가이드 없음: "${normalizedLocation}" (${language})`);
           return { success: false, error: 'NOT_FOUND', source: 'database' };
         }
+        console.error(`❌ DB 조회 오류:`, error);
         return { success: false, error: error.message, source: 'database' };
       }
 
+      console.log(`✅ DB에서 가이드 발견: "${normalizedLocation}" (${language})`);
       return { success: true, data: data.content, source: 'cache' };
 
     } catch (error) {
@@ -80,26 +82,26 @@ export class MultiLangGuideManager {
     try {
       console.log(`🔍 향상된 검색 시작: "${locationName}" (${language})`);
       
-      // 다양한 검색 패턴들
+      // 🔥 통일된 정규화 사용하여 검색 패턴 생성
+      const normalizedBase = normalizeLocationName(locationName);
       const searchPatterns = [
-        locationName, // 원본
-        locationName.toLowerCase().trim(), // 소문자
-        locationName.toLowerCase().trim().replace(/\s+/g, ' '), // 공백 정규화
-        locationName.toLowerCase().trim().replace(/[^\w\s가-힣]/g, ''), // 특수문자 제거
+        normalizedBase, // 표준 정규화
         locationName.toLowerCase().trim().replace(/\s+/g, ''), // 모든 공백 제거
+        locationName.toLowerCase().trim().replace(/[^\w\s가-힣]/g, ''), // 특수문자 제거
         // 추가 한글-영어 매핑
         ...(locationName === '에펠탑' ? ['eiffel tower', 'eiffeltower'] : []),
         ...(locationName === '스핑크스' ? ['sphinx', 'great sphinx'] : [])
       ];
 
-      console.log('🔍 검색 패턴들:', searchPatterns);
+      console.log(`🔍 "${locationName}" 검색 패턴들:`, searchPatterns);
 
       for (const pattern of searchPatterns) {
+        console.log(`🔎 패턴 시도: "${pattern}"`);
         const { data, error } = await supabase
           .from('guides')
           .select('*')
           .eq('locationname', pattern)
-          .eq('language', language)
+          .eq('language', language.toLowerCase())
           .single();
 
         if (!error && data) {
@@ -140,7 +142,7 @@ export class MultiLangGuideManager {
       const { data, error } = await supabase
         .from('guides')
         .select('language, updated_at')
-        .eq('locationname', locationName.toLowerCase().trim());
+        .eq('locationname', normalizeLocationName(locationName));
 
       if (error) {
         console.error('❌ 다국어 조회 실패:', error);
@@ -181,8 +183,8 @@ export class MultiLangGuideManager {
       const { data, error } = await supabase
         .from('guides')
         .upsert({
-          locationname: locationName.toLowerCase().trim(),
-          language: language,
+          locationname: normalizeLocationName(locationName),
+          language: language.toLowerCase(),
           content: guideData,
           updated_at: new Date().toISOString()
         }, {

@@ -1,6 +1,6 @@
 import MultiLangGuideClient from './MultiLangGuideClient';
 import { supabase } from '@/lib/supabaseClient';
-import { safeLanguageCode, detectPreferredLanguage, LANGUAGE_COOKIE_NAME } from '@/lib/utils';
+import { safeLanguageCode, detectPreferredLanguage, LANGUAGE_COOKIE_NAME, normalizeLocationName } from '@/lib/utils';
 import { cookies } from 'next/headers';
 import { generateMetadataFromGuide } from '@/lib/seo/dynamicMetadata';
 import { Metadata } from 'next';
@@ -13,9 +13,7 @@ interface PageProps {
   searchParams?: Promise<{ lang?: string }>;
 }
 
-function normalizeString(str: string): string {
-  return str.trim().toLowerCase().replace(/\s+/g, ' ');
-}
+// normalizeString 함수 제거 - utils에서 normalizeLocationName 사용
 
 // 동적 메타데이터 생성
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
@@ -50,7 +48,7 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
       ? resolvedSearchParams.lang[0] 
       : resolvedSearchParams?.lang
   );
-  const normLocation = normalizeString(locationName);
+  const normLocation = normalizeLocationName(locationName);
   
   // 🔥 서버에서 통합 언어 감지 (쿠키 우선)
   const cookieStore = await cookies();
@@ -63,7 +61,7 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
     prioritizeUrl: true
   });
   
-  // 🔍 디버깅: 언어 감지 로깅
+  // 🔍 디버깅: 언어 감지 및 DB 조회 로깅
   console.log('🔍 가이드 페이지 언어 감지:', {
     rawLocation: resolvedParams.location,
     decodedLocation: locationName,
@@ -72,6 +70,10 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
     cookieLanguage,
     serverDetectedLanguage,
     finalLanguage: serverDetectedLanguage
+  });
+  
+  console.log('🔎 DB 조회 준비:', {
+    query: `locationname = "${normLocation}" AND language = "${serverDetectedLanguage.toLowerCase()}"`
   });
   
   // 🔥 서버에서 감지된 언어로 가이드 조회 (쿠키 우선)

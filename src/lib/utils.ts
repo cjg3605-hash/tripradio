@@ -12,6 +12,11 @@ export function normalizeString(s: string | null | undefined): string {
   return decodeURIComponent(s || '').trim().toLowerCase();
 }
 
+// 위치명 정규화 (DB 저장/조회용 - page.tsx와 동일한 로직)
+export function normalizeLocationName(locationName: string): string {
+  return locationName.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
 // 표준 에러 응답 타입
 export interface StandardErrorResponse {
   success: false;
