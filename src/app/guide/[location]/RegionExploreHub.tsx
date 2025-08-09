@@ -63,22 +63,8 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
   const [regionData, setRegionData] = useState<RegionData | null>(null);
   const [recommendedSpots, setRecommendedSpots] = useState<RecommendedSpot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [error, setError] = useState<string>('');
 
-  const categories = [
-    { id: 'all', name: '전체', emoji: '🌟' },
-    { id: 'city', name: '도시', emoji: '🏙️' },
-    { id: 'nature', name: '자연', emoji: '🌿' },
-    { id: 'culture', name: '문화', emoji: '🏛️' },
-    { id: 'food', name: '음식', emoji: '🍜' },
-    { id: 'shopping', name: '쇼핑', emoji: '🛍️' }
-  ];
-
-  // 필터링된 추천 장소
-  const filteredSpots = recommendedSpots.filter(spot => 
-    selectedCategory === 'all' || spot.category === selectedCategory
-  );
 
   const loadRegionData = useCallback(async () => {
     setIsLoading(true);
@@ -139,14 +125,6 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
             // 장소명 추출
             const placeName = stepLocation?.name || stepLocation?.title || `${locationName} 명소 ${index + 1}`;
             
-            // 카테고리 추론 (장소명 기반)
-            const nameText = placeName.toLowerCase();
-            let category = 'city';
-            if (nameText.includes('궁') || nameText.includes('문') || nameText.includes('탑') || nameText.includes('박물관')) category = 'culture';
-            else if (nameText.includes('공원') || nameText.includes('산') || nameText.includes('강') || nameText.includes('호수')) category = 'nature';
-            else if (nameText.includes('시장') || nameText.includes('거리') || nameText.includes('타운')) category = 'shopping';
-            else if (nameText.includes('맛') || nameText.includes('음식')) category = 'food';
-            
             // 설명 추출
             const description = stepLocation?.description || stepLocation?.summary || `${placeName}에서 특별한 경험을 만나보세요.`;
             
@@ -154,7 +132,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
               id: `route-step-${index}`,
               name: placeName,
               location: locationName,
-              category,
+              category: 'travel', // 고정값으로 설정
               description,
               highlights: [], // 하이라이트는 비워둠
               estimatedDays: Math.min(Math.ceil((index + 1) / 3), 2),
@@ -326,7 +304,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
         )}
 
 
-        {/* 🎨 카테고리 필터 카드 */}
+        {/* 🎨 추천 여행지 카드 */}
         <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
           <div className="p-8">
             <div className="flex items-center gap-3 mb-6">
@@ -334,34 +312,14 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                 <Compass className="w-4 h-4 text-white" />
               </div>
               <h2 className="text-xl font-semibold text-black">
-                추천 여행지 ({filteredSpots.length})
+                추천 여행지 ({recommendedSpots.length})
               </h2>
             </div>
             
-            {/* 카테고리 필터 */}
-            <div className="flex flex-wrap gap-3 mb-8">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 active:scale-95 focus:ring-2 focus:ring-black/30 focus:ring-offset-2 ${
-                    selectedCategory === category.id
-                      ? 'bg-black text-white border-2 border-black'
-                      : 'bg-white border-2 border-black/10 text-black hover:border-black/30 hover:bg-black/5'
-                  }`}
-                  aria-pressed={selectedCategory === category.id}
-                  aria-label={`${category.name} 카테고리 필터`}
-                >
-                  <span className="text-lg">{category.emoji}</span>
-                  <span>{category.name}</span>
-                </button>
-              ))}
-            </div>
-            
             {/* 🎨 추천 장소 리스트 */}
-            {filteredSpots.length > 0 ? (
+            {recommendedSpots.length > 0 ? (
               <div className="space-y-4">
-                {filteredSpots.map((spot, index) => (
+                {recommendedSpots.map((spot, index) => (
                   <div 
                     key={spot.id}
                     onClick={() => handleSpotClick(spot)}
