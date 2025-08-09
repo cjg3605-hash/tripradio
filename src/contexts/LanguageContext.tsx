@@ -450,7 +450,7 @@ const DEFAULT_TRANSLATIONS: Translations = {
     title: 'AI와 함께하는 스마트 여행',
     subtitle: '개인 맞춤형 가이드로 새로운 여행을 경험하세요',
     subtitle2: '어디든 검색하고 즉시 전문 가이드를 만나보세요',
-    searchPlaceholder: '여행지를 검색하세요...',
+    searchPlaceholder: '어디 장소 앞에 계신가요?',
     searchButton: '검색',
     popularDestinations: '인기 여행지',
     description: 'AI 기술로 생성되는 개인화된 여행 가이드',
@@ -468,8 +468,11 @@ const DEFAULT_TRANSLATIONS: Translations = {
     ],
     stepTitles: {
       inputLocation: '장소 입력',
-      aiGenerate: 'AI 생성',
-      audioPlay: '오디오 재생'
+      inputLocationSub: '(특정 장소)',
+      aiGenerate: '검색 클릭',
+      aiGenerateSub: '(바로 가이드 생성)',
+      audioPlay: '재생버튼 누르면',
+      audioPlaySub: '투어시작!'
     },
     stepDescriptions: {
       inputLocation: '궁금한 곳의 이름을 입력하세요',

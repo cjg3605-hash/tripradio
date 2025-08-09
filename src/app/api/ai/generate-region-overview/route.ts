@@ -219,30 +219,64 @@ Notes:
   return prompts[language as keyof typeof prompts] || prompts.ko;
 }
 
-// JSON 응답 파싱
+// JSON 응답 파싱 (개선된 버전)
 function parseAIResponse<T>(text: string): T | null {
   try {
-    // JSON 추출 패턴
+    console.log('🔍 JSON 파싱 시작, 원본 길이:', text.length);
+    
+    // JSON 추출 패턴 (더 포괄적)
     const patterns = [
       /```(?:json)?\s*(\{[\s\S]*?\})\s*```/s,
       /```(?:json)?\s*(\[[\s\S]*?\])\s*```/s,
       /(\{[\s\S]*\})/s,
-      /(\[[\s\S]*\])/s
+      /(\[[\s\S]*\])/s,
+      // 추가 패턴
+      /\{[^}]*"regionData"[^}]*\{[\s\S]*?\}[\s\S]*?\}/s,
+      /\[[\s\S]*?\{[\s\S]*?"id"[\s\S]*?\}[\s\S]*?\]/s
     ];
 
     let jsonString = text.trim();
-    for (const pattern of patterns) {
+    let patternUsed = 'none';
+    
+    for (let i = 0; i < patterns.length; i++) {
+      const pattern = patterns[i];
       const match = text.match(pattern);
       if (match) {
         jsonString = match[1] ? match[1].trim() : match[0].trim();
+        patternUsed = `pattern-${i}`;
+        console.log('✅ JSON 패턴 매치:', patternUsed);
         break;
       }
     }
 
-    return JSON.parse(jsonString) as T;
+    // 추가 정리: 불완전한 JSON 수정 시도
+    jsonString = jsonString
+      .replace(/```/g, '') // 마크다운 제거
+      .replace(/,\s*([}\]])/g, '$1') // trailing comma 제거
+      .trim();
+
+    console.log('🧹 정리된 JSON (첫 200자):', jsonString.substring(0, 200));
+
+    const result = JSON.parse(jsonString) as T;
+    console.log('✅ JSON 파싱 성공:', patternUsed);
+    return result;
+    
   } catch (error) {
-    console.error('JSON 파싱 실패:', error);
-    console.error('원본 텍스트:', text);
+    console.error('❌ JSON 파싱 실패:', error);
+    console.error('📝 원본 텍스트 (첫 500자):', text.substring(0, 500));
+    
+    // 마지막 시도: 단순 텍스트에서 JSON 객체 찾기
+    try {
+      const simpleMatch = text.match(/\{[\s\S]*\}/);
+      if (simpleMatch) {
+        const simpleJson = simpleMatch[0];
+        console.log('🔄 단순 매치 시도:', simpleJson.substring(0, 100));
+        return JSON.parse(simpleJson) as T;
+      }
+    } catch (e) {
+      console.error('❌ 단순 매치도 실패');
+    }
+    
     return null;
   }
 }
@@ -303,7 +337,36 @@ export async function POST(request: NextRequest) {
     const overviewData = parseAIResponse<{ regionData: RegionData }>(overviewText);
     
     if (!overviewData?.regionData) {
-      throw new Error('지역 개요 생성에 실패했습니다');
+      console.error('❌ 지역 개요 파싱 실패');
+      console.error('📝 AI 응답 원문:', overviewText);
+      
+      // 폴백: 기본 지역 데이터 생성
+      const fallbackData = {
+        regionData: {
+          name: sanitizedLocation,
+          country: "정보 불명",
+          description: `${sanitizedLocation}에 대한 정보를 준비 중입니다. 잠시 후 다시 시도해주세요.`,
+          highlights: ["아름다운 풍경", "풍부한 역사", "독특한 문화", "맛있는 음식", "친절한 사람들"],
+          quickFacts: {
+            bestTime: "연중"
+          },
+          coordinates: {
+            lat: 37.5665,
+            lng: 126.9780 // 기본 좌표 (서울)
+          }
+        }
+      };
+      
+      console.log('🔄 폴백 데이터 사용:', fallbackData);
+      return NextResponse.json({
+        success: true,
+        regionData: fallbackData.regionData,
+        recommendedSpots: [],
+        generated: false,
+        fallback: true,
+        generatedAt: new Date().toISOString(),
+        warning: 'AI 응답 파싱에 실패하여 기본 정보를 제공합니다.'
+      });
     }
 
     // 2단계: 추천 장소 생성

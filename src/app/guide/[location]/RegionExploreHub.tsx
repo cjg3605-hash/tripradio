@@ -4,9 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { MapPin, Users, Calendar, Clock, Star, ArrowRight, RefreshCw } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ResponsiveContainer, PageHeader, Stack, Flex } from '@/components/layout/ResponsiveContainer';
 import GuideLoading from '@/components/ui/GuideLoading';
 import dynamic from 'next/dynamic';
 
@@ -54,7 +51,7 @@ interface RecommendedSpot {
 
 interface RegionExploreHubProps {
   locationName: string;
-  routingResult: any; // 라우팅 결과
+  routingResult: any;
   language: string;
 }
 
@@ -77,6 +74,11 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
     { id: 'shopping', name: '쇼핑', emoji: '🛍️' }
   ];
 
+  // 필터링된 추천 장소
+  const filteredSpots = recommendedSpots.filter(spot => 
+    selectedCategory === 'all' || spot.category === selectedCategory
+  );
+
   // 지역 정보 및 추천 장소 로드
   useEffect(() => {
     loadRegionData();
@@ -98,147 +100,170 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
         })
       });
 
-      if (!response.ok) {
-        throw new Error('지역 정보를 불러오는데 실패했습니다.');
+      const result = await response.json();
+
+      if (result.success) {
+        setRegionData(result.regionData);
+        setRecommendedSpots(result.recommendedSpots || []);
+      } else {
+        setError(result.error || '지역 정보를 불러올 수 없습니다.');
       }
 
-      const data = await response.json();
-      
-      if (data.success) {
-        setRegionData(data.regionData);
-        setRecommendedSpots(data.recommendedSpots || []);
-      } else {
-        throw new Error(data.error || '데이터 처리에 실패했습니다.');
-      }
     } catch (err) {
-      console.error('Region data loading error:', err);
-      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
-      
-      // 폴백 데이터
-      setRegionData({
-        name: locationName,
-        country: '정보 없음',
-        description: `${locationName}에 대한 정보를 준비중입니다.`,
-        highlights: [],
-        quickFacts: {},
-        coordinates: { lat: 37.5665, lng: 126.9780 }
-      });
+      console.error('지역 정보 로드 오류:', err);
+      setError('지역 정보를 불러오는 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSpotClick = (spot: RecommendedSpot) => {
-    // 추천 장소 클릭 시 상세 가이드로 이동
-    router.push(`/guide/${encodeURIComponent(spot.name)}`);
+    router.push(`/guide/${encodeURIComponent(spot.name)}?from=${encodeURIComponent(locationName)}`);
   };
-
-  const handleRetryGeneration = () => {
-    loadRegionData();
-  };
-
-  const filteredSpots = selectedCategory === 'all' 
-    ? recommendedSpots
-    : recommendedSpots.filter(spot => spot.category.toLowerCase() === selectedCategory);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy': return 'text-green-600 bg-green-50';
-      case 'moderate': return 'text-yellow-600 bg-yellow-50';
-      case 'challenging': return 'text-red-600 bg-red-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case 'easy': return 'bg-green-50 text-green-700 border-green-200';
+      case 'moderate': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+      case 'challenging': return 'bg-red-50 text-red-700 border-red-200';
+      default: return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
-  const getDifficultyLabel = (difficulty: string) => {
+  const getDifficultyText = (difficulty: string) => {
     switch (difficulty) {
       case 'easy': return '쉬움';
-      case 'moderate': return '보통'; 
-      case 'challenging': return '어려움';
-      default: return difficulty;
+      case 'moderate': return '보통';
+      case 'challenging': return '도전적';
+      default: return '보통';
     }
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <GuideLoading message={`${locationName} 탐색 정보를 준비중입니다...`} />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <GuideLoading message="지역 정보를 불러오는 중..." />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">😕</div>
+          <h2 className="text-xl font-medium text-gray-900 mb-2">정보를 불러올 수 없습니다</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={loadRegionData}
+            className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            다시 시도
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <ResponsiveContainer>
-      <div className="min-h-screen bg-white">
-        
-        {/* 헤더 섹션 */}
-        <div className="max-w-4xl mx-auto p-6 border-b border-gray-100">
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-            <MapPin className="w-4 h-4" />
-            <span>{regionData?.country}</span>
+    <div className="min-h-screen bg-gray-50">
+      {/* 🎨 미니멀 헤더 */}
+      <div className="bg-white border-b border-gray-100 sticky top-0 z-10 backdrop-blur-sm bg-white/95">
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => router.back()}
+                className="p-2 hover:bg-gray-50 rounded-xl transition-colors border border-gray-200 group"
+                aria-label="뒤로 가기"
+              >
+                <svg className="w-5 h-5 text-gray-600 group-hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <div>
+                <h1 className="text-xl font-light text-gray-900 tracking-tight">
+                  {regionData?.name || locationName}
+                </h1>
+                {regionData?.country && (
+                  <p className="text-sm text-gray-500 mt-0.5">{regionData.country}</p>
+                )}
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
+      
+      {/* 메인 콘텐츠 */}
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="space-y-6">
           
-          <h1 className="text-2xl font-light text-gray-900 mb-4">
-            {regionData?.name}
-          </h1>
-          
-          <p className="text-gray-600 leading-relaxed max-w-3xl">
-            {regionData?.description}
-          </p>
-          
-          {/* 빠른 정보 */}
-          {regionData?.quickFacts && Object.keys(regionData.quickFacts).length > 0 && (
-            <div className="flex flex-wrap gap-4 mt-6">
-              {regionData.quickFacts.area && (
-                <div className="flex items-center gap-2 px-3 py-1 border border-gray-200 rounded-full text-sm">
-                  <span className="font-medium text-gray-600">면적:</span>
-                  <span className="text-gray-500">{regionData.quickFacts.area}</span>
-                </div>
-              )}
-              {regionData.quickFacts.population && (
-                <div className="flex items-center gap-2 px-3 py-1 border border-gray-200 rounded-full text-sm">
-                  <Users className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-500">{regionData.quickFacts.population}</span>
-                </div>
-              )}
-              {regionData.quickFacts.bestTime && (
-                <div className="flex items-center gap-2 px-3 py-1 border border-gray-200 rounded-full text-sm">
-                  <Calendar className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-500">{regionData.quickFacts.bestTime}</span>
+          {/* 🎨 지역 소개 섹션 */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+            <div className="max-w-4xl">
+              <p className="text-gray-700 leading-relaxed text-base mb-6">
+                {regionData?.description}
+              </p>
+              
+              {/* 빠른 정보 태그 */}
+              {regionData?.quickFacts && Object.keys(regionData.quickFacts).length > 0 && (
+                <div className="flex flex-wrap gap-3">
+                  {regionData.quickFacts.area && (
+                    <div className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-full text-sm bg-gray-50">
+                      <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-gray-600">{regionData.quickFacts.area}</span>
+                    </div>
+                  )}
+                  {regionData.quickFacts.population && (
+                    <div className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-full text-sm bg-gray-50">
+                      <Users className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-gray-600">{regionData.quickFacts.population}</span>
+                    </div>
+                  )}
+                  {regionData.quickFacts.bestTime && (
+                    <div className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-full text-sm bg-gray-50">
+                      <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-gray-600">{regionData.quickFacts.bestTime}</span>
+                    </div>
+                  )}
+                  {regionData.quickFacts.timeZone && (
+                    <div className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-full text-sm bg-gray-50">
+                      <Clock className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-gray-600">{regionData.quickFacts.timeZone}</span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
-        </div>
+          </div>
 
-        <div className="max-w-4xl mx-auto space-y-8">
-          {/* 하이라이트 섹션 */}
+          {/* 🎨 주요 특징 그리드 */}
           {regionData?.highlights && regionData.highlights.length > 0 && (
-            <div className="p-6 border-b border-gray-100">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+              <h2 className="text-lg font-light text-gray-900 mb-4 pb-3 border-b border-gray-100">
                 주요 특징
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {regionData.highlights.map((highlight, index) => (
                   <div 
                     key={index}
-                    className="flex items-start gap-3 p-3"
+                    className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors"
                   >
-                    <div className="w-1.5 h-1.5 bg-gray-900 rounded-full flex-shrink-0 mt-2" />
-                    <span className="text-sm text-gray-600">{highlight}</span>
+                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full flex-shrink-0 mt-2.5" />
+                    <span className="text-sm text-gray-700 leading-relaxed">{highlight}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* 인터랙티브 지도 */}
+          {/* 🎨 인터랙티브 지도 */}
           {regionData?.coordinates && (
-            <div className="p-6 border-b border-gray-100">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+              <h2 className="text-lg font-light text-gray-900 mb-4 pb-3 border-b border-gray-100">
                 탐색 지도
               </h2>
-              <div className="h-80 bg-gray-50 border border-gray-200 rounded-lg overflow-hidden">
+              <div className="h-80 bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
                 <StartLocationMap
                   locationName={regionData.name}
                   startPoint={{
@@ -259,10 +284,10 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
             </div>
           )}
 
-          {/* 추천 여행지 그리드 */}
-          <div className="p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-              <h2 className="text-lg font-medium text-gray-900">
+          {/* 🎨 추천 여행지 섹션 */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-3 border-b border-gray-100">
+              <h2 className="text-lg font-light text-gray-900">
                 추천 여행지 ({filteredSpots.length})
               </h2>
               
@@ -272,116 +297,69 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`px-3 py-1.5 text-xs border border-gray-200 rounded-full transition-all ${
+                    className={`px-3 py-1.5 text-xs border rounded-full transition-all ${
                       selectedCategory === category.id 
                         ? 'bg-gray-900 text-white border-gray-900' 
-                        : 'bg-white text-gray-600 hover:border-gray-300'
+                        : 'bg-white text-gray-600 hover:border-gray-300 border-gray-200'
                     }`}
                   >
-                    {category.emoji} {category.name}
+                    <span className="mr-1.5">{category.emoji}</span>
+                    {category.name}
                   </button>
                 ))}
               </div>
             </div>
 
-            {error && (
-              <div className="mb-4 p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <p className="text-gray-600">{error}</p>
-                  <button 
-                    onClick={handleRetryGeneration}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs border border-gray-200 rounded-full hover:border-gray-300 transition-colors"
-                  >
-                    <RefreshCw className="w-3 h-3" />
-                    다시 시도
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {filteredSpots.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">
-                <MapPin className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                <p>해당 카테고리의 추천 장소가 없습니다.</p>
-                <p className="text-sm mt-1">다른 카테고리를 선택해보세요.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredSpots.map((spot, index) => (
+            {/* 추천 장소 그리드 */}
+            {filteredSpots.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredSpots.map((spot) => (
                   <div
                     key={spot.id}
-                    className="group cursor-pointer border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 transition-all"
                     onClick={() => handleSpotClick(spot)}
+                    className="group border border-gray-200 rounded-2xl p-4 hover:shadow-md hover:border-gray-300 transition-all cursor-pointer bg-white"
                   >
-                    {/* 이미지 영역 */}
-                    <div className="h-48 bg-gray-50 relative overflow-hidden">
-                      {spot.image ? (
-                        <img 
-                          src={spot.image} 
-                          alt={spot.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <MapPin className="w-12 h-12 text-gray-300" />
-                        </div>
-                      )}
-                      
-                      {/* 인기도 배지 */}
-                      <div className="absolute top-3 right-3">
-                        <div className="flex items-center gap-1 px-2 py-1 bg-white/90 border border-gray-200 rounded-full text-xs">
-                          <Star className="w-3 h-3 text-gray-600" />
-                          <span className="text-gray-600">{spot.popularity}/10</span>
-                        </div>
-                      </div>
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="font-medium text-gray-900 group-hover:text-gray-700 transition-colors">
+                        {spot.name}
+                      </h3>
+                      <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0" />
                     </div>
-
-                    {/* 콘텐츠 영역 */}
-                    <div className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-medium text-gray-900 group-hover:text-black transition-colors">
-                          {spot.name}
-                        </h3>
-                        <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors flex-shrink-0" />
-                      </div>
-                      
-                      <p className="text-sm text-gray-500 mb-2">{spot.location}</p>
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{spot.description}</p>
-                      
-                      {/* 메타 정보 */}
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        <span className="text-xs px-2 py-1 border border-gray-200 text-gray-600 rounded-full">
-                          {getDifficultyLabel(spot.difficulty)}
+                    
+                    <p className="text-sm text-gray-600 leading-relaxed mb-3">
+                      {spot.description}
+                    </p>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 text-xs border rounded-full ${getDifficultyColor(spot.difficulty)}`}>
+                          {getDifficultyText(spot.difficulty)}
                         </span>
-                        <span className="text-xs px-2 py-1 border border-gray-200 text-gray-600 rounded-full">
-                          <Clock className="w-3 h-3 inline mr-1" />
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <Calendar className="w-3 h-3" />
                           {spot.estimatedDays}일
-                        </span>
-                        <span className="text-xs px-2 py-1 border border-gray-200 text-gray-600 rounded-full">
-                          {spot.seasonality}
-                        </span>
+                        </div>
                       </div>
                       
-                      {/* 하이라이트 */}
-                      {spot.highlights && spot.highlights.length > 0 && (
-                        <div className="space-y-1">
-                          {spot.highlights.slice(0, 2).map((highlight, idx) => (
-                            <div key={idx} className="flex items-start gap-2 text-xs text-gray-500">
-                              <div className="w-1 h-1 bg-gray-900 rounded-full flex-shrink-0 mt-1.5" />
-                              <span className="line-clamp-1">{highlight}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                        <span className="text-xs text-gray-600">{spot.popularity}/10</span>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-gray-400 text-4xl mb-2">🗺️</div>
+                <p className="text-gray-600">이 카테고리에 추천 장소가 없습니다.</p>
+              </div>
             )}
           </div>
+          
         </div>
       </div>
-    </ResponsiveContainer>
+    </div>
   );
 };
 

@@ -990,7 +990,7 @@ function Home() {
                   lineHeight: isMobile ? '24px' : '32px', 
                   width: isMobile ? '180px' : '220px',
                   textAlign: 'right',
-                  marginRight: '4px'
+                  marginRight: '20px'
                 }}>
                   <span 
                     className="inline-block transition-transform duration-1000 ease-out"
