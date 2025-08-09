@@ -122,7 +122,7 @@ export class EnhancedCacheSystem {
       updateAgeOnHas: true
     });
 
-    console.log('🚀 Enhanced Cache System 초기화 완료');
+    // 🚀 Enhanced Cache System 초기화 완료
   }
 
   static getInstance(): EnhancedCacheSystem {
@@ -159,7 +159,7 @@ export class EnhancedCacheSystem {
           this.stats.hits++;
           this.stats.l1Hits++;
           this.updateResponseTime(startTime);
-          console.log(`🎯 L1 캐시 히트: ${fullKey}`);
+          // 🎯 L1 캐시 히트: ${fullKey}
           return memoryResult;
         }
       }
@@ -176,7 +176,7 @@ export class EnhancedCacheSystem {
           this.stats.hits++;
           this.stats.l2Hits++;
           this.updateResponseTime(startTime);
-          console.log(`🎯 L2 캐시 히트: ${fullKey}`);
+          // 🎯 L2 캐시 히트: ${fullKey}
           return redisResult;
         }
       }
@@ -196,14 +196,14 @@ export class EnhancedCacheSystem {
           this.stats.hits++;
           this.stats.l3Hits++;
           this.updateResponseTime(startTime);
-          console.log(`🎯 L3 캐시 히트: ${fullKey}`);
+          // 🎯 L3 캐시 히트: ${fullKey}
           return storageResult;
         }
       }
 
       // 캐시 미스 - 데이터 생성
       this.stats.misses++;
-      console.log(`❌ 캐시 미스: ${fullKey}`);
+      // ❌ 캐시 미스: ${fullKey}
       
       if (generator) {
         const generatedData = await generator();
@@ -250,7 +250,7 @@ export class EnhancedCacheSystem {
       }
 
       await Promise.allSettled(promises);
-      console.log(`💾 캐시 저장 완료: ${fullKey} (레벨: ${config.levels.join(', ')})`);
+      // 💾 캐시 저장 완료: ${fullKey} (레벨: ${config.levels.join(', ')})
 
     } catch (error) {
       console.error('❌ 캐시 저장 실패:', error);
@@ -268,7 +268,7 @@ export class EnhancedCacheSystem {
     await this.deleteFromRedis(fullKey);
     await this.deleteFromStorage(fullKey);
     
-    console.log(`🗑️ 캐시 무효화: ${fullKey}`);
+    // 🗑️ 캐시 무효화: ${fullKey}
   }
 
   /**
@@ -286,7 +286,7 @@ export class EnhancedCacheSystem {
       await this.cleanupStorage();
     }
     
-    console.log(`🧹 캐시 정리 완료${strategy ? ` (${strategy})` : ''}`);
+    // 🧹 캐시 정리 완료${strategy ? ` (${strategy})` : ''}
   }
 
   /**
@@ -334,19 +334,19 @@ export class EnhancedCacheSystem {
   private async setToRedis(key: string, value: any, ttl: number): Promise<void> {
     // Redis SET 시뮬레이션
     await new Promise(resolve => setTimeout(resolve, 5)); // 5ms 지연
-    console.log(`Redis SET: ${key} (TTL: ${ttl}s)`);
+    // Redis SET: ${key} (TTL: ${ttl}s)
   }
 
   private async deleteFromRedis(key: string): Promise<void> {
     // Redis DEL 시뮬레이션
     await new Promise(resolve => setTimeout(resolve, 5)); // 5ms 지연
-    console.log(`Redis DEL: ${key}`);
+    // Redis DEL: ${key}
   }
 
   private async cleanupRedis(): Promise<void> {
     // Redis FLUSHDB 시뮬레이션
     await new Promise(resolve => setTimeout(resolve, 20));
-    console.log('Redis 전체 정리 완료');
+    // Redis 전체 정리 완료
   }
 
   // 영구 저장소 시뮬레이션 메서드들
@@ -359,25 +359,25 @@ export class EnhancedCacheSystem {
   private async setToStorage(key: string, value: any, ttl: number): Promise<void> {
     // 파일 시스템 또는 DB 저장 시뮬레이션
     await new Promise(resolve => setTimeout(resolve, 30)); // 30ms 지연
-    console.log(`Storage SET: ${key} (TTL: ${ttl}s)`);
+    // Storage SET: ${key} (TTL: ${ttl}s)
   }
 
   private async deleteFromStorage(key: string): Promise<void> {
     // 파일 시스템 또는 DB 삭제 시뮬레이션
     await new Promise(resolve => setTimeout(resolve, 30)); // 30ms 지연
-    console.log(`Storage DEL: ${key}`);
+    // Storage DEL: ${key}
   }
 
   private async cleanupStorage(): Promise<void> {
     // 저장소 전체 정리 시뮬레이션
     await new Promise(resolve => setTimeout(resolve, 100));
-    console.log('Storage 전체 정리 완료');
+    // Storage 전체 정리 완료
   }
 
   private async cleanupByPattern(pattern: string): Promise<void> {
     // 패턴 매칭 정리 시뮬레이션
     await new Promise(resolve => setTimeout(resolve, 50));
-    console.log(`패턴 정리 완료: ${pattern}`);
+    // 패턴 정리 완료: ${pattern}
   }
 }
 

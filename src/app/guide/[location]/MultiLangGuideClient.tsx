@@ -44,17 +44,17 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
   // data.content.content가 있으면 그것을 사용 (이중 래핑 케이스)
   if (data.content && data.content.content && typeof data.content.content === 'object') {
     sourceData = data.content.content;
-    console.log('📦 content.content 필드에서 데이터 추출 (이중 래핑)');
+    // 📦 content.content 필드에서 데이터 추출 (이중 래핑)
   }
   // data.content가 있고 overview, route, realTimeGuide 중 하나라도 있으면 사용
   else if (data.content && typeof data.content === 'object' && (data.content.overview || data.content.route || data.content.realTimeGuide)) {
     sourceData = data.content;
-    console.log('📦 content 필드에서 데이터 추출');
+    // 📦 content 필드에서 데이터 추출
   }
   // data가 직접 overview, route, realTimeGuide를 가지면 직접 사용
   else if (data.overview || data.route || data.realTimeGuide) {
     sourceData = data;
-    console.log('📦 직접 구조에서 데이터 추출');
+    // 📦 직접 구조에서 데이터 추출
   }
   else {
     console.error('❌ 올바른 가이드 구조를 찾을 수 없음:', Object.keys(data));
@@ -63,6 +63,7 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
   }
 
   // 🔍 mustVisitSpots 데이터 추적
+  /*
   console.log('🎯 MultiLangGuideClient에서 sourceData 확인:', {
     hasSourceData: !!sourceData,
     sourceDataKeys: Object.keys(sourceData || {}),
@@ -70,6 +71,7 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
     keyHighlights: sourceData?.keyHighlights,
     highlights: sourceData?.highlights
   });
+  */
 
   // 🎯 정규화된 GuideData 생성
   const normalizedData: GuideData = {
@@ -125,12 +127,14 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
   }
 
   // 🔍 최종 정규화 결과 확인
+  /*
   console.log('🎯 MultiLangGuideClient 최종 정규화 결과:', {
     hasMustVisitSpots: !!normalizedData.mustVisitSpots,
     mustVisitSpots: normalizedData.mustVisitSpots,
     mustVisitSpotsType: typeof normalizedData.mustVisitSpots,
     mustVisitSpotsLength: normalizedData.mustVisitSpots?.length
   });
+  */
 
   return normalizedData;
 };
@@ -179,7 +183,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
     setError(null);
 
     try {
-      console.log(`🔄 ${language} 가이드 로드:`, locationName, { forceRegenerate });
+      // 🔄 ${language} 가이드 로드: locationName, { forceRegenerate }
 
       let result;
       
@@ -209,7 +213,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
         // 히스토리 저장
         await saveToHistory(normalizedData);
 
-        console.log(`✅ ${language} 가이드 로드 완료 (${(result as any).source || 'unknown'})`);
+        // ✅ ${language} 가이드 로드 완료 (source: ${(result as any).source || 'unknown'})
       } else {
         throw new Error((result as any).error?.message || result.error || '가이드 로드 실패');
       }
@@ -238,7 +242,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
   // 🎯 라우팅 분석 함수
   const analyzeRouting = useCallback(async () => {
     try {
-      console.log('🚀 위치 라우팅 분석 시작:', locationName);
+      // 🚀 위치 라우팅 분석 시작: locationName
       const result = await routeLocationQueryCached(locationName, currentLanguage);
       setRoutingResult(result);
       
@@ -246,11 +250,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
       const shouldShowHub = result.pageType === 'RegionExploreHub';
       setShouldShowExploreHub(shouldShowHub);
       
-      console.log('📍 라우팅 분석 완료:', { 
-        pageType: result.pageType,
-        confidence: result.confidence,
-        showHub: shouldShowHub
-      });
+      // 📍 라우팅 분석 완료: { pageType: result.pageType, confidence: result.confidence, showHub: shouldShowHub }
     } catch (error) {
       console.warn('⚠️ 라우팅 분석 실패, 기본 가이드 페이지 사용:', error);
       setShouldShowExploreHub(false);

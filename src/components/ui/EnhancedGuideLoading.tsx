@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Sparkles, MapPin, BookOpen, Loader2, CheckCircle, Clock } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -42,8 +42,8 @@ export default function EnhancedGuideLoading({
     return Array.isArray(value) ? value[0] || '' : String(value);
   };
 
-  // 번역된 로딩 단계 생성
-  const loadingSteps: LoadingStep[] = [
+  // 번역된 로딩 단계 생성 (useMemo로 최적화)
+  const loadingSteps: LoadingStep[] = useMemo(() => [
     {
       id: 'analyzing',
       title: getTranslatedString('loading.messages.analyzing'),
@@ -79,7 +79,7 @@ export default function EnhancedGuideLoading({
       duration: 2,
       status: 'pending'
     }
-  ];
+  ], [t]);
 
   // 번역된 격려 메시지
   const encouragingMessages = t('loading.encouragement') as string[];

@@ -30,7 +30,7 @@ export function clearAllAuthCookies(): void {
   
   defaultAuthCookies.forEach(name => authCookieNames.add(name));
   
-  console.log('🔍 발견된 인증 쿠키들:', Array.from(authCookieNames));
+  // 🔍 발견된 인증 쿠키들: Array.from(authCookieNames)
 
   // 환경에 따른 도메인 설정
   const isProduction = process.env.NODE_ENV === 'production';
@@ -64,7 +64,7 @@ export function clearAllAuthCookies(): void {
     });
   });
 
-  console.log('🍪 모든 인증 쿠키 삭제 완료');
+  // 🍪 모든 인증 쿠키 삭제 완료
 }
 
 /**
@@ -116,7 +116,7 @@ export function clearAllUserData(): void {
     sessionStorage.removeItem(key);
   });
 
-  console.log(`🗄️ 사용자 데이터 삭제 완료: ${userDataKeys.length + keysToRemove.length}개 항목`);
+  // 🗄️ 사용자 데이터 삭제 완료: ${userDataKeys.length + keysToRemove.length}개 항목
 }
 
 /**
@@ -143,7 +143,7 @@ export function clearBrowserCache(): void {
       });
     }
 
-    console.log('🗃️ 브라우저 캐시 정리 완료');
+    // 🗃️ 브라우저 캐시 정리 완료
   } catch (error) {
     console.error('❌ 브라우저 캐시 정리 실패:', error);
   }
@@ -153,7 +153,7 @@ export function clearBrowserCache(): void {
  * 완전한 로그아웃 실행 (NextAuth signOut 전에 호출)
  */
 export async function performCompleteLogout(): Promise<void> {
-  console.log('🚀 완전한 로그아웃 프로세스 시작...');
+  // 🚀 완전한 로그아웃 프로세스 시작...
   
   // 1. 모든 사용자 데이터 삭제
   clearAllUserData();
@@ -165,7 +165,7 @@ export async function performCompleteLogout(): Promise<void> {
   clearAllAuthCookies();
   
   // 4. Service Worker 캐시 무효화 (NextAuth signOut 후에 실행)
-  console.log('✅ 클라이언트 사이드 정리 완료 - Service Worker 캐시는 별도 처리');
+  // ✅ 클라이언트 사이드 정리 완료 - Service Worker 캐시는 별도 처리
 }
 
 /**
@@ -179,7 +179,7 @@ export async function simpleCacheInvalidation(): Promise<void> {
     if ('caches' in window) {
       const cacheNames = await caches.keys();
       await Promise.all(cacheNames.map(name => caches.delete(name)));
-      console.log('✅ 모든 캐시 삭제 완료');
+      // ✅ 모든 캐시 삭제 완료
     }
     
     // 2. NextAuth 내부 상태 정리
@@ -200,22 +200,22 @@ async function clearServiceWorkerCache(): Promise<void> {
   if (typeof window === 'undefined') return;
 
   try {
-    console.log('🔄 Service Worker 캐시 강제 무효화 시작...');
+    // 🔄 Service Worker 캐시 강제 무효화 시작...
     
     // 1. 모든 캐시 저장소 완전 삭제
     if ('caches' in window) {
       const cacheNames = await caches.keys();
-      console.log('📋 발견된 캐시 저장소:', cacheNames);
+      // 📋 발견된 캐시 저장소: cacheNames
       
       // 모든 캐시를 병렬로 삭제
       await Promise.all(
         cacheNames.map(async cacheName => {
-          console.log(`🗑️ 캐시 저장소 삭제 중: ${cacheName}`);
+          // 🗑️ 캐시 저장소 삭제 중: ${cacheName}
           return caches.delete(cacheName);
         })
       );
       
-      console.log('✅ 모든 캐시 저장소 삭제 완료');
+      // ✅ 모든 캐시 저장소 삭제 완료
     }
     
     // 2. Service Worker 강제 업데이트 및 재시작
@@ -225,15 +225,15 @@ async function clearServiceWorkerCache(): Promise<void> {
       // 모든 Service Worker 등록 해제 후 재등록
       await Promise.all(
         registrations.map(async registration => {
-          console.log('🔄 Service Worker 등록 해제 중...');
+          // 🔄 Service Worker 등록 해제 중...
           await registration.unregister();
-          console.log('✅ Service Worker 등록 해제 완료');
+          // ✅ Service Worker 등록 해제 완룼
         })
       );
       
       // 잠깐 대기 후 페이지 리로드 (Service Worker 재등록됨)
       setTimeout(() => {
-        console.log('🔄 Service Worker 완전 재시작을 위한 페이지 리로드...');
+        // 🔄 Service Worker 완전 재시작을 위한 페이지 리로드...
         window.location.reload();
       }, 500);
     }
@@ -247,14 +247,14 @@ async function clearServiceWorkerCache(): Promise<void> {
     // 4. 브라우저의 기본 HTTP 캐시도 무효화
     if ('location' in window && 'reload' in window.location) {
       // Hard refresh 강제 실행
-      console.log('💨 브라우저 HTTP 캐시 무효화...');
+      // 💨 브라우저 HTTP 캐시 무효화...
     }
     
   } catch (error) {
     console.error('❌ Service Worker 캐시 정리 실패:', error);
     
     // 실패 시 최후의 수단: 강제 새로고침
-    console.log('🚨 캐시 정리 실패로 강제 새로고침 실행');
+    // 🚨 캐시 정리 실패로 강제 새로고침 실행
     window.location.reload();
   }
 }
@@ -282,10 +282,10 @@ export function verifyLogoutComplete(): boolean {
   });
 
   if (issues.length > 0) {
-    console.warn('⚠️ 로그아웃 미완료:', issues);
+    // ⚠️ 로그아웃 미완료: issues
     return false;
   }
 
-  console.log('✅ 로그아웃 상태 검증 완료');
+  // ✅ 로그아웃 상태 검증 완료
   return true;
 }
