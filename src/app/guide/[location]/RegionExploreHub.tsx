@@ -123,12 +123,18 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
             
             if (!stepLocation) return null;
             
-            // 좌표 추출 (DB 구조에 맞게)
-            const coordinates = stepLocation?.coordinates?.lat && stepLocation?.coordinates?.lng
-              ? { lat: parseFloat(stepLocation.coordinates.lat), lng: parseFloat(stepLocation.coordinates.lng) }
-              : stepLocation?.lat && stepLocation?.lng
-              ? { lat: parseFloat(stepLocation.lat), lng: parseFloat(stepLocation.lng) }
-              : null;
+            // 🎯 좌표는 content.chapters에서 id로 매칭해서 가져오기
+            // step의 index와 chapter의 id가 매칭됨 (step 0 → chapter id: 0)
+            let coordinates = null;
+            if (content.chapters && Array.isArray(content.chapters)) {
+              const matchingChapter = content.chapters.find((chapter: any) => chapter.id === index);
+              if (matchingChapter?.coordinates?.lat && matchingChapter?.coordinates?.lng) {
+                coordinates = {
+                  lat: parseFloat(matchingChapter.coordinates.lat),
+                  lng: parseFloat(matchingChapter.coordinates.lng)
+                };
+              }
+            }
             
             // 장소명 추출
             const placeName = stepLocation?.name || stepLocation?.title || `${locationName} 명소 ${index + 1}`;
