@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 // import '@/styles/monochrome-map.css'; // 🔥 흑백 스타일 제거
 import L from 'leaflet';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 // 기본 좌표 매핑만 사용
 import type { GuideChapter } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -263,6 +263,33 @@ export default function MapWithRoute({
   const geolocation = useSimpleGeolocation();
   const [showMyLocation, setShowMyLocation] = useState(false);
 
+  // 🔥 React Hook 규칙 준수: 모든 훅을 조건부 return 전에 호출
+  // 🔥 안정적인 키 생성 - 컴포넌트 생명주기 동안 유지
+  const stableMapKey = useMemo(() => {
+    return `map-${locationName}-${currentLanguage}-${Math.floor(Date.now() / 1000)}`;
+  }, [locationName, currentLanguage]);
+
+  // 🔥 DOM 컨테이너 참조
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+
+  // 🔥 컴포넌트 언마운트 시 Leaflet 정리
+  useEffect(() => {
+    // ref 값을 변수에 저장하여 정리 함수에서 안전하게 사용
+    const containerRef = mapContainerRef.current;
+    
+    return () => {
+      // 저장된 참조를 사용하여 정리
+      if (containerRef && (containerRef as any)._leaflet_id) {
+        try {
+          // Leaflet 지도 인스턴스 제거
+          delete (containerRef as any)._leaflet_id;
+        } catch (error) {
+          console.warn('지도 정리 중 오류:', error);
+        }
+      }
+    };
+  }, []);
+
   // 언어에 따른 Google Maps 타일 URL 생성
   const getGoogleMapsUrl = (language: string) => {
     // 언어 코드 매핑 (Google Maps에서 지원하는 형식으로)
@@ -476,15 +503,56 @@ export default function MapWithRoute({
 
   // 로딩 상태 제거 - 즉시 렌더링
 
+  // 🔥 지도 대신 좌표 정보 표시 (Leaflet 오류 방지)
+  // 인트로 챕터 (첫 번째 챕터) 정보 추출
+  const introChapter = validChapters.length > 0 ? validChapters[0] : null;
+  const introTitle = introChapter?.title || `${locationName} 시작점`;
+  
+  // 실제 DB 타입 구조에 따른 좌표 추출 (우선순위: location > coordinates > lat/lng > latitude/longitude)
+  const introLat = introChapter?.location?.lat || 
+                   introChapter?.coordinates?.lat || 
+                   introChapter?.lat || 
+                   introChapter?.latitude || 
+                   mapCenter[0];
+                   
+  const introLng = introChapter?.location?.lng || 
+                   introChapter?.coordinates?.lng || 
+                   introChapter?.lng || 
+                   introChapter?.longitude || 
+                   mapCenter[1];
+                   
+  const introNarrative = introChapter?.narrative || introChapter?.description || '';
+  
   return (
-    <div className="relative w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
+    <div className="relative w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white flex items-center justify-center">
+      <div className="text-center p-4">
+        <div className="text-lg font-medium text-gray-800 mb-2">📍 {locationName}</div>
+        <div className="text-sm text-gray-600 mb-1">시작점: {introLat}, {introLng}</div>
+        <div className="text-xs text-gray-500 mb-3">인트로 챕터 좌표 표시</div>
+        <div className="bg-blue-50 p-3 rounded-lg">
+          <div className="text-sm font-medium text-blue-800">{introTitle}</div>
+          <div className="text-xs text-blue-600 mt-1">좌표: {introLat}°N, {introLng}°E</div>
+          {introNarrative && (
+            <div className="text-xs text-blue-500 mt-1">{introNarrative.slice(0, 50)}{introNarrative.length > 50 ? '...' : ''}</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div 
+      ref={mapContainerRef}
+      className="relative w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white"
+    >
       <MapContainer 
-        key={`map-${currentLanguage}`}
+        key={stableMapKey}
         center={mapCenter}
         zoom={zoom}
         className="w-full h-full"
         scrollWheelZoom={true}
         zoomControl={true}
+        attributionControl={false}
       >
         {/* 🌍 Google Maps 스타일 (언어별 동적 로딩) */}
         <TileLayer

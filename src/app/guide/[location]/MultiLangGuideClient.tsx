@@ -38,11 +38,16 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
     throw new Error('가이드 데이터가 없습니다.');
   }
 
-  // 🔥 핵심 수정: content 래핑 구조 올바른 처리
+  // 🔥 핵심 수정: content 래핑 구조 올바른 처리 (이중 래핑 지원)
   let sourceData = data;
   
-  // data.content가 있으면 그것을 사용 (가장 일반적인 케이스)
-  if (data.content && typeof data.content === 'object') {
+  // data.content.content가 있으면 그것을 사용 (이중 래핑 케이스)
+  if (data.content && data.content.content && typeof data.content.content === 'object') {
+    sourceData = data.content.content;
+    console.log('📦 content.content 필드에서 데이터 추출 (이중 래핑)');
+  }
+  // data.content가 있고 overview, route, realTimeGuide 중 하나라도 있으면 사용
+  else if (data.content && typeof data.content === 'object' && (data.content.overview || data.content.route || data.content.realTimeGuide)) {
     sourceData = data.content;
     console.log('📦 content 필드에서 데이터 추출');
   }
@@ -53,6 +58,7 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
   }
   else {
     console.error('❌ 올바른 가이드 구조를 찾을 수 없음:', Object.keys(data));
+    console.error('❌ data.content 구조:', data.content ? Object.keys(data.content) : 'undefined');
     throw new Error('올바른 가이드 데이터 구조가 아닙니다.');
   }
 

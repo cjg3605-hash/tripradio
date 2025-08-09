@@ -89,7 +89,7 @@ export default function EnhancedGuideLoading({
     if (steps.length === 0) {
       setSteps(loadingSteps);
     }
-  }, [t]);
+  }, [t, loadingSteps, steps.length]);
 
   // 시간 경과 및 단계 진행 관리
   useEffect(() => {

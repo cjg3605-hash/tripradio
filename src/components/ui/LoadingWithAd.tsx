@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import LoadingAdSense from '@/components/ads/LoadingAdSense';
+// LoadingAdSense import 제거 - 애드센스 정책 준수
 
 interface LoadingWithAdProps {
   message?: string;
@@ -63,14 +63,15 @@ const LoadingWithAd: React.FC<LoadingWithAdProps> = ({
         </p>
       </div>
 
-      {/* 로딩 중 광고 (수동 광고 유지) */}
+      {/* 애드센스 정책 준수: 콘텐츠가 없는 로딩 화면에서 광고 제거 */}
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3">
-          <div className="text-center mb-2">
-            <div className="text-xs text-gray-400 uppercase tracking-wider">Advertisement</div>
-          </div>
-          <div className="max-h-[180px] overflow-hidden">
-            <LoadingAdSense />
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="text-center">
+            <div className="text-sm text-gray-600 mb-2">💡 가이드 생성 팁</div>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              AI가 최적의 여행 루트와 현지 정보를 분석하여<br />
+              개인 맞춤형 가이드를 생성하고 있습니다.
+            </p>
           </div>
         </div>
       </div>

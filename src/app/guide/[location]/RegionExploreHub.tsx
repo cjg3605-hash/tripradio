@@ -109,23 +109,64 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
         // API에서 받은 추천 장소들
         let spotsToAdd = result.recommendedSpots || [];
         
-        // content에서 route.steps 데이터 파싱하여 추가
-        if (content?.route?.steps && Array.isArray(content.route.steps)) {
+        // content에서 realTimeGuide.chapters 데이터 파싱하여 추가 (정확한 DB 매칭)
+        if (content?.realTimeGuide?.chapters && Array.isArray(content.realTimeGuide.chapters)) {
+          const chapterSpots = content.realTimeGuide.chapters.slice(0, 6).map((chapter: any, index: number) => {
+            // 좌표 추출 (실제 DB 구조에 맞게)
+            const coordinates = chapter?.location?.lat && chapter?.location?.lng
+              ? { lat: chapter.location.lat, lng: chapter.location.lng }
+              : chapter?.coordinates?.lat && chapter?.coordinates?.lng
+              ? { lat: chapter.coordinates.lat, lng: chapter.coordinates.lng }
+              : chapter?.lat && chapter?.lng
+              ? { lat: chapter.lat, lng: chapter.lng }
+              : chapter?.latitude && chapter?.longitude
+              ? { lat: chapter.latitude, lng: chapter.longitude }
+              : null;
+              
+            // 카테고리 추론 (텍스트 기반)
+            const text = (chapter?.narrative || chapter?.description || '').toLowerCase();
+            let category = 'attraction';
+            if (text.includes('음식') || text.includes('맛') || text.includes('레스토랑')) category = 'food';
+            else if (text.includes('자연') || text.includes('공원') || text.includes('산')) category = 'nature';
+            else if (text.includes('문화') || text.includes('박물관') || text.includes('역사')) category = 'culture';
+            else if (text.includes('쇼핑') || text.includes('시장')) category = 'shopping';
+            else category = index % 2 === 0 ? 'city' : 'culture';
+            
+            return {
+              id: `chapter-${index}`,
+              name: chapter?.title?.split(':')[0]?.trim() || `${locationName} ${index + 1}`,
+              location: locationName,
+              category,
+              description: chapter?.narrative?.substring(0, 200) || chapter?.description?.substring(0, 200) || chapter?.title || `특별한 경험이 기다리는 곳`,
+              highlights: chapter?.narrative ? chapter.narrative.split(/[.!?]/).filter((s: string) => s.trim().length > 10).slice(0, 3).map((s: string) => s.trim().substring(0, 100)) : [],
+              estimatedDays: Math.min(Math.ceil((index + 1) / 2), 3),
+              difficulty: 'easy' as const,
+              seasonality: '연중',
+              popularity: Math.max(95 - (index * 5), 60), // 챕터 순서대로 인기도 차등
+              coordinates // 실제 DB 좌표 사용
+            };
+          });
+          
+          console.log(`✅ ${chapterSpots.length}개의 챕터 데이터를 추천여행지에 추가`);
+          spotsToAdd = [...spotsToAdd, ...chapterSpots];
+        }
+        // 폴백: route.steps 데이터도 추가 (chaptersrks 없을 때)
+        else if (content?.route?.steps && Array.isArray(content.route.steps)) {
           const routeSpots = content.route.steps.map((step: any, index: number) => ({
             id: `route-${index}`,
-            name: step.location || step.title?.split(':')[0]?.trim(), // 여행지 이름만 추출
+            name: step.location || step.title?.split(':')[0]?.trim(),
             location: locationName,
             category: 'attraction',
-            description: step.title || `${step.location} 여행지`, // 전체 타이틀 사용
+            description: step.title || `${step.location} 여행지`,
             highlights: [],
             estimatedDays: 1,
             difficulty: 'easy' as const,
             seasonality: '연중',
-            popularity: 80 + (index * 2), // 순서대로 인기도 차등 적용
-            coordinates: null // 좌표는 별도 API에서 가져올 예정
+            popularity: 80 + (index * 2),
+            coordinates: null // route.steps에는 좌표 정보 없음
           }));
           
-          console.log(`✅ ${routeSpots.length}개의 여행지 데이터를 추천여행지에 추가`);
+          console.log(`✅ ${routeSpots.length}개의 루트 데이터를 추천여행지에 추가`);
           spotsToAdd = [...spotsToAdd, ...routeSpots];
         }
         

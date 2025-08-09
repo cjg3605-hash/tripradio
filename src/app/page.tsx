@@ -692,7 +692,7 @@ function Home() {
         setCurrentLoadingQuery('');
       }
     }
-  }, [query, router, setLoadingState]);
+  }, [query, router, setLoadingState, currentLanguage]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isFocused || suggestions.length === 0) {
@@ -1011,7 +1011,7 @@ function Home() {
     if (isMountedRef.current) setAudioPlaying(!audioPlaying);
     setLoadingState('tour', true);
     router.push(`/guide/${encodeURIComponent(query.trim())}/tour?lang=${currentLanguage}`);
-  }, [query, audioPlaying, router, t, setLoadingState]);
+  }, [query, audioPlaying, router, t, setLoadingState, currentLanguage, showError]);
 
 
   // 가이드 생성 중일 때 모노크롬 로딩 화면 표시
