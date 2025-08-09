@@ -88,6 +88,7 @@ interface Translations {
   home: {
     brandTitle: string;
     title: string;
+    audioGuidePrefix: string;
     subtitle: string;
     subtitle2: string;
     searchPlaceholder: string;
@@ -448,6 +449,7 @@ const DEFAULT_TRANSLATIONS: Translations = {
   home: {
     brandTitle: 'AI 여행 가이드',
     title: 'AI와 함께하는 스마트 여행',
+    audioGuidePrefix: '앞에서 만드는 오디오 가이드',
     subtitle: '개인 맞춤형 가이드로 새로운 여행을 경험하세요',
     subtitle2: '어디든 검색하고 즉시 전문 가이드를 만나보세요',
     searchPlaceholder: '어디 장소 앞에 계신가요?',

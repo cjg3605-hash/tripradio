@@ -24,6 +24,7 @@
     "home": {
       "brandTitle": "내손안의",
       "title": "내손안의 도슨트", 
+      "audioGuidePrefix": "앞에서 만드는 오디오 가이드",
       "subtitle": "가이드없이 자유롭게,",
       "subtitle2": "여행은 깊이있게",
       "searchPlaceholder": "어디 앞에 계신가요?",
@@ -801,6 +802,7 @@
     "home": {
       "brandTitle": "Your Pocket",
       "title": "Your Pocket Docent",
+      "audioGuidePrefix": "Audio guide made right in front of you",
       "subtitle": "Travel freely without guides,",
       "subtitle2": "yet experience deeply",
       "searchPlaceholder": "Where are you standing in front of?",
@@ -1578,6 +1580,7 @@
     "home": {
       "brandTitle": "あなたのポケット",
       "title": "あなたのポケットドーセント",
+      "audioGuidePrefix": "目の前で作るオーディオガイド",
       "subtitle": "ガイドなしで自由に、",
       "subtitle2": "旅行は深く",
       "searchPlaceholder": "どちらの前に立っていらっしゃいますか？",
@@ -2318,6 +2321,7 @@
     "home": {
       "brandTitle": "您的口袋",
       "title": "您的口袋导览员",
+      "audioGuidePrefix": "在您眼前制作的音频指南",
       "subtitle": "无导游自由旅行，",
       "subtitle2": "却能深度体验",
       "searchPlaceholder": "您现在站在哪里面前？",
@@ -3058,6 +3062,7 @@
     "home": {
       "brandTitle": "Tu Bolsillo",
       "title": "Tu Docente de Bolsillo",
+      "audioGuidePrefix": "Guía de audio hecha justo delante de ti",
       "subtitle": "Viaja libremente sin guías,",
       "subtitle2": "pero experimenta profundamente",
       "searchPlaceholder": "¿Dónde estás parado en frente?",

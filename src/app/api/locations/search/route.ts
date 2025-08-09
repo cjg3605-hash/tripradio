@@ -77,43 +77,43 @@ function createAutocompletePrompt(query: string, language: Language): string {
   
   const prompts = {
     ko: isShortQuery ? 
-    `"${query}"로 시작하는 세계적으로 유명한 관광지나 도시 5개를 JSON 배열로 제공하세요:
+    `"${query}"로 시작하는 세계 여행지 5개를 JSON 배열로 제공하세요. 국가, 도시, 관광지 모두 포함:
 [{"name": "장소명", "location": "위치"}]
 
-예시: [{"name": "에펠탑", "location": "파리, 프랑스"}]` :
-    `"${query}"와 관련된 유명한 관광지나 도시 5개를 JSON 배열로 제공하세요:
+예시: [{"name": "프랑스", "location": "유럽"}, {"name": "파리", "location": "프랑스"}, {"name": "에펠탑", "location": "파리, 프랑스"}]` :
+    `"${query}"와 관련된 여행지 5개를 JSON 배열로 제공하세요. 국가, 도시, 관광지 모두 포함:
 [{"name": "장소명", "location": "위치"}]`,
 
     en: isShortQuery ?
-    `Provide 5 world-famous tourist attractions or cities starting with "${query}" in JSON array format:
+    `Provide 5 world travel destinations starting with "${query}" in JSON array format. Include countries, cities, and attractions all:
 [{"name": "place name", "location": "location"}]
 
-Example: [{"name": "Eiffel Tower", "location": "Paris, France"}]` :
-    `Provide 5 famous tourist attractions or cities related to "${query}" in JSON array format:
+Example: [{"name": "France", "location": "Europe"}, {"name": "Paris", "location": "France"}, {"name": "Eiffel Tower", "location": "Paris, France"}]` :
+    `Provide 5 travel destinations related to "${query}" in JSON array format. Include countries, cities, and attractions all:
 [{"name": "place name", "location": "location"}]`,
 
     ja: isShortQuery ?
-    `「${query}」で始まる世界的に有名な観光地や都市5つをJSON配列形式で提供してください:
+    `「${query}」で始まる世界の旅行先5つをJSON配列形式で提供してください。国、都市、観光地すべて含む:
 [{"name": "場所名", "location": "場所"}]
 
-例: [{"name": "エッフェル塔", "location": "パリ、フランス"}]` :
-    `「${query}」に関連する有名な観光地や都市5つをJSON配列形式で提供してください:
+例: [{"name": "フランス", "location": "ヨーロッパ"}, {"name": "パリ", "location": "フランス"}, {"name": "エッフェル塔", "location": "パリ、フランス"}]` :
+    `「${query}」に関連する旅行先5つをJSON配列形式で提供してください。国、都市、観光地すべて含む:
 [{"name": "場所名", "location": "場所"}]`,
 
     zh: isShortQuery ?
-    `提供5个以"${query}"开头的世界著名旅游景点或城市，JSON数组格式:
+    `提供5个以"${query}"开头的世界旅游目的地，JSON数组格式。包括国家、城市和景点:
 [{"name": "地点名称", "location": "位置"}]
 
-示例: [{"name": "埃菲尔铁塔", "location": "巴黎，法国"}]` :
-    `提供5个与"${query}"相关的著名旅游景点或城市，JSON数组格式:
+示例: [{"name": "法国", "location": "欧洲"}, {"name": "巴黎", "location": "法国"}, {"name": "埃菲尔铁塔", "location": "巴黎，法国"}]` :
+    `提供5个与"${query}"相关的旅游目的地，JSON数组格式。包括国家、城市和景点:
 [{"name": "地点名称", "location": "位置"}]`,
 
     es: isShortQuery ?
-    `Proporciona 5 atracciones turísticas o ciudades mundialmente famosas que comiencen con "${query}" en formato JSON array:
+    `Proporciona 5 destinos turísticos mundiales que comiencen con "${query}" en formato JSON array. Incluye países, ciudades y atracciones:
 [{"name": "nombre del lugar", "location": "ubicación"}]
 
-Ejemplo: [{"name": "Torre Eiffel", "location": "París, Francia"}]` :
-    `Proporciona 5 atracciones turísticas o ciudades famosas relacionadas con "${query}" en formato JSON array:
+Ejemplo: [{"name": "Francia", "location": "Europa"}, {"name": "París", "location": "Francia"}, {"name": "Torre Eiffel", "location": "París, Francia"}]` :
+    `Proporciona 5 destinos turísticos relacionados con "${query}" en formato JSON array. Incluye países, ciudades y atracciones:
 [{"name": "nombre del lugar", "location": "ubicación"}]`
   };
 

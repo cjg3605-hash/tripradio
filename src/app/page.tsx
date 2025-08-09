@@ -1064,25 +1064,25 @@ function Home() {
               <div className="font-bold mb-2 flex items-center justify-center w-full" style={{ 
                 textShadow: '2px 2px 8px rgba(0,0,0,0.8)', 
                 fontSize: isMobile 
-                  ? 'clamp(1.125rem, 4vw, 1.5rem)'  // 모바일: 18px ~ 24px
-                  : 'clamp(1rem, 2.4vw, 1.5rem)',   // PC: 16px ~ 24px (40% 축소)
-                height: isMobile ? '32px' : '28px' 
+                  ? 'clamp(1rem, 4vw, 1.375rem)'  // 모바일: 16px ~ 22px (약간 줄임)
+                  : 'clamp(1.625rem, 2.6vw, 1.625rem)',   // PC: 26px 고정
+                height: isMobile ? '36px' : '32px' 
               }}>
                 <span className="inline-block overflow-hidden whitespace-nowrap w-full max-w-none" style={{ 
-                  height: isMobile ? '32px' : '28px', 
-                  lineHeight: isMobile ? '32px' : '28px',
+                  height: isMobile ? '36px' : '32px', 
+                  lineHeight: isMobile ? '36px' : '32px',
                   textAlign: 'center'
                 }}>
                   <span 
                     className="inline-block transition-transform duration-1000 ease-out w-full"
                     style={{
-                      transform: `translateY(-${currentLandmarkIndex * (isMobile ? 32 : 28)}px)`
+                      transform: `translateY(-${currentLandmarkIndex * (isMobile ? 36 : 32)}px)`
                     }}
                   >
                     {landmarks.map((landmark, index) => (
                       <span key={index} className="block font-bold whitespace-nowrap w-full" style={{ 
-                        height: isMobile ? '32px' : '28px', 
-                        lineHeight: isMobile ? '32px' : '28px',
+                        height: isMobile ? '36px' : '32px', 
+                        lineHeight: isMobile ? '36px' : '32px',
                         textAlign: 'center'
                       }}>
                         {t(`home.landmarks.${landmark}` as any) || landmark}
@@ -1093,7 +1093,7 @@ function Home() {
               </div>
               {/* 두 번째 줄: 앞에서 만드는 오디오 가이드 */}
               <div className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
-                앞에서 만드는 오디오 가이드
+                {t('home.audioGuidePrefix')}
               </div>
               <div className="text-xs sm:text-sm md:text-base lg:text-lg font-light mb-1" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
                 {t('home.subtitle')}
