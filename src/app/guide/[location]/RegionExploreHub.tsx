@@ -118,7 +118,7 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
   };
 
   const handleSpotClick = (spot: RecommendedSpot) => {
-    router.push(`/guide/${encodeURIComponent(spot.name)}?from=${encodeURIComponent(locationName)}`);
+    router.push('/guide/' + encodeURIComponent(spot.name) + '?from=' + encodeURIComponent(locationName));
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -166,198 +166,218 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 🎨 미니멀 헤더 */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-10 backdrop-blur-sm bg-white/95">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => router.back()}
-                className="p-2 hover:bg-gray-50 rounded-xl transition-colors border border-gray-200 group"
-                aria-label="뒤로 가기"
-              >
-                <svg className="w-5 h-5 text-gray-600 group-hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <div>
-                <h1 className="text-xl font-light text-gray-900 tracking-tight">
-                  {regionData?.name || locationName}
-                </h1>
-                {regionData?.country && (
-                  <p className="text-sm text-gray-500 mt-0.5">{regionData.country}</p>
-                )}
-              </div>
+    <div className="min-h-screen bg-white">
+      {/* 🎨 모노크롬 모던 헤더 */}
+      <div className="border-b border-gray-100">
+        <div className="max-w-4xl mx-auto p-6">
+          <div className="flex items-center gap-4 mb-4">
+            <button
+              onClick={() => router.back()}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="뒤로 가기"
+            >
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div>
+              <h1 className="text-2xl font-light text-gray-900">
+                {regionData?.name || locationName}
+              </h1>
+              {regionData?.country && (
+                <p className="text-gray-500 mt-1">{regionData.country}</p>
+              )}
             </div>
           </div>
         </div>
       </div>
       
-      {/* 메인 콘텐츠 */}
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="space-y-6">
+      {/* 🎨 메인 콘텐츠 */}
+      <div className="max-w-4xl mx-auto p-6 space-y-8">
           
-          {/* 🎨 지역 소개 섹션 */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-            <div className="max-w-4xl">
-              <p className="text-gray-700 leading-relaxed text-base mb-6">
-                {regionData?.description}
-              </p>
-              
-              {/* 빠른 정보 태그 */}
-              {regionData?.quickFacts && Object.keys(regionData.quickFacts).length > 0 && (
-                <div className="flex flex-wrap gap-3">
-                  {regionData.quickFacts.area && (
-                    <div className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-full text-sm bg-gray-50">
-                      <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                      <span className="text-gray-600">{regionData.quickFacts.area}</span>
+        {/* 🎨 개요 (실시간 가이드 스타일) */}
+        <div className="border-b border-gray-100 pb-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-3">개요</h2>
+          <p className="text-gray-600 leading-relaxed">
+            {regionData?.description}
+          </p>
+        </div>
+
+        {/* 🎨 기본 정보 */}
+        {regionData?.quickFacts && Object.keys(regionData.quickFacts).length > 0 && (
+          <div className="border-b border-gray-100 pb-6">
+            <h2 className="text-lg font-medium text-gray-900 mb-4">기본 정보</h2>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="space-y-3">
+                {regionData.quickFacts.area && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
+                      <MapPin className="w-4 h-4" />
                     </div>
-                  )}
-                  {regionData.quickFacts.population && (
-                    <div className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-full text-sm bg-gray-50">
-                      <Users className="w-3.5 h-3.5 text-gray-400" />
-                      <span className="text-gray-600">{regionData.quickFacts.population}</span>
+                    <p className="text-gray-700"><strong>면적:</strong> {regionData.quickFacts.area}</p>
+                  </div>
+                )}
+                {regionData.quickFacts.population && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
+                      <Users className="w-4 h-4" />
                     </div>
-                  )}
-                  {regionData.quickFacts.bestTime && (
-                    <div className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-full text-sm bg-gray-50">
-                      <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                      <span className="text-gray-600">{regionData.quickFacts.bestTime}</span>
+                    <p className="text-gray-700"><strong>인구:</strong> {regionData.quickFacts.population}</p>
+                  </div>
+                )}
+                {regionData.quickFacts.bestTime && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
+                      <Calendar className="w-4 h-4" />
                     </div>
-                  )}
-                  {regionData.quickFacts.timeZone && (
-                    <div className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-full text-sm bg-gray-50">
-                      <Clock className="w-3.5 h-3.5 text-gray-400" />
-                      <span className="text-gray-600">{regionData.quickFacts.timeZone}</span>
+                    <p className="text-gray-700"><strong>최적 시기:</strong> {regionData.quickFacts.bestTime}</p>
+                  </div>
+                )}
+                {regionData.quickFacts.timeZone && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
+                      <Clock className="w-4 h-4" />
                     </div>
-                  )}
-                </div>
-              )}
+                    <p className="text-gray-700"><strong>시간대:</strong> {regionData.quickFacts.timeZone}</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
+        )}
 
-          {/* 🎨 주요 특징 그리드 */}
-          {regionData?.highlights && regionData.highlights.length > 0 && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-              <h2 className="text-lg font-light text-gray-900 mb-4 pb-3 border-b border-gray-100">
-                주요 특징
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {regionData.highlights.map((highlight, index) => (
-                  <div 
-                    key={index}
-                    className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full flex-shrink-0 mt-2.5" />
-                    <span className="text-sm text-gray-700 leading-relaxed">{highlight}</span>
-                  </div>
-                ))}
+        {/* 🎨 주요 특징 (실시간 가이드 스타일) */}
+        {regionData?.highlights && regionData.highlights.length > 0 && (
+          <div className="border-b border-gray-100 pb-6">
+            <h2 className="text-lg font-medium text-gray-900 mb-4">주요 특징</h2>
+            <div className="space-y-2 text-gray-600">
+              {regionData.highlights.map((highlight, index) => (
+                <p key={index}>• {highlight}</p>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 🎨 탐색 지도 (실시간 가이드 스타일) */}
+        {regionData?.coordinates && (
+          <div className="border-b border-gray-100 pb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <MapPin className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-lg font-medium">탐색 지도</h2>
+                <p className="text-sm text-gray-600">지역 전체 위치 정보</p>
               </div>
             </div>
-          )}
-
-          {/* 🎨 인터랙티브 지도 */}
-          {regionData?.coordinates && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-              <h2 className="text-lg font-light text-gray-900 mb-4 pb-3 border-b border-gray-100">
-                탐색 지도
-              </h2>
-              <div className="h-80 bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
-                <StartLocationMap
-                  locationName={regionData.name}
-                  startPoint={{
-                    lat: regionData.coordinates.lat,
-                    lng: regionData.coordinates.lng,
-                    name: regionData.name
-                  }}
-                  pois={recommendedSpots.filter(spot => spot.coordinates).map(spot => ({
-                    id: spot.id,
-                    name: spot.name,
-                    lat: spot.coordinates!.lat,
-                    lng: spot.coordinates!.lng,
-                    description: spot.description
-                  }))}
-                  showIntroOnly={true}
-                />
-              </div>
+            <div className="h-64 bg-white border border-gray-100 rounded-lg overflow-hidden">
+              <StartLocationMap
+                locationName={regionData.name}
+                startPoint={{
+                  lat: regionData.coordinates.lat,
+                  lng: regionData.coordinates.lng,
+                  name: regionData.name
+                }}
+                pois={recommendedSpots.filter(spot => spot.coordinates).map(spot => ({
+                  id: spot.id,
+                  name: spot.name,
+                  lat: spot.coordinates!.lat,
+                  lng: spot.coordinates!.lng,
+                  description: spot.description
+                }))}
+                showIntroOnly={true}
+              />
             </div>
-          )}
+          </div>
+        )}
 
-          {/* 🎨 추천 여행지 섹션 */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-3 border-b border-gray-100">
-              <h2 className="text-lg font-light text-gray-900">
-                추천 여행지 ({filteredSpots.length})
-              </h2>
-              
-              {/* 카테고리 필터 */}
-              <div className="flex flex-wrap gap-2">
-                {categories.map(category => (
-                  <button
-                    key={category.id}
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={`px-3 py-1.5 text-xs border rounded-full transition-all ${
-                      selectedCategory === category.id 
-                        ? 'bg-gray-900 text-white border-gray-900' 
-                        : 'bg-white text-gray-600 hover:border-gray-300 border-gray-200'
-                    }`}
-                  >
-                    <span className="mr-1.5">{category.emoji}</span>
-                    {category.name}
-                  </button>
-                ))}
-              </div>
-            </div>
+        {/* 🎨 추천 여행지 (실시간 가이드 스타일) */}
+        <div className="border-b border-gray-100 pb-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-4">
+            추천 여행지 ({filteredSpots.length})
+          </h2>
+          
+          {/* 카테고리 필터 */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {categories.map(category => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
+                  selectedCategory === category.id 
+                    ? 'bg-black text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <span className="mr-1.5">{category.emoji}</span>
+                {category.name}
+              </button>
+            ))}
+          </div>
 
-            {/* 추천 장소 그리드 */}
-            {filteredSpots.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredSpots.map((spot) => (
-                  <div
-                    key={spot.id}
-                    onClick={() => handleSpotClick(spot)}
-                    className="group border border-gray-200 rounded-2xl p-4 hover:shadow-md hover:border-gray-300 transition-all cursor-pointer bg-white"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="font-medium text-gray-900 group-hover:text-gray-700 transition-colors">
-                        {spot.name}
-                      </h3>
-                      <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0" />
+          {/* 추천 장소 목록 */}
+          {filteredSpots.length > 0 ? (
+            <div className="space-y-6">
+              {filteredSpots.map((spot, index) => (
+                <div key={spot.id} className="border border-gray-100 rounded-lg p-4">
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className={`w-6 h-6 text-white text-xs rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                      index === 0 ? 'bg-blue-600' : 'bg-black'
+                    }`}>
+                      {index + 1}
                     </div>
-                    
-                    <p className="text-sm text-gray-600 leading-relaxed mb-3">
-                      {spot.description}
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 text-xs border rounded-full ${getDifficultyColor(spot.difficulty)}`}>
-                          {getDifficultyText(spot.difficulty)}
-                        </span>
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                          <Calendar className="w-3 h-3" />
-                          {spot.estimatedDays}일
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 
+                          className="font-medium text-gray-900 cursor-pointer hover:text-gray-700"
+                          onClick={() => handleSpotClick(spot)}
+                        >
+                          {spot.name}
+                        </h3>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-1 text-xs rounded-full ${getDifficultyColor(spot.difficulty)}`}>
+                            {getDifficultyText(spot.difficulty)}
+                          </span>
+                          <div className="flex items-center gap-1 text-xs text-gray-500">
+                            <Calendar className="w-3 h-3" />
+                            {spot.estimatedDays}일
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                            <span className="text-xs text-gray-600">{spot.popularity}/10</span>
+                          </div>
                         </div>
                       </div>
-                      
-                      <div className="flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        <span className="text-xs text-gray-600">{spot.popularity}/10</span>
-                      </div>
+                      <p className="text-sm text-gray-600">{spot.description}</p>
                     </div>
+                    <button
+                      onClick={() => handleSpotClick(spot)}
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <div className="text-gray-400 text-4xl mb-2">🗺️</div>
-                <p className="text-gray-600">이 카테고리에 추천 장소가 없습니다.</p>
-              </div>
-            )}
-          </div>
-          
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <div className="text-lg mb-2">🗺️</div>
+              <div>이 카테고리에 추천 장소가 없습니다</div>
+            </div>
+          )}
         </div>
+
+        {/* 🎨 가이드 시작 버튼 */}
+        <div className="text-center pt-4">
+          <button
+            onClick={() => router.push('/guide/' + encodeURIComponent(locationName))}
+            className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            가이드 시작하기
+          </button>
+        </div>
+          
       </div>
     </div>
   );
