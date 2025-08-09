@@ -611,7 +611,7 @@ const DEFAULT_TRANSLATIONS: Translations = {
       '마추픽추': '마추픽추',
       '사그라다 파밀리아': '사그라다 파밀리아'
     },
-    landmarkSuffix: '앞에 섰을 때 들리는 이야기'
+    landmarkSuffix: ''
   },
   guide: {
     loading: '가이드 로딩 중...',

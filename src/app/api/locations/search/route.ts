@@ -70,158 +70,51 @@ const LOCATION_EXPERT_PERSONA = `당신은 전세계 지리 및 위치 정보 �
 - 지리적 좌표와 행정구역 정보
 - 관광지의 실제 중요도와 접근성`;
 
-// 1단계: 위치 분석 프롬프트
-function createLocationAnalysisPrompt(query: string, language: Language): string {
+// 자동완성 최적화 프롬프트 (간소화)
+function createAutocompletePrompt(query: string, language: Language): string {
+  // 입력 길이별 최적화
+  const isShortQuery = query.length <= 2;
+  
   const prompts = {
-    ko: `${LOCATION_EXPERT_PERSONA}
+    ko: isShortQuery ? 
+    `"${query}"로 시작하는 세계적으로 유명한 관광지나 도시 5개를 JSON 배열로 제공하세요:
+[{"name": "장소명", "location": "위치"}]
 
-검색어를 분석하여 정확한 위치를 파악해주세요.
+예시: [{"name": "에펠탑", "location": "파리, 프랑스"}]` :
+    `"${query}"와 관련된 유명한 관광지나 도시 5개를 JSON 배열로 제공하세요:
+[{"name": "장소명", "location": "위치"}]`,
 
-검색어: "${query}"
-분석 언어: 한국어
+    en: isShortQuery ?
+    `Provide 5 world-famous tourist attractions or cities starting with "${query}" in JSON array format:
+[{"name": "place name", "location": "location"}]
 
-분석 과정:
-1. 검색어의 정확한 지리적 의미 파악
-2. 철자 오류나 오타 확인 및 보정
-3. 동일 명칭의 여러 지역이 있는 경우 주요 지역들 식별
-4. 적절한 지리적 계층 수준 결정 (국가/도시/관광지 등)
+Example: [{"name": "Eiffel Tower", "location": "Paris, France"}]` :
+    `Provide 5 famous tourist attractions or cities related to "${query}" in JSON array format:
+[{"name": "place name", "location": "location"}]`,
 
-JSON 형식으로만 응답하세요:
-{
-  "originalQuery": "${query}",
-  "correctedQuery": "보정된 검색어 (필요한 경우만)",
-  "locationType": "country|province|city|district|landmark|multiple|unknown",
-  "confidence": 0.95,
-  "suggestions": [
-    {
-      "name": "정확한 위치명",
-      "location": "상위 지역, 국가",
-      "category": "도시|관광지|지역|국가",
-      "confidence": 0.95,
-      "aliases": ["다른 이름들"]
-    }
-  ]
-}`,
+    ja: isShortQuery ?
+    `「${query}」で始まる世界的に有名な観光地や都市5つをJSON配列形式で提供してください:
+[{"name": "場所名", "location": "場所"}]
 
-    en: `${LOCATION_EXPERT_PERSONA}
+例: [{"name": "エッフェル塔", "location": "パリ、フランス"}]` :
+    `「${query}」に関連する有名な観光地や都市5つをJSON配列形式で提供してください:
+[{"name": "場所名", "location": "場所"}]`,
 
-Analyze the search query to identify the exact location.
+    zh: isShortQuery ?
+    `提供5个以"${query}"开头的世界著名旅游景点或城市，JSON数组格式:
+[{"name": "地点名称", "location": "位置"}]
 
-Search query: "${query}"
-Analysis language: English
+示例: [{"name": "埃菲尔铁塔", "location": "巴黎，法国"}]` :
+    `提供5个与"${query}"相关的著名旅游景点或城市，JSON数组格式:
+[{"name": "地点名称", "location": "位置"}]`,
 
-Analysis process:
-1. Identify the exact geographical meaning of the search query
-2. Check and correct spelling errors or typos
-3. Identify major regions if multiple locations have the same name
-4. Determine appropriate geographical hierarchy level
+    es: isShortQuery ?
+    `Proporciona 5 atracciones turísticas o ciudades mundialmente famosas que comiencen con "${query}" en formato JSON array:
+[{"name": "nombre del lugar", "location": "ubicación"}]
 
-Respond only in JSON format:
-{
-  "originalQuery": "${query}",
-  "correctedQuery": "corrected query (if needed)",
-  "locationType": "country|province|city|district|landmark|multiple|unknown",
-  "confidence": 0.95,
-  "suggestions": [
-    {
-      "name": "exact location name",
-      "location": "parent region, country",
-      "category": "city|attraction|region|country",
-      "confidence": 0.95,
-      "aliases": ["alternative names"]
-    }
-  ]
-}`,
-
-    ja: `${LOCATION_EXPERT_PERSONA}
-
-検索クエリを分析して正確な場所を特定してください。
-
-検索クエリ: "${query}"
-分析言語: 日本語
-
-分析プロセス:
-1. 検索クエリの正確な地理的意味を把握
-2. スペルミスや誤字の確認と修正
-3. 同名の複数の地域がある場合、主要地域を特定
-4. 適切な地理的階層レベルの決定
-
-JSON形式でのみ回答してください:
-{
-  "originalQuery": "${query}",
-  "correctedQuery": "修正されたクエリ（必要な場合のみ）",
-  "locationType": "country|province|city|district|landmark|multiple|unknown",
-  "confidence": 0.95,
-  "suggestions": [
-    {
-      "name": "正確な場所名",
-      "location": "上位地域、国",
-      "category": "都市|観光地|地域|国",
-      "confidence": 0.95,
-      "aliases": ["別名"]
-    }
-  ]
-}`,
-
-    zh: `${LOCATION_EXPERT_PERSONA}
-
-分析搜索查询以确定准确位置。
-
-搜索查询: "${query}"
-分析语言: 中文
-
-分析过程:
-1. 识别搜索查询的准确地理含义
-2. 检查和纠正拼写错误或错字
-3. 如果有多个同名地区，识别主要地区
-4. 确定适当的地理层次级别
-
-仅以JSON格式回复:
-{
-  "originalQuery": "${query}",
-  "correctedQuery": "纠正的查询（如果需要）",
-  "locationType": "country|province|city|district|landmark|multiple|unknown",
-  "confidence": 0.95,
-  "suggestions": [
-    {
-      "name": "准确的位置名称",
-      "location": "上级地区，国家",
-      "category": "城市|景点|地区|国家",
-      "confidence": 0.95,
-      "aliases": ["其他名称"]
-    }
-  ]
-}`,
-
-    es: `${LOCATION_EXPERT_PERSONA}
-
-Analiza la consulta de búsqueda para identificar la ubicación exacta.
-
-Consulta de búsqueda: "${query}"
-Idioma de análisis: Español
-
-Proceso de análisis:
-1. Identificar el significado geográfico exacto de la consulta
-2. Verificar y corregir errores ortográficos o tipográficos
-3. Identificar regiones principales si existen múltiples ubicaciones con el mismo nombre
-4. Determinar el nivel de jerarquía geográfica apropiado
-
-Responde solo en formato JSON:
-{
-  "originalQuery": "${query}",
-  "correctedQuery": "consulta corregida (si es necesario)",
-  "locationType": "country|province|city|district|landmark|multiple|unknown",
-  "confidence": 0.95,
-  "suggestions": [
-    {
-      "name": "nombre exacto del lugar",
-      "location": "región superior, país",
-      "category": "ciudad|atracción|región|país",
-      "confidence": 0.95,
-      "aliases": ["nombres alternativos"]
-    }
-  ]
-}`
+Ejemplo: [{"name": "Torre Eiffel", "location": "París, Francia"}]` :
+    `Proporciona 5 atracciones turísticas o ciudades famosas relacionadas con "${query}" en formato JSON array:
+[{"name": "nombre del lugar", "location": "ubicación"}]`
   };
 
   return prompts[language] || prompts.ko;
@@ -631,6 +524,51 @@ Recomienda 3-4 elementos por categoría. Responde en formato JSON:
   return prompts[language] || prompts.ko;
 }
 
+// 폴백 데이터 생성 함수
+function generateFallbackSuggestions(query: string): {name: string, location: string}[] {
+  const firstChar = query.charAt(0).toLowerCase();
+  
+  // 자주 검색되는 명소들 (글자별)
+  const suggestions = {
+    '에': [
+      {name: '에펠탑', location: '파리, 프랑스'}, 
+      {name: '에든버러', location: '스코틀랜드'},
+      {name: '에르미타주', location: '상트페테르부르크, 러시아'},
+      {name: '에기나섬', location: '그리스'},
+      {name: '에스토니아', location: '발트해 연안'}
+    ],
+    'e': [
+      {name: '에펠탑', location: '파리, 프랑스'},
+      {name: '에든버러', location: '스코틀랜드'},
+      {name: '이집트', location: '중동/아프리카'},
+      {name: '에스파냐', location: '유럽'},
+      {name: '에쿠아도르', location: '남미'}
+    ],
+    'ㅅ': [
+      {name: '서울', location: '한국'},
+      {name: '상하이', location: '중국'},
+      {name: '시드니', location: '호주'},
+      {name: '산토리니', location: '그리스'},
+      {name: '샌프란시스코', location: '미국'}
+    ],
+    's': [
+      {name: '서울', location: '한국'},
+      {name: '싱가포르', location: '동남아시아'},
+      {name: '시드니', location: '호주'},
+      {name: '스위스', location: '유럽'},
+      {name: '스페인', location: '유럽'}
+    ]
+  };
+  
+  return suggestions[firstChar] || [
+    {name: query || '명소', location: '위치 정보'},
+    {name: '파리', location: '프랑스'},
+    {name: '도쿄', location: '일본'},
+    {name: '뉴욕', location: '미국'},
+    {name: '런던', location: '영국'}
+  ];
+}
+
 // Sanitize input
 function sanitizeInput(input: string): string {
   if (typeof input !== 'string') return '';
@@ -691,172 +629,65 @@ export async function GET(request: NextRequest) {
 
     const gemini = getGeminiClient();
     const model = gemini.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-flash-lite', // Flash-Lite로 변경: 1.5배 빠른 응답
       generationConfig: {
         temperature: 0.1,
-        maxOutputTokens: 2000, // 증가: 800 -> 2000
+        maxOutputTokens: 400, // 최적화: 2000 -> 400 (자동완성용)
         topP: 0.9,
         topK: 20
       }
     });
 
-    // 1단계: 위치 분석 (라우팅 결과 참고)
-    console.log('🔍 위치 분석 시작:', sanitizedQuery);
-    const analysisPrompt = createLocationAnalysisPrompt(sanitizedQuery, lang);
-    const analysisResult = await model.generateContent(analysisPrompt);
-    const analysisText = await analysisResult.response.text();
+    // 🚀 단순화된 자동완성 요청
+    console.log('🔍 자동완성 요청 시작:', sanitizedQuery);
+    const autocompletePrompt = createAutocompletePrompt(sanitizedQuery, lang);
+    const autocompleteResult = await model.generateContent(autocompletePrompt);
+    const autocompleteText = await autocompleteResult.response.text();
     
-    console.log('🧠 AI 위치 분석 응답 길이:', analysisText.length);
-    console.log('🧠 AI 위치 분석 응답 전체:', analysisText);
+    console.log('🧠 AI 자동완성 응답 길이:', autocompleteText.length);
+    console.log('🧠 AI 자동완성 응답 전체:', autocompleteText);
     
-    const analysis = parseAIResponse<LocationAnalysis>(analysisText);
+    // 직접 배열 파싱 시도
+    const suggestions = parseAIResponse<{name: string, location: string}[]>(autocompleteText);
     
-    if (!analysis || !analysis.suggestions || analysis.suggestions.length === 0) {
-      console.warn('⚠️ 위치 분석 실패, 기본 검색으로 폴백');
+    if (!suggestions || suggestions.length === 0) {
+      console.warn('⚠️ 자동완성 파싱 실패, 폴백 로직 실행');
       
-      // 폴백: 기본 검색 로직
-      const fallbackPrompt = createTravelRecommendationPrompt(sanitizedQuery, lang);
-      const fallbackResult = await model.generateContent(fallbackPrompt);
-      const fallbackText = await fallbackResult.response.text();
+      // 폴백: 기본 데이터 생성
+      const defaultData = generateFallbackSuggestions(sanitizedQuery);
       
-      const fallbackSuggestions = parseAIResponse<LocationSuggestion[]>(fallbackText) || [];
-      
-      // 🔄 클라이언트 호환성을 위한 데이터 변환
-      const fallbackCompatibleData = fallbackSuggestions.slice(0, 5).map(suggestion => ({
-        name: suggestion.name,
-        location: suggestion.location
-      }));
-      
-      // 🚨 만약 파싱도 실패하면 기본 데이터 제공
-      if (fallbackCompatibleData.length === 0) {
-        const defaultData = [{
-          name: sanitizedQuery.includes('에펠') ? '에펠탑' : sanitizedQuery,
-          location: sanitizedQuery.includes('에펠') ? '파리, 프랑스' : '위치 정보'
-        }];
-        
-        console.log('🔄 최종 기본 데이터 제공:', defaultData);
-        
-        return NextResponse.json({
-          success: true,
-          data: defaultData,
-          cached: false,
-          enhanced: false,
-          fallback: true,
-          defaultProvided: true
-        });
-      }
+      console.log('🔄 폴백 데이터 사용:', defaultData);
       
       return NextResponse.json({
         success: true,
-        data: fallbackCompatibleData,
+        data: defaultData,
         cached: false,
         enhanced: false,
         fallback: true
       });
     }
 
-    // 2단계: 확정된 위치 기반 관광 추천
-    const primaryLocation = analysis.suggestions[0];
-    console.log('🎯 확정된 위치:', primaryLocation.name, primaryLocation.location);
+    // 성공: 자동완성 결과 반환
+    console.log('✅ 자동완성 성공:', suggestions.length, '개 결과');
     
-    const recommendationPrompt = createTravelRecommendationPrompt(
-      `${primaryLocation.name}, ${primaryLocation.location}`,
-      lang
-    );
+    // 최대 5개 보장 및 결과 보장 로직  
+    let finalSuggestions = suggestions.slice(0, 5);
     
-    const recommendationResult = await model.generateContent(recommendationPrompt);
-    const recommendationText = await recommendationResult.response.text();
-    
-    console.log('🏛️ 관광 추천 응답:', recommendationText);
-    
-    console.log('🔍 관광 추천 응답 길이:', recommendationText.length);
-    console.log('🔍 관광 추천 응답 일부:', recommendationText.substring(0, 200));
-    
-    const recommendations = parseAIResponse<LocationSuggestion[]>(recommendationText) || [];
-    
-    console.log('📊 파싱된 추천 데이터:', recommendations.length, '개');
-    
-    // 3단계: 탐색 유도 추천 생성 (국가/지역인 경우)
-    let explorationSuggestions: ExplorationSuggestion[] = [];
-    
-    if (analysis.locationType === 'country' || analysis.locationType === 'province' || analysis.locationType === 'city') {
-      console.log('🔍 탐색 유도 추천 생성 시작:', analysis.locationType);
-      
-      const explorationPrompt = createExplorationPrompt(primaryLocation, lang);
-      const explorationResult = await model.generateContent(explorationPrompt);
-      const explorationText = await explorationResult.response.text();
-      
-      console.log('🌟 탐색 유도 응답:', explorationText);
-      
-      const explorationData = parseAIResponse<{ explorationSuggestions: ExplorationSuggestion[] }>(explorationText);
-      if (explorationData?.explorationSuggestions) {
-        explorationSuggestions = explorationData.explorationSuggestions;
-      }
+    // 5개 미만이면 추가 데이터 채우기
+    if (finalSuggestions.length < 5) {
+      const additionalData = generateFallbackSuggestions(sanitizedQuery);
+      const needed = 5 - finalSuggestions.length;
+      finalSuggestions = [...finalSuggestions, ...additionalData.slice(0, needed)];
     }
     
-    // 결과 조합: 분석된 위치 + 관광 추천
-    const finalSuggestions = [
-      ...analysis.suggestions.slice(0, 2), // 분석된 주요 위치 최대 2개
-      ...recommendations.slice(0, 3)       // 관광 추천 최대 3개
-    ].slice(0, 5);
-
-    console.log('📊 최종 결합 데이터:', finalSuggestions.length, '개');
-
-    // 🔄 클라이언트 호환성을 위한 데이터 변환
-    const clientCompatibleData = finalSuggestions.map(suggestion => ({
-      name: suggestion.name,
-      location: suggestion.location
-    }));
-
-    // 🚨 만약 데이터가 없으면 분석 결과만 사용
-    if (clientCompatibleData.length === 0 && analysis.suggestions.length > 0) {
-      const analysisOnlyData = analysis.suggestions.slice(0, 5).map(suggestion => ({
-        name: suggestion.name,
-        location: suggestion.location
-      }));
-      
-      console.log('🔄 분석 결과만 사용:', analysisOnlyData);
-      
-      return NextResponse.json({
-        success: true,
-        data: analysisOnlyData,
-        explorationSuggestions: explorationSuggestions,
-        cached: false,
-        enhanced: true,
-        hasExploration: explorationSuggestions.length > 0,
-        analysisOnly: true,
-        routing: {
-          recommendedPageType: routingResult.pageType,
-          confidence: routingResult.confidence,
-          processingMethod: routingResult.processingMethod,
-          reasoning: routingResult.reasoning
-        }
-      });
-    }
-
+    console.log('📊 최종 자동완성 결과:', finalSuggestions.length, '개');
+    
     return NextResponse.json({
       success: true,
-      data: clientCompatibleData, // 클라이언트가 기대하는 단순 구조
-      explorationSuggestions: explorationSuggestions,
+      data: finalSuggestions,
       cached: false,
       enhanced: true,
-      hasExploration: explorationSuggestions.length > 0,
-      // 🎯 라우팅 정보 추가
-      routing: {
-        recommendedPageType: routingResult.pageType,
-        confidence: routingResult.confidence,
-        processingMethod: routingResult.processingMethod,
-        reasoning: routingResult.reasoning
-      },
-      debug: process.env.NODE_ENV === 'development' ? {
-        originalQuery: query,
-        analysisConfidence: analysis.confidence,
-        locationType: analysis.locationType,
-        correctedQuery: analysis.correctedQuery,
-        explorationCount: explorationSuggestions.length,
-        routingResult: routingResult,
-        originalSuggestions: finalSuggestions // 디버깅용 원본 데이터
-      } : undefined
+      autocomplete: true
     });
 
   } catch (error) {

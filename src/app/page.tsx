@@ -135,6 +135,12 @@ function Home() {
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const [currentLoadingQuery, setCurrentLoadingQuery] = useState('');
   
+  // 🧠 메모리 캐시 (LRU 방식) - useRef로 변경하여 리렌더링 방지
+  const suggestionCacheRef = useRef<Map<string, { 
+    data: TranslatedSuggestion[], 
+    timestamp: number 
+  }>>(new Map());
+  
   // 기능 상태 (분리된 로딩 상태)
   const [loadingStates, setLoadingStates] = useState({
     search: false,
@@ -502,9 +508,24 @@ function Home() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // 자동완성 API 호출 (메모리 안전, API 중복 방지)
+  // 자동완성 API 호출 (메모리 안전, API 중복 방지, 캐시 적용)
   const fetchSuggestions = useCallback(async (searchQuery: string) => {
     console.log('🚀 fetchSuggestions 함수 실행 시작:', searchQuery);
+    
+    // 🧠 캐시 확인 (30분 만료)
+    const cacheKey = `${searchQuery}-${currentLanguage}`;
+    const cachedResult = suggestionCacheRef.current.get(cacheKey);
+    const now = Date.now();
+    
+    if (cachedResult && (now - cachedResult.timestamp) < 30 * 60 * 1000) {
+      console.log('⚡ 캐시에서 결과 반환:', searchQuery);
+      if (isMountedRef.current) {
+        setSuggestions(cachedResult.data);
+        setShowSuggestions(true);
+      }
+      return;
+    }
+    
     if (searchQuery.length < 1) {
       const translated = t('home.defaultSuggestions');
       // defaultSuggestions는 객체 배열이어야 하므로 타입 체크
@@ -566,11 +587,26 @@ function Home() {
       if (!isMountedRef.current) return;
       
       if (data.success && isValidSuggestionsArray(data.data)) {
+        const suggestionsData = data.data.slice(0, 5); // 최대 5개 제안
+        
+        // 🧠 캐시에 저장 (LRU 방식, 최대 100개)
+        const cache = suggestionCacheRef.current;
+        cache.set(cacheKey, {
+          data: suggestionsData,
+          timestamp: Date.now()
+        });
+        
+        // LRU: 100개 초과시 가장 오래된 항목 제거
+        if (cache.size > 100) {
+          const firstKey = cache.keys().next().value;
+          cache.delete(firstKey);
+        }
+        
         if (isMountedRef.current) {
-          setSuggestions(data.data.slice(0, 5)); // 최대 5개 제안
+          setSuggestions(suggestionsData);
           setSelectedSuggestionIndex(-1); // 새로운 제안이 오면 선택 초기화
           setShowSuggestions(true); // 성공적으로 받으면 드롭다운 표시
-          console.log('✅ 자동완성 결과 설정 완료:', data.data.length, '개');
+          console.log('✅ 자동완성 결과 설정 및 캐시 저장 완료:', suggestionsData.length, '개');
         }
       } else {
         if (isMountedRef.current) {
@@ -609,7 +645,7 @@ function Home() {
       } else {
         console.log('❌ 자동완성 조건 불충족:', { hasQuery: !!query.trim(), isFocused, isMounted: isMountedRef.current });
       }
-    }, 200); // 200ms 디바운스 (최적화)
+    }, 150); // 150ms 디바운스 (속도 최적화)
 
     return () => {
       clearTimeout(timeoutId);
@@ -1049,7 +1085,6 @@ function Home() {
                     ))}
                   </span>
                 </span>
-                <span>{t('home.landmarkSuffix')}</span>
               </div>
               {/* 두 번째 줄: 앞에서 만드는 오디오 가이드 */}
               <div className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
