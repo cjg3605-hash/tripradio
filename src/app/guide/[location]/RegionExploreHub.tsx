@@ -85,89 +85,103 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
     setError('');
 
     try {
-      // 지역 정보 생성 API 호출
-      const response = await fetch(`/api/ai/generate-region-overview`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          locationName,
-          language,
-          routingResult
-        })
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setRegionData(result.regionData);
+      // content가 있는 경우 DB 데이터 직접 사용 (서울+ko 정확한 내용)
+      if (content) {
+        // 🎯 DB content에서 정확한 지역 정보 추출
+        const regionInfo = content.regionInfo || {};
+        const realTimeGuide = content.realTimeGuide || {};
         
-        // API에서 받은 추천 장소들
-        let spotsToAdd = result.recommendedSpots || [];
+        // 지역 데이터 설정 (DB의 실제 내용 사용)
+        const actualRegionData = {
+          name: locationName,
+          country: regionInfo.location || '대한민국',
+          description: regionInfo.introduction || '서울에 대한 정보를 준비 중입니다. 잠시 후 다시 시도해주세요.',
+          highlights: regionInfo.highlights?.map((h: any) => h.title || h.description || h) || [
+            '역사와 현대의 조화',
+            '풍부한 문화유산',
+            '다양한 미식 체험',
+            '편리한 대중교통',
+            '활기찬 도시 분위기'
+          ],
+          quickFacts: {
+            area: regionInfo.visitInfo?.area || '605.21 km²',
+            population: regionInfo.visitInfo?.population || '약 950만명',
+            bestTime: regionInfo.visitInfo?.season || '사계절',
+            timeZone: regionInfo.visitInfo?.timeZone || 'KST (UTC+9)'
+          },
+          coordinates: regionInfo.coordinates || { lat: 37.5665, lng: 126.9780 }
+        };
         
-        // content에서 realTimeGuide.chapters 데이터 파싱하여 추가 (정확한 DB 매칭)
-        if (content?.realTimeGuide?.chapters && Array.isArray(content.realTimeGuide.chapters)) {
-          const chapterSpots = content.realTimeGuide.chapters.slice(0, 6).map((chapter: any, index: number) => {
-            // 좌표 추출 (실제 DB 구조에 맞게)
-            const coordinates = chapter?.location?.lat && chapter?.location?.lng
-              ? { lat: chapter.location.lat, lng: chapter.location.lng }
-              : chapter?.coordinates?.lat && chapter?.coordinates?.lng
-              ? { lat: chapter.coordinates.lat, lng: chapter.coordinates.lng }
-              : chapter?.lat && chapter?.lng
-              ? { lat: chapter.lat, lng: chapter.lng }
-              : chapter?.latitude && chapter?.longitude
-              ? { lat: chapter.latitude, lng: chapter.longitude }
+        setRegionData(actualRegionData);
+        
+        // 🎯 realTimeGuide.chapters에서 정확한 추천 장소 추출 (네러티브 대신 장소명 사용)
+        let spotsToAdd: RecommendedSpot[] = [];
+        
+        if (realTimeGuide?.chapters && Array.isArray(realTimeGuide.chapters)) {
+          const chapterSpots = realTimeGuide.chapters.slice(0, 8).map((chapter: any, index: number) => {
+            // 좌표 추출 (DB 구조에 맞게)
+            const coordinates = chapter?.coordinates?.lat && chapter?.coordinates?.lng
+              ? { lat: parseFloat(chapter.coordinates.lat), lng: parseFloat(chapter.coordinates.lng) }
+              : chapter?.location?.lat && chapter?.location?.lng
+              ? { lat: parseFloat(chapter.location.lat), lng: parseFloat(chapter.location.lng) }
               : null;
-              
-            // 카테고리 추론 (텍스트 기반)
-            const text = (chapter?.narrative || chapter?.description || '').toLowerCase();
-            let category = 'attraction';
-            if (text.includes('음식') || text.includes('맛') || text.includes('레스토랑')) category = 'food';
-            else if (text.includes('자연') || text.includes('공원') || text.includes('산')) category = 'nature';
-            else if (text.includes('문화') || text.includes('박물관') || text.includes('역사')) category = 'culture';
-            else if (text.includes('쇼핑') || text.includes('시장')) category = 'shopping';
-            else category = index % 2 === 0 ? 'city' : 'culture';
+            
+            // 장소명 추출 (title에서 콜론 앞 부분만)
+            const placeName = chapter?.title?.split(':')[0]?.trim() || chapter?.title || `${locationName} 명소 ${index + 1}`;
+            
+            // 카테고리 추론 (장소명 기반)
+            const nameText = placeName.toLowerCase();
+            let category = 'city';
+            if (nameText.includes('궁') || nameText.includes('문') || nameText.includes('탑') || nameText.includes('박물관')) category = 'culture';
+            else if (nameText.includes('공원') || nameText.includes('산') || nameText.includes('강') || nameText.includes('호수')) category = 'nature';
+            else if (nameText.includes('시장') || nameText.includes('거리') || nameText.includes('타운')) category = 'shopping';
+            else if (nameText.includes('맛') || nameText.includes('음식')) category = 'food';
+            
+            // 간단한 설명 생성 (네러티브 첫 부분 사용)
+            const description = chapter?.narrative ? 
+              chapter.narrative.substring(0, 100).replace(/안녕하십니까\.|여러분을 환영합니다\./g, '').trim() + '...' :
+              `${placeName}에서 특별한 경험을 만나보세요.`;
             
             return {
               id: `chapter-${index}`,
-              name: chapter?.title?.split(':')[0]?.trim() || `${locationName} ${index + 1}`,
+              name: placeName,
               location: locationName,
               category,
-              description: chapter?.narrative?.substring(0, 200) || chapter?.description?.substring(0, 200) || chapter?.title || `특별한 경험이 기다리는 곳`,
-              highlights: chapter?.narrative ? chapter.narrative.split(/[.!?]/).filter((s: string) => s.trim().length > 10).slice(0, 3).map((s: string) => s.trim().substring(0, 100)) : [],
-              estimatedDays: Math.min(Math.ceil((index + 1) / 2), 3),
+              description,
+              highlights: [], // 하이라이트는 비워둠
+              estimatedDays: Math.min(Math.ceil((index + 1) / 3), 2),
               difficulty: 'easy' as const,
               seasonality: '연중',
-              popularity: Math.max(95 - (index * 5), 60), // 챕터 순서대로 인기도 차등
-              coordinates // 실제 DB 좌표 사용
+              popularity: Math.max(95 - (index * 3), 70),
+              coordinates
             };
           });
           
-          // ✅ ${chapterSpots.length}개의 챕터 데이터를 추천여행지에 추가
-          spotsToAdd = [...spotsToAdd, ...chapterSpots];
-        }
-        // 폴백: route.steps 데이터도 추가 (chaptersrks 없을 때)
-        else if (content?.route?.steps && Array.isArray(content.route.steps)) {
-          const routeSpots = content.route.steps.map((step: any, index: number) => ({
-            id: `route-${index}`,
-            name: step.location || step.title?.split(':')[0]?.trim(),
-            location: locationName,
-            category: 'attraction',
-            description: step.title || `${step.location} 여행지`,
-            highlights: [],
-            estimatedDays: 1,
-            difficulty: 'easy' as const,
-            seasonality: '연중',
-            popularity: 80 + (index * 2),
-            coordinates: null // route.steps에는 좌표 정보 없음
-          }));
-          
-          console.log(`✅ ${routeSpots.length}개의 루트 데이터를 추천여행지에 추가`);
-          spotsToAdd = [...spotsToAdd, ...routeSpots];
+          spotsToAdd = chapterSpots;
         }
         
         setRecommendedSpots(spotsToAdd);
+        
       } else {
-        setError(result.error || '지역 정보를 불러올 수 없습니다.');
+        // content가 없는 경우에만 API 호출
+        const response = await fetch(`/api/ai/generate-region-overview`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            locationName,
+            language,
+            routingResult
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          setRegionData(result.regionData);
+          setRecommendedSpots(result.recommendedSpots || []);
+        } else {
+          setError(result.error || '지역 정보를 불러올 수 없습니다.');
+        }
       }
 
     } catch (err) {
