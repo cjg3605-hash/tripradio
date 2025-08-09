@@ -114,20 +114,24 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
         
         setRegionData(actualRegionData);
         
-        // 🎯 realTimeGuide.chapters에서 정확한 추천 장소 추출 (네러티브 대신 장소명 사용)
+        // 🎯 content.route.steps[].location에서 정확한 추천 장소 추출
         let spotsToAdd: RecommendedSpot[] = [];
         
-        if (realTimeGuide?.chapters && Array.isArray(realTimeGuide.chapters)) {
-          const chapterSpots = realTimeGuide.chapters.slice(0, 8).map((chapter: any, index: number) => {
+        if (content?.route?.steps && Array.isArray(content.route.steps)) {
+          const stepSpots = content.route.steps.slice(0, 8).map((step: any, index: number) => {
+            const stepLocation = step?.location;
+            
+            if (!stepLocation) return null;
+            
             // 좌표 추출 (DB 구조에 맞게)
-            const coordinates = chapter?.coordinates?.lat && chapter?.coordinates?.lng
-              ? { lat: parseFloat(chapter.coordinates.lat), lng: parseFloat(chapter.coordinates.lng) }
-              : chapter?.location?.lat && chapter?.location?.lng
-              ? { lat: parseFloat(chapter.location.lat), lng: parseFloat(chapter.location.lng) }
+            const coordinates = stepLocation?.coordinates?.lat && stepLocation?.coordinates?.lng
+              ? { lat: parseFloat(stepLocation.coordinates.lat), lng: parseFloat(stepLocation.coordinates.lng) }
+              : stepLocation?.lat && stepLocation?.lng
+              ? { lat: parseFloat(stepLocation.lat), lng: parseFloat(stepLocation.lng) }
               : null;
             
-            // 장소명 추출 (title에서 콜론 앞 부분만)
-            const placeName = chapter?.title?.split(':')[0]?.trim() || chapter?.title || `${locationName} 명소 ${index + 1}`;
+            // 장소명 추출
+            const placeName = stepLocation?.name || stepLocation?.title || `${locationName} 명소 ${index + 1}`;
             
             // 카테고리 추론 (장소명 기반)
             const nameText = placeName.toLowerCase();
@@ -137,13 +141,11 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
             else if (nameText.includes('시장') || nameText.includes('거리') || nameText.includes('타운')) category = 'shopping';
             else if (nameText.includes('맛') || nameText.includes('음식')) category = 'food';
             
-            // 간단한 설명 생성 (네러티브 첫 부분 사용)
-            const description = chapter?.narrative ? 
-              chapter.narrative.substring(0, 100).replace(/안녕하십니까\.|여러분을 환영합니다\./g, '').trim() + '...' :
-              `${placeName}에서 특별한 경험을 만나보세요.`;
+            // 설명 추출
+            const description = stepLocation?.description || stepLocation?.summary || `${placeName}에서 특별한 경험을 만나보세요.`;
             
             return {
-              id: `chapter-${index}`,
+              id: `route-step-${index}`,
               name: placeName,
               location: locationName,
               category,
@@ -155,9 +157,9 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
               popularity: Math.max(95 - (index * 3), 70),
               coordinates
             };
-          });
+          }).filter(Boolean); // null 값 제거
           
-          spotsToAdd = chapterSpots;
+          spotsToAdd = stepSpots;
         }
         
         setRecommendedSpots(spotsToAdd);
