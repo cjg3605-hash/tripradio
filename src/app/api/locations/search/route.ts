@@ -554,9 +554,6 @@ export async function GET(request: NextRequest) {
         topP: 0.9,
         topK: 5, // 더 focused
         responseMimeType: "application/json", // JSON 강제
-      },
-      requestOptions: {
-        timeout: 2000, // 2초로 단축
       }
     });
 

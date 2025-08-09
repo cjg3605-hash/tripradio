@@ -24,10 +24,10 @@ interface RegionData {
     bestTime?: string;
     timeZone?: string;
   };
-  coordinates: {
+  coordinates?: {
     lat: number;
     lng: number;
-  };
+  } | null;
   heroImage?: string;
 }
 
@@ -71,49 +71,71 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
     setError('');
 
     try {
+      // 🔍 DEBUG: content 데이터 구조 확인
+      console.log('🎯 RegionExploreHub content 확인:', {
+        hasContent: !!content,
+        contentKeys: content ? Object.keys(content) : 'undefined',
+        content: content,
+        contentType: typeof content
+      });
+      
+      // 🔍 DEBUG: overview.keyFacts 구조 상세 확인
+      if (content && content.overview && content.overview.keyFacts) {
+        console.log('🔑 keyFacts 상세 구조:', {
+          keyFacts: content.overview.keyFacts,
+          isArray: Array.isArray(content.overview.keyFacts),
+          length: content.overview.keyFacts.length,
+          firstItem: content.overview.keyFacts[0],
+          mappedTitles: content.overview.keyFacts.map((kf: any) => kf.title),
+          mappedDescriptions: content.overview.keyFacts.map((kf: any) => kf.description)
+        });
+      }
+
       // content가 있는 경우 DB 데이터 직접 사용 (서울+ko 정확한 내용)
       if (content) {
-        // 🎯 DB content에서 정확한 지역 정보 추출
-        const regionInfo = content.regionInfo || {};
+        // 🎯 DB content에서 정확한 지역 정보 추출 (올바른 필드명 사용)
+        const overview = content.overview || {};
         const realTimeGuide = content.realTimeGuide || {};
         
         // 지역 데이터 설정 (DB의 실제 내용 사용)
         const actualRegionData = {
           name: locationName,
-          country: regionInfo.location || '대한민국',
-          description: regionInfo.introduction || '서울에 대한 정보를 준비 중입니다. 잠시 후 다시 시도해주세요.',
-          highlights: regionInfo.highlights?.map((h: any) => h.title || h.description || h) || [
-            '역사와 현대의 조화',
-            '풍부한 문화유산',
-            '다양한 미식 체험',
-            '편리한 대중교통',
-            '활기찬 도시 분위기'
-          ],
+          country: overview.location || '대한민국',
+          description: overview.background || overview.keyFeatures || '서울에 대한 정보를 준비 중입니다. 잠시 후 다시 시도해주세요.',
+          highlights: overview.keyFacts && Array.isArray(overview.keyFacts) 
+            ? overview.keyFacts.map((kf: any) => kf.description || kf.title || kf.toString()) 
+            : [
+                '역사와 현대의 조화',
+                '풍부한 문화유산', 
+                '다양한 미식 체험',
+                '편리한 대중교통',
+                '활기찬 도시 분위기'
+              ],
           quickFacts: {
-            area: regionInfo.visitInfo?.area || '605.21 km²',
-            population: regionInfo.visitInfo?.population || '약 950만명',
-            bestTime: regionInfo.visitInfo?.season || '사계절',
-            timeZone: regionInfo.visitInfo?.timeZone || 'KST (UTC+9)'
+            area: overview.visitInfo?.area || '605.21 km²',
+            population: overview.visitInfo?.population || '약 950만명',
+            bestTime: overview.visitInfo?.season || overview.visitInfo?.duration || '사계절',
+            timeZone: overview.visitInfo?.timeZone || 'KST (UTC+9)'
           },
-          coordinates: regionInfo.coordinates || { lat: 37.5665, lng: 126.9780 }
+          coordinates: realTimeGuide.chapters?.[0]?.coordinates || { lat: 37.5665, lng: 126.9780 }
         };
         
         setRegionData(actualRegionData);
         
-        // 🎯 content.route.steps[].location에서 정확한 추천 장소 추출
+        // 🎯 실제 데이터 구조에 맞게 추천 장소 추출
         let spotsToAdd: RecommendedSpot[] = [];
         
         if (content?.route?.steps && Array.isArray(content.route.steps)) {
           const stepSpots = content.route.steps.slice(0, 8).map((step: any, index: number) => {
+            // 🎯 실제 데이터 구조: step에 location 필드가 있음
             const stepLocation = step?.location;
             
             if (!stepLocation) return null;
             
-            // 🎯 좌표는 content.chapters에서 id로 매칭해서 가져오기
-            // step의 index와 chapter의 id가 매칭됨 (step 0 → chapter id: 0)
-            let coordinates = null;
-            if (content.chapters && Array.isArray(content.chapters)) {
-              const matchingChapter = content.chapters.find((chapter: any) => chapter.id === index);
+            // 🎯 좌표는 realTimeGuide.chapters에서 id로 매칭해서 가져오기
+            let coordinates: { lat: number; lng: number; } | null = null;
+            if (realTimeGuide.chapters && Array.isArray(realTimeGuide.chapters)) {
+              const matchingChapter = realTimeGuide.chapters.find((chapter: any) => chapter.id === index);
               if (matchingChapter?.coordinates?.lat && matchingChapter?.coordinates?.lng) {
                 coordinates = {
                   lat: parseFloat(matchingChapter.coordinates.lat),
@@ -122,26 +144,33 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
               }
             }
             
-            // 장소명 추출
-            const placeName = stepLocation?.name || stepLocation?.title || `${locationName} 명소 ${index + 1}`;
+            // 장소명은 step.location 또는 step.title 사용
+            const placeName = stepLocation || step.title || `${locationName} 명소 ${index + 1}`;
             
-            // 설명 추출
-            const description = stepLocation?.description || stepLocation?.summary || `${placeName}에서 특별한 경험을 만나보세요.`;
+            // 설명은 step.title이나 챕터의 narrative에서 첫 문장 추출
+            let description = step.title || `${placeName}에서 특별한 경험을 만나보세요.`;
+            if (realTimeGuide.chapters && realTimeGuide.chapters[index]?.narrative) {
+              const narrative = realTimeGuide.chapters[index].narrative;
+              const firstSentence = narrative.split('.')[0] + '.';
+              if (firstSentence.length < 100) {
+                description = firstSentence;
+              }
+            }
             
             return {
               id: `route-step-${index}`,
               name: placeName,
               location: locationName,
-              category: 'travel', // 고정값으로 설정
+              category: 'travel',
               description,
-              highlights: [], // 하이라이트는 비워둠
+              highlights: [],
               estimatedDays: Math.min(Math.ceil((index + 1) / 3), 2),
               difficulty: 'easy' as const,
               seasonality: '연중',
               popularity: Math.max(95 - (index * 3), 70),
               coordinates
             };
-          }).filter(Boolean); // null 값 제거
+          }).filter(Boolean);
           
           spotsToAdd = stepSpots;
         }
@@ -364,7 +393,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
           </div>
         </div>
 
-        {/* 🎨 추천시작지점 지도 카드 */}
+        {/* 🎨 추천시작지점 지도 카드 - 임시 비활성화 */}
         {(regionData?.coordinates || (content?.chapters && content.chapters.length > 0)) && (
           <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
             <div className="p-8">
@@ -374,40 +403,11 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                 </div>
                 <h2 className="text-xl font-semibold text-black">추천시작지점</h2>
               </div>
-              <div className="h-80 bg-black/2 border border-black/5 rounded-2xl overflow-hidden">
-                <StartLocationMap
-                  locationName={regionData?.name || locationName}
-                  startPoint={
-                    regionData?.coordinates
-                      ? {
-                          lat: regionData.coordinates.lat,
-                          lng: regionData.coordinates.lng,
-                          name: regionData.name || locationName
-                        }
-                      : content?.chapters?.[0]?.lat && content?.chapters?.[0]?.lng
-                        ? {
-                            lat: parseFloat(content.chapters[0].lat),
-                            lng: parseFloat(content.chapters[0].lng),
-                            name: content.chapters[0].title || locationName
-                          }
-                        : {
-                            lat: 37.5665,
-                            lng: 126.9780,
-                            name: locationName
-                          }
-                  }
-                  pois={recommendedSpots
-                    .filter(spot => spot.coordinates)
-                    .map(spot => ({
-                      id: spot.id,
-                      name: spot.name,
-                      lat: spot.coordinates!.lat,
-                      lng: spot.coordinates!.lng,
-                      description: spot.description
-                    }))
-                  }
-                  showIntroOnly={true}
-                />
+              <div className="h-80 bg-black/2 border border-black/5 rounded-2xl overflow-hidden flex items-center justify-center">
+                <div className="text-center">
+                  <h3 className="text-lg font-medium text-black mb-2">지도 로딩 중...</h3>
+                  <p className="text-black/60">잠시 후 지도가 표시됩니다</p>
+                </div>
               </div>
             </div>
           </div>

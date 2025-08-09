@@ -388,35 +388,31 @@ export default function MapWithRoute({
       return (
         <div className="w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
           <MapContainer 
-            {...({center: [center.lat, center.lng], zoom: customZoom || 15, key: `default-map-${currentLanguage}`} as any)}
+            key={`default-map-${currentLanguage}`}
+            center={[center.lat, center.lng]}
+            zoom={customZoom || 15}
             className="w-full h-full"
             scrollWheelZoom={true}
             zoomControl={true}
           >
             {/* 🌍 Google Maps 스타일 타일 (언어별 동적 로딩) */}
             <TileLayer
-              {...({
-                url: getGoogleMapsUrl(currentLanguage),
-                attribution: '&copy; <a href="https://www.google.com/maps">Google Maps</a>',
-                maxZoom: 20,
-                key: currentLanguage // 언어 변경 시 타일 다시 로드
-              } as any)}
+              key={currentLanguage}
+              url={getGoogleMapsUrl(currentLanguage)}
+              attribution='&copy; <a href="https://www.google.com/maps">Google Maps</a>'
+              maxZoom={20}
             />
             
             {/* 중심점 마커 */}
             <Marker
-              {...({
-                position: [center.lat, center.lng],
-                icon: customMarkerIcon
-              } as any)}
+              position={[center.lat, center.lng]}
+              icon={customMarkerIcon}
             >
               <Tooltip 
-                {...({
-                  direction: "top",
-                  offset: [0, -20],
-                  opacity: 0.9,
-                  permanent: false
-                } as any)}
+                direction="top"
+                offset={[0, -20]}
+                opacity={0.9}
+                permanent={false}
               >
                 <div className="text-center">
                   <div className="font-medium text-sm">
@@ -604,7 +600,7 @@ export default function MapWithRoute({
                 </div>
                 {geolocation.accuracy && (
                   <div className="text-xs text-gray-500 mt-1">
-                    정확도: ±{Math.round(geolocation.accuracy)}m
+                    정확도: ±{Math.round(geolocation.accuracy || 0)}m
                   </div>
                 )}
                 {geolocation.heading !== null && (
