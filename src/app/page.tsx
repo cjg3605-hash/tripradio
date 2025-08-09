@@ -482,6 +482,7 @@ function Home() {
 
   // 자동완성 API 호출 (메모리 안전, API 중복 방지)
   const fetchSuggestions = useCallback(async (searchQuery: string) => {
+    console.log('🚀 fetchSuggestions 함수 실행 시작:', searchQuery);
     if (searchQuery.length < 1) {
       const translated = t('home.defaultSuggestions');
       // defaultSuggestions는 객체 배열이어야 하므로 타입 체크
@@ -514,13 +515,15 @@ function Home() {
     if (isMountedRef.current) setIsLoadingSuggestions(true);
     
     try {
-      const response = await fetch(
-        `/api/locations/search?q=${encodeURIComponent(searchQuery)}&lang=${currentLanguage}`,
-        { 
-          signal: abortControllerRef.current.signal,
-          cache: 'no-cache'
-        }
-      );
+      const apiUrl = `/api/locations/search?q=${encodeURIComponent(searchQuery)}&lang=${currentLanguage}`;
+      console.log('🌐 API 호출 시작:', apiUrl);
+      
+      const response = await fetch(apiUrl, { 
+        signal: abortControllerRef.current.signal,
+        cache: 'no-cache'
+      });
+      
+      console.log('📡 API 응답 받음:', response.status, response.statusText);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -988,9 +991,9 @@ function Home() {
                 <span className="inline-block overflow-hidden whitespace-nowrap" style={{ 
                   height: isMobile ? '24px' : '32px', 
                   lineHeight: isMobile ? '24px' : '32px', 
-                  width: isMobile ? '180px' : '220px',
+                  width: isMobile ? '160px' : '200px',
                   textAlign: 'right',
-                  marginRight: '20px'
+                  marginRight: '16px'
                 }}>
                   <span 
                     className="inline-block transition-transform duration-1000 ease-out"

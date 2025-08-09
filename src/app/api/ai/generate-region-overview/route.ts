@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { classifyLocation } from '@/lib/location/location-classification';
+import { createClient } from '@supabase/supabase-js';
 
 // 동적 렌더링 강제
 export const dynamic = 'force-dynamic';
@@ -42,6 +43,18 @@ interface RecommendedSpot {
   };
 }
 
+// Initialize Supabase Client  
+function getSupabaseClient() {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Missing Supabase credentials');
+  }
+  
+  return createClient(supabaseUrl, supabaseKey);
+}
+
 // Initialize Gemini AI
 function getGeminiClient() {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -49,6 +62,57 @@ function getGeminiClient() {
     throw new Error('GEMINI_API_KEY environment variable is not set');
   }
   return new GoogleGenerativeAI(apiKey);
+}
+
+// 기존 가이드 데이터를 RegionExploreHub 형식으로 변환
+function convertGuideToRegionData(guideContent: any, locationName: string): { regionData: RegionData; recommendedSpots: RecommendedSpot[] } | null {
+  try {
+    console.log('🔄 가이드 데이터 변환 시작:', locationName);
+    
+    if (!guideContent?.realTimeGuide?.chapters) {
+      console.log('❌ 변환 불가: chapters 없음');
+      return null;
+    }
+
+    const chapters = guideContent.realTimeGuide.chapters;
+    const mustVisitSpots = guideContent.realTimeGuide.mustVisitSpots || '';
+    
+    // RegionData 생성
+    const firstChapter = chapters[0];
+    const regionData: RegionData = {
+      name: locationName,
+      country: locationName, // 임시
+      description: firstChapter?.narrative?.substring(0, 150) || `${locationName}의 다채로운 매력을 탐험하세요`,
+      highlights: mustVisitSpots.split('#').filter(spot => spot.trim()).slice(0, 5) || [],
+      quickFacts: {
+        bestTime: '연중 방문 가능',
+        timeZone: '현지 시간대'
+      },
+      coordinates: firstChapter?.coordinates || { lat: 0, lng: 0 }
+    };
+
+    // RecommendedSpots 생성 (chapters에서 추출)
+    const recommendedSpots: RecommendedSpot[] = chapters.slice(0, 6).map((chapter: any, index: number) => ({
+      id: `spot-${index}`,
+      name: chapter.title?.split(':')[0]?.trim() || `명소 ${index + 1}`,
+      location: locationName,
+      category: index % 2 === 0 ? 'city' : 'culture',
+      description: chapter.narrative?.substring(0, 200) || '',
+      highlights: chapter.narrative ? [chapter.narrative.substring(0, 100)] : [],
+      estimatedDays: Math.ceil((index + 1) / 2),
+      difficulty: 'easy',
+      seasonality: '연중',
+      popularity: 10 - index,
+      coordinates: chapter.coordinates || { lat: 0, lng: 0 }
+    }));
+
+    console.log('✅ 가이드 데이터 변환 완료:', { regionData: regionData.name, spots: recommendedSpots.length });
+    return { regionData, recommendedSpots };
+    
+  } catch (error) {
+    console.error('❌ 가이드 데이터 변환 오류:', error);
+    return null;
+  }
 }
 
 // 지역 탐색 허브 전문가 페르소나
@@ -310,6 +374,45 @@ export async function POST(request: NextRequest) {
       language: lang,
       routing: routingResult?.processingMethod 
     });
+
+    // 1단계: DB에서 기존 가이드 데이터 확인
+    console.log('🔍 DB에서 기존 가이드 데이터 확인 중...');
+    try {
+      const supabase = getSupabaseClient();
+      const { data: existingGuide, error } = await supabase
+        .from('guides')
+        .select('content')
+        .eq('location', sanitizedLocation)
+        .eq('language', lang)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.warn('⚠️ DB 조회 오류:', error.message);
+      }
+
+      if (existingGuide?.content) {
+        console.log('✅ 기존 가이드 데이터 발견, 변환 시도...');
+        const convertedData = convertGuideToRegionData(existingGuide.content, sanitizedLocation);
+        
+        if (convertedData) {
+          console.log('🎯 기존 데이터 변환 성공, 즉시 반환');
+          return NextResponse.json({
+            success: true,
+            regionData: convertedData.regionData,
+            recommendedSpots: convertedData.recommendedSpots,
+            cached: true,
+            source: 'converted_guide_data'
+          });
+        } else {
+          console.log('⚠️ 기존 데이터 변환 실패, AI 생성 진행');
+        }
+      } else {
+        console.log('📭 기존 가이드 데이터 없음, AI 생성 진행');
+      }
+    } catch (dbError) {
+      console.error('❌ DB 확인 중 오류:', dbError);
+      console.log('🔄 DB 오류 무시하고 AI 생성 진행');
+    }
 
     // 위치 정보 확인 (좌표 등 기본 정보)
     const locationData = classifyLocation(sanitizedLocation);
