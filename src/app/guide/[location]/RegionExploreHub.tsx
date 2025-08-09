@@ -97,42 +97,37 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
         const overview = content.overview || {};
         const realTimeGuide = content.realTimeGuide || {};
         
-        // 지역 데이터 설정 (DB의 실제 내용 사용)
+        // 지역 데이터 설정 (DB의 실제 내용만 사용, 하드코딩 제거)
         const actualRegionData = {
           name: locationName,
-          country: overview.location || '대한민국',
-          description: overview.background || overview.keyFeatures || '서울에 대한 정보를 준비 중입니다. 잠시 후 다시 시도해주세요.',
+          country: overview.location || '',
+          description: overview.background || overview.keyFeatures || '',
           highlights: overview.keyFacts && Array.isArray(overview.keyFacts) 
             ? overview.keyFacts.map((kf: any) => kf.description || kf.title || kf.toString()) 
-            : [
-                '역사와 현대의 조화',
-                '풍부한 문화유산', 
-                '다양한 미식 체험',
-                '편리한 대중교통',
-                '활기찬 도시 분위기'
-              ],
+            : [],
           quickFacts: {
-            area: overview.visitInfo?.area || '605.21 km²',
-            population: overview.visitInfo?.population || '약 950만명',
-            bestTime: overview.visitInfo?.season || overview.visitInfo?.duration || '사계절',
-            timeZone: overview.visitInfo?.timeZone || 'KST (UTC+9)'
+            area: overview.visitInfo?.area || '',
+            population: overview.visitInfo?.population || '',
+            bestTime: overview.visitInfo?.season || overview.visitInfo?.duration || '',
+            timeZone: overview.visitInfo?.timeZone || ''
           },
-          coordinates: realTimeGuide.chapters?.[0]?.coordinates || { lat: 37.5665, lng: 126.9780 }
+          coordinates: realTimeGuide.chapters?.[0]?.coordinates || null
         };
         
         setRegionData(actualRegionData);
         
-        // 🎯 실제 데이터 구조에 맞게 추천 장소 추출
+        // 🎯 실제 DB 구조에 맞게 추천 장소 추출 
         let spotsToAdd: RecommendedSpot[] = [];
         
+        // ✅ 실제 DB 구조: content.route.steps에서 추천 장소 추출
         if (content?.route?.steps && Array.isArray(content.route.steps)) {
           const stepSpots = content.route.steps.slice(0, 8).map((step: any, index: number) => {
-            // 🎯 실제 데이터 구조: step에 location 필드가 있음
-            const stepLocation = step?.location;
+            // ✅ DB에서 location 필드가 정확히 존재함: "시테 섬", "루브르 박물관" 등
+            const placeName = step?.location;
             
-            if (!stepLocation) return null;
+            if (!placeName) return null;
             
-            // 🎯 좌표는 realTimeGuide.chapters에서 id로 매칭해서 가져오기
+            // ✅ 좌표는 realTimeGuide.chapters에서 매칭해서 가져오기
             let coordinates: { lat: number; lng: number; } | null = null;
             if (realTimeGuide.chapters && Array.isArray(realTimeGuide.chapters)) {
               const matchingChapter = realTimeGuide.chapters.find((chapter: any) => chapter.id === index);
@@ -144,20 +139,10 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
               }
             }
             
-            // 장소명 추출: step.location 우선, 없으면 step.title에서 콜론 앞 부분 추출
-            let placeName = stepLocation;
-            if (!placeName && step.title) {
-              // "경복궁: 조선 왕조의 위엄과 아름다움" → "경복궁"
-              placeName = step.title.split(':')[0].trim();
-            }
-            if (!placeName) {
-              placeName = `${locationName} 명소 ${index + 1}`;
-            }
+            // ✅ 설명은 step.title에서 콜론 뒤 부분만 사용 (하드코딩 메시지 제거)
+            let description = '';
             
-            // 설명은 step.title에서 콜론 뒤 부분 또는 챕터의 narrative 사용
-            let description = `${placeName}에서 특별한 경험을 만나보세요.`;
-            
-            // 1순위: step.title에서 콜론 뒤 설명 부분
+            // step.title에서 콜론 뒤 설명 부분 추출: "루브르 박물관: 세계적인 예술 작품의 향연" → "세계적인 예술 작품의 향연"
             if (step.title && step.title.includes(':')) {
               const titleDescription = step.title.split(':')[1]?.trim();
               if (titleDescription && titleDescription.length > 5) {
@@ -165,25 +150,9 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
               }
             }
             
-            // 2순위: 챕터 narrative에서 첫 문장 (인사말 제외)
-            if (description === `${placeName}에서 특별한 경험을 만나보세요.` && 
-                realTimeGuide.chapters && realTimeGuide.chapters[index]?.narrative) {
-              const narrative = realTimeGuide.chapters[index].narrative;
-              const sentences = narrative.split('.');
-              // 인사말("안녕하십니까", "환영합니다" 등) 건너뛰고 의미있는 문장 찾기
-              for (let i = 1; i < sentences.length && i < 3; i++) {
-                const sentence = sentences[i]?.trim();
-                if (sentence && sentence.length > 10 && sentence.length < 100 && 
-                    !sentence.includes('환영합니다') && !sentence.includes('안녕하십니까')) {
-                  description = sentence + '.';
-                  break;
-                }
-              }
-            }
-            
             return {
               id: `route-step-${index}`,
-              name: placeName,
+              name: placeName, // ✅ DB의 location 필드 직접 사용: "시테 섬", "루브르 박물관" 등
               location: locationName,
               category: 'travel',
               description,
@@ -385,7 +354,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                         handleSpotClick(spot);
                       }
                     }}
-                    aria-label={`${spot.name} 여행지 정보 보기`}
+                    aria-label={`${spot.name}`}
                   >
                     <div className="flex items-center gap-4 flex-1">
                       <div className="w-8 h-8 bg-black text-white text-sm font-semibold rounded-xl flex items-center justify-center flex-shrink-0">
@@ -393,7 +362,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                       </div>
                       <div className="flex-1">
                         <h3 className="text-lg font-semibold text-black group-hover:text-black/80">
-                          {spot.description}
+                          {spot.name}
                         </h3>
                       </div>
                     </div>
@@ -411,7 +380,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
             ) : (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">🗺️</div>
-                <p className="text-black/60 text-lg">이 카테고리에 추천 장소가 없습니다</p>
+                <p className="text-black/60 text-lg">추천 장소가 없습니다</p>
               </div>
             )}
           </div>

@@ -453,6 +453,13 @@ ${personalityPromptAdjustments}
 ## 생성 규칙 (1억명 피드백 반영)
 ${expert.cultural_wisdom.map((wisdom, i) => `${i + 1}. ${wisdom}`).join('\n')}
 
+## 📍 장소명 생성 핵심 지침 (필수 준수)
+⚠️ **route.steps[].location 필드에는 반드시 구체적인 장소명만 기입**
+- ✅ 올바른 예: "루브르 박물관", "에펠탑", "노트르담 대성당", "개선문", "샹젤리제 거리"
+- ❌ 잘못된 예: "파리의 발상지와 역사적 중심", "세계적인 예술 작품의 향연", "웅장한 건축물과 파리 시내 조망"
+- ❌ 설명문 금지: "~의 아름다움", "~적인 향연", "~와 낭만", "~의 상징" 등
+- ✅ 필수: 실제 방문 가능한 구체적 장소명, 건물명, 거리명, 공원명 등만 사용
+
 ## 콘텐츠 구조 요구사항
 \`\`\`json
 {
@@ -479,11 +486,15 @@ ${expert.cultural_wisdom.map((wisdom, i) => `${i + 1}. ${wisdom}`).join('\n')}
     "steps": [
       {
         "order": 1,
-        "location": "첫 번째 관람 포인트",
+        "location": "루브르 박물관",
+        "title": "루브르 박물관: 세계 최대 규모의 미술관", 
         "description": "이동 경로와 예상 소요시간",
         "highlights": ["핵심 볼거리", "포토 스팟", "문화적 의미"]
       }
       // 총 5-8개 스텝으로 최적화된 동선
+      // ⚠️ 중요: location 필드에는 반드시 구체적인 장소명을 기입 (예: "에펠탑", "노트르담 대성당", "개선문")
+      // ❌ 잘못된 예: "파리의 발상지와 역사적 중심", "세계적인 예술 작품의 향연"  
+      // ✅ 올바른 예: "루브르 박물관", "에펠탑", "샹젤리제 거리"
     ]
   },
   "realTimeGuide": {
@@ -534,9 +545,12 @@ ${expert.cultural_wisdom.map((wisdom, i) => `${i + 1}. ${wisdom}`).join('\n')}
 - [ ] **[주의!] 섹션**: 종교적/법적/안전 주의사항 자동 분석 및 생성
 
 **위치**: ${locationName}
-**언어**: ${language}
+**대상 언어**: ${language}
 **문화 맥락**: ${country} 전문가 관점
 **목표 만족도**: 96% 이상 (검증 완료)
+
+## 🌍 언어별 응답 지침 (필수 준수)
+${getLanguageInstructions(language)}
 
 ## 🚨 중요: 형식 지침
 - narrative 필드에는 **절대로 마크다운 형식을 사용하지 마세요**
@@ -544,7 +558,51 @@ ${expert.cultural_wisdom.map((wisdom, i) => `${i + 1}. ${wisdom}`).join('\n')}
 - 모든 내용은 일반 텍스트로 자연스럽게 작성하세요
 - 구조화된 내용도 문단과 문장으로 자연스럽게 연결하세요
 
-이제 위 지침에 따라 ${locationName}에 대한 완벽한 가이드를 JSON 형태로 생성해주세요.`;
+이제 위 지침에 따라 ${locationName}에 대한 완벽한 가이드를 **${language}**로 JSON 형태로 생성해주세요.`;
+}
+
+/**
+ * 🌍 언어별 명확한 응답 지침 생성
+ */
+function getLanguageInstructions(language: string): string {
+  const languageInstructions = {
+    'ko': `
+**한국어로 응답해주세요:**
+- 모든 텍스트, 제목, 설명을 한국어로 작성
+- 한국인 관광객 관점에서 친근하고 자세한 설명
+- "~합니다", "~입니다" 존댓말 사용
+- 한국 문화 맥락에서 이해하기 쉬운 비유와 표현 사용`,
+
+    'en': `
+**Please respond in English:**
+- Write all text, titles, and descriptions in English
+- Use natural, fluent English suitable for international tourists
+- Provide cultural context that English speakers can easily understand
+- Use engaging storytelling with proper grammar and vocabulary`,
+
+    'ja': `
+**日本語で回答してください:**
+- すべてのテキスト、タイトル、説明を日本語で記述
+- 日本人観光客の視点から丁寧で詳細な説明
+- 敬語（です・ます調）を使用
+- 日本の文化的背景を踏まえた理解しやすい表現を使用`,
+
+    'zh': `
+**请用中文回答：**
+- 所有文本、标题、说明均用中文撰写
+- 从中国游客的角度提供亲切详细的说明
+- 使用适合中文读者的文化背景和表达方式
+- 语言自然流畅，符合中文表达习惯`,
+
+    'es': `
+**Por favor responda en español:**
+- Escriba todos los textos, títulos y descripciones en español
+- Proporcione explicaciones detalladas desde la perspectiva de turistas hispanohablantes
+- Use un español natural y fluido con contexto cultural apropiado
+- Emplee vocabulario y expresiones que sean fácilmente comprensibles`
+  };
+
+  return languageInstructions[language as keyof typeof languageInstructions] || languageInstructions['en'];
 }
 
 /**
@@ -617,6 +675,13 @@ ${personalityAdjustments || ''}
 - 식민주의적 관점 배제, 현지인 시각 존중
 - 성차별, 인종차별적 표현 완전 배제
 
+## 📍 장소명 생성 핵심 지침 (필수 준수)
+⚠️ **route.steps[].location 필드에는 반드시 구체적인 장소명만 기입**
+- ✅ 올바른 예: "타지마할", "앙코르와트", "마추픽추", "페트라", "콜로세움", "피라미드"
+- ❌ 잘못된 예: "고대 문명의 신비", "역사적 유산의 향연", "영원한 사랑의 상징"
+- ❌ 설명문 금지: "~의 아름다움", "~적인 경험", "~와 감동", "~의 위대함" 등
+- ✅ 필수: 실제 방문 가능한 구체적 장소명, 유적명, 건물명만 사용
+
 ## 글로벌 콘텐츠 구조
 \`\`\`json
 {
@@ -642,10 +707,13 @@ ${personalityAdjustments || ''}
     "steps": [
       {
         "order": 1,
-        "location": "주요 관람 포인트",
+        "location": "타지마할",
+        "title": "타지마할: 영원한 사랑의 상징",
         "culturalSignificance": "문화적 의미와 현지인 관점",
         "respectfulApproach": "존중하는 관람 자세"
       }
+      // ⚠️ 중요: location 필드에는 반드시 구체적인 장소명 기입 (예: "타지마할", "앙코르와트", "마추픽추")
+      // ❌ 금지: "고대 문명의 신비", "역사적 유산의 향연" 등 설명문
     ]
   },
   "realTimeGuide": {
@@ -669,11 +737,14 @@ ${personalityAdjustments || ''}
 - [ ] 지속가능한 관광 원칙 반영
 
 **위치**: ${locationName}
-**언어**: ${language}
+**대상 언어**: ${language}
 **접근법**: 문화적 겸손과 보편적 존중
 **목표 만족도**: 91.5% 이상 (글로벌 안전 기준)
 
-이제 위 지침에 따라 ${locationName}에 대한 문화적으로 존중하는 가이드를 JSON 형태로 생성해주세요.`;
+## 🌍 언어별 응답 지침 (필수 준수)
+${getLanguageInstructions(language)}
+
+이제 위 지침에 따라 ${locationName}에 대한 문화적으로 존중하는 가이드를 **${language}**로 JSON 형태로 생성해주세요.`;
 }
 
 // 🔍 지능형 국가/지역 감지 시스템 (1억명 데이터 학습 기반)
