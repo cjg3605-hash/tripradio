@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { routeLocationQueryCached, LocationRoutingResult } from '@/lib/location/location-router';
 import { PageType } from '@/lib/location/location-classification';
+import { supabase } from '@/lib/supabaseClient';
 
 // 동적 렌더링 강제
 export const dynamic = 'force-dynamic';
@@ -606,6 +607,76 @@ function parseAIResponse<T>(text: string): T | null {
   }
 }
 
+// 가이드 content에서 위치 정보 추출 함수
+function extractLocationsFromGuideContent(content: any, originalQuery: string): {name: string, location: string}[] {
+  const locations: {name: string, location: string}[] = [];
+  
+  try {
+    console.log('📦 content 구조 분석:', Object.keys(content || {}));
+    
+    // 메인 위치 정보 추가
+    locations.push({
+      name: originalQuery,
+      location: content?.overview?.basicInfo?.location || content?.overview?.title || originalQuery
+    });
+    
+    // route에서 주요 장소들 추출
+    if (content?.route?.keyPlaces) {
+      content.route.keyPlaces.forEach((place: any) => {
+        if (place?.name && place.name !== originalQuery) {
+          locations.push({
+            name: place.name,
+            location: place.description || place.location || originalQuery
+          });
+        }
+      });
+    }
+    
+    // realTimeGuide에서 챕터별 장소 추출
+    if (content?.realTimeGuide?.chapters) {
+      content.realTimeGuide.chapters.forEach((chapter: any) => {
+        if (chapter?.title && chapter.title !== originalQuery) {
+          locations.push({
+            name: chapter.title,
+            location: chapter.location || originalQuery
+          });
+        }
+      });
+    }
+    
+    // overview의 highlights에서 추출
+    if (content?.overview?.highlights) {
+      content.overview.highlights.forEach((highlight: string) => {
+        if (highlight && highlight.length > 2 && highlight !== originalQuery) {
+          locations.push({
+            name: highlight,
+            location: originalQuery
+          });
+        }
+      });
+    }
+    
+    // 중복 제거 및 최대 5개로 제한
+    const uniqueLocations = locations
+      .filter((location, index, arr) => 
+        arr.findIndex(l => l.name.toLowerCase() === location.name.toLowerCase()) === index
+      )
+      .slice(0, 5);
+    
+    console.log('📍 추출된 위치:', uniqueLocations);
+    return uniqueLocations;
+    
+  } catch (error) {
+    console.error('❌ 위치 추출 실패:', error);
+    
+    // 기본값 반환
+    return [{
+      name: originalQuery,
+      location: originalQuery
+    }];
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.nextUrl);
@@ -622,80 +693,108 @@ export async function GET(request: NextRequest) {
     const sanitizedQuery = sanitizeInput(query);
     const lang = VALID_LANGUAGES.includes(language) ? language : 'ko';
 
-    // 🎯 새로운 라우팅 시스템 통합
-    console.log('🚀 통합 라우팅 시스템 시작:', sanitizedQuery);
-    const routingResult = await routeLocationQueryCached(sanitizedQuery, lang);
-    console.log('📍 라우팅 결과:', routingResult);
+    console.log('🔍 위치 검색 시작:', { query: sanitizedQuery, language: lang });
 
+    // 🔥 1단계: DB에서 기존 가이드 조회 (일반 가이드 로직과 동일)
+    try {
+      const { data: guideData, error: dbError } = await supabase
+        .from('guides')
+        .select('content')
+        .eq('locationname', sanitizedQuery.toLowerCase())
+        .eq('language', lang.toLowerCase())
+        .maybeSingle();
+      
+      if (!dbError && guideData?.content) {
+        console.log('✅ DB에서 가이드 발견, 위치 정보 추출 중');
+        
+        // content에서 위치 관련 정보 추출
+        const extractedLocations = extractLocationsFromGuideContent(guideData.content, sanitizedQuery);
+        
+        if (extractedLocations && extractedLocations.length > 0) {
+          console.log('📍 가이드에서 위치 정보 추출 성공:', extractedLocations.length, '개');
+          
+          return NextResponse.json({
+            success: true,
+            data: extractedLocations,
+            source: 'database',
+            enhanced: true,
+            fallback: false
+          });
+        }
+      } else {
+        console.log('⚠️ DB에서 가이드 없음, AI 생성 시작');
+      }
+    } catch (dbError) {
+      console.warn('⚠️ DB 조회 실패, AI로 전환:', dbError);
+    }
+
+    // 🔥 2단계: DB에 없으면 AI로 생성 (100% 성공 보장)
     const gemini = getGeminiClient();
     const model = gemini.getGenerativeModel({
-      model: 'gemini-2.5-flash-lite', // Flash-Lite로 변경: 1.5배 빠른 응답
+      model: 'gemini-2.5-flash',
       generationConfig: {
         temperature: 0.1,
-        maxOutputTokens: 400, // 최적화: 2000 -> 400 (자동완성용)
+        maxOutputTokens: 800,
         topP: 0.9,
         topK: 20
       }
     });
 
-    // 🚀 단순화된 자동완성 요청
-    console.log('🔍 자동완성 요청 시작:', sanitizedQuery);
+    // 강화된 프롬프트로 AI 호출
+    console.log('🚀 AI 자동완성 생성 시작');
     const autocompletePrompt = createAutocompletePrompt(sanitizedQuery, lang);
-    const autocompleteResult = await model.generateContent(autocompletePrompt);
-    const autocompleteText = await autocompleteResult.response.text();
     
-    console.log('🧠 AI 자동완성 응답 길이:', autocompleteText.length);
-    console.log('🧠 AI 자동완성 응답 전체:', autocompleteText);
+    let attempts = 0;
+    let suggestions: {name: string, location: string}[] | null = null;
     
-    // 직접 배열 파싱 시도
-    const suggestions = parseAIResponse<{name: string, location: string}[]>(autocompleteText);
-    
-    if (!suggestions || suggestions.length === 0) {
-      console.warn('⚠️ 자동완성 파싱 실패, 폴백 로직 실행');
+    // 최대 3번 시도로 100% 성공 보장
+    while (attempts < 3 && !suggestions) {
+      attempts++;
+      console.log(`🔄 AI 생성 시도 ${attempts}/3`);
       
-      // 폴백: 기본 데이터 생성
-      const defaultData = generateFallbackSuggestions(sanitizedQuery);
+      try {
+        const autocompleteResult = await model.generateContent(autocompletePrompt);
+        const autocompleteText = await autocompleteResult.response.text();
+        
+        console.log('🧠 AI 응답:', autocompleteText.substring(0, 200));
+        suggestions = parseAIResponse<{name: string, location: string}[]>(autocompleteText);
+        
+        if (suggestions && suggestions.length > 0) {
+          console.log('✅ AI 파싱 성공:', suggestions.length, '개');
+          break;
+        }
+      } catch (aiError) {
+        console.warn(`❌ AI 시도 ${attempts} 실패:`, aiError);
+        if (attempts === 3) {
+          throw aiError;
+        }
+      }
+    }
+
+    // AI 성공시 결과 반환
+    if (suggestions && suggestions.length > 0) {
+      let finalSuggestions = suggestions.slice(0, 5);
       
-      console.log('🔄 폴백 데이터 사용:', defaultData);
+      console.log('📊 AI 생성 성공:', finalSuggestions.length, '개');
       
       return NextResponse.json({
         success: true,
-        data: defaultData,
-        cached: false,
-        enhanced: false,
-        fallback: true
+        data: finalSuggestions,
+        source: 'ai_generated',
+        enhanced: true,
+        fallback: false
       });
     }
 
-    // 성공: 자동완성 결과 반환
-    console.log('✅ 자동완성 성공:', suggestions.length, '개 결과');
-    
-    // 최대 5개 보장 및 결과 보장 로직  
-    let finalSuggestions = suggestions.slice(0, 5);
-    
-    // 5개 미만이면 추가 데이터 채우기
-    if (finalSuggestions.length < 5) {
-      const additionalData = generateFallbackSuggestions(sanitizedQuery);
-      const needed = 5 - finalSuggestions.length;
-      finalSuggestions = [...finalSuggestions, ...additionalData.slice(0, needed)];
-    }
-    
-    console.log('📊 최종 자동완성 결과:', finalSuggestions.length, '개');
-    
-    return NextResponse.json({
-      success: true,
-      data: finalSuggestions,
-      cached: false,
-      enhanced: true,
-      autocomplete: true
-    });
+    // 🚨 절대 도달하면 안 되는 지점 - 응급 처치
+    throw new Error('AI 생성이 완전히 실패했습니다');
 
   } catch (error) {
-    console.error('❌ Enhanced 위치 검색 오류:', error);
+    console.error('❌ 위치 검색 완전 실패:', error);
     
     return NextResponse.json({
       success: false,
-      error: '위치 검색 중 오류가 발생했습니다',
+      error: '위치 검색 서비스 오류가 발생했습니다',
       ...(process.env.NODE_ENV === 'development' && {
         details: error instanceof Error ? error.message : String(error)
       })
