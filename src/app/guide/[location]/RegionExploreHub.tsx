@@ -80,11 +80,6 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
     selectedCategory === 'all' || spot.category === selectedCategory
   );
 
-  // 지역 정보 및 추천 장소 로드
-  useEffect(() => {
-    loadRegionData();
-  }, [locationName, loadRegionData]);
-
   const loadRegionData = useCallback(async () => {
     setIsLoading(true);
     setError('');
@@ -147,7 +142,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
             };
           });
           
-          console.log(`✅ ${chapterSpots.length}개의 챕터 데이터를 추천여행지에 추가`);
+          // ✅ ${chapterSpots.length}개의 챕터 데이터를 추천여행지에 추가
           spotsToAdd = [...spotsToAdd, ...chapterSpots];
         }
         // 폴백: route.steps 데이터도 추가 (chaptersrks 없을 때)
@@ -182,6 +177,11 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
       setIsLoading(false);
     }
   }, [locationName, language, routingResult, content]);
+
+  // 지역 정보 및 추천 장소 로드
+  useEffect(() => {
+    loadRegionData();
+  }, [loadRegionData]);
 
   const handleSpotClick = (spot: RecommendedSpot) => {
     router.push('/guide/' + encodeURIComponent(spot.name) + '?lang=ko');
