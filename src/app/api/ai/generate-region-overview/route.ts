@@ -78,7 +78,7 @@ function convertGuideToRegionData(guideContent: any, locationName: string): { re
     });
     
     // 데이터 구조 검증 및 다양한 패턴 지원
-    let chapters = null;
+    let chapters: any[] = [];
     let mustVisitSpots = '';
     
     if (guideContent?.realTimeGuide?.chapters) {
@@ -145,7 +145,7 @@ function convertGuideToRegionData(guideContent: any, locationName: string): { re
   } catch (error) {
     console.error('❌ 가이드 데이터 변환 오류:', error);
     console.error('🔍 에러 상세:', {
-      message: error.message,
+      message: error instanceof Error ? error.message : String(error),
       guideContentType: typeof guideContent,
       guideContentKeys: guideContent ? Object.keys(guideContent) : []
     });
@@ -172,7 +172,7 @@ function extractDescription(chapter: any, locationName: string): string {
 }
 
 function extractHighlights(mustVisitSpots: string, chapters: any[]): string[] {
-  const highlights = [];
+  const highlights: string[] = [];
   
   // mustVisitSpots에서 추출
   if (mustVisitSpots) {
@@ -564,7 +564,7 @@ export async function POST(request: NextRequest) {
       
       console.log('🔍 검색 변형들:', searchVariants);
       
-      let existingGuide = null;
+      let existingGuide: { content: any; location?: any } | null = null;
       let matchedLocation = '';
       
       for (const variant of searchVariants) {

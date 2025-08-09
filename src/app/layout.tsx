@@ -1,6 +1,6 @@
 // src/app/layout.tsx (최종 수정 버전)
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Roboto } from 'next/font/google';
 import './globals.css';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import SessionProvider from '@/components/providers/SessionProvider';
@@ -11,11 +11,14 @@ import Script from 'next/script';
 import { cookies } from 'next/headers';
 import { detectPreferredLanguage, LANGUAGE_COOKIE_NAME } from '@/lib/utils';
 
-const inter = Inter({ 
+// Roboto for English text
+const roboto = Roboto({
+  weight: ['100', '300', '400', '500', '700', '900'],
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-inter'
+  variable: '--font-roboto'
 });
+
 
 // ✅ viewport 별도 export
 export const viewport: Viewport = {
@@ -190,8 +193,21 @@ export default async function RootLayout({
         
         {/* Website Schema for SEO */}
         <WebsiteSchema />
+        
+        {/* Pretendard Font CDN */}
+        <link 
+          rel="preload" 
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.woff2" 
+          as="font" 
+          type="font/woff2" 
+          crossOrigin="anonymous"
+        />
+        <link 
+          rel="stylesheet" 
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css"
+        />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
+      <body className={`${roboto.variable} font-sans antialiased`} suppressHydrationWarning>
         {/* AMP 자동 광고는 일반 React 앱에서는 사용하지 않고, 대신 AutoAdSense 컴포넌트 사용 */}
         
         <SessionProvider>

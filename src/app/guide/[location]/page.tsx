@@ -22,10 +22,14 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
   const locationName = decodeURIComponent(resolvedParams.location || '');
-  const requestedLang = safeLanguageCode(resolvedSearchParams?.lang);
+  const requestedLang = safeLanguageCode(
+    Array.isArray(resolvedSearchParams?.lang) 
+      ? resolvedSearchParams.lang[0] 
+      : resolvedSearchParams?.lang
+  );
   
   // 서버에서 쿠키 기반 언어 감지
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const cookieLanguage = cookieStore.get(LANGUAGE_COOKIE_NAME)?.value;
   
   const serverDetectedLanguage = detectPreferredLanguage({
@@ -41,11 +45,15 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
   const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
   const locationName = decodeURIComponent(resolvedParams.location || '');
-  const requestedLang = safeLanguageCode(resolvedSearchParams?.lang);
+  const requestedLang = safeLanguageCode(
+    Array.isArray(resolvedSearchParams?.lang) 
+      ? resolvedSearchParams.lang[0] 
+      : resolvedSearchParams?.lang
+  );
   const normLocation = normalizeString(locationName);
   
   // 🔥 서버에서 통합 언어 감지 (쿠키 우선)
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const cookieLanguage = cookieStore.get(LANGUAGE_COOKIE_NAME)?.value;
   
   // 서버-클라이언트 일관성을 위한 언어 우선순위 (URL 우선)

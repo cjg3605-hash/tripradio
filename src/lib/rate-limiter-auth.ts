@@ -74,7 +74,6 @@ export class AuthRateLimiter {
     const forwarded = req.headers.get('x-forwarded-for');
     const ip = forwarded ? forwarded.split(',')[0] : 
                req.headers.get('x-real-ip') || 
-               req.ip || 
                'unknown';
     return `auth_${ip}`;
   }
@@ -100,7 +99,6 @@ export const loginRateLimiter = new AuthRateLimiter({
     const forwarded = req.headers.get('x-forwarded-for');
     const ip = forwarded ? forwarded.split(',')[0] : 
                req.headers.get('x-real-ip') || 
-               req.ip || 
                'unknown';
     return `login_${ip}`;
   }
@@ -113,7 +111,6 @@ export const registrationRateLimiter = new AuthRateLimiter({
     const forwarded = req.headers.get('x-forwarded-for');
     const ip = forwarded ? forwarded.split(',')[0] : 
                req.headers.get('x-real-ip') || 
-               req.ip || 
                'unknown';
     return `register_${ip}`;
   }
@@ -126,7 +123,6 @@ export const emailVerificationRateLimiter = new AuthRateLimiter({
     const forwarded = req.headers.get('x-forwarded-for');
     const ip = forwarded ? forwarded.split(',')[0] : 
                req.headers.get('x-real-ip') || 
-               req.ip || 
                'unknown';
     return `email_verify_${ip}`;
   }

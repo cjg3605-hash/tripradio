@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
     // IP 주소 추출
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
                request.headers.get('x-real-ip') ||
-               request.ip ||
                'unknown';
 
     // 행동 데이터와 함께 봇 탐지 실행

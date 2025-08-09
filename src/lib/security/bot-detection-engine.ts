@@ -464,7 +464,6 @@ export class BotDetectionEngine {
     }
     
     return req.headers.get('x-real-ip') || 
-           req.ip || 
            'unknown';
   }
 

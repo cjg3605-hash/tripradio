@@ -25,11 +25,28 @@ module.exports = {
         },
       },
 
-      // Advanced Typography System
+      // Advanced Typography System - Korean(Pretendard) + English(Roboto)
       fontFamily: {
-        'sans': ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        'sans': [
+          '"Pretendard Variable"',
+          'Pretendard', 
+          'var(--font-roboto)', 
+          'system-ui', 
+          '-apple-system', 
+          'BlinkMacSystemFont', 
+          'Segoe UI', 
+          'sans-serif'
+        ],
+        'pretendard': ['"Pretendard Variable"', 'Pretendard', 'system-ui', 'sans-serif'],
+        'roboto': ['var(--font-roboto)', 'system-ui', 'sans-serif'],
         'mono': ['JetBrains Mono', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'monospace'],
-        'display': ['Inter', 'system-ui', 'sans-serif'],
+        'display': [
+          '"Pretendard Variable"',
+          'Pretendard',
+          'var(--font-roboto)', 
+          'system-ui', 
+          'sans-serif'
+        ],
       },
 
       // Fluid Typography Scale

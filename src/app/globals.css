@@ -3,40 +3,51 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Pretendard font */
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+/* Import Pretendard Variable font for better performance */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css');
 
 /* Import unified design system */
 @import '../styles/design-tokens.css';
 @import '../styles/responsive.css';
 @import '../styles/cross-browser.css';
 
-/* 기본 폰트 변수 */
+/* 통일된 폰트 시스템 */
 :root {
-  --font-pretendard: 'Pretendard', sans-serif;
-  --font-inter: 'Inter', sans-serif;
-  --font-noto-sans-kr: 'Noto Sans KR', sans-serif;
-  --font-noto-sans-jp: 'Noto Sans JP', sans-serif;
-  --font-noto-sans-sc: 'Noto Sans SC', sans-serif;
-  --font-roboto: 'Roboto', sans-serif;
+  --font-pretendard: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-roboto: var(--font-roboto);
   --current-font: var(--font-pretendard);
 }
 
-/* 언어별 폰트 클래스 */
-[lang="ko"] {
-  --current-font: var(--font-pretendard);
+/* 기본 폰트 적용 - Pretendard 우선, 영어는 Roboto fallback */
+* {
+  font-family: "Pretendard Variable", Pretendard, var(--font-roboto), -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-display: swap; /* 폰트 로딩 최적화 */
 }
-[lang="en"] {
-  --current-font: var(--font-inter);
+
+/* 성능 최적화를 위한 폰트 로딩 */
+@font-face {
+  font-family: 'Pretendard Variable';
+  font-display: swap;
 }
-[lang="ja"] {
-  --current-font: var(--font-noto-sans-jp);
+
+/* 언어별 폰트 최적화 */
+[lang="ko"], [lang="ko"] * {
+  font-family: "Pretendard Variable", Pretendard, system-ui, sans-serif;
 }
-[lang="zh"] {
-  --current-font: var(--font-noto-sans-sc);
+
+[lang="en"], [lang="en"] * {
+  font-family: var(--font-roboto), "Pretendard Variable", Pretendard, system-ui, sans-serif;
 }
-[lang="es"] {
-  --current-font: var(--font-roboto);
+[lang="ja"], [lang="ja"] * {
+  font-family: "Pretendard Variable", Pretendard, "Noto Sans JP", system-ui, sans-serif;
+}
+
+[lang="zh"], [lang="zh"] * {
+  font-family: "Pretendard Variable", Pretendard, "Noto Sans SC", system-ui, sans-serif;
+}
+
+[lang="es"], [lang="es"] * {
+  font-family: var(--font-roboto), "Pretendard Variable", system-ui, sans-serif;
 }
 
 /* RTL 언어 지원 */

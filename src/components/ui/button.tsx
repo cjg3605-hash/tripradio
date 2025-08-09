@@ -88,7 +88,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       // asChild prop이 true인 경우, 자식 요소에 클래스를 적용
       return React.cloneElement(
         React.Children.only(props.children as React.ReactElement),
-        { className: classes, ref }
+        { className: classes, ref } as any
       );
     }
     

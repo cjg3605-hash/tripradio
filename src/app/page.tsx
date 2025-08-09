@@ -599,7 +599,7 @@ function Home() {
         // LRU: 100개 초과시 가장 오래된 항목 제거
         if (cache.size > 100) {
           const firstKey = cache.keys().next().value;
-          cache.delete(firstKey);
+          if (firstKey) cache.delete(firstKey);
         }
         
         if (isMountedRef.current) {
@@ -1015,8 +1015,8 @@ function Home() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <GuideLoading 
           type="generating"
-          message={t('guide.generatingWithLocation', { location: currentLoadingQuery || query })}
-          subMessage={t('guide.generatingSubMessage')}
+          message={String(t('guide.generatingWithLocation', { location: currentLoadingQuery || query || '' }))}
+          subMessage={String(t('guide.generatingSubMessage'))}
           showProgress={true}
         />
       </div>
@@ -1111,8 +1111,8 @@ function Home() {
                 
                 {/* 장소 입력 - 모바일 최적화 */}
                 <div className="text-center relative z-10 flex-1 max-w-20 sm:max-w-24 md:max-w-32 lg:max-w-xs">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mx-auto rounded-full flex items-center justify-center bg-black text-white mb-2 sm:mb-3 md:mb-4 shadow-lg">
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mx-auto rounded-full flex items-center justify-center bg-white text-black mb-2 sm:mb-3 md:mb-4 shadow-lg border-2 border-gray-200">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
@@ -1135,16 +1135,16 @@ function Home() {
                   <button 
                     onClick={handleAIGeneration}
                     disabled={!query.trim() || loadingStates.search}
-                    className={`w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-2 sm:mb-3 md:mb-4 bg-black text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black ${
+                    className={`w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-2 sm:mb-3 md:mb-4 bg-white text-black border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black ${
                       loadingStates.search ? 'animate-pulse' : ''
                     } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
                     aria-label={loadingStates.guide ? 'AI 가이드 생성 중...' : String(t('home.stepTitles.aiGenerate'))}
                     aria-disabled={!query.trim() || loadingStates.search}
                   >
                     {loadingStates.guide ? (
-                      <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
                     ) : (
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                     )}
@@ -1167,18 +1167,18 @@ function Home() {
                   <button 
                     onClick={handleAudioPlayback}
                     disabled={!query.trim()}
-                    className={`w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-2 sm:mb-3 md:mb-4 bg-black text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black ${
+                    className={`w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-2 sm:mb-3 md:mb-4 bg-white text-black border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black ${
                       audioPlaying ? 'animate-pulse' : ''
                     } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
                     aria-label={audioPlaying ? '오디오 일시정지' : String(t('home.stepTitles.audioPlay'))}
                     aria-pressed={audioPlaying}
                   >
                     {audioPlaying ? (
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
                       </svg>
                     ) : (
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z"/>
                       </svg>
                     )}

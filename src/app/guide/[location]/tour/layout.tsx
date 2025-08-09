@@ -14,7 +14,7 @@ interface TourLayoutProps {
 export async function generateMetadata({ params }: { params: Promise<{ location: string }> }): Promise<Metadata> {
   const resolvedParams = await params;
   const locationName = decodeURIComponent(resolvedParams.location || '');
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const cookieLanguage = cookieStore.get(LANGUAGE_COOKIE_NAME)?.value;
   
   const serverDetectedLanguage = detectPreferredLanguage({

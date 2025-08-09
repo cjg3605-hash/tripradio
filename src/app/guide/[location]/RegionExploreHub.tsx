@@ -123,10 +123,10 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy': return 'bg-green-50 text-green-700 border-green-200';
-      case 'moderate': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-      case 'challenging': return 'bg-red-50 text-red-700 border-red-200';
-      default: return 'bg-gray-50 text-gray-700 border-gray-200';
+      case 'easy': return 'bg-black/5 text-black/80 border border-black/10';
+      case 'moderate': return 'bg-black/10 text-black/90 border border-black/20';
+      case 'challenging': return 'bg-black text-white border border-black';
+      default: return 'bg-black/5 text-black/70 border border-black/10';
     }
   };
 
@@ -167,215 +167,194 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
 
   return (
     <div className="min-h-screen bg-white">
-      {/* 🎨 모노크롬 모던 헤더 */}
-      <div className="border-b border-gray-100">
+      {/* 🎨 모던 미니멀 헤더 */}
+      <div className="border-b border-black/8">
         <div className="max-w-4xl mx-auto p-6">
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => router.back()}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-3 hover:bg-black/5 rounded-2xl transition-colors"
               aria-label="뒤로 가기"
             >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-black/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <div>
-              <h1 className="text-2xl font-light text-gray-900">
+              <h1 className="text-3xl font-light text-black tracking-tight">
                 {regionData?.name || locationName}
               </h1>
               {regionData?.country && (
-                <p className="text-gray-500 mt-1">{regionData.country}</p>
+                <p className="text-black/60 mt-1 font-medium">{regionData.country}</p>
               )}
             </div>
           </div>
         </div>
       </div>
       
-      {/* 🎨 메인 콘텐츠 */}
+      {/* 🎨 메인 콘텐츠 - 실시간 가이드 스타일 */}
       <div className="max-w-4xl mx-auto p-6 space-y-8">
           
-        {/* 🎨 개요 (실시간 가이드 스타일) */}
-        <div className="border-b border-gray-100 pb-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-3">개요</h2>
-          <p className="text-gray-600 leading-relaxed">
-            {regionData?.description}
-          </p>
-        </div>
+        {/* 🎨 지역 소개 카드 */}
+        {regionData?.description && (
+          <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
+            <div className="p-8">
+              <h2 className="text-xl font-semibold text-black mb-4">지역 소개</h2>
+              <p className="text-black/70 leading-relaxed text-lg">{regionData.description}</p>
+            </div>
+          </div>
+        )}
 
-        {/* 🎨 기본 정보 */}
-        {regionData?.quickFacts && Object.keys(regionData.quickFacts).length > 0 && (
-          <div className="border-b border-gray-100 pb-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">기본 정보</h2>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="space-y-3">
-                {regionData.quickFacts.area && (
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
-                      <MapPin className="w-4 h-4" />
-                    </div>
-                    <p className="text-gray-700"><strong>면적:</strong> {regionData.quickFacts.area}</p>
+        {/* 🎨 하이라이트 카드 */}
+        {regionData?.highlights && regionData.highlights.length > 0 && (
+          <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
+            <div className="p-8">
+              <h2 className="text-xl font-semibold text-black mb-6">주요 특징</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {regionData.highlights.map((highlight, index) => (
+                  <div 
+                    key={index}
+                    className="flex items-center gap-3 p-4 bg-black/2 rounded-2xl border border-black/5"
+                  >
+                    <div className="w-2 h-2 bg-black rounded-full flex-shrink-0"></div>
+                    <span className="text-black/80 font-medium">{highlight}</span>
                   </div>
-                )}
-                {regionData.quickFacts.population && (
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
-                      <Users className="w-4 h-4" />
-                    </div>
-                    <p className="text-gray-700"><strong>인구:</strong> {regionData.quickFacts.population}</p>
-                  </div>
-                )}
-                {regionData.quickFacts.bestTime && (
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
-                      <Calendar className="w-4 h-4" />
-                    </div>
-                    <p className="text-gray-700"><strong>최적 시기:</strong> {regionData.quickFacts.bestTime}</p>
-                  </div>
-                )}
-                {regionData.quickFacts.timeZone && (
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
-                      <Clock className="w-4 h-4" />
-                    </div>
-                    <p className="text-gray-700"><strong>시간대:</strong> {regionData.quickFacts.timeZone}</p>
-                  </div>
-                )}
+                ))}
               </div>
             </div>
           </div>
         )}
 
-        {/* 🎨 주요 특징 (실시간 가이드 스타일) */}
-        {regionData?.highlights && regionData.highlights.length > 0 && (
-          <div className="border-b border-gray-100 pb-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">주요 특징</h2>
-            <div className="space-y-2 text-gray-600">
-              {regionData.highlights.map((highlight, index) => (
-                <p key={index}>• {highlight}</p>
+        {/* 🎨 탐색 지도 카드 */}
+        {regionData?.coordinates && (
+          <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
+            <div className="p-8">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-black">탐색 지도</h2>
+                  <p className="text-black/60">지역 전체 위치 정보</p>
+                </div>
+              </div>
+              <div className="h-80 bg-black/2 border border-black/5 rounded-2xl overflow-hidden">
+                <StartLocationMap
+                  locationName={regionData.name}
+                  startPoint={{
+                    lat: regionData.coordinates.lat,
+                    lng: regionData.coordinates.lng,
+                    name: regionData.name
+                  }}
+                  pois={recommendedSpots.filter(spot => spot.coordinates).map(spot => ({
+                    id: spot.id,
+                    name: spot.name,
+                    lat: spot.coordinates!.lat,
+                    lng: spot.coordinates!.lng,
+                    description: spot.description
+                  }))}
+                  showIntroOnly={true}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 🎨 카테고리 필터 카드 */}
+        <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
+          <div className="p-8">
+            <h2 className="text-xl font-semibold text-black mb-6">
+              추천 여행지 ({filteredSpots.length})
+            </h2>
+            
+            {/* 카테고리 필터 */}
+            <div className="flex flex-wrap gap-3 mb-8">
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 active:scale-95 ${
+                    selectedCategory === category.id
+                      ? 'bg-black text-white border-2 border-black'
+                      : 'bg-white border-2 border-black/10 text-black hover:border-black/30 hover:bg-black/5'
+                  }`}
+                >
+                  <span className="text-lg">{category.emoji}</span>
+                  <span>{category.name}</span>
+                </button>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* 🎨 탐색 지도 (실시간 가이드 스타일) */}
-        {regionData?.coordinates && (
-          <div className="border-b border-gray-100 pb-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h2 className="text-lg font-medium">탐색 지도</h2>
-                <p className="text-sm text-gray-600">지역 전체 위치 정보</p>
-              </div>
-            </div>
-            <div className="h-64 bg-white border border-gray-100 rounded-lg overflow-hidden">
-              <StartLocationMap
-                locationName={regionData.name}
-                startPoint={{
-                  lat: regionData.coordinates.lat,
-                  lng: regionData.coordinates.lng,
-                  name: regionData.name
-                }}
-                pois={recommendedSpots.filter(spot => spot.coordinates).map(spot => ({
-                  id: spot.id,
-                  name: spot.name,
-                  lat: spot.coordinates!.lat,
-                  lng: spot.coordinates!.lng,
-                  description: spot.description
-                }))}
-                showIntroOnly={true}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* 🎨 추천 여행지 (실시간 가이드 스타일) */}
-        <div className="border-b border-gray-100 pb-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">
-            추천 여행지 ({filteredSpots.length})
-          </h2>
-          
-          {/* 카테고리 필터 */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {categories.map(category => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
-                  selectedCategory === category.id 
-                    ? 'bg-black text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <span className="mr-1.5">{category.emoji}</span>
-                {category.name}
-              </button>
-            ))}
-          </div>
-
-          {/* 추천 장소 목록 */}
-          {filteredSpots.length > 0 ? (
-            <div className="space-y-6">
-              {filteredSpots.map((spot, index) => (
-                <div key={spot.id} className="border border-gray-100 rounded-lg p-4">
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className={`w-6 h-6 text-white text-xs rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                      index === 0 ? 'bg-blue-600' : 'bg-black'
-                    }`}>
-                      {index + 1}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 
-                          className="font-medium text-gray-900 cursor-pointer hover:text-gray-700"
-                          onClick={() => handleSpotClick(spot)}
-                        >
+            
+            {/* 🎨 추천 장소 리스트 */}
+            {filteredSpots.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {filteredSpots.map((spot, index) => (
+                  <div 
+                    key={spot.id}
+                    onClick={() => handleSpotClick(spot)}
+                    className="group relative overflow-hidden rounded-2xl bg-black/2 border border-black/5 p-6 cursor-pointer transition-all duration-300 hover:border-black/20 hover:bg-black/5 active:scale-95"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-black text-white text-sm font-semibold rounded-xl flex items-center justify-center">
+                          {index + 1}
+                        </div>
+                        <h3 className="text-lg font-semibold text-black group-hover:text-black/80">
                           {spot.name}
                         </h3>
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-1 text-xs rounded-full ${getDifficultyColor(spot.difficulty)}`}>
-                            {getDifficultyText(spot.difficulty)}
-                          </span>
-                          <div className="flex items-center gap-1 text-xs text-gray-500">
-                            <Calendar className="w-3 h-3" />
-                            {spot.estimatedDays}일
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                            <span className="text-xs text-gray-600">{spot.popularity}/10</span>
-                          </div>
+                      </div>
+                      <ArrowRight className="w-5 h-5 text-black/40 group-hover:text-black/60 transition-colors" />
+                    </div>
+                    
+                    <p className="text-black/70 leading-relaxed mb-4">
+                      {spot.description}
+                    </p>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className={`px-3 py-1 text-xs font-semibold rounded-xl ${getDifficultyColor(spot.difficulty)}`}>
+                          {getDifficultyText(spot.difficulty)}
+                        </span>
+                        <div className="flex items-center gap-1 text-black/60 text-sm">
+                          <Calendar className="w-4 h-4" />
+                          <span>{spot.estimatedDays}일</span>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600">{spot.description}</p>
+                      
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 fill-black text-black" />
+                        <span className="text-sm font-medium text-black">{spot.popularity}/10</span>
+                      </div>
                     </div>
-                    <button
-                      onClick={() => handleSpotClick(spot)}
-                      className="text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              <div className="text-lg mb-2">🗺️</div>
-              <div>이 카테고리에 추천 장소가 없습니다</div>
-            </div>
-          )}
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">🗺️</div>
+                <p className="text-black/60 text-lg">이 카테고리에 추천 장소가 없습니다</p>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* 🎨 가이드 시작 버튼 */}
-        <div className="text-center pt-4">
-          <button
-            onClick={() => router.push('/guide/' + encodeURIComponent(locationName))}
-            className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 transition-colors"
-          >
-            가이드 시작하기
-          </button>
+        {/* 🎨 가이드 시작 버튼 카드 */}
+        <div className="relative overflow-hidden rounded-3xl bg-black border border-black shadow-lg shadow-black/20 transition-all duration-500 hover:shadow-xl hover:shadow-black/30">
+          <div className="p-8 text-center">
+            <h2 className="text-xl font-semibold text-white mb-3">
+              {regionData?.name || locationName} 상세 가이드
+            </h2>
+            <p className="text-white/80 mb-6">
+              AI 도슨트와 함께 더 깊이 있는 여행을 시작해보세요
+            </p>
+            <button
+              onClick={() => router.push('/guide/' + encodeURIComponent(locationName))}
+              className="flex items-center justify-center gap-3 px-8 py-4 bg-white text-black font-semibold rounded-2xl transition-all duration-300 hover:bg-white/90 active:scale-95 mx-auto"
+            >
+              <span>가이드 시작하기</span>
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
           
       </div>

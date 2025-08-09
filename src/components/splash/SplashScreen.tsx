@@ -58,7 +58,7 @@ export default function SplashScreen({ onComplete, children }: SplashScreenProps
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-white backdrop-blur-sm"
+            {...({ className: "fixed inset-0 z-[9999] flex items-center justify-center bg-white backdrop-blur-sm" } as any)}
           >
             {/* 메인 로고 */}
             <motion.div
@@ -68,7 +68,7 @@ export default function SplashScreen({ onComplete, children }: SplashScreenProps
                 duration: 0.4,
                 ease: "easeOut"
               }}
-              className="flex items-center justify-center relative z-[10000]"
+              {...({ className: "flex items-center justify-center relative z-[10000]" } as any)}
             >
               <Image
                 src="/logo.png"

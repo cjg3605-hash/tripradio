@@ -99,8 +99,11 @@ interface Translations {
     defaultSuggestions?: Array<{ name: string; location: string }>;
     stepTitles: {
       inputLocation: string;
+      inputLocationSub: string;
       aiGenerate: string;
+      aiGenerateSub: string;
       audioPlay: string;
+      audioPlaySub: string;
     };
     stepDescriptions: {
       inputLocation: string;
