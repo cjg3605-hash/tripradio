@@ -578,6 +578,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
             locationName={locationName}
             routingResult={routingResult}
             language={currentLanguage}
+            content={guideData}
           />
         ) : (
           <MinimalTourContent 

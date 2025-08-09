@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { MapPin, Users, Calendar, Clock, Star, ArrowRight, RefreshCw } from 'lucide-react';
+import { MapPin, Users, Calendar, Clock, Star, ArrowRight, RefreshCw, Info, Compass } from 'lucide-react';
 import GuideLoading from '@/components/ui/GuideLoading';
 import dynamic from 'next/dynamic';
 
@@ -53,9 +53,10 @@ interface RegionExploreHubProps {
   locationName: string;
   routingResult: any;
   language: string;
+  content?: any; // content 데이터 추가
 }
 
-const RegionExploreHub = ({ locationName, routingResult, language }: RegionExploreHubProps) => {
+const RegionExploreHub = ({ locationName, routingResult, language, content }: RegionExploreHubProps) => {
   const { t } = useLanguage();
   const router = useRouter();
   
@@ -104,7 +105,36 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
 
       if (result.success) {
         setRegionData(result.regionData);
-        setRecommendedSpots(result.recommendedSpots || []);
+        
+        // API에서 받은 추천 장소들
+        let spotsToAdd = result.recommendedSpots || [];
+        
+        // content에서 챕터 데이터 파싱하여 추가
+        if (content?.chapters && Array.isArray(content.chapters)) {
+          const chapterSpots = content.chapters
+            .filter((chapter: any) => chapter.title && chapter.lat && chapter.lng)
+            .map((chapter: any, index: number) => ({
+              id: `chapter-${index}`,
+              name: chapter.title,
+              location: locationName,
+              category: 'attraction',
+              description: chapter.narrative || chapter.description || '여행지 정보',
+              highlights: [],
+              estimatedDays: 1,
+              difficulty: 'easy' as const,
+              seasonality: '연중',
+              popularity: 80,
+              coordinates: {
+                lat: parseFloat(chapter.lat),
+                lng: parseFloat(chapter.lng)
+              }
+            }));
+          
+          console.log(`✅ ${chapterSpots.length}개의 챕터 데이터를 추천여행지에 추가`);
+          spotsToAdd = [...spotsToAdd, ...chapterSpots];
+        }
+        
+        setRecommendedSpots(spotsToAdd);
       } else {
         setError(result.error || '지역 정보를 불러올 수 없습니다.');
       }
@@ -156,8 +186,10 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
           <p className="text-gray-600 mb-4">{error}</p>
           <button
             onClick={loadRegionData}
-            className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+            className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            aria-label="지역 정보 다시 불러오기"
           >
+            <RefreshCw className="w-4 h-4 mr-2 inline" />
             다시 시도
           </button>
         </div>
@@ -180,8 +212,8 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <div>
-              <h1 className="text-3xl font-light text-black tracking-tight">
+            <div className="text-center">
+              <h1 className="text-3xl font-bold text-black tracking-tight">
                 {regionData?.name || locationName}
               </h1>
               {regionData?.country && (
@@ -199,7 +231,12 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
         {regionData?.description && (
           <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
             <div className="p-8">
-              <h2 className="text-xl font-semibold text-black mb-4">지역 소개</h2>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                  <Info className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-xl font-semibold text-black">지역 소개</h2>
+              </div>
               <p className="text-black/70 leading-relaxed text-lg">{regionData.description}</p>
             </div>
           </div>
@@ -209,7 +246,12 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
         {regionData?.highlights && regionData.highlights.length > 0 && (
           <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
             <div className="p-8">
-              <h2 className="text-xl font-semibold text-black mb-6">주요 특징</h2>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                  <Star className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-xl font-semibold text-black">주요 특징</h2>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {regionData.highlights.map((highlight, index) => (
                   <div 
@@ -225,47 +267,18 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
           </div>
         )}
 
-        {/* 🎨 탐색 지도 카드 */}
-        {regionData?.coordinates && (
-          <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
-            <div className="p-8">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center">
-                  <MapPin className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold text-black">탐색 지도</h2>
-                  <p className="text-black/60">지역 전체 위치 정보</p>
-                </div>
-              </div>
-              <div className="h-80 bg-black/2 border border-black/5 rounded-2xl overflow-hidden">
-                <StartLocationMap
-                  locationName={regionData.name}
-                  startPoint={{
-                    lat: regionData.coordinates.lat,
-                    lng: regionData.coordinates.lng,
-                    name: regionData.name
-                  }}
-                  pois={recommendedSpots.filter(spot => spot.coordinates).map(spot => ({
-                    id: spot.id,
-                    name: spot.name,
-                    lat: spot.coordinates!.lat,
-                    lng: spot.coordinates!.lng,
-                    description: spot.description
-                  }))}
-                  showIntroOnly={true}
-                />
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* 🎨 카테고리 필터 카드 */}
         <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
           <div className="p-8">
-            <h2 className="text-xl font-semibold text-black mb-6">
-              추천 여행지 ({filteredSpots.length})
-            </h2>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <Compass className="w-4 h-4 text-white" />
+              </div>
+              <h2 className="text-xl font-semibold text-black">
+                추천 여행지 ({filteredSpots.length})
+              </h2>
+            </div>
             
             {/* 카테고리 필터 */}
             <div className="flex flex-wrap gap-3 mb-8">
@@ -273,11 +286,13 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 active:scale-95 ${
+                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 active:scale-95 focus:ring-2 focus:ring-black/30 focus:ring-offset-2 ${
                     selectedCategory === category.id
                       ? 'bg-black text-white border-2 border-black'
                       : 'bg-white border-2 border-black/10 text-black hover:border-black/30 hover:bg-black/5'
                   }`}
+                  aria-pressed={selectedCategory === category.id}
+                  aria-label={`${category.name} 카테고리 필터`}
                 >
                   <span className="text-lg">{category.emoji}</span>
                   <span>{category.name}</span>
@@ -292,7 +307,16 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
                   <div 
                     key={spot.id}
                     onClick={() => handleSpotClick(spot)}
-                    className="group relative overflow-hidden rounded-2xl bg-black/2 border border-black/5 p-6 cursor-pointer transition-all duration-300 hover:border-black/20 hover:bg-black/5 active:scale-95"
+                    className="group relative overflow-hidden rounded-2xl bg-black/2 border border-black/5 p-6 cursor-pointer transition-all duration-300 hover:border-black/20 hover:bg-black/5 active:scale-95 focus:ring-2 focus:ring-black/30 focus:ring-offset-2"
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleSpotClick(spot);
+                      }
+                    }}
+                    aria-label={`${spot.name} 여행지 정보 보기`}
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
@@ -338,6 +362,55 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
           </div>
         </div>
 
+        {/* 🎨 추천시작지점 지도 카드 */}
+        {(regionData?.coordinates || (content?.chapters && content.chapters.length > 0)) && (
+          <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
+            <div className="p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                  <MapPin className="w-4 h-4 text-white" />
+                </div>
+                <h2 className="text-xl font-semibold text-black">추천시작지점</h2>
+              </div>
+              <div className="h-80 bg-black/2 border border-black/5 rounded-2xl overflow-hidden">
+                <StartLocationMap
+                  locationName={regionData?.name || locationName}
+                  startPoint={
+                    regionData?.coordinates
+                      ? {
+                          lat: regionData.coordinates.lat,
+                          lng: regionData.coordinates.lng,
+                          name: regionData.name || locationName
+                        }
+                      : content?.chapters?.[0]?.lat && content?.chapters?.[0]?.lng
+                        ? {
+                            lat: parseFloat(content.chapters[0].lat),
+                            lng: parseFloat(content.chapters[0].lng),
+                            name: content.chapters[0].title || locationName
+                          }
+                        : {
+                            lat: 37.5665,
+                            lng: 126.9780,
+                            name: locationName
+                          }
+                  }
+                  pois={recommendedSpots
+                    .filter(spot => spot.coordinates)
+                    .map(spot => ({
+                      id: spot.id,
+                      name: spot.name,
+                      lat: spot.coordinates!.lat,
+                      lng: spot.coordinates!.lng,
+                      description: spot.description
+                    }))
+                  }
+                  showIntroOnly={true}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 🎨 가이드 시작 버튼 카드 */}
         <div className="relative overflow-hidden rounded-3xl bg-black border border-black shadow-lg shadow-black/20 transition-all duration-500 hover:shadow-xl hover:shadow-black/30">
           <div className="p-8 text-center">
@@ -349,7 +422,8 @@ const RegionExploreHub = ({ locationName, routingResult, language }: RegionExplo
             </p>
             <button
               onClick={() => router.push('/guide/' + encodeURIComponent(locationName))}
-              className="flex items-center justify-center gap-3 px-8 py-4 bg-white text-black font-semibold rounded-2xl transition-all duration-300 hover:bg-white/90 active:scale-95 mx-auto"
+              className="flex items-center justify-center gap-3 px-8 py-4 bg-white text-black font-semibold rounded-2xl transition-all duration-300 hover:bg-white/90 active:scale-95 mx-auto focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black"
+              aria-label={`${regionData?.name || locationName} 상세 가이드 시작하기`}
             >
               <span>가이드 시작하기</span>
               <ArrowRight className="w-5 h-5" />
