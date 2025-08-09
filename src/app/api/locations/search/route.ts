@@ -662,6 +662,8 @@ function parseAIResponse<T>(text: string): T | null {
     return JSON.parse(jsonString) as T;
   } catch (error) {
     console.error('JSON 파싱 실패:', error);
+    console.error('📝 원본 텍스트 길이:', text.length);
+    console.error('📝 원본 텍스트 내용:', text.substring(0, 200));
     return null;
   }
 }
@@ -692,7 +694,7 @@ export async function GET(request: NextRequest) {
       model: 'gemini-2.5-flash',
       generationConfig: {
         temperature: 0.1,
-        maxOutputTokens: 800,
+        maxOutputTokens: 2000, // 증가: 800 -> 2000
         topP: 0.9,
         topK: 20
       }
@@ -704,7 +706,8 @@ export async function GET(request: NextRequest) {
     const analysisResult = await model.generateContent(analysisPrompt);
     const analysisText = await analysisResult.response.text();
     
-    console.log('🧠 AI 위치 분석 응답:', analysisText);
+    console.log('🧠 AI 위치 분석 응답 길이:', analysisText.length);
+    console.log('🧠 AI 위치 분석 응답 전체:', analysisText);
     
     const analysis = parseAIResponse<LocationAnalysis>(analysisText);
     
@@ -723,6 +726,25 @@ export async function GET(request: NextRequest) {
         name: suggestion.name,
         location: suggestion.location
       }));
+      
+      // 🚨 만약 파싱도 실패하면 기본 데이터 제공
+      if (fallbackCompatibleData.length === 0) {
+        const defaultData = [{
+          name: sanitizedQuery.includes('에펠') ? '에펠탑' : sanitizedQuery,
+          location: sanitizedQuery.includes('에펠') ? '파리, 프랑스' : '위치 정보'
+        }];
+        
+        console.log('🔄 최종 기본 데이터 제공:', defaultData);
+        
+        return NextResponse.json({
+          success: true,
+          data: defaultData,
+          cached: false,
+          enhanced: false,
+          fallback: true,
+          defaultProvided: true
+        });
+      }
       
       return NextResponse.json({
         success: true,
@@ -747,7 +769,12 @@ export async function GET(request: NextRequest) {
     
     console.log('🏛️ 관광 추천 응답:', recommendationText);
     
+    console.log('🔍 관광 추천 응답 길이:', recommendationText.length);
+    console.log('🔍 관광 추천 응답 일부:', recommendationText.substring(0, 200));
+    
     const recommendations = parseAIResponse<LocationSuggestion[]>(recommendationText) || [];
+    
+    console.log('📊 파싱된 추천 데이터:', recommendations.length, '개');
     
     // 3단계: 탐색 유도 추천 생성 (국가/지역인 경우)
     let explorationSuggestions: ExplorationSuggestion[] = [];
@@ -773,11 +800,39 @@ export async function GET(request: NextRequest) {
       ...recommendations.slice(0, 3)       // 관광 추천 최대 3개
     ].slice(0, 5);
 
+    console.log('📊 최종 결합 데이터:', finalSuggestions.length, '개');
+
     // 🔄 클라이언트 호환성을 위한 데이터 변환
     const clientCompatibleData = finalSuggestions.map(suggestion => ({
       name: suggestion.name,
       location: suggestion.location
     }));
+
+    // 🚨 만약 데이터가 없으면 분석 결과만 사용
+    if (clientCompatibleData.length === 0 && analysis.suggestions.length > 0) {
+      const analysisOnlyData = analysis.suggestions.slice(0, 5).map(suggestion => ({
+        name: suggestion.name,
+        location: suggestion.location
+      }));
+      
+      console.log('🔄 분석 결과만 사용:', analysisOnlyData);
+      
+      return NextResponse.json({
+        success: true,
+        data: analysisOnlyData,
+        explorationSuggestions: explorationSuggestions,
+        cached: false,
+        enhanced: true,
+        hasExploration: explorationSuggestions.length > 0,
+        analysisOnly: true,
+        routing: {
+          recommendedPageType: routingResult.pageType,
+          confidence: routingResult.confidence,
+          processingMethod: routingResult.processingMethod,
+          reasoning: routingResult.reasoning
+        }
+      });
+    }
 
     return NextResponse.json({
       success: true,

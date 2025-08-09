@@ -85,14 +85,35 @@ interface TranslatedSuggestion {
 
 // 타입 가드 함수들
 const isValidSuggestionsArray = (data: any): data is TranslatedSuggestion[] => {
-  return Array.isArray(data) && 
-         data.length > 0 &&
-         data.every(item => 
-           typeof item === 'object' && 
-           item !== null &&
-           typeof item.name === 'string' && 
-           typeof item.location === 'string'
-         );
+  console.log('🔬 타입 검증 시작 - 데이터:', data);
+  
+  const isArray = Array.isArray(data);
+  console.log('🔬 Array 체크:', isArray);
+  
+  if (!isArray) return false;
+  
+  const hasLength = data.length > 0;
+  console.log('🔬 길이 체크:', hasLength, '길이:', data.length);
+  
+  if (!hasLength) return false;
+  
+  const allValid = data.every((item, index) => {
+    const isObject = typeof item === 'object' && item !== null;
+    const hasName = typeof item.name === 'string';
+    const hasLocation = typeof item.location === 'string';
+    console.log(`🔬 항목 ${index}:`, { 
+      isObject, 
+      hasName, 
+      hasLocation,
+      itemKeys: item ? Object.keys(item) : 'null',
+      nameValue: item?.name,
+      locValue: item?.location
+    });
+    return isObject && hasName && hasLocation;
+  });
+  
+  console.log('🔬 모든 항목 유효:', allValid);
+  return allValid;
 };
 
 const isValidCountriesData = (data: any): boolean => {
@@ -531,6 +552,15 @@ function Home() {
       }
       
       const data = await response.json();
+      console.log('🔍 API 응답 데이터:', data);
+      console.log('📋 data.success:', data.success);
+      console.log('📋 data.data:', data.data);
+      console.log('📋 data.data 타입:', typeof data.data);
+      console.log('📋 data.data Array인지:', Array.isArray(data.data));
+      if (Array.isArray(data.data) && data.data.length > 0) {
+        console.log('📋 첫 번째 항목:', data.data[0]);
+        console.log('📋 첫 번째 항목 구조:', Object.keys(data.data[0]));
+      }
       
       // 컴포넌트가 마운트되어 있을 때만 상태 업데이트
       if (!isMountedRef.current) return;
@@ -992,27 +1022,27 @@ function Home() {
         {/* Hero Section - 모바일 반응형 패딩 */}
         <section className="relative flex flex-col items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-32 pb-6 sm:pb-8 md:pb-12 min-h-screen">
             
-            {/* 중앙 명소 텍스트 - 모바일 반응형 (명소 부분만 회전) */}
+            {/* 중앙 명소 텍스트 - 2줄 레이아웃 (명소 부분만 회전) */}
             <div className="text-center text-white mb-4 sm:mb-6 px-4 sm:px-4 md:px-6">
-              <div className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold mb-1 flex items-center justify-center" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)', height: isMobile ? '24px' : '32px' }}>
+              {/* 첫 번째 줄: [명소] - 30% 크게 */}
+              <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold mb-2 flex items-center justify-center" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)', height: isMobile ? '32px' : '42px' }}>
                 <span className="inline-block overflow-hidden whitespace-nowrap" style={{ 
-                  height: isMobile ? '24px' : '32px', 
-                  lineHeight: isMobile ? '24px' : '32px', 
-                  width: isMobile ? '140px' : '180px',
-                  textAlign: 'right',
-                  marginRight: isMobile ? '8px' : '16px'
+                  height: isMobile ? '32px' : '42px', 
+                  lineHeight: isMobile ? '32px' : '42px', 
+                  width: isMobile ? '140px' : '200px',
+                  textAlign: 'center'
                 }}>
                   <span 
                     className="inline-block transition-transform duration-1000 ease-out"
                     style={{
-                      transform: `translateY(-${currentLandmarkIndex * (isMobile ? 24 : 32)}px)`
+                      transform: `translateY(-${currentLandmarkIndex * (isMobile ? 32 : 42)}px)`
                     }}
                   >
                     {landmarks.map((landmark, index) => (
                       <span key={index} className="block font-bold whitespace-nowrap" style={{ 
-                        height: isMobile ? '24px' : '32px', 
-                        lineHeight: isMobile ? '24px' : '32px',
-                        textAlign: 'right'
+                        height: isMobile ? '32px' : '42px', 
+                        lineHeight: isMobile ? '32px' : '42px',
+                        textAlign: 'center'
                       }}>
                         {t(`home.landmarks.${landmark}` as any) || landmark}
                       </span>
@@ -1020,6 +1050,10 @@ function Home() {
                   </span>
                 </span>
                 <span>{t('home.landmarkSuffix')}</span>
+              </div>
+              {/* 두 번째 줄: 앞에서 만드는 오디오 가이드 */}
+              <div className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
+                앞에서 만드는 오디오 가이드
               </div>
               <div className="text-xs sm:text-sm md:text-base lg:text-lg font-light mb-1" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
                 {t('home.subtitle')}
