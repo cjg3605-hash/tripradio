@@ -718,9 +718,15 @@ export async function GET(request: NextRequest) {
       
       const fallbackSuggestions = parseAIResponse<LocationSuggestion[]>(fallbackText) || [];
       
+      // 🔄 클라이언트 호환성을 위한 데이터 변환
+      const fallbackCompatibleData = fallbackSuggestions.slice(0, 5).map(suggestion => ({
+        name: suggestion.name,
+        location: suggestion.location
+      }));
+      
       return NextResponse.json({
         success: true,
-        data: fallbackSuggestions.slice(0, 5),
+        data: fallbackCompatibleData,
         cached: false,
         enhanced: false,
         fallback: true
@@ -767,9 +773,15 @@ export async function GET(request: NextRequest) {
       ...recommendations.slice(0, 3)       // 관광 추천 최대 3개
     ].slice(0, 5);
 
+    // 🔄 클라이언트 호환성을 위한 데이터 변환
+    const clientCompatibleData = finalSuggestions.map(suggestion => ({
+      name: suggestion.name,
+      location: suggestion.location
+    }));
+
     return NextResponse.json({
       success: true,
-      data: finalSuggestions,
+      data: clientCompatibleData, // 클라이언트가 기대하는 단순 구조
       explorationSuggestions: explorationSuggestions,
       cached: false,
       enhanced: true,
@@ -787,7 +799,8 @@ export async function GET(request: NextRequest) {
         locationType: analysis.locationType,
         correctedQuery: analysis.correctedQuery,
         explorationCount: explorationSuggestions.length,
-        routingResult: routingResult
+        routingResult: routingResult,
+        originalSuggestions: finalSuggestions // 디버깅용 원본 데이터
       } : undefined
     });
 
