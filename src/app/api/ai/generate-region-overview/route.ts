@@ -68,51 +68,221 @@ function getGeminiClient() {
 function convertGuideToRegionData(guideContent: any, locationName: string): { regionData: RegionData; recommendedSpots: RecommendedSpot[] } | null {
   try {
     console.log('🔄 가이드 데이터 변환 시작:', locationName);
+    console.log('📊 원본 데이터 구조 분석:', {
+      hasGuideContent: !!guideContent,
+      hasRealTimeGuide: !!guideContent?.realTimeGuide,
+      hasChapters: !!guideContent?.realTimeGuide?.chapters,
+      chaptersType: Array.isArray(guideContent?.realTimeGuide?.chapters) ? 'array' : typeof guideContent?.realTimeGuide?.chapters,
+      chaptersLength: guideContent?.realTimeGuide?.chapters?.length || 0,
+      firstChapterKeys: guideContent?.realTimeGuide?.chapters?.[0] ? Object.keys(guideContent.realTimeGuide.chapters[0]) : []
+    });
     
-    if (!guideContent?.realTimeGuide?.chapters) {
-      console.log('❌ 변환 불가: chapters 없음');
+    // 데이터 구조 검증 및 다양한 패턴 지원
+    let chapters = null;
+    let mustVisitSpots = '';
+    
+    if (guideContent?.realTimeGuide?.chapters) {
+      chapters = guideContent.realTimeGuide.chapters;
+      mustVisitSpots = guideContent.realTimeGuide.mustVisitSpots || '';
+    } else if (guideContent?.chapters) {
+      // 대안 구조 1: 직접 chapters
+      chapters = guideContent.chapters;
+      mustVisitSpots = guideContent.mustVisitSpots || '';
+    } else if (Array.isArray(guideContent)) {
+      // 대안 구조 2: 배열 형태
+      chapters = guideContent;
+    }
+    
+    if (!chapters || !Array.isArray(chapters) || chapters.length === 0) {
+      console.log('❌ 변환 불가: 유효한 chapters 없음');
       return null;
     }
 
-    const chapters = guideContent.realTimeGuide.chapters;
-    const mustVisitSpots = guideContent.realTimeGuide.mustVisitSpots || '';
+    console.log('✅ 변환 가능한 chapters 발견:', chapters.length);
     
-    // RegionData 생성
+    // RegionData 생성 - 더 강력한 데이터 추출
     const firstChapter = chapters[0];
     const regionData: RegionData = {
       name: locationName,
-      country: locationName, // 임시
-      description: firstChapter?.narrative?.substring(0, 150) || `${locationName}의 다채로운 매력을 탐험하세요`,
-      highlights: mustVisitSpots.split('#').filter(spot => spot.trim()).slice(0, 5) || [],
+      country: locationName.includes('프랑스') || locationName.includes('France') ? '프랑스' : locationName,
+      description: extractDescription(firstChapter, locationName),
+      highlights: extractHighlights(mustVisitSpots, chapters),
       quickFacts: {
-        bestTime: '연중 방문 가능',
+        bestTime: extractBestTime(chapters),
         timeZone: '현지 시간대'
       },
-      coordinates: firstChapter?.coordinates || { lat: 0, lng: 0 }
+      coordinates: extractCoordinates(firstChapter, locationName)
     };
 
-    // RecommendedSpots 생성 (chapters에서 추출)
-    const recommendedSpots: RecommendedSpot[] = chapters.slice(0, 6).map((chapter: any, index: number) => ({
-      id: `spot-${index}`,
-      name: chapter.title?.split(':')[0]?.trim() || `명소 ${index + 1}`,
-      location: locationName,
-      category: index % 2 === 0 ? 'city' : 'culture',
-      description: chapter.narrative?.substring(0, 200) || '',
-      highlights: chapter.narrative ? [chapter.narrative.substring(0, 100)] : [],
-      estimatedDays: Math.ceil((index + 1) / 2),
-      difficulty: 'easy',
-      seasonality: '연중',
-      popularity: 10 - index,
-      coordinates: chapter.coordinates || { lat: 0, lng: 0 }
-    }));
+    // RecommendedSpots 생성 - 더 스마트한 추출
+    const recommendedSpots: RecommendedSpot[] = chapters.slice(0, 6).map((chapter: any, index: number) => {
+      const spotName = extractSpotName(chapter, index);
+      const category = extractCategory(chapter, index);
+      const description = extractSpotDescription(chapter);
+      
+      return {
+        id: `spot-${index}`,
+        name: spotName,
+        location: locationName,
+        category,
+        description,
+        highlights: extractSpotHighlights(chapter),
+        estimatedDays: Math.min(Math.ceil((index + 1) / 2), 3),
+        difficulty: 'easy',
+        seasonality: '연중',
+        popularity: Math.max(10 - index, 1),
+        coordinates: extractCoordinates(chapter, locationName)
+      };
+    });
 
-    console.log('✅ 가이드 데이터 변환 완료:', { regionData: regionData.name, spots: recommendedSpots.length });
+    console.log('✅ 가이드 데이터 변환 완료:', { 
+      regionName: regionData.name, 
+      spots: recommendedSpots.length,
+      hasCoords: !!regionData.coordinates.lat
+    });
     return { regionData, recommendedSpots };
     
   } catch (error) {
     console.error('❌ 가이드 데이터 변환 오류:', error);
+    console.error('🔍 에러 상세:', {
+      message: error.message,
+      guideContentType: typeof guideContent,
+      guideContentKeys: guideContent ? Object.keys(guideContent) : []
+    });
     return null;
   }
+}
+
+// 도우미 함수들
+function extractDescription(chapter: any, locationName: string): string {
+  const sources = [
+    chapter?.narrative,
+    chapter?.description,
+    chapter?.content,
+    chapter?.text
+  ];
+  
+  for (const source of sources) {
+    if (typeof source === 'string' && source.length > 50) {
+      return source.substring(0, 150);
+    }
+  }
+  
+  return `${locationName}의 다채로운 매력을 탐험하세요`;
+}
+
+function extractHighlights(mustVisitSpots: string, chapters: any[]): string[] {
+  const highlights = [];
+  
+  // mustVisitSpots에서 추출
+  if (mustVisitSpots) {
+    const spots = mustVisitSpots.split('#').filter(spot => spot.trim()).slice(0, 3);
+    highlights.push(...spots);
+  }
+  
+  // chapters에서 추가 추출
+  chapters.slice(0, 5 - highlights.length).forEach(chapter => {
+    const title = chapter?.title?.split(':')[0]?.trim();
+    if (title && !highlights.includes(title)) {
+      highlights.push(title);
+    }
+  });
+  
+  // 기본값으로 채우기
+  while (highlights.length < 5) {
+    const defaults = ['아름다운 풍경', '풍부한 역사', '독특한 문화', '맛있는 음식', '친절한 사람들'];
+    const missing = defaults.find(def => !highlights.includes(def));
+    if (missing) highlights.push(missing);
+    else break;
+  }
+  
+  return highlights.slice(0, 5);
+}
+
+function extractBestTime(chapters: any[]): string {
+  // chapters에서 시즌 정보 찾기
+  const seasonKeywords = ['봄', '여름', '가을', '겨울', 'spring', 'summer', 'fall', 'winter', 'autumn'];
+  
+  for (const chapter of chapters) {
+    const text = chapter?.narrative || chapter?.description || '';
+    for (const keyword of seasonKeywords) {
+      if (text.toLowerCase().includes(keyword.toLowerCase())) {
+        return '계절별 특색 있음';
+      }
+    }
+  }
+  
+  return '연중 방문 가능';
+}
+
+function extractCoordinates(chapter: any, locationName: string): { lat: number; lng: number } {
+  // chapter에서 좌표 추출
+  if (chapter?.coordinates?.lat && chapter?.coordinates?.lng) {
+    return chapter.coordinates;
+  }
+  
+  if (chapter?.lat && chapter?.lng) {
+    return { lat: chapter.lat, lng: chapter.lng };
+  }
+  
+  // 기본 좌표 (위치별)
+  const defaultCoords = {
+    '프랑스': { lat: 46.2276, lng: 2.2137 },
+    'France': { lat: 46.2276, lng: 2.2137 },
+    '서울': { lat: 37.5665, lng: 126.9780 },
+    '부산': { lat: 35.1796, lng: 129.0756 }
+  };
+  
+  return defaultCoords[locationName] || { lat: 37.5665, lng: 126.9780 };
+}
+
+function extractSpotName(chapter: any, index: number): string {
+  const sources = [
+    chapter?.title?.split(':')[0]?.trim(),
+    chapter?.name,
+    chapter?.locationName,
+    `명소 ${index + 1}`
+  ];
+  
+  return sources.find(name => name && typeof name === 'string') || `명소 ${index + 1}`;
+}
+
+function extractCategory(chapter: any, index: number): string {
+  const text = (chapter?.narrative || chapter?.description || '').toLowerCase();
+  
+  if (text.includes('음식') || text.includes('맛') || text.includes('레스토랑')) return 'food';
+  if (text.includes('자연') || text.includes('공원') || text.includes('산')) return 'nature';
+  if (text.includes('문화') || text.includes('박물관') || text.includes('역사')) return 'culture';
+  if (text.includes('쇼핑') || text.includes('시장')) return 'shopping';
+  
+  return index % 2 === 0 ? 'city' : 'culture';
+}
+
+function extractSpotDescription(chapter: any): string {
+  const sources = [
+    chapter?.narrative,
+    chapter?.description,
+    chapter?.content
+  ];
+  
+  for (const source of sources) {
+    if (typeof source === 'string' && source.length > 30) {
+      return source.substring(0, 200);
+    }
+  }
+  
+  return '특별한 경험이 기다리는 곳입니다';
+}
+
+function extractSpotHighlights(chapter: any): string[] {
+  const text = chapter?.narrative || chapter?.description || '';
+  const sentences = text.split(/[.!?]/).filter(s => s.trim().length > 10).slice(0, 3);
+  
+  if (sentences.length > 0) {
+    return sentences.map(s => s.trim().substring(0, 100));
+  }
+  
+  return ['특색 있는 장소', '방문 가치 있음'];
 }
 
 // 지역 탐색 허브 전문가 페르소나
@@ -377,21 +547,50 @@ export async function POST(request: NextRequest) {
 
     // 1단계: DB에서 기존 가이드 데이터 확인
     console.log('🔍 DB에서 기존 가이드 데이터 확인 중...');
+    console.log('📋 검색 조건:', { location: sanitizedLocation, language: lang });
+    
     try {
       const supabase = getSupabaseClient();
-      const { data: existingGuide, error } = await supabase
-        .from('guides')
-        .select('content')
-        .eq('location', sanitizedLocation)
-        .eq('language', lang)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.warn('⚠️ DB 조회 오류:', error.message);
+      
+      // 다양한 형태로 검색 시도
+      const searchVariants = [
+        sanitizedLocation,
+        sanitizedLocation.toLowerCase(),
+        sanitizedLocation.toUpperCase(),
+        // 프랑스 => France 등의 번역 처리
+        sanitizedLocation === '프랑스' ? 'France' : sanitizedLocation,
+        sanitizedLocation === 'France' ? '프랑스' : sanitizedLocation
+      ];
+      
+      console.log('🔍 검색 변형들:', searchVariants);
+      
+      let existingGuide = null;
+      let matchedLocation = '';
+      
+      for (const variant of searchVariants) {
+        const { data, error } = await supabase
+          .from('guides')
+          .select('content, location')
+          .eq('location', variant)
+          .eq('language', lang)
+          .single();
+          
+        if (data?.content && !error) {
+          existingGuide = data;
+          matchedLocation = variant;
+          console.log('✅ 매치된 위치:', matchedLocation);
+          break;
+        }
       }
 
       if (existingGuide?.content) {
         console.log('✅ 기존 가이드 데이터 발견, 변환 시도...');
+        console.log('📊 가이드 데이터 구조:', {
+          hasRealTimeGuide: !!existingGuide.content.realTimeGuide,
+          hasChapters: !!existingGuide.content.realTimeGuide?.chapters,
+          chaptersLength: existingGuide.content.realTimeGuide?.chapters?.length || 0
+        });
+        
         const convertedData = convertGuideToRegionData(existingGuide.content, sanitizedLocation);
         
         if (convertedData) {
@@ -401,13 +600,21 @@ export async function POST(request: NextRequest) {
             regionData: convertedData.regionData,
             recommendedSpots: convertedData.recommendedSpots,
             cached: true,
-            source: 'converted_guide_data'
+            source: 'converted_guide_data',
+            matchedLocation
           });
         } else {
           console.log('⚠️ 기존 데이터 변환 실패, AI 생성 진행');
         }
       } else {
         console.log('📭 기존 가이드 데이터 없음, AI 생성 진행');
+        
+        // DB에 있는 모든 location 목록 확인 (디버깅용)
+        const { data: allLocations } = await supabase
+          .from('guides')
+          .select('location, language')
+          .limit(10);
+        console.log('📍 DB에 있는 위치들 (샘플):', allLocations);
       }
     } catch (dbError) {
       console.error('❌ DB 확인 중 오류:', dbError);

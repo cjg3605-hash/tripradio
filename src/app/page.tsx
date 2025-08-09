@@ -108,6 +108,7 @@ function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<TranslatedSuggestion[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
@@ -538,11 +539,15 @@ function Home() {
         if (isMountedRef.current) {
           setSuggestions(data.data.slice(0, 5)); // 최대 5개 제안
           setSelectedSuggestionIndex(-1); // 새로운 제안이 오면 선택 초기화
+          setShowSuggestions(true); // 성공적으로 받으면 드롭다운 표시
+          console.log('✅ 자동완성 결과 설정 완료:', data.data.length, '개');
         }
       } else {
         if (isMountedRef.current) {
           setSuggestions([]);
           setSelectedSuggestionIndex(-1);
+          setShowSuggestions(false);
+          console.log('⚠️ 자동완성 결과 없음 또는 invalid');
         }
       }
     } catch (error) {
@@ -642,6 +647,7 @@ function Home() {
           const selectedSuggestion = suggestions[selectedSuggestionIndex];
           setQuery(selectedSuggestion.name);
           setIsFocused(false);
+          setShowSuggestions(false);
           setSelectedSuggestionIndex(-1);
           router.push(`/guide/${encodeURIComponent(selectedSuggestion.name)}`);
         } else {
@@ -650,6 +656,7 @@ function Home() {
         break;
       case 'Escape':
         setIsFocused(false);
+        setShowSuggestions(false);
         setSelectedSuggestionIndex(-1);
         break;
     }
@@ -986,14 +993,14 @@ function Home() {
         <section className="relative flex flex-col items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-32 pb-6 sm:pb-8 md:pb-12 min-h-screen">
             
             {/* 중앙 명소 텍스트 - 모바일 반응형 (명소 부분만 회전) */}
-            <div className="text-center text-white mb-4 sm:mb-6 px-2 sm:px-4 md:px-6">
+            <div className="text-center text-white mb-4 sm:mb-6 px-4 sm:px-4 md:px-6">
               <div className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold mb-1 flex items-center justify-center" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)', height: isMobile ? '24px' : '32px' }}>
                 <span className="inline-block overflow-hidden whitespace-nowrap" style={{ 
                   height: isMobile ? '24px' : '32px', 
                   lineHeight: isMobile ? '24px' : '32px', 
-                  width: isMobile ? '160px' : '200px',
+                  width: isMobile ? '140px' : '180px',
                   textAlign: 'right',
-                  marginRight: '16px'
+                  marginRight: isMobile ? '8px' : '32px'
                 }}>
                   <span 
                     className="inline-block transition-transform duration-1000 ease-out"
@@ -1132,12 +1139,22 @@ function Home() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  onFocus={() => setIsFocused(true)}
+                  onFocus={() => {
+                    setIsFocused(true);
+                    // 기존에 검색 결과가 있으면 다시 표시
+                    if (suggestions.length > 0) {
+                      setShowSuggestions(true);
+                    }
+                  }}
                   onBlur={(e) => {
                     // 클릭이 제안 목록 내부에서 일어나는지 확인
                     const relatedTarget = e.relatedTarget as HTMLElement;
                     if (!relatedTarget || !relatedTarget.closest('.suggestions-container')) {
-                      setIsFocused(false);
+                      // 자동완성 API 응답 대기 시간 확보 (300ms 지연)
+                      setTimeout(() => {
+                        setIsFocused(false);
+                        setShowSuggestions(false);
+                      }, 300);
                     }
                   }}
                   placeholder={String(t('home.searchPlaceholder'))}
@@ -1183,7 +1200,7 @@ function Home() {
               </div>
 
               {/* Suggestions Dropdown */}
-              {isFocused && query.length > 0 && (
+              {(isFocused || showSuggestions) && query.length > 0 && (
                 <div 
                   className="absolute top-full left-0 right-0 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-[9999] autocomplete-dropdown suggestions-container"
                   role="listbox"
@@ -1206,6 +1223,7 @@ function Home() {
                           const selectedLocation = suggestion.name;
                           setQuery(selectedLocation);
                           setIsFocused(false);
+                          setShowSuggestions(false);
                           setSelectedSuggestionIndex(-1);
                           router.push(`/guide/${encodeURIComponent(selectedLocation)}`);
                         }}
