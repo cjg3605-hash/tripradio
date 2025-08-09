@@ -1059,25 +1059,30 @@ function Home() {
         <section className="relative flex flex-col items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-32 pb-6 sm:pb-8 md:pb-12 min-h-screen">
             
             {/* 중앙 명소 텍스트 - 2줄 레이아웃 (명소 부분만 회전) */}
-            <div className="text-center text-white mb-4 sm:mb-6 px-4 sm:px-4 md:px-6">
-              {/* 첫 번째 줄: [명소] - 30% 크게 */}
-              <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold mb-2 flex items-center justify-center" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)', height: isMobile ? '32px' : '42px' }}>
-                <span className="inline-block overflow-hidden whitespace-nowrap" style={{ 
-                  height: isMobile ? '32px' : '42px', 
-                  lineHeight: isMobile ? '32px' : '42px', 
-                  width: isMobile ? '140px' : '200px',
+            <div className="text-center text-white mb-4 sm:mb-6 w-full flex flex-col items-center justify-center">
+              {/* 첫 번째 줄: [명소] - PC에서 40% 작게, 모바일 그대로 */}
+              <div className="font-bold mb-2 flex items-center justify-center w-full" style={{ 
+                textShadow: '2px 2px 8px rgba(0,0,0,0.8)', 
+                fontSize: isMobile 
+                  ? 'clamp(1.125rem, 4vw, 1.5rem)'  // 모바일: 18px ~ 24px
+                  : 'clamp(1rem, 2.4vw, 1.5rem)',   // PC: 16px ~ 24px (40% 축소)
+                height: isMobile ? '32px' : '28px' 
+              }}>
+                <span className="inline-block overflow-hidden whitespace-nowrap w-full max-w-none" style={{ 
+                  height: isMobile ? '32px' : '28px', 
+                  lineHeight: isMobile ? '32px' : '28px',
                   textAlign: 'center'
                 }}>
                   <span 
-                    className="inline-block transition-transform duration-1000 ease-out"
+                    className="inline-block transition-transform duration-1000 ease-out w-full"
                     style={{
-                      transform: `translateY(-${currentLandmarkIndex * (isMobile ? 32 : 42)}px)`
+                      transform: `translateY(-${currentLandmarkIndex * (isMobile ? 32 : 28)}px)`
                     }}
                   >
                     {landmarks.map((landmark, index) => (
-                      <span key={index} className="block font-bold whitespace-nowrap" style={{ 
-                        height: isMobile ? '32px' : '42px', 
-                        lineHeight: isMobile ? '32px' : '42px',
+                      <span key={index} className="block font-bold whitespace-nowrap w-full" style={{ 
+                        height: isMobile ? '32px' : '28px', 
+                        lineHeight: isMobile ? '32px' : '28px',
                         textAlign: 'center'
                       }}>
                         {t(`home.landmarks.${landmark}` as any) || landmark}
