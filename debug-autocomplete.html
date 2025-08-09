@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>자동완성 디버그 테스트</title>
+</head>
+<body>
+    <h1>자동완성 API 테스트</h1>
+    <input type="text" id="testInput" placeholder="검색어 입력" />
+    <button onclick="testAutocomplete()">테스트</button>
+    
+    <div id="result"></div>
+
+    <script>
+    async function testAutocomplete() {
+        const query = document.getElementById('testInput').value || '서울';
+        console.log('테스트 쿼리:', query);
+        
+        try {
+            const url = `http://localhost:3020/api/locations/search?q=${encodeURIComponent(query)}&lang=ko`;
+            console.log('요청 URL:', url);
+            
+            const response = await fetch(url);
+            console.log('응답 상태:', response.status);
+            
+            const data = await response.json();
+            console.log('응답 데이터:', data);
+            console.log('suggestions 개수:', data.data?.length);
+            
+            document.getElementById('result').innerHTML = `
+                <h2>응답 결과:</h2>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+                <p><strong>suggestions 개수: ${data.data?.length || 0}</strong></p>
+            `;
+        } catch (error) {
+            console.error('에러:', error);
+            document.getElementById('result').innerHTML = `<p>에러: ${error.message}</p>`;
+        }
+    }
+    
+    // 자동 테스트
+    window.onload = () => {
+        document.getElementById('testInput').value = '서울';
+        testAutocomplete();
+    };
+    </script>
+</body>
+</html>
