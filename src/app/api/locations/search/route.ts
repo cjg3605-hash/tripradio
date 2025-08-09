@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { routeLocationQueryCached, LocationRoutingResult } from '@/lib/location/location-router';
-import { PageType } from '@/lib/location/location-classification';
-import { supabase } from '@/lib/supabaseClient';
 
-// 동적 렌더링 강제
+// 동적 렌더링 강제 및 Vercel 최적화
 export const dynamic = 'force-dynamic';
+export const maxDuration = 20; // Vercel Pro에서 최대 20초
 
 // Types
 interface LocationSuggestion {
@@ -25,22 +23,7 @@ interface LocationSuggestion {
   };
 }
 
-interface LocationAnalysis {
-  originalQuery: string;
-  correctedQuery?: string;
-  locationType: 'country' | 'province' | 'city' | 'district' | 'landmark' | 'multiple' | 'unknown';
-  confidence: number;
-  suggestions: LocationSuggestion[];
-  explorationSuggestions?: ExplorationSuggestion[];
-  routingResult?: LocationRoutingResult; // 라우팅 결과 추가
-  recommendedPageType?: PageType; // 추천 페이지 타입 추가
-}
-
-interface ExplorationSuggestion {
-  title: string;
-  items: LocationSuggestion[];
-  searchable: boolean;
-}
+// 🗑️ 사용하지 않는 타입들 제거됨 (AI 자동완성만 사용)
 
 // Valid languages
 const VALID_LANGUAGES = ['ko', 'en', 'ja', 'zh', 'es'] as const;
@@ -71,51 +54,23 @@ const LOCATION_EXPERT_PERSONA = `당신은 전세계 지리 및 위치 정보 �
 - 지리적 좌표와 행정구역 정보
 - 관광지의 실제 중요도와 접근성`;
 
-// 자동완성 최적화 프롬프트 (간소화)
+// 🚀 초효율 자동완성 프롬프트 (최소 토큰)
 function createAutocompletePrompt(query: string, language: Language): string {
-  // 입력 길이별 최적화
-  const isShortQuery = query.length <= 2;
-  
   const prompts = {
-    ko: isShortQuery ? 
-    `"${query}"로 시작하는 세계 여행지 5개를 JSON 배열로 제공하세요. 국가, 도시, 관광지 모두 포함:
-[{"name": "장소명", "location": "위치"}]
+    ko: `JSON만 응답. "${query}" 관련 여행지 5개:
+[{"name":"장소명","location":"위치"}]`,
 
-예시: [{"name": "프랑스", "location": "유럽"}, {"name": "파리", "location": "프랑스"}, {"name": "에펠탑", "location": "파리, 프랑스"}]` :
-    `"${query}"와 관련된 여행지 5개를 JSON 배열로 제공하세요. 국가, 도시, 관광지 모두 포함:
-[{"name": "장소명", "location": "위치"}]`,
+    en: `JSON only. 5 destinations for "${query}":
+[{"name":"place","location":"area"}]`,
 
-    en: isShortQuery ?
-    `Provide 5 world travel destinations starting with "${query}" in JSON array format. Include countries, cities, and attractions all:
-[{"name": "place name", "location": "location"}]
+    ja: `JSON のみ。「${query}」関連の旅行先5つ:
+[{"name":"場所","location":"地域"}]`,
 
-Example: [{"name": "France", "location": "Europe"}, {"name": "Paris", "location": "France"}, {"name": "Eiffel Tower", "location": "Paris, France"}]` :
-    `Provide 5 travel destinations related to "${query}" in JSON array format. Include countries, cities, and attractions all:
-[{"name": "place name", "location": "location"}]`,
+    zh: `仅JSON。"${query}"相关旅游地5个:
+[{"name":"地点","location":"位置"}]`,
 
-    ja: isShortQuery ?
-    `「${query}」で始まる世界の旅行先5つをJSON配列形式で提供してください。国、都市、観光地すべて含む:
-[{"name": "場所名", "location": "場所"}]
-
-例: [{"name": "フランス", "location": "ヨーロッパ"}, {"name": "パリ", "location": "フランス"}, {"name": "エッフェル塔", "location": "パリ、フランス"}]` :
-    `「${query}」に関連する旅行先5つをJSON配列形式で提供してください。国、都市、観光地すべて含む:
-[{"name": "場所名", "location": "場所"}]`,
-
-    zh: isShortQuery ?
-    `提供5个以"${query}"开头的世界旅游目的地，JSON数组格式。包括国家、城市和景点:
-[{"name": "地点名称", "location": "位置"}]
-
-示例: [{"name": "法国", "location": "欧洲"}, {"name": "巴黎", "location": "法国"}, {"name": "埃菲尔铁塔", "location": "巴黎，法国"}]` :
-    `提供5个与"${query}"相关的旅游目的地，JSON数组格式。包括国家、城市和景点:
-[{"name": "地点名称", "location": "位置"}]`,
-
-    es: isShortQuery ?
-    `Proporciona 5 destinos turísticos mundiales que comiencen con "${query}" en formato JSON array. Incluye países, ciudades y atracciones:
-[{"name": "nombre del lugar", "location": "ubicación"}]
-
-Ejemplo: [{"name": "Francia", "location": "Europa"}, {"name": "París", "location": "Francia"}, {"name": "Torre Eiffel", "location": "París, Francia"}]` :
-    `Proporciona 5 destinos turísticos relacionados con "${query}" en formato JSON array. Incluye países, ciudades y atracciones:
-[{"name": "nombre del lugar", "location": "ubicación"}]`
+    es: `Solo JSON. 5 destinos de "${query}":
+[{"name":"lugar","location":"ubicación"}]`
   };
 
   return prompts[language] || prompts.ko;
@@ -525,50 +480,7 @@ Recomienda 3-4 elementos por categoría. Responde en formato JSON:
   return prompts[language] || prompts.ko;
 }
 
-// 폴백 데이터 생성 함수
-function generateFallbackSuggestions(query: string): {name: string, location: string}[] {
-  const firstChar = query.charAt(0).toLowerCase();
-  
-  // 자주 검색되는 명소들 (글자별)
-  const suggestions = {
-    '에': [
-      {name: '에펠탑', location: '파리, 프랑스'}, 
-      {name: '에든버러', location: '스코틀랜드'},
-      {name: '에르미타주', location: '상트페테르부르크, 러시아'},
-      {name: '에기나섬', location: '그리스'},
-      {name: '에스토니아', location: '발트해 연안'}
-    ],
-    'e': [
-      {name: '에펠탑', location: '파리, 프랑스'},
-      {name: '에든버러', location: '스코틀랜드'},
-      {name: '이집트', location: '중동/아프리카'},
-      {name: '에스파냐', location: '유럽'},
-      {name: '에쿠아도르', location: '남미'}
-    ],
-    'ㅅ': [
-      {name: '서울', location: '한국'},
-      {name: '상하이', location: '중국'},
-      {name: '시드니', location: '호주'},
-      {name: '산토리니', location: '그리스'},
-      {name: '샌프란시스코', location: '미국'}
-    ],
-    's': [
-      {name: '서울', location: '한국'},
-      {name: '싱가포르', location: '동남아시아'},
-      {name: '시드니', location: '호주'},
-      {name: '스위스', location: '유럽'},
-      {name: '스페인', location: '유럽'}
-    ]
-  };
-  
-  return suggestions[firstChar] || [
-    {name: query || '명소', location: '위치 정보'},
-    {name: '파리', location: '프랑스'},
-    {name: '도쿄', location: '일본'},
-    {name: '뉴욕', location: '미국'},
-    {name: '런던', location: '영국'}
-  ];
-}
+// 🗑️ 폴백 데이터 함수 제거 - 정확한 정보만 제공
 
 // Sanitize input
 function sanitizeInput(input: string): string {
@@ -580,102 +492,39 @@ function sanitizeInput(input: string): string {
     .substring(0, 100);
 }
 
-// Parse JSON response with error handling
+// 🚀 개선된 JSON 파싱 (Gemini JSON 모드 최적화)
 function parseAIResponse<T>(text: string): T | null {
   try {
-    // Extract JSON from various formats
-    const patterns = [
-      /```(?:json)?\s*(\[[\s\S]*?\]|\{[\s\S]*?\})\s*```/s,
-      /(\[[\s\S]*?\]|\{[\s\S]*?\})/s
-    ];
-
-    let jsonString = text.trim();
-    for (const pattern of patterns) {
-      const match = text.match(pattern);
-      if (match) {
-        jsonString = match[1] ? match[1].trim() : match[0].trim();
-        break;
-      }
+    // 빈 응답 체크
+    if (!text || text.trim().length === 0) {
+      console.error('❌ 빈 AI 응답');
+      return null;
     }
 
-    return JSON.parse(jsonString) as T;
+    const cleanText = text.trim();
+    console.log('🔍 파싱 시도할 텍스트:', cleanText.substring(0, 200));
+    
+    // 이미 JSON인지 직접 파싱 시도
+    try {
+      return JSON.parse(cleanText) as T;
+    } catch {
+      // JSON 추출 시도
+      const jsonMatch = cleanText.match(/\[[\s\S]*?\]|\{[\s\S]*?\}/);
+      if (jsonMatch) {
+        console.log('🎯 추출된 JSON:', jsonMatch[0].substring(0, 100));
+        return JSON.parse(jsonMatch[0]) as T;
+      }
+      throw new Error('JSON 형태를 찾을 수 없음');
+    }
   } catch (error) {
     console.error('JSON 파싱 실패:', error);
     console.error('📝 원본 텍스트 길이:', text.length);
-    console.error('📝 원본 텍스트 내용:', text.substring(0, 200));
+    console.error('📝 원본 텍스트:', text.substring(0, 500));
     return null;
   }
 }
 
-// 가이드 content에서 위치 정보 추출 함수
-function extractLocationsFromGuideContent(content: any, originalQuery: string): {name: string, location: string}[] {
-  const locations: {name: string, location: string}[] = [];
-  
-  try {
-    console.log('📦 content 구조 분석:', Object.keys(content || {}));
-    
-    // 메인 위치 정보 추가
-    locations.push({
-      name: originalQuery,
-      location: content?.overview?.basicInfo?.location || content?.overview?.title || originalQuery
-    });
-    
-    // route에서 주요 장소들 추출
-    if (content?.route?.keyPlaces) {
-      content.route.keyPlaces.forEach((place: any) => {
-        if (place?.name && place.name !== originalQuery) {
-          locations.push({
-            name: place.name,
-            location: place.description || place.location || originalQuery
-          });
-        }
-      });
-    }
-    
-    // realTimeGuide에서 챕터별 장소 추출
-    if (content?.realTimeGuide?.chapters) {
-      content.realTimeGuide.chapters.forEach((chapter: any) => {
-        if (chapter?.title && chapter.title !== originalQuery) {
-          locations.push({
-            name: chapter.title,
-            location: chapter.location || originalQuery
-          });
-        }
-      });
-    }
-    
-    // overview의 highlights에서 추출
-    if (content?.overview?.highlights) {
-      content.overview.highlights.forEach((highlight: string) => {
-        if (highlight && highlight.length > 2 && highlight !== originalQuery) {
-          locations.push({
-            name: highlight,
-            location: originalQuery
-          });
-        }
-      });
-    }
-    
-    // 중복 제거 및 최대 5개로 제한
-    const uniqueLocations = locations
-      .filter((location, index, arr) => 
-        arr.findIndex(l => l.name.toLowerCase() === location.name.toLowerCase()) === index
-      )
-      .slice(0, 5);
-    
-    console.log('📍 추출된 위치:', uniqueLocations);
-    return uniqueLocations;
-    
-  } catch (error) {
-    console.error('❌ 위치 추출 실패:', error);
-    
-    // 기본값 반환
-    return [{
-      name: originalQuery,
-      location: originalQuery
-    }];
-  }
-}
+// 🗑️ 사용하지 않는 함수 제거됨 (AI 자동완성만 사용)
 
 export async function GET(request: NextRequest) {
   try {
@@ -693,115 +542,74 @@ export async function GET(request: NextRequest) {
     const sanitizedQuery = sanitizeInput(query);
     const lang = VALID_LANGUAGES.includes(language) ? language : 'ko';
 
-    console.log('🔍 위치 검색 시작:', { query: sanitizedQuery, language: lang });
+    console.log('🔍 AI 자동완성 시작:', { query: sanitizedQuery, language: lang });
 
-    // 🔥 1단계: DB에서 기존 가이드 조회 (일반 가이드 로직과 동일)
-    try {
-      const { data: guideData, error: dbError } = await supabase
-        .from('guides')
-        .select('content')
-        .eq('locationname', sanitizedQuery.toLowerCase())
-        .eq('language', lang.toLowerCase())
-        .maybeSingle();
-      
-      if (!dbError && guideData?.content) {
-        console.log('✅ DB에서 가이드 발견, 위치 정보 추출 중');
-        
-        // content에서 위치 관련 정보 추출 (중첩 구조 처리)
-        const actualContent = guideData.content?.content || guideData.content;
-        console.log('🔍 Content 구조 확인:', Object.keys(guideData.content || {}));
-        console.log('🔍 실제 사용할 content 구조:', Object.keys(actualContent || {}));
-        
-        const extractedLocations = extractLocationsFromGuideContent(actualContent, sanitizedQuery);
-        
-        if (extractedLocations && extractedLocations.length > 0) {
-          console.log('📍 가이드에서 위치 정보 추출 성공:', extractedLocations.length, '개');
-          
-          return NextResponse.json({
-            success: true,
-            data: extractedLocations,
-            source: 'database',
-            enhanced: true,
-            fallback: false
-          });
-        }
-      } else {
-        console.log('⚠️ DB에서 가이드 없음, AI 생성 시작');
-      }
-    } catch (dbError) {
-      console.warn('⚠️ DB 조회 실패, AI로 전환:', dbError);
-    }
-
-    // 🔥 2단계: DB에 없으면 AI로 생성 (100% 성공 보장)
+    // 🚀 AI 자동완성 직접 생성 (초효율 JSON 모드)
     const gemini = getGeminiClient();
     const model = gemini.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-flash-lite', // 초고속 경량 모델
       generationConfig: {
-        temperature: 0.3,
-        maxOutputTokens: 800,
+        temperature: 0.1, // 정확성 우선
+        maxOutputTokens: 150, // JSON만 필요하니까 더 줄임
         topP: 0.9,
-        topK: 20
+        topK: 5, // 더 focused
+        responseMimeType: "application/json", // JSON 강제
+      },
+      requestOptions: {
+        timeout: 2000, // 2초로 단축
       }
     });
 
-    // 강화된 프롬프트로 AI 호출
+    // 🚀 AI 자동완성 1회 호출 (빠른 응답)
     console.log('🚀 AI 자동완성 생성 시작');
     const autocompletePrompt = createAutocompletePrompt(sanitizedQuery, lang);
     
-    let attempts = 0;
-    let suggestions: {name: string, location: string}[] | null = null;
-    
-    // 최대 3번 시도로 100% 성공 보장
-    while (attempts < 3 && !suggestions) {
-      attempts++;
-      console.log(`🔄 AI 생성 시도 ${attempts}/3`);
+    try {
+      const autocompleteResult = await model.generateContent(autocompletePrompt);
+      const autocompleteText = await autocompleteResult.response.text();
       
-      try {
-        const autocompleteResult = await model.generateContent(autocompletePrompt);
-        const autocompleteText = await autocompleteResult.response.text();
+      console.log('🧠 AI 응답:', autocompleteText.substring(0, 200));
+      const suggestions = parseAIResponse<{name: string, location: string}[]>(autocompleteText);
+      
+      if (suggestions && suggestions.length > 0) {
+        console.log('✅ AI 자동완성 성공:', suggestions.length, '개');
         
-        console.log('🧠 AI 응답:', autocompleteText.substring(0, 200));
-        suggestions = parseAIResponse<{name: string, location: string}[]>(autocompleteText);
-        
-        if (suggestions && suggestions.length > 0) {
-          console.log('✅ AI 파싱 성공:', suggestions.length, '개');
-          break;
-        }
-      } catch (aiError) {
-        console.warn(`❌ AI 시도 ${attempts} 실패:`, aiError);
-        if (attempts === 3) {
-          throw aiError;
-        }
+        return NextResponse.json({
+          success: true,
+          data: suggestions.slice(0, 5), // 정확히 5개
+          source: 'ai_autocomplete',
+          enhanced: true,
+          fallback: false
+        });
       }
+    } catch (aiError) {
+      console.warn('❌ AI 자동완성 실패:', aiError);
     }
 
-    // AI 성공시 결과 반환
-    if (suggestions && suggestions.length > 0) {
-      let finalSuggestions = suggestions.slice(0, 5);
-      
-      console.log('📊 AI 생성 성공:', finalSuggestions.length, '개');
-      
-      return NextResponse.json({
-        success: true,
-        data: finalSuggestions,
-        source: 'ai_generated',
-        enhanced: true,
-        fallback: false
-      });
-    }
-
-    // 🚨 절대 도달하면 안 되는 지점 - 응급 처치
-    throw new Error('AI 생성이 완전히 실패했습니다');
+    // 🚨 AI 실패 시 빈 결과 반환 (잘못된 정보보다 나음)
+    console.warn('❌ AI 자동완성 실패, 빈 결과 반환');
+    
+    return NextResponse.json({
+      success: true,
+      data: [], // 빈 배열 반환
+      source: 'ai_failed',
+      enhanced: false,
+      fallback: false,
+      message: 'AI 자동완성을 사용할 수 없습니다. 검색어를 직접 입력해주세요.'
+    });
 
   } catch (error) {
     console.error('❌ 위치 검색 완전 실패:', error);
     
+    // 최종 실패 시에도 빈 결과 반환 (잘못된 정보 방지)
     return NextResponse.json({
       success: false,
-      error: '위치 검색 서비스 오류가 발생했습니다',
-      ...(process.env.NODE_ENV === 'development' && {
-        details: error instanceof Error ? error.message : String(error)
-      })
-    }, { status: 500 });
+      data: [],
+      source: 'server_error',
+      enhanced: false,
+      fallback: false,
+      error: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : String(error)) : '서버 오류가 발생했습니다.',
+      message: '검색을 완료할 수 없습니다. 잠시 후 다시 시도해주세요.'
+    });
   }
 }
