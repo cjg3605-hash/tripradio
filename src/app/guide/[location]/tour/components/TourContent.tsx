@@ -595,21 +595,48 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                   const getSmartCoordinates = (locationName: string, index: number, total: number) => {
                     // 🌍 주요 도시별 기본 좌표 (API 없이)
                     const cityCoords: Record<string, {lat: number, lng: number}> = {
+                      // 한국 주요 명소
+                      '경복궁': { lat: 37.5796, lng: 126.9770 },
+                      '남산타워': { lat: 37.5512, lng: 126.9882 },
+                      '명동': { lat: 37.5636, lng: 126.9826 },
+                      '서울': { lat: 37.5665, lng: 126.9780 },
+                      '부산': { lat: 35.1796, lng: 129.0756 },
+                      '제주도': { lat: 33.4996, lng: 126.5312 },
+                      // 해외 주요 도시
                       '에펠탑': { lat: 48.8584, lng: 2.2945 },
                       '파리': { lat: 48.8566, lng: 2.3522 },
                       '도쿄': { lat: 35.6762, lng: 139.6503 },
                       '뉴욕': { lat: 40.7128, lng: -74.0060 },
                       '런던': { lat: 51.5074, lng: -0.1278 },
-                      '로마': { lat: 41.9028, lng: 12.4964 },
-                      '서울': { lat: 37.5665, lng: 126.9780 }
+                      '로마': { lat: 41.9028, lng: 12.4964 }
                     };
                     
-                    // 도시명에서 기본 좌표 찾기
-                    const baseCoord = cityCoords[locationName] || 
-                                     Object.values(cityCoords).find(coord => 
-                                       locationName.includes(Object.keys(cityCoords).find(city => city.includes(locationName.slice(0,2))) || '')
-                                     ) || 
-                                     cityCoords['서울']; // 기본값
+                    console.log(`🔍 좌표 매칭 시도: "${locationName}"`);
+                    
+                    // 1. 정확한 매칭 시도
+                    let baseCoord = cityCoords[locationName];
+                    if (baseCoord) {
+                      console.log(`✅ 정확 매칭: ${locationName} → ${baseCoord.lat}, ${baseCoord.lng}`);
+                    } else {
+                      // 2. 부분 매칭 시도 (한국 명소 우선)
+                      const koreanMatches = Object.keys(cityCoords).filter(city => 
+                        city.includes('경복') || city.includes('남산') || city.includes('명동') || 
+                        city.includes('서울') || city.includes('부산') || city.includes('제주')
+                      );
+                      
+                      const matchedCity = koreanMatches.find(city => 
+                        locationName.includes(city) || city.includes(locationName)
+                      );
+                      
+                      if (matchedCity) {
+                        baseCoord = cityCoords[matchedCity];
+                        console.log(`🎯 부분 매칭: ${locationName} → ${matchedCity} → ${baseCoord.lat}, ${baseCoord.lng}`);
+                      } else {
+                        // 3. 기본값: 서울 중심
+                        baseCoord = cityCoords['서울'];
+                        console.log(`🏠 기본값 사용: ${locationName} → 서울 → ${baseCoord.lat}, ${baseCoord.lng}`);
+                      }
+                    }
                     
                     // 챕터별 스마트 분산 (원형 배치)
                     const angle = (index / total) * 2 * Math.PI;

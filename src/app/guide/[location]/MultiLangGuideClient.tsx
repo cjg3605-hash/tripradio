@@ -329,7 +329,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
     };
 
     initializeGuide();
-  }, [locationName, initialGuide, requestedLanguage, currentLanguage, loadAvailableLanguages, loadGuideForLanguage, saveToHistory]); // 모든 의존성 추가
+  }, [locationName, initialGuide, requestedLanguage, currentLanguage, loadAvailableLanguages, loadGuideForLanguage, saveToHistory, analyzeRouting]); // 모든 의존성 추가
 
   // 🔄 언어 변경 추적용 ref
   const lastLanguageRef = useRef<string | null>(null);

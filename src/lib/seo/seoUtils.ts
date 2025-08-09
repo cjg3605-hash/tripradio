@@ -247,7 +247,7 @@ export function generateJSONLD(data: any): string {
   return JSON.stringify(data, null, 2);
 }
 
-export default {
+const seoUtils = {
   generateStructuredData,
   generateHreflangUrls,
   extractKeywords,
@@ -258,3 +258,5 @@ export default {
   calculateSEOScore,
   generateJSONLD
 };
+
+export default seoUtils;

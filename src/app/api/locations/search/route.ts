@@ -707,8 +707,12 @@ export async function GET(request: NextRequest) {
       if (!dbError && guideData?.content) {
         console.log('✅ DB에서 가이드 발견, 위치 정보 추출 중');
         
-        // content에서 위치 관련 정보 추출
-        const extractedLocations = extractLocationsFromGuideContent(guideData.content, sanitizedQuery);
+        // content에서 위치 관련 정보 추출 (중첩 구조 처리)
+        const actualContent = guideData.content?.content || guideData.content;
+        console.log('🔍 Content 구조 확인:', Object.keys(guideData.content || {}));
+        console.log('🔍 실제 사용할 content 구조:', Object.keys(actualContent || {}));
+        
+        const extractedLocations = extractLocationsFromGuideContent(actualContent, sanitizedQuery);
         
         if (extractedLocations && extractedLocations.length > 0) {
           console.log('📍 가이드에서 위치 정보 추출 성공:', extractedLocations.length, '개');

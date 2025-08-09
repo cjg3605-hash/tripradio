@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { MapPin, Users, Calendar, Clock, Star, ArrowRight, RefreshCw, Info, Compass } from 'lucide-react';
@@ -83,9 +83,9 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
   // 지역 정보 및 추천 장소 로드
   useEffect(() => {
     loadRegionData();
-  }, [locationName]);
+  }, [locationName, loadRegionData]);
 
-  const loadRegionData = async () => {
+  const loadRegionData = useCallback(async () => {
     setIsLoading(true);
     setError('');
 
@@ -140,7 +140,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [locationName, language, routingResult, content]);
 
   const handleSpotClick = (spot: RecommendedSpot) => {
     router.push('/guide/' + encodeURIComponent(spot.name) + '?lang=ko');
