@@ -109,29 +109,24 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
         // API에서 받은 추천 장소들
         let spotsToAdd = result.recommendedSpots || [];
         
-        // content에서 챕터 데이터 파싱하여 추가
-        if (content?.chapters && Array.isArray(content.chapters)) {
-          const chapterSpots = content.chapters
-            .filter((chapter: any) => chapter.title && chapter.lat && chapter.lng)
-            .map((chapter: any, index: number) => ({
-              id: `chapter-${index}`,
-              name: chapter.title,
-              location: locationName,
-              category: 'attraction',
-              description: chapter.narrative || chapter.description || '여행지 정보',
-              highlights: [],
-              estimatedDays: 1,
-              difficulty: 'easy' as const,
-              seasonality: '연중',
-              popularity: 80,
-              coordinates: {
-                lat: parseFloat(chapter.lat),
-                lng: parseFloat(chapter.lng)
-              }
-            }));
+        // content에서 route.steps 데이터 파싱하여 추가
+        if (content?.route?.steps && Array.isArray(content.route.steps)) {
+          const routeSpots = content.route.steps.map((step: any, index: number) => ({
+            id: `route-${index}`,
+            name: step.location || step.title?.split(':')[0]?.trim(), // 여행지 이름만 추출
+            location: locationName,
+            category: 'attraction',
+            description: step.title || `${step.location} 여행지`, // 전체 타이틀 사용
+            highlights: [],
+            estimatedDays: 1,
+            difficulty: 'easy' as const,
+            seasonality: '연중',
+            popularity: 80 + (index * 2), // 순서대로 인기도 차등 적용
+            coordinates: null // 좌표는 별도 API에서 가져올 예정
+          }));
           
-          console.log(`✅ ${chapterSpots.length}개의 챕터 데이터를 추천여행지에 추가`);
-          spotsToAdd = [...spotsToAdd, ...chapterSpots];
+          console.log(`✅ ${routeSpots.length}개의 여행지 데이터를 추천여행지에 추가`);
+          spotsToAdd = [...spotsToAdd, ...routeSpots];
         }
         
         setRecommendedSpots(spotsToAdd);
@@ -148,7 +143,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
   };
 
   const handleSpotClick = (spot: RecommendedSpot) => {
-    router.push('/guide/' + encodeURIComponent(spot.name) + '?from=' + encodeURIComponent(locationName));
+    router.push('/guide/' + encodeURIComponent(spot.name) + '?lang=ko');
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -245,21 +240,21 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
         {/* 🎨 하이라이트 카드 */}
         {regionData?.highlights && regionData.highlights.length > 0 && (
           <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
-            <div className="p-8">
-              <div className="flex items-center gap-3 mb-6">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
                   <Star className="w-4 h-4 text-white" />
                 </div>
                 <h2 className="text-xl font-semibold text-black">주요 특징</h2>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
                 {regionData.highlights.map((highlight, index) => (
                   <div 
                     key={index}
-                    className="flex items-center gap-3 p-4 bg-black/2 rounded-2xl border border-black/5"
+                    className="flex items-start gap-3"
                   >
-                    <div className="w-2 h-2 bg-black rounded-full flex-shrink-0"></div>
-                    <span className="text-black/80 font-medium">{highlight}</span>
+                    <div className="w-1.5 h-1.5 bg-black rounded-full flex-shrink-0 mt-2"></div>
+                    <span className="text-black/80 font-medium leading-relaxed">{highlight}</span>
                   </div>
                 ))}
               </div>
@@ -302,12 +297,12 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
             
             {/* 🎨 추천 장소 리스트 */}
             {filteredSpots.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
                 {filteredSpots.map((spot, index) => (
                   <div 
                     key={spot.id}
                     onClick={() => handleSpotClick(spot)}
-                    className="group relative overflow-hidden rounded-2xl bg-black/2 border border-black/5 p-6 cursor-pointer transition-all duration-300 hover:border-black/20 hover:bg-black/5 active:scale-95 focus:ring-2 focus:ring-black/30 focus:ring-offset-2"
+                    className="group flex items-center justify-between p-4 bg-black/2 border border-black/5 rounded-2xl cursor-pointer transition-all duration-300 hover:border-black/20 hover:bg-black/5 active:scale-[0.99] focus:ring-2 focus:ring-black/30 focus:ring-offset-2"
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => {
@@ -318,37 +313,23 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                     }}
                     aria-label={`${spot.name} 여행지 정보 보기`}
                   >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-black text-white text-sm font-semibold rounded-xl flex items-center justify-center">
-                          {index + 1}
-                        </div>
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="w-8 h-8 bg-black text-white text-sm font-semibold rounded-xl flex items-center justify-center flex-shrink-0">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1">
                         <h3 className="text-lg font-semibold text-black group-hover:text-black/80">
-                          {spot.name}
+                          {spot.description}
                         </h3>
                       </div>
-                      <ArrowRight className="w-5 h-5 text-black/40 group-hover:text-black/60 transition-colors" />
                     </div>
                     
-                    <p className="text-black/70 leading-relaxed mb-4">
-                      {spot.description}
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className={`px-3 py-1 text-xs font-semibold rounded-xl ${getDifficultyColor(spot.difficulty)}`}>
-                          {getDifficultyText(spot.difficulty)}
-                        </span>
-                        <div className="flex items-center gap-1 text-black/60 text-sm">
-                          <Calendar className="w-4 h-4" />
-                          <span>{spot.estimatedDays}일</span>
-                        </div>
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <div className="flex items-center gap-1 text-black/60 text-sm">
+                        <Star className="w-4 h-4 fill-black/60 text-black/60" />
+                        <span className="font-medium">{Math.floor(spot.popularity/10)}</span>
                       </div>
-                      
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-black text-black" />
-                        <span className="text-sm font-medium text-black">{spot.popularity}/10</span>
-                      </div>
+                      <ArrowRight className="w-5 h-5 text-black/40 group-hover:text-black/60 transition-colors" />
                     </div>
                   </div>
                 ))}
@@ -411,25 +392,6 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
           </div>
         )}
 
-        {/* 🎨 가이드 시작 버튼 카드 */}
-        <div className="relative overflow-hidden rounded-3xl bg-black border border-black shadow-lg shadow-black/20 transition-all duration-500 hover:shadow-xl hover:shadow-black/30">
-          <div className="p-8 text-center">
-            <h2 className="text-xl font-semibold text-white mb-3">
-              {regionData?.name || locationName} 상세 가이드
-            </h2>
-            <p className="text-white/80 mb-6">
-              AI 도슨트와 함께 더 깊이 있는 여행을 시작해보세요
-            </p>
-            <button
-              onClick={() => router.push('/guide/' + encodeURIComponent(locationName))}
-              className="flex items-center justify-center gap-3 px-8 py-4 bg-white text-black font-semibold rounded-2xl transition-all duration-300 hover:bg-white/90 active:scale-95 mx-auto focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black"
-              aria-label={`${regionData?.name || locationName} 상세 가이드 시작하기`}
-            >
-              <span>가이드 시작하기</span>
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
           
       </div>
     </div>

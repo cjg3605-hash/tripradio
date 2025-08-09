@@ -141,6 +141,9 @@ function Home() {
     timestamp: number 
   }>>(new Map());
   
+  // fetchSuggestions 함수 안정성을 위한 ref
+  const fetchSuggestionsRef = useRef<((query: string) => Promise<void>) | null>(null);
+  
   // 기능 상태 (분리된 로딩 상태)
   const [loadingStates, setLoadingStates] = useState({
     search: false,
@@ -631,6 +634,9 @@ function Home() {
     }
   }, [currentLanguage, t]);
 
+  // fetchSuggestions를 ref에 할당하여 안정적인 참조 유지
+  fetchSuggestionsRef.current = fetchSuggestions;
+
 
   // 디바운스된 검색 함수 (메모리 안전)
   useEffect(() => {
@@ -641,7 +647,7 @@ function Home() {
       console.log('⏰ 디바운스 실행 전:', { query: query.trim(), isFocused, isMountedRef: isMountedRef.current });
       if (query.trim() && isFocused && isMountedRef.current) {
         console.log('✅ 자동완성 API 호출:', query.trim());
-        fetchSuggestions(query.trim());
+        fetchSuggestionsRef.current?.(query.trim());
       } else {
         console.log('❌ 자동완성 조건 불충족:', { hasQuery: !!query.trim(), isFocused, isMounted: isMountedRef.current });
       }
@@ -650,7 +656,7 @@ function Home() {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [query, currentLanguage, isFocused, fetchSuggestions]);
+  }, [query, currentLanguage, isFocused]); // fetchSuggestions 의존성 제거하여 순환참조 방지
 
   // 컴포넌트 마운트/언마운트 관리 (React Strict Mode 대응)
   useEffect(() => {
@@ -1083,7 +1089,8 @@ function Home() {
                       <span key={index} className="block font-bold whitespace-nowrap w-full" style={{ 
                         height: isMobile ? '36px' : '32px', 
                         lineHeight: isMobile ? '36px' : '32px',
-                        textAlign: 'center'
+                        textAlign: 'center',
+                        fontSize: isMobile ? '1.1em' : '1.1em' // 10% 증가 (기본 1em → 1.1em)
                       }}>
                         {t(`home.landmarks.${landmark}` as any) || landmark}
                       </span>
