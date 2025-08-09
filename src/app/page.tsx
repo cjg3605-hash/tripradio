@@ -683,7 +683,7 @@ function Home() {
     setCurrentLoadingQuery(query.trim());
     setLoadingState('search', true);
     try {
-      router.push(`/guide/${encodeURIComponent(query.trim())}`);
+      router.push(`/guide/${encodeURIComponent(query.trim())}?lang=${currentLanguage}`);
     } catch (error) {
       console.error('Search error:', error);
     } finally {
@@ -721,7 +721,7 @@ function Home() {
           setIsFocused(false);
           setShowSuggestions(false);
           setSelectedSuggestionIndex(-1);
-          router.push(`/guide/${encodeURIComponent(selectedSuggestion.name)}`);
+          router.push(`/guide/${encodeURIComponent(selectedSuggestion.name)}?lang=${currentLanguage}`);
         } else {
           handleSearch();
         }
@@ -841,7 +841,7 @@ function Home() {
           
           // 3단계: 성공적인 페이지 이동
           console.log('🔄 가이드 페이지로 이동 중...');
-          router.push(`/guide/${encodeURIComponent(location)}/tour`);
+          router.push(`/guide/${encodeURIComponent(location)}/tour?lang=${currentLanguage}`);
           
         } catch (jsonError) {
           console.error('❌ JSON 파싱 오류:', jsonError);
@@ -1010,7 +1010,7 @@ function Home() {
     setCurrentLoadingQuery(query.trim());
     if (isMountedRef.current) setAudioPlaying(!audioPlaying);
     setLoadingState('tour', true);
-    router.push(`/guide/${encodeURIComponent(query.trim())}/tour`);
+    router.push(`/guide/${encodeURIComponent(query.trim())}/tour?lang=${currentLanguage}`);
   }, [query, audioPlaying, router, t, setLoadingState]);
 
 
@@ -1090,7 +1090,7 @@ function Home() {
                         height: isMobile ? '36px' : '32px', 
                         lineHeight: isMobile ? '36px' : '32px',
                         textAlign: 'center',
-                        fontSize: isMobile ? '1.1em' : '1.1em' // 10% 증가 (기본 1em → 1.1em)
+                        fontSize: isMobile ? '1.3em' : '1.3em' // 30% 증가 (기본 1em → 1.3em)
                       }}>
                         {t(`home.landmarks.${landmark}` as any) || landmark}
                       </span>
@@ -1306,7 +1306,7 @@ function Home() {
                           setIsFocused(false);
                           setShowSuggestions(false);
                           setSelectedSuggestionIndex(-1);
-                          router.push(`/guide/${encodeURIComponent(selectedLocation)}`);
+                          router.push(`/guide/${encodeURIComponent(selectedLocation)}?lang=${currentLanguage}`);
                         }}
                         onMouseEnter={() => setSelectedSuggestionIndex(index)}
                         onMouseLeave={() => setSelectedSuggestionIndex(-1)}

@@ -733,7 +733,7 @@ export async function GET(request: NextRequest) {
     const model = gemini.getGenerativeModel({
       model: 'gemini-2.5-flash',
       generationConfig: {
-        temperature: 0.1,
+        temperature: 0.3,
         maxOutputTokens: 800,
         topP: 0.9,
         topK: 20
