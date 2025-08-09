@@ -144,16 +144,40 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
               }
             }
             
-            // 장소명은 step.location 또는 step.title 사용
-            const placeName = stepLocation || step.title || `${locationName} 명소 ${index + 1}`;
+            // 장소명 추출: step.location 우선, 없으면 step.title에서 콜론 앞 부분 추출
+            let placeName = stepLocation;
+            if (!placeName && step.title) {
+              // "경복궁: 조선 왕조의 위엄과 아름다움" → "경복궁"
+              placeName = step.title.split(':')[0].trim();
+            }
+            if (!placeName) {
+              placeName = `${locationName} 명소 ${index + 1}`;
+            }
             
-            // 설명은 step.title이나 챕터의 narrative에서 첫 문장 추출
-            let description = step.title || `${placeName}에서 특별한 경험을 만나보세요.`;
-            if (realTimeGuide.chapters && realTimeGuide.chapters[index]?.narrative) {
+            // 설명은 step.title에서 콜론 뒤 부분 또는 챕터의 narrative 사용
+            let description = `${placeName}에서 특별한 경험을 만나보세요.`;
+            
+            // 1순위: step.title에서 콜론 뒤 설명 부분
+            if (step.title && step.title.includes(':')) {
+              const titleDescription = step.title.split(':')[1]?.trim();
+              if (titleDescription && titleDescription.length > 5) {
+                description = titleDescription;
+              }
+            }
+            
+            // 2순위: 챕터 narrative에서 첫 문장 (인사말 제외)
+            if (description === `${placeName}에서 특별한 경험을 만나보세요.` && 
+                realTimeGuide.chapters && realTimeGuide.chapters[index]?.narrative) {
               const narrative = realTimeGuide.chapters[index].narrative;
-              const firstSentence = narrative.split('.')[0] + '.';
-              if (firstSentence.length < 100) {
-                description = firstSentence;
+              const sentences = narrative.split('.');
+              // 인사말("안녕하십니까", "환영합니다" 등) 건너뛰고 의미있는 문장 찾기
+              for (let i = 1; i < sentences.length && i < 3; i++) {
+                const sentence = sentences[i]?.trim();
+                if (sentence && sentence.length > 10 && sentence.length < 100 && 
+                    !sentence.includes('환영합니다') && !sentence.includes('안녕하십니까')) {
+                  description = sentence + '.';
+                  break;
+                }
               }
             }
             
