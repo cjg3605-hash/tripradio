@@ -8,6 +8,7 @@ interface Suggestion {
   id?: string;
   name: string;
   location: string;
+  isMainLocation?: boolean;
   metadata?: {
     isOfficial?: boolean;
     category?: string;
@@ -88,15 +89,10 @@ export default function NextLevelSearchBox() {
           console.warn('검색 제안 오류:', error);
           setHasAttemptedSearch(true); // 에러도 검색 시도로 간주
         } finally {
-          // 최소 500ms 로딩 표시로 깜빡임 방지
-          const elapsed = Date.now() - startTime;
-          const minDelay = Math.max(0, 500 - elapsed);
-          
-          setTimeout(() => {
-            setIsTyping(false);
-          }, minDelay);
+          // 즉시 로딩 완료 표시
+          setIsTyping(false);
         }
-      }, 200); // 200ms 디바운스 (최적화)
+      }, 100); // 100ms 디바운스 (더 빠름)
       return () => clearTimeout(timer);
     } else {
       setSuggestions([]);
@@ -330,9 +326,13 @@ export default function NextLevelSearchBox() {
                         w-full text-left transition-all duration-200 ease-out
                         group focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset
                         touch-target-comfortable
-                        ${selectedIndex === index 
-                          ? 'bg-blue-50 border-l-4 border-l-blue-500 text-blue-900' 
-                          : 'hover:bg-gray-50'
+                        ${suggestion.isMainLocation 
+                          ? selectedIndex === index
+                            ? 'bg-gradient-to-r from-indigo-50 to-blue-50 border-l-4 border-l-indigo-500 text-indigo-900'
+                            : 'bg-gradient-to-r from-indigo-50/30 to-blue-50/30 border-l-2 border-l-indigo-300 hover:from-indigo-50 hover:to-blue-50'
+                          : selectedIndex === index 
+                            ? 'bg-blue-50 border-l-4 border-l-blue-500 text-blue-900' 
+                            : 'hover:bg-gray-50'
                         }
                       `}
                       style={{
@@ -342,25 +342,47 @@ export default function NextLevelSearchBox() {
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
+                            {suggestion.isMainLocation && (
+                              <svg className="w-4 h-4 text-indigo-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                              </svg>
+                            )}
                             <div className={`
                               font-medium transition-colors
-                              ${selectedIndex === index ? 'text-blue-900' : 'text-gray-900 group-hover:text-black'}
+                              ${suggestion.isMainLocation
+                                ? selectedIndex === index 
+                                  ? 'text-indigo-900 font-semibold' 
+                                  : 'text-indigo-800 font-semibold group-hover:text-indigo-900'
+                                : selectedIndex === index 
+                                  ? 'text-blue-900' 
+                                  : 'text-gray-900 group-hover:text-black'
+                              }
                             `}>
                               {suggestion.name}
                             </div>
                             {suggestion.metadata?.isOfficial && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                {t('search.official')}
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                                suggestion.isMainLocation 
+                                  ? 'bg-indigo-100 text-indigo-800' 
+                                  : 'bg-green-100 text-green-800'
+                              }`}>
+                                {suggestion.isMainLocation ? '📍 위치' : t('search.official')}
                               </span>
                             )}
-                            {suggestion.metadata?.category && (
+                            {suggestion.metadata?.category && !suggestion.isMainLocation && (
                               <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
                                 {suggestion.metadata.category}
                               </span>
                             )}
                           </div>
                           <div className={`text-sm mt-1 ${
-                            selectedIndex === index ? 'text-blue-700' : 'text-gray-500'
+                            suggestion.isMainLocation
+                              ? selectedIndex === index 
+                                ? 'text-indigo-700 font-medium' 
+                                : 'text-indigo-600 font-medium'
+                              : selectedIndex === index 
+                                ? 'text-blue-700' 
+                                : 'text-gray-500'
                           }`}>
                             {suggestion.location}
                           </div>

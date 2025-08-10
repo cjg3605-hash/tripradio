@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// 동적 렌더링 강제 및 Vercel 최적화
+// 동적 렌더링 강제 (API는 동적이어야 함)
 export const dynamic = 'force-dynamic';
 export const maxDuration = 20; // Vercel Pro에서 최대 20초
 
@@ -9,6 +9,7 @@ export const maxDuration = 20; // Vercel Pro에서 최대 20초
 interface LocationSuggestion {
   name: string;
   location: string;
+  isMainLocation?: boolean;
   coordinates?: {
     lat: number;
     lng: number;
@@ -54,23 +55,37 @@ const LOCATION_EXPERT_PERSONA = `당신은 전세계 지리 및 위치 정보 �
 - 지리적 좌표와 행정구역 정보
 - 관광지의 실제 중요도와 접근성`;
 
-// 🚀 초효율 자동완성 프롬프트 (최소 토큰)
+// 🚀 초효율 자동완성 프롬프트 (도시/국가 우선 + 관광명소)
 function createAutocompletePrompt(query: string, language: Language): string {
   const prompts = {
-    ko: `JSON만 응답. "${query}" 관련 여행지 5개:
-[{"name":"장소명","location":"위치"}]`,
+    ko: `JSON만. "${query}" → 6개:
+1. 도시정식명 (예: "파리,프랑스")
+2-6. 관광명소
+[{"name":"","location":"","isMainLocation":true/false}]`,
 
-    en: `JSON only. 5 destinations for "${query}":
-[{"name":"place","location":"area"}]`,
+    en: `JSON only. Provide 6 results for "${query}" in this order:
+1. First: Official name of the city/country/region user typed (e.g., "Paris" input → "Paris, France")  
+2. Next 5: Major attractions in that area
 
-    ja: `JSON のみ。「${query}」関連の旅行先5つ:
-[{"name":"場所","location":"地域"}]`,
+Format: [{"name":"city/place","location":"country/region","isMainLocation":true/false}]`,
 
-    zh: `仅JSON。"${query}"相关旅游地5个:
-[{"name":"地点","location":"位置"}]`,
+    ja: `JSON のみ。「${query}」の検索結果を以下の順番で6個提供:
+1. 最初：ユーザーが入力した都市/国/地域の正式名称（例：「パリ」入力時→「パリ、フランス」）
+2. 残り5個：その地域の主要観光名所
 
-    es: `Solo JSON. 5 destinos de "${query}":
-[{"name":"lugar","location":"ubicación"}]`
+形式: [{"name":"都市/場所","location":"国/地域","isMainLocation":true/false}]`,
+
+    zh: `仅JSON。按以下顺序提供"${query}"搜索结果6个:
+1. 第一个：用户输入的城市/国家/地区的正式名称（例：输入"巴黎"→"巴黎，法国"）
+2. 其余5个：该地区的主要旅游景点
+
+格式: [{"name":"城市/地点","location":"国家/地区","isMainLocation":true/false}]`,
+
+    es: `Solo JSON. Proporciona 6 resultados para "${query}" en este orden:
+1. Primero: Nombre oficial de la ciudad/país/región que escribió el usuario (ej: "París" → "París, Francia")
+2. Siguientes 5: Principales atracciones de esa área  
+
+Formato: [{"name":"ciudad/lugar","location":"país/región","isMainLocation":true/false}]`
   };
 
   return prompts[language] || prompts.ko;
@@ -480,7 +495,9 @@ Recomienda 3-4 elementos por categoría. Responde en formato JSON:
   return prompts[language] || prompts.ko;
 }
 
-// 🗑️ 폴백 데이터 함수 제거 - 정확한 정보만 제공
+// 간단한 메모리 캐시 (개발환경용)
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5분
 
 // Sanitize input
 function sanitizeInput(input: string): string {
@@ -544,13 +561,27 @@ export async function GET(request: NextRequest) {
 
     console.log('🔍 AI 자동완성 시작:', { query: sanitizedQuery, language: lang });
 
+    // 캐시 확인
+    const cacheKey = `${sanitizedQuery}-${lang}`;
+    const cached = cache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      console.log('💾 캐시에서 반환:', cached.data.length, '개');
+      return NextResponse.json({
+        success: true,
+        data: cached.data,
+        source: 'cache',
+        enhanced: true,
+        fallback: false
+      });
+    }
+
     // 🚀 AI 자동완성 직접 생성 (초효율 JSON 모드)
     const gemini = getGeminiClient();
     const model = gemini.getGenerativeModel({
       model: 'gemini-2.5-flash-lite', // 초고속 경량 모델
       generationConfig: {
         temperature: 0.1, // 정확성 우선
-        maxOutputTokens: 150, // JSON만 필요하니까 더 줄임
+        maxOutputTokens: 250, // 최소한으로 줄임
         topP: 0.9,
         topK: 5, // 더 focused
         responseMimeType: "application/json", // JSON 강제
@@ -566,14 +597,30 @@ export async function GET(request: NextRequest) {
       const autocompleteText = await autocompleteResult.response.text();
       
       console.log('🧠 AI 응답:', autocompleteText.substring(0, 200));
-      const suggestions = parseAIResponse<{name: string, location: string}[]>(autocompleteText);
+      const suggestions = parseAIResponse<{name: string, location: string, isMainLocation?: boolean}[]>(autocompleteText);
       
       if (suggestions && suggestions.length > 0) {
         console.log('✅ AI 자동완성 성공:', suggestions.length, '개');
         
+        // 첫 번째 항목을 메인 위치로 표시하고, 나머지는 관광명소로 처리
+        const processedSuggestions = suggestions.slice(0, 6).map((suggestion, index) => ({
+          ...suggestion,
+          isMainLocation: index === 0 || suggestion.isMainLocation === true,
+          metadata: {
+            isOfficial: index === 0 || suggestion.isMainLocation === true,
+            category: index === 0 || suggestion.isMainLocation === true ? 'location' : 'attraction'
+          }
+        }));
+
+        // 캐시에 저장
+        cache.set(cacheKey, {
+          data: processedSuggestions,
+          timestamp: Date.now()
+        });
+        
         return NextResponse.json({
           success: true,
-          data: suggestions.slice(0, 5), // 정확히 5개
+          data: processedSuggestions,
           source: 'ai_autocomplete',
           enhanced: true,
           fallback: false
