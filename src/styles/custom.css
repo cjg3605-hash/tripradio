@@ -42,10 +42,11 @@
   }
 }
 
-/* 데스크톱 (1024px 이상) - 전체 화면 활용 */
+/* 데스크톱 (1024px 이상) - 헤더 하단부터 시작 */
 @media (min-width: 1024px) {
   .hero-background-container {
-    height: calc(100vh - 264px); /* 검색박스 여백만 제외, 헤더는 위에 겹치도록 */
+    top: 74px; /* 헤더 하단부터 시작 */
+    height: calc(100vh - 74px - 264px); /* 헤더 높이와 검색박스 여백 모두 제외 */
     min-height: 350px;
   }
 }
