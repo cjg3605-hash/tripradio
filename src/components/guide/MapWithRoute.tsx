@@ -529,7 +529,7 @@ export default function MapWithRoute({
         )}
         
         {/* 루트 라인 - 모던 모노크롬 스타일 */}
-        {routePositions.length > 1 && (
+        {showRoute && routePositions.length > 1 && (
           <Polyline 
             {...({
               positions: routePositions,
