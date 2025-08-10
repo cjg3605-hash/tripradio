@@ -1053,7 +1053,7 @@ function Home() {
               borderRadius: 'inherit'
             }}
           />
-        ))
+        ))}
       </div>
 
       {/* SEO Structured Data */}
