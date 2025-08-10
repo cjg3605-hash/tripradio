@@ -2,6 +2,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Roboto } from 'next/font/google';
 import './globals.css';
+import '@/styles/custom.css';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import SessionProvider from '@/components/providers/SessionProvider';
 import ClientLayout from '@/components/layout/ClientLayout';
