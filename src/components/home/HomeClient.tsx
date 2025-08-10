@@ -471,7 +471,7 @@ function HomeClient() {
         </div>
 
         {/* Hero Section */}
-        <section className="relative z-10 flex flex-col items-center justify-center px-6 pt-12 pb-4">
+        <section className="relative z-10 flex flex-col items-center justify-center px-6 pt-4 pb-4">
           
           {/* Hero Typography */}
           <div className={`

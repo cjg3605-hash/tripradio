@@ -9,11 +9,11 @@
 .hero-background-container {
   position: absolute;
   overflow: hidden;
-  top: 73px; /* 헤더 끝나는 부분부터 시작 */
+  top: 73px; /* 헤더 높이만큼 아래에서 시작 */
   left: 0;
   right: 0;
   /* 헤더부터 검색박스 위까지의 높이를 동적으로 계산 */
-  height: calc(100vh - 73px - 220px); /* 검색박스와 여백을 위한 공간 확보 */
+  height: calc(100vh - 73px - 180px); /* 헤더와 검색박스 여백을 위한 공간 확보 */
   min-height: 300px; /* 최소 높이 보장 */
   width: 100vw;
   border-radius: 0 0 24px 24px;
@@ -29,7 +29,7 @@
 /* 모바일 (640px 미만) - 전체 화면 활용 */
 @media (max-width: 639px) {
   .hero-background-container {
-    height: calc(100vh - 73px - 180px); /* 모바일에서 검색 영역을 위한 여백 */
+    height: calc(100vh - 73px - 160px); /* 모바일에서 검색 영역을 위한 여백 */
     min-height: 250px; /* 모바일 최소 높이 */
   }
 }
@@ -37,7 +37,7 @@
 /* 태블릿 (640px - 1023px) - 전체 화면 활용 */
 @media (min-width: 640px) and (max-width: 1023px) {
   .hero-background-container {
-    height: calc(100vh - 73px - 200px); /* 태블릿에서 검색 영역을 위한 여백 */
+    height: calc(100vh - 73px - 170px); /* 태블릿에서 검색 영역을 위한 여백 */
     min-height: 300px;
   }
 }
@@ -45,7 +45,7 @@
 /* 데스크톱 (1024px 이상) - 전체 화면 활용 */
 @media (min-width: 1024px) {
   .hero-background-container {
-    height: calc(100vh - 73px - 220px); /* 데스크톱에서 검색 영역을 위한 여백 */
+    height: calc(100vh - 73px - 180px); /* 데스크톱에서 검색 영역을 위한 여백 */
     min-height: 350px;
   }
 }
