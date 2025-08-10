@@ -49,21 +49,42 @@ export function useLocationTranslation() {
           newLanguage
         );
         
-        // 3. URL 업데이트
-        if (translatedLocationName !== currentLocationName) {
+        // 3. URL 업데이트 (언어 매개변수 포함)
+        if (translatedLocationName !== currentLocationName || newLanguage !== 'ko') {
           const newEncodedName = MicrosoftTranslator.toUrlFriendly(translatedLocationName);
-          const newPath = pageType 
-            ? `/guide/${newEncodedName}/${pageType}`
-            : `/guide/${newEncodedName}`;
           
-          console.log('🔄 URL 업데이트:', {
+          // 언어 매개변수를 쿼리 문자열에 추가 (한국어가 아닌 경우)
+          const langParam = newLanguage !== 'ko' ? `?lang=${newLanguage}` : '';
+          
+          const newPath = pageType 
+            ? `/guide/${newEncodedName}/${pageType}${langParam}`
+            : `/guide/${newEncodedName}${langParam}`;
+          
+          console.log('🔄 URL 업데이트 (언어 매개변수 포함):', {
             from: pathname,
             to: newPath,
-            translation: `${currentLocationName} → ${translatedLocationName}`
+            translation: `${currentLocationName} → ${translatedLocationName}`,
+            language: newLanguage,
+            koreanBaseName: koreanLocationName
           });
           
-          // 페이지 새로고침 없이 URL 변경
-          router.push(newPath);
+          // 브라우저 히스토리에 한국어 베이스 이름과 원본 분류 정보 저장
+          const stateData = {
+            koreanLocationName,
+            originalLocationName: currentLocationName,
+            translatedLocationName,
+            targetLanguage: newLanguage,
+            isTranslatedRoute: true
+          };
+          
+          // 페이지 새로고침 없이 URL 변경 (상태 정보 포함)
+          router.push(newPath, { scroll: false });
+          
+          // 브라우저 세션 스토리지에 번역 컨텍스트 저장
+          if (typeof window !== 'undefined') {
+            window.sessionStorage.setItem('translationContext', JSON.stringify(stateData));
+          }
+          
           return true; // 번역 및 라우팅 완료
         } else {
           console.log('📍 번역 결과가 동일하여 URL 변경 불필요');

@@ -239,18 +239,41 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
     }
   }, [locationName]);
 
-  // 🎯 라우팅 분석 함수
+  // 🎯 라우팅 분석 함수 (번역 컨텍스트 지원)
   const analyzeRouting = useCallback(async () => {
     try {
-      // 🚀 위치 라우팅 분석 시작: locationName
-      const result = await routeLocationQueryCached(locationName, currentLanguage);
+      // 세션 스토리지에서 번역 컨텍스트 확인
+      let translationContext;
+      if (typeof window !== 'undefined') {
+        const storedContext = window.sessionStorage.getItem('translationContext');
+        if (storedContext) {
+          try {
+            translationContext = JSON.parse(storedContext);
+            console.log('🌐 번역 컨텍스트 발견:', translationContext);
+          } catch (e) {
+            console.warn('번역 컨텍스트 파싱 실패:', e);
+          }
+        }
+      }
+      
+      // 🚀 위치 라우팅 분석 시작: locationName (번역 컨텍스트 포함)
+      const result = await routeLocationQueryCached(
+        locationName, 
+        currentLanguage, 
+        translationContext
+      );
       setRoutingResult(result);
       
       // RegionExploreHub 페이지 여부 결정
       const shouldShowHub = result.pageType === 'RegionExploreHub';
       setShouldShowExploreHub(shouldShowHub);
       
-      // 📍 라우팅 분석 완료: { pageType: result.pageType, confidence: result.confidence, showHub: shouldShowHub }
+      console.log('📍 라우팅 분석 완료:', { 
+        pageType: result.pageType, 
+        confidence: result.confidence, 
+        showHub: shouldShowHub,
+        hasTranslationContext: !!translationContext 
+      });
     } catch (error) {
       console.warn('⚠️ 라우팅 분석 실패, 기본 가이드 페이지 사용:', error);
       setShouldShowExploreHub(false);

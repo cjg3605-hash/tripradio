@@ -32,11 +32,17 @@ export interface LocationRoutingResult {
  * 
  * @param query - 사용자 검색어
  * @param language - 분석 언어 (기본값: 'ko')
+ * @param translationContext - 번역 컨텍스트 (선택적)
  * @returns LocationRoutingResult
  */
 export async function routeLocationQuery(
   query: string, 
-  language: string = 'ko'
+  language: string = 'ko',
+  translationContext?: {
+    koreanLocationName?: string;
+    isTranslatedRoute?: boolean;
+    originalLocationName?: string;
+  }
 ): Promise<LocationRoutingResult> {
   const normalizedQuery = query.trim();
   
@@ -49,7 +55,31 @@ export async function routeLocationQuery(
     };
   }
   
-  console.log('🔍 Location routing started:', { query: normalizedQuery, language });
+  console.log('🔍 Location routing started:', { 
+    query: normalizedQuery, 
+    language, 
+    translationContext 
+  });
+  
+  // 0단계: 번역 컨텍스트가 있는 경우 한국어 베이스로 우선 분류 시도
+  if (translationContext?.koreanLocationName && translationContext.isTranslatedRoute) {
+    console.log('🌐 번역 컨텍스트 감지, 한국어 베이스로 분류 시도:', translationContext.koreanLocationName);
+    
+    const koreanLocationData = classifyLocation(translationContext.koreanLocationName);
+    if (koreanLocationData) {
+      const pageType = determinePageType(koreanLocationData);
+      const result: LocationRoutingResult = {
+        pageType,
+        locationData: koreanLocationData,
+        confidence: 0.98, // 번역 컨텍스트가 있으므로 높은 신뢰도
+        processingMethod: 'exact_match',
+        reasoning: `번역 컨텍스트 기반 분류: ${translationContext.koreanLocationName} → ${koreanLocationData.type} (레벨 ${koreanLocationData.level})`
+      };
+      
+      console.log('✅ Translation context match:', result);
+      return result;
+    }
+  }
   
   // 1단계: 정확한 위치 매칭 시도
   const locationData = classifyLocation(normalizedQuery);
@@ -68,9 +98,22 @@ export async function routeLocationQuery(
     return result;
   }
   
-  // 2단계: AI 기반 의도 분석
+  // 2단계: AI 기반 의도 분석 (번역 컨텍스트 힌트 포함)
   try {
     const intentAnalysis = await comprehensiveIntentAnalysis(normalizedQuery, language);
+    
+    // 번역 컨텍스트가 있는 경우 분류 신뢰도 향상
+    if (intentAnalysis && translationContext?.koreanLocationName) {
+      console.log('🌐 번역 컨텍스트로 AI 분석 결과 보정');
+      
+      // 한국어 베이스가 도시인 경우 RegionExploreHub로 강제 보정
+      const koreanLocationData = classifyLocation(translationContext.koreanLocationName);
+      if (koreanLocationData && koreanLocationData.level <= 3) {
+        intentAnalysis.pageType = 'RegionExploreHub';
+        intentAnalysis.confidence = Math.max(intentAnalysis.confidence, 0.95);
+        intentAnalysis.reasoning += ` (번역 컨텍스트 보정: ${translationContext.koreanLocationName} → ${koreanLocationData.type})`;
+      }
+    }
     
     if (intentAnalysis && intentAnalysis.confidence >= 0.7) {
       const result: LocationRoutingResult = {
@@ -81,7 +124,7 @@ export async function routeLocationQuery(
         reasoning: `AI 의도 분석: ${intentAnalysis.reasoning}`
       };
       
-      console.log('🤖 Intent-based routing:', result);
+      console.log('🤖 Intent-based routing (with context):', result);
       return result;
     }
   } catch (error) {
@@ -248,12 +291,17 @@ export const routingStatsCollector = new RoutingStatsCollector();
  */
 export async function routeLocationQueryWithStats(
   query: string,
-  language: string = 'ko'
+  language: string = 'ko',
+  translationContext?: {
+    koreanLocationName?: string;
+    isTranslatedRoute?: boolean;
+    originalLocationName?: string;
+  }
 ): Promise<LocationRoutingResult> {
   const startTime = Date.now();
   
   try {
-    const result = await routeLocationQuery(query, language);
+    const result = await routeLocationQuery(query, language, translationContext);
     const processingTime = Date.now() - startTime;
     
     // 통계 기록
@@ -398,22 +446,34 @@ export const routingCache = new LRUCache<LocationRoutingResult>(200, 30); // 30�
  */
 export async function routeLocationQueryCached(
   query: string,
-  language: string = 'ko'
+  language: string = 'ko',
+  translationContext?: {
+    koreanLocationName?: string;
+    isTranslatedRoute?: boolean;
+    originalLocationName?: string;
+  }
 ): Promise<LocationRoutingResult> {
-  const cacheKey = `${query.toLowerCase().trim()}:${language}`;
+  // 번역 컨텍스트가 있는 경우 캐시 키에 한국어 베이스 포함
+  const contextKey = translationContext?.koreanLocationName 
+    ? `:ctx:${translationContext.koreanLocationName}`
+    : '';
+  const cacheKey = `${query.toLowerCase().trim()}:${language}${contextKey}`;
   
-  // 캐시에서 확인
-  const cachedResult = routingCache.get(cacheKey);
-  if (cachedResult) {
-    console.log('🎯 Cache hit for routing:', query);
-    return cachedResult;
+  // 캐시에서 확인 (번역 컨텍스트가 있는 경우 캐시 우선도 낮춤)
+  if (!translationContext?.isTranslatedRoute) {
+    const cachedResult = routingCache.get(cacheKey);
+    if (cachedResult) {
+      console.log('🎯 Cache hit for routing:', query);
+      return cachedResult;
+    }
   }
   
   // 새로 계산
-  const result = await routeLocationQueryWithStats(query, language);
+  const result = await routeLocationQueryWithStats(query, language, translationContext);
   
-  // 높은 신뢰도 결과만 캐시에 저장
-  if (result.confidence >= 0.7) {
+  // 높은 신뢰도 결과만 캐시에 저장 (번역 컨텍스트 기반 결과는 더 높은 신뢰도 요구)
+  const cacheThreshold = translationContext?.isTranslatedRoute ? 0.9 : 0.7;
+  if (result.confidence >= cacheThreshold) {
     routingCache.set(cacheKey, result);
   }
   
