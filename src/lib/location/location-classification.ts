@@ -600,22 +600,80 @@ export const LANDMARKS: Record<string, LocationData> = {
     popularity: 9
   },
   
+  // 인도 명소
+  "아그라 타지마할": {
+    type: "landmark",
+    level: 4,
+    country: "인도",
+    parent: "아그라",
+    aliases: ["Taj Mahal", "타지마할", "타지마할 무덤", "タージマハル", "泰姬陵", "Taj Mahal Mausoleum"],
+    coordinates: { lat: 27.1751, lng: 78.0421 },
+    popularity: 10
+  },
+  "델리 붉은요새": {
+    type: "landmark",
+    level: 4,
+    country: "인도",
+    parent: "델리",
+    aliases: ["Red Fort", "붉은요새", "델리 레드포트", "Lal Qila", "ラール・キラー", "红堡", "레드포트", "赤い要塞"],
+    coordinates: { lat: 28.6562, lng: 77.2410 },
+    popularity: 9
+  },
+  "델리 인도문": {
+    type: "landmark",
+    level: 4,
+    country: "인도", 
+    parent: "델리",
+    aliases: ["India Gate", "인도문", "델리 인디아 게이트", "इंडिया गेट", "インド門", "印度门", "인디아 게이트"],
+    coordinates: { lat: 28.6129, lng: 77.2295 },
+    popularity: 9
+  },
+
+  // 태국 명소
+  "방콕 대왕궁": {
+    type: "landmark",
+    level: 4,
+    country: "태국",
+    parent: "방콕",
+    aliases: ["Grand Palace", "대왕궁", "방콕 그랜드 팰리스", "พระบรมมหาราชวัง", "王宮", "グランドパレス", "왕궁", "그랜드 팰리스"],
+    coordinates: { lat: 13.7500, lng: 100.4913 },
+    popularity: 10
+  },
+  "방콕 왓포": {
+    type: "landmark",
+    level: 4,
+    country: "태국",
+    parent: "방콕",
+    aliases: ["Wat Pho", "왓포", "방콕 와트포", "วัดโพธิ์", "ワット・ポー", "卧佛寺", "와트 포", "포사원", "왓 포"],
+    coordinates: { lat: 13.7465, lng: 100.4925 },
+    popularity: 9
+  },
+
   // 프랑스 명소
-  "에펠탑": {
+  "파리 에펠탑": {
     type: "landmark",
     level: 4,
     country: "프랑스",
     parent: "파리",
-    aliases: ["Eiffel Tower", "Tour Eiffel", "エッフェル塔", "埃菲尔铁塔"],
+    aliases: ["Eiffel Tower", "에펠탑", "파리 에펠타워", "Tour Eiffel", "エッフェル塔", "埃菲尔铁塔"],
     coordinates: { lat: 48.8584, lng: 2.2945 },
     popularity: 10
   },
-  "루브르박물관": {
+  "파리 개선문": {
     type: "landmark",
     level: 4,
     country: "프랑스",
     parent: "파리",
-    aliases: ["Louvre Museum", "Musée du Louvre", "ルーヴル美術館", "卢浮宫"],
+    aliases: ["Arc de Triomphe", "개선문", "파리 아르크 드 트리옹프", "凯旋门", "凱旋門", "아르크 드 트리옹프"],
+    coordinates: { lat: 48.8738, lng: 2.2950 },
+    popularity: 9
+  },
+  "파리 루브르박물관": {
+    type: "landmark",
+    level: 4,
+    country: "프랑스",
+    parent: "파리",
+    aliases: ["Louvre Museum", "루브르박물관", "파리 루브르", "Musée du Louvre", "ルーヴル美術館", "卢浮宫"],
     coordinates: { lat: 48.8606, lng: 2.3376 },
     popularity: 10
   },
@@ -647,30 +705,30 @@ export const LANDMARKS: Record<string, LocationData> = {
   },
   
   // 미국 명소
-  "자유의여신상": {
+  "뉴욕 자유의여신상": {
     type: "landmark",
     level: 4,
     country: "미국",
     parent: "뉴욕",
-    aliases: ["Statue of Liberty", "Liberty Island", "自由の女神像", "自由女神像"],
+    aliases: ["Statue of Liberty", "자유의여신상", "뉴욕 스타츄 오브 리버티", "Liberty Island", "自由の女神像", "自由女神像"],
     coordinates: { lat: 40.6892, lng: -74.0445 },
     popularity: 10
   },
-  "엠파이어스테이트빌딩": {
+  "뉴욕 엠파이어스테이트빌딩": {
     type: "landmark",
     level: 4,
     country: "미국",
     parent: "뉴욕",
-    aliases: ["Empire State Building", "エンパイアステートビル", "帝国大厦"],
+    aliases: ["Empire State Building", "엠파이어스테이트빌딩", "뉴욕 엠파이어", "エンパイアステートビル", "帝国大厦"],
     coordinates: { lat: 40.7484, lng: -73.9857 },
     popularity: 9
   },
-  "센트럴파크": {
+  "뉴욕 센트럴파크": {
     type: "landmark",
     level: 4,
     country: "미국",
     parent: "뉴욕",
-    aliases: ["Central Park", "セントラルパーク", "中央公园"],
+    aliases: ["Central Park", "센트럴파크", "뉴욕 센트럴 파크", "セントラルパーク", "中央公园"],
     coordinates: { lat: 40.7829, lng: -73.9654 },
     popularity: 9
   },
@@ -691,6 +749,104 @@ export const LANDMARKS: Record<string, LocationData> = {
     aliases: ["Golden Gate Bridge", "ゴールデンゲートブリッジ", "金门大桥"],
     coordinates: { lat: 37.8199, lng: -122.4783 },
     popularity: 9
+  },
+
+  // 영국 명소
+  "빅벤": {
+    type: "landmark",
+    level: 4,
+    country: "영국",
+    parent: "런던",
+    aliases: ["Big Ben", "Elizabeth Tower", "ビッグベン", "大本钟", "엘리자베스 타워"],
+    coordinates: { lat: 51.4994, lng: -0.1245 },
+    popularity: 9
+  },
+  "런던아이": {
+    type: "landmark",
+    level: 4,
+    country: "영국",
+    parent: "런던",
+    aliases: ["London Eye", "ロンドンアイ", "伦敦眼", "런던 아이", "밀레니엄 휠"],
+    coordinates: { lat: 51.5033, lng: -0.1196 },
+    popularity: 9
+  },
+  "타워브리지": {
+    type: "landmark",
+    level: 4,
+    country: "영국",
+    parent: "런던",
+    aliases: ["Tower Bridge", "タワーブリッジ", "伦敦塔桥", "런던 타워브리지"],
+    coordinates: { lat: 51.5055, lng: -0.0754 },
+    popularity: 8
+  },
+
+  // 이탈리아 명소
+  "로마 콜로세움": {
+    type: "landmark",
+    level: 4,
+    country: "이탈리아",
+    parent: "로마",
+    aliases: ["Colosseum", "콜로세움", "로마 원형경기장", "Colosseo", "コロッセオ", "斗兽场"],
+    coordinates: { lat: 41.8902, lng: 12.4922 },
+    popularity: 10
+  },
+  "로마 트레비분수": {
+    type: "landmark",
+    level: 4,
+    country: "이탈리아",
+    parent: "로마",
+    aliases: ["Trevi Fountain", "트레비분수", "트레비 분수", "Fontana di Trevi", "トレヴィの泉", "特莱维喷泉"],
+    coordinates: { lat: 41.9009, lng: 12.4833 },
+    popularity: 9
+  },
+  "피사의사탑": {
+    type: "landmark",
+    level: 4,
+    country: "이탈리아",
+    parent: "피사",
+    aliases: ["Leaning Tower of Pisa", "Torre di Pisa", "ピサの斜塔", "比萨斜塔", "피사 사탑"],
+    coordinates: { lat: 43.7230, lng: 10.3966 },
+    popularity: 9
+  },
+
+  // 스페인 명소
+  "바르셀로나 사그라다파밀리아": {
+    type: "landmark",
+    level: 4,
+    country: "스페인",
+    parent: "바르셀로나",
+    aliases: ["Sagrada Familia", "사그라다파밀리아", "성가족성당", "Sagrada Família", "サグラダ・ファミリア", "圣家堂"],
+    coordinates: { lat: 41.4036, lng: 2.1744 },
+    popularity: 10
+  },
+  "그라나다 알함브라궁전": {
+    type: "landmark",
+    level: 4,
+    country: "스페인",
+    parent: "그라나다",
+    aliases: ["Alhambra", "알함브라궁전", "알함브라", "알람브라", "アルハンブラ宮殿", "阿兰布拉宫"],
+    coordinates: { lat: 37.1773, lng: -3.5986 },
+    popularity: 9
+  },
+
+  // 중국 명소
+  "자금성": {
+    type: "landmark",
+    level: 4,
+    country: "중국",
+    parent: "베이징",
+    aliases: ["Forbidden City", "紫禁城", "故宫", "しきんじょう", "자금성", "고궁"],
+    coordinates: { lat: 39.9163, lng: 116.3972 },
+    popularity: 10
+  },
+  "만리장성": {
+    type: "landmark",
+    level: 4,
+    country: "중국",
+    parent: "베이징",
+    aliases: ["Great Wall of China", "长城", "万里长城", "ばんりちょうじょう", "중국 대성벽"],
+    coordinates: { lat: 40.4319, lng: 116.5704 },
+    popularity: 10
   }
 };
 
@@ -832,7 +988,7 @@ export const TEST_CASES = [
   { input: "뮌헨", expected: "RegionExploreHub", type: "city" },
   
   // 상세가이드 예상 (DetailedGuidePage)
-  { input: "에펠탑", expected: "DetailedGuidePage", type: "landmark" },
+  { input: "파리 에펠탑", expected: "DetailedGuidePage", type: "landmark" },
   { input: "경복궁", expected: "DetailedGuidePage", type: "landmark" },
   { input: "홍대", expected: "DetailedGuidePage", type: "district" },
   { input: "명동성당", expected: "DetailedGuidePage", type: "landmark" },

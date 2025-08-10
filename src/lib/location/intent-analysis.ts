@@ -98,6 +98,12 @@ function createIntentAnalysisPrompt(query: string, language: string = 'ko'): str
 - "프라하" → 체코 도시 → RegionExploreHub
 - "마추픽추" → 페루의 구체적 유적 → DetailedGuidePage
 
+**⚠️ 유사명 혼동 방지 규칙**:
+- "붉은요새" = "Red Fort" = "Lal Qila" = "레드포트" = "赤い要塞" → 모두 인도 델리의 동일한 명소
+- "대왕궁" = "Grand Palace" = "그랜드 팰리스" = "왕궁" = "방콕 대왕궁" → 모두 태국 방콕의 동일한 명소
+- "타지마할" = "Taj Mahal" = "タージマハル" = "泰姬陵" → 모두 인도 아그라의 동일한 명소
+- 번역/언어가 다르더라도 같은 명소를 가리키는 경우 동일하게 DetailedGuidePage로 분류
+
 JSON으로만 응답:
 {
   "pageType": "RegionExploreHub|DetailedGuidePage",
@@ -146,6 +152,12 @@ Precisely identify what the search query is:
 - "Bangkok" → Thai city → RegionExploreHub
 - "Prague" → Czech city → RegionExploreHub  
 - "Machu Picchu" → Specific Peruvian site → DetailedGuidePage
+
+**⚠️ Similar Name Confusion Prevention Rules**:
+- "Red Fort" = "Lal Qila" = "붉은요새" = "赤い要塞" → All refer to the same landmark in Delhi, India
+- "Grand Palace" = "대왕궁" = "그랜드 팰리스" = "왕궁" → All refer to the same landmark in Bangkok, Thailand  
+- "Taj Mahal" = "タージマハル" = "타지마할" = "泰姬陵" → All refer to the same landmark in Agra, India
+- Even if translation/language differs, classify as DetailedGuidePage if referring to the same landmark
 
 Respond only in JSON:
 {
