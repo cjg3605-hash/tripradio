@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
+import { enhanceGuideCoordinates } from '@/lib/coordinates/guide-coordinate-enhancer';
 
 export const runtime = 'nodejs';
 
@@ -355,10 +356,46 @@ If you cannot find exact coordinates, respond with "Coordinates not found".
 
     console.log(`✅ ${language} 가이드 생성 완료`);
     
-    return NextResponse.json({
-      success: true,
-      data: guideData
-    });
+    // 🎯 좌표 정확도 향상 적용 (통합 시스템 사용)
+    console.log(`🎯 좌표 향상 시작 (${language}):`, locationName);
+    try {
+      const enhancementResult = await enhanceGuideCoordinates(
+        guideData,
+        locationName.trim(),
+        language
+      );
+      
+      const enhancedGuideData = enhancementResult.enhancedGuide;
+      const coordinateResult = enhancementResult.result;
+      
+      console.log('✅ 좌표 향상 완료:', {
+        enhancedCount: coordinateResult.enhancedCount,
+        improvements: coordinateResult.improvements.length,
+        processingTime: coordinateResult.processingTimeMs
+      });
+      
+      return NextResponse.json({
+        success: true,
+        data: enhancedGuideData,
+        coordinateEnhancement: {
+          success: coordinateResult.success,
+          enhancedCount: coordinateResult.enhancedCount,
+          improvements: coordinateResult.improvements
+        }
+      });
+      
+    } catch (enhanceError) {
+      console.warn('⚠️ 좌표 향상 실패, 원본 가이드 반환:', enhanceError);
+      
+      return NextResponse.json({
+        success: true,
+        data: guideData,
+        coordinateEnhancement: {
+          success: false,
+          error: enhanceError instanceof Error ? enhanceError.message : '좌표 향상 실패'
+        }
+      });
+    }
 
   } catch (error) {
     console.error(`❌ 가이드 생성 실패:`, error);

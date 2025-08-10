@@ -33,8 +33,7 @@ import {
 // Import data orchestrator for fact verification
 import { DataIntegrationOrchestrator } from '../data-sources/orchestrator/data-orchestrator';
 
-// Import coordinate enhancement system
-import { enhanceGuideCoordinates, validateCoordinateQuality } from '../coordinates/guide-coordinate-enhancer';
+// Coordinate enhancement is handled at the API route level, not here
 
 export const GEMINI_PROMPTS = {
   GUIDE_GENERATION: {
@@ -165,11 +164,10 @@ export const GEMINI_PROMPTS = {
 - 모든 중괄호와 대괄호가 올바르게 닫혀야 함
 - detailedStops 각 항목에 정확한 coordinates (lat, lng) 정보 필수 포함
 
-⚠️ **좌표 생성 금지사항**:
-- 추측이나 임의의 좌표 생성 절대 금지
-- 서울 기본값(37.5665, 126.9780) 사용 금지
-- 확실하지 않은 좌표는 0.0, 0.0으로 설정
-- 좌표 추정보다는 정확한 장소명으로 대체
+⚠️ **좌표 생성 지침**:
+- 알고 있는 범위에서 최선의 좌표 추정 권장
+- 불확실한 경우 0.0, 0.0으로 설정
+- 시스템에서 정밀 보정을 수행합니다
 
 **기억하세요: 틀린 정보 하나가 전체 가이드의 신뢰성을 무너뜨립니다.**
 **확실하지 않으면 말하지 마세요. 정확성이 완성도보다 중요합니다.**`
@@ -387,37 +385,8 @@ export async function generatePersonalizedGuide(
 
       console.log('✅ JSON 파싱 및 정확성 검증 완료');
       
-      // 🎯 좌표 정확도 향상 시스템 적용
-      console.log('🎯 좌표 보정 시스템 시작...');
-      try {
-        const { enhancedGuide, result: coordinateResult } = await enhanceGuideCoordinates(
-          finalResponse,
-          location,
-          safeProfile.language || 'ko'
-        );
-        
-        if (coordinateResult.success && coordinateResult.enhancedCount > 0) {
-          console.log(`✅ 좌표 보정 완료: ${coordinateResult.enhancedCount}개 챕터 개선`);
-          coordinateResult.improvements.forEach((improvement, index) => {
-            console.log(`   챕터 ${improvement.chapterId}: ${Math.round(improvement.distanceImprovement)}m 정확도 향상`);
-          });
-          
-          // 좌표 품질 검증
-          const qualityCheck = validateCoordinateQuality(enhancedGuide);
-          console.log(`📊 좌표 품질 점수: ${Math.round(qualityCheck.score * 100)}%`);
-          
-          return {
-            ...enhancedGuide,
-            dataIntegration: dataIntegrationResult,
-            factVerification: verificationResult,
-            coordinateEnhancement: coordinateResult
-          };
-        } else {
-          console.warn('⚠️ 좌표 보정 실패 또는 개선 없음');
-        }
-      } catch (coordError) {
-        console.error('❌ 좌표 보정 중 오류:', coordError);
-      }
+      // 🎯 좌표 enhancement는 API route level에서 처리됨 (중복 호출 방지)
+      console.log('📍 좌표 향상은 API 라우터에서 처리됩니다.');
       
       return {
         ...finalResponse,
@@ -531,12 +500,12 @@ function formatFactualData(data: any): string {
   let factualInfo = '';
   
   if (data.location) {
-    factualInfo += `📍 **위치 정보** (정확한 좌표 사용 필수):\n`;
+    factualInfo += `📍 **위치 정보**:\n`;
     if (data.location.coordinates?.lat && data.location.coordinates?.lng) {
-      factualInfo += `- 검증된 GPS 좌표: ${data.location.coordinates.lat}, ${data.location.coordinates.lng}\n`;
-      factualInfo += `- ⚠️ 위 좌표를 그대로 사용하세요 (추측 금지)\n`;
+      factualInfo += `- 참고 GPS 좌표: ${data.location.coordinates.lat}, ${data.location.coordinates.lng}\n`;
+      factualInfo += `- ⚠️ 위 좌표를 참고하여 최선의 추정 좌표를 생성하세요\n`;
     } else {
-      factualInfo += `- 정확한 좌표 없음 - coordinates를 0.0, 0.0으로 설정하세요\n`;
+      factualInfo += `- 알고 있는 범위에서 최선의 좌표를 추정하세요. 불확실하면 0.0, 0.0 사용\n`;
     }
     factualInfo += `- 주소: ${data.location.address?.formatted || '정보 없음'}\n\n`;
   }

@@ -1,4 +1,6 @@
-// 좌표 전용 재생성 API
+// 🚨 DEPRECATED: 이 API는 기존 enhanceGuideCoordinates 시스템과 충돌합니다
+// 사용을 중단하고 guide-coordinate-enhancer.ts의 enhanceGuideCoordinates를 사용하세요
+// 🚨 DEPRECATED: This API conflicts with existing enhanceGuideCoordinates system
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -32,6 +34,24 @@ interface RegenerateRequest {
 }
 
 export async function POST(request: NextRequest) {
+  // 🚨 DEPRECATED API - 통합 시스템으로 리다이렉트
+  console.warn('🚨 DEPRECATED: /api/coordinates/regenerate는 중단된 API입니다.');
+  console.warn('📍 대신 enhanceGuideCoordinates 함수를 사용하세요.');
+  
+  return NextResponse.json({
+    success: false,
+    deprecated: true,
+    message: '이 API는 중단되었습니다. generate-guide-with-gemini API의 enhanceCoordinates 옵션을 사용하세요.',
+    migration: {
+      oldApi: '/api/coordinates/regenerate',
+      newApi: '/api/ai/generate-guide-with-gemini', 
+      option: 'enhanceCoordinates: true (기본값)',
+      system: 'enhanceGuideCoordinates 함수 통합 사용'
+    }
+  }, { status: 410 }); // 410 Gone
+  
+  /*
+  // 🚨 기존 코드는 충돌하는 로직이므로 주석 처리
   try {
     const body: RegenerateRequest = await request.json();
     const {
@@ -309,8 +329,17 @@ ${chaptersForAI.map(ch => `
   }
 }
 
-// GET: 재생성 대상 챕터 조회
+// GET: 재생성 대상 챕터 조회 - DEPRECATED
 export async function GET(request: NextRequest) {
+  // 🚨 DEPRECATED API 
+  return NextResponse.json({
+    success: false,
+    deprecated: true,
+    message: '이 API는 중단되었습니다. 통합된 좌표 시스템을 사용하세요.'
+  }, { status: 410 }); // 410 Gone
+  
+  /*
+  // 🚨 기존 코드 주석 처리
   try {
     const { searchParams } = new URL(request.url);
     const guideId = searchParams.get('guideId');
@@ -353,4 +382,5 @@ export async function GET(request: NextRequest) {
       error: `조회 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}` 
     }, { status: 500 });
   }
+  */
 }

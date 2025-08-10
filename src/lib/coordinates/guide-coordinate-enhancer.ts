@@ -639,12 +639,57 @@ function isSpecificLocationTitle(chapterTitle: string, mainLocationName: string)
     return false;
   }
 
-  // 구체적인 장소를 나타내는 키워드들
+  // 🎯 Enhanced prompt template pattern detection
+  // Pattern: '[Real Existing Facility Name] [Specific Location]: [Location] Tourism Starting Point'
+  const hasTemplatePattern = chapterTitle.includes('시작점') || 
+                            chapterTitle.includes('Tourism Starting Point') ||
+                            chapterTitle.includes('游览起点') ||
+                            chapterTitle.includes('観光起点') ||
+                            chapterTitle.includes('Punto de Inicio');
+  
+  if (hasTemplatePattern) {
+    // Extract facility name before colon or dash
+    const facilityPart = chapterTitle.split(/[:\-]/)[0];
+    return facilityPart && facilityPart !== mainLocationName && facilityPart.trim().length > 3;
+  }
+
+  // 구체적인 장소를 나타내는 키워드들 (Enhanced for updated AI prompts)
   const specificLocationKeywords = [
-    '케이블카', '곤돌라', '로프웨이',
-    '역', '출입구', '정문', '입구', '게이트', '터미널', '정류장',
-    '센터', '전망대', '매표소', '안내소', '광장', '공원',
-    '홀', '관', '층', '구역', '쪽', '편'
+    // 교통 관련 (Transportation - Enhanced)
+    '케이블카', '곤돌라', '로프웨이', '승강장', '승강기', 
+    '역', '출입구', '정문', '입구', '게이트', '터미널', '정류장', '정류소',
+    '버스터미널', '지하철역', '전철역', '기차역', '공항', '항구',
+    'Station', 'Terminal', 'Gate', 'Entrance', 'Exit', 'Metro', 'Subway',
+    'Cable Car', 'Gondola', 'Bus Terminal', 'Train Station',
+    
+    // 관광 시설 (Tourist Facilities - Enhanced)
+    '센터', '방문자센터', '비지터센터', '전망대', '매표소', '안내소', '티켓오피스',
+    '광장', '공원', '주차장', '파킹', '주차시설', '인포메이션', '접수처',
+    'Center', 'Visitor Center', 'Information', 'Ticket Office', 'Plaza', 'Square', 
+    'Parking', 'Observatory', 'Viewpoint', 'Reception',
+    
+    // 건물/구역 (Buildings/Areas - Enhanced)
+    '홀', '관', '층', '구역', '쪽', '편', '동', '서', '남', '북', '분관',
+    '건물', '타워', '플라자', '빌딩', '관리사무소', '사무실',
+    'Hall', 'Building', 'Tower', 'Plaza', 'Office', 'Wing', 'Section',
+    'West Door', 'East Gate', 'Main Hall', 'North Wing',
+    
+    // 특수 시설 (Special Facilities - Enhanced)
+    '매점', '카페', '레스토랑', '푸드코트', '화장실', '휴게소', '기념품점',
+    '박물관', '미술관', '갤러리', '전시관', '쇼룸', '체험관',
+    'Museum', 'Gallery', 'Shop', 'Cafe', 'Restaurant', 'Store', 'Gift Shop',
+    
+    // 자연/관광지 특화 (Nature/Tourism Specific - New)
+    '오합목', '합목', '휴게소', '대피소', '안전센터', '매점', '식당',
+    '전망대', '관측소', '스카이라운지', '선착장', '부두', '포구',
+    'Observatory', 'Deck', 'Lodge', 'Shelter', 'Dock', 'Port', 'Pier',
+    '5th Station', '登山道', '展望台', 'Base Station',
+    
+    // 문화재/궁궐 특화 (Cultural Heritage Specific - New)
+    '문', '대문', '정문', '동문', '서문', '남문', '북문', '궁문', '홍화문',
+    '전', '당', '각', '루', '정', '원', '지', '묘', '탑', '종', '루',
+    'Gate', 'Palace', 'Temple', 'Pagoda', 'Shrine', 'Court', 'Throne Hall',
+    '午門', '太和殿', 'Great West Door', 'Abbey', 'Cathedral'
   ];
 
   return specificLocationKeywords.some(keyword => chapterTitle.includes(keyword));
