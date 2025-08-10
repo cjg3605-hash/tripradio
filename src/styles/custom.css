@@ -5,45 +5,48 @@
 /* @tailwind components; <- 삭제 */
 /* @tailwind utilities; <- 삭제 */
 
-/* Hero Background Container - 반응형 배경 이미지 */
+/* Hero Background Container - 전체 화면 크기에 맞춘 반응형 배경 */
 .hero-background-container {
   position: absolute;
   overflow: hidden;
-  top: var(--header-height, 73px); /* 헤더 끝나는 부분부터 시작 */
-  left: 50%;
-  transform: translateX(-50%);
+  top: 73px; /* 헤더 끝나는 부분부터 시작 */
+  left: 0;
+  right: 0;
+  /* 헤더부터 검색박스 위까지의 높이를 동적으로 계산 */
+  height: calc(100vh - 73px - 220px); /* 검색박스와 여백을 위한 공간 확보 */
+  min-height: 300px; /* 최소 높이 보장 */
+  width: 100vw;
   border-radius: 0 0 24px 24px;
-  z-index: -1;
+  z-index: 10; /* 배경을 보이게 하기 위해 높은 z-index 설정 */
+  pointer-events: none; /* 배경이므로 클릭 이벤트 차단 */
 }
 
-/* 모바일 (640px 미만) */
+/* 배경 이미지들은 컨테이너 내에서 뒤쪽에 배치 */
+.hero-background-container > div {
+  z-index: -1 !important; /* 배경 이미지는 컨테이너 안에서 뒤쪽 */
+}
+
+/* 모바일 (640px 미만) - 전체 화면 활용 */
 @media (max-width: 639px) {
   .hero-background-container {
-    width: min(calc(100vw - 2rem), 95vw); /* 화면 크기에 맞춰 안전하게 */
-    height: min(calc(60vh), 400px); /* 높이 제한 */
-    min-height: 300px;
-    max-height: 400px;
+    height: calc(100vh - 73px - 180px); /* 모바일에서 검색 영역을 위한 여백 */
+    min-height: 250px; /* 모바일 최소 높이 */
   }
 }
 
-/* 태블릿 (640px - 1023px) */
+/* 태블릿 (640px - 1023px) - 전체 화면 활용 */
 @media (min-width: 640px) and (max-width: 1023px) {
   .hero-background-container {
-    width: min(calc(100vw - 3rem), 90vw); /* 안전한 여백 확보 */
-    height: min(calc(55vh), 450px);
-    min-height: 350px;
-    max-height: 450px;
+    height: calc(100vh - 73px - 200px); /* 태블릿에서 검색 영역을 위한 여백 */
+    min-height: 300px;
   }
 }
 
-/* 데스크톱 (1024px 이상) */
+/* 데스크톱 (1024px 이상) - 전체 화면 활용 */
 @media (min-width: 1024px) {
   .hero-background-container {
-    width: min(72rem, calc(100vw - 4rem)); /* 최대 크기 제한 */
-    max-width: 90vw; /* 화면 크기 대비 최대 90% */
-    height: min(calc(50vh), 500px);
-    min-height: 400px;
-    max-height: 500px;
+    height: calc(100vh - 73px - 220px); /* 데스크톱에서 검색 영역을 위한 여백 */
+    min-height: 350px;
   }
 }
 
