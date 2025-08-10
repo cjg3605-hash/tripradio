@@ -309,7 +309,7 @@ export default function NextLevelSearchBox() {
                 /* 로딩 상태 */
                 <div className="px-6 py-4 flex items-center gap-3">
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
-                  <span className="text-sm text-gray-600">검색 중...</span>
+                  <span className="text-sm text-gray-600">{t('search.searching')}</span>
                 </div>
               ) : suggestions.length > 0 ? (
                 /* 검색 결과가 있을 때 */
@@ -464,7 +464,7 @@ export default function NextLevelSearchBox() {
                     <svg className="mx-auto h-6 w-6 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                    &ldquo;{query}&rdquo;에 대한 검색 결과가 없습니다
+                    &ldquo;{query}&rdquo;에 대한 {t('search.noResults')}
                   </div>
                 </div>
               ) : null}
