@@ -1464,7 +1464,14 @@ function Home() {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setLoadingState('country', true);
-                                router.push(`/guide/${encodeURIComponent(attraction)}?lang=${currentLanguage}`);
+                                
+                                // 특정 명소에 대해 지역 컨텍스트 추가
+                                let url = `/guide/${encodeURIComponent(attraction)}?lang=${currentLanguage}`;
+                                if (country.id === 'thailand' && attraction === '방콕 대왕궁') {
+                                  url += '&parent=' + encodeURIComponent('방콕');
+                                }
+                                
+                                router.push(url);
                               }}
                               className="flex items-center text-sm text-gray-700 hover:text-black transition-colors w-full text-left py-1 px-2 -mx-2 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-20"
                               aria-label={`${attraction} 가이드 생성하기`}

@@ -577,7 +577,7 @@ const DEFAULT_TRANSLATIONS: Translations = {
       },
       thailand: {
         name: '태국',
-        attractions: ['왓 아룬', '대왕궁', '왓 포'],
+        attractions: ['왓 아룬', '방콕 대왕궁', '왓 포'],
         description: '황금빛 사원과 미소의 나라'
       },
       singapore: {
