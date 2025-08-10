@@ -19,31 +19,31 @@
 /* 모바일 (640px 미만) */
 @media (max-width: 639px) {
   .hero-background-container {
-    width: calc(100vw - 1rem); /* 양옆 0.5rem씩 여백 */
-    height: calc(100vh - var(--header-height, 73px) - 180px); /* 검색박스 영역까지 */
-    min-height: 350px;
-    max-height: 500px;
+    width: min(calc(100vw - 2rem), 95vw); /* 화면 크기에 맞춰 안전하게 */
+    height: min(calc(60vh), 400px); /* 높이 제한 */
+    min-height: 300px;
+    max-height: 400px;
   }
 }
 
 /* 태블릿 (640px - 1023px) */
 @media (min-width: 640px) and (max-width: 1023px) {
   .hero-background-container {
-    width: calc(100vw - 2rem); /* 양옆 1rem씩 여백 */
-    height: calc(100vh - var(--header-height, 73px) - 160px);
-    min-height: 400px;
-    max-height: 550px;
+    width: min(calc(100vw - 3rem), 90vw); /* 안전한 여백 확보 */
+    height: min(calc(55vh), 450px);
+    min-height: 350px;
+    max-height: 450px;
   }
 }
 
 /* 데스크톱 (1024px 이상) */
 @media (min-width: 1024px) {
   .hero-background-container {
-    width: 72rem; /* max-w-6xl 상당 */
-    max-width: calc(100vw - 3rem); /* 큰 화면에서도 여백 보장 */
-    height: calc(100vh - var(--header-height, 73px) - 140px);
-    min-height: 450px;
-    max-height: 600px;
+    width: min(72rem, calc(100vw - 4rem)); /* 최대 크기 제한 */
+    max-width: 90vw; /* 화면 크기 대비 최대 90% */
+    height: min(calc(50vh), 500px);
+    min-height: 400px;
+    max-height: 500px;
   }
 }
 
