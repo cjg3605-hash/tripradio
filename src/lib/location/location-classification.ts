@@ -359,6 +359,102 @@ export const CITIES: Record<string, LocationData> = {
     aliases: ["Madrid", "マドリード", "马德里"],
     coordinates: { lat: 40.4168, lng: -3.7038 },
     popularity: 8
+  },
+  "세비야": {
+    type: "city",
+    level: 3,
+    country: "스페인",
+    aliases: ["Seville", "Sevilla", "セビリア", "塞维利亚"],
+    coordinates: { lat: 37.3886, lng: -5.9823 },
+    popularity: 7
+  },
+  "바르셀로나": {
+    type: "city",
+    level: 3,
+    country: "스페인",
+    aliases: ["Barcelona", "バルセロナ", "巴塞罗那"],
+    coordinates: { lat: 41.3851, lng: 2.1734 },
+    popularity: 9
+  },
+  "발렌시아": {
+    type: "city",
+    level: 3,
+    country: "스페인",
+    aliases: ["Valencia", "バレンシア", "巴伦西亚"],
+    coordinates: { lat: 39.4699, lng: -0.3763 },
+    popularity: 6
+  },
+  "빌바오": {
+    type: "city",
+    level: 3,
+    country: "스페인",
+    aliases: ["Bilbao", "ビルバオ", "毕尔巴鄂"],
+    coordinates: { lat: 43.2627, lng: -2.9253 },
+    popularity: 5
+  },
+  "피렌체": {
+    type: "city",
+    level: 3,
+    country: "이탈리아",
+    aliases: ["Florence", "Firenze", "フィレンツェ", "佛罗伦萨"],
+    coordinates: { lat: 43.7696, lng: 11.2558 },
+    popularity: 9
+  },
+  "베니스": {
+    type: "city",
+    level: 3,
+    country: "이탈리아",
+    aliases: ["Venice", "Venezia", "ベニス", "威尼斯"],
+    coordinates: { lat: 45.4408, lng: 12.3155 },
+    popularity: 9
+  },
+  "밀라노": {
+    type: "city",
+    level: 3,
+    country: "이탈리아",
+    aliases: ["Milan", "Milano", "ミラノ", "米兰"],
+    coordinates: { lat: 45.4642, lng: 9.1900 },
+    popularity: 8
+  },
+  "나폴리": {
+    type: "city",
+    level: 3,
+    country: "이탈리아",
+    aliases: ["Naples", "Napoli", "ナポリ", "那不勒斯"],
+    coordinates: { lat: 40.8518, lng: 14.2681 },
+    popularity: 7
+  },
+  "뮌헨": {
+    type: "city",
+    level: 3,
+    country: "독일",
+    aliases: ["Munich", "München", "ミュンヘン", "慕尼黑"],
+    coordinates: { lat: 48.1351, lng: 11.5820 },
+    popularity: 8
+  },
+  "함부르크": {
+    type: "city",
+    level: 3,
+    country: "독일",
+    aliases: ["Hamburg", "ハンブルク", "汉堡"],
+    coordinates: { lat: 53.5511, lng: 9.9937 },
+    popularity: 6
+  },
+  "쾰른": {
+    type: "city",
+    level: 3,
+    country: "독일",
+    aliases: ["Cologne", "Köln", "ケルン", "科隆"],
+    coordinates: { lat: 50.9375, lng: 6.9603 },
+    popularity: 6
+  },
+  "프랑크푸르트": {
+    type: "city",
+    level: 3,
+    country: "독일",
+    aliases: ["Frankfurt", "Frankfurt am Main", "フランクフルト", "法兰克福"],
+    coordinates: { lat: 50.1109, lng: 8.6821 },
+    popularity: 7
   }
 };
 
@@ -724,11 +820,16 @@ export function classifyLocation(query: string): LocationData | null {
 export const TEST_CASES = [
   // 탐색허브 예상 (RegionExploreHub)
   { input: "프랑스", expected: "RegionExploreHub", type: "country" },
+  { input: "스페인", expected: "RegionExploreHub", type: "country" },
   { input: "제주도", expected: "RegionExploreHub", type: "province" },  
   { input: "파리", expected: "RegionExploreHub", type: "city" },
   { input: "서울", expected: "RegionExploreHub", type: "city" },
   { input: "도쿄", expected: "RegionExploreHub", type: "city" },
   { input: "뉴욕", expected: "RegionExploreHub", type: "city" },
+  { input: "세비야", expected: "RegionExploreHub", type: "city" },
+  { input: "바르셀로나", expected: "RegionExploreHub", type: "city" },
+  { input: "피렌체", expected: "RegionExploreHub", type: "city" },
+  { input: "뮌헨", expected: "RegionExploreHub", type: "city" },
   
   // 상세가이드 예상 (DetailedGuidePage)
   { input: "에펠탑", expected: "DetailedGuidePage", type: "landmark" },
@@ -740,6 +841,8 @@ export const TEST_CASES = [
   
   // Fuzzy 매칭 테스트
   { input: "seoul", expected: "RegionExploreHub", type: "city" },
+  { input: "seville", expected: "RegionExploreHub", type: "city" },
+  { input: "barcelona", expected: "RegionExploreHub", type: "city" },
   { input: "gyeongbokgung", expected: "DetailedGuidePage", type: "landmark" },
   { input: "eiffel tower", expected: "DetailedGuidePage", type: "landmark" }
 ];
