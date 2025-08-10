@@ -194,7 +194,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
 
     } catch (err) {
       console.error('지역 정보 로드 오류:', err);
-      setError(t('guide.loadRegionError'));
+      setError(t('guide.loadRegionError') as string);
     } finally {
       setIsLoading(false);
     }
@@ -230,7 +230,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <GuideLoading message={t('guide.loadingRegionInfo')} />
+        <GuideLoading message={t('guide.loadingRegionInfo') as string} />
       </div>
     );
   }
@@ -245,7 +245,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
           <button
             onClick={loadRegionData}
             className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-            aria-label={t('guide.loadMapAriaLabel')}
+            aria-label={t('guide.loadMapAriaLabel') as string}
           >
             <RefreshCw className="w-4 h-4 mr-2 inline" />
             {t('common.tryAgain')}
@@ -264,7 +264,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
             <button
               onClick={() => router.back()}
               className="p-3 hover:bg-black/5 rounded-2xl transition-colors"
-              aria-label={t('common.goBack')}
+              aria-label={t('common.goBack') as string}
             >
               <svg className="w-5 h-5 text-black/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />

@@ -498,7 +498,7 @@ function Home() {
       // 이미지가 전체를 채우지 못할 경우를 대비한 기본 그라데이션
       background: `linear-gradient(135deg, rgba(20, 20, 40, 0.9) 0%, rgba(40, 40, 60, 0.9) 100%)`,
       backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('${landmarkImages[landmark]}')`,
-      backgroundSize: 'contain', // contain으로 변경하여 전체 이미지 표시
+      backgroundSize: 'cover', // cover로 변경하여 전체 영역을 채움
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat'
     };
@@ -1046,7 +1046,7 @@ function Home() {
               // 이미지가 전체를 채우지 못할 경우를 대비한 기본 그라데이션
               background: `linear-gradient(135deg, rgba(20, 20, 40, 0.9) 0%, rgba(40, 40, 60, 0.9) 100%)`,
               backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('${landmarkImages[landmark]}')`,
-              backgroundSize: 'contain', // contain으로 변경하여 전체 이미지 표시
+              backgroundSize: 'cover', // cover로 변경하여 전체 영역을 채움
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
               zIndex: -2,
