@@ -31,12 +31,25 @@ const INTENT_ANALYSIS_PERSONA = `당신은 전 세계 여행 지리학 및 검�
 3. **도시 (City)**: 파리, 세비야, 바르셀로나, 마드리드, 로마, 피렌체, 뮌헨, 뉴욕, 도쿄, 서울 등
 4. **구체적 장소 (Landmark)**: 에펠탑, 사그라다 파밀리아, 콜로세움, 경복궁, 루브르 박물관 등
 
-**중요한 전 세계 도시 예시**:
-- 스페인: 세비야(Seville), 바르셀로나, 마드리드, 발렌시아, 빌바오
-- 프랑스: 파리, 리옹, 마르세유, 니스, 낭트
-- 이탈리아: 로마, 피렌체, 베니스, 밀라노, 나폴리
-- 독일: 베를린, 뮌헨, 함부르크, 쾰른, 프랑크푸르트
-- 영국: 런던, 에든버러, 맨체스터, 리버풀, 옥스포드
+**전 세계 주요 도시 분류 지식**:
+- 유럽: 세비야, 바르셀로나, 파리, 로마, 베를린, 뮌헨, 런던, 프라하, 스톡홀름, 암스테르담
+- 아시아: 서울, 도쿄, 방콕, 싱가포르, 뭄바이, 델리, 상하이, 베이징, 홍콩, 쿠알라룸푸르
+- 북미: 뉴욕, 로스앤젤레스, 토론토, 밴쿠버, 멕시코시티
+- 남미: 리오데자네이루, 상파울루, 부에노스아이레스, 리마, 카라카스
+- 아프리카: 카이로, 카사블랑카, 케이프타운, 요하네스버그, 나이로비
+- 오세아니아: 시드니, 멜버른, 오클랜드, 웰링턴
+
+**도시 인식 패턴 (Universal)**:
+- **수도 도시**: 카이로, 부에노스아이레스, 방콕 등 → RegionExploreHub
+- **관광 도시**: 리오데자네이루, 시드니, 프라하 등 → RegionExploreHub
+- **경제 도시**: 싱가포르, 홍콩, 상하이 등 → RegionExploreHub  
+- **문화 도시**: 스톡홀름, 암스테르담, 케이프타운 등 → RegionExploreHub
+- **도시 패턴**: "-시", "-도시", "City", "São", "Rio de", "Buenos", "New" 접두사
+
+**일반화 규칙**:
+- 도시로 알려진 모든 지명 → RegionExploreHub
+- 구체적 건물/명소로 알려진 지명 → DetailedGuidePage
+- 애매한 경우 → 더 넓은 지역(도시) 우선 선택
 
 분류 원칙:
 - **RegionExploreHub**: 도시, 지역, 국가 → 여러 장소를 탐색하고 비교 선택하려는 의도
@@ -63,21 +76,27 @@ function createIntentAnalysisPrompt(query: string, language: string = 'ko'): str
 - 탐색 의도: "세비야에는 뭐가 있지?", "어디 갈까?" → RegionExploreHub
 - 구체적 정보: "에펠탑 입장료", "가는 방법" → DetailedGuidePage
 
-**핵심 분류 규칙**:
+**핵심 분류 규칙 (전세계 적용)**:
 
 🏙️ **RegionExploreHub** (도시/지역 탐색):
-- 도시명 단독: "세비야", "바르셀로나", "파리", "로마", "뮌헨"
-- 지역/국가: "스페인", "이탈리아", "프랑스", "독일"
-- 탐색 키워드: "여행지", "관광", "추천"
+- **전세계 도시명**: "리오데자네이루", "부에노스아이레스", "카이로", "카사블랑카", "방콕", "싱가포르", "시드니", "프라하"
+- **아시아 도시**: "방콕", "싱가포르", "뭄바이", "델리", "상하이", "홍콩"  
+- **유럽 도시**: "세비야", "바르셀로나", "프라하", "스톡홀름", "암스테르담"
+- **아메리카 도시**: "리오데자네이루", "부에노스아이레스", "토론토", "멕시코시티"
+- **아프리카/오세아니아**: "카이로", "카사블랑카", "시드니", "오클랜드"
+- **국가/지역**: 모든 국가명, 주/지역명
 
-🏛️ **DetailedGuidePage** (구체적 장소):  
-- 건물/명소: "알함브라 궁전", "사그라다 파밀리아", "에펠탑"
-- 지구/동네: "홍대", "명동", "시부야", "몽마르트"
-- 구체적 질문: "입장료", "운영시간", "가는 방법"
+🏛️ **DetailedGuidePage** (구체적 장소):
+- **세계적 명소**: "마추픽추", "앙코르와트", "타지마할", "오페라하우스", "크라이스트 더 리디머"
+- **건물/유적**: "사그라다 파밀리아", "콜로세움", "자유의여신상", "만리장성"
+- **지구/동네**: "홍대", "시부야", "타임스스퀘어", "몽마르트"
+- **구체적 장소**: "~궁", "~사원", "~박물관", "~타워", "~다리"
 
-**세비야 예시**: 
-"세비야" → 스페인의 도시 → RegionExploreHub (도시 탐색)
-"알함브라 궁전" → 세비야의 구체적 명소 → DetailedGuidePage
+**전세계 도시 분류 예시**:
+- "리오데자네이루" → 브라질 도시 → RegionExploreHub
+- "방콕" → 태국 도시 → RegionExploreHub  
+- "프라하" → 체코 도시 → RegionExploreHub
+- "마추픽추" → 페루의 구체적 유적 → DetailedGuidePage
 
 JSON으로만 응답:
 {
@@ -106,21 +125,27 @@ Precisely identify what the search query is:
 - Exploration intent: "What's in Seville?", "Where to go?" → RegionExploreHub
 - Specific info: "Eiffel Tower tickets", "How to get there" → DetailedGuidePage
 
-**Core Classification Rules**:
+**Core Classification Rules (Global Application)**:
 
 🏙️ **RegionExploreHub** (City/Region Exploration):
-- Standalone city names: "Seville", "Barcelona", "Paris", "Rome", "Munich"
-- Regions/Countries: "Spain", "Italy", "France", "Germany"
-- Exploration keywords: "destinations", "tourism", "recommendations"
+- **Global Cities**: "Rio de Janeiro", "Buenos Aires", "Cairo", "Casablanca", "Bangkok", "Singapore", "Sydney", "Prague"
+- **Asian Cities**: "Bangkok", "Singapore", "Mumbai", "Delhi", "Shanghai", "Hong Kong"
+- **European Cities**: "Seville", "Barcelona", "Prague", "Stockholm", "Amsterdam"  
+- **American Cities**: "Rio de Janeiro", "Buenos Aires", "Toronto", "Mexico City"
+- **Africa/Oceania**: "Cairo", "Casablanca", "Sydney", "Auckland"
+- **Countries/Regions**: All country names, states/provinces
 
 🏛️ **DetailedGuidePage** (Specific Places):
-- Buildings/Landmarks: "Alhambra Palace", "Sagrada Familia", "Eiffel Tower"
-- Districts/Neighborhoods: "Hongdae", "Myeongdong", "Shibuya", "Montmartre"
-- Specific questions: "entrance fee", "opening hours", "directions"
+- **World Landmarks**: "Machu Picchu", "Angkor Wat", "Taj Mahal", "Opera House", "Christ the Redeemer"
+- **Buildings/Monuments**: "Sagrada Familia", "Colosseum", "Statue of Liberty", "Great Wall"
+- **Districts/Neighborhoods**: "Hongdae", "Shibuya", "Times Square", "Montmartre"
+- **Specific Venues**: "~Palace", "~Temple", "~Museum", "~Tower", "~Bridge"
 
-**Seville Example**:
-"Seville" → Spanish city → RegionExploreHub (city exploration)
-"Alhambra Palace" → Specific landmark in Seville → DetailedGuidePage
+**Global City Classification Examples**:
+- "Rio de Janeiro" → Brazilian city → RegionExploreHub
+- "Bangkok" → Thai city → RegionExploreHub
+- "Prague" → Czech city → RegionExploreHub  
+- "Machu Picchu" → Specific Peruvian site → DetailedGuidePage
 
 Respond only in JSON:
 {
