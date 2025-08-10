@@ -186,6 +186,10 @@ interface Translations {
     aiCustomAudioGuide: string;
     recommendedStartPoint: string;
     accurateIntroLocation: string;
+    regionTouristMap: string;
+    regionOverview: string;
+    recommendedSpots: string;
+    noTouristSpotsAvailable: string;
   };
   search: {
     placeholder: string;
@@ -655,7 +659,11 @@ const DEFAULT_TRANSLATIONS: Translations = {
     intro: '인트로',
     aiCustomAudioGuide: 'AI 맞춤형 오디오 가이드',
     recommendedStartPoint: '추천 시작지점',
-    accurateIntroLocation: '정확한 인트로 위치'
+    accurateIntroLocation: '정확한 인트로 위치',
+    regionTouristMap: '지역 관광지 지도',
+    regionOverview: '지역 개요',
+    recommendedSpots: '추천 장소',
+    noTouristSpotsAvailable: '관광지 정보를 불러오는 중입니다'
   },
   search: {
     placeholder: '검색어를 입력하세요',

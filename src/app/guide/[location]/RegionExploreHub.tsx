@@ -8,7 +8,7 @@ import GuideLoading from '@/components/ui/GuideLoading';
 import dynamic from 'next/dynamic';
 
 // 지도 컴포넌트 동적 로드
-const StartLocationMap = dynamic(() => import('@/components/guide/StartLocationMap'), {
+const RegionTouristMap = dynamic(() => import('@/components/guide/RegionTouristMap'), {
   loading: () => <GuideLoading message="Loading map..." />,
   ssr: false
 });
@@ -386,45 +386,30 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
           </div>
         </div>
 
-        {/* 🎨 추천시작지점 지도 카드 */}
-        {(regionData?.coordinates || (content?.realTimeGuide?.chapters && content.realTimeGuide.chapters.length > 0)) && (
+        {/* 🎨 지역 관광지 지도 카드 */}
+        {recommendedSpots.length > 0 && (
           <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
             <div className="p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                  <MapPin className="w-4 h-4 text-white" />
-                </div>
-                <h2 className="text-xl font-semibold text-black">{t('guide.mapTitle')}</h2>
-              </div>
-              <div className="h-80 bg-black/2 border border-black/5 rounded-2xl overflow-hidden">
-                <StartLocationMap
-                  locationName={locationName}
-                  startPoint={{
-                    lat: regionData?.coordinates?.lat || 
-                         (content?.realTimeGuide?.chapters?.[0]?.coordinates?.lat ? parseFloat(content.realTimeGuide.chapters[0].coordinates.lat) : 37.5665),
-                    lng: regionData?.coordinates?.lng || 
-                         (content?.realTimeGuide?.chapters?.[0]?.coordinates?.lng ? parseFloat(content.realTimeGuide.chapters[0].coordinates.lng) : 126.9780),
-                    name: `${locationName} ${t('guide.regionSuffix')}`
-                  }}
-                  chapters={content?.realTimeGuide?.chapters?.map((chapter: any, index: number) => ({
-                    id: index,
-                    title: chapter.title || `${t('guide.chapterPrefix')} ${index + 1}`,
-                    lat: chapter.coordinates?.lat ? parseFloat(chapter.coordinates.lat) : undefined,
-                    lng: chapter.coordinates?.lng ? parseFloat(chapter.coordinates.lng) : undefined,
-                    narrative: chapter.narrative || chapter.description || '',
-                    originalIndex: index
-                  })).filter((chapter: any) => chapter.lat && chapter.lng) || []}
-                  pois={recommendedSpots.filter(spot => spot.coordinates).map(spot => ({
-                    id: spot.id,
-                    name: spot.name,
-                    lat: spot.coordinates!.lat,
-                    lng: spot.coordinates!.lng,
-                    description: spot.description
-                  }))}
-                  showIntroOnly={true}
-                  className="w-full h-full"
-                />
-              </div>
+              <RegionTouristMap
+                locationName={locationName}
+                recommendedSpots={recommendedSpots.filter(spot => spot.coordinates).map(spot => ({
+                  id: spot.id,
+                  name: spot.name,
+                  lat: spot.coordinates!.lat,
+                  lng: spot.coordinates!.lng,
+                  description: spot.description
+                }))}
+                regionCenter={regionData?.coordinates ? {
+                  lat: regionData.coordinates.lat,
+                  lng: regionData.coordinates.lng,
+                  name: `${locationName} 중심`
+                } : (content?.realTimeGuide?.chapters?.[0]?.coordinates ? {
+                  lat: parseFloat(content.realTimeGuide.chapters[0].coordinates.lat),
+                  lng: parseFloat(content.realTimeGuide.chapters[0].coordinates.lng),
+                  name: `${locationName} 중심`
+                } : undefined)}
+                className="w-full"
+              />
             </div>
           </div>
         )}

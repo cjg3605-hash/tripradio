@@ -24,8 +24,6 @@ interface StartLocationMapProps {
   chapters?: Array<{ id: number; title: string; lat: number; lng: number; narrative?: string; originalIndex: number }>;
   pois: Array<{ id: string; name: string; lat: number; lng: number; description: string }>;
   className?: string;
-  // 새로운 플로우: 인트로 챕터만 표시 여부
-  showIntroOnly?: boolean;
 }
 
 const StartLocationMap: React.FC<StartLocationMapProps> = ({
@@ -33,15 +31,12 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
   startPoint,
   chapters = [],
   pois,
-  className = '',
-  showIntroOnly = false
+  className = ''
 }) => {
   const { t } = useLanguage();
   
-  // 🎯 새로운 플로우: 인트로 챕터만 필터링
-  const displayChapters = showIntroOnly 
-    ? chapters.filter(chapter => chapter.id === 0 || chapter.originalIndex === 0)
-    : chapters;
+  // 🎯 가이드 페이지 전용: 인트로 챕터만 필터링 (id === 0 또는 originalIndex === 0)
+  const displayChapters = chapters.filter(chapter => chapter.id === 0 || chapter.originalIndex === 0);
   return (
     <div className={`bg-white border border-black/8 rounded-3xl shadow-lg shadow-black/3 overflow-hidden ${className}`}>
       {/* 모던 모노크롬 헤더 */}
@@ -52,14 +47,10 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
           </div>
           <div>
             <h3 className="text-xl font-bold text-black tracking-tight">
-              {showIntroOnly ? (t('guide.recommendedStartPoint') || '추천 시작지점') : 
-               displayChapters.length > 0 ? (t('guide.viewingOrderMap') || '관람순서 지도') : 
-               (t('guide.tourStartLocation') || '투어 시작 위치')}
+              {t('guide.recommendedStartPoint') || '추천 시작지점'}
             </h3>
             <p className="text-sm text-black/60 font-medium mt-0.5">
-              {showIntroOnly ? `${t('guide.accurateIntroLocation') || '정확한 인트로 위치'}` :
-               displayChapters.length > 0 ? `${displayChapters.length}${t('common.chapters') || ' chapters'} ${t('guide.route') || '경로'}` : 
-               startPoint.name}
+              {t('guide.accurateIntroLocation') || '정확한 인트로 위치'}
             </p>
           </div>
         </div>
@@ -78,7 +69,7 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
           })) : undefined}
           currentLocation={null}
           center={{ lat: startPoint.lat, lng: startPoint.lng }}
-          zoom={showIntroOnly ? 16 : 13} // 인트로만 표시할 때 더 확대, 전체 지역 표시할 때는 더 넓게
+          zoom={16} // 인트로 챕터 중심으로 확대 표시
           showRoute={false} // 허브 페이지와 실시간 가이드 모두 루트 숨김 (별개 지역 마커만 표시)
           showUserLocation={false}
           onMarkerClick={(chapterIndex) => {
