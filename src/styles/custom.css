@@ -9,11 +9,11 @@
 .hero-background-container {
   position: absolute;
   overflow: hidden;
-  top: 44px; /* 헤더 콘텐츠 바로 아래부터 시작 (빈 공간 없이) */
+  top: 30px; /* 헤더와 배경 이미지 빈 공간 제거 */
   left: 0;
   right: 0;
   /* 헤더 아래부터 검색박스 위까지의 높이 */
-  height: calc(100vh - 44px); /* 44px(헤더) 제외, 전체 이미지 표시 */
+  height: calc(100vh - 30px); /* 30px(헤더) 제외, 전체 이미지 표시 */
   min-height: 350px; /* 최소 높이 */
   width: 100vw;
   border-radius: 0 0 24px 24px;
@@ -30,8 +30,8 @@
 /* 모바일 (640px 미만) - 헤더 바로 아래부터 전체 이미지 표시 */
 @media (max-width: 639px) {
   .hero-background-container {
-    top: 44px; /* 헤더 콘텐츠 바로 아래부터 시작 (빈 공간 없이) */
-    height: calc(100vh - 44px); /* 44px(헤더) 제외, 전체 이미지 표시 */
+    top: 30px; /* 헤더와 배경 이미지 빈 공간 제거 */
+    height: calc(100vh - 30px); /* 30px(헤더) 제외, 전체 이미지 표시 */
     min-height: 300px; /* 모바일 최소 높이 */
   }
 }
@@ -39,8 +39,8 @@
 /* 태블릿 (640px - 1023px) - 헤더 바로 아래부터 전체 이미지 표시 */
 @media (min-width: 640px) and (max-width: 1023px) {
   .hero-background-container {
-    top: 44px; /* 헤더 콘텐츠 바로 아래부터 시작 (빈 공간 없이) */
-    height: calc(100vh - 44px); /* 44px(헤더) 제외, 전체 이미지 표시 */
+    top: 30px; /* 헤더와 배경 이미지 빈 공간 제거 */
+    height: calc(100vh - 30px); /* 30px(헤더) 제외, 전체 이미지 표시 */
     min-height: 350px; /* 태블릿 최소 높이 */
   }
 }
@@ -48,8 +48,8 @@
 /* 데스크톱 (1024px 이상) - 헤더 바로 아래부터 전체 이미지 표시 */
 @media (min-width: 1024px) {
   .hero-background-container {
-    top: 44px; /* 헤더 콘텐츠 바로 아래부터 시작 (빈 공간 없이) */
-    height: calc(100vh - 44px); /* 44px(헤더) 제외, 전체 이미지 표시 */
+    top: 30px; /* 헤더와 배경 이미지 빈 공간 제거 */
+    height: calc(100vh - 30px); /* 30px(헤더) 제외, 전체 이미지 표시 */
     min-height: 400px; /* 데스크톱 최소 높이 */
   }
 }
