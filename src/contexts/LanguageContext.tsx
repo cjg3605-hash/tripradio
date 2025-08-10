@@ -931,25 +931,43 @@ const detectBrowserLanguage = (): SupportedLanguage => {
 // 번역 데이터 로드 함수
 async function loadTranslations(language: SupportedLanguage): Promise<Translations> {
   try {
-    const cacheKey = `translations-${language}`;
+    // 🔥 캐시 무효화를 위한 버전 관리
+    const TRANSLATION_VERSION = '1.0.1'; // 버전 업데이트로 캐시 무효화
+    const cacheKey = `translations-${language}-v${TRANSLATION_VERSION}`;
     
-    // 세션 스토리지에서 캐시 확인
+    // 🔥 기존 캐시 정리 (버전이 다른 경우)
     if (typeof window !== 'undefined') {
+      // 이전 버전 캐시들 정리
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key && key.startsWith(`translations-${language}-`) && key !== cacheKey) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => sessionStorage.removeItem(key));
+      
+      // 새 버전 캐시 확인
       const cached = sessionStorage.getItem(cacheKey);
       if (cached) {
         try {
           const parsedCache = JSON.parse(cached);
-          console.log(`✅ 캐시에서 ${language} 번역 로드`);
+          console.log(`✅ 캐시에서 ${language} 번역 로드 (v${TRANSLATION_VERSION})`);
           return parsedCache;
         } catch (parseError) {
           console.warn('캐시 파싱 오류, 새로 로드:', parseError);
+          sessionStorage.removeItem(cacheKey);
         }
       }
     }
 
-    // 통합 번역 파일에서 로드 (파일명: translations.json)
-    const response = await fetch('/locales/translations.json', {
-      cache: 'force-cache'
+    // 🔥 번역 파일 강제 새로고침 (no-cache)
+    const response = await fetch(`/locales/translations.json?v=${TRANSLATION_VERSION}`, {
+      cache: 'no-cache',
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
     });
     
     if (!response.ok) {
@@ -1062,16 +1080,17 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
       }
     };
     
-    // 세션 스토리지에 캐시 저장
+    // 🔥 새 버전으로 세션 스토리지에 캐시 저장
     if (typeof window !== 'undefined') {
       try {
         sessionStorage.setItem(cacheKey, JSON.stringify(safeTranslations));
+        console.log(`💾 ${language} 번역 캐시 저장 (v${TRANSLATION_VERSION})`);
       } catch (storageError) {
         console.warn('세션 스토리지 저장 실패:', storageError);
       }
     }
     
-    console.log(`✅ ${language} 번역 파일 로드 완료`);
+    console.log(`✅ ${language} 번역 파일 로드 완료 (v${TRANSLATION_VERSION})`);
     return safeTranslations;
     
   } catch (error) {
@@ -1161,12 +1180,54 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const keys = key.split('.');
     let value: any = translations;
     
+    // 🔥 디버그 로그 추가
+    const debugLog = process.env.NODE_ENV === 'development';
+    
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
         value = value[k];
       } else {
-        console.warn(`Translation key not found: ${key}`);
-        return key; // 키를 그대로 반환
+        if (debugLog) {
+          console.warn(`❌ Translation key not found: ${key} (stopped at: ${k})`, {
+            currentLanguage,
+            availableKeys: value && typeof value === 'object' ? Object.keys(value) : 'not object',
+            translations: Object.keys(translations),
+            path: keys
+          });
+        }
+        
+        // 🔥 fallback 처리 개선
+        // 1. 영어 번역에서 시도
+        if (currentLanguage !== 'ko' && translations) {
+          const fallbackKeys = key.split('.');
+          let fallbackValue: any = translations;
+          
+          for (const fk of fallbackKeys) {
+            if (fallbackValue && typeof fallbackValue === 'object' && fk in fallbackValue) {
+              fallbackValue = fallbackValue[fk];
+            } else {
+              fallbackValue = null;
+              break;
+            }
+          }
+          
+          if (fallbackValue && typeof fallbackValue === 'string') {
+            if (debugLog) {
+              console.log(`✅ Fallback found for ${key}: ${fallbackValue}`);
+            }
+            return fallbackValue;
+          }
+        }
+        
+        // 2. 마지막 키 부분만 반환 (사용자 친화적)
+        const lastKey = keys[keys.length - 1];
+        const friendlyFallback = lastKey.replace(/([A-Z])/g, ' $1').toLowerCase();
+        
+        if (debugLog) {
+          console.log(`🔄 Using friendly fallback for ${key}: ${friendlyFallback}`);
+        }
+        
+        return friendlyFallback;
       }
     }
     
