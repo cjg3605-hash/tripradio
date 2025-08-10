@@ -308,7 +308,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                 <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
                   <Star className="w-4 h-4 text-white" />
                 </div>
-                <h2 className="text-xl font-semibold text-black">{t('guide.keyFeatures')}</h2>
+                <h2 className="text-xl font-semibold text-black">{t('keyFeatures')}</h2>
               </div>
               <div className="space-y-3">
                 {regionData.highlights.map((highlight, index) => (
@@ -421,7 +421,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                     lng: spot.coordinates!.lng,
                     description: spot.description
                   }))}
-                  showIntroOnly={false}
+                  showIntroOnly={true}
                   className="w-full h-full"
                 />
               </div>
