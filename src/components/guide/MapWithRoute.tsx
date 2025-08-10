@@ -499,42 +499,7 @@ export default function MapWithRoute({
 
   // 로딩 상태 제거 - 즉시 렌더링
 
-  // 🔥 지도 대신 좌표 정보 표시 (Leaflet 오류 방지)
-  // 인트로 챕터 (첫 번째 챕터) 정보 추출
-  const introChapter = validChapters.length > 0 ? validChapters[0] : null;
-  const introTitle = introChapter?.title || `${locationName} 시작점`;
-  
-  // 실제 DB 타입 구조에 따른 좌표 추출 (우선순위: location > coordinates > lat/lng > latitude/longitude)
-  const introLat = introChapter?.location?.lat || 
-                   introChapter?.coordinates?.lat || 
-                   introChapter?.lat || 
-                   introChapter?.latitude || 
-                   mapCenter[0];
-                   
-  const introLng = introChapter?.location?.lng || 
-                   introChapter?.coordinates?.lng || 
-                   introChapter?.lng || 
-                   introChapter?.longitude || 
-                   mapCenter[1];
-                   
-  const introNarrative = introChapter?.narrative || introChapter?.description || '';
-  
-  return (
-    <div className="relative w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white flex items-center justify-center">
-      <div className="text-center p-4">
-        <div className="text-lg font-medium text-gray-800 mb-2">📍 {locationName}</div>
-        <div className="text-sm text-gray-600 mb-1">시작점: {introLat}, {introLng}</div>
-        <div className="text-xs text-gray-500 mb-3">인트로 챕터 좌표 표시</div>
-        <div className="bg-blue-50 p-3 rounded-lg">
-          <div className="text-sm font-medium text-blue-800">{introTitle}</div>
-          <div className="text-xs text-blue-600 mt-1">좌표: {introLat}°N, {introLng}°E</div>
-          {introNarrative && (
-            <div className="text-xs text-blue-500 mt-1">{introNarrative.slice(0, 50)}{introNarrative.length > 50 ? '...' : ''}</div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+  // 실제 지도 렌더링
 
   return (
     <div 

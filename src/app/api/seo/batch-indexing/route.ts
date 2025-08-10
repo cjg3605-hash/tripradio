@@ -20,6 +20,7 @@ interface BatchIndexingRequest {
   batchSize?: number;
   delayBetweenBatches?: number;
   dryRun?: boolean;
+  excludedLocations?: string[];
 }
 
 interface BatchIndexingResult {
@@ -54,11 +55,12 @@ export async function POST(request: NextRequest) {
       locations = [],
       batchSize = 10,
       delayBetweenBatches = 2000,
-      dryRun = false
+      dryRun = false,
+      excludedLocations = []
     } = body;
 
     // 색인 대상 가이드 조회
-    const guidesToIndex = await getGuidesToIndex(mode, locations);
+    const guidesToIndex = await getGuidesToIndex(mode, locations, excludedLocations);
     
     if (guidesToIndex.length === 0) {
       return NextResponse.json({
@@ -233,7 +235,8 @@ export async function OPTIONS() {
 
 async function getGuidesToIndex(
   mode: string, 
-  specificLocations: string[]
+  specificLocations: string[],
+  excludedLocations: string[] = []
 ): Promise<Array<{ locationname: string }>> {
   
   if (mode === 'specific' && specificLocations.length > 0) {
@@ -260,8 +263,26 @@ async function getGuidesToIndex(
     return getAllGuides();
   }
   
-  // 기본값: 모든 가이드
-  return getAllGuides();
+  // 기본값: 모든 가이드 (제외 목록 적용)
+  const allGuides = await getAllGuides();
+  
+  // 제외 목록이 있으면 필터링
+  if (excludedLocations.length > 0) {
+    const filteredGuides = allGuides.filter(guide => 
+      !excludedLocations.includes(guide.locationname)
+    );
+    
+    console.log(`📋 제외 목록 적용: ${allGuides.length}개 → ${filteredGuides.length}개 가이드`);
+    if (excludedLocations.length <= 10) {
+      console.log(`   제외된 위치: ${excludedLocations.join(', ')}`);
+    } else {
+      console.log(`   제외된 위치: ${excludedLocations.slice(0, 10).join(', ')} 외 ${excludedLocations.length - 10}개`);
+    }
+    
+    return filteredGuides;
+  }
+  
+  return allGuides;
 }
 
 async function getAllGuides(): Promise<Array<{ locationname: string }>> {

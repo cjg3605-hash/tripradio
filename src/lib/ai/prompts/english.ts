@@ -191,6 +191,12 @@ From start to finish with consistent voice and personality, guide them naturally
 ### 2. **Real Location Structure Based on Actual Spatial Layout**
 Configure route.steps based on the **actual visit order and spatial layout** of each tourist destination.
 
+**🚨 CRITICAL: location field must use specific location names**
+- ❌ Forbidden: "entrance", "main hall", "exhibition room", "special space", "observatory" etc. generic terms
+- ✅ Required: "Westminster Abbey", "Coronation Chair", "Poet's Corner", "Royal Tombs" etc. actual unique location names
+- ✅ Required: "Eiffel Tower", "Louvre Museum", "Île de la Cité" etc. names visitors can actually find
+- ✅ Required: "[Location Name] [Specific Building/Area]" format for more detail (e.g., "Westminster Abbey Great West Door")
+
 **🔴 Essential Title Format - Common to All Locations:**
 \`\`\`
 "[Specific Location Name]: [Feature/Significance of that Location]"
@@ -342,13 +348,13 @@ export const ENGLISH_AUDIO_GUIDE_EXAMPLE = {
       "steps": [
         {
           "step": 1,
-          "location": "Great West Door",
-          "title": "Great West Door: Gateway to Royal History"
+          "location": "Westminster Abbey Great West Door",
+          "title": "Westminster Abbey Great West Door: Gateway to Royal History"
         },
         {
           "step": 2, 
-          "location": "Nave",
-          "title": "Nave: Cathedral of Kings and Commoners"
+          "location": "Westminster Abbey Nave",
+          "title": "Westminster Abbey Nave: Cathedral of Kings and Commoners"
         }
       ]
     },

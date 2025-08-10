@@ -78,8 +78,8 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
           })) : undefined}
           currentLocation={null}
           center={{ lat: startPoint.lat, lng: startPoint.lng }}
-          zoom={showIntroOnly ? 16 : 15} // 인트로만 표시할 때 더 확대
-          showRoute={!showIntroOnly && displayChapters.length > 0} // 인트로만 표시시 루트 숨김
+          zoom={showIntroOnly ? 16 : 13} // 인트로만 표시할 때 더 확대, 전체 지역 표시할 때는 더 넓게
+          showRoute={false} // 허브 페이지와 실시간 가이드 모두 루트 숨김 (별개 지역 마커만 표시)
           showUserLocation={false}
           onMarkerClick={(chapterIndex) => {
             console.log('Chapter marker clicked:', chapterIndex);

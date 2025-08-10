@@ -383,6 +383,18 @@ function createRecommendedSpotsPrompt(locationName: string, language: string): s
 
 "${locationName}" 지역의 매력적인 여행지 6개를 추천해주세요.
 
+🚨 CRITICAL: name 필드는 반드시 구체적인 고유 장소명 사용
+- ❌ 금지: "박물관", "시장", "공원", "성당", "타워" 등 일반적인 용어
+- ✅ 필수: "전주한옥마을", "남대문시장", "경복궁", "명동성당", "N서울타워" 등 실제 고유명사
+- ✅ 필수: 방문자가 구글 지도에서 검색할 수 있는 정확한 장소명
+- ✅ 필수: "${locationName}" 지역에 실제로 존재하는 유명한 특정 장소들
+
+🚨 CRITICAL: location 필드는 동일명 지역 혼동 방지를 위해 명확히 특정
+- ❌ 금지: "뉴욕", "파리", "런던" 등 동일명이 여러 국가에 존재하는 모호한 표기
+- ✅ 필수: "미국 뉴욕주", "프랑스 일드프랑스 파리", "영국 런던" 등 국가+주/지역 포함
+- ✅ 필수: "${locationName}"이 국가인 경우 반드시 "국가명 주/도명" 형태로 작성
+- ✅ 예시: 미국 → "미국 캘리포니아주", "미국 뉴욕주", 일본 → "일본 도쿄도", "일본 오사카부"
+
 추천 기준:
 1. 다양한 카테고리 (도시, 자연, 문화, 음식, 쇼핑 등)
 2. 접근성과 난이도의 균형
@@ -393,8 +405,8 @@ JSON 배열로만 응답하세요:
 [
   {
     "id": "unique-id-1",
-    "name": "장소명",
-    "location": "상세 위치 (${locationName} 내)",
+    "name": "구체적인 고유 장소명 (예: 전주한옥마을, 남대문시장)",
+    "location": "${locationName} [구체적 주/도/지역명] (예: 미국 캘리포니아주, 일본 도쿄도, 프랑스 일드프랑스)",
     "category": "city|nature|culture|food|shopping",
     "description": "매력적인 한 줄 소개 (80자 내외)",
     "highlights": ["특징1", "특징2", "특징3"],
@@ -410,6 +422,7 @@ JSON 배열로만 응답하세요:
 ]
 
 주의사항:
+- name은 절대로 일반명사가 아닌 구체적 고유명사여야 함
 - 각 장소는 서로 다른 매력을 가져야 함
 - description은 클릭하고 싶게 만드는 내용으로
 - 실제 존재하는 좌표 제공`,
@@ -417,6 +430,18 @@ JSON 배열로만 응답하세요:
     en: `${REGION_EXPLORE_PERSONA}
 
 Recommend 6 attractive travel destinations in "${locationName}" region.
+
+🚨 CRITICAL: name field must use specific proper place names
+- ❌ Forbidden: "museum", "market", "park", "cathedral", "tower" etc. generic terms
+- ✅ Required: "Central Park", "Times Square", "Metropolitan Museum of Art", "Brooklyn Bridge" etc. actual proper nouns
+- ✅ Required: Exact place names that visitors can search on Google Maps
+- ✅ Required: Famous specific places that actually exist in "${locationName}" region
+
+🚨 CRITICAL: location field must prevent confusion between same-named places
+- ❌ Forbidden: "New York", "Paris", "London" etc. ambiguous names that exist in multiple countries
+- ✅ Required: "USA New York State", "France Île-de-France Paris", "UK London" etc. with country+state/region
+- ✅ Required: If "${locationName}" is a country, must use "Country State/Province" format
+- ✅ Examples: USA → "USA California", "USA New York State", Japan → "Japan Tokyo", "Japan Osaka"
 
 Recommendation criteria:
 1. Various categories (city, nature, culture, food, shopping, etc.)
@@ -428,8 +453,8 @@ Respond only as JSON array:
 [
   {
     "id": "unique-id-1", 
-    "name": "place name",
-    "location": "detailed location (within ${locationName})",
+    "name": "specific proper place name (e.g. Central Park, Brooklyn Bridge)",
+    "location": "${locationName} [specific state/province/region] (e.g. USA California, Japan Tokyo, France Île-de-France)",
     "category": "city|nature|culture|food|shopping",
     "description": "attractive one-line introduction (around 80 characters)",
     "highlights": ["feature1", "feature2", "feature3"],
@@ -445,6 +470,7 @@ Respond only as JSON array:
 ]
 
 Notes:
+- name must be specific proper nouns, never generic terms
 - Each place should have different unique attractions
 - Description should make users want to click
 - Provide actual existing coordinates`

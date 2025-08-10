@@ -549,7 +549,7 @@ function HomeClient() {
                     </svg>
                   </div>
                   <div className="min-h-16 sm:min-h-20 flex flex-col justify-start pt-2">
-                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-2">{t('home.stepTitles.inputLocation')}</div>
+                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-2 whitespace-nowrap overflow-hidden text-ellipsis">{t('home.stepTitles.inputLocation')}</div>
                     <div className="text-xs sm:text-sm lg:text-base text-gray-500 leading-relaxed">
                       {String(t('home.stepDescriptions.inputLocation')).split(' ').slice(0, 2).join(' ')}<br />
                       {String(t('home.stepDescriptions.inputLocation')).split(' ').slice(2).join(' ')}
@@ -580,7 +580,7 @@ function HomeClient() {
                     </svg>
                   </button>
                   <div className="min-h-16 sm:min-h-20 flex flex-col justify-start pt-2">
-                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-2">{t('home.stepTitles.aiGenerate')}</div>
+                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-2 whitespace-nowrap overflow-hidden text-ellipsis">{t('home.stepTitles.aiGenerate')}</div>
                     <div className="text-xs sm:text-sm lg:text-base text-gray-500 leading-relaxed">
                       {String(t('home.stepDescriptions.aiGenerate')).split(' ').slice(0, 1).join(' ')}<br />
                       {String(t('home.stepDescriptions.aiGenerate')).split(' ').slice(1).join(' ')}
@@ -610,7 +610,7 @@ function HomeClient() {
                     </svg>
                   </button>
                   <div className="min-h-16 sm:min-h-20 flex flex-col justify-start pt-2">
-                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-2">{t('home.stepTitles.audioPlay')}</div>
+                    <div className="text-sm sm:text-lg lg:text-xl font-medium text-black mb-2 whitespace-nowrap overflow-hidden text-ellipsis">{t('home.stepTitles.audioPlay')}</div>
                     <div className="text-xs sm:text-sm lg:text-base text-gray-500 leading-relaxed">
                       {String(t('home.stepDescriptions.audioPlay')).split(' ').slice(0, 2).join(' ')}<br />
                       {String(t('home.stepDescriptions.audioPlay')).split(' ').slice(2).join(' ')}

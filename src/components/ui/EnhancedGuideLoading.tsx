@@ -36,50 +36,52 @@ export default function EnhancedGuideLoading({
   const [encouragingMessageIndex, setEncouragingMessageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
 
-  // 번역 값 타입 안전 변환 헬퍼
-  const getTranslatedString = (key: string): string => {
-    const value = t(key);
-    return Array.isArray(value) ? value[0] || '' : String(value);
-  };
-
   // 번역된 로딩 단계 생성 (useMemo로 최적화)
-  const loadingSteps: LoadingStep[] = useMemo(() => [
-    {
-      id: 'analyzing',
-      title: getTranslatedString('loading.messages.analyzing'),
-      description: getTranslatedString('loading.descriptions.analyzing'),
-      duration: 3,
-      status: 'pending'
-    },
-    {
-      id: 'researching', 
-      title: getTranslatedString('loading.messages.researching'),
-      description: getTranslatedString('loading.descriptions.researching'),
-      duration: 8,
-      status: 'pending'
-    },
-    {
-      id: 'generating',
-      title: getTranslatedString('loading.messages.generating'),
-      description: getTranslatedString('loading.descriptions.generating'),
-      duration: 15,
-      status: 'pending'
-    },
-    {
-      id: 'optimizing',
-      title: getTranslatedString('loading.messages.optimizing'),
-      description: getTranslatedString('loading.descriptions.optimizing'),
-      duration: 5,
-      status: 'pending'
-    },
-    {
-      id: 'finalizing',
-      title: getTranslatedString('loading.messages.finalizing'),
-      description: getTranslatedString('loading.descriptions.finalizing'),
-      duration: 2,
-      status: 'pending'
-    }
-  ], [t]);
+  const loadingSteps: LoadingStep[] = useMemo(() => {
+    // 번역 값 타입 안전 변환 헬퍼
+    const getTranslatedString = (key: string): string => {
+      const value = t(key);
+      return Array.isArray(value) ? value[0] || '' : String(value);
+    };
+
+    return [
+      {
+        id: 'analyzing',
+        title: getTranslatedString('loading.messages.analyzing'),
+        description: getTranslatedString('loading.descriptions.analyzing'),
+        duration: 3,
+        status: 'pending'
+      },
+      {
+        id: 'researching', 
+        title: getTranslatedString('loading.messages.researching'),
+        description: getTranslatedString('loading.descriptions.researching'),
+        duration: 8,
+        status: 'pending'
+      },
+      {
+        id: 'generating',
+        title: getTranslatedString('loading.messages.generating'),
+        description: getTranslatedString('loading.descriptions.generating'),
+        duration: 15,
+        status: 'pending'
+      },
+      {
+        id: 'optimizing',
+        title: getTranslatedString('loading.messages.optimizing'),
+        description: getTranslatedString('loading.descriptions.optimizing'),
+        duration: 5,
+        status: 'pending'
+      },
+      {
+        id: 'finalizing',
+        title: getTranslatedString('loading.messages.finalizing'),
+        description: getTranslatedString('loading.descriptions.finalizing'),
+        duration: 2,
+        status: 'pending'
+      }
+    ];
+  }, [t]);
 
   // 번역된 격려 메시지
   const encouragingMessages = t('loading.encouragement') as string[];

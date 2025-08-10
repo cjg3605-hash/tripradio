@@ -93,19 +93,24 @@ const normalizeGuideData = (data: any, locationName: string) => {
   return normalizedData;
 };
 
-export default function MyGuidePage({ params }: { params: { id: string } }) {
+export default function MyGuidePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
   const [guide, setGuide] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
 
   useEffect(() => {
-    if (!params?.id) return;
+    params.then(setResolvedParams);
+  }, [params]);
+
+  useEffect(() => {
+    if (!resolvedParams?.id) return;
     
     try {
       const guides = JSON.parse(localStorage.getItem("myGuides") || "[]");
-      const found = guides.find((g: any) => encodeURIComponent(g.metadata?.originalLocationName) === params.id);
+      const found = guides.find((g: any) => encodeURIComponent(g.metadata?.originalLocationName) === resolvedParams.id);
       
       if (found) {
         // 🔥 핵심: 저장된 가이드 데이터 정규화
@@ -121,7 +126,7 @@ export default function MyGuidePage({ params }: { params: { id: string } }) {
     } finally {
       setLoading(false);
     }
-  }, [params?.id]);
+  }, [resolvedParams?.id]);
 
   if (loading) {
     return (

@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // scripts/seo-batch-indexing.js
-// 기존 가이드 일괄 색인 관리 스크립트
+// 기존 가이드 일괄 색인 관리 스크립트 (제외 목록 지원)
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3003';
+const { getExcludedLocations } = require('./indexing-exclude-manager');
 
 /**
  * API 호출 헬퍼
@@ -84,24 +85,40 @@ async function validateConfig() {
 }
 
 /**
- * 일괄 색인 실행
+ * 일괄 색인 실행 (제외 목록 지원)
  */
 async function runBatchIndexing(options = {}) {
   const {
     mode = 'all',
     batchSize = 10,
     delayBetweenBatches = 2000,
-    dryRun = false
+    dryRun = false,
+    excludeProcessed = true
   } = options;
   
   console.log('🚀 일괄 색인 시작...\n');
   console.log(`⚙️ 설정: 모드=${mode}, 배치크기=${batchSize}, 지연=${delayBetweenBatches}ms, 테스트=${dryRun}\n`);
   
+  // 제외 목록 확인
+  let excludedLocations = [];
+  if (excludeProcessed) {
+    try {
+      excludedLocations = getExcludedLocations();
+      if (excludedLocations.length > 0) {
+        console.log(`📋 제외할 위치: ${excludedLocations.length}개`);
+        console.log(`   제외 위치 예시: ${excludedLocations.slice(0, 5).join(', ')}${excludedLocations.length > 5 ? '...' : ''}\n`);
+      }
+    } catch (error) {
+      console.log('⚠️ 제외 목록 로드 실패, 모든 가이드 처리:', error.message);
+    }
+  }
+  
   const result = await apiCall('/batch-indexing', 'POST', {
     mode,
     batchSize,
     delayBetweenBatches,
-    dryRun
+    dryRun,
+    excludedLocations: excludeProcessed ? excludedLocations : []
   });
   
   if (result.success) {
@@ -213,7 +230,18 @@ async function main() {
       await runBatchIndexing({ 
         mode: 'all', 
         batchSize: 5, 
-        delayBetweenBatches: 3000 
+        delayBetweenBatches: 3000,
+        excludeProcessed: true
+      });
+      break;
+      
+    case 'run-remaining-only':
+      console.log('🎯 오늘 처리하지 않은 가이드만 색인 요청...\n');
+      await runBatchIndexing({ 
+        mode: 'all', 
+        batchSize: 5, 
+        delayBetweenBatches: 3000,
+        excludeProcessed: true
       });
       break;
       
@@ -260,20 +288,25 @@ async function main() {
       console.log('   node scripts/seo-batch-indexing.js <command>');
       console.log('');
       console.log('📋 명령어:');
-      console.log('   status           - 현재 색인 상태 확인');
-      console.log('   validate         - 색인 설정 검증');
-      console.log('   dry-run          - 테스트 실행 (실제 요청 안 함)');
-      console.log('   run-all          - 모든 가이드 색인 요청');
-      console.log('   run-small-batch  - 안전한 소규모 배치로 색인');
-      console.log('   retry <장소명>   - 특정 장소 재시도 (예: retry 부산 제주도)');
-      console.log('   full-process     - 전체 프로세스 자동 실행');
-      console.log('   help             - 도움말');
+      console.log('   status              - 현재 색인 상태 확인');
+      console.log('   validate            - 색인 설정 검증');
+      console.log('   dry-run             - 테스트 실행 (실제 요청 안 함)');
+      console.log('   run-all             - 모든 가이드 색인 요청');
+      console.log('   run-small-batch     - 안전한 소규모 배치로 색인');
+      console.log('   run-remaining-only  - 오늘 처리하지 않은 가이드만 색인 ⭐');
+      console.log('   retry <장소명>      - 특정 장소 재시도 (예: retry 부산 제주도)');
+      console.log('   full-process        - 전체 프로세스 자동 실행');
+      console.log('   help                - 도움말');
       console.log('');
-      console.log('💡 권장 순서:');
+      console.log('💡 권장 순서 (할당량 절약):');
       console.log('   1. node scripts/seo-batch-indexing.js validate');
       console.log('   2. node scripts/seo-batch-indexing.js dry-run');
-      console.log('   3. node scripts/seo-batch-indexing.js run-small-batch');
+      console.log('   3. node scripts/seo-batch-indexing.js run-remaining-only  ⭐ (오늘한거 제외)');
       console.log('   4. node scripts/seo-batch-indexing.js status');
+      console.log('');
+      console.log('🔄 제외 목록 관리:');
+      console.log('   - node scripts/indexing-exclude-manager.js status      (제외 목록 확인)');
+      console.log('   - node scripts/indexing-exclude-manager.js add-today   (오늘 성공분 추가)');
       break;
   }
 }

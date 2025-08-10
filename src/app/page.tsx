@@ -1031,8 +1031,8 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-white font-sans relative">
-      {/* 배경 - 헤더 컨테이너 크기에 맞춰서 Hero 섹션까지만 제한 - 모바일 반응형 */}
-      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 overflow-hidden w-full max-w-6xl px-2 sm:px-4 md:px-6" style={{ height: '85vh' }}>
+      {/* 배경 - 헤더의 끝선에 맞춰서 시작하고, 검색박스 위까지로 제한 - 모바일 반응형 */}
+      <div className="hero-background-container">
         {/* 회전하는 배경 이미지들 */}
         {landmarks.map((landmark, index) => (
           <div
@@ -1046,7 +1046,7 @@ function Home() {
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
               zIndex: -2,
-              borderRadius: '0 0 24px 24px'
+              borderRadius: 'inherit'
             }}
           />
         ))}
@@ -1117,7 +1117,7 @@ function Home() {
               <div className="flex flex-row justify-center items-start gap-1 sm:gap-2 md:gap-4 lg:gap-6 xl:gap-8">
                 
                 {/* 장소 입력 - 모바일 최적화 */}
-                <div className="text-center relative z-10 flex-1 max-w-20 sm:max-w-24 md:max-w-32 lg:max-w-xs">
+                <div className="text-center relative z-10 flex-1 max-w-24 sm:max-w-28 md:max-w-32 lg:max-w-xs">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mx-auto rounded-full flex items-center justify-center bg-white text-black mb-2 sm:mb-3 md:mb-4 shadow-lg border-2 border-gray-200">
                     <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -1125,8 +1125,8 @@ function Home() {
                     </svg>
                   </div>
                   <div className="min-h-10 sm:min-h-12 md:min-h-16 lg:min-h-20 flex flex-col justify-start pt-1 sm:pt-2">
-                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-white mb-0 sm:mb-1" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.inputLocation')}</div>
-                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-white opacity-80" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.inputLocationSub')}</div>
+                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-white mb-0 sm:mb-1 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.inputLocation')}</div>
+                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-white opacity-80 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.inputLocationSub')}</div>
                   </div>
                 </div>
 
@@ -1138,7 +1138,7 @@ function Home() {
                 </div>
 
                 {/* AI 생성 - 모바일 최적화 */}
-                <div className="text-center relative z-10 flex-1 max-w-20 sm:max-w-24 md:max-w-32 lg:max-w-xs">
+                <div className="text-center relative z-10 flex-1 max-w-24 sm:max-w-28 md:max-w-32 lg:max-w-xs">
                   <button 
                     onClick={handleAIGeneration}
                     disabled={!query.trim() || loadingStates.search}
@@ -1157,8 +1157,8 @@ function Home() {
                     )}
                   </button>
                   <div className="min-h-10 sm:min-h-12 md:min-h-16 lg:min-h-20 flex flex-col justify-start pt-1 sm:pt-2">
-                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-white mb-0 sm:mb-1" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.aiGenerate')}</div>
-                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-white opacity-80" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.aiGenerateSub')}</div>
+                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-white mb-0 sm:mb-1 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.aiGenerate')}</div>
+                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-white opacity-80 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.aiGenerateSub')}</div>
                   </div>
                 </div>
 
@@ -1170,7 +1170,7 @@ function Home() {
                 </div>
 
                 {/* 오디오 재생 - 모바일 최적화 */}
-                <div className="text-center relative z-10 flex-1 max-w-20 sm:max-w-24 md:max-w-32 lg:max-w-xs">
+                <div className="text-center relative z-10 flex-1 max-w-24 sm:max-w-28 md:max-w-32 lg:max-w-xs">
                   <button 
                     onClick={handleAudioPlayback}
                     disabled={!query.trim()}
@@ -1191,8 +1191,8 @@ function Home() {
                     )}
                   </button>
                   <div className="min-h-10 sm:min-h-12 md:min-h-16 lg:min-h-20 flex flex-col justify-start pt-1 sm:pt-2">
-                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-white mb-0 sm:mb-1" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.audioPlay')}</div>
-                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-white opacity-80" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.audioPlaySub')}</div>
+                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-white mb-0 sm:mb-1 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.audioPlay')}</div>
+                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-white opacity-80 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.audioPlaySub')}</div>
                   </div>
                 </div>
               </div>

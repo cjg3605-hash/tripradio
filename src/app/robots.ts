@@ -14,12 +14,8 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: [
-      'https://navi-guide.com/sitemap.xml',
-      'https://en.navi-guide.com/sitemap.xml',
-      'https://ja.navi-guide.com/sitemap.xml',
-      'https://zh.navi-guide.com/sitemap.xml',
-      'https://es.navi-guide.com/sitemap.xml',
+      'https://navidocent.com/sitemap.xml',
     ],
-    host: 'https://navi-guide.com',
+    host: 'https://navidocent.com',
   };
 } 

@@ -326,7 +326,7 @@ export default function MyPage() {
                 <p className="text-gray-500 text-sm">{t('mypage.historyDescription') || '조회했던 가이드들의 히스토리입니다'}</p>
               </div>
               <div className="text-sm text-gray-500">
-                총 {filteredGuides.length}개 {t('mypage.guides') || '가이드'}
+                {t('mypage.totalCount', { count: filteredGuides.length }) || `총 ${filteredGuides.length}개`} {t('mypage.guides') || '가이드'}
               </div>
             </div>
 
@@ -429,7 +429,7 @@ export default function MyPage() {
                 <p className="text-gray-500 text-sm">{t('mypage.favoritesDescription') || '실시간 가이드에서 즐겨찾기한 가이드들입니다'}</p>
               </div>
               <div className="text-sm text-gray-500">
-                {favoriteGuides.length}개 {t('mypage.favoritesShort') || '즐겨찾기'}
+                {t('mypage.favoritesCount', { count: favoriteGuides.length }) || `${favoriteGuides.length}개`} {t('mypage.favoritesShort') || '즐겨찾기'}
               </div>
             </div>
 
@@ -495,7 +495,7 @@ export default function MyPage() {
                 <p className="text-gray-500 text-sm">{t('mypage.offlineDescription') || '오프라인에서도 이용할 수 있도록 다운로드한 가이드들입니다'}</p>
               </div>
               <div className="text-sm text-gray-500">
-                {offlineGuides.length}개 {t('common.downloads') || '다운로드'}
+                {t('mypage.downloadsCount', { count: offlineGuides.length }) || `${offlineGuides.length}개`} {t('common.downloads') || '다운로드'}
               </div>
             </div>
 

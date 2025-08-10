@@ -475,7 +475,7 @@ const DEFAULT_TRANSLATIONS: Translations = {
       inputLocation: '장소 입력',
       inputLocationSub: '(특정 장소)',
       aiGenerate: '검색 클릭',
-      aiGenerateSub: '(바로 가이드 생성)',
+      aiGenerateSub: '(가이드 생성)',
       audioPlay: '재생버튼 누르면',
       audioPlaySub: '투어시작!'
     },

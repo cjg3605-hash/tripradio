@@ -9,7 +9,7 @@ import dynamic from 'next/dynamic';
 
 // 지도 컴포넌트 동적 로드
 const StartLocationMap = dynamic(() => import('@/components/guide/StartLocationMap'), {
-  loading: () => <GuideLoading message="지도 로딩 중..." />,
+  loading: () => <GuideLoading message="Loading map..." />,
   ssr: false
 });
 
@@ -159,7 +159,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
               highlights: [],
               estimatedDays: Math.min(Math.ceil((index + 1) / 3), 2),
               difficulty: 'easy' as const,
-              seasonality: '연중',
+              seasonality: t('common.yearRound'),
               popularity: Math.max(95 - (index * 3), 70),
               coordinates
             };
@@ -188,17 +188,17 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
           setRegionData(result.regionData);
           setRecommendedSpots(result.recommendedSpots || []);
         } else {
-          setError(result.error || '지역 정보를 불러올 수 없습니다.');
+          setError(result.error || t('guide.cannotLoadInfo'));
         }
       }
 
     } catch (err) {
       console.error('지역 정보 로드 오류:', err);
-      setError('지역 정보를 불러오는 중 오류가 발생했습니다.');
+      setError(t('guide.loadRegionError'));
     } finally {
       setIsLoading(false);
     }
-  }, [locationName, language, routingResult, content]);
+  }, [locationName, language, routingResult, content, t]);
 
   // 지역 정보 및 추천 장소 로드
   useEffect(() => {
@@ -220,17 +220,17 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
 
   const getDifficultyText = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy': return '쉬움';
-      case 'moderate': return '보통';
-      case 'challenging': return '도전적';
-      default: return '보통';
+      case 'easy': return t('common.easy');
+      case 'moderate': return t('common.moderate');
+      case 'challenging': return t('common.challenging');
+      default: return t('common.moderate');
     }
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <GuideLoading message="지역 정보를 불러오는 중..." />
+        <GuideLoading message={t('guide.loadingRegionInfo')} />
       </div>
     );
   }
@@ -240,15 +240,15 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-4xl mb-4">😕</div>
-          <h2 className="text-xl font-medium text-gray-900 mb-2">정보를 불러올 수 없습니다</h2>
+          <h2 className="text-xl font-medium text-gray-900 mb-2">{t('guide.cannotLoadInfo')}</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
             onClick={loadRegionData}
             className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-            aria-label="지역 정보 다시 불러오기"
+            aria-label={t('guide.loadMapAriaLabel')}
           >
             <RefreshCw className="w-4 h-4 mr-2 inline" />
-            다시 시도
+            {t('common.tryAgain')}
           </button>
         </div>
       </div>
@@ -264,7 +264,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
             <button
               onClick={() => router.back()}
               className="p-3 hover:bg-black/5 rounded-2xl transition-colors"
-              aria-label="뒤로 가기"
+              aria-label={t('common.goBack')}
             >
               <svg className="w-5 h-5 text-black/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
@@ -293,7 +293,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                 <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
                   <Info className="w-4 h-4 text-white" />
                 </div>
-                <h2 className="text-xl font-semibold text-black">지역 소개</h2>
+                <h2 className="text-xl font-semibold text-black">{t('guide.regionIntroduction')}</h2>
               </div>
               <p className="text-black/70 leading-relaxed text-lg">{regionData.description}</p>
             </div>
@@ -308,7 +308,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                 <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
                   <Star className="w-4 h-4 text-white" />
                 </div>
-                <h2 className="text-xl font-semibold text-black">주요 특징</h2>
+                <h2 className="text-xl font-semibold text-black">{t('guide.keyFeatures')}</h2>
               </div>
               <div className="space-y-3">
                 {regionData.highlights.map((highlight, index) => (
@@ -334,7 +334,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                 <Compass className="w-4 h-4 text-white" />
               </div>
               <h2 className="text-xl font-semibold text-black">
-                추천 여행지 ({recommendedSpots.length})
+                {t('guide.recommendedSpots')} ({recommendedSpots.length})
               </h2>
             </div>
             
@@ -380,27 +380,50 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
             ) : (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">🗺️</div>
-                <p className="text-black/60 text-lg">추천 장소가 없습니다</p>
+                <p className="text-black/60 text-lg">{t('guide.noRecommendedSpots')}</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* 🎨 추천시작지점 지도 카드 - 임시 비활성화 */}
-        {(regionData?.coordinates || (content?.chapters && content.chapters.length > 0)) && (
+        {/* 🎨 추천시작지점 지도 카드 */}
+        {(regionData?.coordinates || (content?.realTimeGuide?.chapters && content.realTimeGuide.chapters.length > 0)) && (
           <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
             <div className="p-8">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
                   <MapPin className="w-4 h-4 text-white" />
                 </div>
-                <h2 className="text-xl font-semibold text-black">추천시작지점</h2>
+                <h2 className="text-xl font-semibold text-black">{t('guide.mapTitle')}</h2>
               </div>
-              <div className="h-80 bg-black/2 border border-black/5 rounded-2xl overflow-hidden flex items-center justify-center">
-                <div className="text-center">
-                  <h3 className="text-lg font-medium text-black mb-2">지도 로딩 중...</h3>
-                  <p className="text-black/60">잠시 후 지도가 표시됩니다</p>
-                </div>
+              <div className="h-80 bg-black/2 border border-black/5 rounded-2xl overflow-hidden">
+                <StartLocationMap
+                  locationName={locationName}
+                  startPoint={{
+                    lat: regionData?.coordinates?.lat || 
+                         (content?.realTimeGuide?.chapters?.[0]?.coordinates?.lat ? parseFloat(content.realTimeGuide.chapters[0].coordinates.lat) : 37.5665),
+                    lng: regionData?.coordinates?.lng || 
+                         (content?.realTimeGuide?.chapters?.[0]?.coordinates?.lng ? parseFloat(content.realTimeGuide.chapters[0].coordinates.lng) : 126.9780),
+                    name: `${locationName} ${t('guide.regionSuffix')}`
+                  }}
+                  chapters={content?.realTimeGuide?.chapters?.map((chapter: any, index: number) => ({
+                    id: index,
+                    title: chapter.title || `${t('guide.chapterPrefix')} ${index + 1}`,
+                    lat: chapter.coordinates?.lat ? parseFloat(chapter.coordinates.lat) : undefined,
+                    lng: chapter.coordinates?.lng ? parseFloat(chapter.coordinates.lng) : undefined,
+                    narrative: chapter.narrative || chapter.description || '',
+                    originalIndex: index
+                  })).filter((chapter: any) => chapter.lat && chapter.lng) || []}
+                  pois={recommendedSpots.filter(spot => spot.coordinates).map(spot => ({
+                    id: spot.id,
+                    name: spot.name,
+                    lat: spot.coordinates!.lat,
+                    lng: spot.coordinates!.lng,
+                    description: spot.description
+                  }))}
+                  showIntroOnly={false}
+                  className="w-full h-full"
+                />
               </div>
             </div>
           </div>
