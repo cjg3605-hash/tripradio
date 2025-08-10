@@ -70,10 +70,8 @@ export default function NextLevelSearchBox() {
   // Advanced search suggestions
   useEffect(() => {
     if (isValidQuery(query)) {
-      // 최소 로딩 시간 보장으로 깜빡임 방지
-      const startTime = Date.now();
+      // 로딩 상태 시작
       setIsTyping(true);
-      setHasAttemptedSearch(false); // 새 검색 시도 시작
       
       const timer = setTimeout(async () => {
         try {
@@ -87,9 +85,10 @@ export default function NextLevelSearchBox() {
         } catch (error) {
           // 에러 시 이전 결과 유지 (빈 배열로 초기화하지 않음)
           console.warn('검색 제안 오류:', error);
+          setSuggestions([]);
           setHasAttemptedSearch(true); // 에러도 검색 시도로 간주
         } finally {
-          // 즉시 로딩 완료 표시
+          // 로딩 완료 표시
           setIsTyping(false);
         }
       }, 100); // 100ms 디바운스 (더 빠름)
