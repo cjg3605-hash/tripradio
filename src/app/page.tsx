@@ -499,7 +499,7 @@ function Home() {
       background: `linear-gradient(135deg, rgba(20, 20, 40, 0.9) 0%, rgba(40, 40, 60, 0.9) 100%)`,
       backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('${landmarkImages[landmark]}')`,
       backgroundSize: 'cover', // cover로 변경하여 전체 영역을 채움
-      backgroundPosition: 'center',
+      backgroundPosition: 'top center', // 이미지 상단부터 표시하여 전체 이미지 보여줌
       backgroundRepeat: 'no-repeat'
     };
   }, [imageLoadErrors, landmarkImages]);
@@ -1047,7 +1047,7 @@ function Home() {
               background: `linear-gradient(135deg, rgba(20, 20, 40, 0.9) 0%, rgba(40, 40, 60, 0.9) 100%)`,
               backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('${landmarkImages[landmark]}')`,
               backgroundSize: 'cover', // cover로 변경하여 전체 영역을 채움
-              backgroundPosition: 'center',
+              backgroundPosition: 'top center', // 이미지 상단부터 표시하여 전체 이미지 보여줌
               backgroundRepeat: 'no-repeat',
               zIndex: -2,
               borderRadius: 'inherit'
