@@ -5,16 +5,16 @@
 /* @tailwind components; <- 삭제 */
 /* @tailwind utilities; <- 삭제 */
 
-/* Hero Background Container - 전체 화면 크기에 맞춘 반응형 배경 */
+/* Hero Background Container - 헤더 콘텐츠 아래 44px부터 시작하는 배경 */
 .hero-background-container {
   position: absolute;
   overflow: hidden;
-  top: 0px; /* 화면 최상단부터 시작 */
+  top: 44px; /* 헤더 콘텐츠 높이만큼 아래에서 시작 */
   left: 0;
   right: 0;
-  /* 헤더부터 검색박스 위까지의 높이를 동적으로 계산 */
-  height: calc(100vh - 200px); /* 검색박스 여백 줄여서 더 큰 배경 영역 확보 */
-  min-height: 400px; /* 최소 높이 증가 */
+  /* 헤더 콘텐츠 아래부터 검색박스 위까지의 높이를 동적으로 계산 */
+  height: calc(100vh - 44px - 200px); /* 44px(헤더) + 200px(검색박스 여백) 제외 */
+  min-height: 350px; /* 최소 높이 */
   width: 100vw;
   border-radius: 0 0 24px 24px;
   z-index: 1; /* 헤더보다 아래쪽에 배치하여 배경 역할 */
@@ -26,28 +26,30 @@
   z-index: -1 !important; /* 배경 이미지는 컨테이너 안에서 뒤쪽 */
 }
 
-/* 모바일 (640px 미만) - 전체 화면 활용 */
+/* 모바일 (640px 미만) - 헤더 아래 44px부터 시작 */
 @media (max-width: 639px) {
   .hero-background-container {
-    height: calc(100vh - 280px); /* 모바일에서 더 큰 배경 영역 확보 */
-    min-height: 350px; /* 모바일 최소 높이 증가 */
+    top: 44px; /* 헤더 콘텐츠 높이만큼 아래에서 시작 */
+    height: calc(100vh - 44px - 280px); /* 44px(헤더) + 280px(모바일 여백) 제외 */
+    min-height: 300px; /* 모바일 최소 높이 */
   }
 }
 
-/* 태블릿 (640px - 1023px) - 전체 화면 활용 */
+/* 태블릿 (640px - 1023px) - 헤더 아래 44px부터 시작 */
 @media (min-width: 640px) and (max-width: 1023px) {
   .hero-background-container {
-    height: calc(100vh - 320px); /* 태블릿에서 더 큰 배경 영역 확보 */
-    min-height: 400px; /* 태블릿 최소 높이 증가 */
+    top: 44px; /* 헤더 콘텐츠 높이만큼 아래에서 시작 */
+    height: calc(100vh - 44px - 320px); /* 44px(헤더) + 320px(태블릿 여백) 제외 */
+    min-height: 350px; /* 태블릿 최소 높이 */
   }
 }
 
-/* 데스크톱 (1024px 이상) - 화면 최상단부터 시작하여 더 큰 배경 */
+/* 데스크톱 (1024px 이상) - 헤더 아래 44px부터 시작 */
 @media (min-width: 1024px) {
   .hero-background-container {
-    top: 0px; /* 화면 최상단부터 시작하여 헤더 위에도 배경 표시 */
-    height: calc(100vh - 180px); /* 더 큰 배경 영역 확보 */
-    min-height: 500px; /* 데스크톱 최소 높이 증가 */
+    top: 44px; /* 헤더 콘텐츠 높이만큼 아래에서 시작 */
+    height: calc(100vh - 44px - 180px); /* 44px(헤더) + 180px(데스크톱 여백) 제외 */
+    min-height: 400px; /* 데스크톱 최소 높이 */
   }
 }
 
