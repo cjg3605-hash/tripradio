@@ -290,7 +290,9 @@ const AUDIO_GUIDE_INSTRUCTIONS = {
  */
 export const createJapaneseGuidePrompt = (
   locationName: string,
-  userProfile?: UserProfile
+  userProfile?: UserProfile,
+  parentRegion?: string,
+  regionalContext?: any
 ): string => {
   const langConfig = LANGUAGE_CONFIGS.ja;
   const locationType = analyzeLocationType(locationName);
@@ -312,6 +314,16 @@ export const createJapaneseGuidePrompt = (
 - 特別要件：${typeConfig.specialRequirements}
 ` : '';
 
+  // 🎯 地域コンテキスト情報生成
+  const regionalContextInfo = parentRegion || regionalContext ? `
+🌍 地域コンテキスト情報：
+${parentRegion ? `- 上位地域：${parentRegion}` : ''}
+${regionalContext?.parentRegion ? `- 推薦元地域：${regionalContext.parentRegion}` : ''}
+${regionalContext?.spotName ? `- 元の推薦名称：${regionalContext.spotName}` : ''}
+
+⚠️ **地域別具体化必須**：${locationName}が複数の地域に存在する可能性がある場合、必ず${parentRegion || regionalContext?.parentRegion || '該当地域'}の${locationName}に特化した情報を提供してください。他の地域の同名の場所と混同せず、正確な地域の特徴と情報を含める必要があります。
+` : '';
+
   const prompt = `# 🎙️ "${locationName}" 専門家級日本語オーディオガイド生成
 
 ## 🎭 あなたの役割
@@ -319,6 +331,8 @@ export const createJapaneseGuidePrompt = (
 ${locationName}に特化した深い専門知識で最高品質のガイドを提供してください。
 
 ${specialistContext}
+
+${regionalContextInfo}
 
 ## 🎯 位置タイプ別専門情報要件
 

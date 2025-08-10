@@ -25,7 +25,7 @@ const getGeminiClient = () => {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { locationName, language, userProfile } = body;
+    const { locationName, language, userProfile, parentRegion, regionalContext } = body;
 
     if (!locationName || !language) {
       return NextResponse.json(
@@ -37,10 +37,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`🤖 ${language} 가이드 생성 시작:`, locationName);
+    console.log(`🤖 ${language} 가이드 생성 시작:`, {
+      locationName,
+      parentRegion: parentRegion || 'none',
+      regionalContext: regionalContext || 'none'
+    });
 
-    // 언어별 정교한 프롬프트 생성
-    const prompt = await createAutonomousGuidePrompt(locationName, language, userProfile);
+    // 🎯 지역 컨텍스트를 포함한 언어별 정교한 프롬프트 생성
+    const contextualLocationName = parentRegion 
+      ? `${locationName} (${parentRegion} 지역)`
+      : locationName;
+    const prompt = await createAutonomousGuidePrompt(contextualLocationName, language, userProfile);
     
     console.log(`📝 ${language} 프롬프트 준비 완료: ${prompt.length}자`);
 
@@ -259,7 +266,7 @@ export async function POST(request: NextRequest) {
       
       try {
         const coordinatePrompt = `
-Location: ${locationName}
+Location: ${contextualLocationName}
 
 Please provide the exact coordinates (latitude, longitude) for this location.
 Respond ONLY in this format:

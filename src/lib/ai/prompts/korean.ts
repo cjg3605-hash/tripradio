@@ -290,7 +290,9 @@ const AUDIO_GUIDE_INSTRUCTIONS = {
  */
 export const createKoreanGuidePrompt = (
   locationName: string,
-  userProfile?: UserProfile
+  userProfile?: UserProfile,
+  parentRegion?: string,
+  regionalContext?: any
 ): string => {
   const langConfig = LANGUAGE_CONFIGS.ko;
   const locationType = analyzeLocationType(locationName);
@@ -312,6 +314,16 @@ export const createKoreanGuidePrompt = (
 - 특별 요구사항: ${typeConfig.specialRequirements}
 ` : '';
 
+  // 🎯 지역 컨텍스트 정보 생성
+  const regionalContextInfo = parentRegion || regionalContext ? `
+🌍 지역 컨텍스트 정보:
+${parentRegion ? `- 상위 지역: ${parentRegion}` : ''}
+${regionalContext?.parentRegion ? `- 추천 출처 지역: ${regionalContext.parentRegion}` : ''}
+${regionalContext?.spotName ? `- 원래 추천 명칭: ${regionalContext.spotName}` : ''}
+
+⚠️ **지역별 구체화 필수**: ${locationName}이 여러 지역에 존재할 수 있는 경우, 반드시 ${parentRegion || regionalContext?.parentRegion || '해당 지역'}의 ${locationName}에 특화된 정보를 제공하세요. 다른 지역의 동명 장소와 혼동하지 말고, 정확한 지역의 특징과 정보를 포함해야 합니다.
+` : '';
+
   const prompt = `# 🎙️ "${locationName}" 전문가급 한국어 오디오 가이드 생성
 
 ## 🎭 당신의 역할
@@ -319,6 +331,8 @@ export const createKoreanGuidePrompt = (
 ${locationName}에 특화된 깊이 있는 전문 지식으로 최고 품질의 가이드를 제공하세요.
 
 ${specialistContext}
+
+${regionalContextInfo}
 
 ## 🎯 위치 유형별 전문 정보 요구사항
 

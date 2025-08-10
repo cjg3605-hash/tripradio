@@ -206,7 +206,30 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
   }, [loadRegionData]);
 
   const handleSpotClick = (spot: RecommendedSpot) => {
-    router.push('/guide/' + encodeURIComponent(spot.name) + '?lang=ko');
+    // 🎯 지역 컨텍스트 포함한 URL 생성 - 동일명 장소 혼동 방지
+    const spotName = encodeURIComponent(spot.name);
+    const parentRegion = encodeURIComponent(locationName);
+    
+    // URL에 parent 파라미터로 상위 지역 정보 포함
+    const targetUrl = `/guide/${spotName}?parent=${parentRegion}&lang=${language}`;
+    
+    // 🔄 세션 스토리지에 지역 컨텍스트 저장 (추가 보안)
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('guideRegionalContext', JSON.stringify({
+        parentRegion: locationName,
+        spotName: spot.name,
+        timestamp: Date.now()
+      }));
+    }
+    
+    console.log('🎯 지역 컨텍스트 포함 네비게이션:', {
+      spot: spot.name,
+      parent: locationName,
+      url: targetUrl,
+      location: spot.location
+    });
+    
+    router.push(targetUrl);
   };
 
   const getDifficultyColor = (difficulty: string) => {

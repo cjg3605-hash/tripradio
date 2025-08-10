@@ -531,7 +531,9 @@ export const SPANISH_AUDIO_GUIDE_EXAMPLE = {
  */
 export const createSpanishGuidePrompt = (
   locationName: string,
-  userProfile?: UserProfile
+  userProfile?: UserProfile,
+  parentRegion?: string,
+  regionalContext?: any
 ): string => {
   const langConfig = LANGUAGE_CONFIGS.es;
   const locationType = analyzeLocationType(locationName);

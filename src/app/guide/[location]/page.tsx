@@ -10,7 +10,7 @@ export const revalidate = 0;
 
 interface PageProps {
   params: Promise<{ location: string }>;
-  searchParams?: Promise<{ lang?: string }>;
+  searchParams?: Promise<{ lang?: string; parent?: string }>;
 }
 
 // normalizeString 함수 제거 - utils에서 normalizeLocationName 사용
@@ -48,6 +48,10 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
       ? resolvedSearchParams.lang[0] 
       : resolvedSearchParams?.lang
   );
+  // 🎯 지역 컨텍스트 정보 추출
+  const parentRegion = resolvedSearchParams?.parent 
+    ? decodeURIComponent(resolvedSearchParams.parent)
+    : undefined;
   const normLocation = normalizeLocationName(locationName);
   
   // 🔥 서버에서 통합 언어 감지 (쿠키 우선)
@@ -61,7 +65,7 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
     prioritizeUrl: true
   });
   
-  // 🔍 디버깅: 언어 감지 및 DB 조회 로깅
+  // 🔍 디버깅: 언어 감지 및 지역 컨텍스트 로깅
   console.log('🔍 가이드 페이지 언어 감지:', {
     rawLocation: resolvedParams.location,
     decodedLocation: locationName,
@@ -69,7 +73,8 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
     requestedLang,
     cookieLanguage,
     serverDetectedLanguage,
-    finalLanguage: serverDetectedLanguage
+    finalLanguage: serverDetectedLanguage,
+    parentRegion: parentRegion || 'none' // 🎯 지역 컨텍스트 로깅
   });
   
   console.log('🔎 DB 조회 준비:', {
@@ -124,6 +129,7 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
         locationName={locationName} 
         initialGuide={initialGuide}
         requestedLanguage={serverDetectedLanguage}
+        parentRegion={parentRegion}
       />
     </>
   );

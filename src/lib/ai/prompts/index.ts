@@ -527,7 +527,9 @@ export async function createFinalGuidePrompt(
 export async function createAutonomousGuidePrompt(
   locationName: string,
   language: string = 'ko',
-  userProfile?: UserProfile
+  userProfile?: UserProfile,
+  parentRegion?: string,
+  regionalContext?: any
 ): Promise<string> {
   const langCode = language.slice(0, 2);
   
@@ -535,54 +537,54 @@ export async function createAutonomousGuidePrompt(
     switch (langCode) {
       case 'ko': {
         const koreanModule = await import('./korean');
-        return koreanModule.createKoreanGuidePrompt(locationName, userProfile);
+        return koreanModule.createKoreanGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
       }
       case 'en': {
         try {
           const englishModule = await import('./english');
-          return englishModule.createEnglishGuidePrompt(locationName, userProfile);
+          return englishModule.createEnglishGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
         } catch {
           const koreanModule = await import('./korean');
-          return koreanModule.createKoreanGuidePrompt(locationName, userProfile);
+          return koreanModule.createKoreanGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
         }
       }
       case 'ja': {
         try {
           const japaneseModule = await import('./japanese');
-          return japaneseModule.createJapaneseGuidePrompt(locationName, userProfile);
+          return japaneseModule.createJapaneseGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
         } catch {
           const koreanModule = await import('./korean');
-          return koreanModule.createKoreanGuidePrompt(locationName, userProfile);
+          return koreanModule.createKoreanGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
         }
       }
       case 'zh': {
         try {
           const chineseModule = await import('./chinese');
-          return chineseModule.createChineseGuidePrompt(locationName, userProfile);
+          return chineseModule.createChineseGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
         } catch {
           const koreanModule = await import('./korean');
-          return koreanModule.createKoreanGuidePrompt(locationName, userProfile);
+          return koreanModule.createKoreanGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
         }
       }
       case 'es': {
         try {
           const spanishModule = await import('./spanish');
-          return spanishModule.createSpanishGuidePrompt(locationName, userProfile);
+          return spanishModule.createSpanishGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
         } catch {
           const koreanModule = await import('./korean');
-          return koreanModule.createKoreanGuidePrompt(locationName, userProfile);
+          return koreanModule.createKoreanGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
         }
       }
       default: {
         console.warn(`Unsupported language: ${language}, falling back to Korean`);
         const koreanModule = await import('./korean');
-        return koreanModule.createKoreanGuidePrompt(locationName, userProfile);
+        return koreanModule.createKoreanGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
       }
     }
   } catch (error) {
     console.error(`Failed to load ${language} autonomous prompts:`, error);
     const koreanModule = await import('./korean');
-    return koreanModule.createKoreanGuidePrompt(locationName, userProfile);
+    return koreanModule.createKoreanGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
   }
 }
 

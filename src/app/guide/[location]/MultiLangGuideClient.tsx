@@ -30,6 +30,7 @@ interface Props {
   locationName: string;
   initialGuide?: any;
   requestedLanguage?: string;
+  parentRegion?: string;
 }
 
 // 🔥 핵심 수정: content 래핑 구조 올바른 처리
@@ -139,7 +140,7 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
   return normalizedData;
 };
 
-export default function MultiLangGuideClient({ locationName, initialGuide, requestedLanguage }: Props) {
+export default function MultiLangGuideClient({ locationName, initialGuide, requestedLanguage, parentRegion }: Props) {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
   const { data: session } = useSession();
@@ -178,7 +179,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
   }, [session, currentLanguage]);
 
   // 🌍 언어별 가이드 로드
-  const loadGuideForLanguage = useCallback(async (language: SupportedLanguage, forceRegenerate = false) => {
+  const loadGuideForLanguage = useCallback(async (language: SupportedLanguage, forceRegenerate = false, contextualParentRegion?: string) => {
     setIsLoading(true);
     setError(null);
 
@@ -191,13 +192,17 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
         // 강제 재생성
         result = await MultiLangGuideManager.forceRegenerateGuide(
           locationName,
-          language
+          language,
+          undefined,
+          contextualParentRegion
         );
       } else {
         // 스마트 언어 전환 (캐시 우선)
         result = await MultiLangGuideManager.smartLanguageSwitch(
           locationName,
-          language
+          language,
+          undefined,
+          contextualParentRegion
         );
       }
 
@@ -313,6 +318,35 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
   // 🔥 개선된 초기 로드 (라우팅 분석 + 서버-클라이언트 언어 동기화)
   useEffect(() => {
     const initializeGuide = async () => {
+      // 🎯 0단계: 세션 스토리지에서 지역 컨텍스트 확인
+      let sessionRegionalContext = null;
+      if (typeof window !== 'undefined') {
+        try {
+          const storedContext = sessionStorage.getItem('guideRegionalContext');
+          if (storedContext) {
+            sessionRegionalContext = JSON.parse(storedContext);
+            console.log('🎯 세션 스토리지에서 지역 컨텍스트 발견:', sessionRegionalContext);
+            
+            // 타임스탬프 체크 (5분 이내의 것만 유효)
+            const contextAge = Date.now() - sessionRegionalContext.timestamp;
+            if (contextAge > 5 * 60 * 1000) {
+              console.log('⚠️ 세션 컨텍스트가 너무 오래됨 - 무시');
+              sessionStorage.removeItem('guideRegionalContext');
+              sessionRegionalContext = null;
+            }
+          }
+        } catch (e) {
+          console.warn('세션 컨텍스트 파싱 실패:', e);
+        }
+      }
+
+      // 🎯 최종 지역 컨텍스트 결정: URL 우선, 세션 스토리지 보조
+      let finalParentRegion = parentRegion;
+      if (!finalParentRegion && sessionRegionalContext?.parentRegion) {
+        finalParentRegion = sessionRegionalContext.parentRegion;
+        console.log('🔄 세션 스토리지의 지역 컨텍스트 사용:', finalParentRegion);
+      }
+
       // 🎯 1단계: 라우팅 분석 먼저 수행
       await analyzeRouting();
       
@@ -335,23 +369,43 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
         console.log(`🎯 헤더 언어 사용: ${targetLanguage}`);
       }
       
-      if (initialGuide) {
-        console.log('🎯 서버에서 받은 초기 가이드 사용:', initialGuide);
-        try {
-          // 🔥 핵심: initialGuide를 정규화 함수로 처리
-          const normalizedData = normalizeGuideData(initialGuide, locationName);
-          setGuideData(normalizedData);
-          setSource('cache');
-          setIsLoading(false);
-          await saveToHistory(normalizedData);
-        } catch (error) {
-          console.error('초기 가이드 처리 오류:', error);
-          // 초기 가이드 처리 실패시 새로 로드
-          await loadGuideForLanguage(targetLanguage);
+      // 🎯 3단계: 라우팅 결과에 따라 초기 가이드 사용 여부 결정
+      // RegionExploreHub일 경우 초기 가이드를 무시하고 새로 로드하지 않음
+      if (shouldShowExploreHub) {
+        console.log('🏛️ RegionExploreHub 페이지 - 초기 가이드 사용하여 탐색 허브 표시');
+        if (initialGuide) {
+          try {
+            const normalizedData = normalizeGuideData(initialGuide, locationName);
+            setGuideData(normalizedData);
+            setSource('cache');
+            await saveToHistory(normalizedData);
+          } catch (error) {
+            console.error('초기 가이드 처리 오류:', error);
+            // RegionExploreHub는 가이드 데이터 없이도 작동 가능
+            setGuideData(null);
+          }
         }
+        setIsLoading(false);
       } else {
-        console.log(`🔄 새로운 가이드 로드 필요 (${targetLanguage})`);
-        await loadGuideForLanguage(targetLanguage);
+        // 일반 가이드 페이지 처리
+        if (initialGuide) {
+          console.log('🎯 서버에서 받은 초기 가이드 사용:', initialGuide);
+          try {
+            // 🔥 핵심: initialGuide를 정규화 함수로 처리
+            const normalizedData = normalizeGuideData(initialGuide, locationName);
+            setGuideData(normalizedData);
+            setSource('cache');
+            setIsLoading(false);
+            await saveToHistory(normalizedData);
+          } catch (error) {
+            console.error('초기 가이드 처리 오류:', error);
+            // 초기 가이드 처리 실패시 새로 로드
+            await loadGuideForLanguage(targetLanguage, false, finalParentRegion);
+          }
+        } else {
+          console.log(`🔄 새로운 가이드 로드 필요 (${targetLanguage})`);
+          await loadGuideForLanguage(targetLanguage, false, finalParentRegion);
+        }
       }
       
       await loadAvailableLanguages();
@@ -413,9 +467,28 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
             }
           }
 
+          // 🎯 언어 변경 시에도 지역 컨텍스트 확인
+          let languageChangeParentRegion = parentRegion;
+          if (!languageChangeParentRegion && typeof window !== 'undefined') {
+            try {
+              const storedContext = sessionStorage.getItem('guideRegionalContext');
+              if (storedContext) {
+                const parsedContext = JSON.parse(storedContext);
+                const contextAge = Date.now() - parsedContext.timestamp;
+                if (contextAge <= 5 * 60 * 1000) {
+                  languageChangeParentRegion = parsedContext.parentRegion;
+                }
+              }
+            } catch (e) {
+              console.warn('언어 변경 시 세션 컨텍스트 확인 실패:', e);
+            }
+          }
+
           const result = await MultiLangGuideManager.smartLanguageSwitch(
             translatedLocationName,
-            currentLanguage
+            currentLanguage,
+            undefined,
+            languageChangeParentRegion
           );
 
           if (result.success && result.data) {

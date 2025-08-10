@@ -223,7 +223,9 @@ export const CHINESE_AUDIO_GUIDE_INSTRUCTIONS = {
  */
 export const createChineseGuidePrompt = (
   locationName: string,
-  userProfile?: UserProfile
+  userProfile?: UserProfile,
+  parentRegion?: string,
+  regionalContext?: any
 ): string => {
   const langConfig = LANGUAGE_CONFIGS.zh;
   const locationType = analyzeLocationType(locationName);

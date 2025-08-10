@@ -383,7 +383,9 @@ export const ENGLISH_AUDIO_GUIDE_EXAMPLE = {
  */
 export const createEnglishGuidePrompt = (
   locationName: string,
-  userProfile?: UserProfile
+  userProfile?: UserProfile,
+  parentRegion?: string,
+  regionalContext?: any
 ): string => {
   const langConfig = LANGUAGE_CONFIGS.en;
   const locationType = analyzeLocationType(locationName);
@@ -405,12 +407,24 @@ export const createEnglishGuidePrompt = (
 - Special requirements: ${typeConfig.specialRequirements}
 ` : '';
 
+  // 🎯 Regional context information
+  const regionalContextInfo = parentRegion || regionalContext ? `
+🌍 Regional Context Information:
+${parentRegion ? `- Parent region: ${parentRegion}` : ''}
+${regionalContext?.parentRegion ? `- Recommendation source region: ${regionalContext.parentRegion}` : ''}
+${regionalContext?.spotName ? `- Original recommendation name: ${regionalContext.spotName}` : ''}
+
+⚠️ **Regional Specification Required**: If ${locationName} exists in multiple regions, you must provide information specifically for ${locationName} in ${parentRegion || regionalContext?.parentRegion || 'the specified region'}. Do not confuse with same-named locations in other regions - include accurate regional characteristics and information.
+` : '';
+
   const prompt = `# 🎙️ "${locationName}" Professional English Audio Guide Generation
 
 ## 🎭 Your Role
 ${ENGLISH_AUDIO_GUIDE_INSTRUCTIONS.style}
 
 ${specialistContext}
+
+${regionalContextInfo}
 
 ## 🎯 Mission
 Generate an **immersive ${langConfig.name} audio guide** JSON for "${locationName}".

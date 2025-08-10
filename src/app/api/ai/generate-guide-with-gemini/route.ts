@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     console.log('🚀 Enhanced 챕터 생성 시스템 기반 가이드 생성 API 호출');
     
     const body = await request.json();
-    const { location, userProfile, useEnhancedChapters = true, streaming = false } = body;
+    const { location, userProfile, useEnhancedChapters = true, streaming = false, parentRegion, regionalContext } = body;
 
     if (!location || typeof location !== 'string') {
       return NextResponse.json(
@@ -69,16 +69,20 @@ export async function POST(request: NextRequest) {
       location: location.trim(),
       userProfile: safeUserProfile,
       useEnhancedChapters,
-      streaming
+      streaming,
+      parentRegion: parentRegion || 'none',
+      regionalContext: regionalContext || 'none'
     });
 
-    // 🚀 Enhanced Cache 확인 (가이드 생성)
+    // 🚀 Enhanced Cache 확인 (가이드 생성) - 지역 컨텍스트 포함
     const guideCacheKey = CacheUtils.generateCacheKey(location.trim(), {
       useEnhancedChapters,
       language: safeUserProfile.language,
       tourDuration: safeUserProfile.tourDuration,
       interests: safeUserProfile.interests?.join(',') || '',
-      ageGroup: safeUserProfile.ageGroup
+      ageGroup: safeUserProfile.ageGroup,
+      parentRegion: parentRegion || 'none', // 🎯 지역 컨텍스트 추가 - 동일명 장소 구분
+      regionalContext: regionalContext || 'none'
     });
 
     try {
@@ -103,7 +107,7 @@ export async function POST(request: NextRequest) {
 
     // 🚀 스트리밍 응답 처리
     if (streaming) {
-      return handleStreamingResponse(request, location.trim(), safeUserProfile, useEnhancedChapters);
+      return handleStreamingResponse(request, location.trim(), safeUserProfile, useEnhancedChapters, parentRegion, regionalContext);
     }
 
     // 🚀 Enhanced 챕터 생성 시스템 사용 여부 결정
@@ -124,29 +128,37 @@ export async function POST(request: NextRequest) {
       try {
         // 🚀 병렬 데이터 수집으로 성능 75% 향상
         console.log('🔄 병렬 데이터 수집 시작...');
+        
+        // 🎯 지역 컨텍스트가 있는 경우 더 구체적인 검색어 구성
+        const enhancedLocationQuery = parentRegion 
+          ? `${location.trim()}, ${parentRegion}`
+          : location.trim();
+          
+        console.log('🎯 지역 컨텍스트 강화 검색어:', enhancedLocationQuery);
+        
         const parallelDataPromises = [
-          orchestrator.integrateLocationData(location.trim(), undefined, {
+          orchestrator.integrateLocationData(enhancedLocationQuery, undefined, {
             dataSources: ['unesco'],
             includeReviews: false,
             includeImages: false,
             language: safeUserProfile.language,
             performanceMode: 'speed'
           }),
-          orchestrator.integrateLocationData(location.trim(), undefined, {
+          orchestrator.integrateLocationData(enhancedLocationQuery, undefined, {
             dataSources: ['wikidata'],
             includeReviews: false,
             includeImages: false,
             language: safeUserProfile.language,
             performanceMode: 'speed'
           }),
-          orchestrator.integrateLocationData(location.trim(), undefined, {
+          orchestrator.integrateLocationData(enhancedLocationQuery, undefined, {
             dataSources: ['government'],
             includeReviews: true,
             includeImages: false,
             language: safeUserProfile.language,
             performanceMode: 'speed'
           }),
-          orchestrator.integrateLocationData(location.trim(), undefined, {
+          orchestrator.integrateLocationData(enhancedLocationQuery, undefined, {
             dataSources: ['google_places'],
             includeReviews: true,
             includeImages: true,
@@ -186,10 +198,16 @@ export async function POST(request: NextRequest) {
 
         const chapterAI = new UniversalChapterGenerationAI(apiKey);
         chapterGenerationResult = await trackAIGeneration(async () => {
+          // 🎯 지역 컨텍스트를 포함한 챕터 생성
+          const contextualLocation = parentRegion 
+            ? `${location.trim()} (${parentRegion} 지역)` 
+            : location.trim();
+            
           return await chapterAI.generateChaptersForLocation(
-            location.trim(),
+            contextualLocation,
             safeUserProfile,
-            integratedData
+            integratedData,
+            { parentRegion, regionalContext } // 추가 컨텍스트 전달
           );
         });
 
@@ -211,7 +229,7 @@ export async function POST(request: NextRequest) {
         
         // 기본 AI 가이드 생성으로 폴백
         console.log('🤖 기본 AI 가이드 생성 중...');
-        guideData = await generateFallbackGuide(location.trim(), safeUserProfile, integratedData);
+        guideData = await generateFallbackGuide(location.trim(), safeUserProfile, integratedData, parentRegion);
       }
       
     } else {
@@ -225,8 +243,13 @@ export async function POST(request: NextRequest) {
       });
 
       guideData = await trackAIGeneration(async () => {
+        // 🎯 지역 컨텍스트를 포함한 위치 정보 구성
+        const contextualLocation = parentRegion 
+          ? `${location.trim()}, ${parentRegion}`
+          : location.trim();
+          
         return await Promise.race([
-          generatePersonalizedGuide(location.trim(), safeUserProfile, integratedData),
+          generatePersonalizedGuide(contextualLocation, safeUserProfile, integratedData),
           timeoutPromise
         ]);
       });
@@ -565,7 +588,8 @@ function convertChapterResultToGuideFormat(
 async function generateFallbackGuide(
   location: string,
   userProfile: any,
-  integratedData?: any
+  integratedData?: any,
+  parentRegion?: string
 ): Promise<any> {
   console.log('🔄 Enhanced 시스템 폴백 - 기본 가이드 생성');
   
@@ -576,20 +600,27 @@ async function generateFallbackGuide(
   });
 
   try {
+    // 🎯 지역 컨텍스트를 포함한 위치 정보 구성
+    const contextualLocation = parentRegion 
+      ? `${location}, ${parentRegion}`
+      : location;
+      
     return await Promise.race([
-      generatePersonalizedGuide(location, userProfile, integratedData),
+      generatePersonalizedGuide(contextualLocation, userProfile, integratedData),
       timeoutPromise
     ]);
   } catch (error) {
     console.warn('⚠️ 기본 가이드 생성도 실패, 더미 데이터 사용:', error);
     
     // 최종 폴백: 간단한 더미 가이드
+    const displayLocation = parentRegion ? `${location} (${parentRegion})` : location;
+    
     return {
       overview: {
-        title: location,
-        location: `${location}의 위치`,
-        keyFeatures: `${location}의 주요 특징`,
-        background: `${location}의 역사적 배경`,
+        title: displayLocation,
+        location: `${displayLocation}의 위치`,
+        keyFeatures: `${displayLocation}의 주요 특징`,
+        background: `${displayLocation}의 역사적 배경`,
       },
       realTimeGuide: {
         chapters: [
@@ -729,7 +760,9 @@ async function handleStreamingResponse(
   request: NextRequest,
   location: string,
   userProfile: any,
-  useEnhancedChapters: boolean
+  useEnhancedChapters: boolean,
+  parentRegion?: string,
+  regionalContext?: any
 ): Promise<Response> {
   console.log('🌊 스트리밍 응답 시작:', location);
 
@@ -772,17 +805,22 @@ async function handleStreamingResponse(
           let integratedData: any = null;
           
           try {
+            // 🎯 스트리밍에서도 지역 컨텍스트 적용
+            const streamingEnhancedQuery = parentRegion 
+              ? `${location}, ${parentRegion}`
+              : location;
+              
             const parallelDataPromises = [
-              orchestrator.integrateLocationData(location, undefined, {
+              orchestrator.integrateLocationData(streamingEnhancedQuery, undefined, {
                 dataSources: ['unesco'], performanceMode: 'speed', language: userProfile.language
               }),
-              orchestrator.integrateLocationData(location, undefined, {
+              orchestrator.integrateLocationData(streamingEnhancedQuery, undefined, {
                 dataSources: ['wikidata'], performanceMode: 'speed', language: userProfile.language
               }),
-              orchestrator.integrateLocationData(location, undefined, {
+              orchestrator.integrateLocationData(streamingEnhancedQuery, undefined, {
                 dataSources: ['government'], performanceMode: 'speed', language: userProfile.language
               }),
-              orchestrator.integrateLocationData(location, undefined, {
+              orchestrator.integrateLocationData(streamingEnhancedQuery, undefined, {
                 dataSources: ['google_places'], performanceMode: 'speed', language: userProfile.language
               })
             ];
@@ -815,7 +853,17 @@ async function handleStreamingResponse(
 
             const chapterAI = new UniversalChapterGenerationAI(apiKey);
             const chapterGenerationResult = await trackAIGeneration(async () => {
-              return await chapterAI.generateChaptersForLocation(location, userProfile, integratedData);
+              // 🎯 스트리밍에서도 지역 컨텍스트를 포함한 챕터 생성
+              const streamingContextualLocation = parentRegion 
+                ? `${location} (${parentRegion} 지역)` 
+                : location;
+                
+              return await chapterAI.generateChaptersForLocation(
+                streamingContextualLocation, 
+                userProfile, 
+                integratedData,
+                { parentRegion, regionalContext } // 추가 컨텍스트 전달
+              );
             });
 
             sendProgress('챕터_생성', 80, { 
@@ -882,7 +930,7 @@ async function handleStreamingResponse(
             });
             
             // 기본 가이드로 폴백
-            const fallbackGuide = await generateFallbackGuide(location, userProfile, integratedData);
+            const fallbackGuide = await generateFallbackGuide(location, userProfile, integratedData, parentRegion);
             sendResult('final', {
               success: true,
               data: fallbackGuide,
@@ -897,7 +945,12 @@ async function handleStreamingResponse(
           sendProgress('AI_생성', 50, { message: '기존 AI 시스템으로 가이드 생성 중...' });
           
           const guideData = await trackAIGeneration(async () => {
-            return await generatePersonalizedGuide(location, userProfile);
+            // 🎯 스트리밍 기존 AI에서도 지역 컨텍스트 적용
+            const streamingBasicLocation = parentRegion 
+              ? `${location}, ${parentRegion}`
+              : location;
+              
+            return await generatePersonalizedGuide(streamingBasicLocation, userProfile);
           });
 
           sendProgress('완료', 100, { message: '가이드 생성 완료!' });

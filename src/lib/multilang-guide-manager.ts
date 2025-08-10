@@ -216,7 +216,9 @@ export class MultiLangGuideManager {
   static async smartLanguageSwitch(
     locationName: string, 
     targetLanguage: string, 
-    userProfile?: any
+    userProfile?: any,
+    parentRegion?: string,
+    regionalContext?: any
   ): Promise<{
     success: boolean;
     data?: any;
@@ -244,7 +246,9 @@ export class MultiLangGuideManager {
       const generateResult = await this.generateAndSaveGuide(
         locationName, 
         targetLanguage, 
-        userProfile
+        userProfile,
+        parentRegion,
+        regionalContext
       );
 
       if (generateResult.success) {
@@ -277,7 +281,9 @@ export class MultiLangGuideManager {
   static async generateAndSaveGuide(
     locationName: string, 
     language: string, 
-    userProfile?: any
+    userProfile?: any,
+    parentRegion?: string,
+    regionalContext?: any
   ): Promise<{ success: boolean; data?: any; error?: any; source?: string }> {
     
     try {
@@ -305,7 +311,9 @@ export class MultiLangGuideManager {
         body: JSON.stringify({
           locationName: locationName,
           language: language,
-          userProfile: userProfile
+          userProfile: userProfile,
+          parentRegion: parentRegion,
+          regionalContext: regionalContext
         })
       });
 
@@ -349,7 +357,9 @@ export class MultiLangGuideManager {
   static async forceRegenerateGuide(
     locationName: string, 
     language: string, 
-    userProfile?: any
+    userProfile?: any,
+    parentRegion?: string,
+    regionalContext?: any
   ): Promise<{ success: boolean; data?: any; error?: any }> {
     
     try {
@@ -364,7 +374,9 @@ export class MultiLangGuideManager {
         body: JSON.stringify({
           locationName: locationName,
           language: language,
-          userProfile: userProfile
+          userProfile: userProfile,
+          parentRegion: parentRegion,
+          regionalContext: regionalContext
         })
       });
 
