@@ -3,6 +3,7 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { LocationData, IntroChapter, UserProfile } from '@/types/enhanced-chapter';
+import { optimizeIntroTitle, TitleOptimizationResult } from './gemini';
 
 /**
  * 🏛️ 향상된 인트로 챕터 생성기
@@ -57,8 +58,23 @@ export class EnhancedIntroChapterGenerator {
     // 5️⃣ 하이라이트 프리뷰 생성
     const highlightsPreview = this.generateComprehensiveHighlightsPreview(locationData);
 
-    // 6️⃣ 최적 시작점 결정
+    // 6️⃣ 최적 시작점 결정 및 제목 최적화
     const startingPoint = await this.determineOptimalStartingPoint(locationData);
+    
+    // 🎯 Google Places API 최적화된 제목 생성 (korean.ts 프롬프트와 일관성 보장)
+    const originalTitle = `${locationData.name} 매표소`; // 단순화된 시작점
+    const titleOptimization = await optimizeIntroTitle(
+      originalTitle, 
+      locationData.name,
+      `관광 시작지점, ${locationData.region || ''}`
+    );
+
+    console.log('🎯 인트로 챕터 제목 최적화 결과:', {
+      original: originalTitle,
+      optimized: titleOptimization.optimizedTitle,
+      confidence: titleOptimization.confidence,
+      strategy: titleOptimization.searchStrategy
+    });
 
     // 7️⃣ 시간 배정 (전체의 20-25%)
     const timeEstimate = Math.ceil(locationData.averageVisitDuration * 0.22); // 22%
@@ -66,7 +82,7 @@ export class EnhancedIntroChapterGenerator {
     return {
       id: 0,
       type: 'introduction',
-      title: `${locationData.name} - 여행의 시작`,
+      title: titleOptimization.optimizedTitle, // 🎯 최적화된 제목 사용
       location: {
         type: startingPoint.type,
         coordinates: startingPoint.coordinates,

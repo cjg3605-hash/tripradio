@@ -11,7 +11,11 @@
     "quality:check": "node scripts/quality-check-manual.js",
     "quality:delete": "node scripts/quality-check-manual.js --delete",
     "quality:inspect": "node scripts/quality-check-manual.js inspect",
-    "quality:help": "echo '🎯 가이드 품질 검사 명령어:\\n  npm run quality:check - 전체 가이드 품질 검사\\n  npm run quality:delete - 품질검사 후 75점 이하 자동 삭제\\n  npm run quality:inspect <위치명> [언어] - 개별 가이드 상세 검사\\n\\n예시:\\n  npm run quality:check\\n  npm run quality:delete\\n  npm run quality:inspect 경복궁 ko'"
+    "quality:help": "echo '🎯 가이드 품질 검사 명령어:\\n  npm run quality:check - 전체 가이드 품질 검사\\n  npm run quality:delete - 품질검사 후 75점 이하 자동 삭제\\n  npm run quality:inspect <위치명> [언어] - 개별 가이드 상세 검사\\n\\n예시:\\n  npm run quality:check\\n  npm run quality:delete\\n  npm run quality:inspect 경복궁 ko'",
+    "update:analyze": "node scripts/analyze-existing-guides.js",
+    "update:test": "node scripts/batch-update-intros.js test",
+    "update:run": "node scripts/batch-update-intros.js run",
+    "update:help": "echo '🚀 인트로 챕터 업데이트 명령어:\\n  npm run update:analyze - DB 구조 분석\\n  npm run update:test [개수] - 테스트 실행 (기본 5개)\\n  npm run update:run [옵션] - 테스트 모드 실행\\n  npm run update:run -- --confirm [옵션] - 실제 업데이트 실행\\n\\n옵션:\\n  --language ko/en/ja/zh/es - 특정 언어\\n  --location 명동 - 특정 위치 패턴\\n  --limit 100 - 최대 개수'"
   },
   "browserslist": {
     "production": [

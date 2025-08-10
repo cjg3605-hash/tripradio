@@ -1,0 +1,25 @@
+{
+  "summary": {
+    "totalGuides": 5,
+    "processed": 5,
+    "successful": 5,
+    "failed": 0,
+    "skipped": 0,
+    "successRate": "100.0%",
+    "elapsedTime": "30.7초",
+    "avgProcessingTime": "5961ms"
+  },
+  "errors": [],
+  "config": {
+    "batchSize": 10,
+    "maxRetries": 3,
+    "retryDelayMs": 2000,
+    "saveProgressEvery": 5,
+    "testMode": false,
+    "enableRollback": true
+  },
+  "options": {
+    "limit": 5
+  },
+  "timestamp": "2025-08-10T17:28:36.878Z"
+}

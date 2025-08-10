@@ -1,0 +1,545 @@
+{
+  "totalGuides": 333,
+  "languageDistribution": {
+    "ko": 73,
+    "ja": 66,
+    "en": 74,
+    "es": 60,
+    "zh": 60
+  },
+  "sampleAnalysis": [
+    {
+      "id": "fda0f024-0941-425a-96c1-8ff2c5655f25",
+      "locationname": "명동",
+      "language": "ko",
+      "createdAt": null,
+      "updatedAt": "2025-08-03T09:36:05.672+00:00",
+      "structure": {
+        "valid": true,
+        "topLevelFields": [
+          "content"
+        ],
+        "hasOverview": false,
+        "hasRealTimeGuide": true,
+        "hasMetadata": false,
+        "chapterCount": 5,
+        "chapterStructures": [
+          {
+            "index": 0,
+            "id": null,
+            "fields": [
+              "id",
+              "title",
+              "narrative",
+              "coordinates",
+              "nextDirection"
+            ],
+            "hasTitle": true,
+            "hasDescription": false,
+            "hasCoordinates": true,
+            "coordinatesValid": true,
+            "titleSample": "명동역: 쇼핑의 시작점",
+            "coordinatesSample": "37.5666, 126.9811"
+          },
+          {
+            "index": 1,
+            "id": 1,
+            "fields": [
+              "id",
+              "title",
+              "narrative",
+              "coordinates",
+              "nextDirection"
+            ],
+            "hasTitle": true,
+            "hasDescription": false,
+            "hasCoordinates": true,
+            "coordinatesValid": true,
+            "titleSample": "명동길: 활기찬 거리 풍경",
+            "coordinatesSample": "37.5646, 126.9819"
+          },
+          {
+            "index": 2,
+            "id": 2,
+            "fields": [
+              "id",
+              "title",
+              "narrative",
+              "coordinates",
+              "nextDirection"
+            ],
+            "hasTitle": true,
+            "hasDescription": false,
+            "hasCoordinates": true,
+            "coordinatesValid": true,
+            "titleSample": "명동성당: 역사와 문화의 조화",
+            "coordinatesSample": "37.5657, 126.9855"
+          },
+          {
+            "index": 3,
+            "id": 3,
+            "fields": [
+              "id",
+              "title",
+              "narrative",
+              "coordinates",
+              "nextDirection"
+            ],
+            "hasTitle": true,
+            "hasDescription": false,
+            "hasCoordinates": true,
+            "coordinatesValid": true,
+            "titleSample": "백화점 밀집 지역: 최신 트렌드 쇼핑",
+            "coordinatesSample": "37.5635, 126.9825"
+          },
+          {
+            "index": 4,
+            "id": 4,
+            "fields": [
+              "id",
+              "title",
+              "narrative",
+              "coordinates",
+              "nextDirection"
+            ],
+            "hasTitle": true,
+            "hasDescription": false,
+            "hasCoordinates": true,
+            "coordinatesValid": true,
+            "titleSample": "길거리 음식 골목: 다채로운 미식 경험",
+            "coordinatesSample": "37.563, 126.981"
+          }
+        ],
+        "actualStructure": "content.content.realTimeGuide"
+      },
+      "introChapter": {
+        "id": null,
+        "title": "명동역: 쇼핑의 시작점",
+        "fields": [
+          "id",
+          "title",
+          "narrative",
+          "coordinates",
+          "nextDirection"
+        ],
+        "hasCoordinates": true,
+        "coordinateStructure": {
+          "hasCoordinates": true,
+          "coordinatesField": {
+            "lat": 37.5666,
+            "lng": 126.9811,
+            "description": "명동역 8번 출구 인근"
+          },
+          "locationField": null,
+          "latLngFields": null,
+          "values": {
+            "lat": 37.5666,
+            "lng": 126.9811,
+            "description": "명동역 8번 출구 인근"
+          }
+        },
+        "sampleData": {
+          "title": "명동역: 쇼핑의 시작점",
+          "coordinates": {
+            "lat": 37.5666,
+            "lng": 126.9811,
+            "description": "명동역 8번 출구 인근"
+          }
+        }
+      }
+    },
+    {
+      "id": "3910f430-cf6d-4005-b45b-04ddecd7181f",
+      "locationname": "감천문화마을",
+      "language": "ko",
+      "createdAt": null,
+      "updatedAt": "2025-08-03T09:37:30.986+00:00",
+      "structure": {
+        "valid": true,
+        "topLevelFields": [
+          "content"
+        ],
+        "hasOverview": false,
+        "hasRealTimeGuide": true,
+        "hasMetadata": false,
+        "chapterCount": 5,
+        "chapterStructures": [
+          {
+            "index": 0,
+            "id": null,
+            "fields": [
+              "id",
+              "title",
+              "narrative",
+              "coordinates",
+              "nextDirection"
+            ],
+            "hasTitle": true,
+            "hasDescription": false,
+            "hasCoordinates": true,
+            "coordinatesValid": true,
+            "titleSample": "감천문화마을 안내센터: 여정의 시작",
+            "coordinatesSample": "35.1316, 129.0019"
+          },
+          {
+            "index": 1,
+            "id": 1,
+            "fields": [
+              "id",
+              "title",
+              "narrative",
+              "coordinates",
+              "nextDirection"
+            ],
+            "hasTitle": true,
+            "hasDescription": false,
+            "hasCoordinates": true,
+            "coordinatesValid": true,
+            "titleSample": "어린왕자와 사막여우: 마을의 상징",
+            "coordinatesSample": "35.1311, 129.0005"
+          },
+          {
+            "index": 2,
+            "id": 2,
+            "fields": [
+              "id",
+              "title",
+              "narrative",
+              "coordinates",
+              "nextDirection"
+            ],
+            "hasTitle": true,
+            "hasDescription": false,
+            "hasCoordinates": true,
+            "coordinatesValid": true,
+            "titleSample": "골목길 정원: 예술가의 손길이 닿은 공간",
+            "coordinatesSample": "35.1314, 129.0025"
+          },
+          {
+            "index": 3,
+            "id": 3,
+            "fields": [
+              "id",
+              "title",
+              "narrative",
+              "coordinates",
+              "nextDirection"
+            ],
+            "hasTitle": true,
+            "hasDescription": false,
+            "hasCoordinates": true,
+            "coordinatesValid": true,
+            "titleSample": "작은별문화센터: 예술과 소통의 공간",
+            "coordinatesSample": "35.132, 129.003"
+          },
+          {
+            "index": 4,
+            "id": 4,
+            "fields": [
+              "id",
+              "title",
+              "narrative",
+              "coordinates",
+              "nextDirection"
+            ],
+            "hasTitle": true,
+            "hasDescription": false,
+            "hasCoordinates": true,
+            "coordinatesValid": true,
+            "titleSample": "감내카페: 마을의 풍경을 담은 휴식처",
+            "coordinatesSample": "35.1308, 129.0012"
+          }
+        ],
+        "actualStructure": "content.content.realTimeGuide"
+      },
+      "introChapter": {
+        "id": null,
+        "title": "감천문화마을 안내센터: 여정의 시작",
+        "fields": [
+          "id",
+          "title",
+          "narrative",
+          "coordinates",
+          "nextDirection"
+        ],
+        "hasCoordinates": true,
+        "coordinateStructure": {
+          "hasCoordinates": true,
+          "coordinatesField": {
+            "lat": 35.1316,
+            "lng": 129.0019,
+            "description": "감천문화마을 안내센터 앞"
+          },
+          "locationField": null,
+          "latLngFields": null,
+          "values": {
+            "lat": 35.1316,
+            "lng": 129.0019,
+            "description": "감천문화마을 안내센터 앞"
+          }
+        },
+        "sampleData": {
+          "title": "감천문화마을 안내센터: 여정의 시작",
+          "coordinates": {
+            "lat": 35.1316,
+            "lng": 129.0019,
+            "description": "감천문화마을 안내센터 앞"
+          }
+        }
+      }
+    },
+    {
+      "id": "e598039c-ca55-4728-bde5-0a06c49f1915",
+      "locationname": "자갈치시장",
+      "language": "ko",
+      "createdAt": null,
+      "updatedAt": "2025-08-03T09:38:08.844+00:00",
+      "structure": {
+        "valid": true,
+        "topLevelFields": [
+          "content"
+        ],
+        "hasOverview": false,
+        "hasRealTimeGuide": true,
+        "hasMetadata": false,
+        "chapterCount": 5,
+        "chapterStructures": [
+          {
+            "index": 0,
+            "id": null,
+            "fields": [
+              "id",
+              "title",
+              "narrative",
+              "coordinates",
+              "nextDirection"
+            ],
+            "hasTitle": true,
+            "hasDescription": false,
+            "hasCoordinates": true,
+            "coordinatesValid": true,
+            "titleSample": "자갈치시장 입구: 활기찬 시장의 첫인상",
+            "coordinatesSample": "35.1047, 129.0745"
+          },
+          {
+            "index": 1,
+            "id": 1,
+            "fields": [
+              "id",
+              "title",
+              "narrative",
+              "coordinates",
+              "nextDirection"
+            ],
+            "hasTitle": true,
+            "hasDescription": false,
+            "hasCoordinates": true,
+            "coordinatesValid": true,
+            "titleSample": "건어물 골목: 바다의 맛을 담은 건조 해산물",
+            "coordinatesSample": "35.1052, 129.0748"
+          },
+          {
+            "index": 2,
+            "id": 2,
+            "fields": [
+              "id",
+              "title",
+              "narrative",
+              "coordinates",
+              "nextDirection"
+            ],
+            "hasTitle": true,
+            "hasDescription": false,
+            "hasCoordinates": true,
+            "coordinatesValid": true,
+            "titleSample": "활어 회센터: 싱싱한 해산물의 향연",
+            "coordinatesSample": "35.1038, 129.0739"
+          },
+          {
+            "index": 3,
+            "id": 3,
+            "fields": [
+              "id",
+              "title",
+              "narrative",
+              "coordinates",
+              "nextDirection"
+            ],
+            "hasTitle": true,
+            "hasDescription": false,
+            "hasCoordinates": true,
+            "coordinatesValid": true,
+            "titleSample": "생선구이 골목: 갓 잡은 생선의 고소한 풍미",
+            "coordinatesSample": "35.1033, 129.0732"
+          },
+          {
+            "index": 4,
+            "id": 4,
+            "fields": [
+              "id",
+              "title",
+              "narrative",
+              "coordinates",
+              "nextDirection"
+            ],
+            "hasTitle": true,
+            "hasDescription": false,
+            "hasCoordinates": true,
+            "coordinatesValid": true,
+            "titleSample": "국제시장: 전통 시장과 현대 상업의 조화",
+            "coordinatesSample": "35.1021, 129.0718"
+          }
+        ],
+        "actualStructure": "content.content.realTimeGuide"
+      },
+      "introChapter": {
+        "id": null,
+        "title": "자갈치시장 입구: 활기찬 시장의 첫인상",
+        "fields": [
+          "id",
+          "title",
+          "narrative",
+          "coordinates",
+          "nextDirection"
+        ],
+        "hasCoordinates": true,
+        "coordinateStructure": {
+          "hasCoordinates": true,
+          "coordinatesField": {
+            "lat": 35.1047,
+            "lng": 129.0745,
+            "description": "자갈치시장 메인 입구 앞"
+          },
+          "locationField": null,
+          "latLngFields": null,
+          "values": {
+            "lat": 35.1047,
+            "lng": 129.0745,
+            "description": "자갈치시장 메인 입구 앞"
+          }
+        },
+        "sampleData": {
+          "title": "자갈치시장 입구: 활기찬 시장의 첫인상",
+          "coordinates": {
+            "lat": 35.1047,
+            "lng": 129.0745,
+            "description": "자갈치시장 메인 입구 앞"
+          }
+        }
+      }
+    }
+  ],
+  "commonStructures": {
+    "hasOverview": 0,
+    "hasRealTimeGuide": 3,
+    "hasChapters": 3,
+    "hasIntroChapter": 3,
+    "introChapterStructures": [
+      {
+        "id": null,
+        "title": "명동역: 쇼핑의 시작점",
+        "fields": [
+          "id",
+          "title",
+          "narrative",
+          "coordinates",
+          "nextDirection"
+        ],
+        "hasCoordinates": true,
+        "coordinateStructure": {
+          "hasCoordinates": true,
+          "coordinatesField": {
+            "lat": 37.5666,
+            "lng": 126.9811,
+            "description": "명동역 8번 출구 인근"
+          },
+          "locationField": null,
+          "latLngFields": null,
+          "values": {
+            "lat": 37.5666,
+            "lng": 126.9811,
+            "description": "명동역 8번 출구 인근"
+          }
+        },
+        "sampleData": {
+          "title": "명동역: 쇼핑의 시작점",
+          "coordinates": {
+            "lat": 37.5666,
+            "lng": 126.9811,
+            "description": "명동역 8번 출구 인근"
+          }
+        }
+      },
+      {
+        "id": null,
+        "title": "감천문화마을 안내센터: 여정의 시작",
+        "fields": [
+          "id",
+          "title",
+          "narrative",
+          "coordinates",
+          "nextDirection"
+        ],
+        "hasCoordinates": true,
+        "coordinateStructure": {
+          "hasCoordinates": true,
+          "coordinatesField": {
+            "lat": 35.1316,
+            "lng": 129.0019,
+            "description": "감천문화마을 안내센터 앞"
+          },
+          "locationField": null,
+          "latLngFields": null,
+          "values": {
+            "lat": 35.1316,
+            "lng": 129.0019,
+            "description": "감천문화마을 안내센터 앞"
+          }
+        },
+        "sampleData": {
+          "title": "감천문화마을 안내센터: 여정의 시작",
+          "coordinates": {
+            "lat": 35.1316,
+            "lng": 129.0019,
+            "description": "감천문화마을 안내센터 앞"
+          }
+        }
+      },
+      {
+        "id": null,
+        "title": "자갈치시장 입구: 활기찬 시장의 첫인상",
+        "fields": [
+          "id",
+          "title",
+          "narrative",
+          "coordinates",
+          "nextDirection"
+        ],
+        "hasCoordinates": true,
+        "coordinateStructure": {
+          "hasCoordinates": true,
+          "coordinatesField": {
+            "lat": 35.1047,
+            "lng": 129.0745,
+            "description": "자갈치시장 메인 입구 앞"
+          },
+          "locationField": null,
+          "latLngFields": null,
+          "values": {
+            "lat": 35.1047,
+            "lng": 129.0745,
+            "description": "자갈치시장 메인 입구 앞"
+          }
+        },
+        "sampleData": {
+          "title": "자갈치시장 입구: 활기찬 시장의 첫인상",
+          "coordinates": {
+            "lat": 35.1047,
+            "lng": 129.0745,
+            "description": "자갈치시장 메인 입구 앞"
+          }
+        }
+      }
+    ]
+  }
+}

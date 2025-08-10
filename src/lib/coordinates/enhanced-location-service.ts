@@ -8,12 +8,13 @@
  * - 전세계 다국어 지원
  * 
  * Architecture:
- * Phase 1: Gemini AI 위치 정규화
+ * Phase 1: Gemini AI 위치 정규화 + 제목 최적화
  * Phase 2: Multi-API 교차 검증  
  * Phase 3: 지능형 품질 검증
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { optimizeIntroTitle } from '../ai/gemini';
 
 // === 인터페이스 정의 ===
 export interface LocationInput {
@@ -212,12 +213,32 @@ class GooglePlacesClient implements APIClient {
       const searchQuery = context ? `${query} ${context}` : query;
       const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json`;
       
-      const response = await fetch(`${url}?input=${encodeURIComponent(searchQuery)}&inputtype=textquery&fields=geometry,place_id,name,formatted_address&key=${this.apiKey}`);
+      let response = await fetch(`${url}?input=${encodeURIComponent(searchQuery)}&inputtype=textquery&fields=geometry,place_id,name,formatted_address&key=${this.apiKey}`);
       
       if (!response.ok) throw new Error(`Google API error: ${response.status}`);
       
-      const data = await response.json();
-      const candidate = data.candidates?.[0];
+      let data = await response.json();
+      let candidate = data.candidates?.[0];
+      
+      // 기본 검색 실패시 영어로 재검색
+      if (!candidate || !candidate.geometry?.location) {
+        console.log(`🔄 영어 재검색 시도: ${query}`);
+        
+        // 간단한 영어 변환
+        const englishQuery = convertToEnglishSearch(query, context);
+        console.log(`🔍 영어 검색어: ${englishQuery}`);
+        
+        const englishResponse = await fetch(`${url}?input=${encodeURIComponent(englishQuery)}&inputtype=textquery&fields=geometry,place_id,name,formatted_address&key=${this.apiKey}`);
+        
+        if (englishResponse.ok) {
+          const englishData = await englishResponse.json();
+          candidate = englishData.candidates?.[0];
+          
+          if (candidate && candidate.geometry?.location) {
+            console.log(`✅ 영어 검색 성공: ${candidate.name}`);
+          }
+        }
+      }
       
       if (!candidate || !candidate.geometry?.location) return null;
       
@@ -814,6 +835,155 @@ export class EnhancedLocationService {
       return parseInt(numbers[0], 10);
     }
     return 100; // 기본값
+  }
+}
+
+/**
+ * 간단한 영어 검색어 변환 함수
+ */
+function convertToEnglishSearch(query: string, context?: string): string {
+  let englishQuery = query;
+  
+  // 한국어 → 영어 기본 변환
+  englishQuery = englishQuery
+    .replace(/역/g, ' Station')
+    .replace(/(\d+)번\s*출구/g, 'Exit $1')
+    .replace(/출구/g, 'Exit')
+    .replace(/입구/g, 'Entrance')
+    .replace(/매표소/g, 'Ticket Office')
+    .replace(/센터/g, 'Center')
+    .replace(/정문/g, 'Main Gate')
+    .replace(/공원/g, 'Park')
+    .replace(/박물관/g, 'Museum')
+    .replace(/궁/g, 'Palace')
+    .replace(/사원/g, 'Temple')
+    .replace(/성당/g, 'Cathedral')
+    .replace(/교회/g, 'Church')
+    .replace(/시장/g, 'Market')
+    .replace(/다리/g, 'Bridge')
+    .replace(/광장/g, 'Square');
+
+  // 일본어 → 영어 기본 변환  
+  englishQuery = englishQuery
+    .replace(/駅/g, ' Station')
+    .replace(/(\d+)番出口/g, 'Exit $1')
+    .replace(/出口/g, 'Exit')
+    .replace(/入口/g, 'Entrance')
+    .replace(/切符売り場/g, 'Ticket Office');
+
+  // 중국어 → 영어 기본 변환
+  englishQuery = englishQuery
+    .replace(/车站/g, ' Station')
+    .replace(/地铁站/g, ' Subway Station')
+    .replace(/(\d+)号出口/g, 'Exit $1')
+    .replace(/出口/g, 'Exit')
+    .replace(/入口/g, 'Entrance')
+    .replace(/售票处/g, 'Ticket Office');
+
+  // 컨텍스트가 있으면 추가
+  if (context) {
+    englishQuery = `${englishQuery} ${context}`;
+  }
+
+  return englishQuery.trim();
+}
+
+/**
+ * 🎯 제목 최적화 기반 고급 위치 검색 함수
+ * Google Places API 최적화된 제목을 활용하여 정확한 좌표 검색
+ */
+export async function searchLocationWithOptimizedTitle(
+  originalTitle: string,
+  locationName: string,
+  context?: string
+): Promise<LocationResult | null> {
+  try {
+    console.log('🎯 제목 최적화 기반 위치 검색 시작:', originalTitle);
+
+    // 1️⃣ 제목 최적화
+    const titleOptimization = await optimizeIntroTitle(originalTitle, locationName, context);
+    
+    console.log('✅ 제목 최적화 결과:', {
+      original: originalTitle,
+      optimized: titleOptimization.optimizedTitle,
+      confidence: titleOptimization.confidence
+    });
+
+    // 2️⃣ Enhanced Location Service를 통한 정밀 검색
+    const service = new EnhancedLocationService();
+    
+    const searchInput: LocationInput = {
+      query: titleOptimization.optimizedTitle,
+      language: 'ko',
+      context: context || locationName,
+      locationType: titleOptimization.facilityType === 'general' ? 'tourist' : 'station'
+    };
+
+    const result = await service.search(searchInput);
+    
+    if (result && result.coordinates) {
+      console.log('🎉 최적화된 검색 성공:', {
+        title: titleOptimization.optimizedTitle,
+        coordinates: result.coordinates,
+        confidence: result.confidence
+      });
+
+      return {
+        coordinates: result.coordinates,
+        confidence: result.confidence,
+        accuracy: result.accuracy,
+        sources: result.sources,
+        metadata: {
+          ...result.metadata,
+          titleOptimization: {
+            originalTitle,
+            optimizedTitle: titleOptimization.optimizedTitle,
+            optimizationConfidence: titleOptimization.confidence,
+            strategy: titleOptimization.searchStrategy
+          }
+        }
+      };
+    }
+
+    // 3️⃣ 폴백: 대안 검색어들로 재시도
+    for (const alternativeTitle of titleOptimization.alternativeTitles) {
+      console.log('🔄 대안 검색어 시도:', alternativeTitle);
+      
+      const alternativeInput: LocationInput = {
+        query: alternativeTitle,
+        language: 'ko',
+        context: context || locationName
+      };
+
+      const alternativeResult = await service.search(alternativeInput);
+      
+      if (alternativeResult && alternativeResult.coordinates) {
+        console.log('✅ 대안 검색어로 성공:', alternativeTitle);
+        
+        return {
+          coordinates: alternativeResult.coordinates,
+          confidence: alternativeResult.confidence * 0.9, // 대안 검색이므로 신뢰도 약간 감소
+          accuracy: alternativeResult.accuracy,
+          sources: alternativeResult.sources,
+          metadata: {
+            ...alternativeResult.metadata,
+            titleOptimization: {
+              originalTitle,
+              optimizedTitle: alternativeTitle,
+              optimizationConfidence: titleOptimization.confidence,
+              strategy: 'alternative'
+            }
+          }
+        };
+      }
+    }
+
+    console.warn('❌ 모든 최적화된 검색어로 검색 실패');
+    return null;
+
+  } catch (error) {
+    console.error('❌ 제목 최적화 기반 검색 실패:', error);
+    return null;
   }
 }
 

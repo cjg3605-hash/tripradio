@@ -35,9 +35,101 @@ import { DataIntegrationOrchestrator } from '../data-sources/orchestrator/data-o
 
 // Coordinate enhancement is handled at the API route level, not here
 
+// 🎯 인트로 챕터 제목 최적화 인터페이스
+export interface TitleOptimizationResult {
+  optimizedTitle: string;
+  alternativeTitles: string[];
+  facilityType: 'entrance' | 'ticket_office' | 'main_gate' | 'visitor_center' | 'station_exit' | 'general';
+  searchStrategy: 'primary' | 'fallback' | 'multi_language';
+  confidence: number;
+  reasoning: string;
+}
+
 export const GEMINI_PROMPTS = {
+  // 🎯 새로운 인트로 챕터 제목 최적화 프롬프트
+  INTRO_TITLE_OPTIMIZATION: {
+    system: `# 🎯 Google Places API 최적화 관광 전문가
+
+당신은 인트로 챕터 제목을 Google Places API가 정확한 좌표를 찾을 수 있도록 최적화하는 전문가입니다.
+
+## 🚨 **핵심 미션**: 모호한 제목 → 정확한 검색어 변환
+
+### ❌ **문제가 되는 제목 패턴**
+- "카사밀라 Passeig de Gràcia 92: 카사밀라 관광 시작점" 
+- "자갈치시장 입구: 활기찬 시장의 첫인상"
+- "경복궁 정문: 조선왕조의 웅장함"
+- "명동역 8번 출구: 쇼핑의 시작점"
+
+### ✅ **Google Places API 최적화 규칙**
+
+1. **핵심 시설명만 추출**: 부연설명, 감정표현, 관광 소개문 완전 제거
+2. **공식 명칭 우선**: 정확한 공식 명칭 사용 (영어명 포함)
+3. **구체적 시설 지정**: 
+   - 메인 입구, 매표소, 정문, 안내센터, 방문자센터
+   - 역 출구 (구체적 번호 포함)
+   - 주차장, 광장 등 명확한 시설
+4. **중복 제거**: 같은 이름 반복 금지
+5. **검색 최적화**: Google이 이해할 수 있는 명확한 표현
+
+### 🎯 **변환 예시**
+- "자갈치시장 입구: 활기찬 시장의 첫인상" → "자갈치시장"
+- "카사밀라 Passeig de Gràcia 92: 관광 시작점" → "Casa Milà" 
+- "경복궁 정문: 조선왕조의 웅장함" → "경복궁 광화문"
+- "명동역 8번 출구: 쇼핑의 시작점" → "명동역 8번 출구"
+
+### 🔍 **관광 접근성 고려사항**
+- 대중교통으로 접근 가능한 지점
+- 안내시설이나 정보 제공이 있는 곳
+- 실제 관광객이 도착하는 첫 번째 지점
+- 다른 관광 명소로의 동선이 자연스러운 곳
+
+## 📝 **출력 형식 (JSON)**
+{
+  "optimizedTitle": "Google Places API 최적화된 제목",
+  "alternativeTitles": [
+    "주요 검색어 (한국어)",
+    "Main search term (English)",
+    "Alternative official name"
+  ],
+  "facilityType": "entrance|ticket_office|main_gate|visitor_center|station_exit",
+  "searchStrategy": "primary|fallback|multi_language",
+  "confidence": 0.95,
+  "reasoning": "선택한 이유와 Google Places API 검색 성공 예상도"
+}`,
+
+    user: (originalTitle: string, locationName: string, context?: string) => `
+원본 제목: "${originalTitle}"
+장소명: "${locationName}"
+추가 컨텍스트: "${context || 'N/A'}"
+
+이 제목을 Google Places API가 정확한 좌표를 찾을 수 있도록 최적화해주세요.
+관광객이 실제로 도착하는 구체적인 시작 지점을 고려하여 변환하세요.
+
+JSON 형식으로 응답해주세요.`
+  },
+
   GUIDE_GENERATION: {
     system: `# 🎯 정확성 최우선 전문 관광 가이드 AI (전세계 적용)
+
+## 🔥 **인트로 챕터 제목 생성 규칙** (Google Places API 최적화)
+
+### 📍 **제목 형식**: "{정확한 시설명}" (부연설명 제거)
+- ❌ "자갈치시장 입구: 활기찬 시장의 첫인상"
+- ✅ "자갈치시장" 또는 "자갈치시장 메인 입구"
+- ❌ "카사밀라 Passeig de Gràcia 92: 관광 시작점"  
+- ✅ "Casa Milà"
+
+### 🎯 **구체적 시설 지정 우선순위**
+1. **공식 입구**: 메인 입구, 정문, 주 출입구
+2. **정보 시설**: 매표소, 안내센터, 방문자센터
+3. **교통 시설**: 역 출구 (구체적 번호), 주차장
+4. **랜드마크**: 광장, 기념비, 대표 건물
+
+### 🔍 **검색어 최적화 원칙**
+- Google Places API가 즉시 인식할 수 있는 명칭
+- 영어 공식명과 현지어 병기 시 정확성 확인
+- 중복 표현 및 관광 소개문 완전 배제
+- 구체적 위치 정보 (출구 번호, 동/층 등) 포함
 
 ## 🚨 **절대 금지 사항 (Zero Tolerance Policy)**
 
@@ -525,6 +617,153 @@ function formatFactualData(data: any): string {
   }
   
   return factualInfo || '검증된 구체적 정보가 부족합니다.';
+}
+
+/**
+ * 🎯 인트로 챕터 제목 최적화 함수
+ * Google Places API가 정확한 좌표를 찾을 수 있도록 제목을 최적화합니다.
+ */
+export async function optimizeIntroTitle(
+  originalTitle: string,
+  locationName: string,
+  context?: string
+): Promise<TitleOptimizationResult> {
+  try {
+    console.log('🎯 인트로 챕터 제목 최적화 시작:', originalTitle);
+
+    if (!genAI) {
+      console.warn('⚠️ Gemini API가 비활성화되어 기본 최적화를 사용합니다.');
+      return fallbackTitleOptimization(originalTitle, locationName);
+    }
+
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-pro',
+      generationConfig: {
+        temperature: 0.3, // 낮은 temperature로 일관성 확보
+        maxOutputTokens: 1000
+      }
+    });
+
+    const prompt = GEMINI_PROMPTS.INTRO_TITLE_OPTIMIZATION.user(originalTitle, locationName, context);
+    
+    const result = await aiCircuitBreaker.execute(async () => {
+      const response = await model.generateContent([
+        GEMINI_PROMPTS.INTRO_TITLE_OPTIMIZATION.system,
+        prompt
+      ]);
+
+      return response.response.text();
+    });
+
+    // JSON 파싱 시도
+    try {
+      const cleanedResponse = sanitizeResponse(result);
+      const parsed: TitleOptimizationResult = JSON.parse(cleanedResponse);
+      
+      // 기본값 보장
+      const optimizedResult: TitleOptimizationResult = {
+        optimizedTitle: parsed.optimizedTitle || extractCoreLocationName(originalTitle),
+        alternativeTitles: parsed.alternativeTitles || [locationName],
+        facilityType: parsed.facilityType || 'general',
+        searchStrategy: parsed.searchStrategy || 'primary',
+        confidence: parsed.confidence || 0.8,
+        reasoning: parsed.reasoning || 'AI 기반 제목 최적화 완료'
+      };
+
+      console.log('✅ 제목 최적화 완료:', {
+        original: originalTitle,
+        optimized: optimizedResult.optimizedTitle,
+        confidence: optimizedResult.confidence
+      });
+
+      return optimizedResult;
+
+    } catch (parseError) {
+      console.warn('⚠️ AI 응답 파싱 실패, 폴백 최적화 사용:', parseError);
+      return fallbackTitleOptimization(originalTitle, locationName);
+    }
+
+  } catch (error) {
+    console.error('❌ 제목 최적화 실패:', error);
+    return fallbackTitleOptimization(originalTitle, locationName);
+  }
+}
+
+/**
+ * 🛡️ 폴백 제목 최적화 함수
+ * AI가 실패했을 때 사용하는 규칙 기반 최적화
+ */
+function fallbackTitleOptimization(originalTitle: string, locationName: string): TitleOptimizationResult {
+  console.log('🛡️ 폴백 제목 최적화 실행:', originalTitle);
+
+  // 기본 정제 규칙들
+  let optimizedTitle = originalTitle;
+
+  // 1. 콜론(:) 뒤의 설명 제거
+  if (optimizedTitle.includes(':')) {
+    optimizedTitle = optimizedTitle.split(':')[0].trim();
+  }
+
+  // 2. 일반적인 관광 소개문 제거
+  const removePatterns = [
+    /\s*관광\s*시작점$/,
+    /\s*여행\s*시작$/,
+    /\s*투어\s*시작$/,
+    /\s*가이드\s*시작$/,
+    /\s*활기찬.*$/,
+    /\s*웅장한.*$/,
+    /\s*아름다운.*$/,
+    /\s*멋진.*$/
+  ];
+
+  removePatterns.forEach(pattern => {
+    optimizedTitle = optimizedTitle.replace(pattern, '');
+  });
+
+  // 3. 중복된 장소명 제거
+  const locationWords = locationName.split(/\s+/);
+  locationWords.forEach(word => {
+    if (word.length > 1) {
+      const regex = new RegExp(`\\b${word}\\b.*\\b${word}\\b`, 'g');
+      if (regex.test(optimizedTitle)) {
+        // 중복 제거 (첫 번째 유지)
+        optimizedTitle = optimizedTitle.replace(new RegExp(`\\b${word}\\b(?=.*\\b${word}\\b)`, 'g'), '').trim();
+      }
+    }
+  });
+
+  // 4. 여러 공백을 하나로 통합
+  optimizedTitle = optimizedTitle.replace(/\s+/g, ' ').trim();
+
+  // 5. 너무 짧아진 경우 기본 장소명 사용
+  if (optimizedTitle.length < 3) {
+    optimizedTitle = locationName;
+  }
+
+  // 6. 영어 변환 추가
+  const alternativeTitles = [optimizedTitle];
+  if (locationName !== optimizedTitle) {
+    alternativeTitles.push(locationName);
+  }
+
+  return {
+    optimizedTitle,
+    alternativeTitles,
+    facilityType: 'general',
+    searchStrategy: 'fallback',
+    confidence: 0.7,
+    reasoning: '규칙 기반 폴백 최적화 완료 - 콜론 뒤 설명 제거, 중복 제거, 관광 소개문 제거'
+  };
+}
+
+/**
+ * 🔧 핵심 장소명 추출 함수
+ */
+function extractCoreLocationName(title: string): string {
+  // 가장 간단한 형태로 장소명 추출
+  let coreName = title.split(':')[0].trim();
+  coreName = coreName.replace(/\s+(입구|출구|매표소|안내소|센터).*$/, '');
+  return coreName || title;
 }
 
 /**

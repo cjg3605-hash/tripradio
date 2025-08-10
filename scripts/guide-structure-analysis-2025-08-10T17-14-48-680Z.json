@@ -1,0 +1,76 @@
+{
+  "totalGuides": 333,
+  "languageDistribution": {
+    "ko": 73,
+    "ja": 66,
+    "en": 74,
+    "es": 60,
+    "zh": 60
+  },
+  "sampleAnalysis": [
+    {
+      "id": "fda0f024-0941-425a-96c1-8ff2c5655f25",
+      "locationname": "명동",
+      "language": "ko",
+      "createdAt": null,
+      "updatedAt": "2025-08-03T09:36:05.672+00:00",
+      "structure": {
+        "valid": true,
+        "topLevelFields": [
+          "content"
+        ],
+        "hasOverview": false,
+        "hasRealTimeGuide": false,
+        "hasMetadata": false,
+        "chapterCount": 0,
+        "chapterStructures": []
+      },
+      "introChapter": null
+    },
+    {
+      "id": "3910f430-cf6d-4005-b45b-04ddecd7181f",
+      "locationname": "감천문화마을",
+      "language": "ko",
+      "createdAt": null,
+      "updatedAt": "2025-08-03T09:37:30.986+00:00",
+      "structure": {
+        "valid": true,
+        "topLevelFields": [
+          "content"
+        ],
+        "hasOverview": false,
+        "hasRealTimeGuide": false,
+        "hasMetadata": false,
+        "chapterCount": 0,
+        "chapterStructures": []
+      },
+      "introChapter": null
+    },
+    {
+      "id": "e598039c-ca55-4728-bde5-0a06c49f1915",
+      "locationname": "자갈치시장",
+      "language": "ko",
+      "createdAt": null,
+      "updatedAt": "2025-08-03T09:38:08.844+00:00",
+      "structure": {
+        "valid": true,
+        "topLevelFields": [
+          "content"
+        ],
+        "hasOverview": false,
+        "hasRealTimeGuide": false,
+        "hasMetadata": false,
+        "chapterCount": 0,
+        "chapterStructures": []
+      },
+      "introChapter": null
+    }
+  ],
+  "commonStructures": {
+    "hasOverview": 0,
+    "hasRealTimeGuide": 0,
+    "hasChapters": 0,
+    "hasIntroChapter": 0,
+    "introChapterStructures": []
+  }
+}

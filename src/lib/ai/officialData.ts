@@ -36,17 +36,77 @@ function getBestMatchName(input) {
   return bestMatch.rating > 0.5 ? bestMatch.target : input;
 }
 
-// 1. Google Places API
+// 1. Google Places API (영어 검색 추가)
 export async function getGooglePlace(locationName: string) {
   const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json`;
   const params = {
     input: locationName,
     inputtype: 'textquery',
-    fields: 'geometry,place_id,name',
+    fields: 'geometry,place_id,name,formatted_address',
     key: GOOGLE_API_KEY,
   };
-  const res = await axios.get(url, { params });
-  return res.data.candidates[0];
+  
+  try {
+    // 1차: 원본 검색어로 검색
+    let res = await axios.get(url, { params });
+    let candidate = res.data.candidates?.[0];
+    
+    // 2차: 실패시 영어로 재검색
+    if (!candidate && locationName) {
+      console.log(`🔄 영어 재검색: ${locationName}`);
+      
+      const englishLocationName = convertLocationToEnglish(locationName);
+      console.log(`🔍 영어 검색어: ${englishLocationName}`);
+      
+      const englishParams = { ...params, input: englishLocationName };
+      const englishRes = await axios.get(url, { params: englishParams });
+      candidate = englishRes.data.candidates?.[0];
+      
+      if (candidate) {
+        console.log(`✅ 영어 검색 성공: ${candidate.name}`);
+      }
+    }
+    
+    return candidate;
+  } catch (error) {
+    console.error('Google Places API 오류:', error);
+    return null;
+  }
+}
+
+/**
+ * 간단한 영어 변환 함수
+ */
+function convertLocationToEnglish(locationName: string): string {
+  let english = locationName;
+  
+  // 한국어 → 영어
+  english = english
+    .replace(/역/g, ' Station')
+    .replace(/(\d+)번\s*출구/g, 'Exit $1')
+    .replace(/출구/g, 'Exit')
+    .replace(/입구/g, 'Entrance')
+    .replace(/매표소/g, 'Ticket Office')
+    .replace(/센터/g, 'Center')
+    .replace(/공원/g, 'Park')
+    .replace(/박물관/g, 'Museum')
+    .replace(/궁/g, 'Palace')
+    .replace(/시장/g, 'Market')
+    .replace(/다리/g, 'Bridge');
+    
+  // 일본어 → 영어
+  english = english
+    .replace(/駅/g, ' Station')
+    .replace(/(\d+)番出口/g, 'Exit $1')
+    .replace(/出口/g, 'Exit');
+    
+  // 중국어 → 영어  
+  english = english
+    .replace(/车站|地铁站/g, ' Station')
+    .replace(/(\d+)号出口/g, 'Exit $1')
+    .replace(/出口/g, 'Exit');
+  
+  return english.trim();
 }
 
 // 2. Google Geocoding API
