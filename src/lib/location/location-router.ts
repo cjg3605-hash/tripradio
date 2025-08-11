@@ -16,15 +16,17 @@ import {
   comprehensiveIntentAnalysis, 
   IntentAnalysis 
 } from './intent-analysis';
+import { classifyLocationDynamic } from './dynamic-location-classifier';
 
 export interface LocationRoutingResult {
   pageType: PageType;
   locationData?: LocationData;
   intentAnalysis?: IntentAnalysis;
   confidence: number;
-  processingMethod: 'exact_match' | 'fuzzy_match' | 'intent_analysis' | 'fallback';
+  processingMethod: 'exact_match' | 'fuzzy_match' | 'intent_analysis' | 'dynamic' | 'fallback';
   reasoning: string;
   suggestedQuery?: string; // 검색어 보정 제안
+  source?: 'static' | 'cache' | 'google' | 'db' | 'ai' | 'fallback'; // 동적 분류 소스
 }
 
 /**
@@ -81,7 +83,28 @@ export async function routeLocationQuery(
     }
   }
   
-  // 1단계: 정확한 위치 매칭 시도
+  // 1단계: 동적 위치 분류 시도 (정적 데이터 포함)
+  try {
+    const dynamicResult = await classifyLocationDynamic(normalizedQuery);
+    
+    if (dynamicResult.locationData && dynamicResult.confidence >= 0.7) {
+      const result: LocationRoutingResult = {
+        pageType: dynamicResult.pageType,
+        locationData: dynamicResult.locationData,
+        confidence: dynamicResult.confidence,
+        processingMethod: 'dynamic',
+        reasoning: `동적 위치 분류 성공: ${dynamicResult.source} 소스에서 ${dynamicResult.locationData.type} (레벨 ${dynamicResult.locationData.level})`,
+        source: dynamicResult.source
+      };
+      
+      console.log('✅ Dynamic location classification:', result);
+      return result;
+    }
+  } catch (error) {
+    console.warn('⚠️ Dynamic classification failed:', error);
+  }
+  
+  // 2단계: 기존 정적 매칭 (백업용)
   const locationData = classifyLocation(normalizedQuery);
   
   if (locationData) {
@@ -91,14 +114,15 @@ export async function routeLocationQuery(
       locationData,
       confidence: locationData.level <= 3 ? 0.95 : 0.9, // 상위 레벨일수록 높은 신뢰도
       processingMethod: 'exact_match',
-      reasoning: `정확한 위치 매칭 성공: ${locationData.type} (레벨 ${locationData.level})`
+      reasoning: `정적 위치 매칭 성공: ${locationData.type} (레벨 ${locationData.level})`,
+      source: 'static'
     };
     
-    console.log('✅ Exact location match:', result);
+    console.log('✅ Static location match (backup):', result);
     return result;
   }
   
-  // 2단계: AI 기반 의도 분석 (번역 컨텍스트 힌트 포함)
+  // 3단계: AI 기반 의도 분석 (번역 컨텍스트 힌트 포함)
   try {
     const intentAnalysis = await comprehensiveIntentAnalysis(normalizedQuery, language);
     
@@ -131,12 +155,13 @@ export async function routeLocationQuery(
     console.warn('⚠️ Intent analysis failed:', error);
   }
   
-  // 3단계: 안전한 기본값
+  // 4단계: 안전한 기본값 (가이드 페이지 우선)
   const fallbackResult: LocationRoutingResult = {
     pageType: 'DetailedGuidePage',
     confidence: 0.5,
     processingMethod: 'fallback',
-    reasoning: '위치 매칭 및 의도 분석 실패 - 상세 가이드 페이지로 기본 라우팅'
+    reasoning: '모든 분류 방법 실패 - 상세 가이드 페이지로 기본 라우팅',
+    source: 'fallback'
   };
   
   console.log('🔄 Fallback routing:', fallbackResult);

@@ -506,6 +506,15 @@ export const LANDMARKS: Record<string, LocationData> = {
     coordinates: { lat: 33.3617, lng: 126.5292 },
     popularity: 8
   },
+  "중문관광단지": {
+    type: "attraction",
+    level: 4,
+    country: "한국",
+    parent: "서귀포시",
+    aliases: ["Jungmun Tourist Complex", "중문관광지", "jungmun resort", "중문리조트", "Jungmun Resort Complex"],
+    coordinates: { lat: 33.2394, lng: 126.4147 },
+    popularity: 8
+  },
   
   // 서울 지구/동네
   "홍대": {

@@ -2,7 +2,7 @@
 // 가이드 데이터 무결성 및 품질 검증 시스템
 
 import { supabase } from '@/lib/supabaseClient';
-import { classifyLocationByStaticData } from '@/lib/location/location-classification';
+import { classifyLocationExact } from '@/lib/location/location-classification';
 
 export interface GuideValidationResult {
   isValid: boolean;
@@ -182,7 +182,7 @@ async function checkLocationAmbiguity(
   }
 
   // 정적 데이터에서 지역 특정이 필요한지 확인
-  const classification = classifyLocationByStaticData(locationName);
+  const classification = classifyLocationExact(locationName);
   if (classification.requiresRegionalContext && !parentRegion) {
     result.warnings.push({
       type: 'data_inconsistency',
@@ -200,7 +200,7 @@ async function validateStaticDataMatching(
   parentRegion: string | undefined,
   result: GuideValidationResult
 ): Promise<void> {
-  const classification = classifyLocationByStaticData(locationName);
+  const classification = classifyLocationExact(locationName);
   
   if (classification.found && classification.data) {
     const staticData = classification.data;

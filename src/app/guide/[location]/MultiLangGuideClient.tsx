@@ -328,7 +328,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
             console.log('🎯 세션 스토리지에서 지역 컨텍스트 발견:', sessionRegionalContext);
             
             // 타임스탬프 체크 (5분 이내의 것만 유효)
-            const contextAge = Date.now() - sessionRegionalContext.timestamp;
+            const contextAge = Date.now() - (sessionRegionalContext?.timestamp || 0);
             if (contextAge > 5 * 60 * 1000) {
               console.log('⚠️ 세션 컨텍스트가 너무 오래됨 - 무시');
               sessionStorage.removeItem('guideRegionalContext');
@@ -342,7 +342,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
 
       // 🎯 최종 지역 컨텍스트 결정: URL 우선, 세션 스토리지 보조
       let finalParentRegion = parentRegion;
-      if (!finalParentRegion && sessionRegionalContext?.parentRegion) {
+      if (!finalParentRegion && sessionRegionalContext && 'parentRegion' in sessionRegionalContext) {
         finalParentRegion = sessionRegionalContext.parentRegion;
         console.log('🔄 세션 스토리지의 지역 컨텍스트 사용:', finalParentRegion);
       }
