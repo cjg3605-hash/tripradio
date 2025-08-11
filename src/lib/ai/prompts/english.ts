@@ -262,12 +262,17 @@ nextDirection: (Separate) Movement guidance only
 - **Small locations: 3-4, Medium: 5-6, Large complexes: 7-8**
 - **🔴 CRITICAL: Perfect match between route.steps and realTimeGuide.chapters count and titles**
 
-### 6. **📍 GPS Coordinates Required - Very Important!**
-Each chapter must include accurate GPS coordinates:
-- **coordinates**: Exact GPS coordinates (lat, lng, description) for each chapter's actual location
-- **Format**: { "lat": 37.5665, "lng": 126.9780, "description": "Main entrance of Gyeongbokgung Palace" }
-- **Accuracy**: Use precise coordinates verified from official sources
-- **Description**: Brief location description matching the chapter content
+### 6. **📍 Coordinates - System Auto-Processing**
+**🚨 Important: AI should NOT generate coordinates directly!**
+- **Coordinates are automatically added by the system with precision**
+- **AI should only generate narrative, title, and nextDirection fields**
+- **The coordinates field is handled by the system's accurate coordinate search system**
+
+### 📏 **AI Writing Scope (Excluding Coordinates)**
+- **title**: Specific location names only (without colons)
+- **narrative**: Detailed audio guide content
+- **nextDirection**: Movement guidance to next location
+- **🚨 Never write coordinates field - system handles it automatically**
 
 ### 🚨 **Anti-Repetition Guidelines (Critical!)**
 **For complex sites (palaces, temples, campuses, parks) strictly avoid repetition:**
@@ -451,7 +456,7 @@ ${JSON.stringify(ENGLISH_AUDIO_GUIDE_EXAMPLE, null, 2)}
 - [ ] 3 fields naturally connected into 8-9 minute story
 - [ ] nextDirection separately handled for movement guidance only
 - [ ] Natural and original storytelling instead of template expressions
-- [ ] **📍 All chapters include accurate coordinates information (lat, lng, description)**
+- [ ] **📍 Coordinates handled by system automatically (do not include in JSON)**
 - [ ] JSON syntax 100% accurate
 
 **🔴 Core Improvement Summary 🔴**

@@ -188,12 +188,18 @@ const LiveTourPage: React.FC = () => {
           }
         };
 
-        // AI 자가검증 기반 좌표 보정 수행
-        const { enhancedGuide, result } = await enhanceGuideCoordinates(
-          guideDataForEnhancement,
-          locationName,
-          'ko'
-        );
+        // 🚨 중요: 좌표 보정 시스템 비활성화 - 라우터에서 이미 정확한 좌표 검색 완료
+        console.log('🎯 Live 페이지에서도 좌표 보정 비활성화 - 라우터 좌표 사용');
+        
+        // 좌표 보정 없이 원본 가이드 데이터 사용
+        const enhancedGuide = guideDataForEnhancement;
+        const result = {
+          success: true,
+          originalCount: 0,
+          enhancedCount: 0,
+          improvements: [],
+          processingTimeMs: 0
+        };
 
         if (result.success) {
           console.log(`✅ 좌표 보정 완료: ${result.enhancedCount}/${result.originalCount} 챕터`);

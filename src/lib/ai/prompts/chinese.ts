@@ -364,23 +364,17 @@ ${getQualityRequirementsByType(locationType)}
 - route: 参观顺序和动线
 - realTimeGuide: 各地点详细导游（坐标必须）
 
-### 7. **📍 坐标信息必须包含 - 非常重要！**
-每个章节必须包含准确的GPS坐标:
-- **coordinates**: 各章节实际位置的准确GPS坐标（lat, lng, description）
-- **坐标精度**: 提供实际观光地准确位置信息
-- **说明包含**: coordinates.description中包含具体位置说明
+### 7. **📍 坐标信息 - 系统自动处理**
+**🚨 重要: AI请勿直接生成坐标！**
+- **坐标由系统精确自动添加**
+- **AI只需生成narrative、title、nextDirection字段**
+- **coordinates字段由系统的精确坐标搜索系统处理**
 
-### 📏 **坐标信息编写原则**
-- **lat**: 纬度（精确到小数点后4位）
-- **lng**: 经度（精确到小数点后4位）  
-- **description**: 该坐标点的具体位置说明（例："故宫午门主入口"，"长城八达岭正门"）
-
-**🚨 坐标示例:**
-"coordinates": {
-  "lat": "[在知识范围内估算真实设施位置纬度 - 不知道则用0.0]",
-  "lng": "[在知识范围内估算真实设施位置经度 - 不知道则用0.0]",
-  "description": "[该设施的具体位置说明 (系统将进行精确校正)]"
-}
+### 📏 **AI编写范围（不包括坐标）**
+- **title**: 仅具体地点名（不含冒号）
+- **narrative**: 详细音频导游内容
+- **nextDirection**: 到下一地点的移动指导
+- **🚨 绝对不要编写coordinates字段 - 系统自动处理**
 
 ## 📐 Audio Guide Example Structure
 {

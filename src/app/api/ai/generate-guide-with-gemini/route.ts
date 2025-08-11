@@ -262,11 +262,21 @@ export async function POST(request: NextRequest) {
     let coordinateEnhancementResult: any = null;
     let titleCoordinateConsistencyResult: any = null;
     
-    // enhanceCoordinates 플래그가 있거나 기본적으로 좌표 향상 실행
-    const shouldEnhanceCoordinates = body.enhanceCoordinates !== false; // 기본값: true
+    // 🚨 중요: 좌표 보정 시스템 비활성화 - 라우터에서 이미 정확한 좌표 검색 완료
+    // enhanceGuideCoordinates는 AI 생성 좌표를 덮어쓰므로 사용하지 않음
+    console.log('🎯 좌표는 라우터에서 이미 정확히 처리됨 - enhanceGuideCoordinates 비활성화');
     
-    if (shouldEnhanceCoordinates) {
-      console.log('🎯 좌표 정확도 향상 시작...');
+    // 좌표 보정 시스템을 사용하지 않고 원본 가이드 데이터 사용
+    enhancedGuideData = guideData;
+    coordinateEnhancementResult = {
+      success: true,
+      originalCount: 0,
+      enhancedCount: 0,
+      improvements: [],
+      processingTimeMs: 0
+    };
+    
+    if (false) { // 기존 코드 비활성화
       try {
         const enhancementResult = await enhanceGuideCoordinates(
           guideData,
@@ -885,14 +895,27 @@ async function handleStreamingResponse(
             let enhancedGuideData = guideData;
             let coordinateEnhancementResult: any = null;
             
-            try {
-              const enhancementResult = await enhanceGuideCoordinates(
-                guideData, location, userProfile.language
-              );
-              enhancedGuideData = enhancementResult.enhancedGuide;
-              coordinateEnhancementResult = enhancementResult.result;
-            } catch (enhanceError) {
-              console.warn('⚠️ 좌표 향상 실패, 원본 사용:', enhanceError);
+            // 🚨 중요: 좌표 보정 시스템 비활성화 - 라우터에서 이미 정확한 좌표 검색 완료
+            console.log('🎯 스트리밍에서도 좌표 보정 비활성화 - 라우터 좌표 사용');
+            enhancedGuideData = guideData;
+            coordinateEnhancementResult = {
+              success: true,
+              originalCount: 0,
+              enhancedCount: 0,
+              improvements: [],
+              processingTimeMs: 0
+            };
+            
+            if (false) { // 기존 코드 비활성화
+              try {
+                const enhancementResult = await enhanceGuideCoordinates(
+                  guideData, location, userProfile.language
+                );
+                enhancedGuideData = enhancementResult.enhancedGuide;
+                coordinateEnhancementResult = enhancementResult.result;
+              } catch (enhanceError) {
+                console.warn('⚠️ 좌표 향상 실패, 원본 사용:', enhanceError);
+              }
             }
 
             // 최종 결과 전송
