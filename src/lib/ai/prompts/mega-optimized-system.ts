@@ -821,7 +821,7 @@ ${expert.cultural_wisdom.map((wisdom, i) => `${i + 1}. ${wisdom}`).join('\n')}
     "chapters": [
       {
         "id": 0,
-        "title": "🎯 Google Places API 최적화: [매표소/안내소/주차장/역출구/케이블카승강장 등 검색 가능한 구체적 시설명만 작성 - 설명문 금지]",
+        "title": "경복궁 광화문",
         "narrative": "[1200-1500자] 전문 오디오가이드 수준의 매력적인 인트로를 작성하세요. 마크다운 형식 없이 흐름 있는 문장으로 구성하여 역사적 배경, 건축철학, 관람전략, 현지인 관점의 특별한 이야기를 자연스럽게 포함하세요.",
         "nextDirection": "이제 ${locationName}의 첫 번째 핵심 공간으로 이동 안내"
       }

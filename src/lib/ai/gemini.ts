@@ -646,19 +646,17 @@ export async function optimizeIntroTitle(
 
     const prompt = GEMINI_PROMPTS.INTRO_TITLE_OPTIMIZATION.user(originalTitle, locationName, context);
     
-    const result = await aiCircuitBreaker.execute(async () => {
-      const response = await model.generateContent([
-        GEMINI_PROMPTS.INTRO_TITLE_OPTIMIZATION.system,
-        prompt
-      ]);
+    const response = await model.generateContent([
+      GEMINI_PROMPTS.INTRO_TITLE_OPTIMIZATION.system,
+      prompt
+    ]);
 
-      return response.response.text();
-    });
+    const result = response.response.text();
 
     // JSON 파싱 시도
     try {
-      const cleanedResponse = sanitizeResponse(result);
-      const parsed: TitleOptimizationResult = JSON.parse(cleanedResponse);
+      const cleanedResult = typeof result === 'string' ? result : JSON.stringify(result);
+      const parsed: TitleOptimizationResult = JSON.parse(cleanedResult);
       
       // 기본값 보장
       const optimizedResult: TitleOptimizationResult = {
@@ -699,6 +697,15 @@ function fallbackTitleOptimization(originalTitle: string, locationName: string):
   // 기본 정제 규칙들
   let optimizedTitle = originalTitle;
 
+  // 🔥 특수 케이스: 잘못된 프롬프트 패턴 감지 및 수정
+  if (optimizedTitle.includes('Google Places API 최적화') || 
+      optimizedTitle.includes('구체적 시설명만 작성') ||
+      optimizedTitle.includes('설명문 완전 금지') ||
+      optimizedTitle.includes('🎯')) {
+    console.log('🚨 잘못된 프롬프트 패턴 감지, locationName 사용:', locationName);
+    optimizedTitle = locationName;
+  }
+
   // 1. 콜론(:) 뒤의 설명 제거
   if (optimizedTitle.includes(':')) {
     optimizedTitle = optimizedTitle.split(':')[0].trim();
@@ -713,7 +720,10 @@ function fallbackTitleOptimization(originalTitle: string, locationName: string):
     /\s*활기찬.*$/,
     /\s*웅장한.*$/,
     /\s*아름다운.*$/,
-    /\s*멋진.*$/
+    /\s*멋진.*$/,
+    /\s*바다를\s*향한.*$/,
+    /\s*신비로운.*$/,
+    /\s*진입로.*$/
   ];
 
   removePatterns.forEach(pattern => {
@@ -735,15 +745,25 @@ function fallbackTitleOptimization(originalTitle: string, locationName: string):
   // 4. 여러 공백을 하나로 통합
   optimizedTitle = optimizedTitle.replace(/\s+/g, ' ').trim();
 
-  // 5. 너무 짧아진 경우 기본 장소명 사용
-  if (optimizedTitle.length < 3) {
+  // 5. 너무 짧아진 경우나 여전히 이상한 경우 기본 장소명 사용
+  if (optimizedTitle.length < 3 || 
+      optimizedTitle.includes('구: ') || 
+      optimizedTitle.includes('동해구')) {
+    console.log('🔧 제목 복구: 기본 장소명 사용:', locationName);
     optimizedTitle = locationName;
   }
 
-  // 6. 영어 변환 추가
+  // 6. 대안 제목들 생성 (용궁사 예시로 더 구체적으로)
   const alternativeTitles = [optimizedTitle];
   if (locationName !== optimizedTitle) {
     alternativeTitles.push(locationName);
+  }
+  
+  // 🎯 용궁사 같은 사찰의 경우 추가 검색어들
+  if (locationName.includes('사') || locationName.includes('절')) {
+    alternativeTitles.push(`${locationName} 입구`);
+    alternativeTitles.push(`${locationName} 주차장`);
+    alternativeTitles.push(`${locationName} 일주문`);
   }
 
   return {
@@ -751,8 +771,8 @@ function fallbackTitleOptimization(originalTitle: string, locationName: string):
     alternativeTitles,
     facilityType: 'general',
     searchStrategy: 'fallback',
-    confidence: 0.7,
-    reasoning: '규칙 기반 폴백 최적화 완료 - 콜론 뒤 설명 제거, 중복 제거, 관광 소개문 제거'
+    confidence: 0.8, // 폴백 신뢰도를 높임 (0.7 → 0.8)
+    reasoning: '규칙 기반 폴백 최적화 완료 - 잘못된 프롬프트 패턴 수정, 콜론 뒤 설명 제거, 중복 제거, 관광 소개문 제거'
   };
 }
 

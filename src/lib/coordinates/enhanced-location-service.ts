@@ -919,7 +919,7 @@ export async function searchLocationWithOptimizedTitle(
       locationType: titleOptimization.facilityType === 'general' ? 'tourist' : 'station'
     };
 
-    const result = await service.search(searchInput);
+    const result = await service.findLocation(searchInput);
     
     if (result && result.coordinates) {
       console.log('🎉 최적화된 검색 성공:', {
@@ -941,7 +941,8 @@ export async function searchLocationWithOptimizedTitle(
             optimizationConfidence: titleOptimization.confidence,
             strategy: titleOptimization.searchStrategy
           }
-        }
+        },
+        quality: result.quality
       };
     }
 
@@ -955,7 +956,7 @@ export async function searchLocationWithOptimizedTitle(
         context: context || locationName
       };
 
-      const alternativeResult = await service.search(alternativeInput);
+      const alternativeResult = await service.findLocation(alternativeInput);
       
       if (alternativeResult && alternativeResult.coordinates) {
         console.log('✅ 대안 검색어로 성공:', alternativeTitle);
@@ -973,7 +974,8 @@ export async function searchLocationWithOptimizedTitle(
               optimizationConfidence: titleOptimization.confidence,
               strategy: 'alternative'
             }
-          }
+          },
+          quality: alternativeResult.quality
         };
       }
     }

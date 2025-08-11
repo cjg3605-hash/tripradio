@@ -63,13 +63,8 @@ const SEO_CONFIGS: Record<SupportedLanguage, SEOConfig> = {
   }
 };
 
-const BASE_DOMAINS: Record<SupportedLanguage, string> = {
-  ko: 'https://navidocent.com',
-  en: 'https://navidocent.com/en',
-  ja: 'https://navidocent.com/ja',
-  zh: 'https://navidocent.com/zh',
-  es: 'https://navidocent.com/es',
-};
+// 실제 사이트는 쿼리 파라미터 기반이므로 단일 도메인 사용
+const BASE_DOMAIN = 'https://navidocent.com';
 
 const LOCALE_MAP: Record<SupportedLanguage, string> = {
   ko: 'ko_KR',
@@ -88,7 +83,7 @@ export function generateBaseMetadata(
   customDescription?: string
 ): Metadata {
   const config = SEO_CONFIGS[language];
-  const domain = BASE_DOMAINS[language];
+  const domain = BASE_DOMAIN;
   const locale = LOCALE_MAP[language];
   
   const title = customTitle || config.title;
@@ -113,12 +108,12 @@ export function generateBaseMetadata(
     alternates: {
       canonical: domain,
       languages: {
-        'ko': BASE_DOMAINS.ko,
-        'en': BASE_DOMAINS.en,
-        'ja': BASE_DOMAINS.ja,
-        'zh': BASE_DOMAINS.zh,
-        'es': BASE_DOMAINS.es,
-        'x-default': BASE_DOMAINS.ko,
+        'ko': BASE_DOMAIN,
+        'en': `${BASE_DOMAIN}?lang=en`,
+        'ja': `${BASE_DOMAIN}?lang=ja`,
+        'zh': `${BASE_DOMAIN}?lang=zh`,
+        'es': `${BASE_DOMAIN}?lang=es`,
+        'x-default': BASE_DOMAIN,
       },
     },
     openGraph: {
@@ -187,7 +182,7 @@ export function generateGuideMetadata(
   }
 ): Metadata {
   const config = SEO_CONFIGS[language];
-  const domain = BASE_DOMAINS[language];
+  const domain = BASE_DOMAIN;
   const locale = LOCALE_MAP[language];
   
   const titleTemplates: Record<SupportedLanguage, string> = {
@@ -224,7 +219,9 @@ export function generateGuideMetadata(
     openGraph: {
       title,
       description,
-      url: `${domain}/guide/${encodeURIComponent(guideName)}`,
+      url: language === 'ko' 
+        ? `${domain}/guide/${encodeURIComponent(guideName)}`
+        : `${domain}/guide/${encodeURIComponent(guideName)}?lang=${language}`,
       images: guideData?.imageUrl ? [
         {
           url: guideData.imageUrl,
@@ -252,7 +249,7 @@ export const defaultViewport: Viewport = {
 };
 
 /**
- * 사이트맵 URL 생성 (빌드 오류 해결)
+ * 사이트맵 URL 생성 (실제 쿼리 파라미터 기반 구조에 맞게 수정)
  */
 export function generateSitemapUrls(guides: Array<{ name: string; slug?: string }>): MetadataRoute.Sitemap {
   const baseUrl = 'https://navidocent.com';
@@ -260,21 +257,12 @@ export function generateSitemapUrls(guides: Array<{ name: string; slug?: string 
   const now = new Date();
   
   const urls: MetadataRoute.Sitemap = [
-    // 메인 페이지들
+    // 메인 페이지 (한국어 기본)
     {
       url: baseUrl,
       lastModified: now,
       changeFrequency: 'daily',
       priority: 1,
-      alternates: {
-        languages: {
-          ko: `${baseUrl}`,
-          en: `${BASE_DOMAINS.en}`,
-          ja: `${BASE_DOMAINS.ja}`,
-          zh: `${BASE_DOMAINS.zh}`,
-          es: `${BASE_DOMAINS.es}`,
-        }
-      }
     },
     // 가이드 목록 페이지
     {
@@ -292,20 +280,30 @@ export function generateSitemapUrls(guides: Array<{ name: string; slug?: string 
     }
   ];
 
-  // 각 가이드에 대한 URL 생성
+  // 각 가이드에 대한 URL 생성 (쿼리 파라미터 방식)
   guides.forEach(guide => {
     const guidePath = guide.slug || encodeURIComponent(guide.name);
     
     languages.forEach(lang => {
-      const domain = BASE_DOMAINS[lang];
+      // 실제 URL 구조: /guide/[location]?lang=[언어코드]
+      const guideUrl = lang === 'ko' 
+        ? `${baseUrl}/guide/${guidePath}` // 한국어는 lang 파라미터 생략
+        : `${baseUrl}/guide/${guidePath}?lang=${lang}`;
+        
       urls.push({
-        url: `${domain}/guide/${guidePath}`,
+        url: guideUrl,
         lastModified: now,
         changeFrequency: 'weekly',
         priority: 0.7,
+        // 다국어 alternate 링크
         alternates: {
           languages: Object.fromEntries(
-            languages.map(l => [l, `${BASE_DOMAINS[l]}/guide/${guidePath}`])
+            languages.map(l => [
+              l, 
+              l === 'ko' 
+                ? `${baseUrl}/guide/${guidePath}`
+                : `${baseUrl}/guide/${guidePath}?lang=${l}`
+            ])
           )
         }
       });
@@ -324,7 +322,7 @@ export function generateJsonLd(
   language: SupportedLanguage = 'ko'
 ) {
   const config = SEO_CONFIGS[language];
-  const domain = BASE_DOMAINS[language];
+  const domain = BASE_DOMAIN;
 
   const baseStructure = {
     '@context': 'https://schema.org',
