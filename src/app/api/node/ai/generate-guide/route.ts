@@ -699,9 +699,9 @@ export async function POST(request: NextRequest) {
       const chapterTitle = existingGuide.realTimeGuide?.chapters?.[targetChapter]?.title || `챕터 ${targetChapter + 1}`;
       prompt = await createChapterPrompt(locationName, targetChapter, chapterTitle, existingGuide, language, userProfile);
     } else {
-      // 🎯 핵심: 1억명 검증 96.3% 만족도 달성 메가 최적화 프롬프트
-      console.log('🎯 1억명 검증된 메가 최적화 AI 시스템으로 가이드 생성');
-      prompt = createMegaOptimizedPrompt(locationName, language, userProfile);
+      // 🎯 핵심: 1억명 검증 96.3% 만족도 달성 메가 최적화 프롬프트 (Plus Code 통합)
+      console.log('🎯 1억명 검증된 메가 최적화 AI 시스템으로 가이드 생성 (좌표 최적화 적용)');
+      prompt = await createMegaOptimizedPrompt(locationName, language, userProfile);
       
       // 67% 토큰 감소 최적화 적용
       prompt = ultraSpeedOptimizer.optimizePrompt(prompt);
