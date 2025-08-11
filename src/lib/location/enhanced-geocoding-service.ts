@@ -63,7 +63,6 @@ export class EnhancedGeocodingService {
 
     // 다중 소스 병렬 요청
     const results = await Promise.allSettled([
-      this.geocodeWithNominatim(query, options),
       this.geocodeWithOpenStreetMap(query, options),
       this.geocodeWithPhoton(query, options),
       // Google Places API는 API 키 설정 시에만 활성화
@@ -87,55 +86,6 @@ export class EnhancedGeocodingService {
     return this.validateAndConsensus(validResults);
   }
 
-  /**
-   * Nominatim 지오코딩 (OpenStreetMap 기반)
-   */
-  private async geocodeWithNominatim(query: string, options: GeocodingOptions): Promise<GeocodingResult[]> {
-    try {
-      const params = new URLSearchParams({
-        q: query,
-        format: 'json',
-        limit: '5',
-        addressdetails: '1',
-        extratags: '1',
-        namedetails: '1',
-        ...(options.language && { 'accept-language': options.language }),
-        ...(options.bounds && {
-          viewbox: `${options.bounds.southwest.lng},${options.bounds.southwest.lat},${options.bounds.northeast.lng},${options.bounds.northeast.lat}`,
-          bounded: '1'
-        })
-      });
-
-      const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
-        headers: {
-          'User-Agent': 'GuideAI/1.0 (Enhanced Location Service)'
-        }
-      });
-
-      if (!response.ok) throw new Error(`Nominatim API error: ${response.status}`);
-
-      const data = await response.json();
-      
-      return data.map((item: any) => ({
-        lat: parseFloat(item.lat),
-        lng: parseFloat(item.lon),
-        name: item.display_name.split(',')[0].trim(),
-        formattedAddress: item.display_name,
-        placeId: item.place_id?.toString(),
-        accuracy: this.calculateNominatimAccuracy(item),
-        source: 'nominatim',
-        confidence: parseFloat(item.importance || '0.5'),
-        types: [item.type, item.class].filter(Boolean),
-        bounds: item.boundingbox ? {
-          northeast: { lat: parseFloat(item.boundingbox[1]), lng: parseFloat(item.boundingbox[3]) },
-          southwest: { lat: parseFloat(item.boundingbox[0]), lng: parseFloat(item.boundingbox[2]) }
-        } : undefined
-      }));
-    } catch (error) {
-      console.warn('Nominatim geocoding failed:', error);
-      return [];
-    }
-  }
 
   /**
    * Photon 지오코딩 (OpenStreetMap 기반, 더 빠른 응답)
@@ -399,11 +349,6 @@ export class EnhancedGeocodingService {
   /**
    * 정확도 계산 헬퍼 메서드들
    */
-  private calculateNominatimAccuracy(item: any): number {
-    const importance = parseFloat(item.importance || '0.5');
-    const hasExactMatch = item.display_name.toLowerCase().includes(item.name?.toLowerCase() || '');
-    return Math.min(importance + (hasExactMatch ? 0.2 : 0), 1.0);
-  }
 
   private calculatePhotonAccuracy(properties: any): number {
     const hasName = !!properties.name;

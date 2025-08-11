@@ -49,6 +49,13 @@ export interface LocationResult {
     };
     fallbackReason?: string;
     errorReason?: string;
+    // 🎯 Title Optimization 필드
+    titleOptimization?: {
+      originalTitle: string;
+      optimizedTitle: string;
+      optimizationConfidence: number;
+      strategy: string;
+    };
   };
   quality: {
     consensusScore: number; // API 간 합의 점수
@@ -282,74 +289,6 @@ class GooglePlacesClient implements APIClient {
   }
 }
 
-class NominatimClient implements APIClient {
-  name = 'OpenStreetMap';
-  private lastRequestTime = 0;
-  private rateLimit = 1000; // 1초 간격
-
-  private async waitForRateLimit() {
-    const now = Date.now();
-    const timeSinceLastRequest = now - this.lastRequestTime;
-    if (timeSinceLastRequest < this.rateLimit) {
-      await new Promise(resolve => 
-        setTimeout(resolve, this.rateLimit - timeSinceLastRequest)
-      );
-    }
-    this.lastRequestTime = Date.now();
-  }
-
-  async search(query: string, context?: string): Promise<APIResult | null> {
-    try {
-      await this.waitForRateLimit();
-      
-      const searchQuery = context ? `${query} ${context}` : query;
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1&addressdetails=1`;
-      
-      const response = await fetch(url, {
-        headers: { 'User-Agent': 'GuideAI/1.0 (contact@guideai.com)' }
-      });
-      
-      if (!response.ok) throw new Error(`Nominatim error: ${response.status}`);
-      
-      const data = await response.json();
-      const result = data[0];
-      
-      if (!result) return null;
-      
-      return {
-        coordinates: {
-          lat: parseFloat(result.lat),
-          lng: parseFloat(result.lon)
-        },
-        name: result.display_name.split(',')[0],
-        address: result.display_name,
-        confidence: Math.min(parseFloat(result.importance || '0.5'), 1)
-      };
-      
-    } catch (error) {
-      console.error('Nominatim API 오류:', error);
-      return null;
-    }
-  }
-
-  async reverseGeocode(lat: number, lng: number): Promise<string | null> {
-    try {
-      await this.waitForRateLimit();
-      
-      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
-      const response = await fetch(url, {
-        headers: { 'User-Agent': 'GuideAI/1.0 (contact@guideai.com)' }
-      });
-      
-      const data = await response.json();
-      return data.display_name || null;
-      
-    } catch (error) {
-      console.error('Nominatim 역지오코딩 오류:', error);
-      return null;
-    }
-  }
-}
 
 // === Phase 3: 메인 위치 서비스 ===
 export class EnhancedLocationService {
@@ -360,8 +299,7 @@ export class EnhancedLocationService {
   constructor() {
     this.normalizer = new LocationNormalizer();
     this.clients = [
-      new GooglePlacesClient(),
-      new NominatimClient()
+      new GooglePlacesClient()
     ];
   }
 
