@@ -186,6 +186,7 @@ export class MultiLangGuideManager {
           locationname: normalizeLocationName(locationName),
           language: language.toLowerCase(),
           content: guideData,
+          coordinates: guideData.coordinatesArray || null, // 🔥 새로운 coordinates 컬럼에 저장
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'locationname,language'
@@ -329,6 +330,17 @@ export class MultiLangGuideManager {
 
       const guideData = result.data;
       console.log(`📥 ${language} AI 가이드 수신: ${JSON.stringify(guideData).length}자`);
+      
+      // 🚨 디버깅: 받은 데이터의 좌표 정보 확인
+      console.log(`\n🔍 MultiLangGuideManager 수신 데이터 검증:`);
+      console.log(`  - realTimeGuide 존재: ${!!guideData.realTimeGuide}`);
+      console.log(`  - chapters 개수: ${guideData.realTimeGuide?.chapters?.length || 0}`);
+      
+      if (guideData.realTimeGuide?.chapters) {
+        guideData.realTimeGuide.chapters.slice(0, 2).forEach((chapter: any, index: number) => {
+          console.log(`  - 챕터 ${index}: coordinates=${JSON.stringify(chapter.coordinates)}`);
+        });
+      }
 
       // DB에 저장
       const saveResult = await this.saveGuideByLanguage({
@@ -392,6 +404,17 @@ export class MultiLangGuideManager {
 
       const guideData = result.data;
       console.log(`📥 ${language} AI 가이드 재생성 수신: ${JSON.stringify(guideData).length}자`);
+      
+      // 🚨 디버깅: 재생성된 데이터의 좌표 정보 확인
+      console.log(`\n🔍 MultiLangGuideManager 재생성 데이터 검증:`);
+      console.log(`  - realTimeGuide 존재: ${!!guideData.realTimeGuide}`);
+      console.log(`  - chapters 개수: ${guideData.realTimeGuide?.chapters?.length || 0}`);
+      
+      if (guideData.realTimeGuide?.chapters) {
+        guideData.realTimeGuide.chapters.slice(0, 2).forEach((chapter: any, index: number) => {
+          console.log(`  - 챕터 ${index}: coordinates=${JSON.stringify(chapter.coordinates)}`);
+        });
+      }
 
       // DB에 저장 (덮어쓰기)
       const saveResult = await this.saveGuideByLanguage({
