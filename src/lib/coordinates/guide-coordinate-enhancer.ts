@@ -212,30 +212,51 @@ export async function enhanceGuideCoordinates(
                 
                 console.log(`✅ 챕터 ${i} 실제 장소 발견: ${realLocationCoords.lat}, ${realLocationCoords.lng} (${Math.round(distanceImprovement)}m 개선)`);
               } else {
-                // 폴백: 기존 방식
-                const enhancedCoords = generateChapterCoordinate(
-                  baseCoordinates, 
-                  i, 
-                  chapters.length,
-                  chapter.title || `Chapter ${i}`
-                );
+                // 🔥 수정: Places API 기준 좌표를 직접 사용 (정확한 좌표 보장)
+                console.log(`🎯 챕터 ${i} Places API 기준 좌표 직접 적용: ${baseCoordinates.lat}, ${baseCoordinates.lng}`);
+                
+                chapter.coordinates = {
+                  lat: baseCoordinates.lat,
+                  lng: baseCoordinates.lng
+                };
 
-                chapter.coordinates = enhancedCoords;
+                result.improvements.push({
+                  chapterId: i,
+                  originalCoords: originalCoords || { lat: 0, lng: 0 },
+                  enhancedCoords: baseCoordinates,
+                  distanceImprovement: originalCoords ? calculateDistance(
+                    originalCoords.lat, originalCoords.lng,
+                    baseCoordinates.lat, baseCoordinates.lng
+                  ) : 0,
+                  method: 'places-api-fallback'
+                });
+
                 result.enhancedCount++;
-                console.log(`🔄 챕터 ${i} 폴백 좌표 사용`);
+                console.log(`✅ 챕터 ${i} Places API 기준 좌표 적용 완료`);
               }
             } catch (error) {
-              console.warn(`⚠️ 챕터 ${i} 실제 장소 검색 실패, 폴백 사용:`, error);
-              // 폴백: 기존 방식
-              const enhancedCoords = generateChapterCoordinate(
-                baseCoordinates, 
-                i, 
-                chapters.length,
-                chapter.title || `Chapter ${i}`
-              );
+              console.warn(`⚠️ 챕터 ${i} 실제 장소 검색 실패, Places API 기준 좌표 사용:`, error);
+              // 🔥 수정: Places API 기준 좌표를 직접 사용 (정확한 좌표 보장)
+              console.log(`🎯 챕터 ${i} Places API 기준 좌표 적용 (에러 폴백): ${baseCoordinates.lat}, ${baseCoordinates.lng}`);
+              
+              chapter.coordinates = {
+                lat: baseCoordinates.lat,
+                lng: baseCoordinates.lng
+              };
 
-              chapter.coordinates = enhancedCoords;
+              result.improvements.push({
+                chapterId: i,
+                originalCoords: originalCoords || { lat: 0, lng: 0 },
+                enhancedCoords: baseCoordinates,
+                distanceImprovement: originalCoords ? calculateDistance(
+                  originalCoords.lat, originalCoords.lng,
+                  baseCoordinates.lat, baseCoordinates.lng
+                ) : 0,
+                method: 'places-api-error-fallback'
+              });
+
               result.enhancedCount++;
+              console.log(`✅ 챕터 ${i} Places API 기준 좌표 적용 완료 (에러 폴백)`);
             }
           }
         }

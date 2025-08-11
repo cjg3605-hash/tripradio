@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
-import { enhanceGuideCoordinates } from '@/lib/coordinates/guide-coordinate-enhancer';
 
 export const runtime = 'nodejs';
 
@@ -23,6 +22,171 @@ const getGeminiClient = () => {
   }
 };
 
+/**
+ * 🎯 순차적 좌표 검색 (1~4순위)
+ * 라우터 내부에서 직접 처리하여 복잡성 최소화
+ */
+async function findCoordinatesInOrder(locationName: string): Promise<{ lat: number; lng: number } | null> {
+  console.log(`🔍 좌표 검색 시작: ${locationName}`);
+  
+  // 1순위: 구글 키워드 + 플러스코드 검색
+  try {
+    console.log(`🔍 1순위 시도: 구글 키워드 + 플러스코드`);
+    const plusCodeResult = await searchWithPlusCode(locationName);
+    if (plusCodeResult) {
+      console.log(`✅ 1순위 성공: 플러스코드 → ${plusCodeResult.lat}, ${plusCodeResult.lng}`);
+      return plusCodeResult;
+    }
+  } catch (error) {
+    console.log(`❌ 1순위 실패: 구글 검색 오류 -`, error);
+  }
+  
+  // 2순위: Places API 상세 검색 (장소명 + 입구)
+  try {
+    console.log(`🔍 2순위 시도: Places API 상세 검색`);
+    const placesDetailResult = await searchPlacesDetailed(locationName);
+    if (placesDetailResult) {
+      console.log(`✅ 2순위 성공: Places API 상세 → ${placesDetailResult.lat}, ${placesDetailResult.lng}`);
+      return placesDetailResult;
+    }
+  } catch (error) {
+    console.log(`❌ 2순위 실패: Places API 상세 검색 오류 -`, error);
+  }
+  
+  // 3순위: Places API 기본 검색 (장소명만)
+  try {
+    console.log(`🔍 3순위 시도: Places API 기본 검색`);
+    const placesBasicResult = await searchPlacesBasic(locationName);
+    if (placesBasicResult) {
+      console.log(`✅ 3순위 성공: Places API 기본 → ${placesBasicResult.lat}, ${placesBasicResult.lng}`);
+      return placesBasicResult;
+    }
+  } catch (error) {
+    console.log(`❌ 3순위 실패: Places API 기본 검색 오류 -`, error);
+  }
+  
+  // 4순위: 좌표를 찾을 수 없음
+  console.log(`❌ 4순위: 모든 검색 방법 실패 - 좌표를 찾을 수 없습니다`);
+  return null;
+}
+
+/**
+ * 🔍 1순위: Google Places API를 이용한 플러스코드 기반 검색
+ */
+async function searchWithPlusCode(locationName: string): Promise<{ lat: number; lng: number } | null> {
+  const { smartPlacesSearch } = await import('@/lib/coordinates/google-places-integration');
+  
+  // 전세계 호환 플러스코드 검색 쿼리들
+  const plusCodeQueries = [
+    `${locationName} plus code`,
+    `${locationName} entrance`,
+    `${locationName} visitor center`,
+    `${locationName} main gate`,
+    `${locationName}`
+  ];
+  
+  for (const query of plusCodeQueries) {
+    try {
+      console.log(`  🔍 플러스코드 검색 시도: "${query}"`);
+      const result = await smartPlacesSearch(query, 'en'); // 영어로 검색 (전세계 호환)
+      
+      if (result) {
+        console.log(`✅ 플러스코드 검색 성공: ${result.coordinates.lat}, ${result.coordinates.lng}`);
+        return {
+          lat: result.coordinates.lat,
+          lng: result.coordinates.lng
+        };
+      }
+    } catch (error) {
+      console.log(`  ❌ 플러스코드 검색 실패: ${query}`, error);
+    }
+    
+    // API 호출 제한을 위한 대기
+    await new Promise(resolve => setTimeout(resolve, 300));
+  }
+  
+  return null;
+}
+
+/**
+ * 🏢 2순위: Places API 상세 검색 (장소명 + 입구/entrance) - 전세계 호환
+ */
+async function searchPlacesDetailed(locationName: string): Promise<{ lat: number; lng: number } | null> {
+  const { smartPlacesSearch } = await import('@/lib/coordinates/google-places-integration');
+  
+  // 전세계 호환 상세 검색 쿼리들 (다국어 지원)
+  const searchQueries = [
+    `${locationName} entrance`,
+    `${locationName} main entrance`,
+    `${locationName} visitor entrance`,
+    `${locationName} gate`,
+    `${locationName} main gate`,
+    `${locationName} visitor center`,
+    `${locationName} information center`,
+    `${locationName} 입구`,
+    `${locationName} 매표소`
+  ];
+  
+  for (const query of searchQueries) {
+    try {
+      console.log(`  🔍 Places API 상세 검색 시도: "${query}"`);
+      const result = await smartPlacesSearch(query, 'en'); // 영어 검색 (전세계 호환)
+      
+      if (result) {
+        return {
+          lat: result.coordinates.lat,
+          lng: result.coordinates.lng
+        };
+      }
+    } catch (error) {
+      console.log(`  ❌ Places API 상세 검색 실패: ${query}`, error);
+    }
+    
+    // API 호출 제한을 위한 대기
+    await new Promise(resolve => setTimeout(resolve, 200));
+  }
+  
+  return null;
+}
+
+/**
+ * 🏢 3순위: Places API 기본 검색 (장소명만) - 전세계 호환
+ */
+async function searchPlacesBasic(locationName: string): Promise<{ lat: number; lng: number } | null> {
+  const { smartPlacesSearch } = await import('@/lib/coordinates/google-places-integration');
+  
+  // 전세계 호환 기본 검색 (장소명 그대로)
+  const searchQueries = [
+    `${locationName}`, // 정확한 장소명
+    `${locationName} tourist attraction`,
+    `${locationName} landmark`,
+    `${locationName} temple`, // 템플 (전세계 공통)
+    `${locationName} park`,
+    `${locationName} museum`
+  ];
+  
+  for (const query of searchQueries) {
+    try {
+      console.log(`  🔍 Places API 기본 검색 시도: "${query}"`);
+      const result = await smartPlacesSearch(query, 'en'); // 영어 검색 (전세계 호환)
+      
+      if (result) {
+        return {
+          lat: result.coordinates.lat,
+          lng: result.coordinates.lng
+        };
+      }
+    } catch (error) {
+      console.log(`  ❌ Places API 기본 검색 실패: ${query}`, error);
+    }
+    
+    // API 호출 제한을 위한 대기
+    await new Promise(resolve => setTimeout(resolve, 200));
+  }
+  
+  return null;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -43,6 +207,16 @@ export async function POST(request: NextRequest) {
       parentRegion: parentRegion || 'none',
       regionalContext: regionalContext || 'none'
     });
+
+    // 🎯 1단계: 좌표 검색 먼저 실행 (순차적 1~4순위)
+    console.log(`\n🔍 좌표 검색 1단계 시작: ${locationName}`);
+    const foundCoordinates = await findCoordinatesInOrder(locationName);
+    
+    if (foundCoordinates) {
+      console.log(`✅ 좌표 검색 성공: ${foundCoordinates.lat}, ${foundCoordinates.lng}`);
+    } else {
+      console.log(`⚠️ 좌표 검색 실패: 지도 표시 없이 가이드 생성 계속`);
+    }
 
     // 🎯 지역 컨텍스트를 포함한 언어별 정교한 프롬프트 생성
     const contextualLocationName = parentRegion 
@@ -354,48 +528,63 @@ If you cannot find exact coordinates, respond with "Coordinates not found".
       }
     }
 
-    console.log(`✅ ${language} 가이드 생성 완료`);
+    console.log(`✅ ${language} AI 가이드 생성 완료`);
     
-    // 🎯 좌표 정확도 향상 적용 (통합 시스템 사용)
-    console.log(`🎯 좌표 향상 시작 (${language}):`, locationName);
-    try {
-      const enhancementResult = await enhanceGuideCoordinates(
-        guideData,
-        locationName.trim(),
-        language
-      );
+    // 🎯 2단계: 찾은 좌표를 모든 챕터에 적용
+    console.log(`\n📍 좌표 적용 2단계 시작`);
+    
+    if (foundCoordinates && guideData.realTimeGuide?.chapters) {
+      console.log(`📍 모든 챕터에 정확한 좌표 적용: ${foundCoordinates.lat}, ${foundCoordinates.lng}`);
       
-      const enhancedGuideData = enhancementResult.enhancedGuide;
-      const coordinateResult = enhancementResult.result;
-      
-      console.log('✅ 좌표 향상 완료:', {
-        enhancedCount: coordinateResult.enhancedCount,
-        improvements: coordinateResult.improvements.length,
-        processingTime: coordinateResult.processingTimeMs
+      // 모든 챕터에 동일한 정확한 좌표 적용
+      guideData.realTimeGuide.chapters.forEach((chapter: any, index: number) => {
+        chapter.coordinates = {
+          lat: foundCoordinates.lat,
+          lng: foundCoordinates.lng
+        };
+        console.log(`  챕터 ${index + 1}: 좌표 설정 완료`);
       });
       
-      return NextResponse.json({
-        success: true,
-        data: enhancedGuideData,
-        coordinateEnhancement: {
-          success: coordinateResult.success,
-          enhancedCount: coordinateResult.enhancedCount,
-          improvements: coordinateResult.improvements
-        }
-      });
+      console.log(`✅ ${guideData.realTimeGuide.chapters.length}개 챕터 좌표 적용 완료`);
       
-    } catch (enhanceError) {
-      console.warn('⚠️ 좌표 향상 실패, 원본 가이드 반환:', enhanceError);
+      // 좌표 성공 정보 저장
+      guideData.locationCoordinateStatus = {
+        locationName: locationName,
+        coordinateSearchAttempted: true,
+        coordinateFound: true,
+        coordinates: foundCoordinates,
+        lastAttempt: new Date().toISOString()
+      };
       
-      return NextResponse.json({
-        success: true,
-        data: guideData,
-        coordinateEnhancement: {
-          success: false,
-          error: enhanceError instanceof Error ? enhanceError.message : '좌표 향상 실패'
-        }
-      });
+    } else {
+      console.log(`⚠️ 좌표 없음: 모든 챕터에서 좌표 제거 (지도 표시 안 함)`);
+      
+      // 좌표를 찾지 못한 경우 모든 챕터에서 좌표 제거
+      if (guideData.realTimeGuide?.chapters) {
+        guideData.realTimeGuide.chapters.forEach((chapter: any, index: number) => {
+          delete chapter.coordinates;
+          console.log(`  챕터 ${index + 1}: 좌표 제거 완료`);
+        });
+      }
+      
+      // 좌표 실패 정보 저장
+      guideData.coordinateGenerationFailed = true;
+      guideData.coordinateFailureReason = "좌표값을 찾을 수 없습니다";
+      guideData.locationCoordinateStatus = {
+        locationName: locationName,
+        coordinateSearchAttempted: true,
+        coordinateFound: false,
+        lastAttempt: new Date().toISOString()
+      };
     }
+
+    // 🎯 3단계: 간소화된 JSON 응답 반환
+    console.log(`\n✅ ${language} 가이드 생성 최종 완료`);
+    
+    return NextResponse.json({
+      success: true,
+      data: guideData
+    });
 
   } catch (error) {
     console.error(`❌ 가이드 생성 실패:`, error);
