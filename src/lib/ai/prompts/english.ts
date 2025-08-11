@@ -262,17 +262,8 @@ nextDirection: (Separate) Movement guidance only
 - **Small locations: 3-4, Medium: 5-6, Large complexes: 7-8**
 - **🔴 CRITICAL: Perfect match between route.steps and realTimeGuide.chapters count and titles**
 
-### 6. **📍 Coordinates - System Auto-Processing**
-**🚨 Important: AI should NOT generate coordinates directly!**
-- **Coordinates are automatically added by the system with precision**
-- **AI should only generate narrative, title, and nextDirection fields**
-- **The coordinates field is handled by the system's accurate coordinate search system**
-
-### 📏 **AI Writing Scope (Excluding Coordinates)**
-- **title**: Specific location names only (without colons)
-- **narrative**: Detailed audio guide content
-- **nextDirection**: Movement guidance to next location
-- **🚨 Never write coordinates field - system handles it automatically**
+### 6. **📍 Coordinates Auto-Processing**
+**Coordinates are automatically added by the system with precision. AI should not write coordinate-related content.**
 
 ### 🚨 **Anti-Repetition Guidelines (Critical!)**
 **For complex sites (palaces, temples, campuses, parks) strictly avoid repetition:**
@@ -372,11 +363,6 @@ export const ENGLISH_AUDIO_GUIDE_EXAMPLE = {
           "coreNarrative": "This magnificent doorway has witnessed history's most pivotal moments. According to historical records, every monarch since 1066 has processed through these doors for their coronation, creating an unbroken chain of royal tradition spanning nearly a millennium. The Great West Door itself was constructed in 1245 during Henry III's reign as part of his ambitious rebuilding project that created the Gothic structure visitors see today. What makes this entrance architecturally significant is its innovative Gothic design - the pointed arches distribute weight more efficiently than Norman rounded arches, allowing for the soaring heights that characterize the abbey's interior. The intricate stone tracery and rose window above demonstrate the mathematical precision of medieval craftsmen who worked without modern tools yet achieved structural perfection. But the most compelling story connected to this entrance involves a moment of profound personal significance.",
           "humanStories": "During the 1953 coronation of Queen Elizabeth II, a touching moment occurred at this very threshold. According to the Dean's diary, the 27-year-old princess arrived an hour before the ceremony and requested to spend time alone in prayer. She knelt quietly before these doors, overwhelmed by the weight of responsibility she was about to assume. The Archbishop of Canterbury later recalled finding her still there at dawn, having spent the entire night in contemplation. This moment of vulnerability and devotion before taking on the crown exemplified the deeply personal nature of royal duty that this sacred space has witnessed for nearly a thousand years.",
           "nextDirection": "Pass through the Great West Door and walk straight ahead for 30 meters into the Nave. Notice the soaring vaulted ceiling above as you enter the heart of the abbey where coronations take place.",
-          "coordinates": {
-            "lat": 51.4994,
-            "lng": -0.1270,
-            "description": "Westminster Abbey Great West Door main entrance"
-          }
         }
       ]
     }

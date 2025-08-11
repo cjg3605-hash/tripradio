@@ -313,7 +313,7 @@ export async function POST(request: NextRequest) {
             ];
             
             // narrative에서 좌표 추출 시도
-            let foundCoordinates = false;
+            let foundAiCoordinates = false;
             for (const pattern of coordinatePatterns) {
               const matches = cleanNarrative.match(pattern);
               if (matches && matches.length > 0) {
@@ -329,8 +329,8 @@ export async function POST(request: NextRequest) {
                       lng: lng,
                       description: chapter.title || `챕터 ${chapter.id}`
                     };
-                    foundCoordinates = true;
-                    console.log(`🎯 좌표 추출 성공: ${lat}, ${lng} from "${matches[0]}"`);
+                    foundAiCoordinates = true;
+                    console.log(`🎯 AI 좌표 추출 성공: ${lat}, ${lng} from "${matches[0]}"`);
                     
                     // narrative에서 좌표 정보 제거
                     cleanNarrative = cleanNarrative.replace(matches[0], '').trim();
@@ -340,11 +340,20 @@ export async function POST(request: NextRequest) {
               }
             }
             
-            // 좌표를 찾지 못한 경우 처리
-            if (!foundCoordinates) {
-              console.log(`⚠️ 챕터 ${chapter.id} 좌표 추출 실패 - AI가 좌표를 생성하지 못함`);
-              // 좌표가 없음을 명시적으로 표시
-              extractedCoordinates = null;
+            // 🎯 좌표 처리: 항상 라우터 좌표 우선 사용
+            if (!foundAiCoordinates || !extractedCoordinates || foundCoordinates) {
+              if (foundCoordinates) {
+                console.log(`🎯 챕터 ${chapter.id}: 라우터 좌표 자동 주입`);
+                extractedCoordinates = {
+                  lat: foundCoordinates.lat + (chapter.id * 0.0005), // 챕터별 약간의 오프셋
+                  lng: foundCoordinates.lng + (chapter.id * 0.0005),
+                  description: chapter.coordinates?.description || chapter.title || `챕터 ${chapter.id}`
+                };
+                foundAiCoordinates = true; // 라우터 좌표로 해결됨
+              } else {
+                console.log(`⚠️ 챕터 ${chapter.id} 좌표 없음 - 라우터에서 좌표를 찾지 못함`);
+                extractedCoordinates = null;
+              }
             }
             
             // narrative 텍스트 정리
