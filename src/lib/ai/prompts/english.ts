@@ -205,19 +205,19 @@ Configure route.steps based on the **actual visit order and spatial layout** of 
 **📝 Various Correct Examples by Location Type:**
 
 **🏛️ Museums/Exhibition Halls:**
-- "Entrance Hall: Grand First Encounter and Overall Overview"
-- "Permanent Collection: Essence of Core Collections"
-- "Special Exhibition Room: Unique Encounters and New Discoveries"
+- "Entrance Hall"
+- "Permanent Collection"  
+- "Special Exhibition Room"
 
 **🏰 Historical Sites/Palaces:**
-- "Main Gate: Majestic Welcome to Royal History"
-- "Throne Hall: Where Royal Authority Resonates"
-- "Royal Gardens: Where Nature and Power Harmonize"
+- "Main Gate"
+- "Throne Hall"
+- "Royal Gardens"
 
 **🏛️ Religious Buildings:**
-- "Cathedral Entrance: Gateway to Sacred Space"
-- "Main Altar: Heart of Faith and Prayer"
-- "Bell Tower: Guardian of Sacred Time"
+- "Cathedral Entrance"
+- "Main Altar"
+- "Bell Tower"
 
 **🚨 CRITICAL - All Locations Common Rules:**
 - Must follow "[Specific Location Name] - [Feature/Significance]" format
@@ -349,12 +349,12 @@ export const ENGLISH_AUDIO_GUIDE_EXAMPLE = {
         {
           "step": 1,
           "location": "Westminster Abbey Great West Door",
-          "title": "Westminster Abbey Great West Door: Gateway to Royal History"
+          "title": "Westminster Abbey Great West Door"
         },
         {
           "step": 2, 
           "location": "Westminster Abbey Nave",
-          "title": "Westminster Abbey Nave: Cathedral of Kings and Commoners"
+          "title": "Westminster Abbey Nave"
         }
       ]
     },

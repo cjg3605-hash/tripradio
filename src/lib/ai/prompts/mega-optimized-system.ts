@@ -650,19 +650,30 @@ function calculateSearchConfidence(query: string, originalName: string): number 
   
   if (query === originalName) confidence = 0.8;
   
-  // 한국어 패턴 (검증된 정확도)
-  else if (query.includes('매표소')) confidence = 0.9; // 테스트 검증: 최고 정확도
+  // 한국어 패턴 (균형잡힌 정확도 - 장소 타입별 적절한 신뢰도)
+  else if (query.includes('입구')) confidence = 0.9; // 사찰, 공원, 자연환경에 최적
+  else if (query.includes('정문')) confidence = 0.9; // 궁궐, 성 등에 최적
+  else if (query.includes('매표소')) confidence = 0.85; // 박물관, 테마파크에 적절
+  else if (query.includes('시작점')) confidence = 0.88; // 거리, 상업지구에 적절
+  else if (query.includes('마을입구')) confidence = 0.87; // 마을, 동네에 적절
+  else if (query.includes('선착장')) confidence = 0.9; // 섬 관광지에 최적
   else if (query.includes('안내소')) confidence = 0.85;
-  else if (query.includes('입구')) confidence = 0.75;
-  else if (query.includes('주차장')) confidence = 0.7;
   else if (query.includes('방문자센터')) confidence = 0.85;
+  else if (query.includes('주차장')) confidence = 0.7;
   
-  // 영어 패턴 (전세계 검증됨)
-  else if (query.includes('ticket office')) confidence = 0.9;
+  // 영어 패턴 (균형잡힌 전세계 패턴)
+  else if (query.includes('main entrance')) confidence = 0.9; // 일반적으로 가장 적절
+  else if (query.includes('entrance gate')) confidence = 0.9; // 사찰, 공원, 유적지
+  else if (query.includes('front gate')) confidence = 0.9; // 궁궐, 성
+  else if (query.includes('starting point')) confidence = 0.88; // 거리, 상업지구
+  else if (query.includes('village entrance')) confidence = 0.87; // 마을, 동네
+  else if (query.includes('pier')) confidence = 0.9; // 섬, 항구
+  else if (query.includes('dock')) confidence = 0.9; // 선착장
+  else if (query.includes('trailhead')) confidence = 0.9; // 등산로, 자연환경
+  else if (query.includes('ticket office')) confidence = 0.85; // 박물관, 테마파크
   else if (query.includes('visitor center')) confidence = 0.85;
   else if (query.includes('information center')) confidence = 0.85;
-  else if (query.includes('main entrance')) confidence = 0.8;
-  else if (query.includes('entrance')) confidence = 0.75;
+  else if (query.includes('entrance')) confidence = 0.8; // 일반 입구
   else if (query.includes('parking')) confidence = 0.7;
   
   // 일본어 패턴
@@ -807,7 +818,7 @@ ${expert.cultural_wisdom.map((wisdom, i) => `${i + 1}. ${wisdom}`).join('\n')}
       {
         "order": 1,
         "location": "루브르 박물관",
-        "title": "루브르 박물관: 세계 최대 규모의 미술관", 
+        "title": "루브르 박물관", 
         "description": "이동 경로와 예상 소요시간",
         "highlights": ["핵심 볼거리", "포토 스팟", "문화적 의미"]
       }
@@ -1007,7 +1018,7 @@ ${personalityAdjustments || ''}
       {
         "order": 1,
         "location": "타지마할",
-        "title": "타지마할: 영원한 사랑의 상징",
+        "title": "타지마할",
         "culturalSignificance": "문화적 의미와 현지인 관점",
         "respectfulApproach": "존중하는 관람 자세"
       }

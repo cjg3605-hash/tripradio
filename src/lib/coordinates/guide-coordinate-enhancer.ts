@@ -367,9 +367,14 @@ async function findRealTourismLocation(
 
     console.log(`🔍 챕터 ${chapterIndex} 추출된 장소: "${extractedLocation}"`);
 
-    // 2단계: 하이브리드 API로 실제 좌표 검색
+    // 2단계: 하이브리드 API로 실제 좌표 검색 (중복 제거)
+    const isDuplicateLocation = extractedLocation.toLowerCase().includes(mainLocationName.toLowerCase());
+    const searchQuery = isDuplicateLocation ? extractedLocation : `${mainLocationName} ${extractedLocation}`;
+    
+    console.log(`🔍 일반 챕터 중복 체크: ${isDuplicateLocation ? '중복 감지됨' : '중복 없음'}, 검색어: "${searchQuery}"`);
+    
     const locationResult = await enhancedLocationService.findLocation({
-      query: `${mainLocationName} ${extractedLocation}`,
+      query: searchQuery,
       language: 'ko',
       context: 'tourist attraction point of interest landmark'
     });
@@ -379,13 +384,13 @@ async function findRealTourismLocation(
       return null;
     }
 
-    // 3단계: 기준점과의 거리 검증 (10km 이내만 허용)
+    // 3단계: 기준점과의 거리 검증 (50m 이내만 허용 - 관광지 내 시설 범위)
     const distance = calculateDistance(
       baseCoordinates.lat, baseCoordinates.lng,
       locationResult.coordinates.lat, locationResult.coordinates.lng
     );
 
-    if (distance > 10000) { // 10km 초과시 제외
+    if (distance > 200) { // 200m 초과시 제외 (관광지 내 합리적 범위)
       console.warn(`⚠️ 장소가 너무 멀음: ${extractedLocation} (${Math.round(distance)}m)`);
       return null;
     }
@@ -512,10 +517,10 @@ async function findBestStartingPoint(locationName: string, language: string) {
   
   // 전세계 공통 시작지점 컨텍스트 (우선순위 순)
   const universalContexts = [
-    // 1순위: 관광객 접근점
-    'main entrance visitor entrance tourist entrance',
+    // 1순위: 관광객 접근점 (다양한 입구 타입 지원)
+    'main entrance visitor entrance tourist entrance gate entrance',
     'information center visitor center reception desk',
-    'ticket office entrance hall main gate',
+    'ticket office entrance hall main gate front gate',
     
     // 2순위: 교통 연결점
     'station entrance exit subway entrance train station',
@@ -706,9 +711,15 @@ async function searchByChapterTitle(
   try {
     console.log(`🔍 제목 기반 검색: "${chapterTitle}" (기준: ${mainLocationName})`);
 
+    // 중복 제거: 챕터 제목에 이미 메인 장소명이 포함된 경우
+    const isDuplicateLocation = chapterTitle.toLowerCase().includes(mainLocationName.toLowerCase());
+    const searchQuery = isDuplicateLocation ? chapterTitle : `${mainLocationName} ${chapterTitle}`;
+    
+    console.log(`🔍 중복 체크: ${isDuplicateLocation ? '중복 감지됨' : '중복 없음'}, 검색어: "${searchQuery}"`);
+
     // Enhanced Location Service를 사용하여 구체적인 장소 검색
     const locationResult = await enhancedLocationService.findLocation({
-      query: `${mainLocationName} ${chapterTitle}`,
+      query: searchQuery,
       language: 'ko',
       context: 'tourist entrance starting point access cable car transportation'
     });
@@ -718,13 +729,13 @@ async function searchByChapterTitle(
       return null;
     }
 
-    // 기준점과의 거리 검증 (5km 이내만 허용)
+    // 기준점과의 거리 검증 (50m 이내만 허용 - 관광지 내 시설 범위)
     const distance = calculateDistance(
       baseCoordinates.lat, baseCoordinates.lng,
       locationResult.coordinates.lat, locationResult.coordinates.lng
     );
 
-    if (distance > 5000) { // 5km 초과시 제외
+    if (distance > 200) { // 200m 초과시 제외 (관광지 내 합리적 범위)
       console.warn(`⚠️ 제목 기반 검색 결과가 너무 멀음: ${chapterTitle} (${Math.round(distance)}m)`);
       return null;
     }

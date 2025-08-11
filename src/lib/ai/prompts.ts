@@ -6,7 +6,7 @@ import { UserProfile } from '@/types/guide';
 const MINIMAL_EXAMPLE_JSON = {
   content: {
     overview: {
-      title: "경복궁: 조선왕조 600년 역사의 중심",
+      title: "경복궁",
       summary: "조선왕조의 정궁으로서 600년간 한국사의 중심 무대였던 경복궁의 숨겨진 이야기와 건축의 아름다움을 탐험하는 여정",
       narrativeTheme: "왕조의 영광과 아픔이 스며든 궁궐 속에서 만나는 조선의 진짜 이야기",
       keyFacts: [
@@ -21,18 +21,18 @@ const MINIMAL_EXAMPLE_JSON = {
     },
     route: {
       steps: [
-        { step: 1, location: "광화문", title: "광화문 - 조선왕조의 위엄 있는 시작" },
-        { step: 2, location: "근정전", title: "근정전 - 왕의 권위와 조선의 정치 무대" },
-        { step: 3, location: "경회루", title: "경회루 - 연못 위의 누각, 외교의 무대" },
-        { step: 4, location: "향원정", title: "향원정 - 왕실 정원의 숨겨진 보석" },
-        { step: 5, location: "국립고궁박물관", title: "국립고궁박물관 - 왕실 문화의 정수를 만나다" }
+        { step: 1, location: "광화문", title: "경복궁 광화문" },
+        { step: 2, location: "근정전", title: "경복궁 근정전" },
+        { step: 3, location: "경회루", title: "경복궁 경회루" },
+        { step: 4, location: "향원정", title: "경복궁 향원정" },
+        { step: 5, location: "국립고궁박물관", title: "경복궁 국립고궁박물관" }
       ]
     },
     realTimeGuide: {
       chapters: [
         {
           id: 0,
-          title: "광화문 - 조선왕조의 위엄 있는 시작",
+          title: "경복궁 입구",
           sceneDescription: "높이 솟은 광화문 앞에 서면 육중한 돌기둥과 화려한 단청이 600년 전 그 위엄을 그대로 전해줍니다. 문 위의 현판에 새겨진 '광화문' 세 글자는 세종대왕의 친필로, 오늘도 수많은 시민들을 맞이하고 있습니다.",
           coreNarrative: "1395년 태조 이성계가 한양에 새 도읍을 정하며 가장 먼저 세운 것이 바로 이 광화문이었습니다. '광화(光化)'란 '왕의 덕으로 천하를 밝게 교화한다'는 뜻으로, 새로운 왕조의 이상을 담았죠. 일제강점기 때 철거되었다가 2010년 원래 자리를 찾아 복원된 이 문은, 그 자체로 우리나라 근현대사의 아픈 상처와 회복을 상징합니다.",
           humanStories: "세종대왕은 이 문을 지날 때마다 '백성을 위한 정치'를 다짐했다고 전해집니다. 특히 한글 창제 후 첫 반포식도 이곳에서 열렸죠. 또한 일제강점기 당시 이 문을 지키려던 궁내부 관리들의 눈물겨운 노력과, 광복 후 시민들이 '우리의 문'을 되찾기 위해 벌인 복원 운동의 이야기는 지금도 많은 이들에게 감동을 줍니다.",

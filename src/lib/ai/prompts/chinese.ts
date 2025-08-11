@@ -405,16 +405,16 @@ ${getQualityRequirementsByType(locationType)}
     "mustVisitSpots": "#太和殿 #乾清宫 #御花园 #神武门 #午门",
     "route": {
       "steps": [
-        { "step": 1, "location": "午门", "title": "午门: 紫禁城威严的第一印象" },
-        { "step": 2, "location": "太和殿", "title": "太和殿: 天子威严的至高殿堂" },
-        { "step": 3, "location": "乾清宫", "title": "乾清宫: 皇帝的私人世界" }
+        { "step": 1, "location": "午门", "title": "午门" },
+        { "step": 2, "location": "太和殿", "title": "太和殿" },
+        { "step": 3, "location": "乾清宫", "title": "乾清宫" }
       ]
     },
     "realTimeGuide": {
       "chapters": [
         {
           "id": 0,
-          "title": "午门：紫禁城威严的第一印象",
+          "title": "午门",
           "narrative": "故宫作为北京中心的古代宫殿，600多年来一直是中国历史的心脏。位于北京中轴线上的这座宫殿建筑群，春夏秋冬都展现出不同的美丽，特别是在樱花和红叶季节呈现出令人屏息的美景... [1600字以上的완전한 서사]",
           "nextDirection": "从午门到太和殿沿石阶向上约100米。步行约3分钟。",
           "coordinates": {
@@ -605,15 +605,15 @@ nextDirection: (분리 처리) 이동 안내만
     "mustVisitSpots": "#태화전 #건청궁 #어화원 #신무문 #오문",
     "route": {
       "steps": [
-        { "step": 1, "location": "오문", "title": "오문: 자금성 위엄의 첫인상" },
-        { "step": 2, "location": "태화전", "title": "태화전: 천자 위엄의 지고한 전당" }
+        { "step": 1, "location": "오문", "title": "오문" },
+        { "step": 2, "location": "태화전", "title": "태화전: 천자위엄의 지고한 전각" }
       ]
     },
     "realTimeGuide": {
       "chapters": [
         {
           "id": 0,
-          "title": "오문: 자금성 위엄의 첫인상",
+          "title": "오문",
           "narrative": "[1600자 이상의 완전한 서사]",
           "nextDirection": "[구체적 이동 안내]"
         }
@@ -734,15 +734,15 @@ ${userContext}
     "mustVisitSpots": "#태화전 #건청궁 #어화원 #신무문 #오문",
     "route": {
       "steps": [
-        { "step": 1, "location": "오문", "title": "오문: 자금성 위엄의 첫인상" },
-        { "step": 2, "location": "태화전", "title": "태화전: 천자 위엄의 지고한 전당" }
+        { "step": 1, "location": "오문", "title": "오문" },
+        { "step": 2, "location": "태화전", "title": "태화전: 천자위엄의 지고한 전각" }
       ]
     },
     "realTimeGuide": {
       "chapters": [
         {
           "id": 0,
-          "title": "오문: 자금성 위엄의 첫인상",
+          "title": "오문",
           "narrative": "[1600자 이상의 완전한 서사]",
           "nextDirection": "[구체적 이동 안내]",
           "coordinates": {

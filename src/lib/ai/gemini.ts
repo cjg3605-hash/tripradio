@@ -706,10 +706,7 @@ function fallbackTitleOptimization(originalTitle: string, locationName: string):
     optimizedTitle = locationName;
   }
 
-  // 1. 콜론(:) 뒤의 설명 제거
-  if (optimizedTitle.includes(':')) {
-    optimizedTitle = optimizedTitle.split(':')[0].trim();
-  }
+  // 콜론 강제 제거 구문 삭제됨 - 자연스러운 제목 유지
 
   // 2. 일반적인 관광 소개문 제거
   const removePatterns = [
@@ -780,8 +777,8 @@ function fallbackTitleOptimization(originalTitle: string, locationName: string):
  * 🔧 핵심 장소명 추출 함수
  */
 function extractCoreLocationName(title: string): string {
-  // 가장 간단한 형태로 장소명 추출
-  let coreName = title.split(':')[0].trim();
+  // 콜론 강제 분할 제거 - 자연스러운 제목 유지
+  let coreName = title.trim();
   coreName = coreName.replace(/\s+(입구|출구|매표소|안내소|센터).*$/, '');
   return coreName || title;
 }

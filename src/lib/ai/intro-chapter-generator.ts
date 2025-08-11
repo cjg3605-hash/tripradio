@@ -62,7 +62,9 @@ export class EnhancedIntroChapterGenerator {
     const startingPoint = await this.determineOptimalStartingPoint(locationData);
     
     // 🎯 Google Places API 최적화된 제목 생성 (korean.ts 프롬프트와 일관성 보장)
-    const originalTitle = `${locationData.name} 매표소`; // 단순화된 시작점
+    // 장소 유형에 따라 적절한 입구명 동적 생성
+    const entranceType = this.determineEntranceType(locationData.name);
+    const originalTitle = `${locationData.name} ${entranceType}`; // 동적 시작점
     const titleOptimization = await optimizeIntroTitle(
       originalTitle, 
       locationData.name,
@@ -656,5 +658,84 @@ ${locationData.name} 관람을 위한 실용적이고 도움되는 팁을 제공
 
   private getFallbackVisitingTips(locationData: LocationData): string {
     return `${locationData.name} 관람을 위해서는 편안한 신발과 복장을 권합니다. 충분한 시간을 가지고 여유롭게 둘러보시며, 각 지점에서 제공되는 설명을 주의 깊게 들어보세요. 사진 촬영 시에는 관련 규정을 확인하시고, 다른 관람객들을 배려하는 마음으로 관람해 주시기 바랍니다.`;
+  }
+
+  /**
+   * 🎯 장소 유형에 따른 적절한 입구명 결정
+   */
+  private determineEntranceType(locationName: string): string {
+    const name = locationName.toLowerCase();
+    
+    // 사찰/절 - 입구가 더 자연스러움
+    if (name.includes('사') || name.includes('암') || name.includes('절') || 
+        name.includes('temple') || name.includes('monastery')) {
+      return '입구';
+    }
+    
+    // 궁궐/성 - 정문이 적절
+    if (name.includes('궁') || name.includes('성') || name.includes('palace') || name.includes('castle')) {
+      return '정문';
+    }
+    
+    // 박물관/미술관 - 매표소가 일반적
+    if (name.includes('박물관') || name.includes('미술관') || name.includes('museum') || name.includes('gallery')) {
+      return '매표소';
+    }
+    
+    // 공원/자연 - 입구
+    if (name.includes('공원') || name.includes('숲') || name.includes('park') || name.includes('garden')) {
+      return '입구';
+    }
+    
+    // 역사유적지 - 입구
+    if (name.includes('유적') || name.includes('고분') || name.includes('터') || name.includes('site') || name.includes('ruins')) {
+      return '입구';
+    }
+    
+    // 테마파크/놀이공원 - 매표소
+    if (name.includes('랜드') || name.includes('파크') || name.includes('워터파크') || name.includes('놀이공원')) {
+      return '매표소';
+    }
+    
+    // 자연환경 - 입구/탐방로 시작점
+    if (name.includes('산') || name.includes('봉') || name.includes('계곡') || name.includes('폭포') || 
+        name.includes('해변') || name.includes('바다') || name.includes('강') || name.includes('호수') ||
+        name.includes('mountain') || name.includes('valley') || name.includes('waterfall') ||
+        name.includes('beach') || name.includes('river') || name.includes('lake')) {
+      return '입구';
+    }
+    
+    // 거리/상업지구 - 시작점
+    if (name.includes('거리') || name.includes('길') || name.includes('로') || name.includes('가') ||
+        name.includes('시장') || name.includes('상가') || name.includes('street') || name.includes('road') ||
+        name.includes('avenue') || name.includes('market') || name.includes('plaza')) {
+      return '시작점';
+    }
+    
+    // 마을/동네 - 마을 입구
+    if (name.includes('마을') || name.includes('동') || name.includes('리') || name.includes('촌') ||
+        name.includes('village') || name.includes('town') || name.includes('district')) {
+      return '마을입구';
+    }
+    
+    // 섬 - 선착장/항구
+    if (name.includes('섬') || name.includes('도') || name.includes('island')) {
+      return '선착장';
+    }
+    
+    // 교통시설 - 역/터미널
+    if (name.includes('역') || name.includes('터미널') || name.includes('공항') ||
+        name.includes('station') || name.includes('terminal') || name.includes('airport')) {
+      return '출구';
+    }
+    
+    // 전망대/관측점 - 전망대 입구
+    if (name.includes('전망대') || name.includes('타워') || name.includes('observatory') || 
+        name.includes('tower') || name.includes('viewpoint')) {
+      return '입구';
+    }
+    
+    // 기본값: 입구 (가장 범용적)
+    return '입구';
   }
 }

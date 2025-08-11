@@ -469,27 +469,27 @@ export const SPANISH_AUDIO_GUIDE_EXAMPLE = {
         {
           "step": 1,
           "location": "Patio de la Montería",
-          "title": "Patio de la Montería - Antesala del Poder Real"
+          "title": "Patio de la Montería"
         },
         {
           "step": 2,
           "location": "Palacio de Rey Don Pedro",
-          "title": "Palacio de Rey Don Pedro - Síntesis Arquitectónica Hispano-Islámica"
+          "title": "Palacio de Rey Don Pedro"
         },
         {
           "step": 3,
           "location": "Patio de las Muñecas",
-          "title": "Patio de las Muñecas - Intimidad y Refinamiento Palaciego"
+          "title": "Patio de las Muñecas"
         },
         {
           "step": 4,
           "location": "Salón de Embajadores",
-          "title": "Salón de Embajadores - Cúpula de Media Naranja y Diplomacia Real"
+          "title": "Salón de Embajadores"
         },
         {
           "step": 5,
           "location": "Jardines del Alcázar",
-          "title": "Jardines del Alcázar - Evolución de la Jardinería Hispano-Musulmana"
+          "title": "Jardines del Alcázar"
         }
       ]
     },
@@ -497,7 +497,7 @@ export const SPANISH_AUDIO_GUIDE_EXAMPLE = {
       "chapters": [
         {
           "id": 0,
-          "title": "🎯 Optimización Google Places API: Escribir SOLO el nombre específico de instalación para turismo de ${locationName} (SIN descripciones)\n\n✅ Ejemplos Correctos:\n- Puerta del León Taquilla\n- Estación Metro Trocadéro\n- Terminal de Autobuses 5ta Estación\n- Sagrada Familia Entrada Principal\n- Museo Prado Puerta Jerónimos\n\n❌ Ejemplos Incorrectos:\n- Puerta del León Taquilla: Real Alcázar Punto de Partida\n- Estación Metro Trocadéro: Torre Eiffel Inicio de Visita\n\n✅ Esencial: Solo nombres de instalaciones buscables en Google Maps",
+          "title": "Patio de la Montería",
           "sceneDescription": "El Patio de la Montería se extiende ante nosotros como un perfecto compendio de la arquitectura palatina sevillana. Sus 50 metros de longitud por 30 de anchura están delimitados por galerías de arcos polilobulados sostenidos sobre columnas de mármol de Macael, cada una con capiteles califales reutilizados del siglo X. La fachada del Palacio de Rey Don Pedro domina el espacio oriental con su inscripción cúfica que proclama 'No hay vencedor sino Alá', mientras que la galería occidental exhibe escudos heráldicos castellano-leoneses datados en 1364. Los pavimentos de ladrillo toledano dispuestos en espiga contrastan con los zócalos de azulejos trianeros del siglo XVI. Esta configuración espacial responde a una lógica específica que podemos comprender analizando la evolución de los espacios de representación en la corte bajomedieval castellana.",
           "coreNarrative": "La génesis de este espacio se remonta a 1364, cuando Pedro I de Castilla ordenó la construcción de un palacio que superara en magnificencia a los alcázares nazaríes de Granada. El rey, conocido como 'el Cruel' por sus enemigos y 'el Justiciero' por sus partidarios, había establecido alianzas estratégicas con Muhammad V de Granada, lo que le proporcionó acceso directo a los mejores artesanos mudéjares de Al-Andalus. Los maestros constructores, dirigidos por el alarife toledano Yusuf, implementaron un programa decorativo que fusionaba elementos almorávides, almohades y nazaríes con heráldica castellana. La inscripción árabe que corona la portada no constituye un anacronismo religioso, sino una sofisticada declaración política: Pedro I se presentaba como legítimo heredero de la tradición califal andalusí, legitimando así su dominio sobre territorios reconquistados. Esta estrategia de apropiación simbólica se materializó en detalles constructivos específicos: el uso de técnicas de lacería octogonal, la incorporación de muqarnas en cornisas, y la aplicación de yeserías con motivos vegetales estilizados. Estos principios se materializaron gracias a individuos extraordinarios cuyas decisiones fueron determinantes en la configuración de este espacio único.",
           "humanStories": "Detrás de esta realización arquitectónica se encuentra la figura del alarife Yusuf, maestro constructor mudéjar cuyo nombre aparece documentado en los registros de pagos de la cancillería real entre 1364 y 1366. Yusuf había trabajado previamente en las obras del Alcázar toledano y poseía conocimientos especializados en técnicas constructivas granadinas, adquiridos durante su estancia en la Alhambra como parte de los intercambios artísticos entre Pedro I y Muhammad V. Los documentos del Archivo de la Corona de Castilla registran el pago de 15.000 maravedíes anuales a Yusuf, una suma equivalente al salario de tres maestros canteros cristianos, lo que evidencia el valor excepcional atribuido a su expertise técnico. Su mayor innovación consistió en adaptar las proporciones de los patios nazaríes al protocolo ceremonial castellano: mientras que los patios granadinos privilegiaban la contemplación mística, Yusuf diseñó este espacio para acoger las ceremonias de vasallaje y las audiencias diplomáticas. La tradición oral conservada por los maestros albañiles sevillanos atribuye a Yusuf la fórmula matemática que gobierna las proporciones del patio: una relación 5:3 que optimiza la acústica para discursos públicos y permite que un orador situado en el centro sea escuchado claramente desde cualquier punto de las galerías. Esta síntesis de sensibilidad estética islámica y funcionalidad política cristiana convirtió a Yusuf en el arquitecto de la primera manifestación arquitectónica del mudéjar sevillano.",
@@ -510,7 +510,7 @@ export const SPANISH_AUDIO_GUIDE_EXAMPLE = {
         },
         {
           "id": 1,
-          "title": "Palacio de Rey Don Pedro - Síntesis Arquitectónica Hispano-Islámica",
+          "title": "Palacio de Rey Don Pedro",
           "sceneDescription": "Penetramos en el vestíbulo del Palacio de Rey Don Pedro, donde la transformación sensorial es inmediata y radical. El techo artesonado de par y nudillo, ejecutado en madera de cedro del Atlas a 8 metros de altura, crea una caja de resonancia que amplifica sutilmente cada sonido. Las paredes, revestidas hasta 2.3 metros con alicatados geométricos en verde de óxido de cobre y blanco de estaño, reflejan la luz natural que penetra por las celosías superiores creando patrones lumínicos cambiantes. El pavimento de ladrillo refractario toledano, dispuesto en aparejo de sogas, data de la construcción original de 1364 y conserva las huellas de desgaste de 650 años de protocolo palatino. Cada elemento constructivo revela la aplicación sistemática de un código estético que trasciende las fronteras religiosas y culturales. Para comprender verdaderamente este espacio, necesitamos examinar el contexto histórico que dio origen a esta síntesis arquitectónica sin precedentes en la Europa medieval.",
           "coreNarrative": "El Palacio de Rey Don Pedro representa la materialización arquitectónica de una estrategia política revolucionaria: la legitimación del poder cristiano a través de la apropiación de códigos estéticos islámicos. Entre 1364 y 1366, Pedro I implementó un programa constructivo que requirió la movilización de 250 artesanos especializados, incluyendo 80 maestros mudéjares procedentes de Toledo, Granada y Córdoba. La documentación conservada en el Archivo General de Simancas especifica el empleo de materiales selectos: mármol rosa de Cabra para columnas, yeso de Morón para yeserías, y madera de alerce alpujarreño para artesonados. La innovación técnica más significativa consistió en la adaptación de la modulación decorativa islámica a las necesidades funcionales de la corte castellana. Los maestros constructores desarrollaron un sistema de proporciones basado en el codo real castellano (0.557 metros) que permitía integrar elementos decorativos islámicos con mobiliario y ceremonial cristiano. El resultado es un espacio híbrido donde la geometría sagrada islámica sirve a la liturgia del poder monárquico cristiano. Las inscripciones árabes que recorren las cornisas no constituyen meros elementos ornamentales, sino declaraciones ideológicas precisas: frases como 'la gloria pertenece a nuestro señor Don Pedro' demuestran la consciente islamización simbólica de la realeza castellana. Esta hibridación cultural se personifica en figuras históricas cuyas biografías iluminan el proceso de encuentro entre civilizaciones.",
           "humanStories": "La dimensión humana de esta síntesis se comprende mejor a través de la figura de Muhammad al-Rundi, poeta y diplomático granadino que residió en el Alcázar sevillano entre 1365 y 1367 como embajador permanente de Muhammad V ante la corte de Pedro I. Al-Rundi, formado en la Universidad de Córdoba y versado en jurisprudencia malikí y filosofía averroísta, mantuvo una correspondencia regular con intelectuales de Fez, Túnez y El Cairo, documentando en sus cartas el proceso de construcción del palacio. Sus escritos, conservados en la Biblioteca Real de Rabat, describen las sesiones de trabajo entre maestros musulmanes y cristianos, mediadas por traductores especializados en terminología arquitectónica. Al-Rundi relata cómo el maestro cantero toledano García Fernández aprendió las técnicas de tallado de ataurique de manos del granadino Ibrahim al-Sahili, mientras que este último incorporó conocimientos de estereotomía gótica en sus diseños de arcos. La correspondencia revela también las tensiones ideológicas del proceso: al-Rundi expresa su perplejidad ante la decisión de Pedro I de incluir inscripciones coránicas en un palacio cristiano, interpretándola como una estrategia de prestigio orientalizante dirigida a impresionar a embajadores europeos. La síntesis arquitectónica del Alcázar emerge así no como producto de una fusión armónica, sino como resultado de negociaciones culturales complejas mediadas por individuos capaces de transcender las fronteras confesionales de su época.",
@@ -841,7 +841,7 @@ Devolver solo JSON puro. Sin bloques de código o explicaciones, solo JSON.
     },
     "route": {
       "steps": [
-        { "step": 1, "location": "[Instalación Real Existente] [Ubicación Específica]", "title": "[Instalación Real]: ${locationName} Punto de Partida Turístico" },
+        { "step": 1, "location": "[Instalación Real Existente] [Ubicación Específica]", "title": "[Instalación Real] ${locationName} Punto de Partida" },
         { "step": 2, "location": "Punto Principal 1", "title": "Título del Punto 2" },
         { "step": 3, "location": "Punto Principal 2", "title": "Título del Punto 3" }
         // ... número apropiado de puntos para características de ubicación
