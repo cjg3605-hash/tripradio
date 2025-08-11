@@ -351,6 +351,16 @@ export const ENGLISH_AUDIO_GUIDE_EXAMPLE = {
           "step": 2, 
           "location": "Westminster Abbey Nave",
           "title": "Westminster Abbey Nave"
+        },
+        {
+          "step": 3,
+          "location": "Westminster Abbey Coronation Chair",
+          "title": "Westminster Abbey Coronation Chair"
+        },
+        {
+          "step": 4,
+          "location": "Westminster Abbey Poets Corner",
+          "title": "Westminster Abbey Poets Corner"
         }
       ]
     },
@@ -359,10 +369,26 @@ export const ENGLISH_AUDIO_GUIDE_EXAMPLE = {
         {
           "id": 0,
           "title": "Westminster Abbey Great West Door",
-          "sceneDescription": "Westminster Abbey stands as the spiritual heart of the British monarchy, where for nearly a thousand years, the destiny of a nation has been shaped within these sacred walls. Founded in 960 AD by Benedictine monks, this Gothic masterpiece has witnessed the coronation of 39 monarchs, from William the Conqueror to King Charles III. The abbey serves not just as a church, but as the nation's memory bank, housing over 3,000 graves and memorials including 17 monarchs, famous poets, scientists, and statesmen. Standing before the Great West Door, visitors encounter towering twin towers that reach 69 meters skyward, framed by Henry VII's Chapel to the east and the medieval Chapter House to the south. The optimal visiting route moves from west to east, beginning at this ceremonial entrance, proceeding through the nave to witness the Coronation Chair, exploring Poets' Corner where literary giants rest, and culminating at the High Altar where coronations take place. What makes this threshold particularly remarkable is its role as the boundary between the secular and sacred worlds of British society.",
-          "coreNarrative": "This magnificent doorway has witnessed history's most pivotal moments. According to historical records, every monarch since 1066 has processed through these doors for their coronation, creating an unbroken chain of royal tradition spanning nearly a millennium. The Great West Door itself was constructed in 1245 during Henry III's reign as part of his ambitious rebuilding project that created the Gothic structure visitors see today. What makes this entrance architecturally significant is its innovative Gothic design - the pointed arches distribute weight more efficiently than Norman rounded arches, allowing for the soaring heights that characterize the abbey's interior. The intricate stone tracery and rose window above demonstrate the mathematical precision of medieval craftsmen who worked without modern tools yet achieved structural perfection. But the most compelling story connected to this entrance involves a moment of profound personal significance.",
-          "humanStories": "During the 1953 coronation of Queen Elizabeth II, a touching moment occurred at this very threshold. According to the Dean's diary, the 27-year-old princess arrived an hour before the ceremony and requested to spend time alone in prayer. She knelt quietly before these doors, overwhelmed by the weight of responsibility she was about to assume. The Archbishop of Canterbury later recalled finding her still there at dawn, having spent the entire night in contemplation. This moment of vulnerability and devotion before taking on the crown exemplified the deeply personal nature of royal duty that this sacred space has witnessed for nearly a thousand years.",
-          "nextDirection": "Pass through the Great West Door and walk straight ahead for 30 meters into the Nave. Notice the soaring vaulted ceiling above as you enter the heart of the abbey where coronations take place.",
+          "narrative": "Westminster Abbey stands as the spiritual heart of British monarchy, where for nearly a thousand years, the destiny of a nation has been shaped within these sacred walls. Founded in 960 AD by Benedictine monks, this Gothic masterpiece has witnessed the coronation of 39 monarchs, from William the Conqueror to King Charles III. The Great West Door serves as the ceremonial entrance where every monarch has processed for their coronation since 1066.",
+          "nextDirection": "Pass through the Great West Door and walk straight ahead for 30 meters into the Nave."
+        },
+        {
+          "id": 1,
+          "title": "Westminster Abbey Nave",
+          "narrative": "The Nave stretches 102 meters in length and soars to 31 meters in height, making it the tallest Gothic nave in England. This magnificent space has witnessed countless royal ceremonies, state funerals, and coronations. The pointed arches and ribbed vaulting demonstrate the architectural mastery of medieval craftsmen who built this structure without modern engineering tools.",
+          "nextDirection": "Continue east toward the altar area where you'll find the historic Coronation Chair."
+        },
+        {
+          "id": 2,
+          "title": "Westminster Abbey Coronation Chair",
+          "narrative": "The Coronation Chair, crafted in 1300-1301 by Master Walter of Durham, has been used in every coronation ceremony for over 700 years. Originally housing the Stone of Scone beneath its seat, this oak chair represents the continuity of British monarchy. The chair bears the scratches and graffiti of Westminster schoolboys and visitors from centuries past.",
+          "nextDirection": "Head south from here to explore Poets' Corner, where literary giants rest."
+        },
+        {
+          "id": 3,
+          "title": "Westminster Abbey Poets Corner",
+          "narrative": "Poets' Corner houses the remains and memorials of Britain's greatest writers, including Geoffrey Chaucer, Charles Dickens, and Rudyard Kipling. This section began organically when Chaucer was buried here in 1400, and it has since become the most prestigious literary burial ground in the English-speaking world. The memorials represent over 600 years of English literary achievement.",
+          "nextDirection": "This concludes our tour of Westminster Abbey's most significant highlights."
         }
       ]
     }

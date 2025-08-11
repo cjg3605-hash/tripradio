@@ -545,13 +545,15 @@ If you cannot find exact coordinates, respond with "Coordinates not found".
     if (foundCoordinates && guideData.realTimeGuide?.chapters) {
       console.log(`📍 모든 챕터에 정확한 좌표 적용: ${foundCoordinates.lat}, ${foundCoordinates.lng}`);
       
-      // 모든 챕터에 동일한 정확한 좌표 적용
+      // 모든 챕터에 동일한 정확한 좌표 적용 (약간의 오프셋으로 구분)
       guideData.realTimeGuide.chapters.forEach((chapter: any, index: number) => {
+        const offset = index * 0.0005; // 챕터별 약간의 오프셋 (약 50미터)
         chapter.coordinates = {
-          lat: foundCoordinates.lat,
-          lng: foundCoordinates.lng
+          lat: foundCoordinates.lat + offset,
+          lng: foundCoordinates.lng + offset,
+          description: chapter.title || `챕터 ${index + 1}`
         };
-        console.log(`  챕터 ${index + 1}: 좌표 설정 완료`);
+        console.log(`  챕터 ${index + 1}: 좌표 설정 완료 (${chapter.coordinates.lat}, ${chapter.coordinates.lng})`);
       });
       
       console.log(`✅ ${guideData.realTimeGuide.chapters.length}개 챕터 좌표 적용 완료`);
