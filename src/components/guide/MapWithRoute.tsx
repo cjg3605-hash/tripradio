@@ -544,8 +544,21 @@ export default function MapWithRoute({
     const centerLng = validChapters.reduce((sum, chapter) => sum + chapter.lng!, 0) / validChapters.length;
     mapCenter = [centerLat, centerLng];
   } else {
-    // 기본값
-    mapCenter = [37.5665, 126.9780];
+    // 기본값 - center prop가 있으면 우선 사용, 없으면 null 반환하여 지도를 렌더링하지 않음
+    if (center && center.lat && center.lng) {
+      mapCenter = [center.lat, center.lng];
+    } else {
+      // 유효한 중심점이 없으면 지도를 렌더링하지 않음
+      return (
+        <div className="w-full h-64 bg-gray-100 flex items-center justify-center rounded-lg">
+          <div className="text-center text-gray-500">
+            <div className="text-lg mb-2">📍</div>
+            <div>위치 정보를 불러오는 중...</div>
+            <div className="text-sm mt-1">정확한 좌표를 확인하고 있습니다</div>
+          </div>
+        </div>
+      );
+    }
   }
 
   // 활성 챕터의 좌표 (지도 이동용)

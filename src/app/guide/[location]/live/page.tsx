@@ -61,7 +61,7 @@ const LiveTourPage: React.FC = () => {
   });
   
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: 37.5665, lng: 126.9780 }); // Default to Seoul
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null); // POI 로딩 후 설정됨
   const [currentChapter, setCurrentChapter] = useState<number>(0);
   const [showAudioPlayer, setShowAudioPlayer] = useState(true);
   const [showMap, setShowMap] = useState(true);
@@ -734,31 +734,41 @@ const LiveTourPage: React.FC = () => {
             </div>
             
             <div className="h-64 bg-white border border-gray-100 rounded-lg overflow-hidden">
-              <MapWithRoute
-                pois={poisWithChapters
-                  .filter((poi, index) => index === 0) // 🎯 인트로 POI만 표시 (첫 번째만)
-                  .map(poi => ({
-                    id: poi.id,
-                    name: poi.name,
-                    lat: poi.lat,
-                    lng: poi.lng,
-                    description: poi.description || ''
-                  }))}
-                currentLocation={currentLocation}
-                center={mapCenter}
-                zoom={16} // 더 확대된 뷰
-                showRoute={false} // 루트 표시 안 함
-                showUserLocation={true}
-                onPoiClick={(poiId) => {
-                  const poiIndex = poisWithChapters.findIndex(poi => poi.id === poiId);
-                  if (poiIndex !== -1) {
-                    setCurrentChapter(poiIndex);
-                  }
-                }}
-                className="w-full h-full"
-                locationName={locationName}
-                guideCoordinates={undefined} // live 페이지에서는 POI 데이터 사용
-              />
+              {mapCenter && poisWithChapters.length > 0 ? (
+                <MapWithRoute
+                  pois={poisWithChapters
+                    .filter((poi, index) => index === 0) // 🎯 인트로 POI만 표시 (첫 번째만)
+                    .map(poi => ({
+                      id: poi.id,
+                      name: poi.name,
+                      lat: poi.lat,
+                      lng: poi.lng,
+                      description: poi.description || ''
+                    }))}
+                  currentLocation={currentLocation}
+                  center={mapCenter}
+                  zoom={16} // 더 확대된 뷰
+                  showRoute={false} // 루트 표시 안 함
+                  showUserLocation={true}
+                  onPoiClick={(poiId) => {
+                    const poiIndex = poisWithChapters.findIndex(poi => poi.id === poiId);
+                    if (poiIndex !== -1) {
+                      setCurrentChapter(poiIndex);
+                    }
+                  }}
+                  className="w-full h-full"
+                  locationName={locationName}
+                  guideCoordinates={undefined} // live 페이지에서는 POI 데이터 사용
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-50">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-3"></div>
+                    <div className="text-gray-600 font-medium">지도 준비 중...</div>
+                    <div className="text-gray-500 text-sm mt-1">정확한 위치를 확인하고 있습니다</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
