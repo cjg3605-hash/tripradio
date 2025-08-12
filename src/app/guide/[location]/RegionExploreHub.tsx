@@ -111,7 +111,10 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
             bestTime: overview.visitInfo?.season || overview.visitInfo?.duration || '',
             timeZone: overview.visitInfo?.timeZone || ''
           },
-          coordinates: realTimeGuide.chapters?.[0]?.coordinates || null
+          coordinates: content?.coordinates?.[0] ? {
+            lat: parseFloat(content.coordinates[0].lat),
+            lng: parseFloat(content.coordinates[0].lng)
+          } : (realTimeGuide.chapters?.[0]?.coordinates || null)
         };
         
         setRegionData(actualRegionData);
@@ -127,9 +130,22 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
             
             if (!placeName) return null;
             
-            // ✅ 좌표는 realTimeGuide.chapters에서 매칭해서 가져오기
+            // 🎯 좌표는 coordinates 칼럼에서 우선 가져오기
             let coordinates: { lat: number; lng: number; } | null = null;
-            if (realTimeGuide.chapters && Array.isArray(realTimeGuide.chapters)) {
+            
+            // 먼저 coordinates 칼럼에서 찾기
+            if (content?.coordinates && Array.isArray(content.coordinates)) {
+              const coordItem = content.coordinates[index];
+              if (coordItem?.lat && coordItem?.lng) {
+                coordinates = {
+                  lat: parseFloat(coordItem.lat),
+                  lng: parseFloat(coordItem.lng)
+                };
+              }
+            }
+            
+            // Fallback: realTimeGuide.chapters에서 매칭해서 가져오기
+            if (!coordinates && realTimeGuide.chapters && Array.isArray(realTimeGuide.chapters)) {
               const matchingChapter = realTimeGuide.chapters.find((chapter: any) => chapter.id === index);
               if (matchingChapter?.coordinates?.lat && matchingChapter?.coordinates?.lng) {
                 coordinates = {

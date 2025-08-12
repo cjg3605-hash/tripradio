@@ -222,45 +222,84 @@ const LiveTourPage: React.FC = () => {
         console.log('📍 원본 좌표로 계속 진행');
       }
 
-      // POI 생성
-      chapters.forEach((chapter: any, index: number) => {
-        // 좌표 추출
-        let lat: number | undefined, lng: number | undefined;
-        
-        if (chapter.coordinates?.lat && chapter.coordinates?.lng) {
-          lat = parseFloat(chapter.coordinates.lat);
-          lng = parseFloat(chapter.coordinates.lng);
-        } else if (chapter.lat && chapter.lng) {
-          lat = parseFloat(chapter.lat);
-          lng = parseFloat(chapter.lng);
-        }
+      // 🎯 좌표는 coordinates 칼럼에서 직접 가져오기
+      const coordinatesFromDB = guideData.coordinates || [];
+      console.log(`📍 DB coordinates 칼럼에서 ${coordinatesFromDB.length}개 좌표 발견`);
 
-        // 유효한 좌표가 있는 경우 POI 생성
-        if (lat && lng && !isNaN(lat) && !isNaN(lng) &&
-            lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-          // POI 생성
-          const poi: POI = {
-            id: `poi_${index}`,
-            name: chapter.title || `스팟 ${index + 1}`,
-            lat,
-            lng,
-            radius: 50, // 오디오 가이드 반경 50m
-            description: chapter.narrative || chapter.description || '',
-            audioChapter: chapter.audioUrl ? {
-              id: index,
-              title: chapter.title || `챕터 ${index + 1}`,
-              audioUrl: chapter.audioUrl,
-              duration: chapter.duration || 120,
-              text: chapter.narrative || chapter.description || chapter.title || ''
-            } : undefined
-          };
+      // POI 생성 - coordinates 칼럼 우선 사용
+      if (coordinatesFromDB.length > 0) {
+        coordinatesFromDB.forEach((coordItem: any, index: number) => {
+          const lat = parseFloat(coordItem.lat);
+          const lng = parseFloat(coordItem.lng);
+
+          // 유효한 좌표가 있는 경우 POI 생성
+          if (!isNaN(lat) && !isNaN(lng) &&
+              lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+            // POI 생성
+            const poi: POI = {
+              id: `poi_${index}`,
+              name: coordItem.title || `스팟 ${index + 1}`,
+              lat,
+              lng,
+              radius: 50, // 오디오 가이드 반경 50m
+              description: coordItem.description || coordItem.title || '',
+              audioChapter: coordItem.audioUrl ? {
+                id: index,
+                title: coordItem.title || `챕터 ${index + 1}`,
+                audioUrl: coordItem.audioUrl,
+                duration: coordItem.duration || 120,
+                text: coordItem.description || coordItem.title || ''
+              } : undefined
+            };
+            
+            pois.push(poi);
+            console.log(`✅ POI 생성: ${coordItem.title || `챕터 ${index + 1}`} (${lat}, ${lng})`);
+          } else {
+            console.warn(`⚠️ 좌표 ${index + 1} 무효:`, { title: coordItem.title, lat, lng });
+          }
+        });
+      } else {
+        // Fallback: content 칼럼의 chapters에서 좌표 추출
+        console.log('📍 coordinates 칼럼이 비어있음, content의 chapters에서 좌표 추출 시도');
+        chapters.forEach((chapter: any, index: number) => {
+          // 좌표 추출
+          let lat: number | undefined, lng: number | undefined;
           
-          pois.push(poi);
-          console.log(`✅ POI 생성: ${chapter.title || `챕터 ${index + 1}`} (${lat}, ${lng})`);
-        } else {
-          console.warn(`⚠️ 챕터 ${index + 1} 좌표 무효:`, { title: chapter.title, lat, lng });
-        }
-      });
+          if (chapter.coordinates?.lat && chapter.coordinates?.lng) {
+            lat = parseFloat(chapter.coordinates.lat);
+            lng = parseFloat(chapter.coordinates.lng);
+          } else if (chapter.lat && chapter.lng) {
+            lat = parseFloat(chapter.lat);
+            lng = parseFloat(chapter.lng);
+          }
+
+          // 유효한 좌표가 있는 경우 POI 생성
+          if (lat && lng && !isNaN(lat) && !isNaN(lng) &&
+              lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+            // POI 생성
+            const poi: POI = {
+              id: `poi_${index}`,
+              name: chapter.title || `스팟 ${index + 1}`,
+              lat,
+              lng,
+              radius: 50, // 오디오 가이드 반경 50m
+              description: chapter.narrative || chapter.description || '',
+              audioChapter: chapter.audioUrl ? {
+                id: index,
+                title: chapter.title || `챕터 ${index + 1}`,
+                audioUrl: chapter.audioUrl,
+                duration: chapter.duration || 120,
+                text: chapter.narrative || chapter.description || chapter.title || ''
+              } : undefined
+            };
+            
+            pois.push(poi);
+            console.log(`✅ POI 생성 (fallback): ${chapter.title || `챕터 ${index + 1}`} (${lat}, ${lng})`);
+          } else {
+            console.warn(`⚠️ 챕터 ${index + 1} 좌표 무효:`, { title: chapter.title, lat, lng });
+          }
+        });
+      }
 
       if (pois.length > 0) {
         console.log(`✅ ${pois.length}개 유효한 POI 생성 완료`);
@@ -384,6 +423,28 @@ const LiveTourPage: React.FC = () => {
     router.push('/');
   };
 
+  // 좌표 정보 추출 함수
+  const extractCoordinatesInfo = () => {
+    const coordinates = [];
+    
+    poisWithChapters.forEach((poi, index) => {
+      if (poi.lat && poi.lng) {
+        coordinates.push({
+          index: index + 1,
+          name: poi.name,
+          lat: poi.lat,
+          lng: poi.lng,
+          description: poi.description || '',
+          isStartPoint: index === 0
+        });
+      }
+    });
+    
+    return coordinates;
+  };
+
+  const coordinatesInfo = extractCoordinatesInfo();
+
   return (
     <div className="min-h-screen bg-white">{/* 내부 헤더 삭제됨 */}
 
@@ -458,6 +519,25 @@ const LiveTourPage: React.FC = () => {
                     </div>
                     <p className="text-sm text-gray-600">{poi.description}</p>
                     
+                    {/* 좌표 정보 표시 */}
+                    <div className="mt-2 p-2 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <MapPin className="w-3 h-3" />
+                        <span className="font-mono">
+                          위도: {poi.lat.toFixed(6)}, 경도: {poi.lng.toFixed(6)}
+                        </span>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(`${poi.lat}, ${poi.lng}`);
+                            alert('좌표가 클립보드에 복사되었습니다!');
+                          }}
+                          className="ml-auto text-blue-600 hover:text-blue-800 text-xs underline"
+                        >
+                          복사
+                        </button>
+                      </div>
+                    </div>
+                    
                     {/* 인트로가 아닌 경우 방향 안내 강조 */}
                     {index > 0 && poi.audioChapter?.text && (
                       <div className="mt-2 p-2 bg-yellow-50 border-l-4 border-yellow-400 rounded">
@@ -495,6 +575,76 @@ const LiveTourPage: React.FC = () => {
                 )}
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* 좌표 정보 요약 */}
+        <div className="border-b border-gray-100 pb-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+            <MapPin className="w-5 h-5" />
+            좌표 정보 요약
+          </h2>
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="grid gap-3">
+              {coordinatesInfo.map((coord, index) => (
+                <div key={index} className="flex items-center justify-between p-3 bg-white rounded-lg border">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 ${coord.isStartPoint ? 'bg-blue-600' : 'bg-gray-600'} text-white text-sm rounded-full flex items-center justify-center`}>
+                      {coord.isStartPoint ? '🎯' : coord.index}
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-gray-900">
+                        {coord.name}
+                        {coord.isStartPoint && (
+                          <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                            시작지점
+                          </span>
+                        )}
+                      </h3>
+                      <p className="text-sm font-mono text-gray-600">
+                        {coord.lat.toFixed(6)}, {coord.lng.toFixed(6)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${coord.lat}, ${coord.lng}`);
+                        alert('좌표가 클립보드에 복사되었습니다!');
+                      }}
+                      className="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors"
+                    >
+                      복사
+                    </button>
+                    <button
+                      onClick={() => {
+                        const googleMapsUrl = `https://maps.google.com/?q=${coord.lat},${coord.lng}`;
+                        window.open(googleMapsUrl, '_blank');
+                      }}
+                      className="text-xs bg-green-100 text-green-800 px-3 py-1 rounded-full hover:bg-green-200 transition-colors"
+                    >
+                      지도보기
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* 전체 좌표 복사 버튼 */}
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  const allCoords = coordinatesInfo.map(coord => 
+                    `${coord.name}: ${coord.lat.toFixed(6)}, ${coord.lng.toFixed(6)}`
+                  ).join('\n');
+                  navigator.clipboard.writeText(allCoords);
+                  alert('모든 좌표가 클립보드에 복사되었습니다!');
+                }}
+                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-4 rounded-lg transition-colors text-sm font-medium"
+              >
+                📋 전체 좌표 복사
+              </button>
+            </div>
           </div>
         </div>
 
@@ -682,7 +832,7 @@ const LiveTourPage: React.FC = () => {
         <div>currentScrollY: {currentScrollY}</div>
         <div>scrollY &gt; 300: {(currentScrollY > 300).toString()}</div>
         <div>Buttons should show: {showScrollButtons ? 'YES' : 'NO'}</div>
-        <div>Page height: {typeof window !== 'undefined' && document ? document.body.scrollHeight : 'N/A'}</div>
+        <div>Page height: N/A</div>
       </div>
     </div>
   );

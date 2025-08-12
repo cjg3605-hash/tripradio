@@ -266,31 +266,73 @@ export default function MapWithRoute({
   const [showMyLocation, setShowMyLocation] = useState(false);
 
   // 🔥 React Hook 규칙 준수: 모든 훅을 조건부 return 전에 호출
-  // 🔥 안정적인 키 생성 - 컴포넌트 생명주기 동안 유지
-  const stableMapKey = useMemo(() => {
-    return `map-${locationName}-${currentLanguage}-${Math.random()}`;
+  // 🔥 안정적인 키 생성 (Math.random 제거하여 예측 가능하게)
+  const mapId = useMemo(() => {
+    const timestamp = Date.now();
+    const hash = `${locationName || 'default'}-${currentLanguage || 'en'}-${timestamp}`;
+    return hash.replace(/[^a-zA-Z0-9-]/g, '-');
   }, [locationName, currentLanguage]);
+  
+  const stableMapKey = useMemo(() => {
+    const contentHash = `${chapters?.length || 0}-${pois?.length || 0}-${activeChapter || 0}`;
+    return `map-${mapId}-${contentHash}`;
+  }, [mapId, chapters?.length, pois?.length, activeChapter]);
 
   // 🔥 DOM 컨테이너 참조
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
 
-  // 🔥 컴포넌트 언마운트 시 Leaflet 정리
+  // 🔥 강력한 지도 정리 함수 (개선된 버전)
+  const cleanupMap = useCallback(() => {
+    try {
+      // 지도 인스턴스 정리
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+      
+      // DOM 컨테이너 정리 
+      if (mapContainerRef.current) {
+        const container = mapContainerRef.current;
+        
+        // 모든 하위 요소 제거
+        while (container.firstChild) {
+          container.removeChild(container.firstChild);
+        }
+        
+        // Leaflet 관련 속성 정리
+        delete (container as any)._leaflet_id;
+        delete (container as any)._leaflet;
+        delete (container as any)._leaflet_pos;
+        
+        // 클래스와 스타일 초기화
+        container.className = container.className.replace(/leaflet-[^\s]*/g, '');
+        container.style.cssText = 'width: 100%; height: 100%;';
+      }
+    } catch (error) {
+      console.warn('지도 정리 중 오류:', error);
+    }
+  }, []);
+
+  // 🔥 Strict Mode 대응: 초기화 상태 추적
+  const isInitializedRef = useRef(false);
+  const containerIdRef = useRef(`map-container-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
+
+  // 🔥 컴포넌트 마운트/언마운트 시 정리
   useEffect(() => {
-    // ref 값을 변수에 저장하여 정리 함수에서 안전하게 사용
-    const containerRef = mapContainerRef.current;
+    // Strict Mode에서 두 번째 마운트인 경우 무시
+    if (isInitializedRef.current) {
+      return;
+    }
+    
+    isInitializedRef.current = true;
     
     return () => {
-      // 저장된 참조를 사용하여 정리
-      if (containerRef && (containerRef as any)._leaflet_id) {
-        try {
-          // Leaflet 지도 인스턴스 제거
-          delete (containerRef as any)._leaflet_id;
-        } catch (error) {
-          console.warn('지도 정리 중 오류:', error);
-        }
-      }
+      // 언마운트 시에만 정리
+      cleanupMap();
+      isInitializedRef.current = false;
     };
-  }, []);
+  }, [cleanupMap]); // cleanupMap 의존성 추가
 
   // 언어에 따른 Google Maps 타일 URL 생성
   const getGoogleMapsUrl = (language: string) => {
@@ -411,12 +453,25 @@ export default function MapWithRoute({
       return (
         <div className="w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
           <MapContainer 
-            key={`default-map-${currentLanguage}`}
+            key={`default-map-${containerIdRef.current}`}
             center={[center.lat, center.lng]}
             zoom={customZoom || 15}
             className="w-full h-full"
             scrollWheelZoom={true}
             zoomControl={true}
+            style={{ width: '100%', height: '100%' }}
+            whenCreated={(mapInstance) => {
+              try {
+                // 기존 인스턴스가 있다면 정리
+                if (mapInstanceRef.current) {
+                  mapInstanceRef.current.remove();
+                }
+                mapInstanceRef.current = mapInstance;
+                console.log('🗺️ 지도 인스턴스 생성 완료:', mapId);
+              } catch (error) {
+                console.warn('지도 인스턴스 설정 중 오류:', error);
+              }
+            }}
           >
             {/* 🌍 Google Maps 스타일 타일 (언어별 동적 로딩) */}
             <TileLayer
@@ -527,6 +582,8 @@ export default function MapWithRoute({
   return (
     <div 
       ref={mapContainerRef}
+      id={containerIdRef.current}
+      key={containerIdRef.current}
       className="relative w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white"
     >
       <MapContainer 
@@ -537,6 +594,19 @@ export default function MapWithRoute({
         scrollWheelZoom={true}
         zoomControl={true}
         attributionControl={false}
+        style={{ width: '100%', height: '100%' }}
+        whenCreated={(mapInstance) => {
+          try {
+            // 기존 인스턴스가 있다면 정리
+            if (mapInstanceRef.current) {
+              mapInstanceRef.current.remove();
+            }
+            mapInstanceRef.current = mapInstance;
+            console.log('🗺️ 메인 지도 인스턴스 생성 완료:', stableMapKey);
+          } catch (error) {
+            console.warn('메인 지도 인스턴스 설정 중 오류:', error);
+          }
+        }}
       >
         {/* 🌍 Google Maps 스타일 (언어별 동적 로딩) */}
         <TileLayer
