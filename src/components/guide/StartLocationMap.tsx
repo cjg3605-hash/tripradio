@@ -24,6 +24,7 @@ interface StartLocationMapProps {
   chapters?: Array<{ id: number; title: string; lat: number; lng: number; narrative?: string; originalIndex: number }>;
   pois: Array<{ id: string; name: string; lat: number; lng: number; description: string }>;
   className?: string;
+  guideCoordinates?: any; // Supabase coordinates 컬럼 데이터
 }
 
 const StartLocationMap: React.FC<StartLocationMapProps> = ({
@@ -31,7 +32,8 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
   startPoint,
   chapters = [],
   pois,
-  className = ''
+  className = '',
+  guideCoordinates
 }) => {
   const { t } = useLanguage();
   
@@ -80,6 +82,7 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
           }}
           className="w-full h-full"
           locationName={locationName}
+          guideCoordinates={guideCoordinates}
         />
       </div>
     </div>

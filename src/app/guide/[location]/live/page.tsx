@@ -607,6 +607,7 @@ const LiveTourPage: React.FC = () => {
                 }}
                 className="w-full h-full"
                 locationName={locationName}
+                guideCoordinates={undefined} // live 페이지에서는 POI 데이터 사용
               />
             </div>
           </div>

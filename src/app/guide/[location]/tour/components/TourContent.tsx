@@ -38,9 +38,10 @@ interface TourContentProps {
   guide: GuideData;
   language: string;
   chapterRefs?: MutableRefObject<(HTMLElement | null)[]>;
+  guideCoordinates?: any; // Supabase coordinates 컬럼 데이터
 }
 
-const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
+const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourContentProps) => {
   const { currentLanguage, t } = useLanguage();
   const router = useRouter();
   const { data: session } = useSession();
@@ -703,6 +704,7 @@ const TourContent = ({ guide, language, chapterRefs }: TourContentProps) => {
                       chapters={chaptersForMap} // 🔥 실제 챕터 데이터 전달
                       pois={[]} // POI는 비워둠 (챕터 우선)
                       className="w-full"
+                      guideCoordinates={guideCoordinates}
                     />
                   );
                 })()}

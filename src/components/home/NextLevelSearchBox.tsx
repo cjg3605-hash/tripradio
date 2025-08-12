@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
+// import { enhancedLocationSearch, SearchCandidate, SearchFilters } from '@/lib/search/enhanced-search-system';
 
+// 기존 Suggestion 인터페이스 유지 (하위 호환성)
 interface Suggestion {
   id?: string;
   name: string;
@@ -183,6 +185,7 @@ export default function NextLevelSearchBox() {
       setSelectedIndex(-1);
     }, 200); // 충분한 시간을 주어 클릭 이벤트가 먼저 처리되도록 함
   };
+
 
   return (
     <>

@@ -153,7 +153,7 @@ const AUDIO_GUIDE_EXAMPLE = {
       chapters: [
         {
           id: 0,
-          title: "[Location Name] [Entrance/Starting Point]",
+          title: "[Location Name] [Entrance]",
           narrative: "[This Location] is a [Location Character] representing [Region/Culture], containing [Unique Value/Meaning]. Looking at what unfolds before us, [Specific Scene Description - Visual Features, Scale, First Impression] evokes [Emotional Response]. Observing more closely, [Detailed Features - Materials, Structure, Colors, Textures] demonstrate [Technical/Artistic Characteristics]. But do you know why this [Location] came to have such [Special Features]? The reason is related to [Historical/Cultural/Geographical Background]. According to [Official Records/Research Data], when [Historical Figure/Group] took [Specific Action/Decision] in [Year/Period], it wasn't simply for [Surface Purpose], but contained [Deeper Intent/Context]. Actually, through [Specific Examples/Evidence], we can confirm [Current Appearance/Value]. It is because of [Related Efforts/Historical Process] that we can share this [Meaningful Moment/Experience] together now.",
           nextDirection: "Now, keeping this meaningful background in mind, shall we move to the next point? From here, going [Direction/Route] for about [Distance/Time], you'll reach [Next Location]. Next, [Special Feature/Anticipation Element of Next Point] awaits you!"
         },

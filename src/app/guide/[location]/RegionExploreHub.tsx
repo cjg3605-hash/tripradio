@@ -431,6 +431,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                   lng: parseFloat(content.realTimeGuide.chapters[0].coordinates.lng),
                   name: `${locationName} 중심`
                 } : undefined)}
+                guideCoordinates={content?.coordinatesArray || content?.coordinates || null} // 🎯 coordinates 칼럼 데이터 전달
                 className="w-full"
               />
             </div>

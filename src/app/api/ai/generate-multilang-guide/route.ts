@@ -23,259 +23,227 @@ const getGeminiClient = () => {
 };
 
 /**
- * 🎯 순차적 좌표 검색 (1~5순위) - 반드시 좌표를 반환하도록 보장
- * 라우터 내부에서 직접 처리하여 복잡성 최소화
+ * 🎯 Plus Code 검증 로직
+ * Google Places API 결과의 plus_code를 활용하여 위치 정확성 검증
  */
-async function findCoordinatesInOrder(locationName: string): Promise<{ lat: number; lng: number }> {
-  console.log(`🔍 좌표 검색 시작: ${locationName}`);
-  
-  // 1순위: 구글 키워드 + 플러스코드 검색
-  try {
-    console.log(`🔍 1순위 시도: 구글 키워드 + 플러스코드`);
-    const plusCodeResult = await searchWithPlusCode(locationName);
-    if (plusCodeResult) {
-      console.log(`✅ 1순위 성공: 플러스코드 → ${plusCodeResult.lat}, ${plusCodeResult.lng}`);
-      return plusCodeResult;
-    }
-  } catch (error) {
-    console.log(`❌ 1순위 실패: 구글 검색 오류 -`, error);
+function verifyLocationWithPlusCode(
+  placesResult: any,
+  locationName: string
+): boolean {
+  if (!placesResult || !placesResult.plus_code) {
+    console.log(`⚠️ Plus Code 없음: ${locationName}`);
+    return false;
   }
   
-  // 2순위: Places API 상세 검색 (장소명 + 입구)
-  try {
-    console.log(`🔍 2순위 시도: Places API 상세 검색`);
-    const placesDetailResult = await searchPlacesDetailed(locationName);
-    if (placesDetailResult) {
-      console.log(`✅ 2순위 성공: Places API 상세 → ${placesDetailResult.lat}, ${placesDetailResult.lng}`);
-      return placesDetailResult;
-    }
-  } catch (error) {
-    console.log(`❌ 2순위 실패: Places API 상세 검색 오류 -`, error);
-  }
-  
-  // 3순위: Places API 기본 검색 (장소명만)
-  try {
-    console.log(`🔍 3순위 시도: Places API 기본 검색`);
-    const placesBasicResult = await searchPlacesBasic(locationName);
-    if (placesBasicResult) {
-      console.log(`✅ 3순위 성공: Places API 기본 → ${placesBasicResult.lat}, ${placesBasicResult.lng}`);
-      return placesBasicResult;
-    }
-  } catch (error) {
-    console.log(`❌ 3순위 실패: Places API 기본 검색 오류 -`, error);
-  }
-  
-  // 4순위: AI를 통한 좌표 추정 시도
-  try {
-    console.log(`🔍 4순위 시도: AI 좌표 추정`);
-    const aiCoordinates = await getCoordinatesFromAI(locationName);
-    if (aiCoordinates) {
-      console.log(`✅ 4순위 성공: AI 추정 → ${aiCoordinates.lat}, ${aiCoordinates.lng}`);
-      return aiCoordinates;
-    }
-  } catch (error) {
-    console.log(`❌ 4순위 실패: AI 좌표 추정 오류 -`, error);
-  }
-  
-  // 5순위: 기본 좌표 반환 (서울 중심부 - 좌표가 없으면 안 되므로 최후 수단)
-  console.log(`🎯 5순위: 기본 좌표 사용 - 서울 중심부 좌표로 대체`);
-  const defaultCoordinates = getDefaultCoordinates(locationName);
-  console.log(`✅ 기본 좌표 적용: ${defaultCoordinates.lat}, ${defaultCoordinates.lng}`);
-  return defaultCoordinates;
+  // Plus Code 존재 시 기본적으로 신뢰
+  console.log(`✅ Plus Code 검증 성공: ${placesResult.plus_code} for ${locationName}`);
+  return true;
 }
 
-/**
- * 🤖 4순위: AI를 통한 좌표 추정 시도
- */
-async function getCoordinatesFromAI(locationName: string): Promise<{ lat: number; lng: number } | null> {
-  try {
-    const genAI = getGeminiClient();
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
-
-    const coordinatePrompt = `
-Please provide the exact GPS coordinates (latitude and longitude) for: "${locationName}"
-
-Respond ONLY in this format:
-LAT: [latitude]
-LNG: [longitude]
-
-Example:
-LAT: 35.1796
-LNG: 129.0756
-
-If you cannot find exact coordinates, respond with "COORDINATES_NOT_FOUND".
-`;
-
-    const response = await model.generateContent(coordinatePrompt);
-    const text = response.response.text().trim();
-    
-    console.log(`🤖 AI 좌표 응답: ${text}`);
-
-    // LAT/LNG 형식에서 좌표 추출
-    const latMatch = text.match(/LAT:\s*(-?\d{1,2}\.\d{1,8})/i);
-    const lngMatch = text.match(/LNG:\s*(-?\d{1,3}\.\d{1,8})/i);
-
-    if (latMatch && lngMatch) {
-      const lat = parseFloat(latMatch[1]);
-      const lng = parseFloat(lngMatch[1]);
-      
-      // 유효한 좌표 범위 확인
-      if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-        return { lat, lng };
-      }
-    }
-
-    return null;
-  } catch (error) {
-    console.error(`❌ AI 좌표 추정 실패:`, error);
-    return null;
-  }
-}
 
 /**
- * 🎯 5순위: 기본 좌표 제공 (지역별 중심 좌표)
+ * 🌍 지역별 최적 언어 결정
  */
-function getDefaultCoordinates(locationName: string): { lat: number; lng: number } {
+function getOptimalLanguageForLocation(locationName: string): string {
   const name = locationName.toLowerCase();
   
-  // 한국 지역별 기본 좌표
-  if (name.includes('부산') || name.includes('busan')) {
-    return { lat: 35.1796, lng: 129.0756 }; // 부산 중심부
-  } else if (name.includes('제주') || name.includes('jeju')) {
-    return { lat: 33.4996, lng: 126.5312 }; // 제주시 중심부
-  } else if (name.includes('경주') || name.includes('gyeongju')) {
-    return { lat: 35.8562, lng: 129.2247 }; // 경주시 중심부
-  } else if (name.includes('인천') || name.includes('incheon')) {
-    return { lat: 37.4563, lng: 126.7052 }; // 인천 중심부
-  } else if (name.includes('대구') || name.includes('daegu')) {
-    return { lat: 35.8714, lng: 128.6014 }; // 대구 중심부
-  } else if (name.includes('광주') || name.includes('gwangju')) {
-    return { lat: 35.1595, lng: 126.8526 }; // 광주 중심부
-  } else if (name.includes('대전') || name.includes('daejeon')) {
-    return { lat: 36.3504, lng: 127.3845 }; // 대전 중심부
-  } else if (name.includes('울산') || name.includes('ulsan')) {
-    return { lat: 35.5384, lng: 129.3114 }; // 울산 중심부
-  } else {
-    // 기본값: 서울 중심부 (명동)
-    return { lat: 37.5665, lng: 126.9780 };
+  // 한국 관련 키워드 감지
+  const koreanKeywords = [
+    '서울', '부산', '제주', '경주', '인천', '대전', '대구', '광주', '울산',
+    '강릉', '전주', '안동', '여수', '경기', '강원', '충청', '전라', '경상',
+    '궁', '사찰', '절', '한옥', '전통', '문화재', '민속', '국립공원',
+    '구', '동', '시', '도', '군'
+  ];
+  
+  const hasKoreanKeyword = koreanKeywords.some(keyword => name.includes(keyword));
+  const hasKoreanChar = /[가-힣]/.test(locationName);
+  
+  if (hasKoreanKeyword || hasKoreanChar) {
+    return 'ko';  // 한국어
   }
+  
+  return 'en';  // 영어 (기본값)
 }
 
 /**
- * 🔍 1순위: Google Places API를 이용한 플러스코드 기반 검색
+ * 🌍 Google Places 결과에서 지역 정보 추출
  */
-async function searchWithPlusCode(locationName: string): Promise<{ lat: number; lng: number } | null> {
-  const { smartPlacesSearch } = await import('@/lib/coordinates/google-places-integration');
-  
-  // 전세계 호환 플러스코드 검색 쿼리들
-  const plusCodeQueries = [
-    `${locationName} plus code`,
-    `${locationName} entrance`,
-    `${locationName} visitor center`,
-    `${locationName} main gate`,
-    `${locationName}`
-  ];
-  
-  for (const query of plusCodeQueries) {
-    try {
-      console.log(`  🔍 플러스코드 검색 시도: "${query}"`);
-      const result = await smartPlacesSearch(query, 'en'); // 영어로 검색 (전세계 호환)
-      
-      if (result) {
-        console.log(`✅ 플러스코드 검색 성공: ${result.coordinates.lat}, ${result.coordinates.lng}`);
-        return {
-          lat: result.coordinates.lat,
-          lng: result.coordinates.lng
-        };
-      }
-    } catch (error) {
-      console.log(`  ❌ 플러스코드 검색 실패: ${query}`, error);
+function extractRegionalInfoFromPlaces(
+  address: any, 
+  fallback: { location_region: string | null; country_code: string | null; }
+): { location_region: string | null; country_code: string | null; } {
+  if (!address || !address.address_components) {
+    return fallback;
+  }
+
+  let location_region: string | null = null;
+  let country_code: string | null = null;
+
+  // Google Places address_components에서 정보 추출
+  for (const component of address.address_components) {
+    const types = component.types || [];
+    
+    // 국가 코드 추출
+    if (types.includes('country')) {
+      country_code = component.short_name; // 예: "KR", "US", "FR"
     }
     
-    // API 호출 제한을 위한 대기
-    await new Promise(resolve => setTimeout(resolve, 300));
+    // 지역 정보 추출 (우선순위: 시/도 > 구/군 > 행정구역)
+    if (types.includes('administrative_area_level_1')) {
+      // 시/도 (예: "서울특별시", "California")
+      location_region = component.long_name;
+    } else if (types.includes('administrative_area_level_2') && !location_region) {
+      // 구/군 (예: "강남구", "Los Angeles County")
+      location_region = component.long_name;
+    } else if (types.includes('locality') && !location_region) {
+      // 도시 (예: "서울", "Paris")
+      location_region = component.long_name;
+    }
   }
-  
-  return null;
+
+  // 결과 반환 (추출된 정보가 있으면 사용, 없으면 fallback)
+  return {
+    location_region: location_region || fallback.location_region,
+    country_code: country_code || fallback.country_code
+  };
 }
 
 /**
- * 🏢 2순위: Places API 상세 검색 (장소명 + 입구/entrance) - 전세계 호환
+ * 🌍 장소명과 지역 컨텍스트로부터 지역 정보 추출
  */
-async function searchPlacesDetailed(locationName: string): Promise<{ lat: number; lng: number } | null> {
-  const { smartPlacesSearch } = await import('@/lib/coordinates/google-places-integration');
+function extractRegionalInfo(locationName: string, parentRegion?: string, regionalContext?: any): {
+  location_region: string | null;
+  country_code: string | null;
+} {
+  const name = locationName.toLowerCase();
   
-  // 전세계 호환 상세 검색 쿼리들 (다국어 지원)
-  const searchQueries = [
-    `${locationName} entrance`,
-    `${locationName} main entrance`,
-    `${locationName} visitor entrance`,
-    `${locationName} gate`,
-    `${locationName} main gate`,
-    `${locationName} visitor center`,
-    `${locationName} information center`,
-    `${locationName} 입구`,
-    `${locationName} 매표소`
-  ];
-  
-  for (const query of searchQueries) {
-    try {
-      console.log(`  🔍 Places API 상세 검색 시도: "${query}"`);
-      const result = await smartPlacesSearch(query, 'en'); // 영어 검색 (전세계 호환)
-      
-      if (result) {
-        return {
-          lat: result.coordinates.lat,
-          lng: result.coordinates.lng
-        };
-      }
-    } catch (error) {
-      console.log(`  ❌ Places API 상세 검색 실패: ${query}`, error);
-    }
-    
-    // API 호출 제한을 위한 대기
-    await new Promise(resolve => setTimeout(resolve, 200));
+  // 1. parentRegion이 있는 경우 우선 사용
+  if (parentRegion) {
+    const countryCode = inferCountryCodeFromRegion(parentRegion);
+    return {
+      location_region: parentRegion,
+      country_code: countryCode
+    };
   }
   
-  return null;
+  // 2. regionalContext에서 정보 추출
+  if (regionalContext) {
+    const region = regionalContext.region || regionalContext.parentRegion;
+    const country = regionalContext.country || regionalContext.countryCode;
+    
+    if (region || country) {
+      return {
+        location_region: region || null,
+        country_code: country || (region ? inferCountryCodeFromRegion(region) : null)
+      };
+    }
+  }
+  
+  // 3. 장소명으로부터 지역 추정
+  return inferRegionalInfoFromLocationName(name);
 }
 
 /**
- * 🏢 3순위: Places API 기본 검색 (장소명만) - 전세계 호환
+ * 🌍 지역명으로부터 국가 코드 추정
  */
-async function searchPlacesBasic(locationName: string): Promise<{ lat: number; lng: number } | null> {
-  const { smartPlacesSearch } = await import('@/lib/coordinates/google-places-integration');
+function inferCountryCodeFromRegion(region: string): string {
+  const regionLower = region.toLowerCase();
   
-  // 전세계 호환 기본 검색 (장소명 그대로)
-  const searchQueries = [
-    `${locationName}`, // 정확한 장소명
-    `${locationName} tourist attraction`,
-    `${locationName} landmark`,
-    `${locationName} temple`, // 템플 (전세계 공통)
-    `${locationName} park`,
-    `${locationName} museum`
-  ];
-  
-  for (const query of searchQueries) {
-    try {
-      console.log(`  🔍 Places API 기본 검색 시도: "${query}"`);
-      const result = await smartPlacesSearch(query, 'en'); // 영어 검색 (전세계 호환)
-      
-      if (result) {
-        return {
-          lat: result.coordinates.lat,
-          lng: result.coordinates.lng
-        };
-      }
-    } catch (error) {
-      console.log(`  ❌ Places API 기본 검색 실패: ${query}`, error);
-    }
-    
-    // API 호출 제한을 위한 대기
-    await new Promise(resolve => setTimeout(resolve, 200));
+  // 한국 지역
+  if (regionLower.includes('서울') || regionLower.includes('부산') || regionLower.includes('제주') || 
+      regionLower.includes('경기') || regionLower.includes('강원') || regionLower.includes('충청') ||
+      regionLower.includes('전라') || regionLower.includes('경상') || regionLower.includes('korea')) {
+    return 'KR';
   }
   
-  return null;
+  // 프랑스
+  if (regionLower.includes('paris') || regionLower.includes('파리') || regionLower.includes('france')) {
+    return 'FR';
+  }
+  
+  // 영국
+  if (regionLower.includes('london') || regionLower.includes('런던') || regionLower.includes('england') || regionLower.includes('uk')) {
+    return 'GB';
+  }
+  
+  // 이탈리아
+  if (regionLower.includes('rome') || regionLower.includes('로마') || regionLower.includes('italy')) {
+    return 'IT';
+  }
+  
+  // 미국
+  if (regionLower.includes('new york') || regionLower.includes('뉴욕') || regionLower.includes('california') || regionLower.includes('usa')) {
+    return 'US';
+  }
+  
+  // 일본
+  if (regionLower.includes('tokyo') || regionLower.includes('도쿄') || regionLower.includes('japan')) {
+    return 'JP';
+  }
+  
+  // 중국
+  if (regionLower.includes('beijing') || regionLower.includes('베이징') || regionLower.includes('china')) {
+    return 'CN';
+  }
+  
+  // 기본값: 한국
+  return 'KR';
+}
+
+/**
+ * 🌍 장소명으로부터 지역 정보 추정
+ */
+function inferRegionalInfoFromLocationName(locationName: string): {
+  location_region: string | null;
+  country_code: string | null;
+} {
+  // 한국 지역들
+  if (locationName.includes('서울') || locationName.includes('seoul')) {
+    return { location_region: '서울특별시', country_code: 'KR' };
+  } else if (locationName.includes('부산') || locationName.includes('busan')) {
+    return { location_region: '부산광역시', country_code: 'KR' };
+  } else if (locationName.includes('제주') || locationName.includes('jeju')) {
+    return { location_region: '제주특별자치도', country_code: 'KR' };
+  } else if (locationName.includes('경주') || locationName.includes('gyeongju')) {
+    return { location_region: '경상북도', country_code: 'KR' };
+  } else if (locationName.includes('인천') || locationName.includes('incheon')) {
+    return { location_region: '인천광역시', country_code: 'KR' };
+  } else if (locationName.includes('대전') || locationName.includes('daejeon')) {
+    return { location_region: '대전광역시', country_code: 'KR' };
+  } else if (locationName.includes('대구') || locationName.includes('daegu')) {
+    return { location_region: '대구광역시', country_code: 'KR' };
+  } else if (locationName.includes('광주') || locationName.includes('gwangju')) {
+    return { location_region: '광주광역시', country_code: 'KR' };
+  } else if (locationName.includes('울산') || locationName.includes('ulsan')) {
+    return { location_region: '울산광역시', country_code: 'KR' };
+  } else if (locationName.includes('수원') || locationName.includes('suwon')) {
+    return { location_region: '경기도', country_code: 'KR' };
+  }
+  
+  // 해외 주요 관광지
+  else if (locationName.includes('paris') || locationName.includes('파리') || locationName.includes('에펠') || locationName.includes('루브르')) {
+    return { location_region: '파리', country_code: 'FR' };
+  } else if (locationName.includes('london') || locationName.includes('런던') || locationName.includes('빅벤')) {
+    return { location_region: '런던', country_code: 'GB' };
+  } else if (locationName.includes('rome') || locationName.includes('로마') || locationName.includes('콜로세움')) {
+    return { location_region: '로마', country_code: 'IT' };
+  } else if (locationName.includes('new york') || locationName.includes('뉴욕') || locationName.includes('자유의 여신')) {
+    return { location_region: '뉴욕', country_code: 'US' };
+  } else if (locationName.includes('tokyo') || locationName.includes('도쿄') || locationName.includes('동경')) {
+    return { location_region: '도쿄', country_code: 'JP' };
+  } else if (locationName.includes('beijing') || locationName.includes('베이징') || locationName.includes('북경')) {
+    return { location_region: '베이징', country_code: 'CN' };
+  }
+  
+  // 한국 관련 키워드가 있으면 한국으로 분류
+  else if (locationName.includes('궁') || locationName.includes('사찰') || locationName.includes('절') || 
+           locationName.includes('경복') || locationName.includes('창덕') || locationName.includes('불국') ||
+           locationName.includes('석굴암')) {
+    return { location_region: '미분류', country_code: 'KR' };
+  }
+  
+  // 기본값: 한국의 미분류 지역
+  return { location_region: '미분류', country_code: 'KR' };
 }
 
 export async function POST(request: NextRequest) {
@@ -293,45 +261,105 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`🤖 ${language} 가이드 생성 시작:`, {
-      locationName,
-      parentRegion: parentRegion || 'none',
-      regionalContext: regionalContext || 'none'
-    });
+    // 🌍 1단계: 기본 지역 정보 추출
+    console.log(`\n🌍 1단계: 기본 지역 정보 추출: ${locationName}`);
+    const initialRegionalInfo = extractRegionalInfo(locationName, parentRegion, regionalContext);
+    console.log(`🌍 기본 지역 정보:`, initialRegionalInfo);
 
-    // 🎯 1단계: AI 가이드 생성 먼저 완료 (좌표 없이)
-    console.log(`\n🤖 AI 가이드 생성 1단계 시작: ${locationName}`);
+    // ⚡ 2단계: Google Places API 호출과 AI 생성 병렬 실행
+    console.log(`\n⚡ 2단계: 병렬 처리 시작 - Google Places API + AI 생성`);
     
-    // 🎯 지역 컨텍스트를 포함한 언어별 정교한 프롬프트 생성
-    const contextualLocationName = parentRegion 
-      ? `${locationName} (${parentRegion} 지역)`
-      : locationName;
-    const prompt = await createAutonomousGuidePrompt(contextualLocationName, language, userProfile);
-    
-    console.log(`📝 ${language} 프롬프트 준비 완료: ${prompt.length}자`);
-
-    // Gemini 클라이언트 초기화
-    const genAI = getGeminiClient();
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.5-flash-lite-preview-06-17',
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 16384, // 대폭 증가: 8000 → 16384
-        topK: 40,
-        topP: 0.9,
+    // Google Places API 호출 Promise
+    const placesSearchPromise = (async () => {
+      try {
+        const { smartPlacesSearch } = await import('@/lib/coordinates/google-places-integration');
+        const optimalLanguage = getOptimalLanguageForLocation(locationName);
+        console.log(`🌐 Google Places API 최적 언어: ${optimalLanguage}`);
+        
+        const result = await smartPlacesSearch(locationName, optimalLanguage);
+        console.log(`✅ Google Places API 완료`);
+        return result;
+      } catch (error) {
+        console.warn('⚠️ Google Places API 실패:', error);
+        return null;
       }
-    });
+    })();
 
-    console.log(`🤖 ${language} 가이드 생성 중...`);
+    // AI 가이드 생성 Promise
+    const aiGenerationPromise = (async () => {
+      try {
+        console.log(`🤖 AI 가이드 생성 시작: ${language}`);
+        
+        // 프롬프트 생성
+        const contextualLocationName = parentRegion 
+          ? `${locationName} (${parentRegion} 지역)`
+          : locationName;
+        const prompt = await createAutonomousGuidePrompt(contextualLocationName, language, userProfile);
+        
+        // AI 모델 호출
+        const genAI = getGeminiClient();
+        const model = genAI.getGenerativeModel({ 
+          model: 'gemini-2.5-flash-lite-preview-06-17',
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 16384,
+            topK: 40,
+            topP: 0.9,
+          }
+        });
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        
+        if (!text) {
+          throw new Error('AI 응답이 비어있습니다');
+        }
+
+        console.log(`✅ AI 생성 완료: ${text.length}자`);
+        return text;
+      } catch (error) {
+        console.error('❌ AI 생성 실패:', error);
+        throw error;
+      }
+    })();
+
+    // 병렬 실행 및 결과 수집
+    const [placesSearchResult, aiGenerationResult] = await Promise.allSettled([
+      placesSearchPromise,
+      aiGenerationPromise
+    ]);
+
+    // Google Places API 결과 처리
+    let placesResult: any = null;
+    let regionalInfo = initialRegionalInfo;
     
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
-    
-    if (!text) {
-      throw new Error('AI 응답이 비어있습니다');
+    if (placesSearchResult.status === 'fulfilled' && placesSearchResult.value) {
+      placesResult = placesSearchResult.value;
+      console.log(`✅ Google Places API 결과 활용`);
+      
+      if (placesResult && placesResult.address) {
+        console.log(`📍 Google Places 결과:`, placesResult.address);
+        
+        // Google Places 결과에서 지역 정보 추출
+        const enhancedRegionalInfo = extractRegionalInfoFromPlaces(placesResult.address, regionalInfo);
+        
+        if (enhancedRegionalInfo.location_region && enhancedRegionalInfo.country_code) {
+          regionalInfo = enhancedRegionalInfo;
+          console.log(`✅ Google Places 기반 향상된 지역 정보:`, regionalInfo);
+        }
+      }
+    } else {
+      console.warn('⚠️ Google Places API 실패, 기본 지역 정보 사용');
     }
 
+    // AI 생성 결과 처리
+    if (aiGenerationResult.status === 'rejected') {
+      throw new Error(`AI 생성 실패: ${aiGenerationResult.reason}`);
+    }
+    
+    const text = aiGenerationResult.value;
+    console.log(`🌍 최종 지역 정보:`, regionalInfo);
     console.log(`📥 ${language} AI 응답 수신: ${text.length}자`);
 
     // 🚨 AI 응답 디버깅 - 처음 1000글자만 출력
@@ -491,15 +519,38 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    console.log(`✅ ${language} AI 가이드 생성 완료 - 이제 좌표 처리 시작`);
+    console.log(`✅ ${language} AI 가이드 파싱 완룈 - 이제 좌표 후처리 시작`);
     
-    // 🎯 2단계: AI 생성 완료 후 좌표 검색 (1~5순위, 반드시 좌표 반환)
-    console.log(`\n🔍 좌표 검색 2단계 시작: ${locationName}`);
-    const foundCoordinates = await findCoordinatesInOrder(locationName);
+    // 🎯 3단계: 병렬 실행된 Google Places API 결과에서 좌표 추출 (Plus Code 검증)
+    console.log(`\n🔍 좌표 후처리 3단계: 병렬 처리된 데이터 활용`);
+    
+    let foundCoordinates: { lat: number; lng: number };
+    
+    // 이미 Google Places API에서 좌표를 확보했는지 확인
+    if (placesResult && placesResult.coordinates) {
+      console.log(`✅ Google Places API에서 좌표 확보: ${placesResult.coordinates.lat}, ${placesResult.coordinates.lng}`);
+      
+      // Plus Code 검증
+      const isVerified = verifyLocationWithPlusCode(placesResult, locationName);
+      if (isVerified) {
+        foundCoordinates = {
+          lat: placesResult.coordinates.lat,
+          lng: placesResult.coordinates.lng
+        };
+        console.log(`✅ Plus Code 검증 성공 - 좌표 사용: ${foundCoordinates.lat}, ${foundCoordinates.lng}`);
+      } else {
+        console.log(`⚠️ Plus Code 검증 실패 - 기본 좌표 사용`);
+        foundCoordinates = { lat: 37.5665, lng: 126.9780 }; // 서울 명동 기본값
+      }
+    } else {
+      console.log(`⚠️ Google Places API 좌표 없음 - 기본 좌표 사용`);
+      foundCoordinates = { lat: 37.5665, lng: 126.9780 }; // 서울 명동 기본값
+    }
+    
     console.log(`✅ 좌표 확보 완료: ${foundCoordinates.lat}, ${foundCoordinates.lng}`);
     
-    // 🎯 3단계: 확보된 좌표를 모든 챕터에 반드시 적용 (정규화된 방식)
-    console.log(`\n📍 좌표 적용 3단계 시작`);
+    // 🎯 4단계: 병렬 처리로 확보된 좌표를 모든 챕터에 후처리 적용
+    console.log(`\n📍 좌표 후처리 4단계 시작`);
     
     if (guideData.realTimeGuide?.chapters && validChapters.length > 0) {
       console.log(`📍 ${validChapters.length}개 유효한 챕터에 좌표 적용: ${foundCoordinates.lat}, ${foundCoordinates.lng}`);
@@ -572,27 +623,45 @@ export async function POST(request: NextRequest) {
       console.log(`✅ 기본 챕터 구조 생성 및 정규화된 좌표 적용 완료`);
     }
 
-    // 🎯 4단계: 챕터별 좌표 배열 생성 (사용자 요구사항)
+    // 🎯 5단계: 챕터별 좌표 배열 생성 (사용자 요구사항 - 모든 챕터)
     console.log(`\n📍 챕터별 좌표 배열 생성`);
     const coordinatesArray: any[] = [];
     
-    if (guideData.realTimeGuide?.chapters && Array.isArray(guideData.realTimeGuide.chapters)) {
+    // 🚨 중요: 모든 유효한 챕터의 좌표를 배열로 생성
+    if (guideData.realTimeGuide?.chapters && Array.isArray(guideData.realTimeGuide.chapters) && guideData.realTimeGuide.chapters.length > 0) {
+      console.log(`📊 ${guideData.realTimeGuide.chapters.length}개 챕터에서 좌표 배열 생성`);
+      
       guideData.realTimeGuide.chapters.forEach((chapter: any, index: number) => {
-        const offset = index * 0.0005; // 챕터별 약간의 오프셋
-        coordinatesArray.push({
+        const offset = index * 0.0005; // 챕터별 약간의 오프셋 (약 50미터)
+        const chapterCoords = {
           id: chapter.id !== undefined ? chapter.id : index,
+          chapterId: chapter.id !== undefined ? chapter.id : index,
+          step: index,
           title: chapter.title || `챕터 ${index + 1}`,
+          lat: foundCoordinates.lat + offset,
+          lng: foundCoordinates.lng + offset,
           coordinates: {
             lat: foundCoordinates.lat + offset,
             lng: foundCoordinates.lng + offset
           }
-        });
+        };
+        
+        coordinatesArray.push(chapterCoords);
+        
+        console.log(`  ✅ 챕터 ${index} 좌표 생성: ${chapter.title} → (${chapterCoords.lat}, ${chapterCoords.lng})`);
       });
+      
+      console.log(`✅ 총 ${coordinatesArray.length}개 챕터 좌표 배열 완성`);
     } else {
-      // 챕터가 없는 경우 기본 좌표 하나만
+      // 🚨 챕터가 없는 경우에도 최소 1개는 생성
+      console.log(`⚠️ 챕터가 없거나 비어있음 - 기본 좌표 1개 생성`);
       coordinatesArray.push({
         id: 0,
+        chapterId: 0,
+        step: 0,
         title: `${locationName} 가이드`,
+        lat: foundCoordinates.lat,
+        lng: foundCoordinates.lng,
         coordinates: {
           lat: foundCoordinates.lat,
           lng: foundCoordinates.lng
@@ -600,15 +669,19 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    console.log(`📍 챕터별 좌표 배열 생성 완료: ${coordinatesArray.length}개`);
-    coordinatesArray.forEach(coord => {
-      console.log(`  - ${coord.title}: ${coord.coordinates.lat}, ${coord.coordinates.lng}`);
+    console.log(`📍 최종 좌표 배열 검증: ${coordinatesArray.length}개`);
+    coordinatesArray.forEach((coord, idx) => {
+      console.log(`  ${idx + 1}. [${coord.chapterId}] ${coord.title}: (${coord.lat}, ${coord.lng})`);
     });
     
-    // 🎯 5단계: coordinatesArray를 guideData에 추가 (DB 저장용)
+    // 🎯 6단계: coordinatesArray를 guideData에 추가 (DB 저장용)
     guideData.coordinatesArray = coordinatesArray;
     
-    // 🎯 6단계: 최종 응답 반환
+    // 🎯 7단계: 지역 정보를 guideData에 추가
+    guideData.regionalInfo = regionalInfo;
+    console.log(`🌍 지역 정보가 가이드 데이터에 추가됨:`, regionalInfo);
+    
+    // 🎯 8단계: 최종 응답 반환
     console.log(`\n✅ ${language} 가이드 생성 최종 완료`);
     
     return NextResponse.json({

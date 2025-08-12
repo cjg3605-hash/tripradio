@@ -210,8 +210,14 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
         // 🔥 핵심: data.data가 실제 가이드 데이터
         const guideResponse = result.data;
         
-        // 정규화 함수에 위임
+        // 정규화 함수에 위임 (coordinates 데이터도 전달)
         const normalizedData = normalizeGuideData(guideResponse, locationName);
+        
+        // coordinates 데이터가 있다면 normalizedData에 추가
+        if ((result as any).coordinates) {
+          (normalizedData as any).coordinates = (result as any).coordinates;
+        }
+        
         setGuideData(normalizedData);
         setSource((result as any).source || 'unknown');
 
@@ -328,7 +334,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
             console.log('🎯 세션 스토리지에서 지역 컨텍스트 발견:', sessionRegionalContext);
             
             // 타임스탬프 체크 (5분 이내의 것만 유효)
-            const contextAge = Date.now() - (sessionRegionalContext?.timestamp || 0);
+            const contextAge = Date.now() - ((sessionRegionalContext as any)?.timestamp || 0);
             if (contextAge > 5 * 60 * 1000) {
               console.log('⚠️ 세션 컨텍스트가 너무 오래됨 - 무시');
               sessionStorage.removeItem('guideRegionalContext');
@@ -343,7 +349,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
       // 🎯 최종 지역 컨텍스트 결정: URL 우선, 세션 스토리지 보조
       let finalParentRegion = parentRegion;
       if (!finalParentRegion && sessionRegionalContext && 'parentRegion' in sessionRegionalContext) {
-        finalParentRegion = sessionRegionalContext.parentRegion;
+        finalParentRegion = (sessionRegionalContext as any).parentRegion;
         console.log('🔄 세션 스토리지의 지역 컨텍스트 사용:', finalParentRegion);
       }
 
@@ -686,6 +692,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
           <MinimalTourContent 
             guide={guideData}
             language={currentLanguage}
+            guideCoordinates={(guideData as any)?.coordinates}
           />
         )}
       </div>

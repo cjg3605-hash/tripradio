@@ -31,23 +31,62 @@ interface RegionTouristMapProps {
   recommendedSpots: RecommendedSpot[];
   regionCenter?: { lat: number; lng: number; name?: string };
   className?: string;
+  guideCoordinates?: any; // Supabase coordinates 컬럼 데이터 (좌표 배열)
 }
 
 const RegionTouristMap: React.FC<RegionTouristMapProps> = ({
   locationName,
   recommendedSpots,
   regionCenter,
-  className = ''
+  className = '',
+  guideCoordinates
 }) => {
   const { t } = useLanguage();
   
-  // 유효한 좌표를 가진 관광지만 필터링
-  const validSpots = recommendedSpots.filter(spot => 
-    spot.lat && spot.lng && 
-    !isNaN(spot.lat) && !isNaN(spot.lng) &&
-    spot.lat >= -90 && spot.lat <= 90 &&
-    spot.lng >= -180 && spot.lng <= 180
-  );
+  // 🎯 1단계: coordinates 칼럼 데이터에서 추가 POI 추출
+  let coordinatesSpots: RecommendedSpot[] = [];
+  
+  if (guideCoordinates && Array.isArray(guideCoordinates)) {
+    console.log('🗺️ RegionTouristMap: coordinates 칼럼 데이터 처리 시작', guideCoordinates.length);
+    
+    coordinatesSpots = guideCoordinates.map((coord: any, index: number) => ({
+      id: `coord-${coord.id || coord.chapterId || index}`,
+      name: coord.title || `장소 ${index + 1}`,
+      lat: coord.lat || coord.coordinates?.lat,
+      lng: coord.lng || coord.coordinates?.lng,
+      description: `${locationName}의 주요 관광 포인트`
+    })).filter((spot: any) => 
+      spot.lat && spot.lng && 
+      !isNaN(spot.lat) && !isNaN(spot.lng) &&
+      spot.lat >= -90 && spot.lat <= 90 &&
+      spot.lng >= -180 && spot.lng <= 180
+    );
+    
+    console.log('🗺️ coordinates 칼럼에서 추출한 POI:', coordinatesSpots.length);
+  }
+  
+  // 🎯 2단계: 기존 recommendedSpots와 coordinates 칼럼 데이터 병합
+  const allSpots = [...recommendedSpots, ...coordinatesSpots];
+  
+  // 🎯 3단계: 유효한 좌표를 가진 관광지만 필터링 (중복 제거 포함)
+  const uniqueSpotNames = new Set<string>();
+  const validSpots = allSpots.filter(spot => {
+    // 좌표 유효성 검사
+    const hasValidCoords = spot.lat && spot.lng && 
+      !isNaN(spot.lat) && !isNaN(spot.lng) &&
+      spot.lat >= -90 && spot.lat <= 90 &&
+      spot.lng >= -180 && spot.lng <= 180;
+    
+    if (!hasValidCoords) return false;
+    
+    // 중복 제거 (같은 이름의 장소는 하나만)
+    if (uniqueSpotNames.has(spot.name)) return false;
+    uniqueSpotNames.add(spot.name);
+    
+    return true;
+  });
+  
+  console.log('🗺️ RegionTouristMap 최종 유효 POI:', validSpots.length);
 
   // 관광지 중심점 계산 (regionCenter가 없는 경우)
   const calculateMapCenter = () => {
@@ -115,6 +154,7 @@ const RegionTouristMap: React.FC<RegionTouristMapProps> = ({
             }}
             className="w-full h-full"
             locationName={locationName}
+            guideCoordinates={guideCoordinates} // coordinates 칼럼 데이터 전달
           />
         ) : (
           // 관광지 데이터가 없는 경우 기본 지도 표시

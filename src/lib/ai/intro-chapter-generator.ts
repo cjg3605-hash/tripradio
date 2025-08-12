@@ -666,10 +666,10 @@ ${locationData.name} 관람을 위한 실용적이고 도움되는 팁을 제공
   private determineEntranceType(locationName: string): string {
     const name = locationName.toLowerCase();
     
-    // 사찰/절 - 입구가 더 자연스러움
+    // 사찰/절 - 일주문이 더 전통적이고 자연스러움
     if (name.includes('사') || name.includes('암') || name.includes('절') || 
         name.includes('temple') || name.includes('monastery')) {
-      return '입구';
+      return '일주문';
     }
     
     // 궁궐/성 - 정문이 적절
@@ -705,11 +705,11 @@ ${locationData.name} 관람을 위한 실용적이고 도움되는 팁을 제공
       return '입구';
     }
     
-    // 거리/상업지구 - 시작점
+    // 거리/상업지구 - 중심가/광장
     if (name.includes('거리') || name.includes('길') || name.includes('로') || name.includes('가') ||
         name.includes('시장') || name.includes('상가') || name.includes('street') || name.includes('road') ||
         name.includes('avenue') || name.includes('market') || name.includes('plaza')) {
-      return '시작점';
+      return '중심가';
     }
     
     // 마을/동네 - 마을 입구

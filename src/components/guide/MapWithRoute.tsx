@@ -75,6 +75,7 @@ interface MapWithRouteProps {
   onPoiClick?: (poiId: any) => void;
   className?: string;
   locationName?: string;
+  guideCoordinates?: any; // Supabase coordinates 컬럼 데이터
 }
 
 function MapFlyTo({ lat, lng }: { lat: number; lng: number }) {
@@ -254,7 +255,8 @@ export default function MapWithRoute({
   showUserLocation = false, 
   onPoiClick, 
   className,
-  locationName
+  locationName,
+  guideCoordinates
 }: MapWithRouteProps) {
   
   const { currentLanguage } = useLanguage();
@@ -266,7 +268,7 @@ export default function MapWithRoute({
   // 🔥 React Hook 규칙 준수: 모든 훅을 조건부 return 전에 호출
   // 🔥 안정적인 키 생성 - 컴포넌트 생명주기 동안 유지
   const stableMapKey = useMemo(() => {
-    return `map-${locationName}-${currentLanguage}-${Math.floor(Date.now() / 1000)}`;
+    return `map-${locationName}-${currentLanguage}-${Math.random()}`;
   }, [locationName, currentLanguage]);
 
   // 🔥 DOM 컨테이너 참조
@@ -314,18 +316,39 @@ export default function MapWithRoute({
     userLocation: showMyLocation ? 'enabled' : 'disabled'
   });
 
-  // 좌표 추출 함수 개선 (여러 형태 지원)
-  const getLatLng = (chapter: Chapter): [number | undefined, number | undefined] => {
-    // 우선순위: location > coordinates > lat/lng > latitude/longitude
-    const lat = chapter.location?.lat ?? 
-                 chapter.coordinates?.lat ?? 
-                 chapter.lat ?? 
-                 chapter.latitude;
-                 
-    const lng = chapter.location?.lng ?? 
-                 chapter.coordinates?.lng ?? 
-                 chapter.lng ?? 
-                 chapter.longitude;
+  // 좌표 추출 함수 개선 (coordinates 컬럼 우선 사용)
+  const getLatLng = (chapter: Chapter, guideCoordinates?: any): [number | undefined, number | undefined] => {
+    let lat: number | undefined;
+    let lng: number | undefined;
+
+    // 1. 먼저 Supabase coordinates 컬럼에서 해당 챕터의 좌표 찾기
+    if (guideCoordinates && Array.isArray(guideCoordinates)) {
+      const chapterCoord = guideCoordinates.find((coord: any) => 
+        coord.id === chapter.id || 
+        coord.step === chapter.id || 
+        coord.chapterId === chapter.id ||
+        coord.title === chapter.title
+      );
+      
+      if (chapterCoord) {
+        lat = chapterCoord.lat ?? chapterCoord.latitude;
+        lng = chapterCoord.lng ?? chapterCoord.longitude;
+        console.log(`📍 coordinates 컬럼에서 좌표 발견 (${chapter.title}):`, { lat, lng });
+      }
+    }
+
+    // 2. coordinates 컬럼에서 찾지 못했다면 기존 로직 사용
+    if (lat === undefined || lng === undefined) {
+      lat = chapter.location?.lat ?? 
+            chapter.coordinates?.lat ?? 
+            chapter.lat ?? 
+            chapter.latitude;
+            
+      lng = chapter.location?.lng ?? 
+            chapter.coordinates?.lng ?? 
+            chapter.lng ?? 
+            chapter.longitude;
+    }
                  
     return [lat, lng];
   };
@@ -347,7 +370,7 @@ export default function MapWithRoute({
   const validChapters = allData
     .map((item, index) => {
       if (chapters) {
-        const [lat, lng] = getLatLng(item);
+        const [lat, lng] = getLatLng(item, guideCoordinates);
         return { ...item, originalIndex: index, lat, lng };
       } else {
         // POI 데이터인 경우

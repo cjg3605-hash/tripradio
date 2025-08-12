@@ -20,7 +20,7 @@ export class MultiLangGuideManager {
       
       const { data, error } = await supabase
         .from('guides')
-        .select('*')
+        .select('id, locationname, language, content, coordinates, location_region, country_code, created_at, updated_at')
         .eq('locationname', normalizedLocation)
         .eq('language', language.toLowerCase())
         .single();
@@ -34,8 +34,15 @@ export class MultiLangGuideManager {
         return { success: false, error: error.message, source: 'database' };
       }
 
-      console.log(`✅ DB에서 가이드 발견: "${normalizedLocation}" (${language})`);
-      return { success: true, data: data.content, source: 'cache' };
+      console.log(`✅ DB에서 가이드 발견: "${normalizedLocation}" (${language})`, {
+        location_region: data.location_region,
+        country_code: data.country_code
+      });
+      return { 
+        success: true, 
+        data: data.content, 
+        source: 'cache' 
+      } as any;
 
     } catch (error) {
       return { 
@@ -164,7 +171,7 @@ export class MultiLangGuideManager {
   }
 
   /**
-   * 💾 언어별 가이드 저장
+   * 💾 언어별 가이드 저장 (지역 정보 포함)
    */
   static async saveGuideByLanguage({
     locationName,
@@ -180,15 +187,31 @@ export class MultiLangGuideManager {
     try {
       console.log(`💾 ${language} 가이드 저장 시작:`, locationName);
 
+      // 🌍 지역 정보 추출
+      const regionalInfo = guideData.regionalInfo || {};
+      console.log(`🌍 저장할 지역 정보:`, regionalInfo);
+
+      const saveData = {
+        locationname: normalizeLocationName(locationName),
+        language: language.toLowerCase(),
+        content: guideData,
+        coordinates: guideData.coordinatesArray || null, // 🔥 새로운 coordinates 컬럼에 저장
+        location_region: regionalInfo.location_region || null,
+        country_code: regionalInfo.country_code || null,
+        updated_at: new Date().toISOString()
+      };
+
+      console.log(`📋 DB 저장 데이터:`, {
+        locationname: saveData.locationname,
+        language: saveData.language,
+        location_region: saveData.location_region,
+        country_code: saveData.country_code,
+        coordinatesCount: Array.isArray(saveData.coordinates) ? saveData.coordinates.length : 0
+      });
+
       const { data, error } = await supabase
         .from('guides')
-        .upsert({
-          locationname: normalizeLocationName(locationName),
-          language: language.toLowerCase(),
-          content: guideData,
-          coordinates: guideData.coordinatesArray || null, // 🔥 새로운 coordinates 컬럼에 저장
-          updated_at: new Date().toISOString()
-        }, {
+        .upsert(saveData, {
           onConflict: 'locationname,language'
         })
         .select()
