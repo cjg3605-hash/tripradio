@@ -16,9 +16,10 @@ import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
 import { UserProfile } from '@/types/guide';
 import { MultiLangGuideManager } from '@/lib/multilang-guide-manager';
-import { safeUserProfile } from '@/lib/utils';
+import { safeUserProfile, normalizeLocationName } from '@/lib/utils';
 import GuideLoading from '@/components/ui/GuideLoading';
 import { routeLocationQueryCached } from '@/lib/location/location-router';
+import { supabase } from '@/lib/supabaseClient';
 
 // RegionExploreHub 동적 로드
 const RegionExploreHub = dynamic(() => import('./RegionExploreHub'), {
@@ -31,6 +32,12 @@ interface Props {
   initialGuide?: any;
   requestedLanguage?: string;
   parentRegion?: string;
+  regionalContext?: {
+    region?: string;
+    country?: string;
+    countryCode?: string;
+    type?: 'location' | 'attraction';
+  };
 }
 
 // 🔥 핵심 수정: content 래핑 구조 올바른 처리
@@ -140,7 +147,13 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
   return normalizedData;
 };
 
-export default function MultiLangGuideClient({ locationName, initialGuide, requestedLanguage, parentRegion }: Props) {
+export default function MultiLangGuideClient({ 
+  locationName, 
+  initialGuide, 
+  requestedLanguage, 
+  parentRegion, 
+  regionalContext 
+}: Props) {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
   const { data: session } = useSession();
@@ -153,6 +166,82 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [routingResult, setRoutingResult] = useState<any>(null);
   const [shouldShowExploreHub, setShouldShowExploreHub] = useState(false);
+  
+  // 🚀 좌표 상태 관리
+  const [coordinates, setCoordinates] = useState<any>(null);
+  const [isCoordinatesPolling, setIsCoordinatesPolling] = useState(false);
+  const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 🎯 좌표 상태 폴링 함수
+  const pollCoordinates = useCallback(async () => {
+    if (!guideData?.metadata?.originalLocationName || !currentLanguage || isCoordinatesPolling) {
+      return;
+    }
+
+    setIsCoordinatesPolling(true);
+    
+    try {
+      const normLocation = normalizeLocationName(guideData.metadata.originalLocationName);
+      
+      console.log('🔍 좌표 폴링 시작:', { 
+        locationName: normLocation, 
+        language: currentLanguage.toLowerCase() 
+      });
+
+      const { data, error } = await supabase
+        .from('guides')
+        .select('coordinates')
+        .eq('locationname', normLocation)
+        .eq('language', currentLanguage.toLowerCase())
+        .maybeSingle();
+
+      if (error) {
+        console.error('❌ 좌표 폴링 오류:', error);
+        return;
+      }
+
+      if (data?.coordinates && Array.isArray(data.coordinates) && data.coordinates.length > 0) {
+        console.log('✅ 좌표 폴링 성공:', data.coordinates.length, '개 좌표 발견');
+        setCoordinates(data.coordinates);
+        setIsCoordinatesPolling(false);
+        
+        // 폴링 중단
+        if (pollingTimeoutRef.current) {
+          clearTimeout(pollingTimeoutRef.current);
+          pollingTimeoutRef.current = null;
+        }
+      } else {
+        console.log('⏳ 좌표 아직 생성 중... 3초 후 재시도');
+        
+        // 3초 후 재시도 (최대 5회 = 15초)
+        pollingTimeoutRef.current = setTimeout(() => {
+          if (isCoordinatesPolling) {
+            pollCoordinates();
+          }
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('❌ 좌표 폴링 예외:', error);
+    } finally {
+      // 폴링 상태는 성공 시에만 false로 변경 (재시도를 위해)
+    }
+  }, [guideData?.metadata?.originalLocationName, currentLanguage, isCoordinatesPolling]);
+
+  // 🔄 폴링 정리 함수
+  const stopCoordinatesPolling = useCallback(() => {
+    setIsCoordinatesPolling(false);
+    if (pollingTimeoutRef.current) {
+      clearTimeout(pollingTimeoutRef.current);
+      pollingTimeoutRef.current = null;
+    }
+  }, []);
+
+  // 컴포넌트 언마운트 시 정리
+  useEffect(() => {
+    return () => {
+      stopCoordinatesPolling();
+    };
+  }, [stopCoordinatesPolling]);
 
   // 히스토리 저장 함수
   const saveToHistory = useCallback(async (guideData: GuideData) => {
@@ -197,12 +286,13 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
           contextualParentRegion
         );
       } else {
-        // 스마트 언어 전환 (캐시 우선)
+        // 🚀 스마트 언어 전환 (새로운 regionalContext 포함)
         result = await MultiLangGuideManager.smartLanguageSwitch(
           locationName,
           language,
           undefined,
-          contextualParentRegion
+          contextualParentRegion,
+          regionalContext // 새로운 구조화된 지역 정보 전달
         );
       }
 
@@ -419,6 +509,25 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
 
     initializeGuide();
   }, [locationName, initialGuide, requestedLanguage, currentLanguage, loadAvailableLanguages, loadGuideForLanguage, saveToHistory, analyzeRouting]); // 모든 의존성 추가
+
+  // 🚀 좌표 폴링 시작 로직
+  useEffect(() => {
+    // 가이드 데이터가 로드되고 좌표가 없을 때 폴링 시작
+    if (!isLoading && guideData && !coordinates) {
+      // 기존 좌표 데이터 확인 (guideData에서)
+      const existingCoordinates = (guideData as any)?.coordinates;
+      
+      if (existingCoordinates && Array.isArray(existingCoordinates) && existingCoordinates.length > 0) {
+        // 이미 좌표가 있으면 상태 업데이트
+        console.log('✅ 기존 좌표 데이터 발견:', existingCoordinates.length, '개');
+        setCoordinates(existingCoordinates);
+      } else {
+        // 좌표가 없으면 폴링 시작
+        console.log('🔍 좌표 없음 - 폴링 시작');
+        pollCoordinates();
+      }
+    }
+  }, [isLoading, guideData, coordinates, pollCoordinates]);
 
   // 🔄 언어 변경 추적용 ref
   const lastLanguageRef = useRef<string | null>(null);
@@ -692,7 +801,7 @@ export default function MultiLangGuideClient({ locationName, initialGuide, reque
           <MinimalTourContent 
             guide={guideData}
             language={currentLanguage}
-            guideCoordinates={(guideData as any)?.coordinates}
+            guideCoordinates={coordinates || (guideData as any)?.coordinates}
           />
         )}
       </div>

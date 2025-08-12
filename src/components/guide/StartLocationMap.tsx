@@ -39,6 +39,11 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
   
   // 🎯 가이드 페이지 전용: 인트로 챕터만 필터링 (id === 0 또는 originalIndex === 0)
   const displayChapters = chapters.filter(chapter => chapter.id === 0 || chapter.originalIndex === 0);
+  
+  // 🚀 좌표 생성 상태 확인 (빈 배열이면 생성 중)
+  const isCoordinatesLoading = !guideCoordinates || 
+    (Array.isArray(guideCoordinates) && guideCoordinates.length === 0);
+  
   return (
     <div className={`bg-white border border-black/8 rounded-3xl shadow-lg shadow-black/3 overflow-hidden ${className}`}>
       {/* 모던 모노크롬 헤더 */}
@@ -58,32 +63,64 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
         </div>
       </div>
 
-      {/* Enhanced 지도 */}
-      <div className="h-64">
-        <MapWithRoute
-          chapters={displayChapters.length > 0 ? displayChapters : undefined}
-          pois={displayChapters.length === 0 ? pois.map(poi => ({
-            id: poi.id,
-            name: poi.name,
-            lat: poi.lat,
-            lng: poi.lng,
-            description: poi.description
-          })) : undefined}
-          currentLocation={null}
-          center={{ lat: startPoint.lat, lng: startPoint.lng }}
-          zoom={16} // 인트로 챕터 중심으로 확대 표시
-          showRoute={false} // 허브 페이지와 실시간 가이드 모두 루트 숨김 (별개 지역 마커만 표시)
-          showUserLocation={false}
-          onMarkerClick={(chapterIndex) => {
-            console.log('Chapter marker clicked:', chapterIndex);
-          }}
-          onPoiClick={(poiId) => {
-            console.log('POI clicked:', poiId);
-          }}
-          className="w-full h-full"
-          locationName={locationName}
-          guideCoordinates={guideCoordinates}
-        />
+      {/* 지도 또는 로딩 상태 */}
+      <div className="h-64 relative overflow-hidden">
+        {/* 🎯 좌표 생성 중 로딩 UI */}
+        <div 
+          className={`absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center transition-all duration-700 ease-in-out ${
+            isCoordinatesLoading ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+          }`}
+        >
+          <div className="text-center">
+            <div className="relative mb-4">
+              {/* 로딩 스피너 */}
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto"></div>
+              {/* 지도 아이콘 */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <MapPin className="w-5 h-5 text-blue-600 animate-pulse" />
+              </div>
+            </div>
+            <h4 className="text-lg font-semibold text-gray-800 mb-2">
+              지도를 생성중입니다
+            </h4>
+            <p className="text-sm text-gray-600 max-w-xs">
+              AI가 정확한 위치 정보를 분석하고 있어요.<br />
+              잠시만 기다려주세요...
+            </p>
+          </div>
+        </div>
+
+        {/* 🗺️ 실제 지도 표시 */}
+        <div 
+          className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+            !isCoordinatesLoading ? 'opacity-100 z-10' : 'opacity-0 z-0'
+          }`}
+        >
+          <MapWithRoute
+            chapters={displayChapters.length > 0 ? displayChapters : undefined}
+            pois={displayChapters.length === 0 ? pois.map(poi => ({
+              id: poi.id,
+              name: poi.name,
+              lat: poi.lat,
+              lng: poi.lng,
+              description: poi.description
+            })) : undefined}
+            currentLocation={null}
+            center={{ lat: startPoint.lat, lng: startPoint.lng }}
+            zoom={16} // 인트로 챕터 중심으로 확대 표시
+            showRoute={false} // 허브 페이지와 실시간 가이드 모두 루트 숨김 (별개 지역 마커만 표시)
+            showUserLocation={false}
+            onMarkerClick={(chapterIndex) => {
+              console.log('Chapter marker clicked:', chapterIndex);
+            }}
+            onPoiClick={(poiId) => {
+              console.log('POI clicked:', poiId);
+            }}
+            className="w-full h-full"
+            locationName={locationName}
+            guideCoordinates={guideCoordinates}
+          />
+        </div>
       </div>
     </div>
   );

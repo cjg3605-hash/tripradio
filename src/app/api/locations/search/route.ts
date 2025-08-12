@@ -6,10 +6,14 @@ import { classifyLocation, determinePageType, ALL_LOCATIONS, ALIAS_TO_LOCATION }
 export const dynamic = 'force-dynamic';
 export const maxDuration = 20; // Vercel Pro에서 최대 20초
 
-// Types
-interface LocationSuggestion {
-  name: string;
-  location: string;
+// Types - 새로운 구조화된 위치 데이터 인터페이스
+interface EnhancedLocationSuggestion {
+  name: string;          // 장소명
+  location: string;      // 상세 위치 (기존 호환성)
+  region: string;        // 지역/도시
+  country: string;       // 국가명  
+  countryCode: string;   // 국가 코드 (KR, US, FR 등)
+  type: 'location' | 'attraction'; // 위치 타입
   isMainLocation?: boolean;
   coordinates?: {
     lat: number;
@@ -25,6 +29,9 @@ interface LocationSuggestion {
   };
 }
 
+// 기존 호환성을 위한 레거시 인터페이스 유지
+interface LocationSuggestion extends EnhancedLocationSuggestion {}
+
 // 🗑️ 사용하지 않는 타입들 제거됨 (AI 자동완성만 사용)
 
 // Valid languages
@@ -38,6 +45,102 @@ function getGeminiClient() {
     throw new Error('GEMINI_API_KEY environment variable is not set');
   }
   return new GoogleGenerativeAI(apiKey);
+}
+
+/**
+ * 🌍 AI 응답에서 지역 정보 추출
+ */
+function extractRegionalInfo(locationString: string, placeName: string): { region: string; country: string; countryCode: string } {
+  const location = locationString.toLowerCase();
+  
+  // 국가 패턴 매칭
+  const countryPatterns = {
+    'KR': { 
+      keywords: ['korea', '한국', '대한민국', '서울', '부산', '제주', '경주', '인천', '대전', '대구', '광주', '울산'],
+      name: '대한민국'
+    },
+    'CN': { 
+      keywords: ['china', '중국', '베이징', 'beijing', '상하이', 'shanghai', '만리장성', 'great wall', '자금성'],
+      name: '중국'
+    },
+    'JP': { 
+      keywords: ['japan', '일본', '도쿄', 'tokyo', '오사카', 'osaka', '교토', 'kyoto'],
+      name: '일본'
+    },
+    'FR': { 
+      keywords: ['france', '프랑스', 'paris', '파리', '루브르', 'louvre', '에펠'],
+      name: '프랑스'
+    },
+    'GB': { 
+      keywords: ['england', 'uk', '영국', 'london', '런던', '빅벤', 'big ben'],
+      name: '영국'
+    },
+    'US': { 
+      keywords: ['usa', 'america', '미국', '뉴욕', 'new york', '자유의 여신'],
+      name: '미국'
+    },
+    'IT': { 
+      keywords: ['italy', '이탈리아', 'rome', '로마', '콜로세움', 'colosseum'],
+      name: '이탈리아'
+    },
+    'DE': { 
+      keywords: ['germany', '독일', 'berlin', '베를린', 'munich', '뮌헨'],
+      name: '독일'
+    },
+    'ES': { 
+      keywords: ['spain', '스페인', 'madrid', '마드리드', 'barcelona', '바르셀로나'],
+      name: '스페인'
+    },
+    'TH': { 
+      keywords: ['thailand', '태국', 'bangkok', '방콕', '치앙마이'],
+      name: '태국'
+    }
+  };
+
+  // 매칭되는 국가 찾기
+  let matchedCountry = 'KR'; // 기본값
+  let matchedCountryName = '대한민국';
+  
+  for (const [code, data] of Object.entries(countryPatterns)) {
+    if (data.keywords.some(keyword => location.includes(keyword) || placeName.toLowerCase().includes(keyword))) {
+      matchedCountry = code;
+      matchedCountryName = data.name;
+      break;
+    }
+  }
+
+  // 지역명 추출 (location string에서 국가 이후 부분)
+  let region = '';
+  if (location.includes(',')) {
+    const parts = location.split(',').map(part => part.trim());
+    if (parts.length >= 2) {
+      region = parts[parts.length - 2]; // 국가 바로 앞 부분
+    }
+  }
+  
+  // 지역명이 없으면 장소명에서 추출 시도
+  if (!region) {
+    const placeNameLower = placeName.toLowerCase();
+    if (matchedCountry === 'CN' && (placeNameLower.includes('베이징') || placeNameLower.includes('beijing'))) {
+      region = '베이징';
+    } else if (matchedCountry === 'KR' && placeNameLower.includes('서울')) {
+      region = '서울특별시';
+    } else if (matchedCountry === 'FR' && (placeNameLower.includes('파리') || placeNameLower.includes('paris'))) {
+      region = '파리';
+    } else if (matchedCountry === 'GB' && (placeNameLower.includes('런던') || placeNameLower.includes('london'))) {
+      region = '런던';
+    } else if (matchedCountry === 'US' && (placeNameLower.includes('뉴욕') || placeNameLower.includes('new york'))) {
+      region = '뉴욕';
+    } else {
+      region = '미분류';
+    }
+  }
+
+  return {
+    region: region || '미분류',
+    country: matchedCountryName,
+    countryCode: matchedCountry
+  };
 }
 
 // 위치 인식 전문가 페르소나
@@ -59,41 +162,52 @@ const LOCATION_EXPERT_PERSONA = `당신은 전세계 지리 및 위치 정보 �
 // 🚀 초효율 자동완성 프롬프트 (도시/국가 우선 + 관광명소)
 function createAutocompletePrompt(query: string, language: Language): string {
   const prompts = {
-    ko: `중요: 첫 번째 결과는 반드시 사용자가 입력한 장소명 자체여야 함.
+    ko: `중요: 첫 번째 결과는 반드시 사용자가 입력한 장소명 자체여야 함. location 필드에는 "구체적인 도시명, 국가명" 형태로 정확히 작성.
 
 "${query}" 검색 결과 6개를 JSON 형태로:
 
-1단계: 입력된 장소명 분석
+1단계: 입력된 장소명 분석 및 정확한 위치 파악
 - "${query}"가 도시/국가/지역명인가? → 첫 번째는 반드시 "${query}, 국가명" 형태
-- "${query}"가 관광명소인가? → 첫 번째는 "${query}" 그대로
+- "${query}"가 관광명소인가? → 첫 번째는 "${query}"이 위치한 정확한 "도시명, 국가명"으로
 
-2단계: 결과 구성 (순서 엄수)
-1. 첫 번째: "${query}"의 정식명칭 (도시면 "도시,국가", 명소면 명소명)
+2단계: location 필드 정확성 확보
+- 모든 장소의 location은 "구체적인 도시명, 국가명" 형태 (예: "베이징, 중국", "서울, 대한민국")
+- 지역/주 단위가 아닌 실제 도시명 사용 필수
+
+3단계: 결과 구성 (순서 엄수)
+1. 첫 번째: "${query}"의 정식명칭 (정확한 도시 위치 포함)
 2-6. 해당 지역의 주요 관광명소
 
-[{"name":"장소명","location":"상세위치","isMainLocation":true/false}]
+[{"name":"장소명","location":"구체적도시명, 국가명","isMainLocation":true/false}]
 
 예시:
 - "서울" → [{"name":"서울","location":"대한민국","isMainLocation":true}, {"name":"경복궁","location":"서울, 대한민국","isMainLocation":false}...]
-- "경복궁" → [{"name":"경복궁","location":"서울, 대한민국","isMainLocation":true}...]`,
+- "경복궁" → [{"name":"경복궁","location":"서울, 대한민국","isMainLocation":true}...]
+- "만리장성" → [{"name":"만리장성","location":"베이징, 중국","isMainLocation":true}...]
+- "에펠탑" → [{"name":"에펠탑","location":"파리, 프랑스","isMainLocation":true}...]`,
 
-    en: `CRITICAL: First result MUST be the exact location name the user typed.
+    en: `CRITICAL: First result MUST be the exact location name the user typed. Location field must be in "Specific City, Country" format exactly.
 
 Provide 6 results for "${query}" in JSON format:
 
-Step 1: Analyze input location
+Step 1: Analyze input location and determine precise location
 - Is "${query}" a city/country/region? → First result MUST be "${query}, CountryName" format
-- Is "${query}" an attraction? → First result is "${query}" as is
+- Is "${query}" an attraction? → First result with precise "CityName, CountryName" where it's located
 
-Step 2: Results structure (strict order)
-1. First: Official name of "${query}" (if city → "City, Country", if attraction → attraction name)
+Step 2: Ensure location field accuracy
+- ALL location fields must be "Specific City Name, Country Name" format (e.g., "Beijing, China", "Seoul, South Korea")
+- Use actual city names, not regions/states
+
+Step 3: Results structure (strict order)
+1. First: Official name of "${query}" (with precise city location)
 2-6. Major attractions in that area
 
-[{"name":"place","location":"detailed location","isMainLocation":true/false}]
+[{"name":"place","location":"SpecificCity, Country","isMainLocation":true/false}]
 
 Examples:
 - "Paris" → [{"name":"Paris","location":"France","isMainLocation":true}, {"name":"Eiffel Tower","location":"Paris, France","isMainLocation":false}...]
-- "Eiffel Tower" → [{"name":"Eiffel Tower","location":"Paris, France","isMainLocation":true}...]`,
+- "Eiffel Tower" → [{"name":"Eiffel Tower","location":"Paris, France","isMainLocation":true}...]
+- "Great Wall" → [{"name":"Great Wall of China","location":"Beijing, China","isMainLocation":true}...]`,
 
     ja: `重要：最初の結果は、ユーザーが入力した場所名そのものでなければならない。
 
@@ -592,9 +706,12 @@ function parseAIResponse<T>(text: string): T | null {
 }
 
 /**
- * 🔧 검색 결과 후처리 - 위치 분류 시스템을 활용한 올바른 순서 보장
+ * 🔧 검색 결과 후처리 - 새로운 구조화된 데이터 생성
  */
-function postProcessSearchResults(query: string, suggestions: {name: string, location: string, isMainLocation?: boolean}[]): {name: string, location: string, isMainLocation?: boolean, metadata?: any}[] {
+function postProcessSearchResults(
+  query: string, 
+  suggestions: {name: string, location: string, isMainLocation?: boolean}[]
+): EnhancedLocationSuggestion[] {
   if (!suggestions || suggestions.length === 0) return [];
   
   console.log('🔧 검색 결과 후처리 시작:', { query, suggestionsCount: suggestions.length });
@@ -603,101 +720,90 @@ function postProcessSearchResults(query: string, suggestions: {name: string, loc
   const queryClassification = classifyLocation(query);
   console.log('🏷️ Query 분류 결과:', queryClassification);
   
+  const processedResults: EnhancedLocationSuggestion[] = [];
+  
+  for (let index = 0; index < suggestions.length; index++) {
+    const suggestion = suggestions[index];
+    
+    // 지역 정보 추출
+    const regionalInfo = extractRegionalInfo(suggestion.location, suggestion.name);
+    console.log(`🌍 ${suggestion.name}의 지역 정보:`, regionalInfo);
+    
+    // 위치 타입 결정
+    let locationType: 'location' | 'attraction' = 'attraction';
+    const suggestionClassification = classifyLocation(suggestion.name);
+    
+    if (index === 0 || suggestion.isMainLocation || 
+        (suggestionClassification && ['country', 'province', 'city'].includes(suggestionClassification.type))) {
+      locationType = 'location';
+    }
+    
+    const enhancedSuggestion: EnhancedLocationSuggestion = {
+      name: suggestion.name,
+      location: suggestion.location,
+      region: regionalInfo.region,
+      country: regionalInfo.country,
+      countryCode: regionalInfo.countryCode,
+      type: locationType,
+      isMainLocation: index === 0 || suggestion.isMainLocation === true,
+      category: locationType === 'location' ? 'location' : 'attraction',
+      confidence: 0.9 - (index * 0.1), // 순서에 따른 신뢰도
+      metadata: {
+        isOfficial: index === 0 || suggestion.isMainLocation === true,
+        category: locationType,
+        popularity: Math.max(10 - index, 1)
+      }
+    };
+    
+    processedResults.push(enhancedSuggestion);
+  }
+  
+  // 2단계: 첫 번째 결과가 올바른 위치 타입인지 확인
   if (queryClassification && ['country', 'province', 'city'].includes(queryClassification.type)) {
-    // 입력이 도시/국가/지역인 경우: 해당 위치가 첫 번째에 있는지 확인
-    const firstResult = suggestions[0];
-    const firstResultClassification = classifyLocation(firstResult.name);
+    const firstResult = processedResults[0];
     
-    console.log('🔍 첫 번째 결과 분석:', {
-      firstResultName: firstResult.name,
-      firstResultClassification,
-      isCorrectType: firstResultClassification && ['country', 'province', 'city'].includes(firstResultClassification.type)
-    });
-    
-    // 첫 번째 결과가 도시/국가/지역이 아니라면 올바른 순서로 재정렬
-    if (!firstResultClassification || !['country', 'province', 'city'].includes(firstResultClassification.type)) {
+    // 첫 번째 결과가 도시/지역이 아니라면 올바른 순서로 재정렬
+    if (firstResult.type !== 'location') {
       console.log('⚠️ 첫 번째 결과가 도시/지역이 아님, 재정렬 시작');
       
-      // query와 정확히 일치하는 또는 유사한 도시/지역을 찾아서 첫 번째로 이동
-      const correctLocationIndex = suggestions.findIndex(suggestion => {
-        const suggestionClassification = classifyLocation(suggestion.name);
-        return suggestionClassification && 
-               ['country', 'province', 'city'].includes(suggestionClassification.type) &&
-               (suggestion.name.toLowerCase().includes(query.toLowerCase()) || 
-                query.toLowerCase().includes(suggestion.name.toLowerCase()));
-      });
+      const correctLocationIndex = processedResults.findIndex(result => 
+        result.type === 'location' &&
+        (result.name.toLowerCase().includes(query.toLowerCase()) || 
+         query.toLowerCase().includes(result.name.toLowerCase()))
+      );
       
       if (correctLocationIndex > 0) {
         // 올바른 위치를 첫 번째로 이동
-        const correctLocation = suggestions[correctLocationIndex];
-        const reorderedSuggestions = [
-          { ...correctLocation, isMainLocation: true },
-          ...suggestions.slice(0, correctLocationIndex),
-          ...suggestions.slice(correctLocationIndex + 1)
+        const correctLocation = { ...processedResults[correctLocationIndex], isMainLocation: true };
+        const reorderedResults = [
+          correctLocation,
+          ...processedResults.slice(0, correctLocationIndex),
+          ...processedResults.slice(correctLocationIndex + 1)
         ];
         
-        console.log('✅ 재정렬 완료:', {
-          original: suggestions.map(s => s.name),
-          reordered: reorderedSuggestions.map(s => s.name)
+        // isMainLocation 플래그 재설정
+        reorderedResults.forEach((result, idx) => {
+          result.isMainLocation = idx === 0;
         });
         
-        return reorderedSuggestions.map((suggestion, index) => ({
-          ...suggestion,
-          isMainLocation: index === 0,
-          metadata: {
-            isOfficial: index === 0,
-            category: index === 0 ? 'location' : 'attraction',
-            reordered: true
-          }
-        }));
-      } else {
-        // 적절한 도시/지역을 찾지 못한 경우, 원본 query로 새 첫 번째 결과 생성
-        console.log('⚡ 적절한 도시를 찾지 못함, query를 첫 번째로 설정');
+        console.log('✅ 재정렬 완료:', {
+          original: processedResults.map(s => s.name),
+          reordered: reorderedResults.map(s => s.name)
+        });
         
-        // query에서 국가명 추론
-        let locationSuffix = '';
-        if (queryClassification.country) {
-          locationSuffix = queryClassification.country;
-        } else {
-          // 한국어 지명이면 대한민국 추가
-          locationSuffix = /[가-힣]/.test(query) ? '대한민국' : '';
-        }
-        
-        const newFirstResult = {
-          name: query,
-          location: locationSuffix,
-          isMainLocation: true,
-          metadata: {
-            isOfficial: true,
-            category: 'location',
-            generated: true
-          }
-        };
-        
-        return [
-          newFirstResult,
-          ...suggestions.slice(0, 5).map((suggestion, index) => ({
-            ...suggestion,
-            isMainLocation: false,
-            metadata: {
-              isOfficial: false,
-              category: 'attraction'
-            }
-          }))
-        ];
+        return reorderedResults;
       }
     }
   }
   
-  // 기본 처리: 순서 유지하되 메타데이터 추가
-  return suggestions.map((suggestion, index) => ({
-    ...suggestion,
-    isMainLocation: index === 0 || suggestion.isMainLocation === true,
-    metadata: {
-      isOfficial: index === 0 || suggestion.isMainLocation === true,
-      category: index === 0 || suggestion.isMainLocation === true ? 'location' : 'attraction'
-    }
-  }));
+  console.log('✅ 후처리 완료:', {
+    results: processedResults.length,
+    firstResult: processedResults[0]?.name,
+    firstRegion: processedResults[0]?.region,
+    firstCountry: processedResults[0]?.country
+  });
+  
+  return processedResults;
 }
 
 // 🗑️ 사용하지 않는 함수 제거됨 (AI 자동완성만 사용)
@@ -752,7 +858,13 @@ export async function GET(request: NextRequest) {
     const autocompletePrompt = createAutocompletePrompt(sanitizedQuery, lang);
     
     try {
-      const autocompleteResult = await model.generateContent(autocompletePrompt);
+      // 10초 타임아웃 설정
+      const autocompletePromise = model.generateContent(autocompletePrompt);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Gemini API timeout')), 10000)
+      );
+      
+      const autocompleteResult = await Promise.race([autocompletePromise, timeoutPromise]);
       const autocompleteText = await autocompleteResult.response.text();
       
       console.log('🧠 AI 응답:', autocompleteText.substring(0, 200));

@@ -143,14 +143,39 @@ function getCountryName(countryCode: string): string {
 async function searchWithPlusCode(locationName: string, context?: LocationContext): Promise<{ lat: number; lng: number } | null> {
   const { smartPlacesSearch } = await import('@/lib/coordinates/google-places-integration');
   
-  // 전세계 호환 플러스코드 검색 쿼리들 (지역 컨텍스트 포함)
-  const plusCodeQueries = [
-    `${locationName} plus code`,
-    `${locationName} entrance`,
-    `${locationName} visitor center`,
-    `${locationName} main gate`,
-    `${locationName}`
-  ];
+  // 🎯 지역 컨텍스트를 활용한 효과적인 검색 쿼리들
+  const plusCodeQueries = [];
+  
+  // 1단계: 지역 정보 활용한 우선 검색어들
+  if (context?.parentRegion) {
+    plusCodeQueries.push(
+      `${locationName} ${context.parentRegion}`,
+      `${locationName} ${context.parentRegion} ${getCountryName(context.countryCode || 'KR')}`
+    );
+  }
+  
+  // 2단계: 국가별 맞춤 검색어들  
+  if (context?.countryCode === 'KR') {
+    // 한국 관광지 전용 검색어
+    plusCodeQueries.push(
+      `${locationName} 관광지`,
+      `${locationName} 입구`,
+      `${locationName} 매표소`
+    );
+  } else {
+    // 해외 관광지 전용 검색어
+    plusCodeQueries.push(
+      `${locationName} entrance`,
+      `${locationName} visitor center`,
+      `${locationName} main gate`
+    );
+  }
+  
+  // 3단계: 기본 검색어들
+  plusCodeQueries.push(
+    `${locationName}`,
+    `${locationName} tourist attraction`
+  );
   
   // 지역 바이어스 설정 (국가별 중심 좌표)
   const locationBias = getLocationBias(context?.countryCode);
@@ -203,18 +228,40 @@ function getLocationBias(countryCode?: string): { lat: number; lng: number; radi
 async function searchPlacesDetailed(locationName: string, context?: LocationContext): Promise<{ lat: number; lng: number } | null> {
   const { smartPlacesSearch } = await import('@/lib/coordinates/google-places-integration');
   
-  // 전세계 호환 상세 검색 쿼리들 (다국어 지원)
-  const searchQueries = [
-    `${locationName} entrance`,
-    `${locationName} main entrance`,
-    `${locationName} visitor entrance`,
-    `${locationName} gate`,
-    `${locationName} main gate`,
-    `${locationName} visitor center`,
-    `${locationName} information center`,
-    `${locationName} 입구`,
-    `${locationName} 매표소`
-  ];
+  // 🎯 지역 컨텍스트를 활용한 상세 검색 쿼리들
+  const searchQueries = [];
+  
+  // 1단계: 지역 정보 + 상세 키워드 조합
+  if (context?.parentRegion) {
+    if (context.countryCode === 'KR') {
+      searchQueries.push(
+        `${locationName} ${context.parentRegion} 입구`,
+        `${locationName} ${context.parentRegion} 매표소`,
+        `${locationName} ${context.parentRegion}`
+      );
+    } else {
+      searchQueries.push(
+        `${locationName} ${context.parentRegion} entrance`,
+        `${locationName} ${context.parentRegion} visitor center`
+      );
+    }
+  }
+  
+  // 2단계: 국가별 맞춤 상세 검색어들
+  if (context?.countryCode === 'KR') {
+    searchQueries.push(
+      `${locationName} 입구`,
+      `${locationName} 매표소`,
+      `${locationName} 관광안내소`
+    );
+  } else {
+    searchQueries.push(
+      `${locationName} entrance`,
+      `${locationName} main entrance`,
+      `${locationName} visitor center`,
+      `${locationName} information center`
+    );
+  }
   
   const locationBias = getLocationBias(context?.countryCode);
   
@@ -246,15 +293,47 @@ async function searchPlacesDetailed(locationName: string, context?: LocationCont
 async function searchPlacesBasic(locationName: string, context?: LocationContext): Promise<{ lat: number; lng: number } | null> {
   const { smartPlacesSearch } = await import('@/lib/coordinates/google-places-integration');
   
-  // 전세계 호환 기본 검색 (장소명 그대로)
-  const searchQueries = [
+  // 🎯 지역 컨텍스트를 활용한 기본 검색 쿼리들
+  const searchQueries = [];
+  
+  // 1단계: 지역 정보 + 기본 장소명 조합
+  if (context?.parentRegion) {
+    searchQueries.push(
+      `${locationName} ${context.parentRegion}`,
+      `${locationName} ${context.parentRegion} ${getCountryName(context.countryCode || 'KR')}`
+    );
+  }
+  
+  // 2단계: 국가 정보 + 기본 장소명 조합
+  if (context?.countryCode) {
+    searchQueries.push(
+      `${locationName} ${getCountryName(context.countryCode)}`
+    );
+  }
+  
+  // 3단계: 장소명 + 범용 카테고리 조합
+  searchQueries.push(
     `${locationName}`, // 정확한 장소명
     `${locationName} tourist attraction`,
-    `${locationName} landmark`,
-    `${locationName} temple`, // 템플 (전세계 공통)
-    `${locationName} park`,
-    `${locationName} museum`
-  ];
+    `${locationName} landmark`
+  );
+  
+  // 4단계: 국가별 맞춤 카테고리 검색어
+  if (context?.countryCode === 'KR') {
+    // 한국 관광지 카테고리
+    searchQueries.push(
+      `${locationName} 관광지`,
+      `${locationName} 명소`,
+      `${locationName} 문화재`
+    );
+  } else {
+    // 해외 관광지 카테고리
+    searchQueries.push(
+      `${locationName} temple`,
+      `${locationName} park`,
+      `${locationName} museum`
+    );
+  }
   
   const locationBias = getLocationBias(context?.countryCode);
   
@@ -451,6 +530,45 @@ export function generateCoordinatesArray(
   });
   
   return coordinatesArray;
+}
+
+/**
+ * 🎯 통합 좌표 생성 함수 - 1-5순위 시스템 + 챕터별 배열 생성
+ * 모든 좌표 생성 작업의 단일 진실 소스
+ */
+export async function generateCompleteCoordinates(
+  locationName: string,
+  guideData: any,
+  context?: LocationContext
+): Promise<{
+  baseCoordinates: { lat: number; lng: number };
+  coordinatesArray: any[];
+  foundMethod: string;
+}> {
+  console.log(`🎯 통합 좌표 생성 시작: ${locationName}`);
+  
+  // 1단계: 1-5순위 시스템으로 기본 좌표 찾기
+  const baseCoordinates = await findCoordinatesInOrder(locationName, context);
+  
+  // 2단계: 챕터 정보 추출
+  const chapters = extractChaptersFromContent(guideData);
+  
+  // 3단계: 챕터별 좌표 배열 생성
+  const coordinatesArray = generateCoordinatesArray(chapters, baseCoordinates);
+  
+  // 4단계: 사용된 방법 로깅 (디버깅용)
+  let foundMethod = '5순위: 기본 좌표';
+  if (baseCoordinates.lat !== 37.5665 || baseCoordinates.lng !== 126.9780) {
+    foundMethod = '1-4순위: API/AI 좌표';
+  }
+  
+  console.log(`✅ 통합 좌표 생성 완료: ${foundMethod}, ${coordinatesArray.length}개 챕터`);
+  
+  return {
+    baseCoordinates,
+    coordinatesArray,
+    foundMethod
+  };
 }
 
 /**

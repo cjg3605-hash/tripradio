@@ -5,11 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 // import { enhancedLocationSearch, SearchCandidate, SearchFilters } from '@/lib/search/enhanced-search-system';
 
-// 기존 Suggestion 인터페이스 유지 (하위 호환성)
-interface Suggestion {
-  id?: string;
-  name: string;
-  location: string;
+// 새로운 구조화된 위치 데이터 인터페이스
+interface EnhancedLocationSuggestion {
+  name: string;          // 장소명
+  location: string;      // 상세 위치 (기존 호환성)
+  region: string;        // 지역/도시
+  country: string;       // 국가명  
+  countryCode: string;   // 국가 코드 (KR, US, FR 등)
+  type: 'location' | 'attraction'; // 위치 타입
   isMainLocation?: boolean;
   metadata?: {
     isOfficial?: boolean;
@@ -17,6 +20,9 @@ interface Suggestion {
     popularity?: number;
   };
 }
+
+// 기존 호환성을 위한 레거시 인터페이스 유지
+interface Suggestion extends EnhancedLocationSuggestion {}
 
 interface ExplorationSuggestion {
   title: string;
@@ -130,18 +136,54 @@ export default function NextLevelSearchBox() {
     }
   };
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!query.trim() || isSubmitting) return;
     
     setIsSubmitting(true);
     setIsFocused(false);
     
-    setTimeout(() => {
-      router.push(`/guide/${encodeURIComponent(query.trim())}`);
-    }, 100);
+    try {
+      // 직접 입력의 경우 자동완성 AI를 통해 지역 정보 추출
+      console.log('🔍 직접 입력 처리 시작:', query.trim());
+      
+      const response = await fetch(`/api/locations/search?q=${encodeURIComponent(query.trim())}&lang=${currentLanguage}`);
+      const data = await response.json();
+      
+      // 첫 번째 결과에서 지역 정보 추출
+      let locationData = null;
+      if (data.success && data.data && data.data.length > 0) {
+        locationData = data.data[0]; // EnhancedLocationSuggestion 형태
+        console.log('✅ 지역 정보 추출 성공:', locationData);
+      }
+      
+      // URL에 지역 정보 포함하여 전달
+      let targetUrl = `/guide/${encodeURIComponent(query.trim())}`;
+      if (locationData) {
+        const urlParams = new URLSearchParams({
+          region: locationData.region || '',
+          country: locationData.country || '',
+          countryCode: locationData.countryCode || '',
+          type: locationData.type || 'attraction'
+        });
+        targetUrl += `?${urlParams.toString()}`;
+      }
+      
+      setTimeout(() => {
+        router.push(targetUrl);
+      }, 100);
+      
+    } catch (error) {
+      console.warn('❌ 직접 입력 지역 정보 추출 실패:', error);
+      // 실패 시 기존 방식으로 폴백
+      setTimeout(() => {
+        router.push(`/guide/${encodeURIComponent(query.trim())}`);
+      }, 100);
+    }
   };
 
   const handleSuggestionClick = (suggestion: Suggestion) => {
+    console.log('🎯 자동완성 선택:', suggestion);
+    
     // 입력창에 선택된 제안사항 채우기
     setQuery(suggestion.name);
     
@@ -151,14 +193,34 @@ export default function NextLevelSearchBox() {
     setExplorationSuggestions([]);
     setShowExploration(false);
     setSelectedIndex(-1);
+    setIsSubmitting(true);
     
-    // 입력창에 포커스 유지 (사용자가 Enter를 누르거나 검색 버튼을 클릭할 수 있도록)
+    // 구조화된 지역 정보와 함께 바로 검색 실행
+    const urlParams = new URLSearchParams({
+      region: suggestion.region || '',
+      country: suggestion.country || '',
+      countryCode: suggestion.countryCode || '',
+      type: suggestion.type || 'attraction'
+    });
+    
+    const targetUrl = `/guide/${encodeURIComponent(suggestion.name)}?${urlParams.toString()}`;
+    
+    console.log('🚀 자동완성 선택으로 이동:', {
+      name: suggestion.name,
+      region: suggestion.region,
+      country: suggestion.country,
+      countryCode: suggestion.countryCode,
+      url: targetUrl
+    });
+    
     setTimeout(() => {
-      inputRef.current?.focus();
-    }, 50);
+      router.push(targetUrl);
+    }, 100);
   };
 
   const handleExplorationClick = (suggestion: Suggestion) => {
+    console.log('🌟 탐색 추천 선택:', suggestion);
+    
     // 탐색 추천을 클릭하면 바로 검색 실행
     setQuery(suggestion.name);
     setIsFocused(false);
@@ -168,8 +230,18 @@ export default function NextLevelSearchBox() {
     setSelectedIndex(-1);
     setIsSubmitting(true);
     
+    // 구조화된 지역 정보와 함께 바로 검색 실행
+    const urlParams = new URLSearchParams({
+      region: suggestion.region || '',
+      country: suggestion.country || '',
+      countryCode: suggestion.countryCode || '',
+      type: suggestion.type || 'attraction'
+    });
+    
+    const targetUrl = `/guide/${encodeURIComponent(suggestion.name)}?${urlParams.toString()}`;
+    
     setTimeout(() => {
-      router.push(`/guide/${encodeURIComponent(suggestion.name)}`);
+      router.push(targetUrl);
     }, 100);
   };
 

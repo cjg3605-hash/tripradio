@@ -10,7 +10,14 @@ export const revalidate = 0;
 
 interface PageProps {
   params: Promise<{ location: string }>;
-  searchParams?: Promise<{ lang?: string; parent?: string }>;
+  searchParams?: Promise<{ 
+    lang?: string; 
+    parent?: string;
+    region?: string;
+    country?: string;
+    countryCode?: string;
+    type?: string;
+  }>;
 }
 
 // normalizeString 함수 제거 - utils에서 normalizeLocationName 사용
@@ -48,10 +55,18 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
       ? resolvedSearchParams.lang[0] 
       : resolvedSearchParams?.lang
   );
-  // 🎯 지역 컨텍스트 정보 추출
+  // 🎯 새로운 구조화된 지역 컨텍스트 정보 추출
   const parentRegion = resolvedSearchParams?.parent 
     ? decodeURIComponent(resolvedSearchParams.parent)
     : undefined;
+    
+  // 🚀 검색박스에서 전달된 구조화된 지역 정보
+  const regionalContext = resolvedSearchParams ? {
+    region: resolvedSearchParams.region ? decodeURIComponent(resolvedSearchParams.region) : undefined,
+    country: resolvedSearchParams.country ? decodeURIComponent(resolvedSearchParams.country) : undefined,
+    countryCode: resolvedSearchParams.countryCode || undefined,
+    type: resolvedSearchParams.type as 'location' | 'attraction' || undefined
+  } : undefined;
   const normLocation = normalizeLocationName(locationName);
   
   // 🔥 서버에서 통합 언어 감지 (쿠키 우선)
@@ -74,7 +89,8 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
     cookieLanguage,
     serverDetectedLanguage,
     finalLanguage: serverDetectedLanguage,
-    parentRegion: parentRegion || 'none' // 🎯 지역 컨텍스트 로깅
+    parentRegion: parentRegion || 'none', // 🎯 지역 컨텍스트 로깅
+    regionalContext: regionalContext || 'none' // 🚀 새로운 구조화된 지역 정보 로깅
   });
   
   console.log('🔎 DB 조회 준비:', {
@@ -130,6 +146,7 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
         initialGuide={initialGuide}
         requestedLanguage={serverDetectedLanguage}
         parentRegion={parentRegion}
+        regionalContext={regionalContext}
       />
     </>
   );

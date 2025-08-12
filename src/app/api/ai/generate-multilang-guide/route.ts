@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
+import { generateCompleteCoordinates, LocationContext } from '@/lib/coordinates/coordinate-utils';
 
 export const runtime = 'nodejs';
 
@@ -519,93 +520,79 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    console.log(`✅ ${language} AI 가이드 파싱 완룈 - 이제 좌표 후처리 시작`);
+    console.log(`✅ ${language} AI 가이드 파싱 완료 - 이제 통합 좌표 생성 시작`);
     
-    // 🎯 3단계: 병렬 실행된 Google Places API 결과에서 좌표 추출 (Plus Code 검증)
-    console.log(`\n🔍 좌표 후처리 3단계: 병렬 처리된 데이터 활용`);
+    // 🎯 3단계: 통합 좌표 생성 시스템 (1-5순위) - 단일 함수로 통합
+    console.log(`\n🔍 통합 좌표 생성 시작`);
     
-    let foundCoordinates: { lat: number; lng: number };
+    // LocationContext 구성
+    const locationContext: LocationContext = {
+      locationName,
+      parentRegion: regionalInfo.location_region,
+      countryCode: regionalInfo.country_code,
+      language
+    };
     
-    // 이미 Google Places API에서 좌표를 확보했는지 확인
-    if (placesResult && placesResult.coordinates) {
-      console.log(`✅ Google Places API에서 좌표 확보: ${placesResult.coordinates.lat}, ${placesResult.coordinates.lng}`);
-      
-      // Plus Code 검증
-      const isVerified = verifyLocationWithPlusCode(placesResult, locationName);
-      if (isVerified) {
-        foundCoordinates = {
-          lat: placesResult.coordinates.lat,
-          lng: placesResult.coordinates.lng
-        };
-        console.log(`✅ Plus Code 검증 성공 - 좌표 사용: ${foundCoordinates.lat}, ${foundCoordinates.lng}`);
-      } else {
-        console.log(`⚠️ Plus Code 검증 실패 - 기본 좌표 사용`);
-        foundCoordinates = { lat: 37.5665, lng: 126.9780 }; // 서울 명동 기본값
-      }
-    } else {
-      console.log(`⚠️ Google Places API 좌표 없음 - 기본 좌표 사용`);
-      foundCoordinates = { lat: 37.5665, lng: 126.9780 }; // 서울 명동 기본값
-    }
+    // 통합 좌표 생성 함수 호출 (1-5순위 시스템 + 챕터별 배열 생성)
+    const coordinateResult = await generateCompleteCoordinates(
+      locationName,
+      guideData,
+      locationContext
+    );
     
-    console.log(`✅ 좌표 확보 완료: ${foundCoordinates.lat}, ${foundCoordinates.lng}`);
+    console.log(`✅ 통합 좌표 생성 완료: ${coordinateResult.foundMethod}`);
+    console.log(`📍 기본 좌표: ${coordinateResult.baseCoordinates.lat}, ${coordinateResult.baseCoordinates.lng}`);
+    console.log(`📊 챕터 좌표 배열: ${coordinateResult.coordinatesArray.length}개`);
     
-    // 🎯 4단계: 병렬 처리로 확보된 좌표를 모든 챕터에 후처리 적용
-    console.log(`\n📍 좌표 후처리 4단계 시작`);
+    // 🎯 4단계: 생성된 좌표를 챕터에 적용
+    console.log(`\n📍 챕터에 좌표 적용 시작`);
     
     if (guideData.realTimeGuide?.chapters && validChapters.length > 0) {
-      console.log(`📍 ${validChapters.length}개 유효한 챕터에 좌표 적용: ${foundCoordinates.lat}, ${foundCoordinates.lng}`);
+      console.log(`📍 ${validChapters.length}개 유효한 챕터에 좌표 적용`);
       
-      // 🔥 핵심: narrative와 nextDirection 사이에 coordinates 필드만 추가
+      // 각 챕터에 해당하는 좌표 적용
       guideData.realTimeGuide.chapters = validChapters.map((chapter: any, index: number) => {
-        const offset = index * 0.0005; // 챕터별 약간의 오프셋 (약 50미터)
-        const coordinatesData = {
-          lat: foundCoordinates.lat + offset,
-          lng: foundCoordinates.lng + offset
+        const chapterCoordinate = coordinateResult.coordinatesArray[index] || {
+          lat: coordinateResult.baseCoordinates.lat,
+          lng: coordinateResult.baseCoordinates.lng
         };
         
         // 🎯 정규화된 챕터 구조: narrative와 nextDirection 사이에 coordinates 추가
         const normalizedChapter = {
           ...chapter,
-          coordinates: coordinatesData  // narrative와 nextDirection 사이에 위치
+          coordinates: {
+            lat: chapterCoordinate.lat,
+            lng: chapterCoordinate.lng
+          }
         };
         
-        console.log(`  ✅ 챕터 ${chapter.id}: 정규화된 좌표 추가 완료`, {
-          id: chapter.id,
-          title: chapter.title,
-          coordinates: coordinatesData,
-          narrative: chapter.narrative ? `${chapter.narrative.substring(0, 50)}...` : 'MISSING',
-          nextDirection: chapter.nextDirection ? `${chapter.nextDirection.substring(0, 30)}...` : 'MISSING'
-        });
-        
+        console.log(`  ✅ 챕터 ${index}: "${chapter.title}" → 좌표 (${chapterCoordinate.lat}, ${chapterCoordinate.lng}) 적용`);
         return normalizedChapter;
       });
       
-      console.log(`✅ ${guideData.realTimeGuide.chapters.length}개 챕터 좌표 JSON 적용 완료`);
+      console.log(`✅ 총 ${validChapters.length}개 챕터에 좌표 적용 완료`);
       
       // 좌표 성공 정보 저장
       guideData.locationCoordinateStatus = {
         locationName: locationName,
         coordinateSearchAttempted: true,
         coordinateFound: true,
-        coordinateSource: 'sequential_after_ai',
-        coordinates: foundCoordinates,
+        coordinateSource: `unified_1_5_system_${coordinateResult.foundMethod}`,
+        coordinates: coordinateResult.baseCoordinates,
         lastAttempt: new Date().toISOString()
       };
       
     } else {
-      console.log(`⚠️ realTimeGuide.chapters 구조가 없거나 유효한 챕터가 없음 - 기본 구조 생성`);
+      console.log(`⚠️ 유효한 챕터가 없음 - 기본 구조 생성`);
       
-      // 기본 챕터 구조 생성 (정규화된 방식)
+      // 기본 챕터 구조 생성
       guideData.realTimeGuide = guideData.realTimeGuide || {};
       guideData.realTimeGuide.chapters = [
         {
           id: 1,
           title: `${locationName} 가이드`,
           narrative: `${locationName}에 대한 안내입니다.`,
-          coordinates: {
-            lat: foundCoordinates.lat,
-            lng: foundCoordinates.lng
-          },
+          coordinates: coordinateResult.baseCoordinates,
           nextDirection: `${locationName} 탐방을 시작해보세요.`
         }
       ];
@@ -615,73 +602,30 @@ export async function POST(request: NextRequest) {
         locationName: locationName,
         coordinateSearchAttempted: true,
         coordinateFound: true,
-        coordinateSource: 'sequential_after_ai_fallback',
-        coordinates: foundCoordinates,
+        coordinateSource: `unified_1_5_system_fallback_${coordinateResult.foundMethod}`,
+        coordinates: coordinateResult.baseCoordinates,
         lastAttempt: new Date().toISOString()
       };
       
-      console.log(`✅ 기본 챕터 구조 생성 및 정규화된 좌표 적용 완료`);
+      console.log(`✅ 기본 챕터 구조 생성 및 좌표 적용 완료`);
     }
 
-    // 🎯 5단계: 챕터별 좌표 배열 생성 (사용자 요구사항 - 모든 챕터)
-    console.log(`\n📍 챕터별 좌표 배열 생성`);
-    const coordinatesArray: any[] = [];
+    // 🎯 5단계: 통합 함수에서 생성된 coordinatesArray를 guideData에 추가 (DB 저장용)
+    console.log(`\n📍 통합 좌표 배열을 guideData에 추가`);
     
-    // 🚨 중요: 모든 유효한 챕터의 좌표를 배열로 생성
-    if (guideData.realTimeGuide?.chapters && Array.isArray(guideData.realTimeGuide.chapters) && guideData.realTimeGuide.chapters.length > 0) {
-      console.log(`📊 ${guideData.realTimeGuide.chapters.length}개 챕터에서 좌표 배열 생성`);
-      
-      guideData.realTimeGuide.chapters.forEach((chapter: any, index: number) => {
-        const offset = index * 0.0005; // 챕터별 약간의 오프셋 (약 50미터)
-        const chapterCoords = {
-          id: chapter.id !== undefined ? chapter.id : index,
-          chapterId: chapter.id !== undefined ? chapter.id : index,
-          step: index,
-          title: chapter.title || `챕터 ${index + 1}`,
-          lat: foundCoordinates.lat + offset,
-          lng: foundCoordinates.lng + offset,
-          coordinates: {
-            lat: foundCoordinates.lat + offset,
-            lng: foundCoordinates.lng + offset
-          }
-        };
-        
-        coordinatesArray.push(chapterCoords);
-        
-        console.log(`  ✅ 챕터 ${index} 좌표 생성: ${chapter.title} → (${chapterCoords.lat}, ${chapterCoords.lng})`);
-      });
-      
-      console.log(`✅ 총 ${coordinatesArray.length}개 챕터 좌표 배열 완성`);
-    } else {
-      // 🚨 챕터가 없는 경우에도 최소 1개는 생성
-      console.log(`⚠️ 챕터가 없거나 비어있음 - 기본 좌표 1개 생성`);
-      coordinatesArray.push({
-        id: 0,
-        chapterId: 0,
-        step: 0,
-        title: `${locationName} 가이드`,
-        lat: foundCoordinates.lat,
-        lng: foundCoordinates.lng,
-        coordinates: {
-          lat: foundCoordinates.lat,
-          lng: foundCoordinates.lng
-        }
-      });
-    }
+    // 통합 함수에서 이미 생성된 좌표 배열 사용
+    guideData.coordinatesArray = coordinateResult.coordinatesArray;
     
-    console.log(`📍 최종 좌표 배열 검증: ${coordinatesArray.length}개`);
-    coordinatesArray.forEach((coord, idx) => {
+    console.log(`✅ DB 저장용 좌표 배열 추가 완료: ${coordinateResult.coordinatesArray.length}개`);
+    coordinateResult.coordinatesArray.forEach((coord, idx) => {
       console.log(`  ${idx + 1}. [${coord.chapterId}] ${coord.title}: (${coord.lat}, ${coord.lng})`);
     });
     
-    // 🎯 6단계: coordinatesArray를 guideData에 추가 (DB 저장용)
-    guideData.coordinatesArray = coordinatesArray;
-    
-    // 🎯 7단계: 지역 정보를 guideData에 추가
+    // 🎯 6단계: 지역 정보를 guideData에 추가
     guideData.regionalInfo = regionalInfo;
     console.log(`🌍 지역 정보가 가이드 데이터에 추가됨:`, regionalInfo);
     
-    // 🎯 8단계: 최종 응답 반환
+    // 🎯 7단계: 최종 응답 반환 (가이드 생성만 담당, DB 저장은 별도 처리)
     console.log(`\n✅ ${language} 가이드 생성 최종 완료`);
     
     return NextResponse.json({

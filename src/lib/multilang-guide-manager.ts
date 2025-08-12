@@ -326,8 +326,41 @@ export class MultiLangGuideManager {
 
       console.log(`🎨 ${language} 가이드가 없음 - 새로 생성`);
 
-      // API 라우트를 통해 AI 가이드 생성 요청
-      const response = await fetch('/api/ai/generate-multilang-guide', {
+      // 🚀 새로운 순차 API 라우트를 통해 AI 가이드 생성 요청
+      // URL 파라미터로 지역 정보 전달 (검색박스에서 전달된 구조화된 데이터 활용)
+      let apiUrl = '/api/ai/generate-sequential-guide';
+      
+      // 지역 정보 추출 (regionalContext 또는 parentRegion에서)
+      let queryParams = new URLSearchParams();
+      
+      if (regionalContext) {
+        console.log('🌍 regionalContext에서 지역 정보 추출:', regionalContext);
+        queryParams.set('region', regionalContext.region || regionalContext.parentRegion || '미분류');
+        queryParams.set('country', regionalContext.country || '대한민국');
+        queryParams.set('countryCode', regionalContext.countryCode || 'KR');
+        queryParams.set('type', regionalContext.type || 'attraction');
+      } else if (parentRegion) {
+        console.log('🌍 parentRegion에서 지역 정보 추출:', parentRegion);
+        queryParams.set('region', parentRegion);
+        queryParams.set('country', '대한민국'); // 기본값
+        queryParams.set('countryCode', 'KR'); // 기본값
+        queryParams.set('type', 'attraction'); // 기본값
+      } else {
+        console.log('🌍 기본 지역 정보 사용 (한국)');
+        queryParams.set('region', '미분류');
+        queryParams.set('country', '대한민국');
+        queryParams.set('countryCode', 'KR');
+        queryParams.set('type', 'attraction');
+      }
+      
+      // URL 파라미터 추가
+      if (queryParams.toString()) {
+        apiUrl += `?${queryParams.toString()}`;
+      }
+      
+      console.log(`🚀 순차 API 호출: ${apiUrl}`);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -335,9 +368,7 @@ export class MultiLangGuideManager {
         body: JSON.stringify({
           locationName: locationName,
           language: language,
-          userProfile: userProfile,
-          parentRegion: parentRegion,
-          regionalContext: regionalContext
+          userProfile: userProfile
         })
       });
 
