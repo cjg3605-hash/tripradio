@@ -100,8 +100,8 @@ const RegionTouristMap: React.FC<RegionTouristMapProps> = ({
       return { lat: centerLat, lng: centerLng, name: `${locationName} 중심` };
     }
 
-    // 기본값 (서울 중심)
-    return { lat: 37.5665, lng: 126.9780, name: locationName };
+    // 기본값 - 유효한 POI가 없으면 null 반환
+    return null;
   };
 
   const mapCenter = calculateMapCenter();

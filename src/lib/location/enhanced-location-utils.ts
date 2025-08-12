@@ -342,17 +342,4 @@ export async function findLocationAccurate(locationName: string): Promise<Enhanc
 /**
  * 기본 위치 (서울 중심가)
  */
-export const DEFAULT_ENHANCED_LOCATION: EnhancedLocationResult = {
-  id: 'seoul-center',
-  name: '서울 중심가',
-  center: {
-    lat: 37.5665,
-    lng: 126.9780,
-    name: '서울 중심가',
-    accuracy: 0.8,
-    confidence: 0.8,
-    sources: ['static']
-  },
-  recommendedZoom: 13,
-  dataSource: 'static'
-};
+export const DEFAULT_ENHANCED_LOCATION: EnhancedLocationResult | null = null;

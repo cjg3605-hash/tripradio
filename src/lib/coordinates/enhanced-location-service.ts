@@ -685,11 +685,8 @@ export class EnhancedLocationService {
   ): LocationResult {
     console.log('🔄 폴백 결과 생성');
     
-    // 기본 좌표 (서울 시청 좌표를 임시로 사용)
-    const fallbackCoords = {
-      lat: 37.5665,
-      lng: 126.9780
-    };
+    // 기본 좌표 없음 - null 반환
+    const fallbackCoords = null;
 
     return {
       coordinates: fallbackCoords,
@@ -725,10 +722,7 @@ export class EnhancedLocationService {
   ): LocationResult {
     console.log('❌ 오류 결과 생성:', error);
     
-    const fallbackCoords = {
-      lat: 37.5665,
-      lng: 126.9780
-    };
+    const fallbackCoords = null;
 
     return {
       coordinates: fallbackCoords,

@@ -346,7 +346,7 @@ LNG: 126.9780
 /**
  * 🎯 5순위: 기본 좌표 반환 (지역별 중심 좌표) - 컨텍스트 지원
  */
-function getDefaultCoordinates(locationName: string, context?: LocationContext): { lat: number; lng: number } {
+function getDefaultCoordinates(locationName: string, context?: LocationContext): { lat: number; lng: number } | null {
   const name = locationName.toLowerCase();
   
   // 1. 컨텍스트 국가 코드 우선 적용
@@ -390,8 +390,8 @@ function getDefaultCoordinates(locationName: string, context?: LocationContext):
     return { lat: 39.9042, lng: 116.4074 }; // 베이징 중심부
   }
   
-  // 4. 기본값: 서울 중심부 (또는 컨텍스트 지역)
-  return { lat: 37.5665, lng: 126.9780 };
+  // 4. 기본값: null 반환 (좌표를 찾을 수 없음을 명시)
+  return null;
 }
 
 /**
