@@ -242,8 +242,21 @@ const LiveTourPage: React.FC = () => {
       // POI 생성 - coordinates 칼럼 우선 사용
       if (coordinatesArray.length > 0) {
         coordinatesArray.forEach((coordItem: any, index: number) => {
-          const lat = parseFloat(coordItem.lat);
-          const lng = parseFloat(coordItem.lng);
+          // 좌표 추출 - coordinates 객체 우선, 최상위 폴백
+          let lat: number, lng: number;
+          
+          if (coordItem.coordinates?.lat && coordItem.coordinates?.lng) {
+            // coordinates 객체 안의 좌표 사용 (우선순위 1)
+            lat = parseFloat(coordItem.coordinates.lat);
+            lng = parseFloat(coordItem.coordinates.lng);
+          } else if (coordItem.lat && coordItem.lng) {
+            // 최상위 좌표 사용 (폴백)
+            lat = parseFloat(coordItem.lat);
+            lng = parseFloat(coordItem.lng);
+          } else {
+            console.warn(`⚠️ 좌표 ${index + 1}에서 유효한 좌표를 찾을 수 없음:`, coordItem);
+            return; // 이 항목을 건너뜀
+          }
 
           // 유효한 좌표가 있는 경우 POI 생성
           if (!isNaN(lat) && !isNaN(lng) &&
@@ -286,6 +299,18 @@ const LiveTourPage: React.FC = () => {
 
     loadGuideDataDirectly();
   }, [locationName, currentLanguage]);
+
+  // POI 데이터 로딩 완료 시 지도 중심점 업데이트
+  useEffect(() => {
+    if (poisWithChapters.length > 0 && poisWithChapters[0]) {
+      const firstPOI = poisWithChapters[0];
+      console.log(`🗺️ 지도 중심점 업데이트: ${firstPOI.name} (${firstPOI.lat}, ${firstPOI.lng})`);
+      setMapCenter({
+        lat: firstPOI.lat,
+        lng: firstPOI.lng
+      });
+    }
+  }, [poisWithChapters]);
 
   const audioChapters: AudioChapter[] = poisWithChapters
     .filter(poi => poi.audioChapter)
