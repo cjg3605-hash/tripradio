@@ -89,8 +89,21 @@ const LiveTourPage: React.FC = () => {
         // 먼저 전역 데이터 확인 (빠른 경로)
         const globalGuideData = (window as any).currentGuideData;
         if (globalGuideData) {
-          console.log('📦 전역 데이터 사용');
-          await processGuideData(globalGuideData);
+          console.log('📦 전역 데이터 사용 - coordinates 별도 조회 필요');
+          
+          // 전역 데이터에는 coordinates가 없으므로 별도 조회
+          const { supabase } = await import('@/lib/supabaseClient');
+          const normalizedLocation = locationName.trim().toLowerCase().replace(/\s+/g, ' ');
+          
+          const { data: coordsData } = await supabase
+            .from('guides')
+            .select('coordinates')
+            .eq('locationname', normalizedLocation)
+            .eq('language', currentLanguage)
+            .maybeSingle();
+          
+          console.log('📍 전역 데이터용 coordinates 별도 조회 완료');
+          await processGuideData(globalGuideData, coordsData?.coordinates);
           return;
         }
         
@@ -116,7 +129,7 @@ const LiveTourPage: React.FC = () => {
         
         const { data, error } = await supabase
           .from('guides')
-          .select('content')
+          .select('content, coordinates')
           .eq('locationname', normalizedLocation)
           .eq('language', currentLanguage)
           .maybeSingle();
@@ -129,7 +142,7 @@ const LiveTourPage: React.FC = () => {
         
         if (data?.content) {
           console.log('🗄️ DB에서 데이터 로드 성공');
-          await processGuideData(data.content);
+          await processGuideData(data.content, data.coordinates);
         } else {
           setPoisError('해당 위치의 가이드 데이터가 없습니다');
         }
@@ -142,7 +155,7 @@ const LiveTourPage: React.FC = () => {
       }
     };
     
-    const processGuideData = async (guideData: any) => {
+    const processGuideData = async (guideData: any, coordinatesFromDB?: any) => {
       const personalities = ['agreeableness', 'openness', 'conscientiousness'];
       const pois: POI[] = [];
 
@@ -222,13 +235,13 @@ const LiveTourPage: React.FC = () => {
         console.log('📍 원본 좌표로 계속 진행');
       }
 
-      // 🎯 좌표는 coordinates 칼럼에서 직접 가져오기
-      const coordinatesFromDB = guideData.coordinates || [];
-      console.log(`📍 DB coordinates 칼럼에서 ${coordinatesFromDB.length}개 좌표 발견`);
+      // 🎯 좌표는 coordinates 칼럼에서 직접 가져오기 (DB 조회 결과에서)
+      const coordinatesArray = coordinatesFromDB || [];
+      console.log(`📍 DB coordinates 칼럼에서 ${coordinatesArray.length}개 좌표 발견`);
 
       // POI 생성 - coordinates 칼럼 우선 사용
-      if (coordinatesFromDB.length > 0) {
-        coordinatesFromDB.forEach((coordItem: any, index: number) => {
+      if (coordinatesArray.length > 0) {
+        coordinatesArray.forEach((coordItem: any, index: number) => {
           const lat = parseFloat(coordItem.lat);
           const lng = parseFloat(coordItem.lng);
 
@@ -259,46 +272,8 @@ const LiveTourPage: React.FC = () => {
           }
         });
       } else {
-        // Fallback: content 칼럼의 chapters에서 좌표 추출
-        console.log('📍 coordinates 칼럼이 비어있음, content의 chapters에서 좌표 추출 시도');
-        chapters.forEach((chapter: any, index: number) => {
-          // 좌표 추출
-          let lat: number | undefined, lng: number | undefined;
-          
-          if (chapter.coordinates?.lat && chapter.coordinates?.lng) {
-            lat = parseFloat(chapter.coordinates.lat);
-            lng = parseFloat(chapter.coordinates.lng);
-          } else if (chapter.lat && chapter.lng) {
-            lat = parseFloat(chapter.lat);
-            lng = parseFloat(chapter.lng);
-          }
-
-          // 유효한 좌표가 있는 경우 POI 생성
-          if (lat && lng && !isNaN(lat) && !isNaN(lng) &&
-              lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-            // POI 생성
-            const poi: POI = {
-              id: `poi_${index}`,
-              name: chapter.title || `스팟 ${index + 1}`,
-              lat,
-              lng,
-              radius: 50, // 오디오 가이드 반경 50m
-              description: chapter.narrative || chapter.description || '',
-              audioChapter: chapter.audioUrl ? {
-                id: index,
-                title: chapter.title || `챕터 ${index + 1}`,
-                audioUrl: chapter.audioUrl,
-                duration: chapter.duration || 120,
-                text: chapter.narrative || chapter.description || chapter.title || ''
-              } : undefined
-            };
-            
-            pois.push(poi);
-            console.log(`✅ POI 생성 (fallback): ${chapter.title || `챕터 ${index + 1}`} (${lat}, ${lng})`);
-          } else {
-            console.warn(`⚠️ 챕터 ${index + 1} 좌표 무효:`, { title: chapter.title, lat, lng });
-          }
-        });
+        console.warn('📍 coordinates 칼럼이 비어있음. content의 잘못된 좌표는 사용하지 않음');
+        setPoisError('정확한 좌표 데이터가 없습니다');
       }
 
       if (pois.length > 0) {
