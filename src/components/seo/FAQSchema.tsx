@@ -24,7 +24,7 @@ export default function FAQSchema({ faqs, language = 'ko' }: FAQSchemaProps) {
     "inLanguage": language,
     "about": {
       "@type": "Service",
-      "name": "NaviDocent AI Travel Guide",
+      "name": "TripRadio.AI 여행 오디오가이드",
       "description": "AI-powered personalized travel docent service"
     }
   };
@@ -44,8 +44,8 @@ export const getDefaultFAQs = (language: 'ko' | 'en' | 'ja' | 'zh' | 'es' = 'ko'
   const faqs = {
     ko: [
       {
-        question: "NaviDocent는 무엇인가요?",
-        answer: "NaviDocent는 AI 기반의 개인 맞춤형 여행 도슨트 서비스입니다. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다."
+        question: "TripRadio.AI는 무료인가요?",
+        answer: "네, TripRadio.AI는 완전 무료로 사용할 수 있습니다. AI가 생성하는 개인 맞춤형 여행 오디오가이드를 별도 비용 없이 이용하실 수 있습니다."
       },
       {
         question: "어떤 언어를 지원하나요?",
@@ -66,8 +66,8 @@ export const getDefaultFAQs = (language: 'ko' | 'en' | 'ja' | 'zh' | 'es' = 'ko'
     ],
     en: [
       {
-        question: "What is NaviDocent?",
-        answer: "NaviDocent is an AI-powered personalized travel docent service that provides perfect travel experiences with real-time voice guides and multilingual support."
+        question: "What is TripRadio.AI?",
+        answer: "TripRadio.AI is an AI-powered personalized travel docent service that provides perfect travel experiences with real-time voice guides and multilingual support."
       },
       {
         question: "What languages are supported?",
@@ -88,8 +88,8 @@ export const getDefaultFAQs = (language: 'ko' | 'en' | 'ja' | 'zh' | 'es' = 'ko'
     ],
     ja: [
       {
-        question: "NaviDocentとは何ですか？",
-        answer: "NaviDocentは、AI駆動型のパーソナライズド旅行ドーセントサービスです。リアルタイム音声ガイドと多言語サポートで完璧な旅行体験を提供します。"
+        question: "TripRadio.AIとは何ですか？",
+        answer: "TripRadio.AIは、AI駆動型のパーソナライズド旅行ドーセントサービスです。リアルタイム音声ガイドと多言語サポートで完璧な旅行体験を提供します。"
       },
       {
         question: "どの言語がサポートされていますか？",
@@ -110,8 +110,8 @@ export const getDefaultFAQs = (language: 'ko' | 'en' | 'ja' | 'zh' | 'es' = 'ko'
     ],
     zh: [
       {
-        question: "NaviDocent是什么？",
-        answer: "NaviDocent是基于AI的个性化旅行导览服务，通过实时语音导览和多语言支持提供完美的旅行体验。"
+        question: "TripRadio.AI是什么？",
+        answer: "TripRadio.AI是基于AI的个性化旅行导览服务，通过实时语音导览和多语言支持提供完美的旅行体验。"
       },
       {
         question: "支持哪些语言？",
@@ -132,8 +132,8 @@ export const getDefaultFAQs = (language: 'ko' | 'en' | 'ja' | 'zh' | 'es' = 'ko'
     ],
     es: [
       {
-        question: "¿Qué es NaviDocent?",
-        answer: "NaviDocent es un servicio de guía turístico personalizado basado en IA que proporciona experiencias de viaje perfectas con guías de voz en tiempo real y soporte multiidioma."
+        question: "¿Qué es TripRadio.AI?",
+        answer: "TripRadio.AI es un servicio de guía turístico personalizado basado en IA que proporciona experiencias de viaje perfectas con guías de voz en tiempo real y soporte multiidioma."
       },
       {
         question: "¿Qué idiomas se admiten?",

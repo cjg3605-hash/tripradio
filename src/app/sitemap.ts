@@ -42,5 +42,112 @@ async function getGuides() {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const guides = await getGuides();
-  return generateSitemapUrls(guides);
+  const basicUrls = generateSitemapUrls(guides);
+  
+  const now = new Date();
+  
+  // 키워드 전용 페이지들 추가
+  const keywordPages: MetadataRoute.Sitemap = [
+    {
+      url: 'https://navidocent.com/audio-guide',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://navidocent.com/docent',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://navidocent.com/tour-radio',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://navidocent.com/travel-radio',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://navidocent.com/ai-travel',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    // 새로운 여행 관련 페이지들
+    {
+      url: 'https://navidocent.com/travel',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.95,
+    },
+    {
+      url: 'https://navidocent.com/free-travel',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.95,
+    },
+    {
+      url: 'https://navidocent.com/destinations',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.95,
+    },
+    // 영어 페이지들 - 글로벌 SEO 타겟
+    {
+      url: 'https://navidocent.com/en/ai-travel-guide',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://navidocent.com/en/travel-planning-app',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://navidocent.com/en/digital-nomad-travel',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://navidocent.com/en/film-location-travel',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    // 전용 도구 페이지들
+    {
+      url: 'https://navidocent.com/nomad-calculator',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    },
+    {
+      url: 'https://navidocent.com/trip-planner',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    },
+    {
+      url: 'https://navidocent.com/film-locations',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    },
+    {
+      url: 'https://navidocent.com/visa-checker',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    },
+  ];
+  
+  return [...basicUrls, ...keywordPages];
 }

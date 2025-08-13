@@ -1,10 +1,10 @@
-# 🌍 GUIDEAI - AI 기반 스마트 여행 가이드
+# 🎧 TripRadio.AI - AI 기반 개인 맞춤형 여행 오디오가이드
 
 <div align="center">
 
-![GUIDEAI Logo](public/butterfly-icon.svg)
+![TripRadio.AI Logo](public/butterfly-icon.svg)
 
-**개인 맞춤형 AI 여행 가이드로 세계를 탐험하세요**
+**AI가 만드는 개인 맞춤형 여행 오디오가이드로 특별한 여행을 경험하세요**
 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)

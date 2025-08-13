@@ -14,52 +14,52 @@ interface SEOConfig {
 
 const SEO_CONFIGS: Record<SupportedLanguage, SEOConfig> = {
   ko: {
-    title: 'NaviDocent - AI 여행 도슨트 가이드',
-    description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.',
+    title: 'TripRadio.AI - 트립라디오AI 오디오가이드',
+    description: 'AI가 만드는 개인 맞춤형 여행 오디오가이드. 전문 도슨트 음성해설과 다국어 지원으로 특별한 여행 경험을 제공합니다.',
     keywords: [
-      'AI', '여행', '도슨트', '가이드', '관광', '투어', '음성가이드', '다국어', '한국여행', 'Korea tour', 'AI guide'
+      'TripRadio.AI', '트립라디오AI', '여행라디오', '투어라디오', '오디오가이드', '도슨트', 'AI여행', 'AI가이드', '관광', '투어', '음성가이드', '다국어', '한국여행', 'Korea tour', 'audio guide', 'docent tour'
     ],
-    ogTitle: 'NaviDocent - AI 여행 도슨트 가이드',
-    ogDescription: 'AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.'
+    ogTitle: 'TripRadio.AI - 트립라디오AI 오디오가이드',
+    ogDescription: 'AI가 만드는 개인 맞춤형 여행 오디오가이드. 전문 도슨트 음성해설과 다국어 지원으로 특별한 여행 경험을 제공합니다.'
   },
   en: {
-    title: 'NaviDocent - AI Travel Docent Guide',
-    description: 'AI-powered personalized travel docent service. Experience perfect travel with real-time voice guides and multilingual support.',
+    title: 'TripRadio.AI - Travel Audio Guide AI',
+    description: 'AI-powered personalized travel audio guide. Experience special travel with professional docent voice guides and multilingual support.',
     keywords: [
-      'AI', 'travel', 'docent', 'guide', 'tourism', 'tour', 'voice guide', 'multilingual', 'Korea travel', 'AI guide'
+      'TripRadio.AI', 'audio guide', 'travel', 'AI guide', 'docent', 'tourism', 'tour', 'voice guide', 'multilingual', 'Korea travel', 'travel audio guide'
     ],
-    ogTitle: 'NaviDocent - AI Travel Docent Guide',
-    ogDescription: 'AI-powered personalized travel docent service. Experience perfect travel with real-time voice guides and multilingual support.'
+    ogTitle: 'TripRadio.AI - Travel Audio Guide AI',
+    ogDescription: 'AI-powered personalized travel audio guide. Experience special travel with professional docent voice guides and multilingual support.'
   },
   ja: {
-    title: 'NAVI - AIパーソナライズ旅行ガイド',
-    description: 'AIがリアルタイムで生成するパーソナライズされた旅行ガイド。世界中どこでも詳細なオーディオガイドを体験できます。',
+    title: 'TripRadio.AI - 旅行ラジオAIガイド',
+    description: 'AIが作るパーソナライズされた旅行ラジオ。世界中どこでも特別なオーディオガイドを体験できます。',
     keywords: [
-      'AIガイド', '旅行ガイド', '観光ガイド', 'オーディオガイド', 'パーソナライズ旅行',
+      'TripRadio.AI', '旅行ラジオ', '旅行ガイド', 'AIガイド', 'オーディオガイド', 'パーソナライズ旅行',
       'スマートツアー', 'リアルタイムガイド', '旅行情報', '観光アプリ', '旅行アシスタント'
     ],
-    ogTitle: 'NAVI - AIで作るパーソナライズ旅行ガイド',
-    ogDescription: 'AIがリアルタイムで生成するパーソナライズされた旅行ガイドを世界中どこでも発見しよう。'
+    ogTitle: 'TripRadio.AI - 旅行ラジオAIガイド',
+    ogDescription: 'AIが作るパーソナライズされた旅行ラジオを世界中どこでも発見しよう。'
   },
   zh: {
-    title: 'NAVI - AI个性化旅行指南',
-    description: 'AI实时生成的个性化旅行指南。在世界任何地方都能体验详细的音频导览。',
+    title: 'TripRadio.AI - 旅行电台AI指南',
+    description: 'AI打造的个性化旅行电台。在世界任何地方都能体验特别的音频导览。',
     keywords: [
-      'AI导游', '旅行指南', '旅游导览', '音频导游', '个性化旅行',
+      'TripRadio.AI', '旅行电台', '旅行指南', 'AI导游', '音频导游', '个性化旅行',
       '智能旅游', '实时导览', '旅行信息', '旅游应用', '旅行助手'
     ],
-    ogTitle: 'NAVI - AI驱动的个性化旅行指南',
-    ogDescription: '在世界任何地方发现AI实时生成的个性化旅行指南。'
+    ogTitle: 'TripRadio.AI - 旅行电台AI指南',
+    ogDescription: '在世界任何地方发现AI打造的个性化旅行电台。'
   },
   es: {
-    title: 'NAVI - Guía de Viaje Personalizada con IA',
-    description: 'Guías de viaje personalizadas generadas en tiempo real por IA. Experimenta guías de audio detalladas para destinos turísticos de todo el mundo.',
+    title: 'TripRadio.AI - Radio de Viaje con IA',
+    description: 'Radio de viaje personalizada creada por IA. Experimenta guías de audio especiales para destinos turísticos de todo el mundo.',
     keywords: [
-      'guía AI', 'guía de viaje', 'guía turística', 'guía de audio', 'viaje personalizado',
+      'TripRadio.AI', 'radio de viaje', 'guía de viaje', 'guía AI', 'guía de audio', 'viaje personalizado',
       'tour inteligente', 'guía en tiempo real', 'información de viaje', 'aplicación de turismo', 'asistente de viaje'
     ],
-    ogTitle: 'NAVI - Guías de Viaje Personalizadas con IA',
-    ogDescription: 'Descubre guías de viaje personalizadas generadas por IA en tiempo real, en cualquier lugar del mundo.'
+    ogTitle: 'TripRadio.AI - Radio de Viaje con IA',
+    ogDescription: 'Descubre radio de viaje personalizada creada por IA en tiempo real, en cualquier lugar del mundo.'
   }
 };
 
@@ -73,6 +73,102 @@ const LOCALE_MAP: Record<SupportedLanguage, string> = {
   zh: 'zh_CN',
   es: 'es_ES',
 };
+
+/**
+ * 키워드 페이지용 메타데이터 생성 (hreflang 최적화)
+ */
+export function generateKeywordPageMetadata(
+  pagePath: string,
+  language: SupportedLanguage = 'ko',
+  customTitle?: string,
+  customDescription?: string,
+  keywords?: string[]
+): Metadata {
+  const config = SEO_CONFIGS[language];
+  const domain = BASE_DOMAIN;
+  const locale = LOCALE_MAP[language];
+  
+  const title = customTitle || config.title;
+  const description = customDescription || config.description;
+  
+  return {
+    title: {
+      default: title,
+      template: `%s | TripRadio.AI`,
+    },
+    description,
+    keywords: keywords || config.keywords,
+    authors: [{ name: 'TripRadio.AI Team' }],
+    creator: 'TripRadio.AI',
+    publisher: 'TripRadio.AI',
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false,
+    },
+    metadataBase: new URL(domain),
+    alternates: {
+      canonical: `${domain}${pagePath}`,
+      languages: {
+        'ko': `${BASE_DOMAIN}${pagePath}`,
+        'en': `${BASE_DOMAIN}${pagePath}?lang=en`,
+        'ja': `${BASE_DOMAIN}${pagePath}?lang=ja`,
+        'zh': `${BASE_DOMAIN}${pagePath}?lang=zh`,
+        'es': `${BASE_DOMAIN}${pagePath}?lang=es`,
+        'x-default': `${BASE_DOMAIN}${pagePath}`,
+      },
+    },
+    openGraph: {
+      type: 'website',
+      locale,
+      alternateLocale: Object.values(LOCALE_MAP).filter(l => l !== locale),
+      url: `${domain}${pagePath}`,
+      title: config.ogTitle || title,
+      description: config.ogDescription || description,
+      siteName: 'TripRadio.AI',
+      images: [
+        {
+          url: `${domain}/api/og?title=${encodeURIComponent(title)}&type=service&lang=${language}`,
+          width: 1200,
+          height: 630,
+          alt: `${title} - TripRadio.AI`,
+        },
+        {
+          url: '/og-image-square.jpg',
+          width: 600,
+          height: 600,
+          alt: 'TripRadio.AI Guide',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: config.ogTitle || title,
+      description: config.ogDescription || description,
+      images: ['/og-image.jpg'],
+      creator: '@tripradio_ai',
+      site: '@tripradio_ai',
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+    verification: {
+      google: process.env.GOOGLE_VERIFICATION_ID,
+      other: {
+        'naver-site-verification': process.env.NAVER_VERIFICATION_ID || '',
+        'facebook-domain-verification': process.env.FACEBOOK_VERIFICATION_ID || '',
+      },
+    },
+  };
+}
 
 /**
  * 기본 메타데이터 생성 (viewport 제거)
@@ -92,13 +188,13 @@ export function generateBaseMetadata(
   return {
     title: {
       default: title,
-      template: `%s | NAVI AI Guide`,
+      template: `%s | TripRadio.AI`,
     },
     description,
     keywords: config.keywords,
-    authors: [{ name: 'NAVI Team' }],
-    creator: 'NAVI',
-    publisher: 'NAVI',
+    authors: [{ name: 'TripRadio.AI Team' }],
+    creator: 'TripRadio.AI',
+    publisher: 'TripRadio.AI',
     formatDetection: {
       email: false,
       address: false,
@@ -123,19 +219,19 @@ export function generateBaseMetadata(
       url: domain,
       title: config.ogTitle || title,
       description: config.ogDescription || description,
-      siteName: 'NAVI',
+      siteName: 'TripRadio.AI',
       images: [
         {
           url: '/og-image.jpg',
           width: 1200,
           height: 630,
-          alt: 'NAVI AI Guide',
+          alt: 'TripRadio.AI Guide',
         },
         {
           url: '/og-image-square.jpg',
           width: 600,
           height: 600,
-          alt: 'NAVI AI Guide',
+          alt: 'TripRadio.AI Guide',
         },
       ],
     },
@@ -144,8 +240,8 @@ export function generateBaseMetadata(
       title: config.ogTitle || title,
       description: config.ogDescription || description,
       images: ['/og-image.jpg'],
-      creator: '@navi_guide',
-      site: '@navi_guide',
+      creator: '@tripradio_ai',
+      site: '@tripradio_ai',
     },
     robots: {
       index: true,
@@ -369,11 +465,11 @@ export function generateJsonLd(
         description: data.description,
         author: {
           '@type': 'Organization',
-          name: 'NAVI AI Guide'
+          name: 'TripRadio.AI'
         },
         publisher: {
           '@type': 'Organization',
-          name: 'NAVI',
+          name: 'TripRadio.AI',
           logo: {
             '@type': 'ImageObject',
             url: `${domain}/logo.png`

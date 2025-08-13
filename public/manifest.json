@@ -1,7 +1,7 @@
 {
-  "name": "DocentTour AI",
-  "short_name": "도슨트투어",
-  "description": "AI 기반 맞춤형 여행 도슨트 오디오 가이드",
+  "name": "TripRadio.AI",
+  "short_name": "트립라디오AI",
+  "description": "AI가 만드는 개인 맞춤형 여행 오디오가이드",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
