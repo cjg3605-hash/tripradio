@@ -172,20 +172,31 @@ export default async function RootLayout({
           crossOrigin="anonymous"
         />
         
-        {/* ✅ AdSense Auto Ads 초기화 - 가짜 Ad Slot ID 문제 해결 */}
+        {/* ✅ AdSense Auto Ads 초기화 - 중복 방지 */}
         <Script
           id="google-adsense-auto-ads"
           strategy="afterInteractive"
         >
           {`
             window.addEventListener('load', function() {
+              // 중복 초기화 방지
+              if (window.adsenseAutoAdsInitialized) {
+                console.log('ℹ️ AdSense Auto Ads 이미 초기화됨 - 중복 방지');
+                return;
+              }
+              
               console.log('🟢 AdSense Auto Ads 초기화 시작');
               if (typeof window.adsbygoogle !== 'undefined') {
-                (window.adsbygoogle = window.adsbygoogle || []).push({
-                  google_ad_client: "ca-pub-8225961966676319",
-                  enable_page_level_ads: true
-                });
-                console.log('✅ AdSense Auto Ads 활성화 완료');
+                try {
+                  (window.adsbygoogle = window.adsbygoogle || []).push({
+                    google_ad_client: "ca-pub-8225961966676319",
+                    enable_page_level_ads: true
+                  });
+                  window.adsenseAutoAdsInitialized = true;
+                  console.log('✅ AdSense Auto Ads 활성화 완료');
+                } catch (error) {
+                  console.warn('⚠️ AdSense Auto Ads 초기화 실패:', error);
+                }
               } else {
                 console.warn('⚠️ AdSense 스크립트 로드 대기 중...');
               }

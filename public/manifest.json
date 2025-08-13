@@ -1,7 +1,7 @@
 {
-  "name": "NAVI",
-  "short_name": "NAVI",
-  "description": "AI 기반 맞춤형 여행/오디오 가이드",
+  "name": "DocentTour AI",
+  "short_name": "도슨트투어",
+  "description": "AI 기반 맞춤형 여행 도슨트 오디오 가이드",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

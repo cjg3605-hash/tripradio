@@ -10,13 +10,18 @@ declare global {
     adsbygoogle: any[];
     autoAdSenseInitialized?: boolean;
     adsensePageLevelEnabled?: boolean;
+    adsenseAutoAdsInitialized?: boolean;
   }
 }
 
 const AutoAdSense = () => {
   useEffect(() => {
     // 🚨 layout.tsx에서 AdSense 초기화를 처리하므로 이 컴포넌트는 비활성화
-    console.log('AutoAdSense: layout.tsx에서 이미 초기화됨 - 중복 방지');
+    if (typeof window !== 'undefined' && (window.adsenseAutoAdsInitialized || window.autoAdSenseInitialized)) {
+      console.log('AutoAdSense: layout.tsx에서 이미 초기화됨 - 중복 방지');
+      return;
+    }
+    console.log('AutoAdSense: 컴포넌트 로드됨 (비활성 상태)');
     return;
     
     // 아래 코드는 비활성화됨 (layout.tsx에서 처리)

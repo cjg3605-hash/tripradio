@@ -1531,7 +1531,7 @@ function Home() {
         errorType={errorModal.errorType}
         details={errorModal.details}
         retryAction={errorModal.retryAction}
-        helpUrl="https://t.me/naviguideai"
+        helpUrl="https://t.me/docenttour"
       />
 
       {/* Footer with Legal Links */}
@@ -1594,7 +1594,7 @@ function Home() {
               <ul className="space-y-2">
                 <li>
                   <a 
-                    href="https://t.me/naviguideai" 
+                    href="https://t.me/docenttour" 
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-gray-600 hover:text-gray-900 transition-colors"

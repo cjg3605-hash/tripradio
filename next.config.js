@@ -286,9 +286,9 @@ const nextConfig = {
   generateBuildId: async () => {
     // 개발환경에서는 고정 ID, 프로덕션에서는 타임스탬프 기반
     if (process.env.NODE_ENV === 'development') {
-      return 'navi-guide-dev';
+      return 'docenttour-dev';
     }
-    return `navi-guide-${Date.now()}`;
+    return `docenttour-${Date.now()}`;
   }
 };
 
