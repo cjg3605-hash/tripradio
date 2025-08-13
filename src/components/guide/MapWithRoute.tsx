@@ -80,9 +80,67 @@ interface MapWithRouteProps {
 
 function MapFlyTo({ lat, lng, onMoveComplete }: { lat: number; lng: number; onMoveComplete?: () => void }): null {
   const map = (useMap as any)();
+  
   useEffect(() => {
-    if (lat && lng) {
+    // 🔥 강력한 안전성 검사: map 인스턴스와 flyTo 메서드 존재 확인
+    if (!lat || !lng || !map) {
+      console.warn('⚠️ MapFlyTo: 필수 조건 미충족', { lat, lng, hasMap: !!map });
+      return undefined;
+    }
+    
+    // 지도 인스턴스가 완전히 초기화되었는지 확인
+    if (typeof map.flyTo !== 'function') {
+      console.warn('⚠️ MapFlyTo: map.flyTo 메서드를 사용할 수 없음', { mapType: typeof map, mapKeys: Object.keys(map || {}) });
+      return undefined;
+    }
+    
+    // 지도가 준비 상태인지 확인 (leaflet 특화) + 강화된 재시도 로직
+    if (!map._container || !map._loaded || typeof map.flyTo !== 'function') {
+      console.warn('⚠️ MapFlyTo: 지도가 아직 준비되지 않음', { 
+        hasContainer: !!map._container, 
+        isLoaded: !!map._loaded,
+        hasFlyTo: typeof map.flyTo === 'function'
+      });
+      
+      // 강화된 재시도 로직: 최대 5번, 점진적 지연
+      let retryCount = 0;
+      const maxRetries = 5;
+      
+      const tryFlyTo = () => {
+        retryCount++;
+        console.log(`🔄 MapFlyTo 재시도 ${retryCount}/${maxRetries}`);
+        
+        if (map && map._container && map._loaded && typeof map.flyTo === 'function') {
+          console.log('✅ MapFlyTo: 재시도 성공!');
+          try {
+            map.flyTo([lat, lng], 16, { duration: 0.7 });
+            if (onMoveComplete) {
+              setTimeout(onMoveComplete, 700);
+            }
+          } catch (error) {
+            console.error('❌ MapFlyTo 재시도 중 에러:', error);
+          }
+          return;
+        }
+        
+        if (retryCount < maxRetries) {
+          // 점진적 지연: 100ms, 200ms, 400ms, 800ms, 1600ms
+          const delay = 100 * Math.pow(2, retryCount - 1);
+          console.log(`⏰ ${delay}ms 후 재시도 예정`);
+          setTimeout(tryFlyTo, delay);
+        } else {
+          console.error('❌ MapFlyTo: 최대 재시도 횟수 초과, flyTo 실패');
+        }
+      };
+      
+      const retryTimer = setTimeout(tryFlyTo, 100);
+      return () => clearTimeout(retryTimer);
+    }
+    
+    try {
+      console.log('🗺️ MapFlyTo: 안전한 flyTo 실행', { lat, lng, mapReady: true });
       map.flyTo([lat, lng], 16, { duration: 0.7 });
+      
       // 이동 완료 콜백 실행
       if (onMoveComplete) {
         const timer = setTimeout(() => {
@@ -90,8 +148,28 @@ function MapFlyTo({ lat, lng, onMoveComplete }: { lat: number; lng: number; onMo
         }, 700); // flyTo duration과 맞춤
         return () => clearTimeout(timer);
       }
+    } catch (error) {
+      console.error('❌ MapFlyTo 실행 오류:', error);
+      // 에러 발생 시에도 재시도 로직 적용
+      const fallbackTimer = setTimeout(() => {
+        if (map && typeof map.flyTo === 'function') {
+          try {
+            console.log('🔄 MapFlyTo: 에러 후 재시도');
+            map.flyTo([lat, lng], 16, { duration: 0.7 });
+            if (onMoveComplete) {
+              setTimeout(onMoveComplete, 700);
+            }
+          } catch (retryError) {
+            console.error('❌ MapFlyTo 재시도도 실패:', retryError);
+          }
+        }
+      }, 500);
+      return () => clearTimeout(fallbackTimer);
     }
+    
+    return undefined;
   }, [lat, lng, map, onMoveComplete]);
+  
   return null;
 }
 
@@ -116,8 +194,15 @@ const MyLocationButton = ({ map, onLocationClick }: { map: any, onLocationClick:
   }, [geolocation, onLocationClick]);
 
   useEffect(() => {
-    if (geolocation.latitude && geolocation.longitude && map) {
-      map.flyTo([geolocation.latitude, geolocation.longitude], 17, { duration: 1 });
+    // 🔥 안전한 지도 이동: 지도 준비 상태 확인
+    if (geolocation.latitude && geolocation.longitude && map && 
+        typeof map.flyTo === 'function' && map._container && map._loaded) {
+      try {
+        console.log('📍 내 위치로 안전한 지도 이동:', { lat: geolocation.latitude, lng: geolocation.longitude });
+        map.flyTo([geolocation.latitude, geolocation.longitude], 17, { duration: 1 });
+      } catch (error) {
+        console.error('❌ 내 위치 지도 이동 오류:', error);
+      }
     }
   }, [geolocation.latitude, geolocation.longitude, map]);
 
@@ -232,16 +317,34 @@ export default function MapWithRoute({
     }
   }, []);
 
-  // 🔥 Strict Mode 대응: 초기화 상태 추적
+  // 🔥 강화된 초기화 상태 추적 (중복 초기화 방지)
+  const [isMapReady, setIsMapReady] = useState(false);
+  const [mapKey, setMapKey] = useState(() => `map-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
   const isInitializedRef = useRef(false);
   const containerIdRef = useRef(`map-container-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
+  const renderCountRef = useRef(0); // 렌더링 횟수 추적
 
-  // 🔥 컴포넌트 마운트/언마운트 시 정리
+  // 🔥 컴포넌트 마운트/언마운트 시 정리 (강화) - 완전한 새 인스턴스 생성
   useEffect(() => {
+    // 렌더링 횟수 증가
+    renderCountRef.current += 1;
+    
+    // 지도 준비 완료 - 완전히 새로운 인스턴스 생성
+    const timer = setTimeout(() => {
+      // 새로운 지도 키 생성으로 완전한 재생성 보장
+      setMapKey(`map-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+      setIsMapReady(true);
+    }, 200); // 충분한 지연으로 이전 인스턴스 정리 보장
+    
     return () => {
+      clearTimeout(timer);
       // 언마운트 시에만 정리 (Strict Mode 대응)
+      setIsMapReady(false);
       cleanupMap();
       isInitializedRef.current = false;
+      
+      // 연속된 컨테이너 ID 새로 생성
+      containerIdRef.current = `map-container-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
     };
   }, []); // 의존성 배열 비움으로 마운트/언마운트 시에만 실행
 
@@ -287,12 +390,13 @@ export default function MapWithRoute({
   };
 
   // 기본 좌표 매핑만 사용 - 단순화
-  console.log('🗺️ MapWithRoute 렌더링:', {
+  console.log('🗺️ MapWithRoute 렌더링 (최적화됨):', {
     chaptersCount: chapters?.length || 0,
     poisCount: pois?.length || 0,
     hasCenter: !!center,
     locationName,
-    userLocation: showMyLocation ? 'enabled' : 'disabled'
+    userLocation: showMyLocation ? 'enabled' : 'disabled',
+    hasGuideCoordinates: !!(guideCoordinates && Array.isArray(guideCoordinates) && guideCoordinates.length > 0)
   });
 
   // 좌표 추출 함수 개선 (coordinates 컬럼 우선 사용)
@@ -532,7 +636,20 @@ export default function MapWithRoute({
 
   // 로딩 상태 제거 - 즉시 렌더링
 
-  // 실제 지도 렌더링
+  // 실제 지도 렌더링 - 조건부 렌더링으로 중복 초기화 방지
+  
+  if (!isMapReady) {
+    return (
+      <div 
+        className="relative w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white flex items-center justify-center"
+      >
+        <div className="flex items-center space-x-2 text-gray-500">
+          <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
+          <span className="text-sm">지도 로딩 중...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
@@ -542,7 +659,7 @@ export default function MapWithRoute({
       className="relative w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white"
     >
       <MapContainer 
-        key={stableMapKey}
+        key={mapKey} // 🛡️ 완전히 새로운 지도 인스턴스 보장
         center={mapCenter}
         zoom={zoom}
         className="w-full h-full"
@@ -572,22 +689,32 @@ export default function MapWithRoute({
           maxZoom={20}
         />
         
-        {/* 활성 챕터로 지도 이동 */}
-        {activeLat && activeLng && (
-          <MapFlyTo lat={activeLat} lng={activeLng} />
-        )}
-        
-        {/* 🎯 첫 번째 마커로 자동 이동 (데이터 로드 완료 시) */}
-        {!hasAutoMoved && autoMoveLat && autoMoveLng && (
-          <MapFlyTo 
-            lat={autoMoveLat} 
-            lng={autoMoveLng} 
-            onMoveComplete={() => {
-              setHasAutoMoved(true);
-              console.log('🎯 자동 이동 완료 - 첫 번째 마커 위치로 이동됨');
-            }}
-          />
-        )}
+        {/* 🎯 지능형 지도 이동: 활성 챕터 우선, 없으면 자동 이동 */}
+        {(() => {
+          // 우선순위 1: 활성 챕터가 있으면 해당 위치로 이동
+          if (activeLat && activeLng) {
+            console.log('🎯 활성 챕터 위치로 이동:', { activeLat, activeLng, chapter: activeChapter });
+            return <MapFlyTo lat={activeLat} lng={activeLng} />;
+          }
+          
+          // 우선순위 2: 자동 이동이 아직 안 됐고 첫 번째 마커가 있으면 이동
+          if (!hasAutoMoved && autoMoveLat && autoMoveLng) {
+            console.log('🎯 첫 번째 마커로 자동 이동:', { autoMoveLat, autoMoveLng });
+            return (
+              <MapFlyTo 
+                lat={autoMoveLat} 
+                lng={autoMoveLng} 
+                onMoveComplete={() => {
+                  setHasAutoMoved(true);
+                  console.log('✅ 자동 이동 완료 - 첫 번째 마커 위치');
+                }}
+              />
+            );
+          }
+          
+          // 그 외의 경우: 이동하지 않음
+          return null;
+        })()}
         
         {/* 루트 라인 - 모던 모노크롬 스타일 */}
         {showRoute && routePositions.length > 1 && (
