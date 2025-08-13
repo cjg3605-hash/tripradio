@@ -1074,27 +1074,29 @@ function Home() {
               <div className="font-bold mb-2 flex items-center justify-center w-full" style={{ 
                 textShadow: '2px 2px 8px rgba(0,0,0,0.8)', 
                 fontSize: isMobile 
-                  ? 'clamp(1rem, 4vw, 1.375rem)'  // 모바일: 16px ~ 22px (약간 줄임)
-                  : 'clamp(1.625rem, 2.6vw, 1.625rem)',   // PC: 26px 고정
-                height: isMobile ? '36px' : '32px' 
+                  ? 'clamp(1.125rem, 4vw, 1.5rem)'  // 모바일: 18px ~ 24px (4px 증가)
+                  : 'clamp(1.875rem, 2.6vw, 1.875rem)',   // PC: 30px 고정 (4px 증가)
+                height: isMobile ? '42px' : '40px'  // 높이 증가로 글자 간격 개선
               }}>
                 <span className="inline-block overflow-hidden whitespace-nowrap w-full max-w-none" style={{ 
-                  height: isMobile ? '36px' : '32px', 
-                  lineHeight: isMobile ? '36px' : '32px',
+                  height: isMobile ? '42px' : '40px',  // 높이 증가로 글자 간격 개선
+                  lineHeight: isMobile ? '42px' : '40px',  // 라인 높이 증가
                   textAlign: 'center'
                 }}>
                   <span 
                     className="inline-block transition-transform duration-1000 ease-out w-full"
                     style={{
-                      transform: `translateY(-${currentLandmarkIndex * (isMobile ? 36 : 32)}px)`
+                      transform: `translateY(-${currentLandmarkIndex * (isMobile ? 42 : 40)}px)`,  // 새 높이에 맞춰 조정
+                      letterSpacing: '0.05em'  // 글자 간격 약간 늘려서 가독성 향상
                     }}
                   >
                     {landmarks.map((landmark, index) => (
                       <span key={index} className="block font-bold whitespace-nowrap w-full" style={{ 
-                        height: isMobile ? '36px' : '32px', 
-                        lineHeight: isMobile ? '36px' : '32px',
+                        height: isMobile ? '42px' : '40px',  // 높이 증가로 글자 간격 개선
+                        lineHeight: isMobile ? '42px' : '40px',  // 라인 높이 증가
                         textAlign: 'center',
-                        fontSize: isMobile ? '1.3em' : '1.3em' // 30% 증가 (기본 1em → 1.3em)
+                        fontSize: isMobile ? '1.3em' : '1.3em', // 30% 증가 (기본 1em → 1.3em)
+                        letterSpacing: '0.05em'  // 글자 간격 약간 늘려서 가독성 향상
                       }}>
                         {t(`home.landmarks.${landmark}` as any) || landmark}
                       </span>
@@ -1106,19 +1108,19 @@ function Home() {
               <div className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
                 {t('home.audioGuidePrefix')}
               </div>
-              <div className="text-xs sm:text-sm md:text-base lg:text-lg font-light mb-1" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
+              <div className="text-xs sm:text-sm md:text-base lg:text-lg font-light mb-1 text-gray-300" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
                 {t('home.subtitle')}
               </div>
-              <div className="text-xs sm:text-sm md:text-base lg:text-lg font-light" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
+              <div className="text-xs sm:text-sm md:text-base lg:text-lg font-light text-gray-300" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
                 {t('home.subtitle2')}
               </div>
             </div>
 
             {/* How to Use - 3 Steps - 모바일 반응형 */}
-            <div className="relative z-10 py-4 sm:py-6 md:py-8 w-full max-w-6xl">
-            <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6">
-              {/* 모든 화면에서 가로 배열 - 모바일 간격 최적화 */}
-              <div className="flex flex-row justify-center items-start gap-1 sm:gap-2 md:gap-4 lg:gap-6 xl:gap-8">
+            <div className="relative z-10 py-4 sm:py-6 md:py-8 w-full max-w-4xl">
+            <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6">
+              {/* 모든 화면에서 가로 배열 - 50% 압축하여 중앙 집중 */}
+              <div className="flex flex-row justify-center items-start gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6">
                 
                 {/* 장소 입력 - 모바일 최적화 */}
                 <div className="text-center relative z-10 flex-1 max-w-24 sm:max-w-28 md:max-w-32 lg:max-w-xs">
@@ -1129,8 +1131,8 @@ function Home() {
                     </svg>
                   </div>
                   <div className="min-h-10 sm:min-h-12 md:min-h-16 lg:min-h-20 flex flex-col justify-start pt-1 sm:pt-2">
-                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-white mb-0 sm:mb-1 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.inputLocation')}</div>
-                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-white opacity-80 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.inputLocationSub')}</div>
+                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-gray-200 mb-0 sm:mb-1 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.inputLocation')}</div>
+                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-gray-300 opacity-80 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.inputLocationSub')}</div>
                   </div>
                 </div>
 
@@ -1161,8 +1163,8 @@ function Home() {
                     )}
                   </button>
                   <div className="min-h-10 sm:min-h-12 md:min-h-16 lg:min-h-20 flex flex-col justify-start pt-1 sm:pt-2">
-                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-white mb-0 sm:mb-1 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.aiGenerate')}</div>
-                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-white opacity-80 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.aiGenerateSub')}</div>
+                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-gray-200 mb-0 sm:mb-1 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.aiGenerate')}</div>
+                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-gray-300 opacity-80 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.aiGenerateSub')}</div>
                   </div>
                 </div>
 
@@ -1195,8 +1197,8 @@ function Home() {
                     )}
                   </button>
                   <div className="min-h-10 sm:min-h-12 md:min-h-16 lg:min-h-20 flex flex-col justify-start pt-1 sm:pt-2">
-                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-white mb-0 sm:mb-1 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.audioPlay')}</div>
-                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-white opacity-80 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.audioPlaySub')}</div>
+                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-gray-200 mb-0 sm:mb-1 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.audioPlay')}</div>
+                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-gray-300 opacity-80 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.audioPlaySub')}</div>
                   </div>
                 </div>
               </div>

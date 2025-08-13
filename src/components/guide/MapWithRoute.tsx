@@ -202,6 +202,9 @@ export default function MapWithRoute({
     try {
       // 지도 인스턴스 정리
       if (mapInstanceRef.current) {
+        // 모든 이벤트 리스너 제거
+        mapInstanceRef.current.off();
+        // 지도 인스턴스 제거
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
@@ -235,19 +238,12 @@ export default function MapWithRoute({
 
   // 🔥 컴포넌트 마운트/언마운트 시 정리
   useEffect(() => {
-    // Strict Mode에서 두 번째 마운트인 경우 무시
-    if (isInitializedRef.current) {
-      return;
-    }
-    
-    isInitializedRef.current = true;
-    
     return () => {
-      // 언마운트 시에만 정리
+      // 언마운트 시에만 정리 (Strict Mode 대응)
       cleanupMap();
       isInitializedRef.current = false;
     };
-  }, [cleanupMap]); // cleanupMap 의존성 추가
+  }, []); // 의존성 배열 비움으로 마운트/언마운트 시에만 실행
 
   // 🎯 POI/챕터 데이터 로드 완료 시 자동으로 첫 번째 마커로 지도 이동
   useEffect(() => {
@@ -404,7 +400,8 @@ export default function MapWithRoute({
             whenCreated={(mapInstance) => {
               try {
                 // 기존 인스턴스가 있다면 정리
-                if (mapInstanceRef.current) {
+                if (mapInstanceRef.current && mapInstanceRef.current !== mapInstance) {
+                  mapInstanceRef.current.off();
                   mapInstanceRef.current.remove();
                 }
                 mapInstanceRef.current = mapInstance;
@@ -556,7 +553,8 @@ export default function MapWithRoute({
         whenCreated={(mapInstance) => {
           try {
             // 기존 인스턴스가 있다면 정리
-            if (mapInstanceRef.current) {
+            if (mapInstanceRef.current && mapInstanceRef.current !== mapInstance) {
+              mapInstanceRef.current.off();
               mapInstanceRef.current.remove();
             }
             mapInstanceRef.current = mapInstance;

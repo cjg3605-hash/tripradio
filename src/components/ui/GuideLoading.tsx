@@ -116,7 +116,7 @@ export default function GuideLoading({
               />
             </div>
             <p className="text-xs text-gray-500">
-              {t('common.pleaseWait')}
+              {t('common.pleaseWait') || 'Please wait...'}
             </p>
           </div>
         )}

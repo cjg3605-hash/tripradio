@@ -481,7 +481,7 @@ const DEFAULT_TRANSLATIONS: Translations = {
       aiGenerate: '검색 클릭',
       aiGenerateSub: '(가이드 생성)',
       audioPlay: '재생버튼 누르면',
-      audioPlaySub: '투어시작!'
+      audioPlaySub: '(투어시작!)'
     },
     stepDescriptions: {
       inputLocation: '궁금한 곳의 이름을 입력하세요',

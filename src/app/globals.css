@@ -3,8 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Pretendard Variable font for better performance */
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+/* Pretendard Variable font is loaded via layout.tsx preload for better performance */
 
 /* Import unified design system */
 @import '../styles/design-tokens.css';
