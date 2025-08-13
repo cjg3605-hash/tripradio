@@ -28,39 +28,39 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-// ✅ 다국어 메타데이터 개선
+// ✅ 다국어 메타데이터 개선 - 도슨트투어 브랜딩
 export const metadata: Metadata = {
   title: {
-    default: 'NaviDocent - AI 여행 도슨트 가이드',
-    template: '%s | NaviDocent'
+    default: '도슨트투어 | 여행 오디오가이드 | 무료 도슨트 체험',
+    template: '%s | 도슨트투어'
   },
-  description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.',
-  keywords: ['AI', '여행', '도슨트', '가이드', '관광', '투어', '음성가이드', '다국어', '한국여행', 'Korea tour', 'AI guide', 'travel guide', 'tourism'],
-  authors: [{ name: 'NaviDocent Team' }],
-  creator: 'NaviDocent',
-  publisher: 'NaviDocent',
+  description: '개인 맞춤형 여행 오디오가이드 서비스. 전문 도슨트 음성해설과 다국어 지원으로 완벽한 여행 경험을 제공합니다. 무료 체험 가능!',
+  keywords: ['도슨트투어', '여행', '오디오가이드', '도슨트', '음성가이드', '관광', '투어', '여행가이드', '다국어', '한국여행', '무료체험', 'travel guide', 'audio guide', 'docent tour', 'Korea tour', 'AI 도슨트'],
+  authors: [{ name: '도슨트투어 팀' }],
+  creator: '도슨트투어',
+  publisher: '도슨트투어',
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'),
   openGraph: {
     type: 'website',
     locale: 'ko_KR',
     url: '/',
-    siteName: 'NaviDocent',
-    title: 'NaviDocent - AI 여행 도슨트 가이드',
-    description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.',
+    siteName: '도슨트투어',
+    title: '도슨트투어 | 여행 오디오가이드 | 무료 도슨트 체험',
+    description: '개인 맞춤형 여행 오디오가이드 서비스. 전문 도슨트 음성해설과 다국어 지원으로 완벽한 여행 경험을 제공합니다. 무료 체험 가능!',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'NaviDocent - AI Travel Docent'
+        alt: '도슨트투어 - AI 여행 오디오 가이드'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@navidocent',
-    title: 'NaviDocent - AI Travel Docent Guide',
-    description: 'AI-powered personalized travel docent service. Providing perfect travel experiences with real-time voice guides and multilingual support.',
+    site: '@docenttour',
+    title: 'DocentTour | Travel Audio Guide | Free Docent Experience',
+    description: 'Personalized travel audio guide service. Providing perfect travel experiences with professional voice docent and multilingual support. Free trial available!',
     images: ['/og-image.jpg']
   },
   robots: {
@@ -108,7 +108,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'NaviDocent',
+    title: '도슨트투어',
   },
   other: {
     'msapplication-TileColor': '#000000',

@@ -481,10 +481,10 @@ function HomeClient() {
             {/* Main Title with SEO-optimized H1 */}
             <h1 className="text-2xl md:text-3xl font-thin tracking-[-0.02em] text-black mb-4">
               <div>
-                {/* 상단: 내손안의 (왼쪽 정렬) */}
+                {/* 상단: 도슨트투어 (왼쪽 정렬) */}
                 <div className="mb-4 text-left">
                   <span className="block font-bold text-3xl md:text-5xl md:text-[1.5rem] lg:text-[2.5rem]">
-                    {t('home.brandTitle') || '내 손안의'}
+                    {t('home.brandTitle') || '도슨트투어'}
                   </span>
                 </div>
                 

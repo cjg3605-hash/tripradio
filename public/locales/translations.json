@@ -22,9 +22,9 @@
       "contact": "문의"
     },
     "home": {
-      "brandTitle": "내손안의",
-      "title": "내손안의 도슨트", 
-      "audioGuidePrefix": "앞에서 만드는 오디오 가이드",
+      "brandTitle": "도슨트투어",
+      "title": "도슨트투어", 
+      "audioGuidePrefix": "여행 오디오가이드 | 무료 도슨트 체험",
       "subtitle": "가이드없이 자유롭게,",
       "subtitle2": "여행은 깊이있게",
       "searchPlaceholder": "어디 앞에 계신가요?",
@@ -614,9 +614,9 @@
       "unknown_error": "알 수 없는 오류가 발생했습니다"
     },
     "footer": {
-      "companyName": "NaviDocent",
+      "companyName": "도슨트투어",
       "companyDescription": "AI 기반 개인화 여행 가이드 서비스",
-      "copyright": "© 2024 NaviDocent. All rights reserved.",
+      "copyright": "© 2024 도슨트투어. All rights reserved.",
       "legalInfo": "법적 정보",
       "privacyPolicy": "개인정보 처리방침",
       "termsOfService": "이용약관",
@@ -631,13 +631,13 @@
     "legal": {
       "terms": {
         "title": "이용약관",
-        "description": "NaviDocent 서비스 이용약관",
+        "description": "도슨트투어 서비스 이용약관",
         "content": "서비스 이용에 관한 약관 내용",
         "lastUpdated": "최종 업데이트"
       },
       "privacy": {
         "title": "개인정보 처리방침",
-        "description": "NaviDocent 개인정보 처리방침",
+        "description": "도슨트투어 개인정보 처리방침",
         "content": "개인정보 처리에 관한 방침 내용",
         "lastUpdated": "최종 업데이트"
       },
@@ -823,9 +823,9 @@
       "contact": "Contact"
     },
     "home": {
-      "brandTitle": "Your Pocket",
-      "title": "Your Pocket Docent",
-      "audioGuidePrefix": "Audio guide made right in front of you",
+      "brandTitle": "DocentTour",
+      "title": "DocentTour",
+      "audioGuidePrefix": "Travel Audio Guide | Free Docent Experience",
       "subtitle": "Travel freely without guides,",
       "subtitle2": "yet experience deeply",
       "searchPlaceholder": "Where are you standing in front of?",
@@ -1415,9 +1415,9 @@
       "unknown_error": "An unknown error occurred"
     },
     "footer": {
-      "companyName": "NaviDocent",
+      "companyName": "도슨트투어",
       "companyDescription": "AI-powered personalized travel guide service",
-      "copyright": "© 2024 NaviDocent. All rights reserved.",
+      "copyright": "© 2024 도슨트투어. All rights reserved.",
       "legalInfo": "Legal Information",
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
@@ -1432,13 +1432,13 @@
     "legal": {
       "terms": {
         "title": "Terms of Service",
-        "description": "NaviDocent Terms of Service",
+        "description": "DocentTour Terms of Service",
         "content": "Terms of service content",
         "lastUpdated": "Last Updated"
       },
       "privacy": {
         "title": "Privacy Policy",
-        "description": "NaviDocent Privacy Policy",
+        "description": "DocentTour Privacy Policy",
         "content": "Privacy policy content",
         "lastUpdated": "Last Updated"
       },
@@ -1624,9 +1624,9 @@
       "contact": "お問い合わせ"
     },
     "home": {
-      "brandTitle": "あなたのポケット",
-      "title": "あなたのポケットドーセント",
-      "audioGuidePrefix": "目の前で作るオーディオガイド",
+      "brandTitle": "ドーセントツアー",
+      "title": "ドーセントツアー",
+      "audioGuidePrefix": "旅行オーディオガイド | 無料ドーセント体験",
       "subtitle": "ガイドなしで自由に、",
       "subtitle2": "旅行は深く",
       "searchPlaceholder": "どちらの前に立っていらっしゃいますか？",
@@ -2163,9 +2163,9 @@
       "unknown_error": "不明なエラーが発生しました"
     },
     "footer": {
-      "companyName": "NaviDocent",
+      "companyName": "도슨트투어",
       "companyDescription": "AI基盤個人化旅行ガイドサービス",
-      "copyright": "© 2024 NaviDocent. All rights reserved.",
+      "copyright": "© 2024 도슨트투어. All rights reserved.",
       "legalInfo": "法的情報",
       "privacyPolicy": "プライバシーポリシー",
       "termsOfService": "利用規約",
@@ -2180,13 +2180,13 @@
     "legal": {
       "terms": {
         "title": "利用規約",
-        "description": "NaviDocent サービス利用規約",
+        "description": "ドーセントツアー サービス利用規約",
         "content": "サービス利用に関する規約内容",
         "lastUpdated": "最終更新"
       },
       "privacy": {
         "title": "プライバシーポリシー",
-        "description": "NaviDocent プライバシーポリシー",
+        "description": "ドーセントツアー プライバシーポリシー",
         "content": "個人情報処理に関するポリシー内容",
         "lastUpdated": "最終更新"
       },
@@ -2372,9 +2372,9 @@
       "contact": "联系"
     },
     "home": {
-      "brandTitle": "您的口袋",
-      "title": "您的口袋导览员",
-      "audioGuidePrefix": "在您眼前制作的音频指南",
+      "brandTitle": "多森特之旅",
+      "title": "多森特之旅",
+      "audioGuidePrefix": "旅游音频指南 | 免费导览体验",
       "subtitle": "无导游自由旅行，",
       "subtitle2": "却能深度体验",
       "searchPlaceholder": "您现在站在哪里面前？",
@@ -2911,9 +2911,9 @@
       "unknown_error": "发生未知错误"
     },
     "footer": {
-      "companyName": "NaviDocent",
+      "companyName": "도슨트투어",
       "companyDescription": "AI驱动的个性化旅游指南服务",
-      "copyright": "© 2024 NaviDocent. All rights reserved.",
+      "copyright": "© 2024 도슨트투어. All rights reserved.",
       "legalInfo": "法律信息",
       "privacyPolicy": "隐私政策",
       "termsOfService": "服务条款",
@@ -2928,13 +2928,13 @@
     "legal": {
       "terms": {
         "title": "服务条款",
-        "description": "NaviDocent 服务条款",
+        "description": "多森特之旅 服务条款",
         "content": "服务条款内容",
         "lastUpdated": "最后更新"
       },
       "privacy": {
         "title": "隐私政策",
-        "description": "NaviDocent 隐私政策",
+        "description": "多森特之旅 隐私政策",
         "content": "隐私政策内容",
         "lastUpdated": "最后更新"
       },
@@ -3120,9 +3120,9 @@
       "contact": "Contacto"
     },
     "home": {
-      "brandTitle": "Tu Bolsillo",
-      "title": "Tu Docente de Bolsillo",
-      "audioGuidePrefix": "Guía de audio hecha justo delante de ti",
+      "brandTitle": "DocentTour",
+      "title": "DocentTour",
+      "audioGuidePrefix": "Guía de Audio de Viaje | Experiencia Gratuita de Docente",
       "subtitle": "Viaja libremente sin guías,",
       "subtitle2": "pero experimenta profundamente",
       "searchPlaceholder": "¿Dónde estás parado en frente?",
@@ -3659,9 +3659,9 @@
       "unknown_error": "Ocurrió un error desconocido"
     },
     "footer": {
-      "companyName": "NaviDocent",
+      "companyName": "도슨트투어",
       "companyDescription": "Servicio de guía de viaje personalizada impulsado por IA",
-      "copyright": "© 2024 NaviDocent. All rights reserved.",
+      "copyright": "© 2024 도슨트투어. All rights reserved.",
       "legalInfo": "Información Legal",
       "privacyPolicy": "Política de Privacidad",
       "termsOfService": "Términos de Servicio",
@@ -3676,13 +3676,13 @@
     "legal": {
       "terms": {
         "title": "Términos de Servicio",
-        "description": "Términos de Servicio de NaviDocent",
+        "description": "Términos de Servicio de DocentTour",
         "content": "Contenido de términos de servicio",
         "lastUpdated": "Última Actualización"
       },
       "privacy": {
         "title": "Política de Privacidad",
-        "description": "Política de Privacidad de NaviDocent",
+        "description": "Política de Privacidad de DocentTour",
         "content": "Contenido de política de privacidad",
         "lastUpdated": "Última Actualización"
       },

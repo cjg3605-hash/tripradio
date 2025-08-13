@@ -11,6 +11,12 @@ const MinimalTourContent = dynamic(() => import('./tour/components/TourContent')
   loading: () => <GuideLoading message="투어 콘텐츠 로딩 중..." />,
   ssr: false
 });
+
+// AdSense 광고 컴포넌트 동적 로드
+const OptimalAdSense = dynamic(() => import('@/components/ads/OptimalAdSense'), {
+  loading: () => <div className="h-24 animate-pulse bg-gray-100 rounded"></div>,
+  ssr: true
+});
 import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
@@ -791,18 +797,38 @@ export default function MultiLangGuideClient({
         
         {/* 🎯 라우팅 결과에 따른 컴포넌트 선택 */}
         {shouldShowExploreHub ? (
-          <RegionExploreHub 
-            locationName={locationName}
-            routingResult={routingResult}
-            language={currentLanguage}
-            content={guideData}
-          />
+          <>
+            <RegionExploreHub 
+              locationName={locationName}
+              routingResult={routingResult}
+              language={currentLanguage}
+              content={guideData}
+            />
+            
+            {/* 광고 배치: 탐색 허브 하단 */}
+            <div className="max-w-4xl mx-auto px-6 py-6">
+              <OptimalAdSense 
+                placement="guide-content" 
+                className="text-center"
+              />
+            </div>
+          </>
         ) : (
-          <MinimalTourContent 
-            guide={guideData}
-            language={currentLanguage}
-            guideCoordinates={coordinates || (guideData as any)?.coordinates}
-          />
+          <>
+            <MinimalTourContent 
+              guide={guideData}
+              language={currentLanguage}
+              guideCoordinates={coordinates || (guideData as any)?.coordinates}
+            />
+            
+            {/* 광고 배치: 가이드 콘텐츠 하단 */}
+            <div className="max-w-4xl mx-auto px-6 py-6">
+              <OptimalAdSense 
+                placement="guide-content" 
+                className="text-center"
+              />
+            </div>
+          </>
         )}
       </div>
 

@@ -15,7 +15,11 @@ declare global {
 
 const AutoAdSense = () => {
   useEffect(() => {
-    // 🚨 중복 초기화 방지 강화
+    // 🚨 layout.tsx에서 AdSense 초기화를 처리하므로 이 컴포넌트는 비활성화
+    console.log('AutoAdSense: layout.tsx에서 이미 초기화됨 - 중복 방지');
+    return;
+    
+    // 아래 코드는 비활성화됨 (layout.tsx에서 처리)
     if (
       process.env.NEXT_PUBLIC_ADSENSE_AUTO_ADS_ENABLED === 'true' && 
       process.env.NODE_ENV === 'production' &&

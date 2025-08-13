@@ -8,10 +8,10 @@ export default function WebsiteSchema({ url = 'https://navidocent.com' }: Websit
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "NaviDocent",
-    "alternateName": "네비가이드AI",
+    "name": "도슨트투어",
+    "alternateName": "DocentTour",
     "url": url,
-    "description": "AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.",
+    "description": "개인 맞춤형 여행 오디오가이드 서비스. 전문 도슨트 음성해설과 다국어 지원으로 완벽한 여행 경험을 제공합니다. 무료 체험 가능!",
     "inLanguage": ["ko", "en", "ja", "zh", "es"],
     "potentialAction": [
       {
@@ -25,7 +25,7 @@ export default function WebsiteSchema({ url = 'https://navidocent.com' }: Websit
     ],
     "mainEntity": {
       "@type": "Organization",
-      "name": "NaviDocent",
+      "name": "도슨트투어",
       "url": url,
       "logo": `${url}/logo.png`,
       "sameAs": [
@@ -39,7 +39,7 @@ export default function WebsiteSchema({ url = 'https://navidocent.com' }: Websit
     },
     "publisher": {
       "@type": "Organization",
-      "name": "NaviDocent",
+      "name": "도슨트투어",
       "url": url,
       "logo": {
         "@type": "ImageObject",

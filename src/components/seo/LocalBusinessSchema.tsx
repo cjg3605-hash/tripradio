@@ -23,7 +23,7 @@ interface LocalBusinessSchemaProps {
 }
 
 export default function LocalBusinessSchema({
-  businessName = "NaviDocent",
+  businessName = "도슨트투어",
   description,
   url = "https://navidocent.com",
   address,
@@ -33,11 +33,11 @@ export default function LocalBusinessSchema({
 }: LocalBusinessSchemaProps) {
 
   const descriptions: LanguageType = {
-    ko: "AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.",
-    en: "AI-powered personalized travel docent service. Provides perfect travel experiences with real-time voice guides and multilingual support.",
-    ja: "AI駆動型パーソナライズド旅行ドーセントサービス。リアルタイム音声ガイドと多言語サポートで完璧な旅行体験を提供します。",
-    zh: "基于AI的个性化旅行导览服务。通过实时语音导览和多语言支持提供完美的旅行体验。",
-    es: "Servicio de guía turístico personalizado basado en IA. Proporciona experiencias de viaje perfectas con guías de voz en tiempo real y soporte multiidioma."
+    ko: "개인 맞춤형 여행 오디오가이드 서비스. 전문 도슨트 음성해설과 다국어 지원으로 완벽한 여행 경험을 제공합니다. 무료 체험 가능!",
+    en: "Personalized travel audio guide service. Provides perfect travel experiences with professional voice docent and multilingual support. Free trial available!",
+    ja: "パーソナライズド旅行オーディオガイドサービス。プロフェッショナル音声ドーセントと多言語サポートで完璧な旅行体験を提供します。無料体験可能！",
+    zh: "个性化旅游音频导览服务。通过专业语音导览和多语言支持提供完美的旅行体验。免费试用！",
+    es: "Servicio de guía de audio de viaje personalizado. Proporciona experiencias de viaje perfectas con guías de voz profesionales y soporte multiidioma. ¡Prueba gratuita disponible!"
   };
 
   const localBusinessSchema = {
@@ -75,30 +75,30 @@ export default function LocalBusinessSchema({
     },
     hasOfferCatalog: {
       "@type": "OfferCatalog",
-      name: "NaviDocent 서비스",
+      name: "도슨트투어 서비스",
       itemListElement: [
         {
           "@type": "Offer",
           itemOffered: {
             "@type": "Service",
-            name: "AI 여행 도슨트",
-            description: "AI 기반 개인 맞춤형 여행 가이드 서비스"
+            name: "여행 오디오가이드",
+            description: "개인 맞춤형 여행 오디오가이드 서비스"
           }
         },
         {
           "@type": "Offer",
           itemOffered: {
             "@type": "Service", 
-            name: "실시간 음성 가이드",
-            description: "GPS 기반 실시간 위치별 음성 가이드"
+            name: "실시간 음성 도슨트",
+            description: "GPS 기반 실시간 위치별 음성 도슨트"
           }
         },
         {
           "@type": "Offer",
           itemOffered: {
             "@type": "Service",
-            name: "다국어 지원",
-            description: "한국어, 영어, 일본어, 중국어, 스페인어 지원"
+            name: "무료 체험",
+            description: "무료로 체험 가능한 여행 오디오 가이드"
           }
         }
       ]
@@ -125,10 +125,10 @@ export default function LocalBusinessSchema({
     },
     creator: {
       "@type": "Person",
-      name: "NaviDocent Developer"
+      name: "도슨트투어 개발팀"
     },
     foundingDate: "2024",
-    slogan: "AI와 함께하는 완벽한 여행 경험"
+    slogan: "여행 오디오가이드로 자유롭고 깊이있는 여행을"
   };
 
   return (

@@ -184,6 +184,28 @@ const nextConfig = {
         ],
       },
       {
+        // ads.txt 파일 - 올바른 MIME 타입과 접근성 보장
+        source: '/ads.txt',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'text/plain; charset=utf-8',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=86400, max-age=86400', // 24시간 캐시
+          },
+          {
+            key: 'X-Robots-Tag',
+            value: 'index, follow',
+          },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+        ],
+      },
+      {
         // 가이드 페이지들 - 적극적 색인
         source: '/guide/:path*',
         headers: [
