@@ -206,12 +206,26 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
           </div>
           <button 
             onClick={() => router.push('/')}
-            className="btn-base text-fluid-lg font-bold text-black bg-transparent hover:bg-gray-50 transition-all duration-200"
+            className="btn-base text-fluid-xl font-bold text-black bg-transparent hover:bg-gray-50 transition-all duration-200 relative"
             style={{
               padding: 'var(--space-2) var(--space-1)'
             }}
           >
-{currentLanguage === 'ko' ? '네비가이드AI' : 'NaviDocent'}
+            {currentLanguage === 'ko' ? (
+              <>
+                트립라디오
+                <span className="text-xs font-normal absolute -top-1 ml-1 text-gray-600">
+                  AI
+                </span>
+              </>
+            ) : (
+              <>
+                TRIPRADIO
+                <span className="text-xs font-normal absolute -top-1 ml-1 text-gray-600">
+                  .AI
+                </span>
+              </>
+            )}
           </button>
         </div>
 

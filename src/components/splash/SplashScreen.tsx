@@ -72,7 +72,7 @@ export default function SplashScreen({ onComplete, children }: SplashScreenProps
             >
               <Image
                 src="/logo.png"
-                alt="NaviDocent Logo"
+                alt="TripRadio Logo"
                 width={200}
                 height={200}
                 className="w-48 h-48 object-contain"

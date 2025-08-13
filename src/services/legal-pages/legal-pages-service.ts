@@ -48,8 +48,8 @@ export interface AdSenseComplianceMetrics {
 export class LegalPagesService {
   private static instance: LegalPagesService;
   private contactInfo: ContactInformation = {
-    serviceName: 'NaviDocent',
-    developerName: 'NaviDocent Developer',
+    serviceName: 'TripRadio',
+    developerName: 'TripRadio Developer',
     serviceAddress: {
       city: '서울',
       state: '서울시',
@@ -83,8 +83,8 @@ export class LegalPagesService {
       isPublished: true,
       seoMetadata: {
         description: language === 'ko' 
-          ? 'NaviDocent 개인정보처리방침 - 사용자 데이터 보호 및 처리 방침'
-          : 'NaviDocent Privacy Policy - User data protection and processing policy',
+          ? 'TripRadio 개인정보처리방침 - 사용자 데이터 보호 및 처리 방침'
+          : 'TripRadio Privacy Policy - User data protection and processing policy',
         keywords: ['privacy policy', 'data protection', '개인정보보호', 'GDPR', 'user privacy'],
         canonicalUrl: `/legal/privacy`
       }
@@ -111,8 +111,8 @@ export class LegalPagesService {
       isPublished: true,
       seoMetadata: {
         description: language === 'ko'
-          ? 'NaviDocent 이용약관 - 서비스 이용 조건 및 사용자 권리'
-          : 'NaviDocent Terms of Service - Service usage conditions and user rights',
+          ? 'TripRadio 이용약관 - 서비스 이용 조건 및 사용자 권리'
+          : 'TripRadio Terms of Service - Service usage conditions and user rights',
         keywords: ['terms of service', 'user agreement', '이용약관', 'service terms'],
         canonicalUrl: `/legal/terms`
       }
@@ -139,8 +139,8 @@ export class LegalPagesService {
       isPublished: true,
       seoMetadata: {
         description: language === 'ko'
-          ? 'NaviDocent 소개 - AI 기반 여행 도슨트 서비스'
-          : 'About NaviDocent - AI-powered travel docent service',
+          ? 'TripRadio 소개 - AI 기반 여행 도슨트 서비스'
+          : 'About TripRadio - AI-powered travel docent service',
         keywords: ['about us', 'service', 'AI travel', '서비스소개', 'travel technology'],
         canonicalUrl: `/about`
       }
@@ -167,8 +167,8 @@ export class LegalPagesService {
       isPublished: true,
       seoMetadata: {
         description: language === 'ko'
-          ? '네비가이드AI 연락처 - 고객지원 및 비즈니스 문의'
-          : 'Contact NaviGuide AI - Customer support and business inquiries',
+          ? '트립라디오AI 연락처 - 고객지원 및 비즈니스 문의'
+          : 'Contact TripRadio AI - Customer support and business inquiries',
         keywords: ['contact', 'customer support', '연락처', 'business inquiry'],
         canonicalUrl: `/contact`
       }
@@ -250,7 +250,7 @@ export class LegalPagesService {
 
 ## 1. 개인정보의 처리목적
 
-네비가이드AI("회사" 또는 "저희")는 다음의 목적을 위하여 개인정보를 처리하고 있으며, 다음의 목적 이외의 용도로는 이용하지 않습니다.
+트립라디오AI("회사" 또는 "저희")는 다음의 목적을 위하여 개인정보를 처리하고 있으며, 다음의 목적 이외의 용도로는 이용하지 않습니다.
 
 - AI 기반 여행 가이드 서비스 제공
 - 개인화된 여행 추천 서비스
@@ -371,7 +371,7 @@ This policy is effective as of ${new Date().toLocaleDateString('en-US')}.
 
 ## 1. 서비스 소개
 
-네비가이드AI는 인공지능 기반 여행 가이드 서비스를 제공합니다. 본 약관은 서비스 이용과 관련된 권리, 의무 및 책임사항을 규정합니다.
+트립라디오AI는 인공지능 기반 여행 가이드 서비스를 제공합니다. 본 약관은 서비스 이용과 관련된 권리, 의무 및 책임사항을 규정합니다.
 
 ## 2. 서비스 이용계약
 
@@ -502,11 +502,11 @@ Matters not specified in these terms will be governed by applicable laws and cus
   private buildAboutPageContent(language: string): string {
     if (language === 'ko') {
       return `
-# 네비가이드AI 소개
+# 트립라디오AI 소개
 
 ## 회사 개요
 
-네비가이드AI는 인공지능 기술을 활용하여 개인화된 여행 가이드 서비스를 제공하는 혁신적인 기술 기업입니다. 2025년에 설립된 저희는 여행자들에게 더 나은 여행 경험을 제공하고자 합니다.
+트립라디오AI는 인공지능 기술을 활용하여 개인화된 여행 가이드 서비스를 제공하는 혁신적인 기술 기업입니다. 2025년에 설립된 저희는 여행자들에게 더 나은 여행 경험을 제공하고자 합니다.
 
 ## 우리의 미션
 
@@ -552,7 +552,7 @@ Matters not specified in these terms will be governed by applicable laws and cus
 ## 연락처 정보
 
 **사업자 정보**
-- 회사명: 네비가이드AI
+- 회사명: 트립라디오AI
 - 이메일: ${this.contactInfo?.email || 'contact@navidocent.com'}
 - 주소: ${this.contactInfo?.serviceAddress?.city || '서울'}, ${this.contactInfo?.serviceAddress?.country || '대한민국'}
 
@@ -567,7 +567,7 @@ Matters not specified in these terms will be governed by applicable laws and cus
 
 ---
 
-*네비가이드AI와 함께 더 스마트하고 개인화된 여행을 경험해보세요.*
+*트립라디오AI와 함께 더 스마트하고 개인화된 여행을 경험해보세요.*
       `;
     } else {
       return `
@@ -649,7 +649,7 @@ We have partnerships with various travel-related companies and continuously stri
       return `
 # 연락처
 
-네비가이드AI에 대한 문의나 지원이 필요하시면 아래 정보를 이용해 주세요.
+트립라디오AI에 대한 문의나 지원이 필요하시면 아래 정보를 이용해 주세요.
 
 ## 📱 문의 채널
 
@@ -661,8 +661,8 @@ We have partnerships with various travel-related companies and continuously stri
 
 ## 🏢 사업자 정보
 
-**서비스명**: 네비가이드AI  
-**개발자**: ${this.contactInfo?.developerName || 'NaviDocent Developer'}  
+**서비스명**: 트립라디오AI  
+**개발자**: ${this.contactInfo?.developerName || 'TripRadio Developer'}  
 **주소**: 경기도 안양시
 
 ## 📞 전화 문의
@@ -697,7 +697,7 @@ A: 가이드 다운로드 기능을 통해 오프라인에서도 이용 가능�
 
 ---
 
-**더 나은 서비스를 위해 항상 노력하는 네비가이드AI입니다.**
+**더 나은 서비스를 위해 항상 노력하는 트립라디오AI입니다.**
       `;
     } else {
       return `

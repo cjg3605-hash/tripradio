@@ -105,8 +105,8 @@ export default function LocalBusinessSchema({
     },
     sameAs: [
       // 소셜미디어 및 비즈니스 프로필 링크 (설정 후 추가)
-      // "https://www.facebook.com/NaviDocent",
-      // "https://www.instagram.com/navidocent",
+      // "https://www.facebook.com/TripRadio",
+      // "https://www.instagram.com/tripradio",
       // "https://business.google.com/...",
       // "https://place.map.kakao.com/..."
     ],

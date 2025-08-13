@@ -2,8 +2,6 @@
 
 import Link from 'next/link';
 import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
-import { useTranslations } from 'next-intl';
-
 // 30개 영화/드라마 대규모 촬영지 데이터
 const filmLocations = [
   // 한국 작품 (K-Drama & 영화)
@@ -434,7 +432,18 @@ const regionKeys = ['all', 'domestic', 'japan', 'china', 'usa', 'europe', 'other
 const difficultyKeys = ['all', 'easy', 'normal', 'hard'];
 
 export default function FilmLocationsPage() {
-  const t = useTranslations('filmLocations');
+  // 임시 번역 함수
+  const t = (key: string) => {
+    const translations: Record<string, string> = {
+      'keyword': '영화 촬영지',
+      'metadata.title': 'AI 영화 촬영지 가이드 - 전 세계 명작의 실제 장소를 찾아서',
+      'metadata.description': '30개 유명 영화와 드라마의 실제 촬영지를 AI가 분석하여 완벽한 여행 코스로 제안합니다.',
+      'badge': '🎬 글로벌 촬영지',
+      'hero.title': 'AI 영화 촬영지 가이드',
+      'hero.subtitle': '스크린 속 그 장소를 실제로 만나보세요'
+    };
+    return translations[key] || key;
+  };
   
   return (
     <>

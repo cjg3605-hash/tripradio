@@ -2,10 +2,10 @@
 // Provides consistent naming and values across the codebase
 
 export const APP_CONFIG = {
-  name: 'NaviDocent',
-  description: 'AI-powered personalized travel docent service',
+  name: 'TripRadio.AI',
+  description: 'AI-powered personalized travel radio guide service',
   version: '1.0.0',
-  supportEmail: 'support@navidocent.com'
+  supportEmail: 'contact@navidocent.com'
 } as const;
 
 export const SUPPORTED_LANGUAGES = {

@@ -17,14 +17,14 @@ export async function GET(
     
     // 연락처 정보 설정 (최초 실행 시)
     legalPagesService.setContactInformation({
-      serviceName: 'NaviDocent',
+      serviceName: 'TripRadio',
       serviceAddress: {
         city: '서울',
         state: '서울시',
         country: '대한민국'
       },
       email: 'contact@navidocent.com',
-      developerName: 'NaviDocent Developer'
+      developerName: 'TripRadio Developer'
     });
 
     let page;

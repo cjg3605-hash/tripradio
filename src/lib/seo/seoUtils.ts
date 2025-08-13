@@ -1,5 +1,5 @@
 /**
- * SEO Utilities - NaviDocent AI Travel Guide
+ * SEO Utilities - TripRadio AI Travel Guide
  * Comprehensive SEO helper functions for optimal search engine visibility
  */
 
@@ -37,7 +37,7 @@ export function generateStructuredData(pageData: SEOPageData) {
     "image": fullImageUrl,
     "publisher": {
       "@type": "Organization",
-      "name": "NaviDocent",
+      "name": "TripRadio.AI",
       "url": baseUrl
     },
     "mainEntity": {
@@ -49,7 +49,7 @@ export function generateStructuredData(pageData: SEOPageData) {
     "creativeWorkStatus": "AI-Generated",
     "contributor": {
       "@type": "SoftwareApplication",
-      "name": "NaviDocent AI",
+      "name": "TripRadio AI",
       "applicationCategory": "Travel Guide Generator"
     }
   };

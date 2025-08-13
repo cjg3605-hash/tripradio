@@ -3,8 +3,6 @@
 import Link from 'next/link';
 import React from 'react';
 import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
-import { useTranslations } from 'next-intl';
-
 // 20개 노마드 도시 대규모 데이터 (2024년 기준, Nomad List 등 참조)
 const nomadCities = [
   // 유럽 (최고 노마드 도시들)
@@ -101,7 +99,22 @@ const nomadCities = [
 ];
 
 export default function NomadCalculatorPage() {
-  const t = useTranslations('nomadCalculator');
+  // 임시 번역 함수
+  const t = (key: string) => {
+    const translations: Record<string, string> = {
+      'keyword': '노마드 계산기',
+      'metadata.title': 'AI 노마드 생활비 계산기 - 전 세계 도시별 정확한 비용 분석',
+      'metadata.description': '20개 주요 노마드 도시의 실시간 생활비를 정확히 계산하세요. 숙소, 식비, 코워킹 스페이스 등 모든 비용을 고려한 맞춤형 예산 계획을 제공합니다.',
+      'badge': '🔥 2024년 최신 데이터',
+      'hero.title': 'AI 노마드 생활비 계산기',
+      'hero.subtitle': '전 세계 어디든, 정확한 예산으로',
+      'hero.description': '20개 주요 노마드 도시의 실시간 생활비 데이터로 완벽한 예산 계획을 세워보세요',
+      'calculator.title': '💰 스마트 비용 계산',
+      'calculator.subtitle': '당신만의 라이프스타일에 맞춘 정확한 예산을 계산해보세요',
+      'calculator.form.title': '라이프스타일 설정'
+    };
+    return translations[key] || key;
+  };
   
   const [selectedCity, setSelectedCity] = React.useState(nomadCities[0]);
   const [workingDays, setWorkingDays] = React.useState(22);

@@ -38,7 +38,7 @@ export class SellersJsonService {
   constructor() {
     this.businessConfig = {
       publicDisclosure: false, // 기본값: 내부용
-      businessName: '네비가이드AI',
+      businessName: '트립라디오AI',
       verifiedDomain: 'navidocent.com',
       contactEmail: 'contact@navidocent.com',
       businessAddress: '서울특별시 강남구',

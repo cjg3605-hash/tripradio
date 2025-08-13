@@ -484,7 +484,7 @@ function HomeClient() {
                 {/* 상단: 도슨트투어 (왼쪽 정렬) */}
                 <div className="mb-4 text-left">
                   <span className="block font-bold text-3xl md:text-5xl md:text-[1.5rem] lg:text-[2.5rem]">
-                    {t('home.brandTitle') || '도슨트투어'}
+                    {t('home.brandTitle') || '트립라디오.AI'}
                   </span>
                 </div>
                 
@@ -839,16 +839,13 @@ function HomeClient() {
                     <div className="relative bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-500 overflow-hidden group-hover:scale-[1.02]">
                       
                       {/* 상단 헤더 */}
-                      <div className="relative h-32 bg-gradient-to-br from-gray-900 to-black overflow-hidden">
+                      <div className="relative h-20 bg-gradient-to-br from-gray-900 to-black overflow-hidden">
                         <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/3 rounded-full transform translate-x-8 -translate-y-8"></div>
                         <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/3 rounded-full transform -translate-x-4 translate-y-4"></div>
                         
-                        {/* 국기와 국가명 */}
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-                          <div className="text-4xl mb-2 transform group-hover:scale-110 transition-transform duration-300 filter drop-shadow-sm">
-                            {country.flag}
-                          </div>
+                        {/* 국가명 */}
+                        <div className="absolute inset-0 flex items-center justify-center text-white">
                           <h3 className="font-light text-lg tracking-wider">
                             {country.name}
                           </h3>

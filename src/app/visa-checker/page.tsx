@@ -1,8 +1,6 @@
 'use client';
 import Link from 'next/link';
 import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
-import { useTranslations } from 'next-intl';
-
 // 50개 국가 대규모 비자 정보 데이터 (한국 여권 기준, 2025년)
 const visaInfo = [
   // 아시아 태평양 (무비자/비자 면제)
@@ -709,7 +707,18 @@ const nomadVisaCountries = [
 ];
 
 export default function VisaCheckerPage() {
-  const t = useTranslations('visaChecker');
+  // 임시 번역 함수
+  const t = (key: string) => {
+    const translations: Record<string, string> = {
+      'keyword': '비자 체커',
+      'metadata.title': 'AI 비자 체커 - 전 세계 50개국 비자 정보 한번에 확인',
+      'metadata.description': '한국 여권 기준 전 세계 50개국의 최신 비자 정보를 AI가 실시간으로 분석하여 제공합니다.',
+      'badge': '🌍 글로벌 비자 정보',
+      'hero.title': 'AI 비자 체커',
+      'hero.subtitle': '전 세계 여행, 비자 걱정 끝!'
+    };
+    return translations[key] || key;
+  };
   
   return (
     <>

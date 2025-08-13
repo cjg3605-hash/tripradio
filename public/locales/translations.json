@@ -22,7 +22,7 @@
       "contact": "문의"
     },
     "home": {
-      "brandTitle": "TripRadio.AI",
+      "brandTitle": "트립라디오.AI",
       "title": "트립라디오AI",
       "audioGuidePrefix": "AI 오디오가이드 | 무료 체험",
       "subtitle": "가이드없이 자유롭게,",
@@ -32,7 +32,7 @@
       "popularDestinations": "인기 여행지",
       "description": "",
       "regionTitles": {
-        "popularCountries": "🌍 인기 여행 국가",
+        "popularCountries": "인기 여행 국가",
         "korea": "한국",
         "europe": "유럽",
         "asia": "아시아",
@@ -104,7 +104,7 @@
             "남산타워",
             "명동"
           ],
-          "description": "전통과 현대가 어우러진 대한민국의 수도"
+          "description": "대한민국의 활기찬 수도"
         },
         "busan": {
           "name": "부산",
@@ -131,7 +131,7 @@
             "석굴암",
             "첨성대"
           ],
-          "description": "천년고도 신라의 역사가 살아있는 도시"
+          "description": "신라 천년의 고도"
         },
         "france": {
           "name": "프랑스",
@@ -614,7 +614,7 @@
       "alreadyHaveAccount": "이미 계정이 있으신가요?",
       "noAccount": "계정이 없으신가요?",
       "welcomeBack": "다시 오신 것을 환영합니다",
-      "welcomeTitle": "도슨트투어에 오신 것을 환영합니다",
+      "welcomeTitle": "트립라디오.AI에 오신 것을 환영합니다",
       "joinTitle": "AI 가이드와 함께 시작하세요",
       "emailVerification": "이메일 인증",
       "verificationCode": "인증 코드",
@@ -689,9 +689,9 @@
       "unknown_error": "알 수 없는 오류가 발생했습니다"
     },
     "footer": {
-      "companyName": "도슨트투어",
+      "companyName": "트립라디오.AI",
       "companyDescription": "AI 기반 개인화 여행 가이드 서비스",
-      "copyright": "© 2024 도슨트투어. All rights reserved.",
+      "copyright": "© 2024 트립라디오.AI. All rights reserved.",
       "legalInfo": "법적 정보",
       "privacyPolicy": "개인정보 처리방침",
       "termsOfService": "이용약관",
@@ -706,13 +706,13 @@
     "legal": {
       "terms": {
         "title": "이용약관",
-        "description": "도슨트투어 서비스 이용약관",
+        "description": "트립라디오.AI 서비스 이용약관",
         "content": "서비스 이용에 관한 약관 내용",
         "lastUpdated": "최종 업데이트"
       },
       "privacy": {
         "title": "개인정보 처리방침",
-        "description": "도슨트투어 개인정보 처리방침",
+        "description": "트립라디오.AI 개인정보 처리방침",
         "content": "개인정보 처리에 관한 방침 내용",
         "lastUpdated": "최종 업데이트"
       },
@@ -1489,7 +1489,7 @@
       "contact": "Contact"
     },
     "home": {
-      "brandTitle": "DocentTour",
+      "brandTitle": "TripRadio.AI",
       "title": "DocentTour",
       "audioGuidePrefix": "Travel Audio Guide | Free Docent Experience",
       "subtitle": "Travel freely without guides,",
@@ -1571,7 +1571,7 @@
             "Namsan Tower",
             "Myeongdong"
           ],
-          "description": "Capital of South Korea where tradition meets modernity"
+          "description": "Vibrant capital of South Korea"
         },
         "busan": {
           "name": "Busan",
@@ -1598,7 +1598,7 @@
             "Seokguram Grotto",
             "Cheomseongdae"
           ],
-          "description": "Ancient capital city preserving thousand years of Silla history"
+          "description": "Ancient Silla capital"
         },
         "france": {
           "name": "France",
@@ -2156,9 +2156,9 @@
       "unknown_error": "An unknown error occurred"
     },
     "footer": {
-      "companyName": "도슨트투어",
-      "companyDescription": "AI-powered personalized travel guide service",
-      "copyright": "© 2024 도슨트투어. All rights reserved.",
+      "companyName": "트립라디오.AI",
+      "companyDescription": "AI-powered personalized travel radio guide service",
+      "copyright": "© 2024 트립라디오.AI. All rights reserved.",
       "legalInfo": "Legal Information",
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
@@ -2423,7 +2423,7 @@
       "contact": "お問い合わせ"
     },
     "home": {
-      "brandTitle": "ドーセントツアー",
+      "brandTitle": "TripRadio.AI",
       "title": "ドーセントツアー",
       "audioGuidePrefix": "旅行オーディオガイド | 無料ドーセント体験",
       "subtitle": "ガイドなしで自由に、",
@@ -2505,7 +2505,7 @@
             "南山タワー",
             "明洞"
           ],
-          "description": "伝統と現代が調和する韓国の首都"
+          "description": "活気に満ちた韓国の首都"
         },
         "busan": {
           "name": "釜山",
@@ -2532,7 +2532,7 @@
             "石窟庵",
             "瞻星台"
           ],
-          "description": "千年古都新羅の歴史が息づく都市"
+          "description": "新羅千年の古都"
         },
         "france": {
           "name": "フランス",
@@ -3039,9 +3039,9 @@
       "unknown_error": "不明なエラーが発生しました"
     },
     "footer": {
-      "companyName": "도슨트투어",
-      "companyDescription": "AI基盤個人化旅行ガイドサービス",
-      "copyright": "© 2024 도슨트투어. All rights reserved.",
+      "companyName": "트립라디오.AI",
+      "companyDescription": "AI基盤個人化旅行ラジオガイドサービス",
+      "copyright": "© 2024 트립라디오.AI. All rights reserved.",
       "legalInfo": "法的情報",
       "privacyPolicy": "プライバシーポリシー",
       "termsOfService": "利用規約",
@@ -3248,7 +3248,7 @@
       "contact": "联系"
     },
     "home": {
-      "brandTitle": "多森特之旅",
+      "brandTitle": "TripRadio.AI",
       "title": "多森特之旅",
       "audioGuidePrefix": "旅游音频指南 | 免费导览体验",
       "subtitle": "无导游自由旅行，",
@@ -3330,7 +3330,7 @@
             "南山塔",
             "明洞"
           ],
-          "description": "传统与现代交融的韩国首都"
+          "description": "充满活力的韩国首都"
         },
         "busan": {
           "name": "釜山",
@@ -3357,7 +3357,7 @@
             "石窟庵",
             "瞻星台"
           ],
-          "description": "千年古都新罗历史文化名城"
+          "description": "新罗千年古都"
         },
         "france": {
           "name": "法国",
@@ -3864,9 +3864,9 @@
       "unknown_error": "发生未知错误"
     },
     "footer": {
-      "companyName": "도슨트투어",
-      "companyDescription": "AI驱动的个性化旅游指南服务",
-      "copyright": "© 2024 도슨트투어. All rights reserved.",
+      "companyName": "트립라디오.AI",
+      "companyDescription": "AI驱动的个性化旅游广播指南服务",
+      "copyright": "© 2024 트립라디오.AI. All rights reserved.",
       "legalInfo": "法律信息",
       "privacyPolicy": "隐私政策",
       "termsOfService": "服务条款",
@@ -4073,7 +4073,7 @@
       "contact": "Contacto"
     },
     "home": {
-      "brandTitle": "DocentTour",
+      "brandTitle": "TripRadio.AI",
       "title": "DocentTour",
       "audioGuidePrefix": "Guía de Audio de Viaje | Experiencia Gratuita de Docente",
       "subtitle": "Viaja libremente sin guías,",
@@ -4155,7 +4155,7 @@
             "Torre Namsan",
             "Myeongdong"
           ],
-          "description": "Capital de Corea del Sur donde la tradición se encuentra con la modernidad"
+          "description": "Vibrante capital de Corea del Sur"
         },
         "busan": {
           "name": "Busan",
@@ -4182,7 +4182,7 @@
             "Gruta Seokguram",
             "Cheomseongdae"
           ],
-          "description": "Antigua capital que preserva mil años de historia de Silla"
+          "description": "Antigua capital de Silla"
         },
         "france": {
           "name": "Francia",
@@ -4689,9 +4689,9 @@
       "unknown_error": "Ocurrió un error desconocido"
     },
     "footer": {
-      "companyName": "도슨트투어",
-      "companyDescription": "Servicio de guía de viaje personalizada impulsado por IA",
-      "copyright": "© 2024 도슨트투어. All rights reserved.",
+      "companyName": "트립라디오.AI",
+      "companyDescription": "Servicio de guía de radio de viaje personalizada impulsado por IA",
+      "copyright": "© 2024 트립라디오.AI. All rights reserved.",
       "legalInfo": "Información Legal",
       "privacyPolicy": "Política de Privacidad",
       "termsOfService": "Términos de Servicio",
@@ -5461,10 +5461,10 @@
       }
     },
     "tourRadio": {
-      "keyword": "투어라디오",
+      "keyword": "트립라디오",
       "metadata": {
-        "title": "투어라디오 앱 | AI가 만드는 실시간 여행 해설 방송 TripRadio.AI",
-        "description": "📻 여행지에서 들을 수 있는 특별한 투어라디오! AI가 실시간으로 만들어주는 개인 맞춤형 여행 해설 방송을 무료로 경험하세요"
+        "title": "트립라디오 앱 | AI가 만드는 실시간 여행 해설 방송 TripRadio.AI",
+        "description": "📻 여행지에서 들을 수 있는 특별한 트립라디오! AI가 실시간으로 만들어주는 개인 맞춤형 여행 해설 방송을 무료로 경험하세요"
       },
       "features": {
         "realtime": "실시간 방송 형태",
@@ -5474,11 +5474,11 @@
         "interactive": "대화형 진행",
         "worldwide": "전 세계 어디든"
       },
-      "badge": "📻 AI 투어라디오 서비스",
+      "badge": "📻 AI 트립라디오 서비스",
       "hero": {
-        "title": "AI 투어라디오로",
+        "title": "AI 트립라디오로",
         "subtitle": "특별한 여행 방송",
-        "description": "AI가 당신이 있는 곳의 이야기를 실시간으로 들려주는 개인 전용 투어라디오 방송을 경험하세요"
+        "description": "AI가 당신이 있는 곳의 이야기를 실시간으로 들려주는 개인 전용 트립라디오 방송을 경험하세요"
       },
       "cta": {
         "primary": "무료로 시작하기",
@@ -5516,7 +5516,7 @@
       },
       "radioFeatures": {
         "title": "TripRadio.AI의",
-        "subtitle": "혁신적인 투어라디오 경험",
+        "subtitle": "혁신적인 트립라디오 경험",
         "features": [
           {
             "title": "실시간 라디오 방송",
@@ -5540,12 +5540,12 @@
           },
           {
             "title": "전세계 모든 여행지",
-            "description": "세계 어떤 곳을 여행하든 그 장소만의 특별한 투어라디오를 즉시 생성해드립니다"
+            "description": "세계 어떤 곳을 여행하든 그 장소만의 특별한 트립라디오를 즉시 생성해드립니다"
           }
         ]
       },
       "contentTypes": {
-        "title": "다양한 투어라디오 콘텐츠",
+        "title": "다양한 트립라디오 콘텐츠",
         "subtitle": "장소와 상황에 맞는 맞춤형 방송 콘텐츠",
         "items": [
           {
@@ -5567,7 +5567,7 @@
         ]
       },
       "howItWorks": {
-        "title": "3단계로 쉽게 시작하는 투어라디오",
+        "title": "3단계로 쉽게 시작하는 트립라디오",
         "steps": [
           {
             "title": "위치 설정",
@@ -5578,14 +5578,14 @@
             "description": "재미있는 이야기, 역사 탐방, 문화 체험 등 원하는 방송 스타일을 선택하세요"
           },
           {
-            "title": "투어라디오 시작",
-            "description": "AI가 생성한 개인 전용 투어라디오 방송을 들으며 특별한 여행을 시작하세요"
+            "title": "트립라디오 시작",
+            "description": "AI가 생성한 개인 전용 트립라디오 방송을 들으며 특별한 여행을 시작하세요"
           }
         ]
       },
       "samplePrograms": {
-        "title": "샘플 투어라디오 프로그램",
-        "subtitle": "실제로 들을 수 있는 투어라디오 방송 예시",
+        "title": "샘플 트립라디오 프로그램",
+        "subtitle": "실제로 들을 수 있는 트립라디오 방송 예시",
         "programs": [
           {
             "title": "에펠탑의 숨겨진 이야기",
@@ -5626,9 +5626,9 @@
         ]
       },
       "finalCta": {
-        "title": "지금 바로 특별한 투어라디오를 경험하세요",
-        "description": "AI가 만드는 개인 맞춤 투어라디오로 여행이 더욱 풍성하고 재미있어집니다",
-        "button": "투어라디오 시작하기"
+        "title": "지금 바로 특별한 트립라디오를 경험하세요",
+        "description": "AI가 만드는 개인 맞춤 트립라디오로 여행이 더욱 풍성하고 재미있어집니다",
+        "button": "트립라디오 시작하기"
       }
     },
     "travelRadio": {

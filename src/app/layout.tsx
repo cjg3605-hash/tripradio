@@ -32,7 +32,7 @@ export const viewport: Viewport = {
 // ✅ 다국어 메타데이터 개선 - TripRadio.AI 브랜딩
 export const metadata: Metadata = {
   title: {
-    default: 'AI 오디오가이드 앱 추천 1위 | 무료 여행 해설 TripRadio.AI',
+    default: 'AI 오디오가이드 | 무료 여행 해설 TripRadio.AI',
     template: '%s | TripRadio.AI'
   },
   description: '🎧 혼자 여행이 심심하다면? AI가 실시간으로 만들어주는 나만의 여행 오디오가이드! 무료 다운로드하고 특별한 여행 경험을 시작하세요 ✈️',
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     locale: 'ko_KR',
     url: '/',
     siteName: 'TripRadio.AI',
-    title: 'AI 오디오가이드 앱 추천 1위 | 무료 여행 해설 TripRadio.AI',
+    title: 'AI 오디오가이드 | 무료 여행 해설 TripRadio.AI',
     description: '🎧 혼자 여행이 심심하다면? AI가 실시간으로 만들어주는 나만의 여행 오디오가이드! 무료 다운로드하고 특별한 여행 경험을 시작하세요 ✈️',
     images: [
       {

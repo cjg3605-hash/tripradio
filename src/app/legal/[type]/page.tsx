@@ -53,7 +53,7 @@ export async function generateMetadata({ params, searchParams }: LegalPageProps)
     const seo = page.seoMetadata;
     
     return {
-      title: `${page.title} | 네비가이드AI`,
+      title: `${page.title} | 트립라디오AI`,
       description: seo.description,
       keywords: seo.keywords.join(', '),
       robots: 'index, follow',
@@ -68,7 +68,7 @@ export async function generateMetadata({ params, searchParams }: LegalPageProps)
         title: page.title,
         description: seo.description,
         url: `${process.env.NEXT_PUBLIC_BASE_URL}${seo.canonicalUrl}`,
-        siteName: '네비가이드AI',
+        siteName: '트립라디오AI',
         locale: lang === 'ko' ? 'ko_KR' : 'en_US',
         type: 'website',
       },
@@ -81,7 +81,7 @@ export async function generateMetadata({ params, searchParams }: LegalPageProps)
   } catch (error) {
     console.error('Failed to generate metadata for legal page:', error);
     return {
-      title: 'Legal Page | 네비가이드AI',
+      title: 'Legal Page | 트립라디오AI',
       description: 'Legal information for NaviGuide AI services',
     };
   }
@@ -267,12 +267,12 @@ export default async function LegalPage({ params, searchParams }: LegalPageProps
               "inLanguage": lang === 'ko' ? 'ko-KR' : 'en-US',
               "isPartOf": {
                 "@type": "WebSite",
-                "name": "네비가이드AI",
+                "name": "트립라디오AI",
                 "url": process.env.NEXT_PUBLIC_BASE_URL
               },
               "publisher": {
                 "@type": "Organization",
-                "name": "네비가이드AI",
+                "name": "트립라디오AI",
                 "url": process.env.NEXT_PUBLIC_BASE_URL
               }
             })

@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
               letterSpacing: '-2px',
             }}
           >
-            NaviDocent
+            TripRadio
           </div>
 
           {/* Main Title */}

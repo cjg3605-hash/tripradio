@@ -166,15 +166,17 @@ const MapWithRoute = memo<MapWithRouteProps>(({
       item.lng >= -180 && item.lng <= 180
     );
 
-  // 지도 중심점 계산
+  // 지도 중심점 계산 - activeChapter가 있으면 해당 위치를 중심으로
   const mapCenter: LatLngExpression = center && center.lat && center.lng 
     ? [center.lat, center.lng]
-    : validChapters.length > 0 
-      ? [
-          validChapters.reduce((sum, ch) => sum + ch.lat!, 0) / validChapters.length,
-          validChapters.reduce((sum, ch) => sum + ch.lng!, 0) / validChapters.length
-        ]
-      : [37.5665, 126.9780]; // 서울 기본값
+    : activeChapterData && activeChapterData.lat && activeChapterData.lng
+      ? [activeChapterData.lat, activeChapterData.lng] // 활성 챕터를 중심으로
+      : validChapters.length > 0 
+        ? [
+            validChapters.reduce((sum, ch) => sum + ch.lat!, 0) / validChapters.length,
+            validChapters.reduce((sum, ch) => sum + ch.lng!, 0) / validChapters.length
+          ]
+        : [37.5665, 126.9780]; // 서울 기본값
 
   // 줌 레벨 계산
   const calculateZoom = (): number => {
@@ -207,6 +209,20 @@ const MapWithRoute = memo<MapWithRouteProps>(({
 
     return () => clearTimeout(timer);
   }, []);
+
+  // 지도가 로드된 후 활성 마커로 중심 이동
+  useEffect(() => {
+    if (showMap && activeChapterData && mapRef.current) {
+      const timer = setTimeout(() => {
+        const map = mapRef.current;
+        if (map && typeof map.flyTo === 'function') {
+          map.flyTo([activeChapterData.lat!, activeChapterData.lng!], 16, { duration: 1 });
+        }
+      }, 500); // 지도 로드 후 0.5초 대기
+
+      return () => clearTimeout(timer);
+    }
+  }, [showMap, activeChapterData]);
 
   // 내 위치로 지도 이동
   useEffect(() => {
@@ -255,6 +271,17 @@ const MapWithRoute = memo<MapWithRouteProps>(({
         attributionControl={false}
         style={{ width: '100%', height: '100%' }}
         ref={mapRef}
+        whenReady={() => {
+          // 지도가 완전히 로드된 후 활성 마커로 이동
+          if (activeChapterData && mapRef.current) {
+            setTimeout(() => {
+              const map = mapRef.current;
+              if (map && typeof map.flyTo === 'function') {
+                map.flyTo([activeChapterData.lat!, activeChapterData.lng!], 16, { duration: 1 });
+              }
+            }, 100);
+          }
+        }}
       >
         {/* 타일 레이어 */}
         <TileLayer

@@ -941,7 +941,7 @@ const DEFAULT_TRANSLATIONS: Translations = {
     noAccount: '계정이 없으신가요?',
     signin: '로그인',
     signout: '로그아웃',
-    welcomeTitle: 'NAVI:가이드에 오신 것을 환영합니다',
+    welcomeTitle: '트립라디오에 오신 것을 환영합니다',
     joinTitle: 'AI 가이드와 함께 시작하세요',
     exploreWithAI: 'AI와 함께 세계를 탐험하세요',
     emailVerification: '이메일 인증',
@@ -981,9 +981,9 @@ const DEFAULT_TRANSLATIONS: Translations = {
     chapter: '챕터'
   },
   footer: {
-    companyName: 'NaviDocent',
+    companyName: 'TripRadio',
     companyDescription: 'AI 기반 개인 맞춤형 여행 도슨트 서비스',
-    copyright: '© 2024 NaviDocent. All rights reserved.',
+    copyright: '© 2024 TripRadio. All rights reserved.',
     legalInfo: '법적 정보',
     privacyPolicy: '개인정보 처리방침',
     termsOfService: '이용약관',
@@ -998,13 +998,13 @@ const DEFAULT_TRANSLATIONS: Translations = {
   legal: {
     terms: {
       title: '이용약관',
-      description: 'NaviDocent 서비스 이용약관',
+      description: 'TripRadio 서비스 이용약관',
       content: '서비스 이용에 관한 약관 내용',
       lastUpdated: '최종 업데이트'
     },
     privacy: {
       title: '개인정보 처리방침',
-      description: 'NaviDocent 개인정보 처리방침',
+      description: 'TripRadio 개인정보 처리방침',
       content: '개인정보 처리에 관한 방침 내용',
       lastUpdated: '최종 업데이트'
     }

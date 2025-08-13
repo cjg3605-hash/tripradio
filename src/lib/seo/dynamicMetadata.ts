@@ -10,27 +10,27 @@ interface GuideMetadataProps {
 // 언어별 메타데이터 템플릿
 const metadataTemplates = {
   ko: {
-    titleTemplate: '{location} 여행 가이드 - NaviDocent AI',
+    titleTemplate: '{location} 여행 가이드 - 트립라디오 AI',
     descriptionTemplate: '{location}의 개인 맞춤형 AI 여행 가이드입니다. 실시간 음성 안내와 다국어 지원으로 완벽한 {location} 여행 경험을 제공합니다.',
     keywords: ['여행 가이드', 'AI 가이드', '개인 맞춤', '실시간 안내', '한국 여행']
   },
   en: {
-    titleTemplate: '{location} Travel Guide - NaviDocent AI',
+    titleTemplate: '{location} Travel Guide - TripRadio.AI',
     descriptionTemplate: 'Personalized AI travel guide for {location}. Experience perfect {location} travel with real-time voice guidance and multilingual support.',
     keywords: ['travel guide', 'AI guide', 'personalized', 'real-time guidance', 'Korea travel']
   },
   ja: {
-    titleTemplate: '{location}旅行ガイド - NaviDocent AI',
+    titleTemplate: '{location}旅行ガイド - TripRadio.AI',
     descriptionTemplate: '{location}のパーソナライズドAI旅行ガイドです。リアルタイム音声案内と多言語サポートで完璧な{location}旅行体験を提供します。',
     keywords: ['旅行ガイド', 'AIガイド', 'パーソナライズド', 'リアルタイム案内', '韓国旅行']
   },
   zh: {
-    titleTemplate: '{location}旅行指南 - NaviDocent AI',
+    titleTemplate: '{location}旅行指南 - TripRadio.AI',
     descriptionTemplate: '{location}的个性化AI旅行指南。通过实时语音导览和多语言支持，为您提供完美的{location}旅行体验。',
     keywords: ['旅行指南', 'AI导览', '个性化', '实时导览', '韩国旅行']
   },
   es: {
-    titleTemplate: 'Guía de Viaje de {location} - NaviDocent AI',
+    titleTemplate: 'Guía de Viaje de {location} - TripRadio.AI',
     descriptionTemplate: 'Guía de viaje personalizada con IA para {location}. Experimenta el viaje perfecto a {location} con orientación de voz en tiempo real y soporte multiidioma.',
     keywords: ['guía de viaje', 'guía IA', 'personalizada', 'orientación en tiempo real', 'viaje a Corea']
   }
@@ -120,20 +120,20 @@ export async function generateGuideMetadata({
       type: 'article',
       locale: getOpenGraphLocale(language),
       url: `${baseUrl}/guide/${encodeURIComponent(locationName)}`,
-      siteName: 'NaviDocent',
+      siteName: 'TripRadio.AI',
       images: extractedImage ? [
         {
           url: extractedImage,
           width: 1200,
           height: 630,
-          alt: `${locationName} Travel Guide - NaviDocent AI`
+          alt: `${locationName} Travel Guide - TripRadio.AI`
         }
       ] : [
         {
           url: `/og-image.jpg`,
           width: 1200,
           height: 630,
-          alt: `${locationName} Travel Guide - NaviDocent AI`
+          alt: `${locationName} Travel Guide - TripRadio.AI`
         }
       ]
     },
@@ -154,7 +154,7 @@ export async function generateGuideMetadata({
       }
     },
     other: {
-      'article:author': 'NaviDocent AI',
+      'article:author': 'TripRadio.AI',
       'article:section': 'Travel Guide',
       'article:tag': allKeywords.join(','),
       // AI Content Transparency

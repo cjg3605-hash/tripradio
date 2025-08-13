@@ -632,7 +632,7 @@ function SignInContent() {
           </div>
           
           {/* Title */}
-          <h1 className="font-semibold text-gray-900 mb-3 tracking-tight" style={{ fontSize: '70%' }}>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-3 tracking-tight">
             {authMode === 'signup' 
               ? signupStep === 'completed' 
                 ? t('auth.signupComplete')

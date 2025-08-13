@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
       type: 'article',
       locale: getOpenGraphLocale(serverDetectedLanguage),
       url: `/guide/${encodeURIComponent(locationName)}/tour`,
-      siteName: 'NaviDocent',
+      siteName: 'TripRadio',
       images: [
         {
           url: `/og-image.jpg`,

@@ -21,30 +21,30 @@ export const defaultRegionCountries: RegionCountries = {
     { 
       id: 'seoul', 
       name: '서울', 
-      flag: '🏙️', 
+      flag: '', 
       attractions: ['경복궁', '남산타워', '명동'],
-      description: '전통과 현대가 어우러진 대한민국의 수도'
+      description: '대한민국의 활기찬 수도'
     },
     { 
       id: 'busan', 
       name: '부산', 
-      flag: '🌊', 
+      flag: '', 
       attractions: ['해운대해수욕장', '감천문화마을', '자갈치시장'],
       description: '아름다운 바다와 항구의 도시'
     },
     { 
       id: 'jeju', 
       name: '제주', 
-      flag: '🌺', 
+      flag: '', 
       attractions: ['한라산', '성산일출봉', '중문관광단지'],
       description: '환상적인 자연경관의 섬'
     },
     { 
       id: 'gyeongju', 
       name: '경주', 
-      flag: '🏛️', 
+      flag: '', 
       attractions: ['불국사', '석굴암', '첨성대'],
-      description: '천년고도 신라의 역사가 살아있는 도시'
+      description: '신라 천년의 고도'
     }
   ],
   europe: [

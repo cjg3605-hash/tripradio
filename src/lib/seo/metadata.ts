@@ -17,7 +17,7 @@ const SEO_CONFIGS: Record<SupportedLanguage, SEOConfig> = {
     title: 'TripRadio.AI - 트립라디오AI 오디오가이드',
     description: 'AI가 만드는 개인 맞춤형 여행 오디오가이드. 전문 도슨트 음성해설과 다국어 지원으로 특별한 여행 경험을 제공합니다.',
     keywords: [
-      'TripRadio.AI', '트립라디오AI', '여행라디오', '투어라디오', '오디오가이드', '도슨트', 'AI여행', 'AI가이드', '관광', '투어', '음성가이드', '다국어', '한국여행', 'Korea tour', 'audio guide', 'docent tour'
+      'TripRadio.AI', '트립라디오AI', '여행라디오', '트립라디오', '오디오가이드', '도슨트', 'AI여행', 'AI가이드', '관광', '투어', '음성가이드', '다국어', '한국여행', 'Korea tour', 'audio guide', 'docent tour'
     ],
     ogTitle: 'TripRadio.AI - 트립라디오AI 오디오가이드',
     ogDescription: 'AI가 만드는 개인 맞춤형 여행 오디오가이드. 전문 도슨트 음성해설과 다국어 지원으로 특별한 여행 경험을 제공합니다.'

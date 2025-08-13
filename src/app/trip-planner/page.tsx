@@ -798,7 +798,7 @@ export default function TripPlannerPage() {
         // 여행 공유
         function shareTrip() {
           const destination = document.querySelector('input[type="text"]').value || '제주도';
-          const text = \`\${destination} 여행 계획을 AI가 생성했어요! TripRadio.AI에서 확인해보세요: \${window.location.href}\`;
+          const text = \`\${destination} 여행 계획을 AI가 생성했어요! TourRadio.AI에서 확인해보세요: \${window.location.href}\`;
           
           if (navigator.share) {
             navigator.share({
