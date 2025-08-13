@@ -211,21 +211,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
               padding: 'var(--space-2) var(--space-1)'
             }}
           >
-            {currentLanguage === 'ko' ? (
-              <>
-                트립라디오
-                <span className="text-xs font-normal absolute -top-1 ml-1 text-gray-600">
-                  AI
-                </span>
-              </>
-            ) : (
-              <>
-                TRIPRADIO
-                <span className="text-xs font-normal absolute -top-1 ml-1 text-gray-600">
-                  .AI
-                </span>
-              </>
-            )}
+            {currentLanguage === 'ko' ? '트립라디오' : 'TRIPRADIO'}
           </button>
         </div>
 

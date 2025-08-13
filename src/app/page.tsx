@@ -238,28 +238,28 @@ function Home() {
         { 
           id: 'seoul', 
           name: countries.seoul?.name || '서울', 
-          flag: '🏙️', 
+          flag: '', 
           attractions: countries.seoul?.attractions || ['경복궁', '남산타워', '명동'],
           description: countries.seoul?.description || '전통과 현대가 어우러진 대한민국의 수도'
         },
         { 
           id: 'busan', 
           name: countries.busan?.name || '부산', 
-          flag: '🌊', 
+          flag: '', 
           attractions: countries.busan?.attractions || ['해운대해수욕장', '감천문화마을', '자갈치시장'],
           description: countries.busan?.description || '아름다운 바다와 항구의 도시'
         },
         { 
           id: 'jeju', 
           name: countries.jeju?.name || '제주', 
-          flag: '🌺', 
+          flag: '', 
           attractions: countries.jeju?.attractions || ['한라산', '성산일출봉', '중문관광단지'],
           description: countries.jeju?.description || '환상적인 자연경관의 섬'
         },
         { 
           id: 'gyeongju', 
           name: countries.gyeongju?.name || '경주', 
-          flag: '🏛️', 
+          flag: '', 
           attractions: countries.gyeongju?.attractions || ['불국사', '석굴암', '첨성대'],
           description: countries.gyeongju?.description || '천년고도 신라의 역사가 살아있는 도시'
         }
@@ -268,35 +268,35 @@ function Home() {
         { 
           id: 'france', 
           name: countries.france?.name || 'France', 
-          flag: '🇫🇷', 
+          flag: '', 
           attractions: countries.france?.attractions || ['Eiffel Tower', 'Louvre Museum', 'Palace of Versailles'],
           description: countries.france?.description || 'Romantic Paris and magnificent cultural heritage'
         },
         { 
           id: 'italy', 
           name: countries.italy?.name || 'Italy', 
-          flag: '🇮🇹', 
+          flag: '', 
           attractions: countries.italy?.attractions || ['Colosseum', 'Leaning Tower of Pisa', 'Vatican'],
           description: countries.italy?.description || 'Glory of ancient Rome and Renaissance art'
         },
         { 
           id: 'spain', 
           name: countries.spain?.name || 'Spain', 
-          flag: '🇪🇸', 
+          flag: '', 
           attractions: countries.spain?.attractions || ['Sagrada Familia', 'Alhambra', 'Park Güell'],
           description: countries.spain?.description || 'Gaudí\'s architecture and flamenco passion'
         },
         { 
           id: 'uk', 
           name: countries.uk?.name || 'United Kingdom', 
-          flag: '🇬🇧', 
+          flag: '', 
           attractions: countries.uk?.attractions || ['Big Ben', 'Tower Bridge', 'Buckingham Palace'],
           description: countries.uk?.description || 'Harmonious blend of tradition and modernity'
         },
         { 
           id: 'germany', 
           name: countries.germany?.name || 'Germany', 
-          flag: '🇩🇪', 
+          flag: '', 
           attractions: countries.germany?.attractions || ['Brandenburg Gate', 'Neuschwanstein Castle', 'Cologne Cathedral'],
           description: countries.germany?.description || 'Fairy-tale castles and deep historical heritage'
         }
@@ -305,35 +305,35 @@ function Home() {
         { 
           id: 'japan', 
           name: countries.japan?.name || 'Japan', 
-          flag: '🇯🇵', 
+          flag: '', 
           attractions: countries.japan?.attractions || ['Mount Fuji', 'Kiyomizu-dera', 'Senso-ji'],
           description: countries.japan?.description || 'Mysterious land where tradition and cutting-edge coexist'
         },
         { 
           id: 'china', 
           name: countries.china?.name || 'China', 
-          flag: '🇨🇳', 
+          flag: '', 
           attractions: countries.china?.attractions || ['Great Wall', 'Forbidden City', 'Tiananmen Square'],
           description: countries.china?.description || 'Great civilization with 5000 years of history'
         },
         { 
           id: 'india', 
           name: countries.india?.name || 'India', 
-          flag: '🇮🇳', 
+          flag: '', 
           attractions: countries.india?.attractions || ['Taj Mahal', 'Red Fort', 'Ganges River'],
           description: countries.india?.description || 'Mystical spirituality and magnificent palaces'
         },
         { 
           id: 'thailand', 
           name: countries.thailand?.name || 'Thailand', 
-          flag: '🇹🇭', 
+          flag: '', 
           attractions: countries.thailand?.attractions || ['Wat Arun', 'Grand Palace', 'Wat Pho'],
           description: countries.thailand?.description || 'Golden temples and the land of smiles'
         },
         { 
           id: 'singapore', 
           name: countries.singapore?.name || 'Singapore', 
-          flag: '🇸🇬', 
+          flag: '', 
           attractions: countries.singapore?.attractions || ['Marina Bay Sands', 'Gardens by the Bay', 'Merlion'],
           description: countries.singapore?.description || 'Future city meets diverse cultures'
         }
@@ -1474,11 +1474,8 @@ function Home() {
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/3 rounded-full transform translate-x-8 -translate-y-8"></div>
                         <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/3 rounded-full transform -translate-x-4 translate-y-4"></div>
                         
-                        {/* 국기와 국가명 */}
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-                          <div className="text-4xl mb-2 transform group-hover:scale-110 transition-transform duration-300 filter drop-shadow-sm">
-                            {country.flag}
-                          </div>
+                        {/* 국가명 */}
+                        <div className="absolute inset-0 flex items-center justify-center text-white">
                           <h3 className="font-light text-lg tracking-wider">
                             {country.name}
                           </h3>
