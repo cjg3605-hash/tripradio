@@ -197,6 +197,17 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   const activeChapterData = validChapters.find(c => c.originalIndex === activeChapter);
   useMapFlyTo(mapRef, activeChapterData?.lat, activeChapterData?.lng);
 
+  // 지도 렌더링 5초 지연
+  const [showMap, setShowMap] = useState(false);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowMap(true);
+    }, 5000); // 5초 후 지도 렌더링
+
+    return () => clearTimeout(timer);
+  }, []);
+
   // 내 위치로 지도 이동
   useEffect(() => {
     if (showMyLocation && geolocation.latitude && geolocation.longitude && mapRef.current) {
@@ -216,13 +227,13 @@ const MapWithRoute = memo<MapWithRouteProps>(({
     return `https://mt1.google.com/vt/lyrs=m&hl=${langCode}&x={x}&y={y}&z={z}`;
   };
 
-  // 유효한 좌표가 없으면 빈 지도
-  if (validChapters.length === 0) {
+  // 지도 로딩 중이거나 유효한 좌표가 없으면 로딩/빈 화면
+  if (!showMap || validChapters.length === 0) {
     return (
       <div className="w-full h-64 bg-gray-100 flex items-center justify-center rounded-lg">
         <div className="text-center text-gray-500">
-          <div className="text-lg mb-2">📍</div>
-          <div>유효한 좌표 정보가 없습니다</div>
+          <div className="text-lg mb-2">{!showMap ? "🗺️" : "📍"}</div>
+          <div>{!showMap ? "지도를 로딩 중입니다..." : "유효한 좌표 정보가 없습니다"}</div>
         </div>
       </div>
     );
