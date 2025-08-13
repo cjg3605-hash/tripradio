@@ -1468,11 +1468,11 @@ function Home() {
                     <div className="relative bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-500 overflow-hidden group-hover:scale-[1.02]">
                       
                       {/* 상단 모노크롬 헤더 */}
-                      <div className="relative h-32 bg-gradient-to-br from-gray-900 to-black overflow-hidden">
+                      <div className="relative h-24 bg-gradient-to-br from-gray-900 to-black overflow-hidden">
                         {/* 미니멀 패턴 */}
                         <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/3 rounded-full transform translate-x-8 -translate-y-8"></div>
-                        <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/3 rounded-full transform -translate-x-4 translate-y-4"></div>
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/3 rounded-full transform translate-x-6 -translate-y-6"></div>
+                        <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/3 rounded-full transform -translate-x-3 translate-y-3"></div>
                         
                         {/* 국가명 */}
                         <div className="absolute inset-0 flex items-center justify-center text-white">
