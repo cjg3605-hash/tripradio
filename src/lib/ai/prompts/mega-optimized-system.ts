@@ -499,7 +499,7 @@ function detectLocationLanguage(locationName: string): string {
  * 🎯 언어별 스마트 패턴 선택 (5-8개만 선별)
  */
 function getSmartPatterns(language: string): string[] {
-  const patterns = [];
+  const patterns: string[] = [];
   
   switch (language) {
     case 'korean':

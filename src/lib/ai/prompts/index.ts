@@ -355,7 +355,7 @@ export async function createStructurePrompt(
       case 'zh': {
         try {
           const chineseModule = await import('./chinese');
-          return chineseModule.createChineseStructurePrompt(locationName, language, userProfile);
+          return chineseModule.createChineseStructurePrompt({ name: locationName });
         } catch {
           const koreanModule = await import('./korean');
           return koreanModule.createKoreanStructurePrompt(locationName, language, userProfile);
@@ -364,7 +364,7 @@ export async function createStructurePrompt(
       case 'es': {
         try {
           const spanishModule = await import('./spanish');
-          return spanishModule.createSpanishStructurePrompt(locationName, language, userProfile);
+          return spanishModule.createSpanishStructurePrompt({ name: locationName });
         } catch {
           const koreanModule = await import('./korean');
           return koreanModule.createKoreanStructurePrompt(locationName, language, userProfile);
@@ -425,7 +425,7 @@ export async function createChapterPrompt(
       case 'zh': {
         try {
           const chineseModule = await import('./chinese');
-          return chineseModule.createChineseChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
+          return chineseModule.createChineseChapterPrompt({ name: locationName }, chapterIndex);
         } catch {
           const koreanModule = await import('./korean');
           return koreanModule.createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
@@ -434,7 +434,7 @@ export async function createChapterPrompt(
       case 'es': {
         try {
           const spanishModule = await import('./spanish');
-          return spanishModule.createSpanishChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
+          return spanishModule.createSpanishChapterPrompt({ name: locationName }, chapterIndex);
         } catch {
           const koreanModule = await import('./korean');
           return koreanModule.createKoreanChapterPrompt(locationName, chapterIndex, chapterTitle, existingGuide, language, userProfile);
@@ -493,7 +493,7 @@ export async function createFinalGuidePrompt(
       case 'zh': {
         try {
           const chineseModule = await import('./chinese');
-          return chineseModule.createChineseFinalPrompt(locationName, researchData, userProfile);
+          return chineseModule.createChineseFinalPrompt({ name: locationName });
         } catch {
           const koreanModule = await import('./korean');
           return koreanModule.createKoreanFinalPrompt(locationName, researchData, userProfile);
@@ -502,7 +502,7 @@ export async function createFinalGuidePrompt(
       case 'es': {
         try {
           const spanishModule = await import('./spanish');
-          return spanishModule.createSpanishFinalPrompt(locationName, researchData, userProfile);
+          return spanishModule.createSpanishFinalPrompt({ name: locationName });
         } catch {
           const koreanModule = await import('./korean');
           return koreanModule.createKoreanFinalPrompt(locationName, researchData, userProfile);
@@ -560,7 +560,7 @@ export async function createAutonomousGuidePrompt(
       case 'zh': {
         try {
           const chineseModule = await import('./chinese');
-          return chineseModule.createChineseGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
+          return chineseModule.createChineseGuidePrompt({ name: locationName }, userProfile);
         } catch {
           const koreanModule = await import('./korean');
           return koreanModule.createKoreanGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
@@ -569,7 +569,7 @@ export async function createAutonomousGuidePrompt(
       case 'es': {
         try {
           const spanishModule = await import('./spanish');
-          return spanishModule.createSpanishGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
+          return spanishModule.createSpanishGuidePrompt({ name: locationName }, userProfile);
         } catch {
           const koreanModule = await import('./korean');
           return koreanModule.createKoreanGuidePrompt(locationName, userProfile, parentRegion, regionalContext);

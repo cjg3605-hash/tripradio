@@ -750,7 +750,6 @@ function postProcessSearchResults(
       confidence: 0.9 - (index * 0.1), // 순서에 따른 신뢰도
       metadata: {
         isOfficial: index === 0 || suggestion.isMainLocation === true,
-        category: locationType,
         popularity: Math.max(10 - index, 1)
       }
     };
@@ -865,7 +864,13 @@ export async function GET(request: NextRequest) {
       );
       
       const autocompleteResult = await Promise.race([autocompletePromise, timeoutPromise]);
-      const autocompleteText = await autocompleteResult.response.text();
+      
+      if (!autocompleteResult || typeof autocompleteResult !== 'object' || !('response' in autocompleteResult)) {
+        console.log('⚠️ AI 자동완성 응답 형식 오류');
+        return NextResponse.json({ suggestions: [] });
+      }
+      
+      const autocompleteText = await (autocompleteResult as any).response.text();
       
       console.log('🧠 AI 응답:', autocompleteText.substring(0, 200));
       const suggestions = parseAIResponse<{name: string, location: string, isMainLocation?: boolean}[]>(autocompleteText);

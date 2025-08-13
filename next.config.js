@@ -250,36 +250,85 @@ const nextConfig = {
     ];
   },
   // 번들 크기 최적화
-  webpack: (config, { isServer }) => {
-    // 클라이언트 빌드에서만 번들 분석 활성화
+  webpack: (config, { isServer, dev }) => {
+    // 성능 최적화 설정
     if (!isServer) {
-      config.optimization.splitChunks.chunks = 'all';
-      config.optimization.splitChunks.cacheGroups = {
-        ...config.optimization.splitChunks.cacheGroups,
-        // 큰 라이브러리들을 별도 청크로 분리
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all',
-          minSize: 20000,
-          maxSize: 244000,
+      // 트리셰이킹 활성화
+      config.optimization.usedExports = true;
+      config.optimization.sideEffects = false;
+      
+      // 청크 분할 최적화
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        minSize: 20000,
+        maxSize: 200000,
+        cacheGroups: {
+          // React & Core 라이브러리
+          react: {
+            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+            name: 'react',
+            chunks: 'all',
+            priority: 20,
+            enforce: true,
+          },
+          // Next.js 코어
+          nextjs: {
+            test: /[\\/]node_modules[\\/]next[\\/]/,
+            name: 'nextjs',
+            chunks: 'all',
+            priority: 15,
+            enforce: true,
+          },
+          // UI 컴포넌트 라이브러리들
+          ui: {
+            test: /[\\/]node_modules[\\/](@radix-ui|lucide-react|framer-motion)[\\/]/,
+            name: 'ui-libs',
+            chunks: 'all',
+            priority: 12,
+            maxSize: 150000,
+          },
+          // 지도 관련 (가장 무거운 라이브러리)
+          maps: {
+            test: /[\\/]node_modules[\\/](leaflet|react-leaflet)[\\/]/,
+            name: 'maps',
+            chunks: 'async',
+            priority: 10,
+            maxSize: 180000,
+          },
+          // 인증 관련
+          auth: {
+            test: /[\\/]node_modules[\\/](next-auth|@supabase)[\\/]/,
+            name: 'auth',
+            chunks: 'all',
+            priority: 8,
+          },
+          // 기타 vendor 라이브러리들
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+            priority: 5,
+            minSize: 30000,
+            maxSize: 200000,
+          },
         },
-        // 지도 관련 라이브러리 분리
-        maps: {
-          test: /[\\/]node_modules[\\/](leaflet|react-leaflet)[\\/]/,
-          name: 'maps',
-          chunks: 'all',
-          priority: 10,
-        },
-        // 오디오 관련 라이브러리 분리
-        audio: {
-          test: /[\\/](audio|sound|tts)[\\/]/,
-          name: 'audio',
-          chunks: 'all',
-          priority: 10,
-        }
       };
+      
+      // 압축 최적화 (프로덕션에서만)
+      if (!dev) {
+        config.optimization.minimize = true;
+      }
     }
+    
+    // 모듈 해석 최적화
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      // 불필요한 polyfill 제거
+      'fs': false,
+      'path': false,
+      'os': false,
+    };
+    
     return config;
   },
   // 로그아웃 캐시 문제 해결을 위해 동적 빌드 ID 사용

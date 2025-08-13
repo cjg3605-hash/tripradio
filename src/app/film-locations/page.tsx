@@ -554,7 +554,7 @@ export default function FilmLocationsPage() {
                     }`}>
                       {t(`difficulties.${film.difficulty === '쉬움' ? 'easy' : film.difficulty === '보통' ? 'normal' : 'hard'}`)}
                     </span>
-                    <span className="text-gray-600">{t('locations.locationCount', {count: film.locations.length})}</span>
+                    <span className="text-gray-600">{t('locations.locationCount', film.locations.length)}</span>
                   </div>
                 </div>
 
@@ -773,7 +773,7 @@ export default function FilmLocationsPage() {
                 <button 
                   onClick={() => {
                     const saved = JSON.parse(localStorage.getItem('saved-film-locations') || '[]');
-                    alert(t('tools.collection.savedCount', {count: saved.length}));
+                    alert(t('tools.collection.savedCount', saved.length));
                   }}
                   className="bg-purple-100 text-purple-800 px-3 py-1 rounded text-xs hover:bg-purple-200 transition-colors"
                 >

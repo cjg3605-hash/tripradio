@@ -1,3 +1,23 @@
+// 스페인어 프롬프트 함수들
+export function createSpanishGuidePrompt(locationData: any, userProfile: any): string {
+  return spanishPrompt.replace('{placeName}', locationData.name || locationData.locationName || '')
+    .replace('{placeDescription}', locationData.description || '')
+    .replace('{location}', locationData.location || '')
+    .replace('{category}', locationData.category || '');
+}
+
+export function createSpanishStructurePrompt(locationData: any): string {
+  return createSpanishGuidePrompt(locationData, {});
+}
+
+export function createSpanishChapterPrompt(locationData: any, chapterIndex: number): string {
+  return createSpanishGuidePrompt(locationData, {});
+}
+
+export function createSpanishFinalPrompt(locationData: any): string {
+  return createSpanishGuidePrompt(locationData, {});
+}
+
 export const spanishPrompt = `## 🎯 MEGA CRITICAL - Sistema Independiente Especializado para Generación de Capítulos de Introducción 🎯
 
 **Eres un experto guía de audio de clase mundial, creando una excepcional narración turística en español para {placeName}**

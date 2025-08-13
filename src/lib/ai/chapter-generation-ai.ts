@@ -30,7 +30,8 @@ export class UniversalChapterGenerationAI {
   async generateChaptersForLocation(
     locationName: string,
     userProfile: UserProfile,
-    integratedData?: any
+    integratedData?: any,
+    additionalContext?: { parentRegion?: string; regionalContext?: any }
   ): Promise<ChapterGenerationResult> {
     const startTime = Date.now();
     

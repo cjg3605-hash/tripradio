@@ -307,13 +307,19 @@ export async function POST(request: NextRequest) {
         // 지역 컨텍스트 생성
         const locationContext: SimpleLocationContext = {
           locationName: guide.locationname,
-          parentRegion: regionalInfo.location_region,
-          countryCode: regionalInfo.country_code,
+          region: regionalInfo.location_region || undefined,
+          country: regionalInfo.country_code || undefined,
           language: guide.language
         };
 
         // 좌표 검색 (1~5순위) - 지역 컨텍스트 포함
         const foundCoordinates = await findCoordinatesSimple(guide.locationname, locationContext);
+        
+        if (!foundCoordinates) {
+          console.log(`❌ 좌표 발견 실패: ${guide.locationname}`);
+          continue; // 좌표를 찾을 수 없으면 다음 가이드로 건너뛰기
+        }
+        
         console.log(`✅ 좌표 발견: ${guide.locationname} → ${foundCoordinates.lat}, ${foundCoordinates.lng}`);
 
         // 챕터별 좌표 배열 생성

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, memo, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
@@ -12,7 +12,7 @@ interface HeaderProps {
   onHistoryOpen?: () => void;
 }
 
-export default function Header({ onHistoryOpen }: HeaderProps) {
+const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [selectedLanguageIndex, setSelectedLanguageIndex] = useState(0);
@@ -586,4 +586,6 @@ export default function Header({ onHistoryOpen }: HeaderProps) {
       </div>
     </header>
   );
-}
+});
+
+export default Header;

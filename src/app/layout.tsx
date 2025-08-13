@@ -140,13 +140,37 @@ export default async function RootLayout({
   return (
     <html lang={serverLanguage} suppressHydrationWarning>
       <head>
-        {/* DNS Prefetch for Performance */}
+        {/* 🚀 Critical Resource Performance Optimization */}
+        
+        {/* DNS Prefetch - Critical 3rd Party Domains */}
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
         <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+        <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+        <link rel="dns-prefetch" href="//pagead2.googlesyndication.com" />
+        <link rel="dns-prefetch" href="//www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="//unpkg.com" />
         
-        {/* Preconnect for Critical Resources */}
+        {/* Preconnect for Critical Resources - Connection Reuse */}
         <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
+        
+        {/* Critical CSS Preload */}
+        <link 
+          rel="preload" 
+          href="/styles/globals.css" 
+          as="style"
+          onload="this.onload=null;this.rel='stylesheet'"
+        />
+        
+        {/* Critical Image Preload */}
+        <link rel="preload" href="/logo.png" as="image" />
+        <link rel="preload" href="/favicon-32x32.png" as="image" />
+        
+        {/* Critical JavaScript Resources Prefetch */}
+        <link rel="prefetch" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" />
+        <link rel="prefetch" href="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png" />
+        <link rel="prefetch" href="https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png" />
         
         {/* Google Search Console Verification */}
         <meta name="google-site-verification" content="ZGsBu9eojRsKlixPE6U5iGBcebJVNNBRhZo-UIVl3Hk" />
@@ -249,6 +273,42 @@ export default async function RootLayout({
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', 'G-MZ7XSC2X43');
+          `}
+        </Script>
+        
+        {/* 🚀 Performance Monitoring */}
+        <Script id="performance-monitor" strategy="afterInteractive">
+          {`
+            // Core Web Vitals Tracking for Google Analytics
+            function sendToGA(metric) {
+              if (typeof gtag !== 'undefined') {
+                gtag('event', metric.name, {
+                  value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
+                  event_category: 'Web Vitals',
+                  event_label: metric.id,
+                  non_interaction: true,
+                });
+              }
+            }
+            
+            // Web Vitals 초기화
+            if (typeof window !== 'undefined') {
+              // Performance Observer 지원 확인
+              if ('PerformanceObserver' in window) {
+                console.log('🚀 Performance monitoring enabled');
+                
+                // 5초 후 성능 리포트 생성 (개발 환경에서만)
+                if (window.location.hostname === 'localhost') {
+                  setTimeout(() => {
+                    if (window.performanceReport) {
+                      window.performanceReport();
+                    }
+                  }, 5000);
+                }
+              } else {
+                console.warn('⚠️ Performance Observer not supported');
+              }
+            }
           `}
         </Script>
       </body>

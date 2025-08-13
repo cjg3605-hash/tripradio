@@ -5,6 +5,9 @@
 
 import { searchLocationDirect, GeocodingResult, LocationContext } from './geocoding-direct';
 
+// Re-export LocationContext for external use
+export type { LocationContext } from './geocoding-direct';
+
 /**
  * 🌍 지역 컨텍스트 정보
  */

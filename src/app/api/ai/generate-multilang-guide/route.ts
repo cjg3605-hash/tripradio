@@ -525,7 +525,13 @@ export async function POST(request: NextRequest) {
     );
     
     console.log(`✅ 통합 좌표 생성 완료: ${coordinateResult.foundMethod}`);
-    console.log(`📍 기본 좌표: ${coordinateResult.baseCoordinates.lat}, ${coordinateResult.baseCoordinates.lng}`);
+    
+    if (coordinateResult.baseCoordinates) {
+      console.log(`📍 기본 좌표: ${coordinateResult.baseCoordinates.lat}, ${coordinateResult.baseCoordinates.lng}`);
+    } else {
+      console.log(`⚠️ 기본 좌표 없음`);
+    }
+    
     console.log(`📊 챕터 좌표 배열: ${coordinateResult.coordinatesArray.length}개`);
     
     // 🎯 4단계: 생성된 좌표를 챕터에 적용
@@ -536,10 +542,11 @@ export async function POST(request: NextRequest) {
       
       // 각 챕터에 해당하는 좌표 적용
       guideData.realTimeGuide.chapters = validChapters.map((chapter: any, index: number) => {
-        const chapterCoordinate = coordinateResult.coordinatesArray[index] || {
-          lat: coordinateResult.baseCoordinates.lat,
-          lng: coordinateResult.baseCoordinates.lng
-        };
+        const chapterCoordinate = coordinateResult.coordinatesArray[index] || 
+          (coordinateResult.baseCoordinates ? {
+            lat: coordinateResult.baseCoordinates.lat,
+            lng: coordinateResult.baseCoordinates.lng
+          } : { lat: 37.5665, lng: 126.9780 }); // 기본값: 서울시청
         
         // 🎯 정규화된 챕터 구조: narrative와 nextDirection 사이에 coordinates 추가
         const normalizedChapter = {

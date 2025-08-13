@@ -1,3 +1,23 @@
+// 중국어 프롬프트 함수들
+export function createChineseGuidePrompt(locationData: any, userProfile: any): string {
+  return chinesePrompt.replace('{placeName}', locationData.name || locationData.locationName || '')
+    .replace('{placeDescription}', locationData.description || '')
+    .replace('{location}', locationData.location || '')
+    .replace('{category}', locationData.category || '');
+}
+
+export function createChineseStructurePrompt(locationData: any): string {
+  return createChineseGuidePrompt(locationData, {});
+}
+
+export function createChineseChapterPrompt(locationData: any, chapterIndex: number): string {
+  return createChineseGuidePrompt(locationData, {});
+}
+
+export function createChineseFinalPrompt(locationData: any): string {
+  return createChineseGuidePrompt(locationData, {});
+}
+
 export const chinesePrompt = `## 🎯 MEGA CRITICAL - 引导章节生成专用独立系统 🎯
 
 **您是世界级音频导游专家，正在为 {placeName} 创建卓越的中文导游解说**
