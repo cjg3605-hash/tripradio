@@ -685,10 +685,47 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                     };
                   });
                   
-                  // 🎯 스마트 시작점 설정
-                  const smartStartPoint = chaptersForMap.length > 0 ? 
-                    { lat: chaptersForMap[0].lat, lng: chaptersForMap[0].lng, name: `${locationName} 시작점` } :
-                    { lat: 48.8584, lng: 2.2945, name: '에펠탑' }; // 에펠탑 기본값
+                  // 🎯 스마트 시작점 설정 - 실제 챕터 좌표 우선 사용
+                  let smartStartPoint;
+                  
+                  if (chaptersForMap.length > 0) {
+                    // 유효한 좌표를 가진 첫 번째 챕터 사용
+                    const validChapter = chaptersForMap.find(chapter => 
+                      chapter.lat !== undefined && 
+                      chapter.lng !== undefined && 
+                      !isNaN(chapter.lat) && 
+                      !isNaN(chapter.lng)
+                    );
+                    
+                    if (validChapter) {
+                      smartStartPoint = { 
+                        lat: validChapter.lat, 
+                        lng: validChapter.lng, 
+                        name: `${locationName} 시작점` 
+                      };
+                      console.log('✅ 실제 챕터 좌표로 중심점 설정:', smartStartPoint);
+                    } else {
+                      // 모든 챕터 좌표의 평균값 계산
+                      const validCoords = chaptersForMap.filter(c => 
+                        c.lat !== undefined && c.lng !== undefined && !isNaN(c.lat) && !isNaN(c.lng)
+                      );
+                      
+                      if (validCoords.length > 0) {
+                        const avgLat = validCoords.reduce((sum, c) => sum + c.lat, 0) / validCoords.length;
+                        const avgLng = validCoords.reduce((sum, c) => sum + c.lng, 0) / validCoords.length;
+                        smartStartPoint = { lat: avgLat, lng: avgLng, name: `${locationName} 중심점` };
+                        console.log('🎯 평균 좌표로 중심점 설정:', smartStartPoint);
+                      } else {
+                        // 최후 폴백: 기본 좌표
+                        smartStartPoint = { lat: 48.8584, lng: 2.2945, name: '에펠탑' };
+                        console.log('⚠️ 폴백 좌표 사용:', smartStartPoint);
+                      }
+                    }
+                  } else {
+                    // 챕터가 없을 때 기본값
+                    smartStartPoint = { lat: 48.8584, lng: 2.2945, name: '에펠탑' };
+                    console.log('📍 기본 좌표 사용 (챕터 없음):', smartStartPoint);
+                  }
                   
                   console.log('🗺️ 지도 데이터 (API 없음):', {
                     locationName,

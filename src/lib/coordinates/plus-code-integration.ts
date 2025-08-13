@@ -142,6 +142,8 @@ const GLOBAL_TOURISM_PLUS_CODES: { [key: string]: string } = {
   '태종대': '327X+XQ 부산광역시',
   '광안리해수욕장': '32WM+GR 부산광역시',
   '부산역': '32WJ+2R 부산광역시',
+  '용궁사': '56V9+CR 부산광역시',
+  '해동용궁사': '56V9+CR 부산광역시',
   
   // 서울
   '명동': '4WPR+XW 서울특별시',

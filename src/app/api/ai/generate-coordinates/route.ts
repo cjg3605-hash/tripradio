@@ -27,7 +27,7 @@ interface ChapterCoordinate {
 }
 
 /**
- * 🤖 지역 컨텍스트 통합 AI Plus Code 검색
+ * 🎯 Google Plus Code 우선 좌표 검색 + AI 폴백
  */
 async function getCoordinateWithContext(
   chapterLocation: string,
@@ -35,6 +35,34 @@ async function getCoordinateWithContext(
   region: string,
   country: string
 ): Promise<{ lat: number; lng: number } | null> {
+  
+  // 🥇 1순위: Google Plus Code 직접 검색
+  try {
+    const { findPlusCodeForLocation } = await import('@/lib/coordinates/plus-code-integration');
+    
+    // 다양한 검색어로 Plus Code 시도
+    const searchTerms = [
+      baseLocationName,
+      `${baseLocationName} ${region}`,
+      chapterLocation,
+      `${chapterLocation} ${region}`,
+      `해동${baseLocationName}`, // 용궁사 → 해동용궁사
+    ];
+    
+    for (const searchTerm of searchTerms) {
+      console.log(`🔍 Plus Code 검색: "${searchTerm}"`);
+      const plusCodeResult = await findPlusCodeForLocation(searchTerm);
+      
+      if (plusCodeResult) {
+        console.log(`✅ Plus Code 성공: ${searchTerm} → ${plusCodeResult.coordinates.lat}, ${plusCodeResult.coordinates.lng}`);
+        return plusCodeResult.coordinates;
+      }
+    }
+  } catch (error) {
+    console.log(`❌ Plus Code 검색 실패:`, error);
+  }
+  
+  // 🥈 2순위: AI 폴백 (기존 로직)
   try {
     const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     
