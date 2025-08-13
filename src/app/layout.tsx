@@ -165,25 +165,29 @@ export default async function RootLayout({
         <link rel="alternate" hrefLang="x-default" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'} />
         
 
-        {/* Google AdSense Auto Ads Script - 통합 최적화 */}
+        {/* ✅ Google AdSense - 안전한 Auto Ads 전용 초기화 */}
         <script 
           async 
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8225961966676319"
           crossOrigin="anonymous"
         />
         
-        {/* Google AdSense 자동 광고 초기화 - Script 컴포넌트 사용 */}
+        {/* ✅ AdSense Auto Ads 초기화 - 가짜 Ad Slot ID 문제 해결 */}
         <Script
-          id="google-adsense-init"
+          id="google-adsense-auto-ads"
           strategy="afterInteractive"
         >
           {`
             window.addEventListener('load', function() {
+              console.log('🟢 AdSense Auto Ads 초기화 시작');
               if (typeof window.adsbygoogle !== 'undefined') {
                 (window.adsbygoogle = window.adsbygoogle || []).push({
                   google_ad_client: "ca-pub-8225961966676319",
                   enable_page_level_ads: true
                 });
+                console.log('✅ AdSense Auto Ads 활성화 완료');
+              } else {
+                console.warn('⚠️ AdSense 스크립트 로드 대기 중...');
               }
             });
           `}

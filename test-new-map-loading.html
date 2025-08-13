@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>새로운 지도 로딩 시스템 테스트</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .test-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        .step-number {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            background: #007bff;
+            color: white;
+            text-align: center;
+            line-height: 25px;
+            border-radius: 50%;
+            margin-right: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .expected {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .url-box {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        .link {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+        .summary {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .summary h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗺️ 새로운 지도 로딩 시스템 테스트</h1>
+        
+        <div class="test-section">
+            <div class="test-title">📋 구현된 기능 요약</div>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>순차 API 타이밍 변경</strong>
+                <div class="expected">
+                    ✅ 3단계 직후에 좌표 생성 API 시작 (응답 대기하지 않음)<br>
+                    ✅ 가이드 페이지로 즉시 이동하여 빠른 로딩
+                </div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>지도 로딩 UI 구현</strong>
+                <div class="expected">
+                    ✅ "지도를 생성중입니다" 메시지 표시<br>
+                    ✅ 로딩 스피너 + 지도 아이콘 애니메이션<br>
+                    ✅ 좌표 완료 시 실제 지도로 전환
+                </div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>좌표 상태 폴링</strong>
+                <div class="expected">
+                    ✅ 3초 간격으로 coordinates 칼럼 확인<br>
+                    ✅ 좌표 완료되면 자동으로 지도 업데이트<br>
+                    ✅ 부드러운 페이드 전환 애니메이션
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">🧪 테스트 단계</div>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>만리장성 가이드 생성</strong>
+                <div class="url-box">
+                    <a href="http://localhost:3002" target="_blank" class="link">
+                        http://localhost:3002
+                    </a>
+                </div>
+                <div class="expected">
+                    기대 결과: 홈페이지가 정상적으로 로드됨
+                </div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>자동완성에서 "만리장성" 검색</strong>
+                <div class="expected">
+                    기대 결과: 중국 > 베이징 > 만리장성 검색 결과 표시
+                </div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>가이드 생성 및 페이지 이동 확인</strong>
+                <div class="expected">
+                    기대 결과: 
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>가이드 생성 후 즉시 페이지 이동</li>
+                        <li>지도 영역에 "지도를 생성중입니다" 표시</li>
+                        <li>로딩 스피너와 지도 아이콘 애니메이션</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">4</span>
+                <strong>좌표 생성 완료 확인</strong>
+                <div class="expected">
+                    기대 결과:
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>3-10초 후 실제 지도가 표시됨</li>
+                        <li>부드러운 페이드 전환 애니메이션</li>
+                        <li>만리장성 챕터별 좌표 마커 표시</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">🔍 확인 포인트</div>
+            
+            <div class="step">
+                <span class="step-number">✓</span>
+                <strong>사용자 경험</strong>
+                <div class="expected">
+                    • 가이드 페이지 로딩이 빨라졌는가?<br>
+                    • 지도 로딩 상태가 명확하게 표시되는가?<br>
+                    • 좌표 완료 시 자연스럽게 전환되는가?
+                </div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">✓</span>
+                <strong>기술적 검증</strong>
+                <div class="expected">
+                    • 브라우저 개발자 도구에서 좌표 폴링 로그 확인<br>
+                    • 네트워크 탭에서 좌표 API 호출 확인<br>
+                    • DB에서 coordinates 칼럼 데이터 확인
+                </div>
+            </div>
+        </div>
+        
+        <div class="summary">
+            <h3>🎯 새로운 시스템의 장점</h3>
+            <ul>
+                <li><strong>빠른 초기 로딩</strong>: 가이드 생성 완료 즉시 페이지 이동</li>
+                <li><strong>명확한 상태 표시</strong>: 사용자가 좌표 생성 진행 상황을 인지</li>
+                <li><strong>자동 업데이트</strong>: 좌표 완료 시 새로고침 없이 지도 표시</li>
+                <li><strong>부드러운 전환</strong>: 로딩에서 지도로 자연스러운 애니메이션</li>
+                <li><strong>백그라운드 처리</strong>: 사용자가 가이드를 읽는 동안 좌표 생성</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

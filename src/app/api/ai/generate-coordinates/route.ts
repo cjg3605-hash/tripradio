@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { supabase } from '@/lib/supabaseClient';
+import { findCoordinatesSimple, generateCoordinatesArray, extractChaptersFromContent, SimpleLocationContext } from '@/lib/coordinates/coordinate-utils';
 
 export const runtime = 'nodejs';
 
 /**
- * 🎯 별도 좌표 생성 API
+ * 🎯 단순화된 좌표 생성 API
  * 
- * 3단계 가이드 생성 완료 후 호출되는 독립적인 좌표 생성 시스템
- * - 완성된 가이드 데이터에서 챕터 정보 추출
- * - 지역 컨텍스트와 결합하여 정확한 Plus Code 검색
- * - coordinates 칼럼만 업데이트
+ * Geocoding API 직접 활용으로 정확한 좌표 생성
+ * - Plus Code 복잡성 완전 제거
+ * - 부정확한 폴백 시스템 제거
+ * - 검색 실패시 솔직하게 null 반환
  */
 
 interface ChapterCoordinate {
@@ -27,112 +27,36 @@ interface ChapterCoordinate {
 }
 
 /**
- * 🎯 Google Plus Code 우선 좌표 검색 + AI 폴백
+ * 🎯 Geocoding API 직접 좌표 검색
  */
-async function getCoordinateWithContext(
+async function getCoordinateWithGeocoding(
   chapterLocation: string,
   baseLocationName: string,
   region: string,
   country: string
 ): Promise<{ lat: number; lng: number } | null> {
   
-  // 🥇 1순위: Google Plus Code 직접 검색
-  try {
-    const { findPlusCodeForLocation } = await import('@/lib/coordinates/plus-code-integration');
-    
-    // 다양한 검색어로 Plus Code 시도
-    const searchTerms = [
-      baseLocationName,
-      `${baseLocationName} ${region}`,
-      chapterLocation,
-      `${chapterLocation} ${region}`,
-      `해동${baseLocationName}`, // 용궁사 → 해동용궁사
-    ];
-    
-    for (const searchTerm of searchTerms) {
-      console.log(`🔍 Plus Code 검색: "${searchTerm}"`);
-      const plusCodeResult = await findPlusCodeForLocation(searchTerm);
-      
-      if (plusCodeResult) {
-        console.log(`✅ Plus Code 성공: ${searchTerm} → ${plusCodeResult.coordinates.lat}, ${plusCodeResult.coordinates.lng}`);
-        return plusCodeResult.coordinates;
-      }
-    }
-  } catch (error) {
-    console.log(`❌ Plus Code 검색 실패:`, error);
-  }
+  console.log(`🔍 Geocoding API 직접 검색: "${baseLocationName} ${chapterLocation}"`);
   
-  // 🥈 2순위: AI 폴백 (기존 로직)
-  try {
-    const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-    
-    if (!apiKey) {
-      console.error('GEMINI_API_KEY is not configured');
-      return null;
-    }
-    
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
-
-    // 지역 컨텍스트 통합 Plus Code 프롬프트
-    const coordinatePrompt = `
-Please find the exact GPS coordinates using Plus Code system for this specific location:
-
-Main Location: "${baseLocationName}"
-Specific Area: "${chapterLocation}"
-Region: "${region}"
-Country: "${country}"
-
-FULL CONTEXT: "${baseLocationName} ${chapterLocation}, ${region}, ${country}"
-
-IMPORTANT INSTRUCTIONS:
-- Search for the Plus Code of this specific area within the main location
-- Use the regional context to avoid confusion with similar named places in other regions
-- Be as precise as possible for the exact coordinates
-- If the specific area name is generic (like "입구", "구간"), interpret it as part of the main location
-
-Examples of what I need:
-- For "만리장성 입구, 베이징, 중국" → Find the main entrance coordinates of Great Wall in Beijing
-- For "만리장성 성벽 1구간, 베이징, 중국" → Find coordinates of the first wall section in Beijing area
-
-Respond ONLY in this exact format:
-LAT: [latitude with 4-6 decimal places]
-LNG: [longitude with 4-6 decimal places]
-
-Example:
-LAT: 40.431907
-LNG: 116.570374
-`;
-
-    console.log(`🤖 지역 컨텍스트 Plus Code 요청: "${baseLocationName} ${chapterLocation}, ${region}, ${country}"`);
-    
-    const result = await model.generateContent(coordinatePrompt);
-    const response = result.response.text();
-    
-    console.log(`🤖 AI Plus Code 응답: ${response.trim()}`);
-    
-    // 좌표 추출
-    const latMatch = response.match(/LAT:\s*([-+]?\d{1,3}\.?\d*)/i);
-    const lngMatch = response.match(/LNG:\s*([-+]?\d{1,3}\.?\d*)/i);
-    
-    if (latMatch && lngMatch) {
-      const lat = parseFloat(latMatch[1]);
-      const lng = parseFloat(lngMatch[1]);
-      
-      // 좌표 유효성 검증
-      if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-        console.log(`✅ 지역 컨텍스트 Plus Code 성공: ${lat}, ${lng}`);
-        return { lat, lng };
-      } else {
-        console.log(`❌ 좌표 범위 초과: lat=${lat}, lng=${lng}`);
-      }
-    } else {
-      console.log(`❌ 좌표 파싱 실패: ${response.trim()}`);
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('❌ 지역 컨텍스트 Plus Code 검색 실패:', error);
+  // 지역 컨텍스트 구성
+  const context: SimpleLocationContext = {
+    locationName: `${baseLocationName} ${chapterLocation}`,
+    region: region,
+    country: country === 'CN' ? 'China' : 
+             country === 'KR' ? 'South Korea' : 
+             country === 'JP' ? 'Japan' :
+             country === 'US' ? 'United States' : country,
+    language: country === 'KR' ? 'ko' : 'en'
+  };
+  
+  // 단순화된 좌표 검색 사용
+  const coordinates = await findCoordinatesSimple(`${baseLocationName} ${chapterLocation}`, context);
+  
+  if (coordinates) {
+    console.log(`✅ Geocoding 검색 성공: ${coordinates.lat}, ${coordinates.lng}`);
+    return coordinates;
+  } else {
+    console.log(`❌ Geocoding 검색 실패: ${baseLocationName} ${chapterLocation}`);
     return null;
   }
 }
@@ -146,48 +70,35 @@ async function generateCoordinatesFromGuide(guideData: any, locationInfo: any): 
   try {
     console.log('🔍 가이드 데이터에서 챕터 정보 추출 시작');
     
-    // AI 가이드 realTimeGuide.chapters에서 실제 장소명 추출
-    let chapters: any[] = [];
+    // content에서 챕터 추출
+    const chapters = extractChaptersFromContent(guideData.content);
     
-    // 여러 경로에서 realTimeGuide.chapters 찾기
-    const realTimeGuide = guideData?.realTimeGuide || guideData?.content?.realTimeGuide;
-    
-    if (realTimeGuide?.chapters && Array.isArray(realTimeGuide.chapters)) {
-      chapters = realTimeGuide.chapters.map((chapter: any) => ({
-        id: chapter.id || 0,
-        title: chapter.title || `챕터 ${chapter.id + 1}`,
-        location: chapter.title || `구역 ${chapter.id + 1}` // chapters의 title을 location으로 사용
-      }));
-      
-      console.log('✅ realTimeGuide.chapters 발견:', chapters.length, '개 챕터');
-    }
-    
-    // 챕터가 없으면 기본 챕터 생성
     if (chapters.length === 0) {
-      console.log('📊 realTimeGuide.chapters 없음, 기본 챕터 생성');
-      chapters = [
+      console.log('📊 챕터 없음, 기본 챕터 생성');
+      // 기본 챕터 생성
+      const defaultChapters = [
         { id: 0, title: `${locationInfo.locationname} 입구`, location: '입구' },
         { id: 1, title: `${locationInfo.locationname} 주요 구역`, location: '주요 구역' },
         { id: 2, title: `${locationInfo.locationname} 전망대`, location: '전망대' }
       ];
+      chapters.push(...defaultChapters);
     }
     
-    console.log(`📊 ${chapters.length}개 챕터 발견:`, chapters.map(c => c.location).join(', '));
+    console.log(`📊 ${chapters.length}개 챕터 발견:`, chapters.map(c => c.title).join(', '));
     
     // 각 챕터별 좌표 생성
     for (let i = 0; i < Math.min(chapters.length, 5); i++) { // 최대 5개 챕터
       const chapter = chapters[i];
       
       try {
-        console.log(`\n🔍 챕터 ${i + 1} 좌표 생성: "${chapter.location}"`);
+        console.log(`\n🔍 챕터 ${i + 1} 좌표 생성: "${chapter.title}"`);
         
-        // 지역 컨텍스트와 함께 Plus Code 검색
-        const coordinateResult = await getCoordinateWithContext(
-          chapter.location,
+        // Geocoding API 직접 검색
+        const coordinateResult = await getCoordinateWithGeocoding(
+          chapter.title,
           locationInfo.locationname,
           locationInfo.location_region,
-          locationInfo.country_code === 'CN' ? '중국' : 
-          locationInfo.country_code === 'KR' ? '대한민국' : '기타'
+          locationInfo.country_code
         );
         
         if (coordinateResult) {
@@ -207,30 +118,13 @@ async function generateCoordinatesFromGuide(guideData: any, locationInfo: any): 
           coordinates.push(chapterCoord);
           console.log(`✅ 챕터 ${i + 1} 좌표 성공: ${coordinateResult.lat}, ${coordinateResult.lng}`);
         } else {
-          console.log(`❌ 챕터 ${i + 1} 좌표 실패`);
-          
-          // 기본값 사용
-          const offset = i * 0.001;
-          const defaultLat = getDefaultLatByCountry(locationInfo.country_code) + offset;
-          const defaultLng = getDefaultLngByCountry(locationInfo.country_code) + offset;
-          
-          coordinates.push({
-            id: i,
-            lat: defaultLat,
-            lng: defaultLng,
-            step: i + 1,
-            title: chapter.title,
-            chapterId: i,
-            coordinates: {
-              lat: defaultLat,
-              lng: defaultLng
-            }
-          });
+          console.log(`❌ 챕터 ${i + 1} 좌표 실패 - 검색 결과 없음`);
+          // 부정확한 기본값 대신 해당 챕터는 스킵
         }
         
         // API 호출 제한 대기
         if (i < chapters.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
         
       } catch (error) {
@@ -248,29 +142,6 @@ async function generateCoordinatesFromGuide(guideData: any, locationInfo: any): 
 }
 
 /**
- * 🌍 국가별 기본 좌표
- */
-function getDefaultLatByCountry(countryCode: string): number {
-  const defaults: { [key: string]: number } = {
-    'CN': 39.9042, // 베이징
-    'KR': 37.5665, // 서울
-    'JP': 35.6762, // 도쿄
-    'US': 39.8283, // 미국 중심부
-  };
-  return defaults[countryCode] || defaults['CN'];
-}
-
-function getDefaultLngByCountry(countryCode: string): number {
-  const defaults: { [key: string]: number } = {
-    'CN': 116.4074, // 베이징
-    'KR': 126.9780, // 서울
-    'JP': 139.6503, // 도쿄
-    'US': -98.5795, // 미국 중심부
-  };
-  return defaults[countryCode] || defaults['CN'];
-}
-
-/**
  * 🎯 메인 API 핸들러
  */
 export async function POST(request: NextRequest) {
@@ -284,7 +155,7 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    console.log(`\n🎯 좌표 생성 API 시작: guideId=${guideId}`);
+    console.log(`\n🎯 단순화된 좌표 생성 API 시작: guideId=${guideId}`);
     
     // 1단계: DB에서 가이드 데이터 조회
     const { data: guideRecord, error: fetchError } = await supabase
@@ -307,15 +178,20 @@ export async function POST(request: NextRequest) {
       country: guideRecord.country_code
     });
     
-    // 2단계: 좌표 생성
+    // 2단계: Geocoding API로 좌표 생성
     const startTime = Date.now();
-    const coordinates = await generateCoordinatesFromGuide(guideRecord.content, guideRecord);
+    const coordinates = await generateCoordinatesFromGuide(guideRecord, guideRecord);
     const generationTime = Date.now() - startTime;
     
     if (coordinates.length === 0) {
+      console.log('❌ 모든 챕터 좌표 검색 실패');
       return NextResponse.json(
-        { success: false, error: '좌표 생성에 실패했습니다.' },
-        { status: 500 }
+        { 
+          success: false, 
+          error: '좌표 검색에 실패했습니다. 장소명이 정확한지 확인해주세요.',
+          suggestion: 'Google Maps에서 해당 장소를 검색해보시고, 정확한 장소명으로 다시 시도해주세요.'
+        },
+        { status: 404 }
       );
     }
     
@@ -338,17 +214,18 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    console.log(`\n✅ 좌표 생성 API 완료:`, {
+    console.log(`\n✅ 단순화된 좌표 생성 API 완료:`, {
       guideId: guideId,
       coordinatesCount: coordinates.length,
       generationTime: `${generationTime}ms`,
-      status: 'coordinates updated successfully'
+      status: 'Geocoding API 직접 검색 성공'
     });
     
     return NextResponse.json({
       success: true,
       coordinates: coordinates,
       generationTime: generationTime,
+      method: 'Geocoding API 직접 검색',
       message: `${coordinates.length}개 좌표가 성공적으로 생성되었습니다.`
     });
     

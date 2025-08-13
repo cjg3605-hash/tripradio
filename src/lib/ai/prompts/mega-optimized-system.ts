@@ -4,7 +4,7 @@
 import { MEGA_SIMULATION_RESULTS, UserProfile } from '@/lib/simulation/mega-simulation-data';
 import { Big5InferenceEngine, Big5InferenceResult, PersonalityTrait } from '@/lib/personality/big5-inference';
 import { PersonalityGuideAdapter, GuideAdaptationOptions } from '@/lib/personality/personality-guide-adapter';
-import { comprehensivePlusCodeSearch, geocodePlusCode, findPlusCodeForLocation } from '@/lib/coordinates/plus-code-integration';
+import { searchLocationDirect } from '@/lib/coordinates/geocoding-direct';
 import axios from 'axios';
 
 // 20개국 문화 전문가 (1억명 데이터로 검증된 96%+ 만족도 달성)
@@ -411,7 +411,7 @@ interface OptimizedCoordinate {
   lat: number;
   lng: number;
   accuracy: 'high' | 'medium' | 'low';
-  source: 'plus_code' | 'places_api' | 'ai_fallback';
+  source: 'geocoding_api';
   confidence: number;
 }
 
@@ -419,80 +419,23 @@ async function getOptimizedCoordinates(locationName: string): Promise<OptimizedC
   try {
     console.log(`🎯 ${locationName} 좌표 최적화 시작`);
     
-    // 1. Plus Code 우선 검색 (95% 신뢰도)
-    const plusCodeResult = await comprehensivePlusCodeSearch(locationName);
-    if (plusCodeResult && plusCodeResult.confidence > 0.9) {
-      console.log(`✅ Plus Code 좌표 확보: ${plusCodeResult.coordinates.lat}, ${plusCodeResult.coordinates.lng}`);
+    // Geocoding API 직접 검색 (단순화)
+    const result = await searchLocationDirect(locationName);
+    
+    if (result) {
+      console.log(`✅ Geocoding API 좌표 확보: ${result.coordinates.lat}, ${result.coordinates.lng}`);
       return {
-        lat: plusCodeResult.coordinates.lat,
-        lng: plusCodeResult.coordinates.lng,
-        accuracy: 'high',
-        source: 'plus_code',
-        confidence: plusCodeResult.confidence
+        lat: result.coordinates.lat,
+        lng: result.coordinates.lng,
+        accuracy: result.confidence > 0.85 ? 'high' : 'medium',
+        source: 'geocoding_api',
+        confidence: result.confidence
       };
     }
 
-    // 2. Google Places API 최적화 검색
-    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-    if (!apiKey) {
-      console.warn('❌ Google Places API 키가 없음');
-      return null;
-    }
+    console.log(`❌ 좌표 검색 실패: ${locationName}`);
+    return null;
 
-    // 다국어 최적화 검색어들 (테스트에서 검증된 패턴)
-    const optimizedQueries = generateOptimizedQueries(locationName);
-    console.log(`🔍 검색 패턴: ${optimizedQueries.length}개 (다국어 지원)`);
-
-    let bestResult: OptimizedCoordinate | null = null;
-    let highestConfidence = 0;
-
-    for (const query of optimizedQueries) {
-      try {
-        console.log(`🔍 검색: "${query}"`);
-        
-        const response = await axios.get('https://maps.googleapis.com/maps/api/place/findplacefromtext/json', {
-          params: {
-            input: query,
-            inputtype: 'textquery',
-            fields: 'geometry,name,formatted_address',
-            key: apiKey,
-            language: 'ko'
-          },
-          timeout: 5000
-        });
-
-        if (response.data.status === 'OK' && response.data.candidates.length > 0) {
-          const candidate = response.data.candidates[0];
-          const confidence = calculateSearchConfidence(query, locationName);
-          
-          if (confidence > highestConfidence) {
-            highestConfidence = confidence;
-            bestResult = {
-              lat: candidate.geometry.location.lat,
-              lng: candidate.geometry.location.lng,
-              accuracy: confidence > 0.85 ? 'high' : 'medium',
-              source: 'places_api',
-              confidence
-            };
-            console.log(`🎯 우수 결과: ${query} (신뢰도: ${(confidence * 100).toFixed(1)}%)`);
-            
-            // 🚀 Early Termination: 90% 신뢰도 달성시 즉시 종료 (50% 속도 향상)
-            if (confidence >= 0.9) {
-              console.log(`⚡ 90% 신뢰도 달성! 조기 종료하여 속도 최적화`);
-              break;
-            }
-          }
-        }
-        
-        // API 호출 제한 방지
-        await new Promise(resolve => setTimeout(resolve, 300));
-      } catch (error) {
-        console.error(`Places API 오류: ${query}`, error);
-        continue;
-      }
-    }
-
-    return bestResult;
 
   } catch (error) {
     console.error('좌표 최적화 시스템 오류:', error);

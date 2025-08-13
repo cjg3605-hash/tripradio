@@ -23,23 +23,7 @@ const getGeminiClient = () => {
   }
 };
 
-/**
- * 🎯 Plus Code 검증 로직
- * Google Places API 결과의 plus_code를 활용하여 위치 정확성 검증
- */
-function verifyLocationWithPlusCode(
-  placesResult: any,
-  locationName: string
-): boolean {
-  if (!placesResult || !placesResult.plus_code) {
-    console.log(`⚠️ Plus Code 없음: ${locationName}`);
-    return false;
-  }
-  
-  // Plus Code 존재 시 기본적으로 신뢰
-  console.log(`✅ Plus Code 검증 성공: ${placesResult.plus_code} for ${locationName}`);
-  return true;
-}
+// Plus Code 검증 로직 제거됨 - 더 이상 사용하지 않음
 
 
 /**
@@ -267,21 +251,21 @@ export async function POST(request: NextRequest) {
     const initialRegionalInfo = extractRegionalInfo(locationName, parentRegion, regionalContext);
     console.log(`🌍 기본 지역 정보:`, initialRegionalInfo);
 
-    // ⚡ 2단계: Google Places API 호출과 AI 생성 병렬 실행
-    console.log(`\n⚡ 2단계: 병렬 처리 시작 - Google Places API + AI 생성`);
+    // ⚡ 2단계: Geocoding API 호출과 AI 생성 병렬 실행
+    console.log(`\n⚡ 2단계: 병렬 처리 시작 - Geocoding API + AI 생성`);
     
-    // Google Places API 호출 Promise
-    const placesSearchPromise = (async () => {
+    // Geocoding API 호출 Promise
+    const geocodingSearchPromise = (async () => {
       try {
-        const { smartPlacesSearch } = await import('@/lib/coordinates/google-places-integration');
+        const { searchLocationDirect } = await import('@/lib/coordinates/geocoding-direct');
         const optimalLanguage = getOptimalLanguageForLocation(locationName);
-        console.log(`🌐 Google Places API 최적 언어: ${optimalLanguage}`);
+        console.log(`🌐 Geocoding API 최적 언어: ${optimalLanguage}`);
         
-        const result = await smartPlacesSearch(locationName, optimalLanguage);
-        console.log(`✅ Google Places API 완료`);
+        const result = await searchLocationDirect(locationName);
+        console.log(`✅ Geocoding API 완료`);
         return result;
       } catch (error) {
-        console.warn('⚠️ Google Places API 실패:', error);
+        console.warn('⚠️ Geocoding API 실패:', error);
         return null;
       }
     })();
@@ -326,32 +310,32 @@ export async function POST(request: NextRequest) {
     })();
 
     // 병렬 실행 및 결과 수집
-    const [placesSearchResult, aiGenerationResult] = await Promise.allSettled([
-      placesSearchPromise,
+    const [geocodingSearchResult, aiGenerationResult] = await Promise.allSettled([
+      geocodingSearchPromise,
       aiGenerationPromise
     ]);
 
-    // Google Places API 결과 처리
-    let placesResult: any = null;
+    // Geocoding API 결과 처리
+    let geocodingResult: any = null;
     let regionalInfo = initialRegionalInfo;
     
-    if (placesSearchResult.status === 'fulfilled' && placesSearchResult.value) {
-      placesResult = placesSearchResult.value;
-      console.log(`✅ Google Places API 결과 활용`);
+    if (geocodingSearchResult.status === 'fulfilled' && geocodingSearchResult.value) {
+      geocodingResult = geocodingSearchResult.value;
+      console.log(`✅ Geocoding API 결과 활용`);
       
-      if (placesResult && placesResult.address) {
-        console.log(`📍 Google Places 결과:`, placesResult.address);
+      if (geocodingResult && geocodingResult.address) {
+        console.log(`📍 Geocoding 결과:`, geocodingResult.address);
         
-        // Google Places 결과에서 지역 정보 추출
-        const enhancedRegionalInfo = extractRegionalInfoFromPlaces(placesResult.address, regionalInfo);
+        // Geocoding 결과에서 지역 정보 추출
+        const enhancedRegionalInfo = extractRegionalInfoFromPlaces(geocodingResult.address, regionalInfo);
         
         if (enhancedRegionalInfo.location_region && enhancedRegionalInfo.country_code) {
           regionalInfo = enhancedRegionalInfo;
-          console.log(`✅ Google Places 기반 향상된 지역 정보:`, regionalInfo);
+          console.log(`✅ Geocoding 기반 향상된 지역 정보:`, regionalInfo);
         }
       }
     } else {
-      console.warn('⚠️ Google Places API 실패, 기본 지역 정보 사용');
+      console.warn('⚠️ Geocoding API 실패, 기본 지역 정보 사용');
     }
 
     // AI 생성 결과 처리

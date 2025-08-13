@@ -1,43 +1,49 @@
-// 브라우저 콘솔에서 실행할 테스트 스크립트
-async function testAutocomplete(query = '서울') {
-    console.log('🔍 자동완성 테스트 시작:', query);
+// 자동완성 API 테스트
+console.log("🧪 자동완성 API 테스트 시작");
+
+async function testAutocomplete(query) {
+  console.log(`📍 테스트: "${query}"`);
+  console.log("----------------------------");
+  
+  try {
+    const startTime = Date.now();
+    const response = await fetch(`http://localhost:3000/api/locations/search?q=${encodeURIComponent(query)}&lang=ko`);
+    const responseTime = Date.now() - startTime;
     
-    try {
-        const url = `http://localhost:3020/api/locations/search?q=${encodeURIComponent(query)}&lang=ko`;
-        console.log('📡 요청 URL:', url);
-        
-        const response = await fetch(url);
-        console.log('📊 응답 상태:', response.status);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('✅ 응답 데이터:', data);
-        console.log('📈 결과 개수:', data.data?.length || 0);
-        console.log('📝 결과 목록:', data.data?.map(item => `${item.name} (${item.location})`));
-        
-        return data;
-    } catch (error) {
-        console.error('❌ 테스트 실패:', error);
-        return null;
+    const data = await response.json();
+    
+    console.log(`⏱️  응답시간: ${responseTime}ms`);
+    console.log(`✅ 성공: ${data.success}`);
+    console.log(`📊 결과 개수: ${data.data?.length || 0}`);
+    console.log(`🔗 소스: ${data.source}`);
+    
+    if (data.data && data.data.length > 0) {
+      const first = data.data[0];
+      console.log("\n📋 첫 번째 결과:");
+      console.log(`   이름: ${first.name}`);
+      console.log(`   위치: ${first.location}`);
+      console.log(`   지역: ${first.region}`);
+      console.log(`   국가: ${first.country} (${first.countryCode})`);
+      console.log(`   타입: ${first.type}`);
     }
+    
+    console.log("");
+    return true;
+    
+  } catch (error) {
+    console.log(`❌ 에러: ${error.message}`);
+    return false;
+  }
 }
 
-// 여러 쿼리로 테스트
 async function runTests() {
-    const queries = ['서울', '파리', '도쿄', 'New York', '에펠탑'];
-    
-    for (const query of queries) {
-        console.log(`\n=== ${query} 테스트 ===`);
-        await testAutocomplete(query);
-        await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
-    }
+  const queries = ["만리장성", "서울", "에펠탑"];
+  
+  for (const query of queries) {
+    await testAutocomplete(query);
+  }
+  
+  console.log("🎯 테스트 완료\!");
 }
 
-// 사용법:
-console.log('자동완성 테스트 스크립트 로드됨');
-console.log('사용법:');
-console.log('testAutocomplete("서울") - 단일 테스트');
-console.log('runTests() - 여러 쿼리 테스트');
+runTests();

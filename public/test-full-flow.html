@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🚀 만리장성 전체 플로우 테스트</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+        .step { margin: 20px 0; padding: 20px; border: 2px solid #ddd; border-radius: 10px; }
+        .step.running { border-color: #3b82f6; background: #eff6ff; }
+        .step.success { border-color: #10b981; background: #ecfdf5; }
+        .step.error { border-color: #ef4444; background: #fef2f2; }
+        .result { margin: 15px 0; padding: 10px; background: #f8f9fa; border-radius: 5px; font-family: monospace; white-space: pre-wrap; }
+        button { padding: 15px 30px; font-size: 16px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 10px 5px; }
+        button:hover { background: #2563eb; }
+        button:disabled { background: #9ca3af; cursor: not-allowed; }
+        .loading { color: #3b82f6; }
+        h1 { color: #1f2937; }
+        h3 { color: #374151; margin: 0 0 10px 0; }
+        .timer { font-weight: bold; color: #059669; }
+    </style>
+</head>
+<body>
+    <h1>🚀 만리장성 전체 플로우 테스트</h1>
+    <p>자동완성 → 지역정보 추출 → 가이드 생성까지 전체 플로우를 테스트합니다.</p>
+    
+    <button onclick="runFullFlow()">🎯 전체 플로우 실행</button>
+    <button onclick="clearResults()">🔄 결과 초기화</button>
+    
+    <div id="results"></div>
+
+    <script>
+        let testData = {};
+        
+        async function runFullFlow() {
+            clearResults();
+            testData = {};
+            
+            await step1_autocomplete();
+            await step2_guideGeneration();
+            
+            console.log('🎉 전체 플로우 완료!', testData);
+        }
+        
+        async function step1_autocomplete() {
+            const stepDiv = createStepDiv('step1', '🔍 Step 1: 자동완성 API 테스트');
+            
+            try {
+                stepDiv.className = 'step running';
+                const startTime = Date.now();
+                
+                const response = await fetch(`/api/locations/search?q=${encodeURIComponent('만리장성')}&lang=ko`);
+                const responseTime = Date.now() - startTime;
+                
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    const firstResult = data.data[0];
+                    testData.locationData = firstResult;
+                    
+                    stepDiv.className = 'step success';
+                    stepDiv.innerHTML += `
+                        <div class="result">✅ 자동완성 성공 (${responseTime}ms)
+이름: ${firstResult.name}
+위치: ${firstResult.location}
+지역: ${firstResult.region}
+국가: ${firstResult.country} (${firstResult.countryCode})
+타입: ${firstResult.type}</div>`;
+                    
+                    return true;
+                } else {
+                    throw new Error('자동완성 결과 없음');
+                }
+                
+            } catch (error) {
+                stepDiv.className = 'step error';
+                stepDiv.innerHTML += `<div class="result">❌ 에러: ${error.message}</div>`;
+                return false;
+            }
+        }
+        
+        async function step2_guideGeneration() {
+            if (!testData.locationData) {
+                return false;
+            }
+            
+            const stepDiv = createStepDiv('step2', '📝 Step 2: 순차 가이드 생성 API 테스트');
+            
+            try {
+                stepDiv.className = 'step running';
+                const startTime = Date.now();
+                
+                // 지역 정보를 URL 파라미터로 전달
+                const params = new URLSearchParams({
+                    region: testData.locationData.region || '',
+                    country: testData.locationData.country || '',
+                    countryCode: testData.locationData.countryCode || '',
+                    type: testData.locationData.type || 'attraction'
+                });
+                
+                const guideUrl = `/api/ai/generate-sequential-guide?${params.toString()}`;
+                stepDiv.innerHTML += `<div class="result">🚀 호출 URL: ${guideUrl}</div>`;
+                
+                const response = await fetch(guideUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        locationName: testData.locationData.name,
+                        language: 'ko'
+                    })
+                });
+                
+                const responseTime = Date.now() - startTime;
+                const data = await response.json();
+                
+                stepDiv.className = 'step success';
+                stepDiv.innerHTML += `
+                    <div class="result">✅ 가이드 생성 성공 (${responseTime}ms)
+응답 타입: ${typeof data}
+성공 여부: ${data.success || 'N/A'}
+가이드 길이: ${data.guide ? data.guide.length : 'N/A'}자
+좌표 정보: ${data.coordinates ? 'YES' : 'NO'}
+DB 저장: ${data.saved ? 'YES' : 'NO'}</div>`;
+                
+                if (data.guide) {
+                    stepDiv.innerHTML += `<div class="result">📖 가이드 미리보기:
+${data.guide.substring(0, 200)}...</div>`;
+                }
+                
+                testData.guideData = data;
+                return true;
+                
+            } catch (error) {
+                stepDiv.className = 'step error';
+                stepDiv.innerHTML += `<div class="result">❌ 에러: ${error.message}</div>`;
+                return false;
+            }
+        }
+        
+        function createStepDiv(id, title) {
+            const resultsDiv = document.getElementById('results');
+            const stepDiv = document.createElement('div');
+            stepDiv.id = id;
+            stepDiv.className = 'step';
+            stepDiv.innerHTML = `<h3>${title}</h3><div class="loading">🔄 실행 중...</div>`;
+            resultsDiv.appendChild(stepDiv);
+            return stepDiv;
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            testData = {};
+        }
+        
+        // 페이지 로드 시 자동 실행
+        window.onload = function() {
+            setTimeout(runFullFlow, 1000);
+        };
+    </script>
+</body>
+</html>
