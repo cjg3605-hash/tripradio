@@ -78,113 +78,25 @@ interface MapWithRouteProps {
   guideCoordinates?: any; // Supabase coordinates 컬럼 데이터
 }
 
-function MapFlyTo({ lat, lng }: { lat: number; lng: number }) {
+function MapFlyTo({ lat, lng, onMoveComplete }: { lat: number; lng: number; onMoveComplete?: () => void }): null {
   const map = (useMap as any)();
   useEffect(() => {
     if (lat && lng) {
       map.flyTo([lat, lng], 16, { duration: 0.7 });
+      // 이동 완료 콜백 실행
+      if (onMoveComplete) {
+        const timer = setTimeout(() => {
+          onMoveComplete();
+        }, 700); // flyTo duration과 맞춤
+        return () => clearTimeout(timer);
+      }
     }
-  }, [lat, lng, map]);
+  }, [lat, lng, map, onMoveComplete]);
   return null;
 }
 
-// === 🎯 모던 모노크롬 마커 아이콘 생성 ===
-const modernMarkerSvg = `
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32px" height="32px">
-    <defs>
-      <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-        <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.3)"/>
-      </filter>
-    </defs>
-    <!-- 외부 원 (그림자) -->
-    <circle cx="16" cy="16" r="14" fill="rgba(0,0,0,0.1)" />
-    <!-- 메인 원 -->
-    <circle cx="16" cy="16" r="12" fill="white" stroke="black" stroke-width="2" filter="url(#shadow)" />
-    <!-- 내부 점 -->
-    <circle cx="16" cy="16" r="4" fill="black" />
-  </svg>
-`;
-
-const customMarkerIcon = new L.Icon({
-  iconUrl: `data:image/svg+xml,${encodeURIComponent(modernMarkerSvg)}`,
-  iconSize: [32, 32],
-  iconAnchor: [16, 16],
-  popupAnchor: [0, -16],
-  tooltipAnchor: [0, -16],
-});
-
-// 활성화된 챕터용 강조 마커 (접근성 고려 고대비)
-const activeModernMarkerSvg = `
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36px" height="36px">
-    <defs>
-      <filter id="activeShadow" x="-50%" y="-50%" width="200%" height="200%">
-        <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="rgba(0,0,0,0.4)"/>
-      </filter>
-      <radialGradient id="activeGrad" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" style="stop-color:white;stop-opacity:1" />
-        <stop offset="100%" style="stop-color:#f0f0f0;stop-opacity:1" />
-      </radialGradient>
-    </defs>
-    <!-- 펄싱 효과용 외부 원 -->
-    <circle cx="18" cy="18" r="16" fill="rgba(0,0,0,0.2)" opacity="0.6">
-      <animate attributeName="r" values="16;20;16" dur="2s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
-    </circle>
-    <!-- 메인 원 -->
-    <circle cx="18" cy="18" r="14" fill="url(#activeGrad)" stroke="black" stroke-width="3" filter="url(#activeShadow)" />
-    <!-- 내부 십자 표시 (현재 위치 강조) -->
-    <path d="M 18 8 L 18 28 M 8 18 L 28 18" stroke="black" stroke-width="3" stroke-linecap="round" />
-    <!-- 중앙 점 -->
-    <circle cx="18" cy="18" r="3" fill="black" />
-  </svg>
-`;
-
-const activeMarkerIcon = new L.Icon({
-  iconUrl: `data:image/svg+xml,${encodeURIComponent(activeModernMarkerSvg)}`,
-  iconSize: [36, 36],
-  iconAnchor: [18, 18],
-  popupAnchor: [0, -18],
-  tooltipAnchor: [0, -18],
-});
-
-// 사용자 위치 마커 (방향 표시 포함)
-const createUserLocationMarkerSvg = (heading: number | null) => `
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40px" height="40px">
-    <defs>
-      <filter id="userShadow" x="-50%" y="-50%" width="200%" height="200%">
-        <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="rgba(59,130,246,0.5)"/>
-      </filter>
-      <radialGradient id="userGrad" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
-        <stop offset="70%" style="stop-color:#1d4ed8;stop-opacity:1" />
-        <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
-      </radialGradient>
-    </defs>
-    <!-- 펄싱 효과용 외부 원 -->
-    <circle cx="20" cy="20" r="18" fill="rgba(59,130,246,0.3)" opacity="0.8">
-      <animate attributeName="r" values="18;24;18" dur="2s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite"/>
-    </circle>
-    <!-- 메인 원 -->
-    <circle cx="20" cy="20" r="16" fill="url(#userGrad)" stroke="white" stroke-width="3" filter="url(#userShadow)" />
-    ${heading !== null ? `
-    <!-- 방향 화살표 -->
-    <g transform="rotate(${heading} 20 20)">
-      <path d="M 20 8 L 26 20 L 20 17 L 14 20 Z" fill="white" stroke="none"/>
-    </g>
-    ` : ''}
-    <!-- 중앙 점 -->
-    <circle cx="20" cy="20" r="4" fill="white" />
-  </svg>
-`;
-
-const createUserLocationIcon = (heading: number | null) => new L.Icon({
-  iconUrl: `data:image/svg+xml,${encodeURIComponent(createUserLocationMarkerSvg(heading))}`,
-  iconSize: [40, 40],
-  iconAnchor: [20, 20],
-  popupAnchor: [0, -20],
-  tooltipAnchor: [0, -20],
-});
+// === 🎯 기본 Leaflet 마커 사용 ===
+// 복잡한 SVG 마커 제거 - 기본 빨간 핀 마커만 사용
 
 // 내 위치 버튼 컴포넌트
 const MyLocationButton = ({ map, onLocationClick }: { map: any, onLocationClick: () => void }) => {
@@ -264,6 +176,9 @@ export default function MapWithRoute({
   // GPS 위치 추적
   const geolocation = useSimpleGeolocation();
   const [showMyLocation, setShowMyLocation] = useState(false);
+  
+  // 지도 중심 자동 이동을 위한 상태
+  const [hasAutoMoved, setHasAutoMoved] = useState(false);
 
   // 🔥 React Hook 규칙 준수: 모든 훅을 조건부 return 전에 호출
   // 🔥 안정적인 키 생성 (Math.random 제거하여 예측 가능하게)
@@ -333,6 +248,32 @@ export default function MapWithRoute({
       isInitializedRef.current = false;
     };
   }, [cleanupMap]); // cleanupMap 의존성 추가
+
+  // 🎯 POI/챕터 데이터 로드 완료 시 자동으로 첫 번째 마커로 지도 이동
+  useEffect(() => {
+    // 이미 자동 이동했거나 중심점이 명시적으로 설정된 경우 스킵
+    if (hasAutoMoved || (center && center.lat && center.lng)) {
+      return;
+    }
+
+    // POI 데이터가 있는 경우
+    if (pois && pois.length > 0 && pois[0].lat && pois[0].lng) {
+      console.log('🎯 POI 데이터 로드 완료 - 첫 번째 마커로 지도 이동:', pois[0]);
+      setHasAutoMoved(true);
+      return;
+    }
+
+    // 챕터 데이터가 있는 경우
+    if (chapters && chapters.length > 0) {
+      const firstChapter = chapters[0];
+      const [lat, lng] = getLatLng(firstChapter, guideCoordinates);
+      if (lat && lng) {
+        console.log('🎯 챕터 데이터 로드 완료 - 첫 번째 마커로 지도 이동:', { title: firstChapter.title, lat, lng });
+        setHasAutoMoved(true);
+        return;
+      }
+    }
+  }, [pois, chapters, guideCoordinates, hasAutoMoved, center]);
 
   // 언어에 따른 Google Maps 타일 URL 생성
   const getGoogleMapsUrl = (language: string) => {
@@ -481,10 +422,10 @@ export default function MapWithRoute({
               maxZoom={20}
             />
             
-            {/* 중심점 마커 */}
+            {/* 중심점 마커 - 기본 빨간 핀 사용 */}
             <Marker
               position={[center.lat, center.lng]}
-              icon={customMarkerIcon}
+              // 기본 Leaflet 빨간 핀 마커 사용 (icon 속성 제거)
             >
               <Tooltip 
                 direction="top"
@@ -566,6 +507,10 @@ export default function MapWithRoute({
   const activeLat = activeChapterData?.lat;
   const activeLng = activeChapterData?.lng;
 
+  // 🎯 자동 이동용 좌표 계산 - 첫 번째 마커로 이동
+  const autoMoveLat = validChapters.length > 0 ? validChapters[0].lat : undefined;
+  const autoMoveLng = validChapters.length > 0 ? validChapters[0].lng : undefined;
+
   // 루트 라인 생성 (유효한 좌표들만)
   const routePositions: LatLngExpression[] = validChapters.map(chapter => [chapter.lat!, chapter.lng!]);
 
@@ -634,6 +579,18 @@ export default function MapWithRoute({
           <MapFlyTo lat={activeLat} lng={activeLng} />
         )}
         
+        {/* 🎯 첫 번째 마커로 자동 이동 (데이터 로드 완료 시) */}
+        {!hasAutoMoved && autoMoveLat && autoMoveLng && (
+          <MapFlyTo 
+            lat={autoMoveLat} 
+            lng={autoMoveLng} 
+            onMoveComplete={() => {
+              setHasAutoMoved(true);
+              console.log('🎯 자동 이동 완료 - 첫 번째 마커 위치로 이동됨');
+            }}
+          />
+        )}
+        
         {/* 루트 라인 - 모던 모노크롬 스타일 */}
         {showRoute && routePositions.length > 1 && (
           <Polyline 
@@ -649,12 +606,12 @@ export default function MapWithRoute({
           />
         )}
         
-        {/* 사용자 위치 마커 */}
+        {/* 사용자 위치 마커 - 기본 빨간 핀 사용 */}
         {showMyLocation && geolocation.latitude && geolocation.longitude && (
           <Marker
             {...({
-              position: [geolocation.latitude, geolocation.longitude],
-              icon: createUserLocationIcon(geolocation.heading)
+              position: [geolocation.latitude, geolocation.longitude]
+              // 기본 Leaflet 빨간 핀 마커 사용 (icon 속성 제거)
             } as any)}
           >
             <Tooltip 
@@ -684,7 +641,7 @@ export default function MapWithRoute({
           </Marker>
         )}
 
-        {/* 마커들 */}
+        {/* 마커들 - 기본 빨간 핀 사용 */}
         {validChapters.map((chapter) => {
           const isActive = chapter.originalIndex === activeChapter;
           
@@ -693,7 +650,7 @@ export default function MapWithRoute({
               key={`marker-${chapter.id}-${chapter.originalIndex}`}
               {...({
                 position: [chapter.lat!, chapter.lng!],
-                icon: isActive ? activeMarkerIcon : customMarkerIcon,
+                // 기본 Leaflet 빨간 핀 마커 사용 (icon 속성 제거)
                 eventHandlers: {
                   click: () => {
                     console.log('마커 클릭:', chapter.originalIndex, chapter.title);
