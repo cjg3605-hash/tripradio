@@ -168,6 +168,9 @@ const MapWithRoute = memo<MapWithRouteProps>(({
       item.lng >= -180 && item.lng <= 180
     );
 
+  // 활성 챕터 데이터 찾기
+  const activeChapterData = validChapters.find(c => c.originalIndex === activeChapter);
+
   // 지도 중심점 계산 - activeChapter가 있으면 해당 위치를 중심으로
   const mapCenter: LatLngExpression = center && center.lat && center.lng 
     ? [center.lat, center.lng]
@@ -198,7 +201,6 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   };
 
   // 활성 챕터로 지도 이동
-  const activeChapterData = validChapters.find(c => c.originalIndex === activeChapter);
   useMapFlyTo(mapRef, activeChapterData?.lat, activeChapterData?.lng);
 
   // 지도 렌더링 5초 지연
@@ -224,6 +226,8 @@ const MapWithRoute = memo<MapWithRouteProps>(({
 
       return () => clearTimeout(timer);
     }
+    // else 조건에서도 cleanup 함수 반환
+    return () => {};
   }, [showMap, activeChapterData]);
 
   // 내 위치로 지도 이동
@@ -296,19 +300,21 @@ const MapWithRoute = memo<MapWithRouteProps>(({
         {routePositions.length > 0 && (
           <Polyline 
             positions={routePositions}
-            color="#000000"
-            weight={4}
-            opacity={0.8}
-            dashArray="8, 6"
-            lineCap="round"
-            lineJoin="round"
+            pathOptions={{
+              color: "#000000",
+              weight: 4,
+              opacity: 0.8,
+              dashArray: "8, 6",
+              lineCap: "round",
+              lineJoin: "round"
+            }}
           />
         )}
         
         {/* 내 위치 마커 */}
         {showMyLocation && geolocation.latitude && geolocation.longitude && (
           <Marker position={[geolocation.latitude, geolocation.longitude]}>
-            <Tooltip direction="top" offset={[0, -20]} opacity={0.9}>
+            <Tooltip>
               <div className="text-center">
                 <div className="font-medium text-sm text-blue-600">내 위치</div>
                 {geolocation.accuracy && (
@@ -339,13 +345,7 @@ const MapWithRoute = memo<MapWithRouteProps>(({
                 }
               }}
             >
-              <Tooltip 
-                direction="top"
-                offset={[0, -20]}
-                opacity={0.9}
-                permanent={false}
-                className={isActive ? "font-bold" : ""}
-              >
+              <Tooltip>
                 <div className="text-center">
                   <div className="font-medium text-sm">{chapter.title}</div>
                   {isActive && (

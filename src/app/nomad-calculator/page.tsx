@@ -233,7 +233,10 @@ export default function NomadCalculatorPage() {
                       </label>
                       <select
                         value={selectedCity.name}
-                        onChange={(e) => setSelectedCity(nomadCities.find(city => city.name === e.target.value))}
+                        onChange={(e) => {
+                          const foundCity = nomadCities.find(city => city.name === e.target.value);
+                          if (foundCity) setSelectedCity(foundCity);
+                        }}
                         className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
                       >
                         {nomadCities.map((city) => (

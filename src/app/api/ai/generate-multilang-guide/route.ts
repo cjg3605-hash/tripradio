@@ -512,8 +512,8 @@ export async function POST(request: NextRequest) {
     // LocationContext 구성
     const locationContext: LocationContext = {
       locationName,
-      parentRegion: regionalInfo.location_region,
-      countryCode: regionalInfo.country_code,
+      parentRegion: regionalInfo.location_region || undefined,
+      country: regionalInfo.country_code || undefined,
       language
     };
     

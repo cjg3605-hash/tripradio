@@ -127,8 +127,10 @@ function Home() {
   // 명소 상세 설명 번역 로드
   const attractionDetails = useMemo(() => {
     try {
-      const details = t('attractionDetails') as Record<string, string>;
-      return details || {};
+      const details = t('attractionDetails');
+      return (typeof details === 'object' && details && !Array.isArray(details)) 
+        ? details as Record<string, string> 
+        : {};
     } catch (error) {
       console.log('attractionDetails 번역 로드 실패:', error);
       return {};
@@ -688,7 +690,7 @@ function Home() {
       const visa = params.get('visa');
       
       if (destination) {
-        setQuery(destination);
+        setQuery(destination as string);
         // 자동으로 가이드 생성 시작 (옵션)
         // handleSearch();
       }
@@ -696,7 +698,7 @@ function Home() {
       // 특수 목적 파라미터 처리
       if (purpose === 'travel' || purpose === 'coworking') {
         // 해당 목적에 맞는 UI 모드 활성화 가능
-        console.log('🎯 특수 목적 모드:', purpose);
+        console.log('🎯 특수 목적 모드:', purpose as string);
       }
       
       if (film === 'experience') {
@@ -794,9 +796,11 @@ function Home() {
   // AI 가이드 생성 (강화된 에러 처리 및 디버깅)
   const handleAIGeneration = async () => {
     if (!query.trim()) {
-      showError(t('home.alerts.enterLocation') as string, {
+      const errorMessage = t('home.alerts.enterLocation');
+      const titleMessage = t('errors.inputValidation.title');
+      showError(typeof errorMessage === 'string' ? errorMessage : '위치를 입력해주세요.', {
         errorType: 'validation',
-        title: t('errors.inputValidation.title')
+        title: typeof titleMessage === 'string' ? titleMessage : '입력 검증 오류'
       });
       return;
     }
@@ -829,10 +833,10 @@ function Home() {
         if (envData.criticalMissing.length > 0) {
           console.error('🚨 필수 환경 변수 누락:', envData.criticalMissing);
           showError(
-            t('errors.configError.message'),
+            String(t('errors.configError.message')),
             {
               errorType: 'config',
-              title: t('errors.configError.title'),
+              title: String(t('errors.configError.title')),
               details: `누락된 설정: ${envData.criticalMissing.join(', ')}`,
               retryAction: () => handleAIGeneration()
             }
@@ -903,10 +907,10 @@ function Home() {
           const responseText = await response.text();
           console.log('원본 응답 텍스트 (처음 500자):', responseText);
           showError(
-            t('errors.serverResponse'),
+            String(t('errors.serverResponse')),
             {
               errorType: 'server',
-              title: t('errors.serverResponse.title'),
+              title: String(t('errors.serverResponse.title')),
               details: `JSON 파싱 실패: ${jsonError instanceof Error ? jsonError.message : 'Unknown error'}`,
               retryAction: () => handleAIGeneration()
             }
@@ -937,10 +941,10 @@ function Home() {
         if (response.status === 429) {
           const retryAfter = response.headers.get('retry-after') || '60';
           showError(
-            t('errors.rateLimitExceeded', { seconds: retryAfter }),
+            String(t('errors.rateLimitExceeded', { seconds: retryAfter })),
             {
               errorType: 'server',
-              title: t('errors.rateLimit.title'),
+              title: String(t('errors.rateLimit.title')),
               details: `HTTP 429: Rate limit exceeded. Retry after ${retryAfter} seconds`,
               retryAction: () => {
                 setTimeout(() => handleAIGeneration(), parseInt(retryAfter) * 1000);
@@ -949,7 +953,7 @@ function Home() {
           );
         } else if (response.status === 500) {
           showError(
-            t('errors.aiServiceTemporary'),
+            String(t('errors.aiServiceTemporary')),
             {
               errorType: 'server',
               title: '서버 오류',
@@ -995,7 +999,7 @@ function Home() {
       if (error instanceof Error) {
         if (error.name === 'AbortError' || error.message.includes('timeout')) {
           showError(
-            t('errors.requestTimeout'),
+            String(t('errors.requestTimeout')),
             {
               errorType: 'timeout',
               title: '시간 초과',
@@ -1015,7 +1019,7 @@ function Home() {
           );
         } else if (error.message.includes('NetworkError')) {
           showError(
-            t('errors.networkError'),
+            String(t('errors.networkError')),
             {
               errorType: 'network',
               title: '네트워크 오류',
@@ -1024,8 +1028,9 @@ function Home() {
             }
           );
         } else {
+          const errorMessage = t('home.alerts.networkError');
           showError(
-            t('home.alerts.networkError') as string,
+            typeof errorMessage === 'string' ? errorMessage : '네트워크 오류가 발생했습니다.',
             {
               errorType: 'unknown',
               title: '알 수 없는 오류',
@@ -1035,8 +1040,9 @@ function Home() {
           );
         }
       } else {
+        const errorMessage = t('home.alerts.networkError');
         showError(
-          t('home.alerts.networkError') as string,
+          typeof errorMessage === 'string' ? errorMessage : '네트워크 오류가 발생했습니다.',
           {
             errorType: 'unknown',
             title: '알 수 없는 오류',
@@ -1055,9 +1061,10 @@ function Home() {
   // 오디오 재생 (지연 제거, 분리된 로딩 상태)
   const handleAudioPlayback = useCallback(() => {
     if (!query.trim() || !isMountedRef.current) {
-      showError(t('home.alerts.enterLocation') as string, {
+      const errorMessage = t('home.alerts.enterLocation');
+      showError(typeof errorMessage === 'string' ? errorMessage : '위치를 입력해주세요.', {
         errorType: 'validation',
-        title: t('errors.inputValidation.title')
+        title: String(t('errors.inputValidation.title'))
       });
       return;
     }

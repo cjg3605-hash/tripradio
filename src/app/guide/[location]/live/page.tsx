@@ -218,11 +218,12 @@ const LiveTourPage: React.FC = () => {
           console.log(`✅ 좌표 보정 완료: ${result.enhancedCount}/${result.originalCount} 챕터`);
           
           // 개발환경에서 상세 결과 출력
-          if (process.env.NODE_ENV === 'development' && result.chapter0Validation) {
+          if (process.env.NODE_ENV === 'development' && 'chapter0Validation' in result && result.chapter0Validation) {
+            const validation = result.chapter0Validation as any;
             console.log(`🎯 챕터 0 자가검증 결과:
-   - 정확도: ${result.chapter0Validation.isAccurate ? '✅ 승인' : '❌ 부정확'}
-   - 신뢰도: ${Math.round(result.chapter0Validation.confidence * 100)}%
-   - 거리: ${Math.round(result.chapter0Validation.distanceFromTarget)}m`);
+   - 정확도: ${validation.isAccurate ? '✅ 승인' : '❌ 부정확'}
+   - 신뢰도: ${Math.round(validation.confidence * 100)}%
+   - 거리: ${Math.round(validation.distanceFromTarget)}m`);
           }
           
           // 보정된 챕터 사용
@@ -425,7 +426,14 @@ const LiveTourPage: React.FC = () => {
 
   // 좌표 정보 추출 함수
   const extractCoordinatesInfo = () => {
-    const coordinates = [];
+    const coordinates: Array<{
+      index: number;
+      name: string;
+      lat: number;
+      lng: number;
+      description: string;
+      isStartPoint: boolean;
+    }> = [];
     
     poisWithChapters.forEach((poi, index) => {
       if (poi.lat && poi.lng) {

@@ -7,6 +7,7 @@ export interface LocationData {
     lat: number;
     lng: number;
   };
+  region?: string; // 지역 정보 (optional)
   venueType: VenueType;
   scale: VenueScale;
   averageVisitDuration: number; // 분 단위

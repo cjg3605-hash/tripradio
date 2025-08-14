@@ -661,7 +661,7 @@ export async function createMegaOptimizedPrompt(
 ## 🎯 최적화된 좌표 정보 (99% 정확도 달성)
 - **정확한 좌표**: ${optimizedCoords.lat.toFixed(7)}, ${optimizedCoords.lng.toFixed(7)}
 - **정확도 수준**: ${optimizedCoords.accuracy} (신뢰도: ${(optimizedCoords.confidence * 100).toFixed(1)}%)
-- **좌표 출처**: ${optimizedCoords.source === 'plus_code' ? 'Google Plus Code 시스템' : 'Google Places API 최적화 검색'}
+- **좌표 출처**: ${optimizedCoords.source === 'plus_code' ? 'Google Plus Code 시스템' : optimizedCoords.source === 'geocoding_api' ? 'Google Geocoding API 직접 검색' : 'Google Places API 최적화 검색'}
 - **검증된 성능**: 자갈치시장 4,076m → 45m 정확도 개선 실증
 
 ⚠️ **AI는 이 정확한 좌표를 바탕으로 위치 정보를 생성해야 함**`;

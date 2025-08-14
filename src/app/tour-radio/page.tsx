@@ -12,11 +12,18 @@ export default function TourRadioPage() {
   return (
     <>
       <KeywordPageSchema 
-        keyword={tourRadioT('keyword')}
+        keyword={String(tourRadioT('keyword'))}
         pagePath="/tour-radio"
-        title={tourRadioT('metadata.title')}
-        description={tourRadioT('metadata.description')}
-        features={[tourRadioT('features.realtime'), tourRadioT('features.storytelling'), tourRadioT('features.location'), tourRadioT('features.music'), tourRadioT('features.interactive'), tourRadioT('features.worldwide')]}
+        title={String(tourRadioT('metadata.title'))}
+        description={String(tourRadioT('metadata.description'))}
+        features={[
+          String(tourRadioT('features.realtime')), 
+          String(tourRadioT('features.storytelling')), 
+          String(tourRadioT('features.location')), 
+          String(tourRadioT('features.music')), 
+          String(tourRadioT('features.interactive')), 
+          String(tourRadioT('features.worldwide'))
+        ]}
       />
       <div className="min-h-screen bg-white font-['SF_Pro_Display','SF_Pro_Text',-apple-system,BlinkMacSystemFont,sans-serif]">
       {/* Hero Section */}

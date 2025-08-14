@@ -1,4 +1,5 @@
 'use client';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -173,11 +174,198 @@ export default function TripPlannerPage() {
   const { t } = useLanguage();
   
   // trip-planner 전용 번역 함수
-  const tripT = (key: string) => {
-    return t(`tripPlanner.${key}`);
+  const tripT = (key: string): string => {
+    return String(t(`tripPlanner.${key}`));
   };
   
   const tripTypes = getTripTypes(tripT);
+  
+  // 상태 관리
+  const [destination, setDestination] = useState('');
+  const [budget, setBudget] = useState('적당히');
+  const [duration, setDuration] = useState('2-3일');
+  const [tripType, setTripType] = useState('관광');
+  const [generatedPlan, setGeneratedPlan] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [savedPlans, setSavedPlans] = useState<any[]>([]);
+  const [showSavedPlans, setShowSavedPlans] = useState(false);
+
+  // localStorage에서 저장된 계획들 로드
+  useEffect(() => {
+    const saved = localStorage.getItem('savedTripPlans');
+    if (saved) {
+      setSavedPlans(JSON.parse(saved));
+    }
+  }, []);
+
+  // 사용자 설정 로드
+  const loadUserPreferences = () => {
+    const preferences = localStorage.getItem('tripPlannerPreferences');
+    if (preferences) {
+      const parsed = JSON.parse(preferences);
+      setBudget(parsed.budget || '적당히');
+      setDuration(parsed.duration || '2-3일');
+      setTripType(parsed.tripType || '관광');
+      alert('저장된 설정을 불러왔습니다.');
+    } else {
+      alert('저장된 설정이 없습니다.');
+    }
+  };
+
+  // 사용자 설정 저장
+  const saveUserPreferences = () => {
+    const preferences = { budget, duration, tripType };
+    localStorage.setItem('tripPlannerPreferences', JSON.stringify(preferences));
+    alert('설정이 저장되었습니다.');
+  };
+
+  // 저장된 계획들 보기/숨기기
+  const toggleSavedPlans = () => {
+    setShowSavedPlans(!showSavedPlans);
+  };
+
+  // AI 여행 계획 생성
+  const generateTripPlan = async () => {
+    if (!destination.trim()) {
+      alert('여행지를 입력해주세요.');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const response = await fetch('/api/ai/generate-multilang-guide', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location: destination,
+          language: 'ko',
+          tripType,
+          budget,
+          duration
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const plan = formatTripPlan(data, destination, budget, duration, tripType);
+        setGeneratedPlan(plan);
+      } else {
+        throw new Error('여행 계획 생성에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Error generating trip plan:', error);
+      alert('여행 계획 생성 중 오류가 발생했습니다.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // 여행 계획 포맷팅
+  const formatTripPlan = (data: any, dest: string, budg: string, dur: string, type: string) => {
+    return `
+      <div class="trip-plan">
+        <h2 class="text-2xl font-bold mb-4">${dest} ${type} 여행 계획</h2>
+        <div class="plan-info mb-6">
+          <p><strong>예산:</strong> ${budg}</p>
+          <p><strong>기간:</strong> ${dur}</p>
+          <p><strong>여행 스타일:</strong> ${type}</p>
+        </div>
+        <div class="itinerary">
+          <h3 class="text-xl font-semibold mb-3">일정</h3>
+          ${data.realTimeGuide?.chapters?.map((chapter: any, index: number) => `
+            <div class="day-plan mb-4">
+              <h4 class="font-semibold">Day ${index + 1}: ${chapter.title || ''}</h4>
+              <p class="text-gray-700 mt-2">${chapter.description || chapter.narrative || ''}</p>
+            </div>
+          `).join('') || '<p>상세 일정을 생성하는 중입니다...</p>'}
+        </div>
+      </div>
+    `;
+  };
+
+  // 계획 저장
+  const savePlan = () => {
+    if (!generatedPlan) {
+      alert('저장할 계획이 없습니다.');
+      return;
+    }
+
+    const newPlan = {
+      id: Date.now(),
+      destination,
+      date: new Date().toLocaleDateString(),
+      content: generatedPlan,
+      preferences: { budget, duration, tripType }
+    };
+
+    const updatedPlans = [...savedPlans, newPlan];
+    setSavedPlans(updatedPlans);
+    localStorage.setItem('savedTripPlans', JSON.stringify(updatedPlans));
+    alert('계획이 저장되었습니다.');
+  };
+
+  // 계획 내보내기
+  const exportPlan = () => {
+    if (!generatedPlan) {
+      alert('내보낼 계획이 없습니다.');
+      return;
+    }
+    
+    const blob = new Blob([generatedPlan.replace(/<[^>]*>/g, '')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${destination}_여행계획.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // 계획 재생성
+  const regeneratePlan = () => {
+    if (confirm('새로운 계획을 생성하시겠습니까? 현재 계획은 사라집니다.')) {
+      setGeneratedPlan('');
+      generateTripPlan();
+    }
+  };
+
+  // 여행 공유
+  const shareTrip = async () => {
+    if (!generatedPlan) {
+      alert('공유할 계획이 없습니다.');
+      return;
+    }
+
+    const shareData = {
+      title: `${destination} 여행 계획`,
+      text: `${destination}로의 ${tripType} 여행 계획을 확인해보세요!`,
+      url: window.location.href
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        copyToClipboard();
+      }
+    } else {
+      copyToClipboard();
+    }
+  };
+
+  // 클립보드에 복사
+  const copyToClipboard = () => {
+    const text = generatedPlan.replace(/<[^>]*>/g, '');
+    navigator.clipboard.writeText(text).then(() => {
+      alert('계획이 클립보드에 복사되었습니다.');
+    });
+  };
+
+  // 유사한 계획과 비교
+  const compareWithSimilar = () => {
+    alert('비슷한 여행지나 계획과 비교하는 기능은 곧 제공될 예정입니다.');
+  };
   
   return (
     <>
@@ -245,7 +433,10 @@ export default function TripPlannerPage() {
                   <button
                     key={type.id}
                     data-type={type.id}
-                    className="p-4 bg-white border-2 border-gray-200 rounded-lg hover:border-gray-400 transition-all duration-200 text-center group min-h-[88px] flex flex-col justify-center"
+                    onClick={() => setTripType(type.name)}
+                    className={`p-4 bg-white border-2 rounded-lg transition-all duration-200 text-center group min-h-[88px] flex flex-col justify-center ${
+                      tripType === type.name ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-400'
+                    }`}
                   >
                     <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-2">
                       <div className="w-4 h-4 bg-[#F8F8F8]0 rounded"></div>
@@ -267,6 +458,8 @@ export default function TripPlannerPage() {
                     <input 
                       type="text" 
                       placeholder={tripT('form.destination.placeholder')}
+                      value={destination}
+                      onChange={(e) => setDestination(e.target.value)}
                       className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
                     />
                   </div>
@@ -280,16 +473,20 @@ export default function TripPlannerPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">{tripT('form.duration')}</label>
-                      <select className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
-                        <option>{tripT('form.durationOptions.dayTrip')}</option>
-                        <option>{tripT('form.durationOptions.oneNight')}</option>
-                        <option>{tripT('form.durationOptions.twoNights')}</option>
-                        <option>{tripT('form.durationOptions.threeNights')}</option>
-                        <option>{tripT('form.durationOptions.fourNights')}</option>
-                        <option>{tripT('form.durationOptions.oneWeek')}</option>
-                        <option>{tripT('form.durationOptions.twoWeeks')}</option>
-                        <option>{tripT('form.durationOptions.oneMonth')}</option>
-                        <option>{tripT('form.durationOptions.custom')}</option>
+                      <select 
+                        value={duration}
+                        onChange={(e) => setDuration(e.target.value)}
+                        className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
+                      >
+                        <option value="당일치기">{tripT('form.durationOptions.dayTrip')}</option>
+                        <option value="1박 2일">{tripT('form.durationOptions.oneNight')}</option>
+                        <option value="2-3일">{tripT('form.durationOptions.twoNights')}</option>
+                        <option value="3-4일">{tripT('form.durationOptions.threeNights')}</option>
+                        <option value="4-5일">{tripT('form.durationOptions.fourNights')}</option>
+                        <option value="1주일">{tripT('form.durationOptions.oneWeek')}</option>
+                        <option value="2주일">{tripT('form.durationOptions.twoWeeks')}</option>
+                        <option value="1개월">{tripT('form.durationOptions.oneMonth')}</option>
+                        <option value="기타">{tripT('form.durationOptions.custom')}</option>
                       </select>
                     </div>
                   </div>
@@ -301,13 +498,17 @@ export default function TripPlannerPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">{tripT('form.budget')}</label>
-                    <select className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
-                      <option>{tripT('form.budgetOptions.under20')}</option>
-                      <option>{tripT('form.budgetOptions.range20to50')}</option>
-                      <option>{tripT('form.budgetOptions.range50to100')}</option>
-                      <option>{tripT('form.budgetOptions.range100to200')}</option>
-                      <option>{tripT('form.budgetOptions.over200')}</option>
-                      <option>{tripT('form.budgetOptions.unlimited')}</option>
+                    <select 
+                      value={budget}
+                      onChange={(e) => setBudget(e.target.value)}
+                      className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
+                    >
+                      <option value="20만원 이하">{tripT('form.budgetOptions.under20')}</option>
+                      <option value="20-50만원">{tripT('form.budgetOptions.range20to50')}</option>
+                      <option value="50-100만원">{tripT('form.budgetOptions.range50to100')}</option>
+                      <option value="100-200만원">{tripT('form.budgetOptions.range100to200')}</option>
+                      <option value="200만원 이상">{tripT('form.budgetOptions.over200')}</option>
+                      <option value="무제한">{tripT('form.budgetOptions.unlimited')}</option>
                     </select>
                   </div>
                   <div>
@@ -342,10 +543,10 @@ export default function TripPlannerPage() {
                   {tripT('personalization.saveSettings')}
                 </button>
                 <button 
-                  onClick={() => showSavedPlans()}
+                  onClick={() => toggleSavedPlans()}
                   className="text-xs bg-white text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200 font-medium"
                 >
-                  {tripT('personalization.viewSavedPlans')} (<span id="saved-count">0</span>{tripT('personalization.plansCount')})
+                  {tripT('personalization.viewSavedPlans')} ({savedPlans.length}{tripT('personalization.plansCount')})
                 </button>
               </div>
             </div>
@@ -354,74 +555,120 @@ export default function TripPlannerPage() {
             <div className="text-center">
               <button 
                 onClick={() => generateTripPlan()}
+                disabled={isGenerating}
                 className="bg-black text-white px-10 py-4 rounded-lg font-medium hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg min-h-[44px]"
                 id="generate-plan-btn"
               >
-                <span id="btn-text">{tripT('form.generateButton')}</span>
-                <span id="btn-loading" className="hidden">{tripT('form.analyzing')}</span>
+                <span id="btn-text" className={isGenerating ? 'hidden' : ''}>
+                  {tripT('form.generateButton')}
+                </span>
+                <span id="btn-loading" className={isGenerating ? '' : 'hidden'}>
+                  {tripT('form.analyzing')}
+                </span>
               </button>
               <p className="text-xs text-[#555555] font-light mt-2">{tripT('form.completionTime')}</p>
             </div>
 
             {/* Saved Plans Display */}
-            <div id="saved-plans" className="hidden mt-8 p-6 bg-[#F8F8F8] border border-gray-200 rounded-lg">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-black">{tripT('savedPlans.title')}</h3>
-                <button 
-                  onClick={() => document.getElementById('saved-plans').classList.add('hidden')}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ×
-                </button>
+            {showSavedPlans && (
+              <div className="mt-8 p-6 bg-[#F8F8F8] border border-gray-200 rounded-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium text-black">{tripT('savedPlans.title')}</h3>
+                  <button 
+                    onClick={() => setShowSavedPlans(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    ×
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {savedPlans.length === 0 ? (
+                    <p className="text-gray-500 text-center py-8">저장된 계획이 없습니다.</p>
+                  ) : (
+                    savedPlans.map((plan) => (
+                      <div key={plan.id} className="bg-white p-4 rounded-lg border border-gray-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-semibold text-black">{plan.destination}</h4>
+                          <span className="text-xs text-gray-500">{plan.date}</span>
+                        </div>
+                        <div className="text-sm text-gray-600 mb-2">
+                          <span>{plan.preferences?.tripType}</span> • 
+                          <span>{plan.preferences?.duration}</span> • 
+                          <span>{plan.preferences?.budget}</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => {
+                              setGeneratedPlan(plan.content);
+                              setDestination(plan.destination);
+                            }}
+                            className="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                          >
+                            불러오기
+                          </button>
+                          <button 
+                            onClick={() => {
+                              const updatedPlans = savedPlans.filter(p => p.id !== plan.id);
+                              setSavedPlans(updatedPlans);
+                              localStorage.setItem('savedTripPlans', JSON.stringify(updatedPlans));
+                            }}
+                            className="text-xs bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
-              <div id="saved-plans-list" className="space-y-3">
-                {/* 저장된 계획들이 여기에 표시됩니다 */}
-              </div>
-            </div>
+            )}
 
             {/* Generated Plan Display */}
-            <div id="generated-plan" className="hidden mt-8 p-6 bg-white border border-gray-200 rounded-lg">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-black">{tripT('generatedPlan.title')}</h3>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => savePlan()}
-                    className="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-200 transition-all duration-200 font-medium"
-                  >
-                    {tripT('generatedPlan.savePlan')}
-                  </button>
-                  <button 
-                    onClick={() => exportPlan()}
-                    className="text-sm bg-gray-200 text-gray-800 px-3 py-1 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium"
-                  >
-                    {tripT('generatedPlan.exportPDF')}
-                  </button>
+            {generatedPlan && (
+              <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium text-black">{tripT('generatedPlan.title')}</h3>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => savePlan()}
+                      className="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-200 transition-all duration-200 font-medium"
+                    >
+                      {tripT('generatedPlan.savePlan')}
+                    </button>
+                    <button 
+                      onClick={() => exportPlan()}
+                      className="text-sm bg-gray-200 text-gray-800 px-3 py-1 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium"
+                    >
+                      {tripT('generatedPlan.exportPDF')}
+                    </button>
+                  </div>
+                </div>
+                <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: generatedPlan }}></div>
+                <div className="mt-6 pt-4 border-t border-gray-100">
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={() => regeneratePlan()}
+                      className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
+                    >
+                      {tripT('generatedPlan.regenerate')}
+                    </button>
+                    <button 
+                      onClick={() => shareTrip()}
+                      className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-all duration-200 text-sm font-medium"
+                    >
+                      {tripT('generatedPlan.share')}
+                    </button>
+                    <button 
+                      onClick={() => compareWithSimilar()}
+                      className="flex-1 bg-[#F8F8F8] text-[#555555] font-light py-2 px-4 rounded-lg hover:bg-gray-100 transition-all duration-200 text-sm font-medium border border-gray-200"
+                    >
+                      {tripT('generatedPlan.compare')}
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div id="plan-content"></div>
-              <div className="mt-6 pt-4 border-t border-gray-100">
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => regeneratePlan()}
-                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
-                  >
-                    {tripT('generatedPlan.regenerate')}
-                  </button>
-                  <button 
-                    onClick={() => shareTrip()}
-                    className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-all duration-200 text-sm font-medium"
-                  >
-                    {tripT('generatedPlan.share')}
-                  </button>
-                  <button 
-                    onClick={() => compareWithSimilar()}
-                    className="flex-1 bg-[#F8F8F8] text-[#555555] font-light py-2 px-4 rounded-lg hover:bg-gray-100 transition-all duration-200 text-sm font-medium border border-gray-200"
-                  >
-                    {tripT('generatedPlan.compare')}
-                  </button>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Popular Destinations Quick Start */}
@@ -602,6 +849,8 @@ export default function TripPlannerPage() {
           const btnLoading = document.getElementById('btn-loading');
           const planDiv = document.getElementById('generated-plan');
           const contentDiv = document.getElementById('plan-content');
+          
+          if (!btn || !btnText || !btnLoading || !planDiv || !contentDiv) return;
           
           // 버튼 상태 변경
           btn.disabled = true;

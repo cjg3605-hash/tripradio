@@ -11,11 +11,11 @@ export default function TravelRadioPage() {
   return (
     <>
       <KeywordPageSchema 
-        keyword={travelRadioT('keyword')}
+        keyword={String(travelRadioT('keyword'))}
         pagePath="/travel-radio"
-        title={travelRadioT('metadata.title')}
-        description={travelRadioT('metadata.description')}
-        features={[t('features.realtime'), t('features.personalized'), t('features.worldwide'), t('features.authentic'), t('features.free'), t('features.comfortable')]}
+        title={String(travelRadioT('metadata.title'))}
+        description={String(travelRadioT('metadata.description'))}
+        features={[String(t('features.realtime')), String(t('features.personalized')), String(t('features.worldwide')), String(t('features.authentic')), String(t('features.free')), String(t('features.comfortable'))]}
       />
       <div className="min-h-screen bg-white font-['SF_Pro_Display','SF_Pro_Text',-apple-system,BlinkMacSystemFont,sans-serif]">
       {/* Hero Section */}

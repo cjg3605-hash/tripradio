@@ -712,8 +712,8 @@ export default function VisaCheckerPage() {
   const { t } = useLanguage();
   
   // visa-checker 전용 번역 함수
-  const visaT = (key: string) => {
-    return t(`visaChecker.${key}`);
+  const visaT = (key: string): string => {
+    return String(t(`visaChecker.${key}`));
   };
 
   // Form state management

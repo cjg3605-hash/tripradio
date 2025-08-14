@@ -576,7 +576,7 @@ export default function FilmLocationsPage() {
                     }`}>
                       {filmT(`difficulties.${film.difficulty}`)}
                     </span>
-                    <span className="text-[#555555] font-light">{filmT('locations.locationCount', film.locations.length)}</span>
+                    <span className="text-[#555555] font-light">{film.locations.length}개 촬영지</span>
                   </div>
                 </div>
 
@@ -821,7 +821,7 @@ export default function FilmLocationsPage() {
                 <button 
                   onClick={() => {
                     const saved = JSON.parse(localStorage.getItem('saved-film-locations') || '[]');
-                    alert(filmT('tools.collection.savedCount', saved.length));
+                    alert(`저장된 촬영지 ${saved.length}개`);
                   }}
                   className="bg-gray-100 text-[#555555] px-3 py-1 rounded-lg text-xs hover:bg-gray-200 transition-all duration-200 font-medium"
                 >

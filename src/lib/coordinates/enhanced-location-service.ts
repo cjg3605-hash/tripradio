@@ -685,8 +685,8 @@ export class EnhancedLocationService {
   ): LocationResult {
     console.log('🔄 폴백 결과 생성');
     
-    // 기본 좌표 없음 - null 반환
-    const fallbackCoords = null;
+    // 기본 좌표 없음 - 기본값 반환
+    const fallbackCoords = { lat: 0, lng: 0 };
 
     return {
       coordinates: fallbackCoords,
@@ -722,7 +722,7 @@ export class EnhancedLocationService {
   ): LocationResult {
     console.log('❌ 오류 결과 생성:', error);
     
-    const fallbackCoords = null;
+    const fallbackCoords = { lat: 0, lng: 0 };
 
     return {
       coordinates: fallbackCoords,
