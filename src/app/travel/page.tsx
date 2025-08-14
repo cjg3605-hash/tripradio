@@ -15,77 +15,80 @@ export default function TravelPage() {
         description={t('metadata.description')}
         features={[t('features.worldwide'), t('features.realtime'), t('features.personalized'), t('features.hidden'), t('features.culture'), t('features.free')]}
       />
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white font-['SF_Pro_Display','SF_Pro_Text',-apple-system,BlinkMacSystemFont,sans-serif]">
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-24 lg:py-32">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="mb-8">
-            <div className="inline-flex items-center px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700 mb-6">
+      <section className="px-4 py-16 sm:px-8 md:px-16 lg:px-24 lg:py-24">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center space-y-8">
+            <div className="inline-flex items-center px-4 py-2 bg-[#F8F8F8] rounded-lg text-sm font-light text-[#555555]">
               {t('badge')}
             </div>
-            <h1 className="text-4xl lg:text-6xl font-light text-gray-900 mb-6 tracking-tight">
-              {t('hero.title')} 
-              <span className="font-semibold block mt-2">{t('hero.subtitle')}</span>
-            </h1>
-            <p className="text-lg lg:text-xl text-gray-600 mb-12 leading-relaxed max-w-3xl mx-auto">
-              {t('hero.description')}
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link 
-              href="/?purpose=travel&ai=smart"
-              className="bg-black text-white px-8 py-4 rounded-lg font-medium hover:bg-gray-800 transition-all duration-200 min-w-[200px]"
-            >
-              {t('cta.primary')}
-            </Link>
-            <Link 
-              href="#destinations"
-              className="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-medium hover:bg-gray-50 transition-all duration-200 min-w-[200px]"
-            >
-              {t('cta.secondary')}
-            </Link>
+            <div className="space-y-6">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-semibold text-black leading-tight tracking-tight">
+                {t('hero.title')}
+                <span className="block mt-3 font-light">{t('hero.subtitle')}</span>
+              </h1>
+              <p className="text-base sm:text-lg text-[#555555] leading-relaxed max-w-3xl mx-auto font-light">
+                {t('hero.description')}
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
+              <Link 
+                href="/?purpose=travel&ai=smart"
+                className="bg-[#007AFF] text-white px-8 py-3 rounded-lg font-medium hover:bg-[#005FCC] transition-colors duration-200 min-w-[200px]"
+              >
+                {t('cta.primary')}
+              </Link>
+              <Link 
+                href="#destinations"
+                className="border border-[#E5E5E5] text-black px-8 py-3 rounded-lg font-medium hover:bg-[#F8F8F8] transition-colors duration-200 min-w-[200px]"
+              >
+                {t('cta.secondary')}
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Problem Section */}
-      <section className="py-24 lg:py-32 bg-gray-50">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center mb-20">
-            <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6 tracking-tight">
+      <section className="px-4 py-16 sm:px-8 md:px-16 lg:px-24 lg:py-24 bg-[#F8F8F8]">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-black mb-3 tracking-tight">
               {t('problems.title')}
-              <span className="font-semibold block mt-2">{t('problems.subtitle')}</span>
             </h2>
-            <div className="w-16 h-px bg-gray-300 mx-auto"></div>
+            <p className="text-lg text-[#555555] font-light">
+              {t('problems.subtitle')}
+            </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <div className="bg-white p-8 rounded-lg border border-gray-200">
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            <div className="bg-white p-8 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">🤔</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('problems.items.0.title')}</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-semibold text-black mb-4">{t('problems.items.0.title')}</h3>
+              <p className="text-[#555555] font-light leading-relaxed">
                 {t('problems.items.0.description')}
               </p>
             </div>
             
-            <div className="bg-white p-8 rounded-lg border border-gray-200">
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
+            <div className="bg-white p-8 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">📱</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('problems.items.1.title')}</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-semibold text-black mb-4">{t('problems.items.1.title')}</h3>
+              <p className="text-[#555555] font-light leading-relaxed">
                 {t('problems.items.1.description')}
               </p>
             </div>
             
-            <div className="bg-white p-8 rounded-lg border border-gray-200">
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
+            <div className="bg-white p-8 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">💸</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('problems.items.2.title')}</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-semibold text-black mb-4">{t('problems.items.2.title')}</h3>
+              <p className="text-[#555555] font-light leading-relaxed">
                 {t('problems.items.2.description')}
               </p>
             </div>
@@ -94,73 +97,74 @@ export default function TravelPage() {
       </section>
 
       {/* Solution Features */}
-      <section className="py-24 lg:py-32 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center mb-20">
-            <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6 tracking-tight">
-              {t('solution.title')} 
-              <span className="font-semibold block mt-2">{t('solution.subtitle')}</span>
+      <section className="px-4 py-16 sm:px-8 md:px-16 lg:px-24 lg:py-24 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-black mb-3 tracking-tight">
+              {t('solution.title')}
             </h2>
-            <div className="w-16 h-px bg-gray-300 mx-auto"></div>
+            <p className="text-lg text-[#555555] font-light">
+              {t('solution.subtitle')}
+            </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            <div className="bg-white p-8 rounded-lg border border-gray-100 hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            <div className="bg-white p-8 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">🌍</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('solution.features.0.title')}</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-lg font-semibold text-black mb-4">{t('solution.features.0.title')}</h3>
+              <p className="text-[#555555] font-light leading-relaxed">
                 {t('solution.features.0.description')}
               </p>
             </div>
             
-            <div className="bg-white p-8 rounded-lg border border-gray-100 hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
+            <div className="bg-white p-8 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">🤖</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('solution.features.1.title')}</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-lg font-semibold text-black mb-4">{t('solution.features.1.title')}</h3>
+              <p className="text-[#555555] font-light leading-relaxed">
                 {t('solution.features.1.description')}
               </p>
             </div>
             
-            <div className="bg-white p-8 rounded-lg border border-gray-100 hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
+            <div className="bg-white p-8 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">🎯</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('solution.features.2.title')}</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-lg font-semibold text-black mb-4">{t('solution.features.2.title')}</h3>
+              <p className="text-[#555555] font-light leading-relaxed">
                 {t('solution.features.2.description')}
               </p>
             </div>
             
-            <div className="bg-white p-8 rounded-lg border border-gray-100 hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
+            <div className="bg-white p-8 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">💎</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('solution.features.3.title')}</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-lg font-semibold text-black mb-4">{t('solution.features.3.title')}</h3>
+              <p className="text-[#555555] font-light leading-relaxed">
                 {t('solution.features.3.description')}
               </p>
             </div>
             
-            <div className="bg-white p-8 rounded-lg border border-gray-100 hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
+            <div className="bg-white p-8 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">🏛️</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('solution.features.4.title')}</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-lg font-semibold text-black mb-4">{t('solution.features.4.title')}</h3>
+              <p className="text-[#555555] font-light leading-relaxed">
                 {t('solution.features.4.description')}
               </p>
             </div>
             
-            <div className="bg-white p-8 rounded-lg border border-gray-100 hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
+            <div className="bg-white p-8 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">💝</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('solution.features.5.title')}</h3>
-              <p className="text-gray-600 leading-relaxed">
+              <h3 className="text-lg font-semibold text-black mb-4">{t('solution.features.5.title')}</h3>
+              <p className="text-[#555555] font-light leading-relaxed">
                 {t('solution.features.5.description')}
               </p>
             </div>
@@ -169,17 +173,18 @@ export default function TravelPage() {
       </section>
 
       {/* Popular Destinations */}
-      <section id="destinations" className="py-24 lg:py-32 bg-gray-50">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center mb-20">
-            <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6 tracking-tight">
-              {t('destinations.title')} 
-              <span className="font-semibold block mt-2">{t('destinations.subtitle')}</span>
+      <section id="destinations" className="px-4 py-16 sm:px-8 md:px-16 lg:px-24 lg:py-24 bg-[#F8F8F8]">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-black mb-3 tracking-tight">
+              {t('destinations.title')}
             </h2>
-            <div className="w-16 h-px bg-gray-300 mx-auto"></div>
+            <p className="text-lg text-[#555555] font-light">
+              {t('destinations.subtitle')}
+            </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             <div className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-300">
               <div className="text-center mb-4">
                 <div className="text-4xl mb-3">🗾</div>
@@ -196,11 +201,11 @@ export default function TravelPage() {
               </div>
             </div>
             
-            <div className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-300">
-              <div className="text-center mb-4">
-                <div className="text-4xl mb-3">🏝️</div>
-                <h3 className="text-lg font-medium text-gray-900">{t('destinations.items.2.name')}</h3>
-                <p className="text-sm text-gray-600 mt-2">{t('destinations.items.2.description')}</p>
+            <div className="bg-white p-6 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
+              <div className="text-center">
+                <div className="text-4xl mb-4">🏝️</div>
+                <h3 className="text-lg font-semibold text-black mb-2">{t('destinations.items.2.name')}</h3>
+                <p className="text-sm text-[#555555] font-light">{t('destinations.items.2.description')}</p>
               </div>
             </div>
             

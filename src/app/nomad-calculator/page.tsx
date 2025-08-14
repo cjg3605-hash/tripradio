@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
 // 20개 노마드 도시 대규모 데이터 (2024년 기준, Nomad List 등 참조)
-const nomadCities = [
+const getNomadCities = (t: (key: string) => string) => [
   // 유럽 (최고 노마드 도시들)
   {
     name: '리스본',
@@ -15,7 +16,7 @@ const nomadCities = [
     timezone: 'GMT+0',
     coworkingSpaces: 45,
     nomadScore: 9.2,
-    highlights: ['유럽 타임존', '강한 노마드 커뮤니티', '좋은 날씨'],
+    highlights: [t('cities.lisbon.highlights.timezone'), t('cities.lisbon.highlights.community'), t('cities.lisbon.highlights.weather')],
     livingCosts: { accommodation: 600, food: 300, transport: 40, coworking: 150, entertainment: 200 },
     region: 'europe',
     visaFree: 90,
@@ -30,7 +31,7 @@ const nomadCities = [
     timezone: 'GMT+1',
     coworkingSpaces: 78,
     nomadScore: 9.0,
-    highlights: ['스타트업 허브', '풍부한 문화', '저렴한 맥주'],
+    highlights: [t('cities.berlin.highlights.startup'), t('cities.berlin.highlights.culture'), t('cities.berlin.highlights.beer')],
     livingCosts: { accommodation: 800, food: 400, transport: 60, coworking: 180, entertainment: 300 },
     region: 'europe',
     visaFree: 90,
@@ -45,7 +46,7 @@ const nomadCities = [
     timezone: 'GMT+8',
     coworkingSpaces: 25,
     nomadScore: 8.8,
-    highlights: ['저렴한 생활비', '비치 라이프', '서핑 문화'],
+    highlights: [t('cities.canggu.highlights.lowCost'), t('cities.canggu.highlights.beach'), t('cities.canggu.highlights.surfing')],
     livingCosts: { accommodation: 400, food: 200, transport: 50, coworking: 100, entertainment: 150 },
     region: 'asia',
     visaFree: 30,
@@ -60,7 +61,7 @@ const nomadCities = [
     timezone: 'GMT+7',
     coworkingSpaces: 18,
     nomadScore: 8.5,
-    highlights: ['초저렴 생활비', '맛있는 음식', '친절한 사람들'],
+    highlights: [t('cities.chiangmai.highlights.ultraLowCost'), t('cities.chiangmai.highlights.food'), t('cities.chiangmai.highlights.people')],
     livingCosts: { accommodation: 300, food: 150, transport: 30, coworking: 80, entertainment: 100 },
     region: 'asia',
     visaFree: 30,
@@ -75,7 +76,7 @@ const nomadCities = [
     timezone: 'GMT+7',
     coworkingSpaces: 22,
     nomadScore: 8.3,
-    highlights: ['저렴한 가격', '활기찬 도시', '맛있는 음식'],
+    highlights: [t('cities.hcmc.highlights.affordable'), t('cities.hcmc.highlights.vibrant'), t('cities.hcmc.highlights.food')],
     livingCosts: { accommodation: 350, food: 180, transport: 40, coworking: 90, entertainment: 120 },
     region: 'asia',
     visaFree: 45,
@@ -90,7 +91,7 @@ const nomadCities = [
     timezone: 'GMT-6',
     coworkingSpaces: 35,
     nomadScore: 8.4,
-    highlights: ['풍부한 문화', '맛있는 음식', '활발한 예술'],
+    highlights: [t('cities.mexicocity.highlights.culture'), t('cities.mexicocity.highlights.food'), t('cities.mexicocity.highlights.art')],
     livingCosts: { accommodation: 500, food: 250, transport: 50, coworking: 120, entertainment: 180 },
     region: 'americas',
     visaFree: 180,
@@ -99,22 +100,8 @@ const nomadCities = [
 ];
 
 export default function NomadCalculatorPage() {
-  // 임시 번역 함수
-  const t = (key: string) => {
-    const translations: Record<string, string> = {
-      'keyword': '노마드 계산기',
-      'metadata.title': 'AI 노마드 생활비 계산기 - 전 세계 도시별 정확한 비용 분석',
-      'metadata.description': '20개 주요 노마드 도시의 실시간 생활비를 정확히 계산하세요. 숙소, 식비, 코워킹 스페이스 등 모든 비용을 고려한 맞춤형 예산 계획을 제공합니다.',
-      'badge': '🔥 2024년 최신 데이터',
-      'hero.title': 'AI 노마드 생활비 계산기',
-      'hero.subtitle': '전 세계 어디든, 정확한 예산으로',
-      'hero.description': '20개 주요 노마드 도시의 실시간 생활비 데이터로 완벽한 예산 계획을 세워보세요',
-      'calculator.title': '💰 스마트 비용 계산',
-      'calculator.subtitle': '당신만의 라이프스타일에 맞춘 정확한 예산을 계산해보세요',
-      'calculator.form.title': '라이프스타일 설정'
-    };
-    return translations[key] || key;
-  };
+  const t = useTranslations('nomadCalculator');
+  const nomadCities = getNomadCities(t);
   
   const [selectedCity, setSelectedCity] = React.useState(nomadCities[0]);
   const [workingDays, setWorkingDays] = React.useState(22);
@@ -158,23 +145,46 @@ export default function NomadCalculatorPage() {
       
       <div className="min-h-screen bg-white">
         {/* Hero Section */}
-        <section className="container mx-auto px-6 py-24 lg:py-32">
+        <section className="container mx-auto px-6 py-20 lg:py-32">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700 mb-6">
+            <div className="inline-flex items-center px-6 py-3 bg-gray-50 border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-8">
               {t('badge')}
             </div>
-            <h1 className="text-4xl lg:text-6xl font-light text-gray-900 mb-6 tracking-tight">
-              {t('hero.title')} 
-              <span className="font-semibold block mt-2">{t('hero.subtitle')}</span>
+            <h1 className="text-5xl lg:text-6xl font-light text-gray-900 mb-6 tracking-tight">
+              {t('hero.title')}
             </h1>
+            <h2 className="text-2xl lg:text-3xl font-normal text-gray-700 mb-8">
+              {t('hero.subtitle')}
+            </h2>
             <p className="text-lg lg:text-xl text-gray-600 mb-12 leading-relaxed max-w-3xl mx-auto">
               {t('hero.description')}
             </p>
           </div>
         </section>
 
-        {/* Calculator Section */}
-        <section className="py-24 lg:py-32 bg-gray-50">
+        {/* Calculator Section with Slider Styles */}
+        <style jsx>{`
+          .slider-gray::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #374151;
+            cursor: pointer;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
+          .slider-gray::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #374151;
+            cursor: pointer;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
+        `}</style>
+        <section className="py-20 lg:py-32 bg-gray-50">
           <div className="container mx-auto px-6">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-12">
@@ -202,11 +212,11 @@ export default function NomadCalculatorPage() {
                       <select
                         value={selectedCity.name}
                         onChange={(e) => setSelectedCity(nomadCities.find(city => city.name === e.target.value))}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
                       >
                         {nomadCities.map((city) => (
                           <option key={city.name} value={city.name}>
-                            {city.emoji} {city.name}, {city.country}
+                            {city.name}, {city.country}
                           </option>
                         ))}
                       </select>
@@ -223,7 +233,7 @@ export default function NomadCalculatorPage() {
                         max="30"
                         value={workingDays}
                         onChange={(e) => setWorkingDays(parseInt(e.target.value))}
-                        className="w-full"
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-gray"
                       />
                     </div>
 
@@ -238,7 +248,7 @@ export default function NomadCalculatorPage() {
                         max={workingDays}
                         value={coworkingDays}
                         onChange={(e) => setCoworkingDays(parseInt(e.target.value))}
-                        className="w-full"
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-gray"
                       />
                     </div>
 
@@ -250,7 +260,7 @@ export default function NomadCalculatorPage() {
                       <select
                         value={accommodationType}
                         onChange={(e) => setAccommodationType(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
                       >
                         <option value="hostel">{t('calculator.form.accommodation.options.hostel')}</option>
                         <option value="apartment">{t('calculator.form.accommodation.options.apartment')}</option>
@@ -269,7 +279,7 @@ export default function NomadCalculatorPage() {
                         max="30"
                         value={diningOut}
                         onChange={(e) => setDiningOut(parseInt(e.target.value))}
-                        className="w-full"
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-gray"
                       />
                     </div>
 
@@ -284,7 +294,7 @@ export default function NomadCalculatorPage() {
                         max="100"
                         value={entertainmentLevel}
                         onChange={(e) => setEntertainmentLevel(parseInt(e.target.value))}
-                        className="w-full"
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-gray"
                       />
                     </div>
                   </div>
@@ -299,7 +309,7 @@ export default function NomadCalculatorPage() {
                     <div className="text-right">
                       <div className="text-sm text-gray-500">{selectedCity.name}, {selectedCity.country}</div>
                       <div className="text-2xl font-bold text-gray-900">
-                        ${Math.round(monthlyBudget.total)}/월
+                        ${Math.round(monthlyBudget.total)}/{t('calculator.results.perMonth')}
                       </div>
                     </div>
                   </div>
@@ -356,7 +366,7 @@ export default function NomadCalculatorPage() {
         </section>
 
         {/* Popular Cities */}
-        <section className="py-24 lg:py-32 bg-white">
+        <section className="py-20 lg:py-32 bg-white">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center mb-20">
               <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6 tracking-tight">
@@ -371,12 +381,9 @@ export default function NomadCalculatorPage() {
               {nomadCities.slice(0, 6).map((city) => (
                 <div key={city.name} className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-300">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                      <span className="text-2xl mr-3">{city.emoji}</span>
-                      <div>
-                        <h3 className="text-lg font-medium text-gray-900">{city.name}</h3>
-                        <p className="text-sm text-gray-600">{city.country}</p>
-                      </div>
+                    <div>
+                      <h3 className="text-lg font-medium text-gray-900">{city.name}</h3>
+                      <p className="text-sm text-gray-600">{city.country}</p>
                     </div>
                     <div className="text-right">
                       <div className="text-sm text-gray-500">{t('cities.monthlyBudget')}</div>
@@ -408,7 +415,7 @@ export default function NomadCalculatorPage() {
         </section>
 
         {/* Nomad Tips */}
-        <section className="py-24 lg:py-32 bg-gray-50">
+        <section className="py-20 lg:py-32 bg-gray-50">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center mb-20">
               <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6 tracking-tight">
@@ -420,48 +427,63 @@ export default function NomadCalculatorPage() {
             </div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              <div className="bg-white p-6 rounded-lg border border-gray-100">
-                <div className="text-2xl mb-4">💰</div>
+              <div className="bg-white p-6 rounded-lg border border-gray-200 hover:border-gray-300 transition-all duration-200">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                  <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
+                </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.0.title')}</h3>
                 <p className="text-gray-600 text-sm">
                   {t('tips.items.0.description')}
                 </p>
               </div>
               
-              <div className="bg-white p-6 rounded-lg border border-gray-100">
-                <div className="text-2xl mb-4">🏠</div>
+              <div className="bg-white p-6 rounded-lg border border-gray-200 hover:border-gray-300 transition-all duration-200">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                  <div className="w-6 h-6 bg-gray-500 rounded-sm"></div>
+                </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.1.title')}</h3>
                 <p className="text-gray-600 text-sm">
                   {t('tips.items.1.description')}
                 </p>
               </div>
               
-              <div className="bg-white p-6 rounded-lg border border-gray-100">
-                <div className="text-2xl mb-4">📱</div>
+              <div className="bg-white p-6 rounded-lg border border-gray-200 hover:border-gray-300 transition-all duration-200">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                  <div className="w-4 h-6 bg-gray-600 rounded-sm"></div>
+                </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.2.title')}</h3>
                 <p className="text-gray-600 text-sm">
                   {t('tips.items.2.description')}
                 </p>
               </div>
               
-              <div className="bg-white p-6 rounded-lg border border-gray-100">
-                <div className="text-2xl mb-4">🌐</div>
+              <div className="bg-white p-6 rounded-lg border border-gray-200 hover:border-gray-300 transition-all duration-200">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                  <div className="w-6 h-6 border-2 border-gray-500 rounded-full"></div>
+                </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.3.title')}</h3>
                 <p className="text-gray-600 text-sm">
                   {t('tips.items.3.description')}
                 </p>
               </div>
               
-              <div className="bg-white p-6 rounded-lg border border-gray-100">
-                <div className="text-2xl mb-4">🤝</div>
+              <div className="bg-white p-6 rounded-lg border border-gray-200 hover:border-gray-300 transition-all duration-200">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                  <div className="w-3 h-3 bg-gray-600 rounded-full mr-1"></div>
+                  <div className="w-3 h-3 bg-gray-600 rounded-full"></div>
+                </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.4.title')}</h3>
                 <p className="text-gray-600 text-sm">
                   {t('tips.items.4.description')}
                 </p>
               </div>
               
-              <div className="bg-white p-6 rounded-lg border border-gray-100">
-                <div className="text-2xl mb-4">⏰</div>
+              <div className="bg-white p-6 rounded-lg border border-gray-200 hover:border-gray-300 transition-all duration-200">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                  <div className="w-6 h-6 border-2 border-gray-500 rounded-full relative">
+                    <div className="absolute top-1/2 left-1/2 w-2 h-0.5 bg-gray-500 transform -translate-x-1/2 -translate-y-1/2"></div>
+                  </div>
+                </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.5.title')}</h3>
                 <p className="text-gray-600 text-sm">
                   {t('tips.items.5.description')}
@@ -472,7 +494,7 @@ export default function NomadCalculatorPage() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-24 lg:py-32 bg-black text-white">
+        <section className="py-20 lg:py-32 bg-gray-900 text-white">
           <div className="container mx-auto px-6 text-center">
             <div className="max-w-3xl mx-auto">
               <h2 className="text-3xl lg:text-4xl font-light mb-6 tracking-tight">
@@ -483,7 +505,7 @@ export default function NomadCalculatorPage() {
               </p>
               <Link 
                 href="/trip-planner?type=nomad&focus=budget"
-                className="inline-block bg-white text-black px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200"
+                className="inline-block bg-white text-gray-900 px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200 shadow-lg min-h-[44px] flex items-center justify-center"
               >
                 {t('finalCta.button')}
               </Link>

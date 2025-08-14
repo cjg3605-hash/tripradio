@@ -59,7 +59,7 @@ class ErrorBoundary extends Component<
               }}
               className="w-full bg-black text-white py-3 px-6 rounded-2xl font-medium hover:bg-gray-800 transition-colors"
             >
-              다시 시도
+다시 시도
             </button>
           </div>
         </div>
@@ -785,7 +785,7 @@ function Home() {
     if (!query.trim()) {
       showError(t('home.alerts.enterLocation') as string, {
         errorType: 'validation',
-        title: '입력 확인'
+        title: t('errors.inputValidation.title')
       });
       return;
     }
@@ -818,10 +818,10 @@ function Home() {
         if (envData.criticalMissing.length > 0) {
           console.error('🚨 필수 환경 변수 누락:', envData.criticalMissing);
           showError(
-            `서비스 설정에 문제가 있습니다. 관리자에게 문의하세요.`,
+            t('errors.configError.message'),
             {
               errorType: 'config',
-              title: '설정 오류',
+              title: t('errors.configError.title'),
               details: `누락된 설정: ${envData.criticalMissing.join(', ')}`,
               retryAction: () => handleAIGeneration()
             }
@@ -892,10 +892,10 @@ function Home() {
           const responseText = await response.text();
           console.log('원본 응답 텍스트 (처음 500자):', responseText);
           showError(
-            '서버 응답 처리 중 오류가 발생했습니다. 다시 시도해주세요.',
+            t('errors.serverResponse'),
             {
               errorType: 'server',
-              title: '서버 응답 오류',
+              title: t('errors.serverResponse.title'),
               details: `JSON 파싱 실패: ${jsonError instanceof Error ? jsonError.message : 'Unknown error'}`,
               retryAction: () => handleAIGeneration()
             }
@@ -926,10 +926,10 @@ function Home() {
         if (response.status === 429) {
           const retryAfter = response.headers.get('retry-after') || '60';
           showError(
-            `요청 한도를 초과했습니다. ${retryAfter}초 후 다시 시도해주세요.`,
+            t('errors.rateLimitExceeded', { seconds: retryAfter }),
             {
               errorType: 'server',
-              title: '요청 제한',
+              title: t('errors.rateLimit.title'),
               details: `HTTP 429: Rate limit exceeded. Retry after ${retryAfter} seconds`,
               retryAction: () => {
                 setTimeout(() => handleAIGeneration(), parseInt(retryAfter) * 1000);
@@ -938,7 +938,7 @@ function Home() {
           );
         } else if (response.status === 500) {
           showError(
-            'AI 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.',
+            t('errors.aiServiceTemporary'),
             {
               errorType: 'server',
               title: '서버 오류',
@@ -984,7 +984,7 @@ function Home() {
       if (error instanceof Error) {
         if (error.name === 'AbortError' || error.message.includes('timeout')) {
           showError(
-            '요청 시간이 초과되었습니다. 네트워크 연결을 확인하고 다시 시도해주세요.',
+            t('errors.requestTimeout'),
             {
               errorType: 'timeout',
               title: '시간 초과',
@@ -1004,7 +1004,7 @@ function Home() {
           );
         } else if (error.message.includes('NetworkError')) {
           showError(
-            '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+            t('errors.networkError'),
             {
               errorType: 'network',
               title: '네트워크 오류',
@@ -1046,7 +1046,7 @@ function Home() {
     if (!query.trim() || !isMountedRef.current) {
       showError(t('home.alerts.enterLocation') as string, {
         errorType: 'validation',
-        title: '입력 확인'
+        title: t('errors.inputValidation.title')
       });
       return;
     }
@@ -1406,7 +1406,7 @@ function Home() {
         </section>
 
         {/* Regional Countries Section */}
-        <section className="relative z-10 py-6 bg-gradient-to-b from-gray-50 to-white">
+        <section className="relative z-10 py-20 lg:py-32 bg-gradient-to-b from-gray-50 to-white">
           <div className="max-w-6xl mx-auto px-6">
             
             {/* 섹션 제목 */}

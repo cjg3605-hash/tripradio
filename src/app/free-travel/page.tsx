@@ -15,41 +15,43 @@ export default function FreeTravelPage() {
         description={t('metadata.description')}
         features={[t('features.planning'), t('features.guide'), t('features.safety'), t('features.budget'), t('features.language'), t('features.support')]}
       />
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white font-['SF_Pro_Display','SF_Pro_Text',-apple-system,BlinkMacSystemFont,sans-serif]">
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-24 lg:py-32">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="mb-8">
-            <div className="inline-flex items-center px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700 mb-6">
+      <section className="px-4 py-16 sm:px-8 md:px-16 lg:px-24 lg:py-24">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center space-y-8">
+            <div className="inline-flex items-center px-4 py-2 bg-[#F8F8F8] rounded-lg text-sm font-light text-[#555555]">
               {t('badge')}
             </div>
-            <h1 className="text-4xl lg:text-6xl font-light text-gray-900 mb-6 tracking-tight">
-              {t('hero.title')} 
-              <span className="font-semibold block mt-2">{t('hero.subtitle')}</span>
-            </h1>
-            <p className="text-lg lg:text-xl text-gray-600 mb-12 leading-relaxed max-w-3xl mx-auto">
-              {t('hero.description')}
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link 
-              href="/trip-planner?type=solo&focus=safety"
-              className="bg-black text-white px-8 py-4 rounded-lg font-medium hover:bg-gray-800 transition-all duration-200 min-w-[200px]"
-            >
-              {t('cta.primary')}
-            </Link>
-            <Link 
-              href="#planning"
-              className="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-medium hover:bg-gray-50 transition-all duration-200 min-w-[200px]"
-            >
-              {t('cta.secondary')}
-            </Link>
+            <div className="space-y-6">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-semibold text-black leading-tight tracking-tight">
+                {t('hero.title')}
+                <span className="block mt-3 font-light">{t('hero.subtitle')}</span>
+              </h1>
+              <p className="text-base sm:text-lg text-[#555555] leading-relaxed max-w-3xl mx-auto font-light">
+                {t('hero.description')}
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
+              <Link 
+                href="/trip-planner?type=solo&focus=safety"
+                className="bg-[#007AFF] text-white px-8 py-3 rounded-lg font-medium hover:bg-[#005FCC] transition-colors duration-200 min-w-[200px]"
+              >
+                {t('cta.primary')}
+              </Link>
+              <Link 
+                href="#planning"
+                className="border border-[#E5E5E5] text-black px-8 py-3 rounded-lg font-medium hover:bg-[#F8F8F8] transition-colors duration-200 min-w-[200px]"
+              >
+                {t('cta.secondary')}
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Free Travel Challenges */}
-      <section className="py-24 lg:py-32 bg-gray-50">
+      <section className="px-4 py-16 sm:px-8 md:px-16 lg:px-24 lg:py-24 bg-[#F8F8F8]">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-20">
             <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6 tracking-tight">
@@ -124,7 +126,7 @@ export default function FreeTravelPage() {
       </section>
 
       {/* AI Solutions */}
-      <section className="py-24 lg:py-32 bg-white">
+      <section className="px-4 py-16 sm:px-8 md:px-16 lg:px-24 lg:py-24 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-20">
             <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6 tracking-tight">
@@ -308,18 +310,18 @@ export default function FreeTravelPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 lg:py-32 bg-black text-white">
-        <div className="container mx-auto px-6 text-center">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl lg:text-4xl font-light mb-6 tracking-tight">
+      <section className="px-4 py-16 sm:px-8 md:px-16 lg:px-24 lg:py-24 bg-black text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="space-y-8">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold mb-6 tracking-tight">
               {t('finalCta.title')}
             </h2>
-            <p className="text-lg lg:text-xl text-gray-300 mb-12 leading-relaxed">
+            <p className="text-base sm:text-lg text-[#EAEAEA] mb-12 leading-relaxed font-light">
               {t('finalCta.description')}
             </p>
             <Link 
               href="/trip-planner?type=solo&focus=safety"
-              className="inline-block bg-white text-black px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200"
+              className="inline-block bg-white text-black px-10 py-4 rounded-lg font-medium hover:bg-[#F8F8F8] transition-colors duration-200"
             >
               {t('finalCta.button')}
             </Link>

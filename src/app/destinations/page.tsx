@@ -53,11 +53,11 @@ export default function DestinationsPage() {
   return (
     <>
       <KeywordPageSchema 
-        keyword="전세계 관광명소"
+        keyword={t('meta.keyword')}
         pagePath="/destinations"
-        title="전세계 TOP100 관광명소 가이드 | 세계 유명 여행지 TripRadio.AI"
-        description="전세계 TOP100 관광명소를 AI 가이드와 함께! 파리 에펠탑부터 제주도까지, 세계 유명 여행지의 숨겨진 이야기를 만나보세요"
-        features={['TOP100 세계명소', 'AI 전문 가이드', '숨겨진 스토리', '역사와 문화', '현지 정보', '맞춤 추천']}
+        title={t('meta.title')}
+        description={t('meta.description')}
+        features={[t('meta.features.top100'), t('meta.features.aiGuide'), t('meta.features.hiddenStories'), t('meta.features.historyCulture'), t('meta.features.localInfo'), t('meta.features.personalizedRecs')]}
       />
       <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -65,7 +65,7 @@ export default function DestinationsPage() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
             <div className="inline-flex items-center px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700 mb-6">
-              World TOP100 Attractions • AI Expert Guide
+              {t('hero.badge')}
             </div>
             <h1 className="text-4xl lg:text-6xl font-light text-gray-900 mb-6 tracking-tight">
               {t('hero.title')} 

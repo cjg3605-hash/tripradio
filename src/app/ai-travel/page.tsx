@@ -10,10 +10,10 @@ export default function AiTravelPage() {
   return (
     <>
       <KeywordPageSchema 
-        keyword="AI여행"
+        keyword={t('meta.keyword')}
         pagePath="/ai-travel"
-        title="AI여행 가이드 | 인공지능과 함께하는 스마트한 여행 TripRadio.AI"
-        description="AI가 계획부터 해설까지! 인공지능과 함께하는 완전히 새로운 스마트 여행 경험을 만나보세요"
+        title={t('meta.title')}
+        description={t('meta.description')}
         features={[t('aiFeatures.intelligentContent.title'), t('aiFeatures.personalization.title'), t('aiFeatures.locationRecognition.title'), t('aiFeatures.voiceSynthesis.title'), t('aiFeatures.dataIntegration.title'), t('aiFeatures.continuousLearning.title')]}
       />
       <div className="min-h-screen bg-white">

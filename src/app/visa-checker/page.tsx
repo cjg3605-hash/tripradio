@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
 // 50개 국가 대규모 비자 정보 데이터 (한국 여권 기준, 2025년)
 const visaInfo = [
@@ -707,18 +708,7 @@ const nomadVisaCountries = [
 ];
 
 export default function VisaCheckerPage() {
-  // 임시 번역 함수
-  const t = (key: string) => {
-    const translations: Record<string, string> = {
-      'keyword': '비자 체커',
-      'metadata.title': 'AI 비자 체커 - 전 세계 50개국 비자 정보 한번에 확인',
-      'metadata.description': '한국 여권 기준 전 세계 50개국의 최신 비자 정보를 AI가 실시간으로 분석하여 제공합니다.',
-      'badge': '🌍 글로벌 비자 정보',
-      'hero.title': 'AI 비자 체커',
-      'hero.subtitle': '전 세계 여행, 비자 걱정 끝!'
-    };
-    return translations[key] || key;
-  };
+  const t = useTranslations('visaChecker');
   
   return (
     <>
@@ -731,16 +721,18 @@ export default function VisaCheckerPage() {
       />
       <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-16 lg:py-24">
+      <section className="container mx-auto px-6 py-20 lg:py-32">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
-            <div className="inline-flex items-center px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700 mb-6">
-              {t('tools.visaChecker.badge')}
+            <div className="inline-flex items-center px-6 py-3 bg-gray-50 border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-8">
+              {t('badge')}
             </div>
-            <h1 className="text-3xl lg:text-5xl font-light text-gray-900 mb-6 tracking-tight">
-              {t('tools.visaChecker.hero.title')} 
-              <span className="font-semibold block mt-2">{t('tools.visaChecker.hero.subtitle')}</span>
+            <h1 className="text-5xl lg:text-6xl font-light text-gray-900 mb-6 tracking-tight">
+              {t('hero.title')}
             </h1>
+            <h2 className="text-2xl lg:text-3xl font-normal text-gray-700 mb-8">
+              {t('hero.subtitle')}
+            </h2>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-3xl mx-auto">
               한국 여권 소지자를 위한 50개국 비자 정보를 확인하고, 디지털노마드 비자부터 관광비자까지 모든 출입국 요구사항을 한눈에 파악하세요.
             </p>
@@ -751,11 +743,11 @@ export default function VisaCheckerPage() {
       {/* Quick Visa Checker */}
       <section className="container mx-auto px-6 pb-16">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-8 rounded-lg mb-12 border border-blue-100">
+          <div className="bg-gray-50 p-8 rounded-lg mb-12 border border-gray-200">
             <h2 className="text-2xl font-light text-gray-900 mb-2 text-center">
               한국 여권 비자 체커
             </h2>
-            <p className="text-sm text-blue-600 mb-6 text-center">
+            <p className="text-sm text-gray-600 mb-6 text-center">
               2025년 최신 정보 기준 | 중요: 출발 전 대사관에서 최신 정보 확인 필수
             </p>
             
@@ -763,7 +755,7 @@ export default function VisaCheckerPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">출발국</label>
                 <div className="w-full p-4 border border-gray-300 rounded-lg bg-gray-100 text-gray-600">
-                  🇰🇷 대한민국 (한국 여권 전용)
+                  대한민국 (한국 여권 전용)
                 </div>
               </div>
               
@@ -772,7 +764,7 @@ export default function VisaCheckerPage() {
                 <input 
                   type="text" 
                   placeholder="예: 중국(무비자 30일), 일본(90일), 태국(90일)..."
-                  className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+                  className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
                 />
               </div>
             </div>
@@ -780,7 +772,7 @@ export default function VisaCheckerPage() {
             <div className="grid md:grid-cols-3 gap-4 mt-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">여행 목적</label>
-                <select className="w-full p-3 border border-gray-300 rounded-lg bg-white text-sm">
+                <select className="w-full p-4 border border-gray-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
                   <option>관광</option>
                   <option>출장</option>
                   <option>디지털노마드</option>
@@ -791,7 +783,7 @@ export default function VisaCheckerPage() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">체류 기간</label>
-                <select className="w-full p-3 border border-gray-300 rounded-lg bg-white text-sm">
+                <select className="w-full p-4 border border-gray-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
                   <option>1주 이내</option>
                   <option>1개월 이내</option>
                   <option>3개월 이내</option>
@@ -801,7 +793,7 @@ export default function VisaCheckerPage() {
               </div>
               
               <div className="flex items-end">
-                <button className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                <button className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition-all duration-200 shadow-sm min-h-[44px] flex items-center justify-center">
                   한국 여권 비자 요구사항 확인
                 </button>
               </div>
@@ -822,27 +814,29 @@ export default function VisaCheckerPage() {
               <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="text-3xl">{info.flag}</div>
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <div className="w-6 h-6 bg-gray-400 rounded"></div>
+                    </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">{info.country}</h3>
                       {info.visaFree ? (
                         <div className="flex items-center gap-2">
-                          <div className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
+                          <div className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs font-medium">
                             무비자
                           </div>
                           <span className="text-sm text-gray-600">{info.maxDays}일</span>
                         </div>
                       ) : (
-                        <div className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">
+                        <div className="bg-gray-200 text-gray-800 px-3 py-1 rounded-lg text-xs font-medium">
                           비자 필요
                         </div>
                       )}
                     </div>
                   </div>
-                  <div className={`px-2 py-1 rounded-full text-xs ${
-                    info.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
-                    info.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
+                  <div className={`px-3 py-1 rounded-lg text-xs font-medium ${
+                    info.difficulty === 'easy' ? 'bg-gray-50 text-gray-600 border border-gray-200' :
+                    info.difficulty === 'medium' ? 'bg-gray-100 text-gray-700 border border-gray-300' :
+                    'bg-gray-200 text-gray-800 border border-gray-400'
                   }`}>
                     {info.difficulty === 'easy' ? '쉬움' : 
                      info.difficulty === 'medium' ? '보통' : '어려움'}
@@ -864,20 +858,20 @@ export default function VisaCheckerPage() {
                 </div>
 
                 {info.digitalNomad && (
-                  <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                  <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
                     <div className="flex items-center gap-2 mb-1">
-                      <div className="text-sm">💻</div>
-                      <span className="text-sm font-medium text-blue-800">디지털노마드 가능</span>
+                      <div className="w-4 h-4 bg-gray-400 rounded-sm"></div>
+                      <span className="text-sm font-medium text-gray-700">디지털노마드 가능</span>
                     </div>
                     {info.nomadVisa && (
-                      <p className="text-xs text-blue-600">{info.nomadVisa}</p>
+                      <p className="text-xs text-gray-600">{info.nomadVisa}</p>
                     )}
                   </div>
                 )}
 
                 <Link 
                   href={`/?destination=${encodeURIComponent(info.country)}&visa=guide`}
-                  className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded text-center block hover:bg-gray-200 transition-colors text-sm"
+                  className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg text-center block hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
                 >
                   {info.country} 여행 가이드 보기
                 </Link>
@@ -888,7 +882,7 @@ export default function VisaCheckerPage() {
       </section>
 
       {/* Digital Nomad Visas */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-20 lg:py-32 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-3xl font-light text-gray-900 mb-4">
@@ -901,7 +895,9 @@ export default function VisaCheckerPage() {
             {nomadVisaCountries.map((country, index) => (
               <div key={index} className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="text-3xl">{country.flag}</div>
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <div className="w-6 h-6 bg-gray-500 rounded"></div>
+                  </div>
                   <div>
                     <h3 className="font-medium text-gray-900">{country.country}</h3>
                     <p className="text-sm text-gray-600">{country.visa}</p>
@@ -921,7 +917,7 @@ export default function VisaCheckerPage() {
 
                 <Link 
                   href={`/nomad-calculator?country=${encodeURIComponent(country.country)}`}
-                  className="w-full bg-blue-100 text-blue-800 py-2 px-4 rounded text-center block hover:bg-blue-200 transition-colors text-sm font-medium"
+                  className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg text-center block hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
                 >
                   노마드 계산기로 분석
                 </Link>
@@ -932,7 +928,7 @@ export default function VisaCheckerPage() {
           <div className="text-center mt-8">
             <Link 
               href="/nomad-calculator"
-              className="inline-flex items-center px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200"
+              className="inline-flex items-center px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 shadow-lg min-h-[44px]"
             >
               전체 노마드 도시 비교하기
               <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -944,7 +940,7 @@ export default function VisaCheckerPage() {
       </section>
 
       {/* Visa Tips */}
-      <section className="py-16 bg-white">
+      <section className="py-20 lg:py-32 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl font-light text-gray-900 mb-8 text-center">
@@ -953,9 +949,9 @@ export default function VisaCheckerPage() {
 
             <div className="grid md:grid-cols-2 gap-8">
               <div className="space-y-6">
-                <div className="bg-green-50 p-6 rounded-lg">
-                  <h3 className="font-medium text-green-800 mb-3">✅ 반드시 확인할 것</h3>
-                  <ul className="space-y-2 text-sm text-green-700">
+                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                  <h3 className="font-medium text-gray-700 mb-3">반드시 확인할 것</h3>
+                  <ul className="space-y-2 text-sm text-gray-600">
                     <li>• 여권 유효기간 6개월 이상 남아있는지</li>
                     <li>• 왕복 항공권 또는 제3국 출국 티켓</li>
                     <li>• 충분한 체재비 증명 (은행 잔고증명서)</li>
@@ -964,9 +960,9 @@ export default function VisaCheckerPage() {
                   </ul>
                 </div>
 
-                <div className="bg-yellow-50 p-6 rounded-lg">
-                  <h3 className="font-medium text-yellow-800 mb-3">⚠️ 주의사항</h3>
-                  <ul className="space-y-2 text-sm text-yellow-700">
+                <div className="bg-gray-100 p-6 rounded-lg border border-gray-300">
+                  <h3 className="font-medium text-gray-800 mb-3">주의사항</h3>
+                  <ul className="space-y-2 text-sm text-gray-700">
                     <li>• 무비자 ≠ 무조건 입국 가능</li>
                     <li>• 출입국 관리소 재량으로 입국 거부 가능</li>
                     <li>• 코로나19 등 상황에 따라 변경 가능</li>
@@ -976,9 +972,9 @@ export default function VisaCheckerPage() {
               </div>
 
               <div className="space-y-6">
-                <div className="bg-blue-50 p-6 rounded-lg">
-                  <h3 className="font-medium text-blue-800 mb-3">💡 유용한 팁</h3>
-                  <ul className="space-y-2 text-sm text-blue-700">
+                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                  <h3 className="font-medium text-gray-700 mb-3">유용한 팁</h3>
+                  <ul className="space-y-2 text-sm text-gray-600">
                     <li>• 출발 전 외교부 여행경보 확인</li>
                     <li>• 대사관 웹사이트에서 최신 정보 확인</li>
                     <li>• 여행 일정표 준비 (영문 또는 현지어)</li>
@@ -987,9 +983,9 @@ export default function VisaCheckerPage() {
                   </ul>
                 </div>
 
-                <div className="bg-red-50 p-6 rounded-lg">
-                  <h3 className="font-medium text-red-800 mb-3">🚫 피해야 할 것</h3>
-                  <ul className="space-y-2 text-sm text-red-700">
+                <div className="bg-gray-200 p-6 rounded-lg border border-gray-400">
+                  <h3 className="font-medium text-gray-800 mb-3">피해야 할 것</h3>
+                  <ul className="space-y-2 text-sm text-gray-700">
                     <li>• 만료 임박한 여권으로 출국</li>
                     <li>• 불법 취업 가능성 의심받을 행동</li>
                     <li>• 거짓 정보 제공</li>
@@ -1004,7 +1000,7 @@ export default function VisaCheckerPage() {
       </section>
 
       {/* Travel Guide Integration */}
-      <section className="py-16 bg-black text-white">
+      <section className="py-20 lg:py-32 bg-gray-900 text-white">
         <div className="container mx-auto px-6 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl lg:text-4xl font-light mb-6 tracking-tight">
@@ -1016,24 +1012,30 @@ export default function VisaCheckerPage() {
             </p>
             <div className="grid md:grid-cols-3 gap-6 mb-12">
               <div className="bg-gray-900 p-6 rounded-lg">
-                <div className="text-2xl mb-3">🏛️</div>
+                <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <div className="w-6 h-6 bg-gray-300 rounded"></div>
+                </div>
                 <h3 className="font-medium mb-2">현지 문화 체험</h3>
                 <p className="text-sm text-gray-300">단순 관광이 아닌 그 나라의 깊은 역사와 문화 이해</p>
               </div>
               <div className="bg-gray-900 p-6 rounded-lg">
-                <div className="text-2xl mb-3">🗣️</div>
+                <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <div className="w-6 h-4 bg-gray-400 rounded-sm"></div>
+                </div>
                 <h3 className="font-medium mb-2">현지인 관점</h3>
                 <p className="text-sm text-gray-300">현지인만 아는 숨겨진 명소와 생활 꿀팁</p>
               </div>
               <div className="bg-gray-900 p-6 rounded-lg">
-                <div className="text-2xl mb-3">🎯</div>
+                <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <div className="w-6 h-6 border-2 border-gray-300 rounded-full"></div>
+                </div>
                 <h3 className="font-medium mb-2">안전 여행 팁</h3>
                 <p className="text-sm text-gray-300">현지 상황과 주의사항을 실시간으로 안내</p>
               </div>
             </div>
             <Link 
               href="/?visa=ready&guide=start"
-              className="inline-block bg-white text-black px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200"
+              className="inline-block bg-white text-gray-900 px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200 shadow-lg"
             >
               여행 가이드 시작하기
             </Link>

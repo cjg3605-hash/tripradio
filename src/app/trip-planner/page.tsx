@@ -4,45 +4,45 @@ import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
 import { useTranslations } from 'next-intl';
 
 // 여행 타입별 추천 데이터
-const tripTypes = [
+const getTripTypes = (t: (key: string) => string) => [
   {
     id: 'solo',
-    name: '자유여행',
+    name: t('tripTypes.solo.name'),
     emoji: '🎒',
-    description: '혼자만의 특별한 시간',
-    features: ['안전 정보 우선', '현지 문화 체험', '예산 최적화'],
+    description: t('tripTypes.solo.description'),
+    features: [t('tripTypes.solo.features.safety'), t('tripTypes.solo.features.culture'), t('tripTypes.solo.features.budget')],
     color: 'blue'
   },
   {
     id: 'couple',
-    name: '연인여행',
+    name: t('tripTypes.couple.name'),
     emoji: '💕',
-    description: '로맨틱한 추억 만들기',
-    features: ['로맨틱 스팟', '커플 액티비티', '사진 맛집'],
+    description: t('tripTypes.couple.description'),
+    features: [t('tripTypes.couple.features.romantic'), t('tripTypes.couple.features.activities'), t('tripTypes.couple.features.photos')],
     color: 'pink'
   },
   {
     id: 'family',
-    name: '가족여행',
+    name: t('tripTypes.family.name'),
     emoji: '👨‍👩‍👧‍👦',
-    description: '온 가족이 함께',
-    features: ['아이 친화적', '안전한 장소', '교육적 체험'],
+    description: t('tripTypes.family.description'),
+    features: [t('tripTypes.family.features.kidFriendly'), t('tripTypes.family.features.safety'), t('tripTypes.family.features.educational')],
     color: 'green'
   },
   {
     id: 'friends',
-    name: '친구여행',
+    name: t('tripTypes.friends.name'),
     emoji: '👯‍♀️',
-    description: '친구들과의 즐거운 시간',
-    features: ['활동적 체험', '인스타 스팟', '나이트라이프'],
+    description: t('tripTypes.friends.description'),
+    features: [t('tripTypes.friends.features.activities'), t('tripTypes.friends.features.instagramSpots'), t('tripTypes.friends.features.nightlife')],
     color: 'purple'
   },
   {
     id: 'nomad',
-    name: '워케이션',
+    name: t('tripTypes.nomad.name'),
     emoji: '💻',
-    description: '일과 휴가의 완벽한 조화',
-    features: ['WiFi 환경', '코워킹 스페이스', '장기 체류'],
+    description: t('tripTypes.nomad.description'),
+    features: [t('tripTypes.nomad.features.wifi'), t('tripTypes.nomad.features.coworking'), t('tripTypes.nomad.features.longTerm')],
     color: 'orange'
   }
 ];
@@ -171,6 +171,7 @@ const generateAITripPlan = (destination: string, tripType: string, duration: str
 
 export default function TripPlannerPage() {
   const t = useTranslations('tripPlanner');
+  const tripTypes = getTripTypes(t);
   
   return (
     <>
@@ -183,42 +184,46 @@ export default function TripPlannerPage() {
       />
       <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-16 lg:py-24">
+      <section className="container mx-auto px-6 py-20 lg:py-32">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
-            <div className="inline-flex items-center px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700 mb-6">
-              {t('tools.tripPlanner.badge')}
+            <div className="inline-flex items-center px-6 py-3 bg-gray-50 border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-8">
+              {t('badge')}
             </div>
-            <h1 className="text-3xl lg:text-5xl font-light text-gray-900 mb-6 tracking-tight">
-              {t('tools.tripPlanner.hero.title')} 
-              <span className="font-semibold block mt-2">{t('tools.tripPlanner.hero.subtitle')}</span>
+            <h1 className="text-5xl lg:text-6xl font-light text-gray-900 mb-6 tracking-tight">
+              {t('hero.title')}
             </h1>
+            <h2 className="text-2xl lg:text-3xl font-normal text-gray-700 mb-8">
+              {t('hero.subtitle')}
+            </h2>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-3xl mx-auto">
-              {t('tools.tripPlanner.hero.description')}
+              {t('hero.description')}
             </p>
           </div>
         </div>
       </section>
 
       {/* Quick Planner Tool */}
-      <section className="container mx-auto px-6 pb-16">
+      <section className="container mx-auto px-6 pb-20">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-gray-50 p-8 rounded-lg mb-12">
+          <div className="bg-gray-50 p-8 rounded-xl mb-12 shadow-sm">
             <h2 className="text-2xl font-light text-gray-900 mb-6 text-center">
-              {t('tools.tripPlanner.quickPlanner.title')}
+              {t('quickPlanner.title')}
             </h2>
             
             {/* Step 1: Trip Type Selection */}
             <div className="mb-8">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('tools.tripPlanner.steps.selectStyle')}</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('steps.selectStyle')}</h3>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {tripTypes.map((type) => (
                   <button
                     key={type.id}
                     data-type={type.id}
-                    className="p-4 bg-white border-2 border-gray-200 rounded-lg hover:border-gray-400 transition-all duration-200 text-center group"
+                    className="p-4 bg-white border-2 border-gray-200 rounded-lg hover:border-gray-400 transition-all duration-200 text-center group min-h-[88px] flex flex-col justify-center"
                   >
-                    <div className="text-2xl mb-2">{type.emoji}</div>
+                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                      <div className="w-4 h-4 bg-gray-500 rounded"></div>
+                    </div>
                     <div className="text-sm font-medium text-gray-900 mb-1">{type.name}</div>
                     <div className="text-xs text-gray-600">{type.description}</div>
                   </button>
@@ -229,36 +234,36 @@ export default function TripPlannerPage() {
             {/* Step 2: Destination & Duration */}
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('tools.tripPlanner.steps.destinationDuration')}</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('steps.destinationDuration')}</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('tools.tripPlanner.form.destination.label')}</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('form.destination.label')}</label>
                     <input 
                       type="text" 
-                      placeholder={t('tools.tripPlanner.form.destination.placeholder')}
-                      className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400"
+                      placeholder={t('form.destination.placeholder')}
+                      className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">{t('tools.tripPlanner.form.departure')}</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{t('form.departure')}</label>
                       <input 
                         type="date" 
-                        className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400"
+                        className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">{t('tools.tripPlanner.form.duration')}</label>
-                      <select className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400">
-                        <option>{t('tools.tripPlanner.form.durationOptions.dayTrip')}</option>
-                        <option>{t('tools.tripPlanner.form.durationOptions.oneNight')}</option>
-                        <option>{t('tools.tripPlanner.form.durationOptions.twoNights')}</option>
-                        <option>{t('tools.tripPlanner.form.durationOptions.threeNights')}</option>
-                        <option>{t('tools.tripPlanner.form.durationOptions.fourNights')}</option>
-                        <option>{t('tools.tripPlanner.form.durationOptions.oneWeek')}</option>
-                        <option>{t('tools.tripPlanner.form.durationOptions.twoWeeks')}</option>
-                        <option>{t('tools.tripPlanner.form.durationOptions.oneMonth')}</option>
-                        <option>{t('tools.tripPlanner.form.durationOptions.custom')}</option>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{t('form.duration')}</label>
+                      <select className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
+                        <option>{t('form.durationOptions.dayTrip')}</option>
+                        <option>{t('form.durationOptions.oneNight')}</option>
+                        <option>{t('form.durationOptions.twoNights')}</option>
+                        <option>{t('form.durationOptions.threeNights')}</option>
+                        <option>{t('form.durationOptions.fourNights')}</option>
+                        <option>{t('form.durationOptions.oneWeek')}</option>
+                        <option>{t('form.durationOptions.twoWeeks')}</option>
+                        <option>{t('form.durationOptions.oneMonth')}</option>
+                        <option>{t('form.durationOptions.custom')}</option>
                       </select>
                     </div>
                   </div>
@@ -266,23 +271,23 @@ export default function TripPlannerPage() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('tools.tripPlanner.steps.budgetPreferences')}</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('steps.budgetPreferences')}</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('tools.tripPlanner.form.budget')}</label>
-                    <select className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400">
-                      <option>{t('tools.tripPlanner.form.budgetOptions.under20')}</option>
-                      <option>{t('tools.tripPlanner.form.budgetOptions.range20to50')}</option>
-                      <option>{t('tools.tripPlanner.form.budgetOptions.range50to100')}</option>
-                      <option>{t('tools.tripPlanner.form.budgetOptions.range100to200')}</option>
-                      <option>{t('tools.tripPlanner.form.budgetOptions.over200')}</option>
-                      <option>{t('tools.tripPlanner.form.budgetOptions.unlimited')}</option>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('form.budget')}</label>
+                    <select className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
+                      <option>{t('form.budgetOptions.under20')}</option>
+                      <option>{t('form.budgetOptions.range20to50')}</option>
+                      <option>{t('form.budgetOptions.range50to100')}</option>
+                      <option>{t('form.budgetOptions.range100to200')}</option>
+                      <option>{t('form.budgetOptions.over200')}</option>
+                      <option>{t('form.budgetOptions.unlimited')}</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('tools.tripPlanner.form.interests')}</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('form.interests')}</label>
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      {['맛집 탐방', '쇼핑', '역사/문화', '자연/힐링', '액티비티', '사진촬영', '야경', '온천/스파'].map((interest) => (
+                      {[t('form.interestOptions.food'), t('form.interestOptions.shopping'), t('form.interestOptions.culture'), t('form.interestOptions.nature'), t('form.interestOptions.activities'), t('form.interestOptions.photography'), t('form.interestOptions.nightView'), t('form.interestOptions.spa')].map((interest) => (
                         <label key={interest} className="flex items-center">
                           <input type="checkbox" className="mr-2" />
                           <span>{interest}</span>
@@ -295,26 +300,26 @@ export default function TripPlannerPage() {
             </div>
 
             {/* User Preferences Panel */}
-            <div className="bg-blue-50 p-4 rounded-lg mb-6">
-              <h3 className="text-sm font-medium text-blue-900 mb-3">💾 개인화 기능</h3>
+            <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">{t('personalization.title')}</h3>
               <div className="flex flex-wrap gap-2">
                 <button 
                   onClick={() => loadUserPreferences()}
-                  className="text-xs bg-white text-blue-800 px-3 py-1 rounded hover:bg-blue-100 transition-colors"
+                  className="text-xs bg-white text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200 font-medium"
                 >
-                  📂 저장된 설정 불러오기
+                  {t('personalization.loadSettings')}
                 </button>
                 <button 
                   onClick={() => saveUserPreferences()}
-                  className="text-xs bg-white text-blue-800 px-3 py-1 rounded hover:bg-blue-100 transition-colors"
+                  className="text-xs bg-white text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200 font-medium"
                 >
-                  💾 현재 설정 저장
+                  {t('personalization.saveSettings')}
                 </button>
                 <button 
                   onClick={() => showSavedPlans()}
-                  className="text-xs bg-white text-blue-800 px-3 py-1 rounded hover:bg-blue-100 transition-colors"
+                  className="text-xs bg-white text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200 font-medium"
                 >
-                  📋 저장된 계획 보기 (<span id="saved-count">0</span>개)
+                  {t('personalization.viewSavedPlans')} (<span id="saved-count">0</span>{t('personalization.plansCount')})
                 </button>
               </div>
             </div>
@@ -323,24 +328,24 @@ export default function TripPlannerPage() {
             <div className="text-center">
               <button 
                 onClick={() => generateTripPlan()}
-                className="bg-black text-white px-10 py-4 rounded-lg font-medium hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-black text-white px-10 py-4 rounded-lg font-medium hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg min-h-[44px]"
                 id="generate-plan-btn"
               >
-                <span id="btn-text">{t('tools.tripPlanner.form.generateButton')}</span>
-                <span id="btn-loading" className="hidden">AI 분석 중... ⏳</span>
+                <span id="btn-text">{t('form.generateButton')}</span>
+                <span id="btn-loading" className="hidden">{t('form.analyzing')}</span>
               </button>
-              <p className="text-xs text-gray-600 mt-2">{t('tools.tripPlanner.form.completionTime')}</p>
+              <p className="text-xs text-gray-600 mt-2">{t('form.completionTime')}</p>
             </div>
 
             {/* Saved Plans Display */}
             <div id="saved-plans" className="hidden mt-8 p-6 bg-gray-50 border border-gray-200 rounded-lg">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">📚 저장된 여행 계획</h3>
+                <h3 className="text-lg font-medium text-gray-900">{t('savedPlans.title')}</h3>
                 <button 
                   onClick={() => document.getElementById('saved-plans').classList.add('hidden')}
                   className="text-gray-500 hover:text-gray-700"
                 >
-                  ✕
+                  ×
                 </button>
               </div>
               <div id="saved-plans-list" className="space-y-3">
@@ -351,19 +356,19 @@ export default function TripPlannerPage() {
             {/* Generated Plan Display */}
             <div id="generated-plan" className="hidden mt-8 p-6 bg-white border border-gray-200 rounded-lg">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">🎯 맞춤 여행 계획</h3>
+                <h3 className="text-lg font-medium text-gray-900">{t('generatedPlan.title')}</h3>
                 <div className="flex gap-2">
                   <button 
                     onClick={() => savePlan()}
-                    className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded hover:bg-blue-200 transition-colors"
+                    className="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-200 transition-all duration-200 font-medium"
                   >
-                    📋 계획 저장
+                    {t('generatedPlan.savePlan')}
                   </button>
                   <button 
                     onClick={() => exportPlan()}
-                    className="text-sm bg-purple-100 text-purple-800 px-3 py-1 rounded hover:bg-purple-200 transition-colors"
+                    className="text-sm bg-gray-200 text-gray-800 px-3 py-1 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium"
                   >
-                    📄 PDF 내보내기
+                    {t('generatedPlan.exportPDF')}
                   </button>
                 </div>
               </div>
@@ -372,21 +377,21 @@ export default function TripPlannerPage() {
                 <div className="flex gap-3">
                   <button 
                     onClick={() => regeneratePlan()}
-                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded hover:bg-gray-200 transition-colors text-sm"
+                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
                   >
-                    🔄 다시 생성
+                    {t('generatedPlan.regenerate')}
                   </button>
                   <button 
                     onClick={() => shareTrip()}
-                    className="flex-1 bg-green-100 text-green-800 py-2 px-4 rounded hover:bg-green-200 transition-colors text-sm"
+                    className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-all duration-200 text-sm font-medium"
                   >
-                    📤 공유하기
+                    {t('generatedPlan.share')}
                   </button>
                   <button 
                     onClick={() => compareWithSimilar()}
-                    className="flex-1 bg-yellow-100 text-yellow-800 py-2 px-4 rounded hover:bg-yellow-200 transition-colors text-sm"
+                    className="flex-1 bg-gray-50 text-gray-600 py-2 px-4 rounded-lg hover:bg-gray-100 transition-all duration-200 text-sm font-medium border border-gray-200"
                   >
-                    🔍 유사 계획 비교
+                    {t('generatedPlan.compare')}
                   </button>
                 </div>
               </div>
@@ -396,7 +401,7 @@ export default function TripPlannerPage() {
           {/* Popular Destinations Quick Start */}
           <div className="mb-16">
             <h2 className="text-2xl font-light text-gray-900 mb-8 text-center">
-              {t('tools.tripPlanner.popularDestinations.title')} <span className="font-semibold">{t('tools.tripPlanner.popularDestinations.subtitle')}</span>
+              {t('popularDestinations.title')} <span className="font-semibold">{t('popularDestinations.subtitle')}</span>
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {popularDestinations.map((dest, index) => (
@@ -405,7 +410,9 @@ export default function TripPlannerPage() {
                   className="bg-white border border-gray-200 p-6 rounded-lg hover:shadow-lg transition-all duration-300 group"
                 >
                   <div className="flex items-start gap-4 mb-3">
-                    <div className="text-3xl">{dest.emoji}</div>
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <div className="w-6 h-6 bg-gray-400 rounded"></div>
+                    </div>
                     <div className="flex-1">
                       <h3 className="font-medium text-gray-900 mb-1">{dest.name}</h3>
                       <p className="text-sm text-gray-600 mb-2">{dest.country}</p>
@@ -420,25 +427,25 @@ export default function TripPlannerPage() {
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Link
                       href={`/?destination=${encodeURIComponent(dest.name)}&plan=quick`}
-                      className="flex-1 bg-black text-white py-2 px-3 rounded text-xs text-center hover:bg-gray-800 transition-colors"
+                      className="flex-1 bg-gray-900 text-white py-2 px-3 rounded-lg text-xs text-center hover:bg-gray-800 transition-all duration-200 font-medium"
                     >
-                      가이드 보기
+                      {t('destinations.viewGuide')}
                     </Link>
                     {dest.region === 'asia' && (
                       <Link
                         href={`/nomad-calculator?region=asia`}
-                        className="px-3 py-2 bg-blue-100 text-blue-800 rounded text-xs hover:bg-blue-200 transition-colors"
-                        title="노마드 정보"
+                        className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-xs hover:bg-gray-200 transition-all duration-200 font-medium"
+                        title={t('destinations.nomadInfo')}
                       >
-                        💻
+                        {t('destinations.nomad')}
                       </Link>
                     )}
                     <Link
                       href={`/visa-checker?country=${encodeURIComponent(dest.country)}`}
-                      className="px-3 py-2 bg-gray-100 text-gray-700 rounded text-xs hover:bg-gray-200 transition-colors"
-                      title="비자 정보"
+                      className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-xs hover:bg-gray-200 transition-all duration-200 font-medium"
+                      title={t('destinations.visaInfo')}
                     >
-                      📋
+                      {t('destinations.visa')}
                     </Link>
                   </div>
                 </div>
@@ -449,49 +456,61 @@ export default function TripPlannerPage() {
           {/* AI Features */}
           <div className="bg-gray-50 p-8 rounded-lg">
             <h2 className="text-2xl font-light text-gray-900 mb-8 text-center">
-              AI 플래너의 <span className="font-semibold">특별한 기능</span>
+              {t('aiFeatures.title')} <span className="font-semibold">{t('aiFeatures.subtitle')}</span>
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="bg-white p-6 rounded-lg">
-                <div className="text-2xl mb-4">🎯</div>
-                <h3 className="font-medium text-gray-900 mb-2">완전 맞춤형</h3>
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <div className="w-6 h-6 border-2 border-gray-500 rounded-full"></div>
+                </div>
+                <h3 className="font-medium text-gray-900 mb-2">{t('aiFeatures.customized.title')}</h3>
                 <p className="text-sm text-gray-600">
-                  당신의 취향, 예산, 동행인을 모두 고려한 개인 맞춤 일정
+                  {t('aiFeatures.customized.description')}
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg">
-                <div className="text-2xl mb-4">⚡</div>
-                <h3 className="font-medium text-gray-900 mb-2">실시간 최적화</h3>
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <div className="w-4 h-6 bg-gray-600 transform rotate-12"></div>
+                </div>
+                <h3 className="font-medium text-gray-900 mb-2">{t('aiFeatures.realtime.title')}</h3>
                 <p className="text-sm text-gray-600">
-                  날씨, 교통, 현지 상황을 실시간으로 반영한 스마트 일정
+                  {t('aiFeatures.realtime.description')}
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg">
-                <div className="text-2xl mb-4">🗺️</div>
-                <h3 className="font-medium text-gray-900 mb-2">상세 정보 제공</h3>
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <div className="w-6 h-6 bg-gray-500 rounded"></div>
+                </div>
+                <h3 className="font-medium text-gray-900 mb-2">{t('aiFeatures.detailedInfo.title')}</h3>
                 <p className="text-sm text-gray-600">
-                  교통편, 소요시간, 예약 링크까지 필요한 모든 정보
+                  {t('aiFeatures.detailedInfo.description')}
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg">
-                <div className="text-2xl mb-4">💰</div>
-                <h3 className="font-medium text-gray-900 mb-2">예산 관리</h3>
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
+                </div>
+                <h3 className="font-medium text-gray-900 mb-2">{t('aiFeatures.budgetManagement.title')}</h3>
                 <p className="text-sm text-gray-600">
-                  설정한 예산 내에서 최고의 가성비 일정을 자동 생성
+                  {t('aiFeatures.budgetManagement.description')}
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg">
-                <div className="text-2xl mb-4">📱</div>
-                <h3 className="font-medium text-gray-900 mb-2">모바일 최적화</h3>
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <div className="w-4 h-6 bg-gray-600 rounded-sm"></div>
+                </div>
+                <h3 className="font-medium text-gray-900 mb-2">{t('aiFeatures.mobileOptimized.title')}</h3>
                 <p className="text-sm text-gray-600">
-                  여행 중에도 편리하게 일정을 확인하고 수정 가능
+                  {t('aiFeatures.mobileOptimized.description')}
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg">
-                <div className="text-2xl mb-4">🎧</div>
-                <h3 className="font-medium text-gray-900 mb-2">음성 가이드 연결</h3>
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <div className="w-5 h-5 border-2 border-gray-500 rounded-full"></div>
+                </div>
+                <h3 className="font-medium text-gray-900 mb-2">{t('aiFeatures.audioGuide.title')}</h3>
                 <p className="text-sm text-gray-600">
-                  각 장소마다 전문 오디오 가이드가 자동으로 준비
+                  {t('aiFeatures.audioGuide.description')}
                 </p>
               </div>
             </div>
@@ -500,38 +519,47 @@ export default function TripPlannerPage() {
       </section>
 
       {/* AI Audio Guide Integration */}
-      <section className="py-16 bg-black text-white">
+      <section className="py-20 bg-black text-white">
         <div className="container mx-auto px-6 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl lg:text-4xl font-light mb-6 tracking-tight">
-              계획한 여행지에서 <span className="font-semibold">AI 가이드와 함께</span>
+              {t('audioGuideIntegration.title.before')} <span className="font-semibold">{t('audioGuideIntegration.title.highlight')}</span>
             </h2>
             <p className="text-lg lg:text-xl text-gray-300 mb-8 leading-relaxed">
-              여행 계획이 완성되면, 각 장소에서 전문 AI 가이드가 
-              숨겨진 이야기와 현지 꿀팁을 들려드립니다
+              {t('audioGuideIntegration.description')}
             </p>
             <div className="grid md:grid-cols-3 gap-6 mb-12">
               <div className="bg-gray-900 p-6 rounded-lg">
-                <div className="text-2xl mb-3">📍</div>
-                <h3 className="font-medium mb-2">도착하자마자</h3>
-                <p className="text-sm text-gray-300">GPS로 위치를 감지해서 해당 장소의 가이드를 자동 시작</p>
+                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mb-3">
+                  <div className="w-4 h-4 border-2 border-gray-900 rounded-full relative">
+                    <div className="absolute top-1/2 left-1/2 w-1 h-1 bg-gray-900 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+                  </div>
+                </div>
+                <h3 className="font-medium mb-2">{t('audioGuideIntegration.features.autoStart.title')}</h3>
+                <p className="text-sm text-gray-300">{t('audioGuideIntegration.features.autoStart.description')}</p>
               </div>
               <div className="bg-gray-900 p-6 rounded-lg">
-                <div className="text-2xl mb-3">🎯</div>
-                <h3 className="font-medium mb-2">맞춤형 설명</h3>
-                <p className="text-sm text-gray-300">당신의 여행 스타일과 관심사에 맞춘 개인화된 가이드</p>
+                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mb-3">
+                  <div className="w-4 h-4 border-2 border-gray-900 rounded-full"></div>
+                </div>
+                <h3 className="font-medium mb-2">{t('audioGuideIntegration.features.personalized.title')}</h3>
+                <p className="text-sm text-gray-300">{t('audioGuideIntegration.features.personalized.description')}</p>
               </div>
               <div className="bg-gray-900 p-6 rounded-lg">
-                <div className="text-2xl mb-3">🔄</div>
-                <h3 className="font-medium mb-2">실시간 업데이트</h3>
-                <p className="text-sm text-gray-300">날씨, 혼잡도에 따라 실시간으로 일정과 가이드 내용 조정</p>
+                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mb-3">
+                  <div className="w-4 h-4 border-2 border-gray-900 rounded-full relative">
+                    <div className="absolute -top-1 -right-1 w-2 h-2 border border-gray-900 rounded-full bg-white"></div>
+                  </div>
+                </div>
+                <h3 className="font-medium mb-2">{t('audioGuideIntegration.features.realtimeUpdate.title')}</h3>
+                <p className="text-sm text-gray-300">{t('audioGuideIntegration.features.realtimeUpdate.description')}</p>
               </div>
             </div>
             <Link 
               href="/?planner=integrated"
               className="inline-block bg-white text-black px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200"
             >
-              AI 가이드 체험해보기
+              {t('audioGuideIntegration.tryButton')}
             </Link>
           </div>
         </div>

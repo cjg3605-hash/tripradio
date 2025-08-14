@@ -10,10 +10,10 @@ export default function AudioGuidePage() {
   return (
     <>
       <KeywordPageSchema 
-        keyword="오디오가이드"
+        keyword={t('meta.keyword')}
         pagePath="/audio-guide"
-        title="AI 오디오가이드 앱 추천 1위 | 무료 여행 해설 TripRadio.AI"
-        description="전 세계 어디서든 AI가 실시간으로 만들어주는 개인 맞춤형 오디오가이드! 도슨트 없이도 전문가급 해설을 무료로 경험해보세요"
+        title={t('meta.title')}
+        description={t('meta.description')}
         features={[t('features.aiRealTime.title'), t('features.personalized.title'), t('features.worldwide.title'), t('features.free.title'), t('features.multiLanguage.title'), t('features.offline.title')]}
       />
       <div className="min-h-screen bg-white">

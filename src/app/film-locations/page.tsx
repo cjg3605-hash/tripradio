@@ -1,97 +1,98 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
 // 30개 영화/드라마 대규모 촬영지 데이터
-const filmLocations = [
+const getFilmLocations = (t: (key: string) => string) => [
   // 한국 작품 (K-Drama & 영화)
   {
-    title: '기생충',
+    title: t('films.parasite.title'),
     type: 'movie',
     year: 2019,
-    genre: '스릴러',
+    genre: 'thriller',
     poster: '🏆',
     locations: [
-      { name: '자하문터널', area: '서울 종로구', description: '반지하 집 외부 촬영지' },
-      { name: '서울대 계단', area: '서울 관악구', description: '유명한 계단 씬 촬영지' },
-      { name: '성북동 계단길', area: '서울 성북구', description: '메인 포스터 촬영지' }
+      { name: t('films.parasite.locations.jahamun.name'), area: t('films.parasite.locations.jahamun.area'), description: t('films.parasite.locations.jahamun.description') },
+      { name: t('films.parasite.locations.snu.name'), area: t('films.parasite.locations.snu.area'), description: t('films.parasite.locations.snu.description') },
+      { name: t('films.parasite.locations.seongbuk.name'), area: t('films.parasite.locations.seongbuk.area'), description: t('films.parasite.locations.seongbuk.description') }
     ],
     popularity: 95,
-    difficulty: '쉬움',
-    awards: '아카데미 작품상'
+    difficulty: 'easy',
+    awards: t('films.parasite.awards')
   },
   {
-    title: '오징어 게임',
+    title: t('films.squidGame.title'),
     type: 'drama',
     year: 2021,
-    genre: '드라마',
+    genre: 'drama',
     poster: '🦑',
     locations: [
-      { name: '트라이보울', area: '인천 강화군', description: '유리구슬 게임 촬영지' },
-      { name: '용유정거장', area: '인천 중구', description: '첫 번째 게임 이후 지하철역' },
-      { name: '청량리역', area: '서울 동대문구', description: '시작 장면 지하철역' }
+      { name: t('films.squidGame.locations.tribowl.name'), area: t('films.squidGame.locations.tribowl.area'), description: t('films.squidGame.locations.tribowl.description') },
+      { name: t('films.squidGame.locations.yongyu.name'), area: t('films.squidGame.locations.yongyu.area'), description: t('films.squidGame.locations.yongyu.description') },
+      { name: t('films.squidGame.locations.cheongnyangni.name'), area: t('films.squidGame.locations.cheongnyangni.area'), description: t('films.squidGame.locations.cheongnyangni.description') }
     ],
     popularity: 98,
-    difficulty: '보통',
-    awards: 'Netflix 최고 시청률'
+    difficulty: 'normal',
+    awards: t('films.squidGame.awards')
   },
   {
-    title: '사랑의 불시착',
+    title: t('films.cloy.title'),
     type: 'drama', 
     year: 2019,
-    genre: '로맨스',
+    genre: 'romance',
     poster: '🪂',
     locations: [
-      { name: '시그리스빌', area: '스위스', description: '세리의 패러글라이딩 착륙 지점' },
-      { name: '벌곡교', area: '경기 양평군', description: '로맨틱한 다리 씬' },
-      { name: '북한산', area: '서울 은평구', description: '패러글라이딩 출발점' }
+      { name: t('films.cloy.locations.sigriswil.name'), area: t('films.cloy.locations.sigriswil.area'), description: t('films.cloy.locations.sigriswil.description') },
+      { name: t('films.cloy.locations.beolgok.name'), area: t('films.cloy.locations.beolgok.area'), description: t('films.cloy.locations.beolgok.description') },
+      { name: t('films.cloy.locations.bukhan.name'), area: t('films.cloy.locations.bukhan.area'), description: t('films.cloy.locations.bukhan.description') }
     ],
     popularity: 92,
-    difficulty: '어려움',
-    awards: '백상예술대상'
+    difficulty: 'hard',
+    awards: t('films.cloy.awards')
   },
   {
-    title: '도깨비',
+    title: t('films.goblin.title'),
     type: 'drama',
     year: 2016,
-    genre: '판타지',
+    genre: 'fantasy',
     poster: '👹',
     locations: [
-      { name: '덕수궁 돌담길', area: '서울 중구', description: '유명한 문이 나타나는 장소' },
-      { name: '주문진해변', area: '강원 강릉시', description: '메밀꽃밭과 해변' },
-      { name: '인천차이나타운', area: '인천 중구', description: '공유와 김고은 데이트' }
+      { name: t('films.goblin.locations.deoksugung.name'), area: t('films.goblin.locations.deoksugung.area'), description: t('films.goblin.locations.deoksugung.description') },
+      { name: t('films.goblin.locations.jumunjin.name'), area: t('films.goblin.locations.jumunjin.area'), description: t('films.goblin.locations.jumunjin.description') },
+      { name: t('films.goblin.locations.chinatown.name'), area: t('films.goblin.locations.chinatown.area'), description: t('films.goblin.locations.chinatown.description') }
     ],
     popularity: 93,
-    difficulty: '쉬움',
-    awards: '대상 수상작'
+    difficulty: 'easy',
+    awards: t('films.goblin.awards')
   },
   {
-    title: '태극기 휘날리며',
+    title: t('films.taegeukgi.title'),
     type: 'movie',
     year: 2004,
-    genre: '전쟁',
+    genre: 'war',
     poster: '🇰🇷',
     locations: [
-      { name: '태백산맥', area: '강원 태백시', description: '전투 장면' },
-      { name: '정선 아우라지', area: '강원 정선군', description: '형제의 고향' },
-      { name: '서울역', area: '서울 용산구', description: '징집 장면' }
+      { name: t('films.taegeukgi.locations.taebaek.name'), area: t('films.taegeukgi.locations.taebaek.area'), description: t('films.taegeukgi.locations.taebaek.description') },
+      { name: t('films.taegeukgi.locations.auraji.name'), area: t('films.taegeukgi.locations.auraji.area'), description: t('films.taegeukgi.locations.auraji.description') },
+      { name: t('films.taegeukgi.locations.seoul.name'), area: t('films.taegeukgi.locations.seoul.area'), description: t('films.taegeukgi.locations.seoul.description') }
     ],
     popularity: 88,
-    difficulty: '보통',
-    awards: '청룡영화상 대상'
+    difficulty: 'normal',
+    awards: t('films.taegeukgi.awards')
   },
   {
     title: '미나리',
     type: 'movie',
     year: 2020,
-    genre: '드라마',
+    genre: 'drama',
     poster: '🌿',
     locations: [
       { name: '털사', area: '오클라호마 주', description: '이민 가족의 농장' },
       { name: '아칸소', area: '아칸소 주', description: '주요 배경지' }
     ],
     popularity: 85,
-    difficulty: '어려움',
+    difficulty: 'hard',
     awards: '아카데미 여우조연상'
   },
 
@@ -100,7 +101,7 @@ const filmLocations = [
     title: '어벤져스',
     type: 'movie',
     year: 2012,
-    genre: '액션',
+    genre: 'action',
     poster: '⚡',
     locations: [
       { name: '스타크 타워', area: '뉴욕 맨해튼', description: '아이언맨의 본거지' },
@@ -108,7 +109,7 @@ const filmLocations = [
       { name: '타임스퀘어', area: '뉴욕 맨해튼', description: '외계인 침공 장면' }
     ],
     popularity: 89,
-    difficulty: '보통',
+    difficulty: 'normal',
     awards: 'Marvel 시네마틱 유니버스'
   },
   {
@@ -123,14 +124,14 @@ const filmLocations = [
       { name: '로스앤젤레스', area: '캘리포니아', description: 'NASA 본부' }
     ],
     popularity: 91,
-    difficulty: '어려움',
+    difficulty: 'hard',
     awards: '아카데미 시각효과상'
   },
   {
     title: '라라랜드',
     type: 'movie',
     year: 2016,
-    genre: '뮤지컬',
+    genre: 'musical',
     poster: '🎭',
     locations: [
       { name: '그리피스 천문대', area: '로스앤젤레스', description: '데이트 장면' },
@@ -138,21 +139,21 @@ const filmLocations = [
       { name: '선셋 스트립', area: '할리우드', description: '재즈클럽' }
     ],
     popularity: 87,
-    difficulty: '보통',
+    difficulty: 'normal',
     awards: '아카데미 6개 부문'
   },
   {
     title: '토이 스토리',
     type: 'animation',
     year: 1995,
-    genre: '애니메이션',
+    genre: 'animation',
     poster: '🤠',
     locations: [
       { name: '픽사 스튜디오', area: '캘리포니아', description: '제작사 본사' },
       { name: '샌프란시스코', area: '캘리포니아', description: '도시 배경' }
     ],
     popularity: 86,
-    difficulty: '쉬움',
+    difficulty: 'easy',
     awards: '픽사 첫 장편'
   },
 
@@ -161,7 +162,7 @@ const filmLocations = [
     title: '겨울왕국',
     type: 'animation',
     year: 2013,
-    genre: '애니메이션',
+    genre: 'animation',
     poster: '❄️',
     locations: [
       { name: '할슈타트', area: '오스트리아', description: '아렌델 왕국의 모티브' },
@@ -169,14 +170,14 @@ const filmLocations = [
       { name: '스톡홀름', area: '스웨덴', description: '성 내부 디자인 모티브' }
     ],
     popularity: 94,
-    difficulty: '보통',
+    difficulty: 'normal',
     awards: '디즈니 최고 흥행작'
   },
   {
     title: '해리포터: 마법사의 돌',
     type: 'movie',
     year: 2001,
-    genre: '판타지',
+    genre: 'fantasy',
     poster: '⚡',
     locations: [
       { name: '옥스퍼드 대학', area: '영국 옥스퍼드', description: '호그와트 내부' },
@@ -184,14 +185,14 @@ const filmLocations = [
       { name: '킹스 크로스역', area: '런던', description: '9와 3/4 승강장' }
     ],
     popularity: 96,
-    difficulty: '보통',
+    difficulty: 'normal',
     awards: '전세계 흥행 1위'
   },
   {
     title: '로마의 휴일',
     type: 'movie',
     year: 1953,
-    genre: '로맨스',
+    genre: 'romance',
     poster: '🏛️',
     locations: [
       { name: '트레비 분수', area: '이탈리아 로마', description: '동전 던지기 장면' },
@@ -199,14 +200,14 @@ const filmLocations = [
       { name: '콜로세움', area: '이탈리아 로마', description: '관광 장면' }
     ],
     popularity: 88,
-    difficulty: '쉬움',
+    difficulty: 'easy',
     awards: '아카데미 주연여우상'
   },
   {
     title: '아멜리에',
     type: 'movie',
     year: 2001,
-    genre: '로맨스',
+    genre: 'romance',
     poster: '💚',
     locations: [
       { name: '몽마르트 언덕', area: '프랑스 파리', description: '아멜리의 동네' },
@@ -214,7 +215,7 @@ const filmLocations = [
       { name: '센강', area: '프랑스 파리', description: '로맨틱 산책' }
     ],
     popularity: 90,
-    difficulty: '보통',
+    difficulty: 'normal',
     awards: '칸 영화제 화제작'
   },
 
@@ -223,7 +224,7 @@ const filmLocations = [
     title: '너의 이름은',
     type: 'animation',
     year: 2016,
-    genre: '애니메이션',
+    genre: 'animation',
     poster: '☄️',
     locations: [
       { name: '스가 신사', area: '일본 도쿄', description: '계단 명장면' },
@@ -231,14 +232,14 @@ const filmLocations = [
       { name: '이타모리 호수', area: '일본 나가노현', description: '운석호 모티브' }
     ],
     popularity: 93,
-    difficulty: '보통',
+    difficulty: 'normal',
     awards: '일본 최고 흥행 애니'
   },
   {
     title: '센과 치히로의 행방불명',
     type: 'animation',
     year: 2001,
-    genre: '애니메이션',
+    genre: 'animation',
     poster: '👻',
     locations: [
       { name: '도고 온천', area: '일본 에히메현', description: '목욕탕 모티브' },
@@ -246,7 +247,7 @@ const filmLocations = [
       { name: '구마모토 아소산', area: '일본 구마모토현', description: '자연 배경' }
     ],
     popularity: 95,
-    difficulty: '보통',
+    difficulty: 'normal',
     awards: '아카데미 장편애니상'
   },
 
@@ -255,7 +256,7 @@ const filmLocations = [
     title: '와호장룡',
     type: 'movie',
     year: 2000,
-    genre: '무협',
+    genre: 'martial-arts',
     poster: '🗡️',
     locations: [
       { name: '우당산', area: '중국 후베이성', description: '무협 액션 장면' },
@@ -263,7 +264,7 @@ const filmLocations = [
       { name: '대나무숲', area: '중국 저장성', description: '유명한 대나무숲 액션' }
     ],
     popularity: 84,
-    difficulty: '어려움',
+    difficulty: 'hard',
     awards: '아카데미 4개 부문'
   },
 
@@ -280,14 +281,14 @@ const filmLocations = [
       { name: '애틀랜타', area: '조지아 주', description: '대부분의 촬영지' }
     ],
     popularity: 87,
-    difficulty: '어려움',
+    difficulty: 'hard',
     awards: 'Netflix 간판 시리즈'
   },
   {
     title: '킹덤',
     type: 'drama',
     year: 2019,
-    genre: '좀비',
+    genre: 'zombie',
     poster: '🧟',
     locations: [
       { name: '문경새재', area: '경북 문경시', description: '조선 궁궐 세트' },
@@ -295,7 +296,7 @@ const filmLocations = [
       { name: '정동진', area: '강원 강릉시', description: '해안가 장면' }
     ],
     popularity: 86,
-    difficulty: '보통',
+    difficulty: 'normal',
     awards: 'Netflix 한국 오리지널'
   },
 
@@ -304,7 +305,7 @@ const filmLocations = [
     title: '존 윅',
     type: 'movie',
     year: 2014,
-    genre: '액션',
+    genre: 'action',
     poster: '🔫',
     locations: [
       { name: '컨티넨탈 호텔', area: '뉴욕 맨해튼', description: '킬러들의 호텔' },
@@ -312,14 +313,14 @@ const filmLocations = [
       { name: '센트럴파크', area: '뉴욕', description: '추격 장면' }
     ],
     popularity: 88,
-    difficulty: '보통',
+    difficulty: 'normal',
     awards: '액션 영화 걸작'
   },
   {
     title: '미션 임파서블',
     type: 'movie',
     year: 1996,
-    genre: '액션',
+    genre: 'action',
     poster: '🎯',
     locations: [
       { name: '버즈 할리파', area: 'UAE 두바이', description: '톰 크루즈 건물 오르기' },
@@ -327,7 +328,7 @@ const filmLocations = [
       { name: 'CIA 랭글리', area: '버지니아', description: '침투 장면' }
     ],
     popularity: 85,
-    difficulty: '어려움',
+    difficulty: 'hard',
     awards: 'IMF 시리즈'
   },
 
@@ -336,7 +337,7 @@ const filmLocations = [
     title: '포레스트 검프',
     type: 'movie',
     year: 1994,
-    genre: '드라마',
+    genre: 'drama',
     poster: '🏃',
     locations: [
       { name: '새너 광장', area: '조지아 사바나', description: '벤치 장면' },
@@ -344,14 +345,14 @@ const filmLocations = [
       { name: '몬터레이', area: '캘리포니아', description: '새우잡이' }
     ],
     popularity: 92,
-    difficulty: '보통',
+    difficulty: 'normal',
     awards: '아카데미 6개 부문'
   },
   {
     title: '타이타닉',
     type: 'movie',
     year: 1997,
-    genre: '로맨스',
+    genre: 'romance',
     poster: '🚢',
     locations: [
       { name: '벨파스트', area: '북아일랜드', description: '타이타닉 건조소' },
@@ -359,7 +360,7 @@ const filmLocations = [
       { name: '로스앤젤레스', area: '캘리포니아', description: '촬영 스튜디오' }
     ],
     popularity: 94,
-    difficulty: '보통',
+    difficulty: 'normal',
     awards: '역대 흥행 2위'
   },
 
@@ -368,14 +369,14 @@ const filmLocations = [
     title: '마스크',
     type: 'movie',
     year: 1994,
-    genre: '코미디',
+    genre: 'comedy',
     poster: '🎭',
     locations: [
       { name: '로스앤젤레스', area: '캘리포니아', description: '도시 배경' },
       { name: '코코넛 그로브', area: '플로리다', description: '나이트클럽' }
     ],
     popularity: 83,
-    difficulty: '쉬움',
+    difficulty: 'easy',
     awards: '짐 캐리 대표작'
   },
 
@@ -384,14 +385,14 @@ const filmLocations = [
     title: '겟 아웃',
     type: 'movie',
     year: 2017,
-    genre: '공포',
+    genre: 'horror',
     poster: '👁️',
     locations: [
       { name: '앨라바마', area: '앨라바마 주', description: '저택 촬영지' },
       { name: '모바일', area: '앨라바마 주', description: '마을 배경' }
     ],
     popularity: 86,
-    difficulty: '보통',
+    difficulty: 'normal',
     awards: '아카데미 각본상'
   },
 
@@ -408,21 +409,21 @@ const filmLocations = [
       { name: '노르웨이', area: '노르웨이', description: '얼음 행성' }
     ],
     popularity: 88,
-    difficulty: '어려움',
+    difficulty: 'hard',
     awards: '아카데미 6개 부문'
   },
   {
     title: '탑건: 매버릭',
     type: 'movie',
     year: 2022,
-    genre: '액션',
+    genre: 'action',
     poster: '✈️',
     locations: [
       { name: '샌디에이고', area: '캘리포니아', description: '해군 기지' },
       { name: '모뉴먼트 밸리', area: '유타/아리조나', description: '비행 훈련' }
     ],
     popularity: 91,
-    difficulty: '보통',
+    difficulty: 'normal',
     awards: '2022년 최고 흥행'
   }
 ];
@@ -432,18 +433,8 @@ const regionKeys = ['all', 'domestic', 'japan', 'china', 'usa', 'europe', 'other
 const difficultyKeys = ['all', 'easy', 'normal', 'hard'];
 
 export default function FilmLocationsPage() {
-  // 임시 번역 함수
-  const t = (key: string) => {
-    const translations: Record<string, string> = {
-      'keyword': '영화 촬영지',
-      'metadata.title': 'AI 영화 촬영지 가이드 - 전 세계 명작의 실제 장소를 찾아서',
-      'metadata.description': '30개 유명 영화와 드라마의 실제 촬영지를 AI가 분석하여 완벽한 여행 코스로 제안합니다.',
-      'badge': '🎬 글로벌 촬영지',
-      'hero.title': 'AI 영화 촬영지 가이드',
-      'hero.subtitle': '스크린 속 그 장소를 실제로 만나보세요'
-    };
-    return translations[key] || key;
-  };
+  const t = useTranslations('filmLocations');
+  const filmLocations = getFilmLocations(t);
   
   return (
     <>
@@ -452,20 +443,22 @@ export default function FilmLocationsPage() {
         pagePath="/film-locations"
         title={t('hero.description')}
         description={t('hero.description')}
-        features={['촬영지 정확한 위치', '포토 스팟 안내', '비하인드 스토리', '대중교통 정보', '근처 맛집', '오디오 가이드']}
+        features={[t('features.exactLocation.title'), t('features.photoGuide.title'), t('features.behindStory.title'), t('features.transport'), t('features.nearbyFood'), t('features.audioGuide.title')]}
       />
       <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-16 lg:py-24">
+      <section className="container mx-auto px-6 py-20 lg:py-32">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
-            <div className="inline-flex items-center px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700 mb-6">
+            <div className="inline-flex items-center px-6 py-3 bg-gray-50 border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-8">
               {t('badge')}
             </div>
-            <h1 className="text-3xl lg:text-5xl font-light text-gray-900 mb-6 tracking-tight">
-              {t('hero.title')} 
-              <span className="font-semibold block mt-2">{t('hero.subtitle')}</span>
+            <h1 className="text-5xl lg:text-6xl font-light text-gray-900 mb-6 tracking-tight">
+              {t('hero.title')}
             </h1>
+            <h2 className="text-2xl lg:text-3xl font-normal text-gray-700 mb-8">
+              {t('hero.subtitle')}
+            </h2>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-3xl mx-auto">
               {t('hero.description')}
             </p>
@@ -482,7 +475,7 @@ export default function FilmLocationsPage() {
               <input 
                 type="text" 
                 placeholder={t('search.placeholder')}
-                className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 text-center"
+                className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-center transition-all duration-200 min-h-[44px]"
               />
               <p className="text-sm text-gray-600 text-center mt-2">
                 {t('search.examples')}
@@ -497,7 +490,7 @@ export default function FilmLocationsPage() {
                   {genreKeys.map((genreKey) => (
                     <button 
                       key={genreKey}
-                      className="px-3 py-1 bg-white border border-gray-300 rounded-full text-sm hover:bg-gray-100 transition-colors"
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-all duration-200 font-medium"
                     >
                       {t(`genres.${genreKey}`)}
                     </button>
@@ -533,26 +526,28 @@ export default function FilmLocationsPage() {
                 <div className="p-6 border-b border-gray-100">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="text-3xl">{film.poster}</div>
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <div className="w-6 h-6 bg-gray-400 rounded"></div>
+                      </div>
                       <div>
                         <h3 className="font-semibold text-gray-900">{film.title}</h3>
-                        <p className="text-sm text-gray-600">{film.year} · {film.genre}</p>
+                        <p className="text-sm text-gray-600">{film.year} · {t(`genres.${film.genre}`)}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">
-                        🔥 {film.popularity}%
+                      <div className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs font-medium">
+                        {film.popularity}%
                       </div>
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-4 text-sm">
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      film.difficulty === '쉬움' ? 'bg-green-100 text-green-800' :
-                      film.difficulty === '보통' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
+                    <span className={`px-3 py-1 rounded-lg text-xs font-medium ${
+                      film.difficulty === 'easy' ? 'bg-gray-50 text-gray-600 border border-gray-200' :
+                      film.difficulty === 'normal' ? 'bg-gray-100 text-gray-700 border border-gray-300' :
+                      'bg-gray-200 text-gray-800 border border-gray-400'
                     }`}>
-                      {t(`difficulties.${film.difficulty === '쉬움' ? 'easy' : film.difficulty === '보통' ? 'normal' : 'hard'}`)}
+                      {t(`difficulties.${film.difficulty}`)}
                     </span>
                     <span className="text-gray-600">{t('locations.locationCount', film.locations.length)}</span>
                   </div>
@@ -581,7 +576,7 @@ export default function FilmLocationsPage() {
                 <div className="p-6 pt-0">
                   <Link 
                     href={`/?film=${encodeURIComponent(film.title)}&setjetting=true`}
-                    className="w-full bg-black text-white py-3 px-4 rounded-lg text-center block hover:bg-gray-800 transition-colors text-sm font-medium"
+                    className="w-full bg-black text-white py-3 px-4 rounded-lg text-center block hover:bg-gray-800 transition-all duration-200 text-sm font-medium shadow-sm min-h-[44px] flex items-center justify-center"
                   >
                     {t('locations.detailGuide')}
                   </Link>
@@ -600,7 +595,7 @@ export default function FilmLocationsPage() {
       </section>
 
       {/* Interactive Features */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-20 lg:py-32 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-3xl font-light text-gray-900 mb-4">
@@ -611,7 +606,9 @@ export default function FilmLocationsPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
-              <div className="text-3xl mb-4">📍</div>
+              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <div className="w-6 h-6 bg-gray-500 rounded-full"></div>
+              </div>
               <h3 className="font-medium text-gray-900 mb-2">{t('features.exactLocation.title')}</h3>
               <p className="text-sm text-gray-600">
                 {t('features.exactLocation.description')}
@@ -619,7 +616,9 @@ export default function FilmLocationsPage() {
             </div>
 
             <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
-              <div className="text-3xl mb-4">📸</div>
+              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <div className="w-6 h-4 bg-gray-600 rounded-sm"></div>
+              </div>
               <h3 className="font-medium text-gray-900 mb-2">{t('features.photoGuide.title')}</h3>
               <p className="text-sm text-gray-600">
                 {t('features.photoGuide.description')}
@@ -627,7 +626,9 @@ export default function FilmLocationsPage() {
             </div>
 
             <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
-              <div className="text-3xl mb-4">🎬</div>
+              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <div className="w-6 h-6 bg-gray-500 rounded-lg"></div>
+              </div>
               <h3 className="font-medium text-gray-900 mb-2">{t('features.behindStory.title')}</h3>
               <p className="text-sm text-gray-600">
                 {t('features.behindStory.description')}
@@ -635,7 +636,9 @@ export default function FilmLocationsPage() {
             </div>
 
             <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
-              <div className="text-3xl mb-4">🎧</div>
+              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <div className="w-5 h-5 border-2 border-gray-500 rounded-full"></div>
+              </div>
               <h3 className="font-medium text-gray-900 mb-2">{t('features.audioGuide.title')}</h3>
               <p className="text-sm text-gray-600">
                 {t('features.audioGuide.description')}
@@ -646,7 +649,7 @@ export default function FilmLocationsPage() {
       </section>
 
       {/* Popular Categories */}
-      <section className="py-16 bg-white">
+      <section className="py-20 lg:py-32 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-2xl font-light text-gray-900 mb-8 text-center">
@@ -654,9 +657,11 @@ export default function FilmLocationsPage() {
             </h2>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Link href="/film-locations?genre=kdrama" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-colors">
+              <Link href="/film-locations?genre=kdrama" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200">
                 <div className="flex items-center gap-4">
-                  <div className="text-3xl">🇰🇷</div>
+                  <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <div className="w-6 h-6 bg-gray-600 rounded"></div>
+                  </div>
                   <div>
                     <h3 className="font-medium text-gray-900">{t('categories.kdrama.title')}</h3>
                     <p className="text-sm text-gray-600">{t('categories.kdrama.description')}</p>
@@ -665,9 +670,11 @@ export default function FilmLocationsPage() {
                 </div>
               </Link>
 
-              <Link href="/film-locations?genre=hollywood" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-colors">
+              <Link href="/film-locations?genre=hollywood" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200">
                 <div className="flex items-center gap-4">
-                  <div className="text-3xl">🎭</div>
+                  <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <div className="w-6 h-4 bg-gray-700 rounded-sm"></div>
+                  </div>
                   <div>
                     <h3 className="font-medium text-gray-900">{t('categories.hollywood.title')}</h3>
                     <p className="text-sm text-gray-600">{t('categories.hollywood.description')}</p>
@@ -676,9 +683,11 @@ export default function FilmLocationsPage() {
                 </div>
               </Link>
 
-              <Link href="/film-locations?genre=anime" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-colors">
+              <Link href="/film-locations?genre=anime" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200">
                 <div className="flex items-center gap-4">
-                  <div className="text-3xl">🗾</div>
+                  <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <div className="w-6 h-6 bg-gray-500 rounded-full"></div>
+                  </div>
                   <div>
                     <h3 className="font-medium text-gray-900">{t('categories.anime.title')}</h3>
                     <p className="text-sm text-gray-600">{t('categories.anime.description')}</p>
@@ -687,9 +696,11 @@ export default function FilmLocationsPage() {
                 </div>
               </Link>
 
-              <Link href="/film-locations?genre=marvel" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-colors">
+              <Link href="/film-locations?genre=marvel" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200">
                 <div className="flex items-center gap-4">
-                  <div className="text-3xl">⚡</div>
+                  <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <div className="w-4 h-6 bg-gray-600 transform rotate-12"></div>
+                  </div>
                   <div>
                     <h3 className="font-medium text-gray-900">{t('categories.marvel.title')}</h3>
                     <p className="text-sm text-gray-600">{t('categories.marvel.description')}</p>
@@ -698,9 +709,11 @@ export default function FilmLocationsPage() {
                 </div>
               </Link>
 
-              <Link href="/film-locations?genre=historic" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-colors">
+              <Link href="/film-locations?genre=historic" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200">
                 <div className="flex items-center gap-4">
-                  <div className="text-3xl">🏰</div>
+                  <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-6 bg-gray-700 rounded-t-lg"></div>
+                  </div>
                   <div>
                     <h3 className="font-medium text-gray-900">{t('categories.historic.title')}</h3>
                     <p className="text-sm text-gray-600">{t('categories.historic.description')}</p>
@@ -709,9 +722,11 @@ export default function FilmLocationsPage() {
                 </div>
               </Link>
 
-              <Link href="/film-locations?genre=romance" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-colors">
+              <Link href="/film-locations?genre=romance" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200">
                 <div className="flex items-center gap-4">
-                  <div className="text-3xl">💕</div>
+                  <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <div className="w-4 h-4 bg-gray-600 rounded-full"></div>
+                  </div>
                   <div>
                     <h3 className="font-medium text-gray-900">{t('categories.romance.title')}</h3>
                     <p className="text-sm text-gray-600">{t('categories.romance.description')}</p>
@@ -725,7 +740,7 @@ export default function FilmLocationsPage() {
       </section>
 
       {/* Cross-Tool Integration */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-20 lg:py-32 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-3xl font-light text-gray-900 mb-4">
@@ -737,33 +752,39 @@ export default function FilmLocationsPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto mb-12">
             <Link href="/trip-planner?theme=movie" className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-300">
               <div className="text-center mb-4">
-                <div className="text-3xl mb-3">🗺️</div>
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <div className="w-6 h-6 bg-gray-500 rounded"></div>
+                </div>
                 <h3 className="text-lg font-medium text-gray-900">{t('tools.tripPlanner.title')}</h3>
               </div>
               <p className="text-sm text-gray-600 text-center mb-4">
                 {t('tools.tripPlanner.description')}
               </p>
               <div className="text-center">
-                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded text-xs">{t('tools.tripPlanner.badge')}</span>
+                <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs font-medium">{t('tools.tripPlanner.badge')}</span>
               </div>
             </Link>
 
             <Link href="/visa-checker?purpose=filming" className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-300">
               <div className="text-center mb-4">
-                <div className="text-3xl mb-3">📋</div>
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <div className="w-5 h-6 bg-gray-600 rounded-sm"></div>
+                </div>
                 <h3 className="text-lg font-medium text-gray-900">{t('tools.visaChecker.title')}</h3>
               </div>
               <p className="text-sm text-gray-600 text-center mb-4">
                 {t('tools.visaChecker.description')}
               </p>
               <div className="text-center">
-                <span className="bg-green-100 text-green-800 px-3 py-1 rounded text-xs">{t('tools.visaChecker.badge')}</span>
+                <span className="bg-gray-200 text-gray-800 px-3 py-1 rounded-lg text-xs font-medium">{t('tools.visaChecker.badge')}</span>
               </div>
             </Link>
 
             <div className="bg-white p-6 rounded-lg border border-gray-200">
               <div className="text-center mb-4">
-                <div className="text-3xl mb-3">💾</div>
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <div className="w-6 h-4 bg-gray-500 rounded"></div>
+                </div>
                 <h3 className="text-lg font-medium text-gray-900">{t('tools.collection.title')}</h3>
               </div>
               <p className="text-sm text-gray-600 text-center mb-4">
@@ -775,7 +796,7 @@ export default function FilmLocationsPage() {
                     const saved = JSON.parse(localStorage.getItem('saved-film-locations') || '[]');
                     alert(t('tools.collection.savedCount', saved.length));
                   }}
-                  className="bg-purple-100 text-purple-800 px-3 py-1 rounded text-xs hover:bg-purple-200 transition-colors"
+                  className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs hover:bg-gray-200 transition-all duration-200 font-medium"
                 >
                   {t('tools.collection.checkSaved')}
                 </button>
@@ -788,7 +809,9 @@ export default function FilmLocationsPage() {
             <h3 className="text-xl font-medium text-gray-900 mb-6 text-center">{t('routes.title')}</h3>
             <div className="grid md:grid-cols-2 gap-6">
               <Link href="/trip-planner?route=kdrama-seoul" className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="text-2xl">🇰🇷</div>
+                <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
+                  <div className="w-4 h-4 bg-gray-600 rounded"></div>
+                </div>
                 <div>
                   <h4 className="font-medium text-gray-900">{t('routes.kdramaSeoul.title')}</h4>
                   <p className="text-sm text-gray-600">{t('routes.kdramaSeoul.description')}</p>
@@ -797,7 +820,9 @@ export default function FilmLocationsPage() {
               </Link>
               
               <Link href="/trip-planner?route=ghibli-japan" className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="text-2xl">🎭</div>
+                <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
+                  <div className="w-4 h-3 bg-gray-700 rounded-sm"></div>
+                </div>
                 <div>
                   <h4 className="font-medium text-gray-900">{t('routes.ghibliJapan.title')}</h4>
                   <p className="text-sm text-gray-600">{t('routes.ghibliJapan.description')}</p>
@@ -806,7 +831,9 @@ export default function FilmLocationsPage() {
               </Link>
               
               <Link href="/trip-planner?route=marvel-usa" className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="text-2xl">⚡</div>
+                <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
+                  <div className="w-3 h-4 bg-gray-600 transform rotate-12"></div>
+                </div>
                 <div>
                   <h4 className="font-medium text-gray-900">{t('routes.marvelUsa.title')}</h4>
                   <p className="text-sm text-gray-600">{t('routes.marvelUsa.description')}</p>
@@ -815,7 +842,9 @@ export default function FilmLocationsPage() {
               </Link>
               
               <Link href="/trip-planner?route=lotr-newzealand" className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="text-2xl">💍</div>
+                <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
+                  <div className="w-4 h-4 bg-gray-500 rounded-full"></div>
+                </div>
                 <div>
                   <h4 className="font-medium text-gray-900">{t('routes.lotrNewzealand.title')}</h4>
                   <p className="text-sm text-gray-600">{t('routes.lotrNewzealand.description')}</p>
@@ -828,7 +857,7 @@ export default function FilmLocationsPage() {
       </section>
 
       {/* Audio Guide Integration for Film Locations */}
-      <section className="py-16 bg-black text-white">
+      <section className="py-20 lg:py-32 bg-gray-900 text-white">
         <div className="container mx-auto px-6 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl lg:text-4xl font-light mb-6 tracking-tight">
@@ -839,24 +868,30 @@ export default function FilmLocationsPage() {
             </p>
             <div className="grid md:grid-cols-3 gap-6 mb-12">
               <div className="bg-gray-900 p-6 rounded-lg">
-                <div className="text-2xl mb-3">🎬</div>
+                <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <div className="w-6 h-6 bg-gray-300 rounded-lg"></div>
+                </div>
                 <h3 className="font-medium mb-2">{t('audioExperience.filmingStory.title')}</h3>
                 <p className="text-sm text-gray-300">{t('audioExperience.filmingStory.description')}</p>
               </div>
               <div className="bg-gray-900 p-6 rounded-lg">
-                <div className="text-2xl mb-3">🎯</div>
+                <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <div className="w-6 h-6 border-2 border-gray-300 rounded-full"></div>
+                </div>
                 <h3 className="font-medium mb-2">{t('audioExperience.photoSpot.title')}</h3>
                 <p className="text-sm text-gray-300">{t('audioExperience.photoSpot.description')}</p>
               </div>
               <div className="bg-gray-900 p-6 rounded-lg">
-                <div className="text-2xl mb-3">🎵</div>
+                <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <div className="w-5 h-5 bg-gray-400 rounded"></div>
+                </div>
                 <h3 className="font-medium mb-2">{t('audioExperience.immersive.title')}</h3>
                 <p className="text-sm text-gray-300">{t('audioExperience.immersive.description')}</p>
               </div>
             </div>
             <Link 
               href="/?film=experience&setjetting=true"
-              className="inline-block bg-white text-black px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200"
+              className="inline-block bg-white text-gray-900 px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200 shadow-lg"
             >
               {t('audioExperience.cta')}
             </Link>
