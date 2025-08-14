@@ -15,7 +15,7 @@ interface ArticleSchemaProps {
 export default function ArticleSchema({
   title,
   description,
-  author = "NaviDocent AI",
+  author = "TripRadio AI",
   datePublished = new Date().toISOString(),
   dateModified = new Date().toISOString(),
   url,
@@ -53,7 +53,7 @@ export default function ArticleSchema({
     },
     "publisher": {
       "@type": "Organization",
-      "name": "NaviDocent",
+      "name": "TripRadio",
       "url": baseUrl,
       "logo": {
         "@type": "ImageObject",
@@ -94,7 +94,7 @@ export default function ArticleSchema({
     "creativeWorkStatus": "AI-Generated",
     "contributor": {
       "@type": "SoftwareApplication",
-      "name": "NaviDocent AI",
+      "name": "TripRadio AI",
       "applicationCategory": "Travel Guide Generator"
     },
     "isAccessibleForFree": true,

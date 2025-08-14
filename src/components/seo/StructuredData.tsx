@@ -17,7 +17,7 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
       case 'WebSite':
         return {
           ...baseData,
-          name: 'NaviDocent',
+          name: 'TripRadio',
           url: 'https://navidocent.com',
           description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.',
           potentialAction: {
@@ -27,7 +27,7 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
           },
           publisher: {
             '@type': 'Organization',
-            name: 'NaviDocent',
+            name: 'TripRadio',
             logo: {
               '@type': 'ImageObject',
               url: 'https://navidocent.com/logo.png'
@@ -40,7 +40,7 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
       case 'TravelAgency':
         return {
           ...baseData,
-          name: 'NaviDocent',
+          name: 'TripRadio',
           url: 'https://navidocent.com',
           description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스',
           address: {
@@ -64,7 +64,7 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
       case 'SoftwareApplication':
         return {
           ...baseData,
-          name: 'NaviDocent',
+          name: 'TripRadio',
           applicationCategory: 'TravelApplication',
           operatingSystem: 'Web Browser',
           description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스',
@@ -73,7 +73,7 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
           datePublished: '2025-01-16',
           author: {
             '@type': 'Organization',
-            name: 'NaviDocent Team'
+            name: 'TripRadio Team'
           },
           offers: {
             '@type': 'Offer',

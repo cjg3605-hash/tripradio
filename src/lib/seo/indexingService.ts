@@ -208,6 +208,61 @@ export class IndexingService {
     return results;
   }
 
+  // 정적 페이지들에 대한 색인 요청
+  async requestIndexingForStaticPages(urls: string[]): Promise<IndexingResult> {
+    const results: IndexingResult = {
+      success: false,
+      successfulUrls: [],
+      failedUrls: [],
+      totalRequested: urls.length,
+      successRate: 0
+    };
+
+    console.log(`🚀 정적 페이지 색인 요청 시작: ${urls.length}개 URL`);
+
+    // Google 색인 요청 (병렬 처리)
+    const googlePromises = urls.map(async (url) => {
+      const result = await this.requestGoogleIndexing(url);
+      
+      if (result.success) {
+        results.successfulUrls.push(url);
+      } else {
+        results.failedUrls.push({ url, error: result.error || 'Unknown error' });
+      }
+
+      // 색인 요청 기록 저장
+      await this.logIndexingRequest({
+        url,
+        status: result.success ? 'success' : 'error',
+        searchEngine: 'google',
+        requestedAt: new Date(),
+        processedAt: new Date(),
+        errorMessage: result.error
+      });
+
+      return result;
+    });
+
+    // 모든 Google 요청 완료 대기
+    await Promise.all(googlePromises);
+
+    // 성공률 계산
+    results.successRate = results.successfulUrls.length / results.totalRequested;
+    results.success = results.successRate > 0.5;
+
+    console.log(`✅ 정적 페이지 색인 요청 완료`);
+    console.log(`   성공: ${results.successfulUrls.length}/${results.totalRequested} (${(results.successRate * 100).toFixed(1)}%)`);
+    
+    if (results.failedUrls.length > 0) {
+      console.log(`   실패한 URL: ${results.failedUrls.length}개`);
+      results.failedUrls.forEach(({ url, error }) => {
+        console.log(`     - ${url}: ${error}`);
+      });
+    }
+
+    return results;
+  }
+
   // 기존 가이드 재색인 요청
   async requestReindexing(locationName: string): Promise<IndexingResult> {
     console.log(`🔄 기존 가이드 재색인 요청: ${locationName}`);

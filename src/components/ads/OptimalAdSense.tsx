@@ -13,14 +13,20 @@ interface OptimalAdSenseProps {
 
 export default function OptimalAdSense({ placement, className = '' }: OptimalAdSenseProps) {
   useEffect(() => {
-    // 배치별 성과 추적 (Auto Ads 전용)
-    console.log(`📊 AdSense Auto 광고 영역: ${placement}`);
+    // 배치별 성과 추적 (Auto Ads 전용) - 승인 대기 중에는 오류 방지
+    console.log(`📊 AdSense Auto 광고 영역: ${placement} (승인 후 표시됨)`);
     
-    // Auto Ads 성과 추적
-    if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('event', 'auto_ad_area_loaded', {
-        placement_type: placement
-      });
+    // Auto Ads 성과 추적 - 안전한 방식으로 처리
+    try {
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', 'auto_ad_area_loaded', {
+          placement_type: placement,
+          approval_status: 'pending' // 승인 상태 추적
+        });
+      }
+    } catch (error) {
+      // Google Analytics 오류가 AdSense와 무관하게 발생할 수 있으므로 조용히 처리
+      console.log('ℹ️ AdSense: Analytics 추적 건너뜀 (정상)');
     }
   }, [placement]);
 
@@ -39,13 +45,21 @@ export default function OptimalAdSense({ placement, className = '' }: OptimalAdS
   }
 
   // 프로덕션에서는 Auto Ads가 자동으로 배치되도록 빈 컨테이너만 제공
+  // 승인 대기 중에는 빈 공간으로 표시됨 (정상)
   return (
     <div 
       className={`optimal-adsense-auto-container ${className}`}
       data-ad-placement={placement}
-      style={{ minHeight: '200px' }}
+      data-adsense-status="pending-approval"
+      style={{ 
+        minHeight: '200px',
+        // 승인 대기 중에는 최소 높이만 유지하고 숨김 처리
+        visibility: 'hidden',
+        height: '0px',
+        overflow: 'hidden'
+      }}
     >
-      {/* Auto Ads가 이 영역에 자동으로 삽입됩니다 */}
+      {/* AdSense 승인 후 이 영역에 Auto Ads가 자동으로 삽입됩니다 */}
     </div>
   );
 }

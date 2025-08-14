@@ -197,35 +197,78 @@ export default async function RootLayout({
           crossOrigin="anonymous"
         />
         
-        {/* ✅ AdSense Auto Ads 초기화 - 중복 방지 */}
+        {/* ✅ AdSense Auto Ads 초기화 - 승인 대기 중 graceful 처리 */}
         <Script
           id="google-adsense-auto-ads"
           strategy="afterInteractive"
         >
           {`
-            window.addEventListener('load', function() {
-              // 중복 초기화 방지
-              if (window.adsenseAutoAdsInitialized) {
-                console.log('ℹ️ AdSense Auto Ads 이미 초기화됨 - 중복 방지');
-                return;
-              }
+            // 전역 초기화 방지 플래그 설정
+            if (typeof window !== 'undefined' && !window.adsenseGlobalInitialized) {
+              window.adsenseGlobalInitialized = true;
               
-              console.log('🟢 AdSense Auto Ads 초기화 시작');
-              if (typeof window.adsbygoogle !== 'undefined') {
+              function initializeAdSense() {
+                // 중복 초기화 방지
+                if (window.adsenseAutoAdsInitialized) {
+                  console.log('ℹ️ AdSense: 이미 초기화됨 - 중복 방지');
+                  return;
+                }
+                
+                // DOM에서 기존 AdSense 요소 확인
+                const existingAutoAds = document.querySelector('[data-ad-client][data-ad-format="auto"]');
+                if (existingAutoAds) {
+                  console.log('ℹ️ AdSense: 기존 Auto Ads 요소 감지 - 중복 방지');
+                  window.adsenseAutoAdsInitialized = true;
+                  return;
+                }
+                
+                // AdSense 스크립트 로드 확인
+                if (typeof window.adsbygoogle === 'undefined') {
+                  console.log('ℹ️ AdSense: 스크립트 로드 대기 중... (승인 상태에 따라 정상)');
+                  return;
+                }
+                
+                console.log('🟢 AdSense: Auto Ads 초기화 시작');
                 try {
+                  // 승인 상태 확인을 위한 조건부 초기화
                   (window.adsbygoogle = window.adsbygoogle || []).push({
                     google_ad_client: "ca-pub-8225961966676319",
                     enable_page_level_ads: true
                   });
                   window.adsenseAutoAdsInitialized = true;
-                  console.log('✅ AdSense Auto Ads 활성화 완료');
+                  console.log('✅ AdSense: Auto Ads 초기화 완료 (승인 후 광고 표시됨)');
                 } catch (error) {
-                  console.warn('⚠️ AdSense Auto Ads 초기화 실패:', error);
+                  // 승인 대기 중일 때 발생할 수 있는 오류를 graceful하게 처리
+                  if (error.message && (
+                    error.message.includes('enable_page_level_ads') ||
+                    error.message.includes('adsbygoogle') ||
+                    error.message.includes('Only one')
+                  )) {
+                    console.log('ℹ️ AdSense: 승인 대기 중이거나 이미 초기화됨 - 정상 상태');
+                    window.adsenseAutoAdsInitialized = true;
+                  } else {
+                    console.warn('⚠️ AdSense: 예상치 못한 오류:', error.message);
+                  }
                 }
-              } else {
-                console.warn('⚠️ AdSense 스크립트 로드 대기 중...');
               }
-            });
+              
+              // 스크립트 로드 완료 후 초기화
+              const checkAdSenseReady = () => {
+                if (typeof window.adsbygoogle !== 'undefined') {
+                  initializeAdSense();
+                } else {
+                  console.log('ℹ️ AdSense: 스크립트 로딩 중... (승인 상태 확인 필요)');
+                }
+              };
+              
+              // DOM 준비 후 실행
+              if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', checkAdSenseReady);
+              } else {
+                // 약간의 지연 후 실행 (스크립트 로드 대기)
+                setTimeout(checkAdSenseReady, 1000);
+              }
+            }
           `}
         </Script>
         

@@ -15,7 +15,7 @@ const headers = {
 };
 
 interface BatchIndexingRequest {
-  mode?: 'all' | 'unindexed' | 'failed' | 'specific';
+  mode?: 'all' | 'unindexed' | 'failed' | 'specific' | 'landing-pages' | 'all-pages';
   locations?: string[];
   batchSize?: number;
   delayBetweenBatches?: number;
@@ -59,13 +59,13 @@ export async function POST(request: NextRequest) {
       excludedLocations = []
     } = body;
 
-    // 색인 대상 가이드 조회
-    const guidesToIndex = await getGuidesToIndex(mode, locations, excludedLocations);
+    // 색인 대상 페이지 조회
+    const pagesToIndex = await getPagesToIndex(mode, locations, excludedLocations);
     
-    if (guidesToIndex.length === 0) {
+    if (pagesToIndex.length === 0) {
       return NextResponse.json({
         success: true,
-        message: '색인할 가이드가 없습니다.',
+        message: '색인할 페이지가 없습니다.',
         totalGuides: 0,
         processedGuides: 0,
         totalUrls: 0,
@@ -74,24 +74,25 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    console.log(`📊 색인 대상 가이드: ${guidesToIndex.length}개`);
+    console.log(`📊 색인 대상 페이지: ${pagesToIndex.length}개`);
     console.log(`⚙️ 배치 크기: ${batchSize}, 지연시간: ${delayBetweenBatches}ms`);
     
     if (dryRun) {
+      const totalUrls = pagesToIndex.reduce((sum, page) => sum + (page.urls?.length || 5), 0);
       return NextResponse.json({
         success: true,
         dryRun: true,
-        message: `${guidesToIndex.length}개 가이드의 색인 요청 시뮬레이션`,
-        guidesToIndex: guidesToIndex.map(g => g.locationname),
-        estimatedUrls: guidesToIndex.length * 5,
-        estimatedTime: Math.ceil(guidesToIndex.length / batchSize) * (delayBetweenBatches / 1000)
+        message: `${pagesToIndex.length}개 페이지의 색인 요청 시뮬레이션`,
+        pagesToIndex: pagesToIndex.map(p => p.type === 'guide' ? p.locationname : p.pageName),
+        estimatedUrls: totalUrls,
+        estimatedTime: Math.ceil(pagesToIndex.length / batchSize) * (delayBetweenBatches / 1000)
       });
     }
 
     // 배치 처리 시작
     const result: BatchIndexingResult = {
       success: false,
-      totalGuides: guidesToIndex.length,
+      totalGuides: pagesToIndex.length,
       processedGuides: 0,
       totalUrls: 0,
       successfulUrls: 0,
@@ -102,25 +103,32 @@ export async function POST(request: NextRequest) {
     };
 
     // 배치별로 처리
-    for (let i = 0; i < guidesToIndex.length; i += batchSize) {
-      const batch = guidesToIndex.slice(i, i + batchSize);
+    for (let i = 0; i < pagesToIndex.length; i += batchSize) {
+      const batch = pagesToIndex.slice(i, i + batchSize);
       const batchNumber = Math.floor(i / batchSize) + 1;
-      const totalBatches = Math.ceil(guidesToIndex.length / batchSize);
+      const totalBatches = Math.ceil(pagesToIndex.length / batchSize);
       
-      console.log(`🔄 배치 ${batchNumber}/${totalBatches} 처리 중... (${batch.length}개 가이드)`);
+      console.log(`🔄 배치 ${batchNumber}/${totalBatches} 처리 중... (${batch.length}개 페이지)`);
       
-      // 배치 내 가이드들을 병렬 처리
-      const batchPromises = batch.map(async (guide) => {
+      // 배치 내 페이지들을 병렬 처리
+      const batchPromises = batch.map(async (page) => {
         try {
-          const indexingResult = await indexingService.requestIndexingForNewGuide(guide.locationname);
+          let indexingResult;
+          const pageName = page.type === 'guide' ? page.locationname : page.pageName;
+          
+          if (page.type === 'guide') {
+            indexingResult = await indexingService.requestIndexingForNewGuide(page.locationname);
+          } else {
+            indexingResult = await indexingService.requestIndexingForStaticPages(page.urls || []);
+          }
           
           result.processedGuides++;
           result.totalUrls += indexingResult.totalRequested;
           result.successfulUrls += indexingResult.successfulUrls.length;
           result.failedUrls += indexingResult.failedUrls.length;
           
-          const guideResult = {
-            locationName: guide.locationname,
+          const pageResult = {
+            locationName: pageName,
             urls: indexingResult.totalRequested,
             successful: indexingResult.successfulUrls.length,
             failed: indexingResult.failedUrls.length,
@@ -128,28 +136,29 @@ export async function POST(request: NextRequest) {
             errors: indexingResult.failedUrls.map(f => f.error)
           };
           
-          result.results.push(guideResult);
+          result.results.push(pageResult);
           
-          console.log(`✅ ${guide.locationname}: ${guideResult.successful}/${guideResult.urls} (${(guideResult.successRate * 100).toFixed(1)}%)`);
+          console.log(`✅ ${pageName}: ${pageResult.successful}/${pageResult.urls} (${(pageResult.successRate * 100).toFixed(1)}%)`);
           
-          return guideResult;
+          return pageResult;
           
         } catch (error) {
-          console.error(`❌ ${guide.locationname} 색인 실패:`, error);
+          const pageName = page.type === 'guide' ? page.locationname : page.pageName;
+          console.error(`❌ ${pageName} 색인 실패:`, error);
           
           const failedResult = {
-            locationName: guide.locationname,
-            urls: 5,
+            locationName: pageName,
+            urls: page.type === 'guide' ? 5 : (page.urls?.length || 1),
             successful: 0,
-            failed: 5,
+            failed: page.type === 'guide' ? 5 : (page.urls?.length || 1),
             successRate: 0,
             errors: [error instanceof Error ? error.message : 'Unknown error']
           };
           
           result.results.push(failedResult);
           result.processedGuides++;
-          result.totalUrls += 5;
-          result.failedUrls += 5;
+          result.totalUrls += failedResult.urls;
+          result.failedUrls += failedResult.urls;
           
           return failedResult;
         }
@@ -159,7 +168,7 @@ export async function POST(request: NextRequest) {
       await Promise.all(batchPromises);
       
       // 다음 배치 전 지연 (마지막 배치 제외)
-      if (i + batchSize < guidesToIndex.length) {
+      if (i + batchSize < pagesToIndex.length) {
         console.log(`⏳ ${delayBetweenBatches}ms 대기 중...`);
         await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
       }
@@ -233,11 +242,113 @@ export async function OPTIONS() {
 
 // 헬퍼 함수들
 
-async function getGuidesToIndex(
+// 정적 페이지 목록 정의
+function getStaticPages(): Array<{ pageName: string; urls: string[] }> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+  const languages = ['ko', 'en', 'ja', 'zh', 'es'];
+  
+  return [
+    // 메인 페이지
+    {
+      pageName: 'Homepage',
+      urls: [baseUrl, `${baseUrl}/en`, `${baseUrl}/ja`, `${baseUrl}/zh`, `${baseUrl}/es`]
+    },
+    // 지역별 페이지
+    {
+      pageName: 'Korea Region',
+      urls: languages.map(lang => lang === 'ko' ? `${baseUrl}/regions/korea` : `${baseUrl}/${lang}/regions/korea`)
+    },
+    {
+      pageName: 'Asia Region', 
+      urls: languages.map(lang => lang === 'ko' ? `${baseUrl}/regions/asia` : `${baseUrl}/${lang}/regions/asia`)
+    },
+    {
+      pageName: 'Europe Region',
+      urls: languages.map(lang => lang === 'ko' ? `${baseUrl}/regions/europe` : `${baseUrl}/${lang}/regions/europe`)
+    },
+    {
+      pageName: 'Americas Region',
+      urls: languages.map(lang => lang === 'ko' ? `${baseUrl}/regions/americas` : `${baseUrl}/${lang}/regions/americas`)
+    },
+    // 서비스 페이지들
+    {
+      pageName: 'AI Travel Guide',
+      urls: [`${baseUrl}/ai-travel`, `${baseUrl}/en/ai-travel-guide`]
+    },
+    {
+      pageName: 'Audio Guide',
+      urls: [`${baseUrl}/audio-guide`]
+    },
+    {
+      pageName: 'Tour Radio',
+      urls: [`${baseUrl}/tour-radio`]
+    },
+    {
+      pageName: 'Travel Radio',
+      urls: [`${baseUrl}/travel-radio`]
+    },
+    {
+      pageName: 'Free Travel',
+      urls: [`${baseUrl}/free-travel`]
+    },
+    {
+      pageName: 'Docent Service',
+      urls: [`${baseUrl}/docent`]
+    },
+    {
+      pageName: 'Nomad Calculator',
+      urls: [`${baseUrl}/nomad-calculator`]
+    },
+    {
+      pageName: 'Trip Planner',
+      urls: [`${baseUrl}/trip-planner`]
+    },
+    {
+      pageName: 'Visa Checker',
+      urls: [`${baseUrl}/visa-checker`]
+    },
+    {
+      pageName: 'Film Locations',
+      urls: [`${baseUrl}/film-locations`]
+    }
+  ];
+}
+
+async function getPagesToIndex(
   mode: string, 
   specificLocations: string[],
   excludedLocations: string[] = []
-): Promise<Array<{ locationname: string }>> {
+): Promise<Array<{ type: 'guide' | 'static'; locationname?: string; pageName?: string; urls?: string[] }>> {
+  
+  if (mode === 'landing-pages') {
+    // 정적 페이지만
+    return getStaticPages().map(page => ({
+      type: 'static' as const,
+      pageName: page.pageName,
+      urls: page.urls
+    }));
+  }
+  
+  if (mode === 'all-pages') {
+    // 모든 페이지 (가이드 + 정적)
+    const guides = await getAllGuides();
+    const staticPages = getStaticPages();
+    
+    const guidePages = guides
+      .filter(guide => !excludedLocations.includes(guide.locationname))
+      .map(guide => ({
+        type: 'guide' as const,
+        locationname: guide.locationname
+      }));
+    
+    const staticPageItems = staticPages.map(page => ({
+      type: 'static' as const,
+      pageName: page.pageName,
+      urls: page.urls
+    }));
+    
+    return [...guidePages, ...staticPageItems];
+  }
   
   if (mode === 'specific' && specificLocations.length > 0) {
     // 특정 가이드만
@@ -248,7 +359,10 @@ async function getGuidesToIndex(
       .in('locationname', specificLocations);
       
     if (error) throw error;
-    return data || [];
+    return (data || []).map(guide => ({
+      type: 'guide' as const,
+      locationname: guide.locationname
+    }));
   }
   
   if (mode === 'failed') {
@@ -260,29 +374,34 @@ async function getGuidesToIndex(
   if (mode === 'unindexed') {
     // 색인되지 않은 가이드 (향후 indexing_requests 테이블과 교차 확인)
     console.log('📝 색인되지 않은 가이드 확인을 위해 일단 모든 가이드 반환');
-    return getAllGuides();
+    const allGuides = await getAllGuides();
+    return allGuides.map(guide => ({
+      type: 'guide' as const,
+      locationname: guide.locationname
+    }));
   }
   
   // 기본값: 모든 가이드 (제외 목록 적용)
   const allGuides = await getAllGuides();
   
   // 제외 목록이 있으면 필터링
+  const filteredGuides = excludedLocations.length > 0 
+    ? allGuides.filter(guide => !excludedLocations.includes(guide.locationname))
+    : allGuides;
+  
   if (excludedLocations.length > 0) {
-    const filteredGuides = allGuides.filter(guide => 
-      !excludedLocations.includes(guide.locationname)
-    );
-    
     console.log(`📋 제외 목록 적용: ${allGuides.length}개 → ${filteredGuides.length}개 가이드`);
     if (excludedLocations.length <= 10) {
       console.log(`   제외된 위치: ${excludedLocations.join(', ')}`);
     } else {
       console.log(`   제외된 위치: ${excludedLocations.slice(0, 10).join(', ')} 외 ${excludedLocations.length - 10}개`);
     }
-    
-    return filteredGuides;
   }
   
-  return allGuides;
+  return filteredGuides.map(guide => ({
+    type: 'guide' as const,
+    locationname: guide.locationname
+  }));
 }
 
 async function getAllGuides(): Promise<Array<{ locationname: string }>> {

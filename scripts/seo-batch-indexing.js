@@ -202,7 +202,7 @@ async function main() {
   const args = process.argv.slice(2);
   const command = args[0] || 'help';
   
-  console.log('🔍 NaviDocent SEO 일괄 색인 관리 도구\n');
+  console.log('🔍 TripRadio SEO 일괄 색인 관리 도구\n');
   
   switch (command) {
     case 'status':
@@ -239,6 +239,26 @@ async function main() {
       console.log('🎯 오늘 처리하지 않은 가이드만 색인 요청...\n');
       await runBatchIndexing({ 
         mode: 'all', 
+        batchSize: 5, 
+        delayBetweenBatches: 3000,
+        excludeProcessed: true
+      });
+      break;
+      
+    case 'run-landing-pages':
+      console.log('🏢 랜딩페이지 및 서비스 페이지 색인 요청...\n');
+      await runBatchIndexing({ 
+        mode: 'landing-pages', 
+        batchSize: 3, 
+        delayBetweenBatches: 2000,
+        excludeProcessed: false
+      });
+      break;
+      
+    case 'run-all-pages':
+      console.log('🌐 모든 페이지 (가이드 + 랜딩) 색인 요청...\n');
+      await runBatchIndexing({ 
+        mode: 'all-pages', 
         batchSize: 5, 
         delayBetweenBatches: 3000,
         excludeProcessed: true
@@ -294,6 +314,8 @@ async function main() {
       console.log('   run-all             - 모든 가이드 색인 요청');
       console.log('   run-small-batch     - 안전한 소규모 배치로 색인');
       console.log('   run-remaining-only  - 오늘 처리하지 않은 가이드만 색인 ⭐');
+      console.log('   run-landing-pages   - 랜딩페이지 및 서비스 페이지만 색인 🏢');
+      console.log('   run-all-pages       - 모든 페이지 (가이드 + 랜딩) 색인 🌐');
       console.log('   retry <장소명>      - 특정 장소 재시도 (예: retry 부산 제주도)');
       console.log('   full-process        - 전체 프로세스 자동 실행');
       console.log('   help                - 도움말');
@@ -301,8 +323,9 @@ async function main() {
       console.log('💡 권장 순서 (할당량 절약):');
       console.log('   1. node scripts/seo-batch-indexing.js validate');
       console.log('   2. node scripts/seo-batch-indexing.js dry-run');
-      console.log('   3. node scripts/seo-batch-indexing.js run-remaining-only  ⭐ (오늘한거 제외)');
-      console.log('   4. node scripts/seo-batch-indexing.js status');
+      console.log('   3. node scripts/seo-batch-indexing.js run-landing-pages  🏢 (새 랜딩페이지)');
+      console.log('   4. node scripts/seo-batch-indexing.js run-remaining-only  ⭐ (오늘한거 제외)');
+      console.log('   5. node scripts/seo-batch-indexing.js status');
       console.log('');
       console.log('🔄 제외 목록 관리:');
       console.log('   - node scripts/indexing-exclude-manager.js status      (제외 목록 확인)');

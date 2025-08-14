@@ -30,7 +30,7 @@ const attractions = [
 
 const languages = ['ko', 'en', 'ja', 'zh', 'es'];
 
-console.log('🎯 NaviDocent 정확한 배치 생성기');
+console.log('🎯 TripRadio 정확한 배치 생성기');
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 console.log(`📊 생성 대상: ${attractions.length}개 명소 × ${languages.length}개 언어 = ${attractions.length * languages.length}개 가이드`);
 

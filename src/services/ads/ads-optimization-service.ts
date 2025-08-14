@@ -436,12 +436,12 @@ ${adsTxtContent}
      crossorigin="anonymous"></script>
 
 ${this.adSenseConfig.autoAdsEnabled ? `
-<!-- Auto Ads -->
+<!-- Auto Ads - 중복 방지 -->
 <script>
-     (adsbygoogle = window.adsbygoogle || []).push({
-          google_ad_client: "${this.adSenseConfig.adClientId}",
-          enable_page_level_ads: true
-     });
+     // layout.tsx에서 이미 초기화되므로 서비스에서는 비활성화
+     if (typeof window !== 'undefined' && !window.adsenseAutoAdsInitialized) {
+       console.log('⚠️ ads-optimization-service: Auto Ads는 layout.tsx에서 처리됨');
+     }
 </script>
 ` : ''}
 
@@ -451,23 +451,12 @@ ${this.generateAdUnits()}
   }
 
   /**
-   * 광고 유닛 HTML 생성
+   * 광고 유닛 HTML 생성 (Auto Ads만 사용하므로 비활성화)
    */
   private generateAdUnits(): string {
-    return this.adSenseConfig.adFormats
-      .filter(format => format.enabled)
-      .map((format, index) => `
-<!-- ${format.name} -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="${this.adSenseConfig.adClientId}"
-     data-ad-slot="xxxxxxxxx${index}"
-     data-ad-format="${format.type}"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      `).join('\n');
+    // Auto Ads만 사용하기로 결정했으므로 개별 광고 단위는 생성하지 않음
+    // 승인 후 Auto Ads가 자동으로 광고를 배치함
+    return `<!-- 개별 광고 단위는 사용하지 않음 - Auto Ads만 사용 -->`;
   }
 
   /**
