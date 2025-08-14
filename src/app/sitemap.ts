@@ -147,6 +147,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly',
       priority: 0.85,
     },
+    // 지역별 정적 페이지들 - AdSense 승인을 위한 정적 컨텐츠
+    {
+      url: 'https://navidocent.com/regions/korea',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://navidocent.com/regions/europe',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://navidocent.com/regions/asia',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://navidocent.com/regions/americas',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
   ];
   
   return [...basicUrls, ...keywordPages];

@@ -124,6 +124,17 @@ function Home() {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
   
+  // 명소 상세 설명 번역 로드
+  const attractionDetails = useMemo(() => {
+    try {
+      const details = t('attractionDetails') as Record<string, string>;
+      return details || {};
+    } catch (error) {
+      console.log('attractionDetails 번역 로드 실패:', error);
+      return {};
+    }
+  }, [t]);
+  
   // URL 파라미터 처리를 위한 상태 추가
   const [urlParams, setUrlParams] = useState<URLSearchParams | null>(null);
   
@@ -1449,6 +1460,23 @@ function Home() {
                   ))}
                 </div>
               </div>
+              {/* 지역 상세 페이지 링크 */}
+              <div className="text-center mt-4">
+                <button
+                  onClick={() => router.push(`/regions/${activeRegion}`)}
+                  className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                >
+                  <span>
+                    {activeRegion === 'korea' && '🇰🇷 한국 명소 더보기'}
+                    {activeRegion === 'europe' && '🇪🇺 유럽 명소 더보기'}
+                    {activeRegion === 'asia' && '🌏 아시아 명소 더보기'}
+                    {activeRegion === 'americas' && '🌎 아메리카 명소 더보기'}
+                  </span>
+                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             {/* 국가 카드 슬라이드 - 인기여행지 스타일 */}
@@ -1499,28 +1527,42 @@ function Home() {
                           <h4 className="text-xs font-medium text-gray-900 uppercase tracking-[0.1em] letter-spacing-wider">
                             {t('home.countryAttraction')}
                           </h4>
-                          {country.attractions.slice(0, 3).map((attraction, idx) => (
-                            <button
-                              key={idx}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setLoadingState('country', true);
-                                
-                                // 특정 명소에 대해 지역 컨텍스트 추가
-                                let url = `/guide/${encodeURIComponent(attraction)}?lang=${currentLanguage}`;
-                                if (country.id === 'thailand' && attraction === '방콕 대왕궁') {
-                                  url += '&parent=' + encodeURIComponent('방콕');
-                                }
-                                
-                                router.push(url);
-                              }}
-                              className="flex items-center text-sm text-gray-700 hover:text-black transition-colors w-full text-left py-1 px-2 -mx-2 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-20"
-                              aria-label={`${attraction} 가이드 생성하기`}
-                            >
-                              <div className="w-1 h-1 bg-black rounded-full mr-4 group-hover:scale-125 transition-transform duration-300"></div>
-                              <span className="font-light tracking-wide underline-offset-2 hover:underline">{attraction}</span>
-                            </button>
-                          ))}
+                          {country.attractions.slice(0, 3).map((attraction, idx) => {
+                            const description = attractionDetails[attraction] || '';
+                            return (
+                              <button
+                                key={idx}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setLoadingState('country', true);
+                                  
+                                  // 특정 명소에 대해 지역 컨텍스트 추가
+                                  let url = `/guide/${encodeURIComponent(attraction)}?lang=${currentLanguage}`;
+                                  if (country.id === 'thailand' && attraction === '방콕 대왕궁') {
+                                    url += '&parent=' + encodeURIComponent('방콕');
+                                  }
+                                  
+                                  router.push(url);
+                                }}
+                                className="w-full text-left py-3 px-3 -mx-3 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-20 transition-all duration-200"
+                                aria-label={`${attraction} 가이드 생성하기`}
+                              >
+                                <div className="flex items-start space-x-3">
+                                  <div className="w-1.5 h-1.5 bg-black rounded-full mt-2 flex-shrink-0"></div>
+                                  <div className="flex-1 min-w-0">
+                                    <h5 className="font-medium text-gray-900 mb-1 underline-offset-2 hover:underline">
+                                      {attraction}
+                                    </h5>
+                                    {description && (
+                                      <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">
+                                        {description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          })}
                         </div>
 
                         {/* 정보 표시 영역 */}
