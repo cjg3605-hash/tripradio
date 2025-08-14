@@ -1,11 +1,44 @@
 'use client';
 
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
 
 export default function AudioGuidePage() {
-  const t = useTranslations('audioGuide');
+  const { translations } = useLanguage();
+  
+  // 간단한 번역 함수 - 안전한 접근
+  const t = (key: string) => {
+    if (!translations?.audioGuide) return key;
+    try {
+      const keys = key.split('.');
+      let value: any = translations.audioGuide;
+      for (const k of keys) {
+        value = value?.[k];
+        if (value === undefined) return key;
+      }
+      return typeof value === 'string' ? value : key;
+    } catch {
+      return key;
+    }
+  };
+  
+  // 배열 데이터 직접 정의 (next-intl은 t.raw()를 지원하지 않음)
+  const existingItems = [
+    t('comparison.existing.items.0') || "정해진 스크립트로 획일적인 해설",
+    t('comparison.existing.items.1') || "개인 취향을 고려하지 않는 일방적 정보", 
+    t('comparison.existing.items.2') || "제한적인 언어와 지역 지원",
+    t('comparison.existing.items.3') || "높은 이용 비용과 복잡한 절차",
+    t('comparison.existing.items.4') || "인터넷 연결 필수로 불편함"
+  ];
+  
+  const tripRadioItems = [
+    t('comparison.tripRadio.items.0') || "AI가 실시간으로 생성하는 맞춤형 해설",
+    t('comparison.tripRadio.items.1') || "개인 관심사와 여행 스타일 반영",
+    t('comparison.tripRadio.items.2') || "전세계 180개국 다국어 지원", 
+    t('comparison.tripRadio.items.3') || "완전 무료로 부담 없는 이용",
+    t('comparison.tripRadio.items.4') || "오프라인 다운로드로 언제든 청취"
+  ];
   
   return (
     <>
@@ -24,11 +57,11 @@ export default function AudioGuidePage() {
             <div className="inline-flex items-center px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700 mb-6">
               {t('hero.badge')}
             </div>
-            <h1 className="text-4xl lg:text-6xl font-light text-gray-900 mb-6 tracking-tight">
+            <h1 className="text-fluid-4xl font-normal text-gray-900 mb-6 leading-tight">
               {t('hero.title')} 
               <span className="font-semibold block mt-2">{t('hero.titleBold')}</span>
             </h1>
-            <p className="text-lg lg:text-xl text-gray-600 mb-12 leading-relaxed max-w-3xl mx-auto">
+            <p className="text-fluid-lg text-gray-600 mb-12 leading-relaxed max-w-3xl mx-auto">
               {t('hero.description')}
             </p>
           </div>
@@ -53,7 +86,7 @@ export default function AudioGuidePage() {
       <section id="features" className="py-24 lg:py-32 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-20">
-            <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6 tracking-tight">
+            <h2 className="text-fluid-3xl font-normal text-gray-900 mb-6 leading-tight">
               {t('features.title')} 
               <span className="font-semibold block mt-2">{t('features.titleBold')}</span>
             </h2>
@@ -65,7 +98,7 @@ export default function AudioGuidePage() {
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">🤖</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('features.aiRealTime.title')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('features.aiRealTime.title')}</h3>
               <p className="text-gray-600 leading-relaxed">
                 {t('features.aiRealTime.description')}
               </p>
@@ -75,7 +108,7 @@ export default function AudioGuidePage() {
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">🎯</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('features.personalized.title')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('features.personalized.title')}</h3>
               <p className="text-gray-600 leading-relaxed">
                 {t('features.personalized.description')}
               </p>
@@ -85,7 +118,7 @@ export default function AudioGuidePage() {
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">🌍</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('features.worldwide.title')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('features.worldwide.title')}</h3>
               <p className="text-gray-600 leading-relaxed">
                 {t('features.worldwide.description')}
               </p>
@@ -95,7 +128,7 @@ export default function AudioGuidePage() {
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">💰</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('features.free.title')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('features.free.title')}</h3>
               <p className="text-gray-600 leading-relaxed">
                 {t('features.free.description')}
               </p>
@@ -105,7 +138,7 @@ export default function AudioGuidePage() {
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">🗣️</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('features.multiLanguage.title')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('features.multiLanguage.title')}</h3>
               <p className="text-gray-600 leading-relaxed">
                 {t('features.multiLanguage.description')}
               </p>
@@ -128,7 +161,7 @@ export default function AudioGuidePage() {
       <section className="py-24 lg:py-32 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-20">
-            <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6 tracking-tight">
+            <h2 className="text-fluid-3xl font-normal text-gray-900 mb-6 leading-tight">
               {t('comparison.title')}
               <span className="font-semibold block mt-2">{t('comparison.titleBold')}</span>
             </h2>
@@ -139,9 +172,9 @@ export default function AudioGuidePage() {
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
               <div className="grid md:grid-cols-2">
                 <div className="p-10 border-r border-gray-200">
-                  <h3 className="text-xl font-medium mb-8 text-gray-500">{t('comparison.existing.title')}</h3>
+                  <h3 className="text-fluid-xl font-semibold mb-8 text-gray-500 leading-snug">{t('comparison.existing.title')}</h3>
                   <ul className="space-y-5">
-                    {t.raw('comparison.existing.items').map((item: string, index: number) => (
+                    {existingItems.map((item: string, index: number) => (
                       <li key={index} className="flex items-start gap-4">
                         <div className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                           <div className="w-2 h-2 bg-red-500 rounded-full"></div>
@@ -153,9 +186,9 @@ export default function AudioGuidePage() {
                 </div>
                 
                 <div className="p-10 bg-gray-50">
-                  <h3 className="text-xl font-medium mb-8 text-gray-900">{t('comparison.tripRadio.title')}</h3>
+                  <h3 className="text-fluid-xl font-semibold mb-8 text-gray-900 leading-snug">{t('comparison.tripRadio.title')}</h3>
                   <ul className="space-y-5">
-                    {t.raw('comparison.tripRadio.items').map((item: string, index: number) => (
+                    {tripRadioItems.map((item: string, index: number) => (
                       <li key={index} className="flex items-start gap-4">
                         <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                           <div className="w-2 h-2 bg-green-600 rounded-full"></div>
@@ -175,10 +208,10 @@ export default function AudioGuidePage() {
       <section className="py-24 lg:py-32 bg-black text-white">
         <div className="container mx-auto px-6 text-center">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl lg:text-4xl font-light mb-6 tracking-tight">
+            <h2 className="text-fluid-3xl font-normal mb-6 leading-tight">
               {t('cta.title')}
             </h2>
-            <p className="text-lg lg:text-xl text-gray-300 mb-12 leading-relaxed">
+            <p className="text-fluid-lg text-gray-300 mb-12 leading-relaxed">
               {t('cta.description')}
             </p>
             <Link 

@@ -1,11 +1,52 @@
 'use client';
 
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
 
 export default function AiTravelPage() {
-  const t = useTranslations('aiTravel');
+  const { translations } = useLanguage();
+  
+  // 간단한 번역 함수 - 안전한 접근
+  const t = (key: string) => {
+    if (!translations?.aiTravel) return key;
+    try {
+      const keys = key.split('.');
+      let value: any = translations.aiTravel;
+      for (const k of keys) {
+        value = value?.[k];
+        if (value === undefined) return key;
+      }
+      return typeof value === 'string' ? value : key;
+    } catch {
+      return key;
+    }
+  };
+  
+  // 배열 데이터 직접 정의 (next-intl은 t.raw()를 지원하지 않음)
+  const existingProblemsItems = [
+    t('futureOfTravel.existingProblems.items.0') || "복잡하고 시간 소모적인 계획 과정",
+    t('futureOfTravel.existingProblems.items.1') || "개인 취향을 고려하지 않는 획일적 추천",
+    t('futureOfTravel.existingProblems.items.2') || "실시간 정보 부족으로 인한 불편함", 
+    t('futureOfTravel.existingProblems.items.3') || "언어 장벽으로 인한 제한적 경험",
+    t('futureOfTravel.existingProblems.items.4') || "높은 비용과 예약의 복잡성"
+  ];
+  
+  const aiInnovationItems = [
+    t('futureOfTravel.aiInnovation.items.0') || "개인 맞춤형 실시간 여행 계획",
+    t('futureOfTravel.aiInnovation.items.1') || "빅데이터 기반 최적화된 추천",
+    t('futureOfTravel.aiInnovation.items.2') || "다국어 지원으로 언어 장벽 해결",
+    t('futureOfTravel.aiInnovation.items.3') || "실시간 정보 업데이트와 대응",
+    t('futureOfTravel.aiInnovation.items.4') || "스마트한 예산 관리와 비용 최적화"
+  ];
+  
+  const futureTravelItems = [
+    t('futureOfTravel.futureTravel.items.0') || "AI 비서가 동반하는 완벽한 여행",
+    t('futureOfTravel.futureTravel.items.1') || "예측 분석을 통한 문제 사전 해결",
+    t('futureOfTravel.futureTravel.items.2') || "개인화된 문화 체험과 현지 정보",
+    t('futureOfTravel.futureTravel.items.3') || "실시간 번역과 문화적 안내",
+    t('futureOfTravel.futureTravel.items.4') || "지속 가능하고 책임감 있는 여행"
+  ];
   
   return (
     <>
@@ -24,11 +65,11 @@ export default function AiTravelPage() {
             <div className="inline-flex items-center px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700 mb-6">
               {t('hero.badge')}
             </div>
-            <h1 className="text-4xl lg:text-6xl font-light text-gray-900 mb-6 tracking-tight">
+            <h1 className="text-fluid-4xl font-normal text-gray-900 mb-6 leading-tight">
               {t('hero.title')} 
               <span className="font-semibold block mt-2">{t('hero.titleBold')}</span>
             </h1>
-            <p className="text-lg lg:text-xl text-gray-600 mb-12 leading-relaxed max-w-3xl mx-auto">
+            <p className="text-fluid-lg text-gray-600 mb-12 leading-relaxed max-w-3xl mx-auto">
               {t('hero.description')}
             </p>
           </div>
@@ -53,7 +94,7 @@ export default function AiTravelPage() {
       <section className="py-24 lg:py-32 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-20">
-            <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6 tracking-tight">
+            <h2 className="text-fluid-3xl font-normal text-gray-900 mb-6 leading-tight">
               {t('futureOfTravel.title')} 
               <span className="font-semibold block mt-2">{t('futureOfTravel.titleBold')}</span>
             </h2>
@@ -65,9 +106,9 @@ export default function AiTravelPage() {
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">😰</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('futureOfTravel.existingProblems.title')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('futureOfTravel.existingProblems.title')}</h3>
               <ul className="text-gray-600 space-y-2 text-sm">
-                {t.raw('futureOfTravel.existingProblems.items').map((item: string, index: number) => (
+                {existingProblemsItems.map((item: string, index: number) => (
                   <li key={index}>• {item}</li>
                 ))}
               </ul>
@@ -77,9 +118,9 @@ export default function AiTravelPage() {
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">🤖</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('futureOfTravel.aiInnovation.title')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('futureOfTravel.aiInnovation.title')}</h3>
               <ul className="text-gray-600 space-y-2 text-sm">
-                {t.raw('futureOfTravel.aiInnovation.items').map((item: string, index: number) => (
+                {aiInnovationItems.map((item: string, index: number) => (
                   <li key={index}>• {item}</li>
                 ))}
               </ul>
@@ -89,9 +130,9 @@ export default function AiTravelPage() {
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">✨</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('futureOfTravel.futureTravel.title')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('futureOfTravel.futureTravel.title')}</h3>
               <ul className="text-gray-600 space-y-2 text-sm">
-                {t.raw('futureOfTravel.futureTravel.items').map((item: string, index: number) => (
+                {futureTravelItems.map((item: string, index: number) => (
                   <li key={index}>• {item}</li>
                 ))}
               </ul>
@@ -104,7 +145,7 @@ export default function AiTravelPage() {
       <section id="ai-features" className="py-24 lg:py-32 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-20">
-            <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6 tracking-tight">
+            <h2 className="text-fluid-3xl font-normal text-gray-900 mb-6 leading-tight">
               {t('aiFeatures.title')} 
               <span className="font-semibold block mt-2">{t('aiFeatures.titleBold')}</span>
             </h2>
@@ -116,7 +157,7 @@ export default function AiTravelPage() {
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">🧠</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('aiFeatures.intelligentContent.title')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('aiFeatures.intelligentContent.title')}</h3>
               <p className="text-gray-600 leading-relaxed">
                 {t('aiFeatures.intelligentContent.description')}
               </p>
@@ -126,7 +167,7 @@ export default function AiTravelPage() {
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">🎯</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('aiFeatures.personalization.title')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('aiFeatures.personalization.title')}</h3>
               <p className="text-gray-600 leading-relaxed">
                 {t('aiFeatures.personalization.description')}
               </p>
@@ -136,7 +177,7 @@ export default function AiTravelPage() {
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">📍</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('aiFeatures.locationRecognition.title')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('aiFeatures.locationRecognition.title')}</h3>
               <p className="text-gray-600 leading-relaxed">
                 {t('aiFeatures.locationRecognition.description')}
               </p>
@@ -146,7 +187,7 @@ export default function AiTravelPage() {
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">🗣️</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('aiFeatures.voiceSynthesis.title')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('aiFeatures.voiceSynthesis.title')}</h3>
               <p className="text-gray-600 leading-relaxed">
                 {t('aiFeatures.voiceSynthesis.description')}
               </p>
@@ -156,7 +197,7 @@ export default function AiTravelPage() {
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">📚</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('aiFeatures.dataIntegration.title')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('aiFeatures.dataIntegration.title')}</h3>
               <p className="text-gray-600 leading-relaxed">
                 {t('aiFeatures.dataIntegration.description')}
               </p>
@@ -166,7 +207,7 @@ export default function AiTravelPage() {
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-6">
                 <div className="text-2xl">🔄</div>
               </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('aiFeatures.continuousLearning.title')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('aiFeatures.continuousLearning.title')}</h3>
               <p className="text-gray-600 leading-relaxed">
                 {t('aiFeatures.continuousLearning.description')}
               </p>
@@ -179,7 +220,7 @@ export default function AiTravelPage() {
       <section className="py-24 lg:py-32 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-20">
-            <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6 tracking-tight">
+            <h2 className="text-fluid-3xl font-normal text-gray-900 mb-6 leading-tight">
               {t('aiJourney.title')} 
               <span className="font-semibold block mt-2">{t('aiJourney.titleBold')}</span>
             </h2>
@@ -194,7 +235,7 @@ export default function AiTravelPage() {
                     <span className="text-2xl">📋</span>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-medium text-gray-900 mb-3">{t('aiJourney.planning.title')}</h3>
+                    <h3 className="text-fluid-2xl font-semibold text-gray-900 mb-3 leading-snug">{t('aiJourney.planning.title')}</h3>
                     <p className="text-gray-600 mb-3">
                       {t('aiJourney.planning.description')}
                     </p>
@@ -213,7 +254,7 @@ export default function AiTravelPage() {
                     <span className="text-2xl">🧭</span>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-medium text-gray-900 mb-3">{t('aiJourney.navigation.title')}</h3>
+                    <h3 className="text-fluid-2xl font-semibold text-gray-900 mb-3 leading-snug">{t('aiJourney.navigation.title')}</h3>
                     <p className="text-gray-600 mb-3">
                       {t('aiJourney.navigation.description')}
                     </p>
@@ -232,7 +273,7 @@ export default function AiTravelPage() {
                     <span className="text-2xl">🎙️</span>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-medium text-gray-900 mb-3">{t('aiJourney.commentary.title')}</h3>
+                    <h3 className="text-fluid-2xl font-semibold text-gray-900 mb-3 leading-snug">{t('aiJourney.commentary.title')}</h3>
                     <p className="text-gray-600 mb-3">
                       {t('aiJourney.commentary.description')}
                     </p>
@@ -251,7 +292,7 @@ export default function AiTravelPage() {
                     <span className="text-2xl">📱</span>
                   </div>
                   <div>
-                    <h3 className="text-2xl font-medium text-gray-900 mb-3">{t('aiJourney.realTimeInfo.title')}</h3>
+                    <h3 className="text-fluid-2xl font-semibold text-gray-900 mb-3 leading-snug">{t('aiJourney.realTimeInfo.title')}</h3>
                     <p className="text-gray-600 mb-3">
                       {t('aiJourney.realTimeInfo.description')}
                     </p>
@@ -272,7 +313,7 @@ export default function AiTravelPage() {
       <section className="py-24 lg:py-32 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-20">
-            <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6 tracking-tight">
+            <h2 className="text-fluid-3xl font-normal text-gray-900 mb-6 leading-tight">
               {t('benefits.title')} 
               <span className="font-semibold block mt-2">{t('benefits.titleBold')}</span>
             </h2>
@@ -287,7 +328,7 @@ export default function AiTravelPage() {
                     <span className="text-2xl">💰</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-medium text-gray-900 mb-2">{t('benefits.costSaving.title')}</h3>
+                    <h3 className="text-fluid-xl font-semibold text-gray-900 mb-2 leading-snug">{t('benefits.costSaving.title')}</h3>
                     <p className="text-gray-600">
                       {t('benefits.costSaving.description')}
                     </p>
@@ -301,7 +342,7 @@ export default function AiTravelPage() {
                     <span className="text-2xl">⏰</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-medium text-gray-900 mb-2">{t('benefits.timeSaving.title')}</h3>
+                    <h3 className="text-fluid-xl font-semibold text-gray-900 mb-2 leading-snug">{t('benefits.timeSaving.title')}</h3>
                     <p className="text-gray-600">
                       {t('benefits.timeSaving.description')}
                     </p>
@@ -315,7 +356,7 @@ export default function AiTravelPage() {
                     <span className="text-2xl">🎯</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-medium text-gray-900 mb-2">{t('benefits.personalization.title')}</h3>
+                    <h3 className="text-fluid-xl font-semibold text-gray-900 mb-2 leading-snug">{t('benefits.personalization.title')}</h3>
                     <p className="text-gray-600">
                       {t('benefits.personalization.description')}
                     </p>
@@ -331,7 +372,7 @@ export default function AiTravelPage() {
                     <span className="text-2xl">🌍</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-medium text-gray-900 mb-2">{t('benefits.languageBarrier.title')}</h3>
+                    <h3 className="text-fluid-xl font-semibold text-gray-900 mb-2 leading-snug">{t('benefits.languageBarrier.title')}</h3>
                     <p className="text-gray-600">
                       {t('benefits.languageBarrier.description')}
                     </p>
@@ -345,7 +386,7 @@ export default function AiTravelPage() {
                     <span className="text-2xl">🔄</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-medium text-gray-900 mb-2">{t('benefits.realTimeUpdate.title')}</h3>
+                    <h3 className="text-fluid-xl font-semibold text-gray-900 mb-2 leading-snug">{t('benefits.realTimeUpdate.title')}</h3>
                     <p className="text-gray-600">
                       {t('benefits.realTimeUpdate.description')}
                     </p>
@@ -359,7 +400,7 @@ export default function AiTravelPage() {
                     <span className="text-2xl">📚</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-medium text-gray-900 mb-2">{t('benefits.richInformation.title')}</h3>
+                    <h3 className="text-fluid-xl font-semibold text-gray-900 mb-2 leading-snug">{t('benefits.richInformation.title')}</h3>
                     <p className="text-gray-600">
                       {t('benefits.richInformation.description')}
                     </p>
@@ -375,10 +416,10 @@ export default function AiTravelPage() {
       <section className="py-24 lg:py-32 bg-black text-white">
         <div className="container mx-auto px-6 text-center">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl lg:text-4xl font-light mb-6 tracking-tight">
+            <h2 className="text-fluid-3xl font-normal mb-6 leading-tight">
               {t('cta.title')}
             </h2>
-            <p className="text-lg lg:text-xl text-gray-300 mb-12 leading-relaxed">
+            <p className="text-fluid-lg text-gray-300 mb-12 leading-relaxed">
               {t('cta.description')}
             </p>
             <Link 

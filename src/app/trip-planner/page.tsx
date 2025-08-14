@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
-import { useTranslations } from 'next-intl';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // 여행 타입별 추천 데이터
 const getTripTypes = (t: (key: string) => string) => [
@@ -170,7 +170,24 @@ const generateAITripPlan = (destination: string, tripType: string, duration: str
 };
 
 export default function TripPlannerPage() {
-  const t = useTranslations('tripPlanner');
+  const { translations } = useLanguage();
+  
+  // 간단한 번역 함수 - 안전한 접근
+  const t = (key: string) => {
+    if (!translations?.tripPlanner) return key;
+    try {
+      const keys = key.split('.');
+      let value: any = translations.tripPlanner;
+      for (const k of keys) {
+        value = value?.[k];
+        if (value === undefined) return key;
+      }
+      return typeof value === 'string' ? value : key;
+    } catch {
+      return key;
+    }
+  };
+  
   const tripTypes = getTripTypes(t);
   
   return (
@@ -190,13 +207,13 @@ export default function TripPlannerPage() {
             <div className="inline-flex items-center px-6 py-3 bg-gray-50 border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-8">
               {t('badge')}
             </div>
-            <h1 className="text-5xl lg:text-6xl font-light text-gray-900 mb-6 tracking-tight">
+            <h1 className="text-fluid-4xl font-semibold text-gray-900 mb-6 leading-tight">
               {t('hero.title')}
             </h1>
-            <h2 className="text-2xl lg:text-3xl font-normal text-gray-700 mb-8">
+            <h2 className="text-fluid-2xl font-semibold text-gray-700 mb-8 leading-tight">
               {t('hero.subtitle')}
             </h2>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-3xl mx-auto">
+            <p className="text-fluid-lg text-gray-600 mb-8 leading-relaxed max-w-3xl mx-auto">
               {t('hero.description')}
             </p>
           </div>
@@ -207,13 +224,13 @@ export default function TripPlannerPage() {
       <section className="container mx-auto px-6 pb-20">
         <div className="max-w-4xl mx-auto">
           <div className="bg-gray-50 p-8 rounded-xl mb-12 shadow-sm">
-            <h2 className="text-2xl font-light text-gray-900 mb-6 text-center">
+            <h2 className="text-fluid-2xl font-semibold text-gray-900 mb-6 text-center leading-snug">
               {t('quickPlanner.title')}
             </h2>
             
             {/* Step 1: Trip Type Selection */}
             <div className="mb-8">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">{t('steps.selectStyle')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('steps.selectStyle')}</h3>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {tripTypes.map((type) => (
                   <button
@@ -234,7 +251,7 @@ export default function TripPlannerPage() {
             {/* Step 2: Destination & Duration */}
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('steps.destinationDuration')}</h3>
+                <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('steps.destinationDuration')}</h3>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">{t('form.destination.label')}</label>
@@ -271,7 +288,7 @@ export default function TripPlannerPage() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('steps.budgetPreferences')}</h3>
+                <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('steps.budgetPreferences')}</h3>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">{t('form.budget')}</label>
@@ -400,7 +417,7 @@ export default function TripPlannerPage() {
 
           {/* Popular Destinations Quick Start */}
           <div className="mb-16">
-            <h2 className="text-2xl font-light text-gray-900 mb-8 text-center">
+            <h2 className="text-fluid-2xl font-normal text-gray-900 mb-8 text-center leading-snug">
               {t('popularDestinations.title')} <span className="font-semibold">{t('popularDestinations.subtitle')}</span>
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -455,7 +472,7 @@ export default function TripPlannerPage() {
 
           {/* AI Features */}
           <div className="bg-gray-50 p-8 rounded-lg">
-            <h2 className="text-2xl font-light text-gray-900 mb-8 text-center">
+            <h2 className="text-fluid-2xl font-normal text-gray-900 mb-8 text-center leading-snug">
               {t('aiFeatures.title')} <span className="font-semibold">{t('aiFeatures.subtitle')}</span>
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -522,10 +539,10 @@ export default function TripPlannerPage() {
       <section className="py-20 bg-black text-white">
         <div className="container mx-auto px-6 text-center">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl lg:text-4xl font-light mb-6 tracking-tight">
+            <h2 className="text-fluid-3xl font-normal mb-6 leading-tight">
               {t('audioGuideIntegration.title.before')} <span className="font-semibold">{t('audioGuideIntegration.title.highlight')}</span>
             </h2>
-            <p className="text-lg lg:text-xl text-gray-300 mb-8 leading-relaxed">
+            <p className="text-fluid-lg text-gray-300 mb-8 leading-relaxed">
               {t('audioGuideIntegration.description')}
             </p>
             <div className="grid md:grid-cols-3 gap-6 mb-12">
@@ -588,7 +605,7 @@ export default function TripPlannerPage() {
           
           // 실제 계획 생성 (2초 후)
           setTimeout(() => {
-            const plan = ${JSON.stringify(generateAITripPlan)};
+            // AI 여행 계획 생성 로직 (클라이언트 측)
             
             // 템플릿 데이터
             const templates = {

@@ -253,100 +253,23 @@ const nextConfig = {
   },
   // 번들 크기 최적화
   webpack: (config, { isServer, dev }) => {
-    // 성능 최적화 설정
+    // 전체 최적화 비활성화 - 개발 및 프로덕션 모두
     if (!isServer) {
-      // 트리셰이킹 활성화
-      config.optimization.usedExports = true;
-      config.optimization.sideEffects = false;
-      
-      // 청크 분할 최적화
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        minSize: 20000,
-        maxSize: 200000,
-        cacheGroups: {
-          // React & Core 라이브러리
-          react: {
-            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-            name: 'react',
-            chunks: 'all',
-            priority: 20,
-            enforce: true,
-          },
-          // Next.js 코어
-          nextjs: {
-            test: /[\\/]node_modules[\\/]next[\\/]/,
-            name: 'nextjs',
-            chunks: 'all',
-            priority: 15,
-            enforce: true,
-          },
-          // UI 컴포넌트 라이브러리들
-          ui: {
-            test: /[\\/]node_modules[\\/](@radix-ui|lucide-react|framer-motion)[\\/]/,
-            name: 'ui-libs',
-            chunks: 'all',
-            priority: 12,
-            maxSize: 150000,
-          },
-          // 지도 관련 (가장 무거운 라이브러리)
-          maps: {
-            test: /[\\/]node_modules[\\/](leaflet|react-leaflet)[\\/]/,
-            name: 'maps',
-            chunks: 'async',
-            priority: 10,
-            maxSize: 180000,
-          },
-          // 인증 관련
-          auth: {
-            test: /[\\/]node_modules[\\/](next-auth|@supabase)[\\/]/,
-            name: 'auth',
-            chunks: 'all',
-            priority: 8,
-          },
-          // 기타 vendor 라이브러리들
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-            priority: 5,
-            minSize: 30000,
-            maxSize: 200000,
-          },
-        },
+      // 모든 최적화 비활성화
+      config.optimization = {
+        ...config.optimization,
+        minimize: false,
+        minimizer: [],
+        usedExports: false,
+        sideEffects: false,
+        splitChunks: {
+          chunks: 'async',
+          cacheGroups: {
+            default: false,
+            vendors: false,
+          }
+        }
       };
-      
-      // 압축 최적화 (안전한 TerserPlugin 설정)
-      if (!dev) {
-        config.optimization.minimize = true;
-        const TerserPlugin = require('terser-webpack-plugin');
-        config.optimization.minimizer = [
-          new TerserPlugin({
-            terserOptions: {
-              compress: {
-                drop_console: false,
-                drop_debugger: true,
-                pure_funcs: [],
-                unsafe: false,
-                unsafe_comps: false,
-                unsafe_math: false,
-                unsafe_proto: false,
-                passes: 1,
-                keep_fargs: true,
-                keep_fnames: true,
-                conditionals: false,
-                evaluate: false,
-              },
-              mangle: false,
-              format: {
-                comments: false,
-                preserve_annotations: true,
-              },
-            },
-            extractComments: false,
-          }),
-        ];
-      }
     }
     
     // 모듈 해석 최적화
