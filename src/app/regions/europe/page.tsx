@@ -96,7 +96,7 @@ export default function EuropeRegionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" style={{ '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px' } as React.CSSProperties}>
       {/* SEO 메타 정보 */}
       <div className="hidden">
         <h1>유럽 여행 가이드 - 파리, 로마, 런던, 바르셀로나 완벽 가이드</h1>
@@ -104,21 +104,21 @@ export default function EuropeRegionPage() {
       </div>
 
       {/* 헤더 */}
-      <header className="bg-gradient-to-r from-purple-600 to-purple-800 text-white py-16">
+      <header className="bg-white py-16 lg:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              🇪🇺 유럽 여행 가이드
+            <h1 className="text-[clamp(3rem,5vw,4.5rem)] font-semibold text-black mb-6 leading-tight tracking-tight">
+              유럽 여행 가이드
             </h1>
-            <p className="text-xl md:text-2xl text-purple-100 mb-8 max-w-3xl mx-auto">
+            <p className="text-[clamp(1rem,1.5vw,1.25rem)] font-light text-[#555555] mb-8 max-w-3xl mx-auto leading-relaxed">
               역사와 문화, 예술이 살아 숨쉬는 유럽의 대표 도시들을 AI 가이드와 함께 탐험하세요
             </p>
-            <div className="inline-flex items-center space-x-2 bg-white/20 px-6 py-3 rounded-full">
-              <span className="text-purple-200">🏛️ 12개 주요 관광지</span>
-              <span className="text-purple-200">•</span>
-              <span className="text-purple-200">🎙️ AI 음성 가이드</span>
-              <span className="text-purple-200">•</span>
-              <span className="text-purple-200">🌏 다국어 지원</span>
+            <div className="inline-flex items-center space-x-3 bg-[#F8F8F8] px-6 py-3 rounded-lg">
+              <span className="text-[#555555] text-sm font-light">12개 주요 관광지</span>
+              <span className="text-[#555555]">•</span>
+              <span className="text-[#555555] text-sm font-light">AI 음성 가이드</span>
+              <span className="text-[#555555]">•</span>
+              <span className="text-[#555555] text-sm font-light">다국어 지원</span>
             </div>
           </div>
         </div>
@@ -132,10 +132,10 @@ export default function EuropeRegionPage() {
       {/* 메인 콘텐츠 */}
       <main className="container mx-auto px-4 py-12">
         <div className="mb-16 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-black mb-6">
             유럽 대표 관광지
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="text-lg text-[#555555] font-light max-w-3xl mx-auto">
             수천 년의 역사와 문화유산이 살아있는 유럽의 최고 여행지들을 소개합니다. 
             각 명소마다 AI가 생성하는 개인 맞춤형 가이드로 더욱 깊이 있는 문화 체험을 경험하세요.
           </p>
@@ -144,12 +144,12 @@ export default function EuropeRegionPage() {
         {/* 도시별 명소 */}
         <div className="space-y-16">
           {europeDestinations.map((destination, index) => (
-            <section key={destination.city} className="bg-gray-50 rounded-2xl p-8 md:p-12">
+            <section key={destination.city} className="bg-[#F8F8F8] rounded-2xl p-8 md:p-12">
               <div className="mb-8">
-                <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                  📍 {destination.city}, {destination.country}
+                <h3 className="text-2xl md:text-3xl font-semibold text-black mb-4">
+                  {destination.city}, {destination.country}
                 </h3>
-                <p className="text-lg text-gray-600 mb-6">
+                <p className="text-lg text-[#555555] font-light mb-6 leading-relaxed">
                   {destination.cityDescription}
                 </p>
               </div>
@@ -161,16 +161,16 @@ export default function EuropeRegionPage() {
                     className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group"
                     onClick={() => handleAttractionClick(attraction.name)}
                   >
-                    <h4 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-purple-600 transition-colors">
+                    <h4 className="text-xl font-semibold text-black mb-4 group-hover:text-gray-700 transition-colors">
                       {attraction.name}
                     </h4>
-                    <p className="text-gray-600 leading-relaxed mb-4">
+                    <p className="text-[#555555] font-light leading-relaxed mb-4">
                       {attraction.description}
                     </p>
                     <div className="flex items-center justify-between">
                       <button
                         disabled={loadingState === attraction.name}
-                        className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-[#007AFF] text-white px-6 py-2 rounded-lg hover:bg-[#005FCC] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {loadingState === attraction.name ? (
                           <span className="flex items-center">
@@ -184,7 +184,7 @@ export default function EuropeRegionPage() {
                           'AI 가이드 보기'
                         )}
                       </button>
-                      <div className="text-purple-600 group-hover:translate-x-1 transition-transform">
+                      <div className="text-gray-700 group-hover:translate-x-1 transition-transform">
                         →
                       </div>
                     </div>
@@ -201,18 +201,18 @@ export default function EuropeRegionPage() {
         </div>
 
         {/* CTA 섹션 */}
-        <section className="bg-gradient-to-r from-purple-600 to-purple-800 text-white rounded-2xl p-12 text-center mt-16">
-          <h3 className="text-3xl font-bold mb-6">
+        <section className="bg-[#F8F8F8] border border-gray-200 rounded-2xl p-12 text-center mt-16">
+          <h3 className="text-2xl md:text-3xl font-semibold text-black mb-6">
             더 많은 유럽 여행 정보가 필요하신가요?
           </h3>
-          <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-[#555555] font-light mb-8 max-w-2xl mx-auto leading-relaxed">
             TripRadio.AI의 메인 검색에서 원하는 유럽 도시를 입력하고 개인 맞춤형 여행 가이드를 받아보세요
           </p>
           <button
             onClick={() => router.push('/')}
-            className="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-purple-50 transition-colors"
+            className="bg-[#007AFF] text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-[#005FCC] transition-colors"
           >
-            🔍 여행지 검색하기
+            여행지 검색하기
           </button>
         </section>
       </main>
@@ -220,7 +220,7 @@ export default function EuropeRegionPage() {
       {/* 푸터 */}
       <footer className="bg-gray-100 py-12 mt-16">
         <div className="container mx-auto px-4 text-center">
-          <div className="text-gray-600 mb-4">
+          <div className="text-[#555555] font-light mb-4">
             <h4 className="font-bold text-lg mb-2">TripRadio.AI - 유럽 여행 가이드</h4>
             <p>AI가 만드는 개인 맞춤형 여행 가이드 서비스</p>
           </div>

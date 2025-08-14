@@ -1,13 +1,13 @@
 'use client';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
 // 50개 국가 대규모 비자 정보 데이터 (한국 여권 기준, 2025년)
 const visaInfo = [
   // 아시아 태평양 (무비자/비자 면제)
   {
     country: '일본',
-    flag: '🇯🇵',
+    // flag: '🇯🇵',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '왕복 항공권', '체류비 증명'],
@@ -20,7 +20,7 @@ const visaInfo = [
   },
   {
     country: '태국',
-    flag: '🇹🇭', 
+    // flag: '🇹🇭', 
     visaFree: true,
     maxDays: 30,
     requirements: ['유효한 여권 (6개월 이상)', '출국 티켓 증명'],
@@ -34,7 +34,7 @@ const visaInfo = [
   },
   {
     country: '싱가포르',
-    flag: '🇸🇬',
+    // flag: '🇸🇬',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '충분한 체재비 증명'],
@@ -47,7 +47,7 @@ const visaInfo = [
   },
   {
     country: '말레이시아',
-    flag: '🇲🇾',
+    // flag: '🇲🇾',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권 (6개월 이상)', '출국 티켓'],
@@ -61,7 +61,7 @@ const visaInfo = [
   },
   {
     country: '인도네시아',
-    flag: '🇮🇩',
+    // flag: '🇮🇩',
     visaFree: true,
     maxDays: 30,
     requirements: ['유효한 여권 (6개월 이상)', '출국 티켓'],
@@ -75,7 +75,7 @@ const visaInfo = [
   },
   {
     country: '베트남',
-    flag: '🇻🇳',
+    // flag: '🇻🇳',
     visaFree: true,
     maxDays: 45,
     requirements: ['유효한 여권 (6개월 이상)', '출국 티켓'],
@@ -88,7 +88,7 @@ const visaInfo = [
   },
   {
     country: '필리핀',
-    flag: '🇵🇭',
+    // flag: '🇵🇭',
     visaFree: true,
     maxDays: 30,
     requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
@@ -101,7 +101,7 @@ const visaInfo = [
   },
   {
     country: '중국',
-    flag: '🇨🇳',
+    // flag: '🇨🇳',
     visaFree: false,
     requirements: ['관광비자 필요', '초청장', '호텔 예약', '왕복 항공권'],
     digitalNomad: false,
@@ -113,7 +113,7 @@ const visaInfo = [
   },
   {
     country: '인도',
-    flag: '🇮🇳',
+    // flag: '🇮🇳',
     visaFree: false,
     requirements: ['e-비자 또는 관광비자', '호텔 예약', '예방접종 증명'],
     digitalNomad: false,
@@ -125,7 +125,7 @@ const visaInfo = [
   },
   {
     country: '홍콩',
-    flag: '🇭🇰',
+    // flag: '🇭🇰',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '출국 티켓'],
@@ -138,7 +138,7 @@ const visaInfo = [
   },
   {
     country: '마카오',
-    flag: '🇲🇴',
+    // flag: '🇲🇴',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권'],
@@ -151,7 +151,7 @@ const visaInfo = [
   },
   {
     country: '대만',
-    flag: '🇹🇼',
+    // flag: '🇹🇼',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '왕복 항공권'],
@@ -166,7 +166,7 @@ const visaInfo = [
   // 유럽 (솅겐/EU)
   {
     country: '독일',
-    flag: '🇩🇪',
+    // flag: '🇩🇪',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '숙박 예약', '여행 보험'],
@@ -179,7 +179,7 @@ const visaInfo = [
   },
   {
     country: '프랑스',
-    flag: '🇫🇷',
+    // flag: '🇫🇷',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '숙박 증명', '여행 보험', '충분한 자금'],
@@ -192,7 +192,7 @@ const visaInfo = [
   },
   {
     country: '이탈리아',
-    flag: '🇮🇹',
+    // flag: '🇮🇹',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
@@ -205,7 +205,7 @@ const visaInfo = [
   },
   {
     country: '스페인',
-    flag: '🇪🇸',
+    // flag: '🇪🇸',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
@@ -219,7 +219,7 @@ const visaInfo = [
   },
   {
     country: '포르투갈',
-    flag: '🇵🇹',
+    // flag: '🇵🇹',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '숙박 증명', '충분한 자금'],
@@ -233,7 +233,7 @@ const visaInfo = [
   },
   {
     country: '네덜란드',
-    flag: '🇳🇱',
+    // flag: '🇳🇱',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '숙박 증명', '여행 보험', '충분한 자금'],
@@ -246,7 +246,7 @@ const visaInfo = [
   },
   {
     country: '영국',
-    flag: '🇬🇧',
+    // flag: '🇬🇧',
     visaFree: true,
     maxDays: 180,
     requirements: ['유효한 여권', '왕복 항공권', '충분한 자금'],
@@ -259,7 +259,7 @@ const visaInfo = [
   },
   {
     country: '스위스',
-    flag: '🇨🇭',
+    // flag: '🇨🇭',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '숙박 증명', '여행 보험', '충분한 자금'],
@@ -272,7 +272,7 @@ const visaInfo = [
   },
   {
     country: '오스트리아',
-    flag: '🇦🇹',
+    // flag: '🇦🇹',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
@@ -285,7 +285,7 @@ const visaInfo = [
   },
   {
     country: '체코',
-    flag: '🇨🇿',
+    // flag: '🇨🇿',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
@@ -298,7 +298,7 @@ const visaInfo = [
   },
   {
     country: '헝가리',
-    flag: '🇭🇺',
+    // flag: '🇭🇺',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
@@ -311,7 +311,7 @@ const visaInfo = [
   },
   {
     country: '폴란드',
-    flag: '🇵🇱',
+    // flag: '🇵🇱',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
@@ -324,7 +324,7 @@ const visaInfo = [
   },
   {
     country: '그리스',
-    flag: '🇬🇷',
+    // flag: '🇬🇷',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
@@ -338,7 +338,7 @@ const visaInfo = [
   },
   {
     country: '조지아',
-    flag: '🇬🇪',
+    // flag: '🇬🇪',
     visaFree: true,
     maxDays: 365,
     requirements: ['유효한 여권'],
@@ -352,7 +352,7 @@ const visaInfo = [
   },
   {
     country: '에스토니아',
-    flag: '🇪🇪',
+    // flag: '🇪🇪',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
@@ -368,7 +368,7 @@ const visaInfo = [
   // 아메리카
   {
     country: '미국',
-    flag: '🇺🇸',
+    // flag: '🇺🇸',
     visaFree: true,
     maxDays: 90,
     requirements: ['ESTA 승인', '유효한 여권', '왕복 항공권'],
@@ -381,7 +381,7 @@ const visaInfo = [
   },
   {
     country: '캐나다',
-    flag: '🇨🇦',
+    // flag: '🇨🇦',
     visaFree: false,
     requirements: ['eTA 승인', '유효한 여권', '왕복 항공권'],
     digitalNomad: false,
@@ -393,7 +393,7 @@ const visaInfo = [
   },
   {
     country: '멕시코',
-    flag: '🇲🇽',
+    // flag: '🇲🇽',
     visaFree: true,
     maxDays: 180,
     requirements: ['유효한 여권', '출국 티켓'],
@@ -407,7 +407,7 @@ const visaInfo = [
   },
   {
     country: '브라질',
-    flag: '🇧🇷',
+    // flag: '🇧🇷',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '황열병 예방접종'],
@@ -420,7 +420,7 @@ const visaInfo = [
   },
   {
     country: '아르헨티나',
-    flag: '🇦🇷',
+    // flag: '🇦🇷',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권'],
@@ -433,7 +433,7 @@ const visaInfo = [
   },
   {
     country: '칠레',
-    flag: '🇨🇱',
+    // flag: '🇨🇱',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '출국 티켓'],
@@ -446,7 +446,7 @@ const visaInfo = [
   },
   {
     country: '콜롬비아',
-    flag: '🇨🇴',
+    // flag: '🇨🇴',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '황열병 예방접종'],
@@ -459,7 +459,7 @@ const visaInfo = [
   },
   {
     country: '페루',
-    flag: '🇵🇪',
+    // flag: '🇵🇪',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '황열병 예방접종'],
@@ -474,7 +474,7 @@ const visaInfo = [
   // 중동
   {
     country: 'UAE (두바이)',
-    flag: '🇦🇪',
+    // flag: '🇦🇪',
     visaFree: true,
     maxDays: 30,
     requirements: ['유효한 여권 (6개월 이상)'],
@@ -488,7 +488,7 @@ const visaInfo = [
   },
   {
     country: '카타르',
-    flag: '🇶🇦',
+    // flag: '🇶🇦',
     visaFree: true,
     maxDays: 30,
     requirements: ['유효한 여권', '왕복 항공권'],
@@ -501,7 +501,7 @@ const visaInfo = [
   },
   {
     country: '이스라엘',
-    flag: '🇮🇱',
+    // flag: '🇮🇱',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '왕복 항공권'],
@@ -514,7 +514,7 @@ const visaInfo = [
   },
   {
     country: '터키',
-    flag: '🇹🇷',
+    // flag: '🇹🇷',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권 (6개월 이상)'],
@@ -529,7 +529,7 @@ const visaInfo = [
   // 아프리카
   {
     country: '남아프리카',
-    flag: '🇿🇦',
+    // flag: '🇿🇦',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '황열병 예방접종'],
@@ -542,7 +542,7 @@ const visaInfo = [
   },
   {
     country: '모로코',
-    flag: '🇲🇦',
+    // flag: '🇲🇦',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권 (6개월 이상)'],
@@ -555,7 +555,7 @@ const visaInfo = [
   },
   {
     country: '이집트',
-    flag: '🇪🇬',
+    // flag: '🇪🇬',
     visaFree: false,
     requirements: ['도착비자 또는 사전 비자', '유효한 여권'],
     digitalNomad: false,
@@ -569,7 +569,7 @@ const visaInfo = [
   // 오세아니아
   {
     country: '호주',
-    flag: '🇦🇺',
+    // flag: '🇦🇺',
     visaFree: false,
     requirements: ['ETA 또는 eVisitor', '유효한 여권', '건강검진'],
     digitalNomad: false,
@@ -581,7 +581,7 @@ const visaInfo = [
   },
   {
     country: '뉴질랜드',
-    flag: '🇳🇿',
+    // flag: '🇳🇿',
     visaFree: false,
     requirements: ['NZeTA', '유효한 여권', '관광세 지불'],
     digitalNomad: false,
@@ -593,7 +593,7 @@ const visaInfo = [
   },
   {
     country: '피지',
-    flag: '🇫🇯',
+    // flag: '🇫🇯',
     visaFree: true,
     maxDays: 120,
     requirements: ['유효한 여권', '왕복 항공권'],
@@ -608,7 +608,7 @@ const visaInfo = [
   // 추가 유럽 국가들
   {
     country: '노르웨이',
-    flag: '🇳🇴',
+    // flag: '🇳🇴',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '충분한 자금', '여행 보험'],
@@ -621,7 +621,7 @@ const visaInfo = [
   },
   {
     country: '스웨덴',
-    flag: '🇸🇪',
+    // flag: '🇸🇪',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '충분한 자금', '여행 보험'],
@@ -634,7 +634,7 @@ const visaInfo = [
   },
   {
     country: '덴마크',
-    flag: '🇩🇰',
+    // flag: '🇩🇰',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '충분한 자금', '여행 보험'],
@@ -647,7 +647,7 @@ const visaInfo = [
   },
   {
     country: '핀란드',
-    flag: '🇫🇮',
+    // flag: '🇫🇮',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '충분한 자금', '여행 보험'],
@@ -660,7 +660,7 @@ const visaInfo = [
   },
   {
     country: '아이슬란드',
-    flag: '🇮🇸',
+    // flag: '🇮🇸',
     visaFree: true,
     maxDays: 90,
     requirements: ['유효한 여권', '충분한 자금', '여행 보험'],
@@ -675,7 +675,7 @@ const visaInfo = [
   // 추가 아시아 국가들
   {
     country: '스리랑카',
-    flag: '🇱🇰',
+    // flag: '🇱🇰',
     visaFree: false,
     requirements: ['ETA 비자', '유효한 여권'],
     digitalNomad: false,
@@ -687,7 +687,7 @@ const visaInfo = [
   },
   {
     country: '방글라데시',
-    flag: '🇧🇩',
+    // flag: '🇧🇩',
     visaFree: false,
     requirements: ['비자 필요', '초청장', '예방접종 증명'],
     digitalNomad: false,
@@ -708,32 +708,37 @@ const nomadVisaCountries = [
 ];
 
 export default function VisaCheckerPage() {
-  const t = useTranslations('visaChecker');
+  const { t } = useLanguage();
+  
+  // visa-checker 전용 번역 함수
+  const visaT = (key: string) => {
+    return t(`visaChecker.${key}`);
+  };
   
   return (
     <>
       <KeywordPageSchema 
-        keyword={t('keyword')}
+        keyword={visaT('keyword')}
         pagePath="/visa-checker"
-        title={t('metadata.title')}
-        description={t('metadata.description')}
-        features={[t('features.realtimeInfo'), t('features.visaFree'), t('features.nomadVisa'), t('features.checklist'), t('features.immigration'), t('features.tips')]}
+        title={visaT('metadata.title')}
+        description={visaT('metadata.description')}
+        features={[visaT('features.realtimeInfo'), visaT('features.visaFree'), visaT('features.nomadVisa'), visaT('features.checklist'), visaT('features.immigration'), visaT('features.tips')]}
       />
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white" style={{ '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px' } as React.CSSProperties}>
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-20 lg:py-32">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
-            <div className="inline-flex items-center px-6 py-3 bg-gray-50 border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-8">
-              {t('badge')}
+            <div className="inline-flex items-center px-6 py-3 bg-[#F8F8F8] border border-[#F8F8F8] rounded-full text-sm font-medium text-[#555555] font-light mb-8">
+              {visaT('badge')}
             </div>
-            <h1 className="text-5xl lg:text-6xl font-light text-gray-900 mb-6 tracking-tight">
-              {t('hero.title')}
+            <h1 className="text-5xl lg:text-6xl font-light text-black mb-6 tracking-tight">
+              {visaT('hero.title')}
             </h1>
-            <h2 className="text-2xl lg:text-3xl font-normal text-gray-700 mb-8">
-              {t('hero.subtitle')}
+            <h2 className="text-2xl lg:text-3xl font-normal text-[#555555] mb-8">
+              {visaT('hero.subtitle')}
             </h2>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-3xl mx-auto">
+            <p className="text-lg text-[#555555] font-light mb-8 leading-relaxed max-w-3xl mx-auto">
               한국 여권 소지자를 위한 50개국 비자 정보를 확인하고, 디지털노마드 비자부터 관광비자까지 모든 출입국 요구사항을 한눈에 파악하세요.
             </p>
           </div>
@@ -743,36 +748,36 @@ export default function VisaCheckerPage() {
       {/* Quick Visa Checker */}
       <section className="container mx-auto px-6 pb-16">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-gray-50 p-8 rounded-lg mb-12 border border-gray-200">
-            <h2 className="text-2xl font-light text-gray-900 mb-2 text-center">
+          <div className="bg-[#F8F8F8] p-8 rounded-lg mb-12 border border-[#F8F8F8]">
+            <h2 className="text-2xl font-light text-black mb-2 text-center">
               한국 여권 비자 체커
             </h2>
-            <p className="text-sm text-gray-600 mb-6 text-center">
+            <p className="text-sm text-[#555555] font-light mb-6 text-center">
               2025년 최신 정보 기준 | 중요: 출발 전 대사관에서 최신 정보 확인 필수
             </p>
             
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">출발국</label>
-                <div className="w-full p-4 border border-gray-300 rounded-lg bg-gray-100 text-gray-600">
+                <label className="block text-sm font-medium text-[#555555] mb-2">출발국</label>
+                <div className="w-full p-4 border border-[#555555] rounded-lg bg-[#F8F8F8] text-[#555555] font-light">
                   대한민국 (한국 여권 전용)
                 </div>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">목적지</label>
+                <label className="block text-sm font-medium text-[#555555] mb-2">목적지</label>
                 <input 
                   type="text" 
                   placeholder="예: 중국(무비자 30일), 일본(90일), 태국(90일)..."
-                  className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
+                  className="w-full p-4 border border-[#555555] rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
                 />
               </div>
             </div>
 
             <div className="grid md:grid-cols-3 gap-4 mt-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">여행 목적</label>
-                <select className="w-full p-4 border border-gray-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
+                <label className="block text-sm font-medium text-[#555555] mb-2">여행 목적</label>
+                <select className="w-full p-4 border border-[#555555] rounded-lg bg-white text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
                   <option>관광</option>
                   <option>출장</option>
                   <option>디지털노마드</option>
@@ -782,8 +787,8 @@ export default function VisaCheckerPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">체류 기간</label>
-                <select className="w-full p-4 border border-gray-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
+                <label className="block text-sm font-medium text-[#555555] mb-2">체류 기간</label>
+                <select className="w-full p-4 border border-[#555555] rounded-lg bg-white text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
                   <option>1주 이내</option>
                   <option>1개월 이내</option>
                   <option>3개월 이내</option>
@@ -805,26 +810,26 @@ export default function VisaCheckerPage() {
       {/* Popular Destinations Visa Info */}
       <section className="container mx-auto px-6 pb-16">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-light text-gray-900 mb-8 text-center">
+          <h2 className="text-2xl font-light text-black mb-8 text-center">
             인기 여행지 <span className="font-semibold">비자 정보</span>
           </h2>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {visaInfo.map((info, index) => (
-              <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300">
+              <div key={index} className="bg-white border border-[#F8F8F8] rounded-lg p-6 hover:shadow-lg transition-all duration-300">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
                       <div className="w-6 h-6 bg-gray-400 rounded"></div>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">{info.country}</h3>
+                      <h3 className="font-semibold text-black">{info.country}</h3>
                       {info.visaFree ? (
                         <div className="flex items-center gap-2">
-                          <div className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs font-medium">
+                          <div className="bg-[#F8F8F8] text-[#555555] px-3 py-1 rounded-lg text-xs font-medium">
                             무비자
                           </div>
-                          <span className="text-sm text-gray-600">{info.maxDays}일</span>
+                          <span className="text-sm text-[#555555] font-light">{info.maxDays}일</span>
                         </div>
                       ) : (
                         <div className="bg-gray-200 text-gray-800 px-3 py-1 rounded-lg text-xs font-medium">
@@ -834,8 +839,8 @@ export default function VisaCheckerPage() {
                     </div>
                   </div>
                   <div className={`px-3 py-1 rounded-lg text-xs font-medium ${
-                    info.difficulty === 'easy' ? 'bg-gray-50 text-gray-600 border border-gray-200' :
-                    info.difficulty === 'medium' ? 'bg-gray-100 text-gray-700 border border-gray-300' :
+                    info.difficulty === 'easy' ? 'bg-[#F8F8F8] text-[#555555] font-light border border-[#F8F8F8]' :
+                    info.difficulty === 'medium' ? 'bg-[#F8F8F8] text-[#555555] border border-[#555555]' :
                     'bg-gray-200 text-gray-800 border border-gray-400'
                   }`}>
                     {info.difficulty === 'easy' ? '쉬움' : 
@@ -844,10 +849,10 @@ export default function VisaCheckerPage() {
                 </div>
 
                 <div className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">필수 서류</h4>
+                  <h4 className="text-sm font-medium text-black mb-2">필수 서류</h4>
                   <ul className="space-y-1">
                     {info.requirements.map((req, reqIndex) => (
-                      <li key={reqIndex} className="text-sm text-gray-600 flex items-start gap-2">
+                      <li key={reqIndex} className="text-sm text-[#555555] font-light flex items-start gap-2">
                         <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 mt-0.5">
                           <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
                         </div>
@@ -858,20 +863,20 @@ export default function VisaCheckerPage() {
                 </div>
 
                 {info.digitalNomad && (
-                  <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="mb-4 p-3 bg-[#F8F8F8] rounded-lg border border-[#F8F8F8]">
                     <div className="flex items-center gap-2 mb-1">
                       <div className="w-4 h-4 bg-gray-400 rounded-sm"></div>
-                      <span className="text-sm font-medium text-gray-700">디지털노마드 가능</span>
+                      <span className="text-sm font-medium text-[#555555]">디지털노마드 가능</span>
                     </div>
                     {info.nomadVisa && (
-                      <p className="text-xs text-gray-600">{info.nomadVisa}</p>
+                      <p className="text-xs text-[#555555] font-light">{info.nomadVisa}</p>
                     )}
                   </div>
                 )}
 
                 <Link 
                   href={`/?destination=${encodeURIComponent(info.country)}&visa=guide`}
-                  className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg text-center block hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
+                  className="w-full bg-[#F8F8F8] text-[#555555] py-2 px-4 rounded-lg text-center block hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
                 >
                   {info.country} 여행 가이드 보기
                 </Link>
@@ -882,42 +887,42 @@ export default function VisaCheckerPage() {
       </section>
 
       {/* Digital Nomad Visas */}
-      <section className="py-20 lg:py-32 bg-gray-50">
+      <section className="py-20 lg:py-32 bg-[#F8F8F8]">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-light text-gray-900 mb-4">
+            <h2 className="text-3xl font-light text-black mb-4">
               디지털노마드 <span className="font-semibold">전용 비자</span>
             </h2>
-            <p className="text-gray-600">한국 여권 기준 원격근무자를 위한 특별 비자 프로그램</p>
+            <p className="text-[#555555] font-light">한국 여권 기준 원격근무자를 위한 특별 비자 프로그램</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {nomadVisaCountries.map((country, index) => (
-              <div key={index} className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-300">
+              <div key={index} className="bg-white p-6 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <div className="w-6 h-6 bg-gray-500 rounded"></div>
+                  <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
+                    <div className="w-6 h-6 bg-[#F8F8F8]0 rounded"></div>
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900">{country.country}</h3>
-                    <p className="text-sm text-gray-600">{country.visa}</p>
+                    <h3 className="font-medium text-black">{country.country}</h3>
+                    <p className="text-sm text-[#555555] font-light">{country.visa}</p>
                   </div>
                 </div>
 
                 <div className="space-y-2 mb-4 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">체류기간:</span>
+                    <span className="text-[#555555] font-light">체류기간:</span>
                     <span className="font-medium">{country.duration}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">최소소득:</span>
+                    <span className="text-[#555555] font-light">최소소득:</span>
                     <span className="font-medium">{country.minIncome}</span>
                   </div>
                 </div>
 
                 <Link 
                   href={`/nomad-calculator?country=${encodeURIComponent(country.country)}`}
-                  className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg text-center block hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
+                  className="w-full bg-[#F8F8F8] text-[#555555] py-2 px-4 rounded-lg text-center block hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
                 >
                   노마드 계산기로 분석
                 </Link>
@@ -943,15 +948,15 @@ export default function VisaCheckerPage() {
       <section className="py-20 lg:py-32 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-light text-gray-900 mb-8 text-center">
+            <h2 className="text-2xl font-light text-black mb-8 text-center">
               비자 신청 <span className="font-semibold">필수 팁</span>
             </h2>
 
             <div className="grid md:grid-cols-2 gap-8">
               <div className="space-y-6">
-                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-                  <h3 className="font-medium text-gray-700 mb-3">반드시 확인할 것</h3>
-                  <ul className="space-y-2 text-sm text-gray-600">
+                <div className="bg-[#F8F8F8] p-6 rounded-lg border border-[#F8F8F8]">
+                  <h3 className="font-medium text-[#555555] mb-3">반드시 확인할 것</h3>
+                  <ul className="space-y-2 text-sm text-[#555555] font-light">
                     <li>• 여권 유효기간 6개월 이상 남아있는지</li>
                     <li>• 왕복 항공권 또는 제3국 출국 티켓</li>
                     <li>• 충분한 체재비 증명 (은행 잔고증명서)</li>
@@ -960,9 +965,9 @@ export default function VisaCheckerPage() {
                   </ul>
                 </div>
 
-                <div className="bg-gray-100 p-6 rounded-lg border border-gray-300">
+                <div className="bg-[#F8F8F8] p-6 rounded-lg border border-[#555555]">
                   <h3 className="font-medium text-gray-800 mb-3">주의사항</h3>
-                  <ul className="space-y-2 text-sm text-gray-700">
+                  <ul className="space-y-2 text-sm text-[#555555]">
                     <li>• 무비자 ≠ 무조건 입국 가능</li>
                     <li>• 출입국 관리소 재량으로 입국 거부 가능</li>
                     <li>• 코로나19 등 상황에 따라 변경 가능</li>
@@ -972,9 +977,9 @@ export default function VisaCheckerPage() {
               </div>
 
               <div className="space-y-6">
-                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-                  <h3 className="font-medium text-gray-700 mb-3">유용한 팁</h3>
-                  <ul className="space-y-2 text-sm text-gray-600">
+                <div className="bg-[#F8F8F8] p-6 rounded-lg border border-[#F8F8F8]">
+                  <h3 className="font-medium text-[#555555] mb-3">유용한 팁</h3>
+                  <ul className="space-y-2 text-sm text-[#555555] font-light">
                     <li>• 출발 전 외교부 여행경보 확인</li>
                     <li>• 대사관 웹사이트에서 최신 정보 확인</li>
                     <li>• 여행 일정표 준비 (영문 또는 현지어)</li>
@@ -985,7 +990,7 @@ export default function VisaCheckerPage() {
 
                 <div className="bg-gray-200 p-6 rounded-lg border border-gray-400">
                   <h3 className="font-medium text-gray-800 mb-3">피해야 할 것</h3>
-                  <ul className="space-y-2 text-sm text-gray-700">
+                  <ul className="space-y-2 text-sm text-[#555555]">
                     <li>• 만료 임박한 여권으로 출국</li>
                     <li>• 불법 취업 가능성 의심받을 행동</li>
                     <li>• 거짓 정보 제공</li>
@@ -1027,7 +1032,7 @@ export default function VisaCheckerPage() {
               </div>
               <div className="bg-gray-900 p-6 rounded-lg">
                 <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <div className="w-6 h-6 border-2 border-gray-300 rounded-full"></div>
+                  <div className="w-6 h-6 border-2 border-[#555555] rounded-full"></div>
                 </div>
                 <h3 className="font-medium mb-2">안전 여행 팁</h3>
                 <p className="text-sm text-gray-300">현지 상황과 주의사항을 실시간으로 안내</p>
@@ -1035,7 +1040,7 @@ export default function VisaCheckerPage() {
             </div>
             <Link 
               href="/?visa=ready&guide=start"
-              className="inline-block bg-white text-gray-900 px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200 shadow-lg"
+              className="inline-block bg-white text-black px-10 py-4 rounded-lg font-medium hover:bg-[#F8F8F8] transition-all duration-200 shadow-lg"
             >
               여행 가이드 시작하기
             </Link>

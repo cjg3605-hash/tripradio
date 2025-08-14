@@ -96,7 +96,7 @@ export default function AsiaRegionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" style={{ '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px' } as React.CSSProperties}>
       {/* SEO 메타 정보 */}
       <div className="hidden">
         <h1>아시아 여행 가이드 - 도쿄, 방콕, 싱가포르, 베이징 완벽 가이드</h1>
@@ -104,21 +104,21 @@ export default function AsiaRegionPage() {
       </div>
 
       {/* 헤더 */}
-      <header className="bg-gradient-to-r from-red-600 to-red-800 text-white py-16">
+      <header className="bg-white border-b border-gray-200 py-12 md:py-16">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              🌏 아시아 여행 가이드
+            <h1 className="text-4xl md:text-5xl font-semibold text-black mb-6">
+              아시아 여행 가이드
             </h1>
-            <p className="text-xl md:text-2xl text-red-100 mb-8 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-[#555555] font-light mb-8 max-w-3xl mx-auto leading-relaxed">
               전통과 현대가 어우러진 아시아의 매력적인 도시들을 AI 가이드와 함께 탐험하세요
             </p>
-            <div className="inline-flex items-center space-x-2 bg-white/20 px-6 py-3 rounded-full">
-              <span className="text-red-200">🏮 12개 주요 관광지</span>
-              <span className="text-red-200">•</span>
-              <span className="text-red-200">🎙️ AI 음성 가이드</span>
-              <span className="text-red-200">•</span>
-              <span className="text-red-200">🌏 다국어 지원</span>
+            <div className="inline-flex items-center space-x-3 bg-[#F8F8F8] px-6 py-3 rounded-xl border border-gray-200">
+              <span className="text-gray-700 text-sm">12개 주요 관광지</span>
+              <span className="text-gray-400">•</span>
+              <span className="text-gray-700 text-sm">AI 음성 가이드</span>
+              <span className="text-gray-400">•</span>
+              <span className="text-gray-700 text-sm">다국어 지원</span>
             </div>
           </div>
         </div>
@@ -132,10 +132,10 @@ export default function AsiaRegionPage() {
       {/* 메인 콘텐츠 */}
       <main className="container mx-auto px-4 py-12">
         <div className="mb-16 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-black mb-6">
             아시아 대표 관광지
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="text-lg text-[#555555] font-light max-w-3xl mx-auto">
             찬란한 역사와 문화, 그리고 현대적 발전이 조화를 이룬 아시아 최고의 여행지들을 소개합니다. 
             각 명소마다 AI가 생성하는 개인 맞춤형 가이드로 더욱 깊이 있는 아시아 문화 체험을 경험하세요.
           </p>
@@ -144,12 +144,12 @@ export default function AsiaRegionPage() {
         {/* 도시별 명소 */}
         <div className="space-y-16">
           {asiaDestinations.map((destination, index) => (
-            <section key={destination.city} className="bg-gray-50 rounded-2xl p-8 md:p-12">
+            <section key={destination.city} className="bg-[#F8F8F8] rounded-2xl p-8 md:p-12">
               <div className="mb-8">
-                <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                  📍 {destination.city}, {destination.country}
+                <h3 className="text-2xl md:text-3xl font-semibold text-black mb-4">
+                  {destination.city}, {destination.country}
                 </h3>
-                <p className="text-lg text-gray-600 mb-6">
+                <p className="text-lg text-[#555555] font-light mb-6 leading-relaxed">
                   {destination.cityDescription}
                 </p>
               </div>
@@ -161,16 +161,16 @@ export default function AsiaRegionPage() {
                     className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group"
                     onClick={() => handleAttractionClick(attraction.name)}
                   >
-                    <h4 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-red-600 transition-colors">
+                    <h4 className="text-xl font-semibold text-black mb-4 group-hover:text-gray-700 transition-colors">
                       {attraction.name}
                     </h4>
-                    <p className="text-gray-600 leading-relaxed mb-4">
+                    <p className="text-[#555555] font-light leading-relaxed mb-4">
                       {attraction.description}
                     </p>
                     <div className="flex items-center justify-between">
                       <button
                         disabled={loadingState === attraction.name}
-                        className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-[#007AFF] text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {loadingState === attraction.name ? (
                           <span className="flex items-center">
@@ -184,7 +184,7 @@ export default function AsiaRegionPage() {
                           'AI 가이드 보기'
                         )}
                       </button>
-                      <div className="text-red-600 group-hover:translate-x-1 transition-transform">
+                      <div className="text-gray-700 group-hover:translate-x-1 transition-transform">
                         →
                       </div>
                     </div>
@@ -201,18 +201,18 @@ export default function AsiaRegionPage() {
         </div>
 
         {/* CTA 섹션 */}
-        <section className="bg-gradient-to-r from-red-600 to-red-800 text-white rounded-2xl p-12 text-center mt-16">
-          <h3 className="text-3xl font-bold mb-6">
+        <section className="bg-[#F8F8F8] border border-gray-200 rounded-2xl p-12 text-center mt-16">
+          <h3 className="text-2xl md:text-3xl font-semibold text-black mb-6">
             더 많은 아시아 여행 정보가 필요하신가요?
           </h3>
-          <p className="text-xl text-red-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-[#555555] font-light mb-8 max-w-2xl mx-auto leading-relaxed">
             TripRadio.AI의 메인 검색에서 원하는 아시아 도시를 입력하고 개인 맞춤형 여행 가이드를 받아보세요
           </p>
           <button
             onClick={() => router.push('/')}
-            className="bg-white text-red-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-red-50 transition-colors"
+            className="bg-[#007AFF] text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-800 transition-colors"
           >
-            🔍 여행지 검색하기
+            여행지 검색하기
           </button>
         </section>
       </main>
@@ -220,7 +220,7 @@ export default function AsiaRegionPage() {
       {/* 푸터 */}
       <footer className="bg-gray-100 py-12 mt-16">
         <div className="container mx-auto px-4 text-center">
-          <div className="text-gray-600 mb-4">
+          <div className="text-[#555555] font-light mb-4">
             <h4 className="font-bold text-lg mb-2">TripRadio.AI - 아시아 여행 가이드</h4>
             <p>AI가 만드는 개인 맞춤형 여행 가이드 서비스</p>
           </div>

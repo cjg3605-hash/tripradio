@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import React from 'react';
-import { useTranslations } from 'next-intl';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
 // 20개 노마드 도시 대규모 데이터 (2024년 기준, Nomad List 등 참조)
 const getNomadCities = (t: (key: string) => string) => [
@@ -10,7 +10,6 @@ const getNomadCities = (t: (key: string) => string) => [
   {
     name: '리스본',
     country: '포르투갈',
-    emoji: '🇵🇹',
     monthlyBudget: { min: 1200, max: 2000, currency: '€' },
     wifiSpeed: { avg: 95, rating: 'excellent' },
     timezone: 'GMT+0',
@@ -25,7 +24,6 @@ const getNomadCities = (t: (key: string) => string) => [
   {
     name: '베르린',
     country: '독일',
-    emoji: '🇩🇪',
     monthlyBudget: { min: 1500, max: 2500, currency: '€' },
     wifiSpeed: { avg: 88, rating: 'excellent' },
     timezone: 'GMT+1',
@@ -40,7 +38,7 @@ const getNomadCities = (t: (key: string) => string) => [
   {
     name: '창구',
     country: '인도네시아',
-    emoji: '🇮🇩', 
+ 
     monthlyBudget: { min: 800, max: 1500, currency: '$' },
     wifiSpeed: { avg: 50, rating: 'good' },
     timezone: 'GMT+8',
@@ -55,7 +53,6 @@ const getNomadCities = (t: (key: string) => string) => [
   {
     name: '치앙마이',
     country: '태국',
-    emoji: '🇹🇭',
     monthlyBudget: { min: 600, max: 1200, currency: '$' },
     wifiSpeed: { avg: 45, rating: 'good' },
     timezone: 'GMT+7',
@@ -70,7 +67,6 @@ const getNomadCities = (t: (key: string) => string) => [
   {
     name: '호치민',
     country: '베트남',
-    emoji: '🇻🇳',
     monthlyBudget: { min: 700, max: 1300, currency: '$' },
     wifiSpeed: { avg: 55, rating: 'good' },
     timezone: 'GMT+7',
@@ -85,7 +81,6 @@ const getNomadCities = (t: (key: string) => string) => [
   {
     name: '멕시코시티',
     country: '멕시코',
-    emoji: '🇲🇽',
     monthlyBudget: { min: 900, max: 1600, currency: '$' },
     wifiSpeed: { avg: 65, rating: 'good' },
     timezone: 'GMT-6',
@@ -100,8 +95,14 @@ const getNomadCities = (t: (key: string) => string) => [
 ];
 
 export default function NomadCalculatorPage() {
-  const t = useTranslations('nomadCalculator');
-  const nomadCities = getNomadCities(t);
+  const { t } = useLanguage();
+  
+  // nomad-calculator 전용 번역 함수
+  const nomadT = (key: string) => {
+    return t(`nomadCalculator.${key}`);
+  };
+  
+  const nomadCities = getNomadCities(nomadT);
   
   const [selectedCity, setSelectedCity] = React.useState(nomadCities[0]);
   const [workingDays, setWorkingDays] = React.useState(22);
@@ -136,28 +137,28 @@ export default function NomadCalculatorPage() {
   return (
     <>
       <KeywordPageSchema 
-        keyword={t('keyword')}
+        keyword={nomadT('keyword')}
         pagePath="/nomad-calculator"
-        title={t('metadata.title')}
-        description={t('metadata.description')}
-        features={[t('features.calculator'), t('features.cities'), t('features.budget'), t('features.costs'), t('features.visa'), t('features.planning')]}
+        title={nomadT('metadata.title')}
+        description={nomadT('metadata.description')}
+        features={[nomadT('features.calculator'), nomadT('features.cities'), nomadT('features.budget'), nomadT('features.costs'), nomadT('features.visa'), nomadT('features.planning')]}
       />
       
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white" style={{ '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px' } as React.CSSProperties}>
         {/* Hero Section */}
         <section className="container mx-auto px-6 py-20 lg:py-32">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center px-6 py-3 bg-gray-50 border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-8">
-              {t('badge')}
+            <div className="inline-flex items-center px-6 py-3 bg-[#F8F8F8] border border-gray-200 rounded-full text-sm font-medium text-[#555555] font-light mb-8">
+              {nomadT('badge')}
             </div>
-            <h1 className="text-5xl lg:text-6xl font-light text-gray-900 mb-6 tracking-tight">
-              {t('hero.title')}
+            <h1 className="text-5xl lg:text-6xl font-light text-black mb-6 tracking-tight">
+              {nomadT('hero.title')}
             </h1>
             <h2 className="text-2xl lg:text-3xl font-normal text-gray-700 mb-8">
-              {t('hero.subtitle')}
+              {nomadT('hero.subtitle')}
             </h2>
-            <p className="text-lg lg:text-xl text-gray-600 mb-12 leading-relaxed max-w-3xl mx-auto">
-              {t('hero.description')}
+            <p className="text-lg lg:text-xl text-[#555555] font-light mb-12 leading-relaxed max-w-3xl mx-auto">
+              {nomadT('hero.description')}
             </p>
           </div>
         </section>
@@ -169,7 +170,7 @@ export default function NomadCalculatorPage() {
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: #374151;
+            background: #555555;
             cursor: pointer;
             border: 2px solid #ffffff;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -178,36 +179,36 @@ export default function NomadCalculatorPage() {
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: #374151;
+            background: #555555;
             cursor: pointer;
             border: 2px solid #ffffff;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           }
         `}</style>
-        <section className="py-20 lg:py-32 bg-gray-50">
+        <section className="py-16 lg:py-24 bg-[#F8F8F8]">
           <div className="container mx-auto px-6">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-12">
-                <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6">
-                  {t('calculator.title')}
+                <h2 className="text-3xl lg:text-4xl font-light text-black mb-6">
+                  {nomadT('calculator.title')}
                 </h2>
-                <p className="text-lg text-gray-600">
-                  {t('calculator.subtitle')}
+                <p className="text-lg text-[#555555] font-light">
+                  {nomadT('calculator.subtitle')}
                 </p>
               </div>
 
               <div className="grid lg:grid-cols-2 gap-12">
                 {/* Calculator Form */}
                 <div className="bg-white p-8 rounded-lg border border-gray-200">
-                  <h3 className="text-xl font-medium text-gray-900 mb-6">
-                    {t('calculator.form.title')}
+                  <h3 className="text-xl font-medium text-black mb-6">
+                    {nomadT('calculator.form.title')}
                   </h3>
                   
                   <div className="space-y-6">
                     {/* City Selection */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('calculator.form.city.label')}
+                        {nomadT('calculator.form.city.label')}
                       </label>
                       <select
                         value={selectedCity.name}
@@ -225,7 +226,7 @@ export default function NomadCalculatorPage() {
                     {/* Working Days */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('calculator.form.workingDays.label')} ({workingDays}{t('calculator.form.workingDays.unit')})
+                        {nomadT('calculator.form.workingDays.label')} ({workingDays}{nomadT('calculator.form.workingDays.unit')})
                       </label>
                       <input
                         type="range"
@@ -240,7 +241,7 @@ export default function NomadCalculatorPage() {
                     {/* Coworking Days */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('calculator.form.coworking.label')} ({coworkingDays}{t('calculator.form.coworking.unit')})
+                        {nomadT('calculator.form.coworking.label')} ({coworkingDays}{nomadT('calculator.form.coworking.unit')})
                       </label>
                       <input
                         type="range"
@@ -255,23 +256,23 @@ export default function NomadCalculatorPage() {
                     {/* Accommodation Type */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('calculator.form.accommodation.label')}
+                        {nomadT('calculator.form.accommodation.label')}
                       </label>
                       <select
                         value={accommodationType}
                         onChange={(e) => setAccommodationType(e.target.value)}
                         className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
                       >
-                        <option value="hostel">{t('calculator.form.accommodation.options.hostel')}</option>
-                        <option value="apartment">{t('calculator.form.accommodation.options.apartment')}</option>
-                        <option value="hotel">{t('calculator.form.accommodation.options.hotel')}</option>
+                        <option value="hostel">{nomadT('calculator.form.accommodation.options.hostel')}</option>
+                        <option value="apartment">{nomadT('calculator.form.accommodation.options.apartment')}</option>
+                        <option value="hotel">{nomadT('calculator.form.accommodation.options.hotel')}</option>
                       </select>
                     </div>
 
                     {/* Dining Out */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('calculator.form.dining.label')} ({diningOut}{t('calculator.form.dining.unit')})
+                        {nomadT('calculator.form.dining.label')} ({diningOut}{nomadT('calculator.form.dining.unit')})
                       </label>
                       <input
                         type="range"
@@ -286,7 +287,7 @@ export default function NomadCalculatorPage() {
                     {/* Entertainment Level */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('calculator.form.entertainment.label')} ({entertainmentLevel}%)
+                        {nomadT('calculator.form.entertainment.label')} ({entertainmentLevel}%)
                       </label>
                       <input
                         type="range"
@@ -303,59 +304,59 @@ export default function NomadCalculatorPage() {
                 {/* Results */}
                 <div className="bg-white p-8 rounded-lg border border-gray-200">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-medium text-gray-900">
-                      {t('calculator.results.title')}
+                    <h3 className="text-xl font-medium text-black">
+                      {nomadT('calculator.results.title')}
                     </h3>
                     <div className="text-right">
                       <div className="text-sm text-gray-500">{selectedCity.name}, {selectedCity.country}</div>
-                      <div className="text-2xl font-bold text-gray-900">
-                        ${Math.round(monthlyBudget.total)}/{t('calculator.results.perMonth')}
+                      <div className="text-2xl font-bold text-black">
+                        ${Math.round(monthlyBudget.total)}/{nomadT('calculator.results.perMonth')}
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-4">
                     <div className="flex justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">{t('calculator.results.items.accommodation')}</span>
+                      <span className="text-[#555555] font-light">{nomadT('calculator.results.items.accommodation')}</span>
                       <span className="font-medium">${Math.round(monthlyBudget.accommodation)}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">{t('calculator.results.items.food')}</span>
+                      <span className="text-[#555555] font-light">{nomadT('calculator.results.items.food')}</span>
                       <span className="font-medium">${Math.round(monthlyBudget.food)}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">{t('calculator.results.items.coworking')}</span>
+                      <span className="text-[#555555] font-light">{nomadT('calculator.results.items.coworking')}</span>
                       <span className="font-medium">${Math.round(monthlyBudget.coworking)}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">{t('calculator.results.items.transport')}</span>
+                      <span className="text-[#555555] font-light">{nomadT('calculator.results.items.transport')}</span>
                       <span className="font-medium">${Math.round(monthlyBudget.transport)}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-600">{t('calculator.results.items.entertainment')}</span>
+                      <span className="text-[#555555] font-light">{nomadT('calculator.results.items.entertainment')}</span>
                       <span className="font-medium">${Math.round(monthlyBudget.entertainment)}</span>
                     </div>
                   </div>
 
                   {/* City Info */}
                   <div className="mt-6 pt-6 border-t border-gray-200">
-                    <h4 className="font-medium text-gray-900 mb-3">{t('calculator.results.cityInfo.title')}</h4>
+                    <h4 className="font-medium text-black mb-3">{nomadT('calculator.results.cityInfo.title')}</h4>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="text-gray-500">{t('calculator.results.cityInfo.nomadScore')}</span>
+                        <span className="text-gray-500">{nomadT('calculator.results.cityInfo.nomadScore')}</span>
                         <div className="font-medium">{selectedCity.nomadScore}/10</div>
                       </div>
                       <div>
-                        <span className="text-gray-500">{t('calculator.results.cityInfo.wifi')}</span>
+                        <span className="text-gray-500">{nomadT('calculator.results.cityInfo.wifi')}</span>
                         <div className="font-medium">{selectedCity.wifiSpeed.avg}Mbps</div>
                       </div>
                       <div>
-                        <span className="text-gray-500">{t('calculator.results.cityInfo.coworking')}</span>
-                        <div className="font-medium">{selectedCity.coworkingSpaces}{t('calculator.results.cityInfo.spaces')}</div>
+                        <span className="text-gray-500">{nomadT('calculator.results.cityInfo.coworking')}</span>
+                        <div className="font-medium">{selectedCity.coworkingSpaces}{nomadT('calculator.results.cityInfo.spaces')}</div>
                       </div>
                       <div>
-                        <span className="text-gray-500">{t('calculator.results.cityInfo.visa')}</span>
-                        <div className="font-medium">{selectedCity.visaFree}{t('calculator.results.cityInfo.days')}</div>
+                        <span className="text-gray-500">{nomadT('calculator.results.cityInfo.visa')}</span>
+                        <div className="font-medium">{selectedCity.visaFree}{nomadT('calculator.results.cityInfo.days')}</div>
                       </div>
                     </div>
                   </div>
@@ -366,14 +367,14 @@ export default function NomadCalculatorPage() {
         </section>
 
         {/* Popular Cities */}
-        <section className="py-20 lg:py-32 bg-white">
+        <section className="py-16 lg:py-24 bg-white">
           <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto text-center mb-20">
-              <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6 tracking-tight">
-                {t('cities.title')}
+            <div className="max-w-4xl mx-auto text-center mb-12">
+              <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] font-light text-black mb-4 tracking-tight">
+                {nomadT('cities.title')}
               </h2>
-              <p className="text-lg text-gray-600">
-                {t('cities.subtitle')}
+              <p className="text-lg text-[#555555] font-light">
+                {nomadT('cities.subtitle')}
               </p>
             </div>
             
@@ -382,12 +383,12 @@ export default function NomadCalculatorPage() {
                 <div key={city.name} className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-300">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="text-lg font-medium text-gray-900">{city.name}</h3>
-                      <p className="text-sm text-gray-600">{city.country}</p>
+                      <h3 className="text-lg font-medium text-black">{city.name}</h3>
+                      <p className="text-sm text-[#555555] font-light">{city.country}</p>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm text-gray-500">{t('cities.monthlyBudget')}</div>
-                      <div className="font-bold text-gray-900">
+                      <div className="text-sm text-gray-500">{nomadT('cities.monthlyBudget')}</div>
+                      <div className="font-bold text-black">
                         {city.monthlyBudget.currency}{city.monthlyBudget.min}-{city.monthlyBudget.max}
                       </div>
                     </div>
@@ -395,7 +396,7 @@ export default function NomadCalculatorPage() {
                   
                   <div className="space-y-2">
                     {city.highlights.map((highlight, index) => (
-                      <div key={index} className="flex items-center text-sm text-gray-600">
+                      <div key={index} className="flex items-center text-sm text-[#555555] font-light">
                         <div className="w-1 h-1 bg-gray-400 rounded-full mr-2"></div>
                         {highlight}
                       </div>
@@ -404,8 +405,8 @@ export default function NomadCalculatorPage() {
                   
                   <div className="mt-4 pt-4 border-t border-gray-100">
                     <div className="flex justify-between text-xs text-gray-500">
-                      <span>{t('cities.nomadScore')}: {city.nomadScore}/10</span>
-                      <span>{t('cities.wifi')}: {city.wifiSpeed.avg}Mbps</span>
+                      <span>{nomadT('cities.nomadScore')}: {city.nomadScore}/10</span>
+                      <span>{nomadT('cities.wifi')}: {city.wifiSpeed.avg}Mbps</span>
                     </div>
                   </div>
                 </div>
@@ -415,14 +416,14 @@ export default function NomadCalculatorPage() {
         </section>
 
         {/* Nomad Tips */}
-        <section className="py-20 lg:py-32 bg-gray-50">
+        <section className="py-16 lg:py-24 bg-[#F8F8F8]">
           <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto text-center mb-20">
-              <h2 className="text-3xl lg:text-4xl font-light text-gray-900 mb-6 tracking-tight">
-                {t('tips.title')}
+            <div className="max-w-4xl mx-auto text-center mb-12">
+              <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] font-light text-black mb-4 tracking-tight">
+                {nomadT('tips.title')}
               </h2>
-              <p className="text-lg text-gray-600">
-                {t('tips.subtitle')}
+              <p className="text-lg text-[#555555] font-light">
+                {nomadT('tips.subtitle')}
               </p>
             </div>
             
@@ -431,19 +432,19 @@ export default function NomadCalculatorPage() {
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
                   <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.0.title')}</h3>
-                <p className="text-gray-600 text-sm">
-                  {t('tips.items.0.description')}
+                <h3 className="text-lg font-medium text-black mb-3">{nomadT('tips.items.0.title')}</h3>
+                <p className="text-[#555555] font-light text-sm">
+                  {nomadT('tips.items.0.description')}
                 </p>
               </div>
               
               <div className="bg-white p-6 rounded-lg border border-gray-200 hover:border-gray-300 transition-all duration-200">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                  <div className="w-6 h-6 bg-gray-500 rounded-sm"></div>
+                  <div className="w-6 h-6 bg-[#F8F8F8]0 rounded-sm"></div>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.1.title')}</h3>
-                <p className="text-gray-600 text-sm">
-                  {t('tips.items.1.description')}
+                <h3 className="text-lg font-medium text-black mb-3">{nomadT('tips.items.1.title')}</h3>
+                <p className="text-[#555555] font-light text-sm">
+                  {nomadT('tips.items.1.description')}
                 </p>
               </div>
               
@@ -451,9 +452,9 @@ export default function NomadCalculatorPage() {
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
                   <div className="w-4 h-6 bg-gray-600 rounded-sm"></div>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.2.title')}</h3>
-                <p className="text-gray-600 text-sm">
-                  {t('tips.items.2.description')}
+                <h3 className="text-lg font-medium text-black mb-3">{nomadT('tips.items.2.title')}</h3>
+                <p className="text-[#555555] font-light text-sm">
+                  {nomadT('tips.items.2.description')}
                 </p>
               </div>
               
@@ -461,9 +462,9 @@ export default function NomadCalculatorPage() {
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
                   <div className="w-6 h-6 border-2 border-gray-500 rounded-full"></div>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.3.title')}</h3>
-                <p className="text-gray-600 text-sm">
-                  {t('tips.items.3.description')}
+                <h3 className="text-lg font-medium text-black mb-3">{nomadT('tips.items.3.title')}</h3>
+                <p className="text-[#555555] font-light text-sm">
+                  {nomadT('tips.items.3.description')}
                 </p>
               </div>
               
@@ -472,21 +473,21 @@ export default function NomadCalculatorPage() {
                   <div className="w-3 h-3 bg-gray-600 rounded-full mr-1"></div>
                   <div className="w-3 h-3 bg-gray-600 rounded-full"></div>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.4.title')}</h3>
-                <p className="text-gray-600 text-sm">
-                  {t('tips.items.4.description')}
+                <h3 className="text-lg font-medium text-black mb-3">{nomadT('tips.items.4.title')}</h3>
+                <p className="text-[#555555] font-light text-sm">
+                  {nomadT('tips.items.4.description')}
                 </p>
               </div>
               
               <div className="bg-white p-6 rounded-lg border border-gray-200 hover:border-gray-300 transition-all duration-200">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
                   <div className="w-6 h-6 border-2 border-gray-500 rounded-full relative">
-                    <div className="absolute top-1/2 left-1/2 w-2 h-0.5 bg-gray-500 transform -translate-x-1/2 -translate-y-1/2"></div>
+                    <div className="absolute top-1/2 left-1/2 w-2 h-0.5 bg-[#F8F8F8]0 transform -translate-x-1/2 -translate-y-1/2"></div>
                   </div>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.5.title')}</h3>
-                <p className="text-gray-600 text-sm">
-                  {t('tips.items.5.description')}
+                <h3 className="text-lg font-medium text-black mb-3">{nomadT('tips.items.5.title')}</h3>
+                <p className="text-[#555555] font-light text-sm">
+                  {nomadT('tips.items.5.description')}
                 </p>
               </div>
             </div>
@@ -498,16 +499,16 @@ export default function NomadCalculatorPage() {
           <div className="container mx-auto px-6 text-center">
             <div className="max-w-3xl mx-auto">
               <h2 className="text-3xl lg:text-4xl font-light mb-6 tracking-tight">
-                {t('finalCta.title')}
+                {nomadT('finalCta.title')}
               </h2>
               <p className="text-lg lg:text-xl text-gray-300 mb-12 leading-relaxed">
-                {t('finalCta.description')}
+                {nomadT('finalCta.description')}
               </p>
               <Link 
                 href="/trip-planner?type=nomad&focus=budget"
-                className="inline-block bg-white text-gray-900 px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200 shadow-lg min-h-[44px] flex items-center justify-center"
+                className="inline-block bg-white text-black px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200 shadow-lg min-h-[44px] flex items-center justify-center"
               >
-                {t('finalCta.button')}
+                {nomadT('finalCta.button')}
               </Link>
             </div>
           </div>

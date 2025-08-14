@@ -46,9 +46,9 @@ class ErrorBoundary extends Component<
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">오류가 발생했습니다</h2>
-              <p className="text-gray-600 mb-6">죄송합니다. 예상치 못한 오류가 발생했습니다. 다시 시도해 주세요.</p>
-              <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+              <h2 className="text-2xl font-bold text-black mb-2">오류가 발생했습니다</h2>
+              <p className="text-[#555555] font-light mb-6">죄송합니다. 예상치 못한 오류가 발생했습니다. 다시 시도해 주세요.</p>
+              <div className="bg-[#F8F8F8] rounded-lg p-4 mb-6 text-left">
                 <p className="text-sm text-gray-500 font-mono">{this.state.error.message}</p>
               </div>
             </div>
@@ -1073,7 +1073,7 @@ function Home() {
   if (isAnyLoading) {
     const currentLoadingType = Object.entries(loadingStates).find(([_, loading]) => loading)?.[0] || 'search';
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8F8F8] flex items-center justify-center">
         <GuideLoading 
           type="generating"
           message={String(t('guide.generatingWithLocation', { location: currentLoadingQuery || query || '' }))}
@@ -1085,7 +1085,7 @@ function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white font-sans relative">
+    <div className="min-h-screen bg-white font-sans relative" style={{ '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px' } as React.CSSProperties}>
       {/* 배경 - 헤더의 끝선에 맞춰서 시작하고, 검색박스 위까지로 제한 - 모바일 반응형 */}
       <div className="hero-background-container">
         {/* 회전하는 배경 이미지들 */}
@@ -1372,7 +1372,7 @@ function Home() {
                         className={`w-full px-6 py-4 text-left transition-all duration-200 group suggestion-item focus:outline-none focus:ring-2 focus:ring-inset focus:ring-black ${
                           selectedSuggestionIndex === index 
                             ? 'bg-blue-50 ring-2 ring-blue-200' 
-                            : 'hover:bg-gray-50'
+                            : 'hover:bg-[#F8F8F8]'
                         }`}
                         role="option"
                         aria-selected={selectedSuggestionIndex === index}
@@ -1380,7 +1380,7 @@ function Home() {
                       >
                         <div className="flex items-center justify-between">
                           <div>
-                            <div className="font-medium text-gray-900 group-hover:text-black">
+                            <div className="font-medium text-black group-hover:text-black">
                               {suggestion.name}
                             </div>
                             {suggestion.location && (
@@ -1422,10 +1422,10 @@ function Home() {
             
             {/* 섹션 제목 */}
             <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+              <h2 className="text-2xl md:text-3xl font-bold text-black mb-3">
                 {t('home.regionTitles.popularCountries')}
               </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
+              <p className="text-[#555555] font-light max-w-2xl mx-auto">
                 {t('home.regionDescription')}
               </p>
             </div>
@@ -1444,10 +1444,10 @@ function Home() {
                       key={region.id}
                       onClick={() => setActiveRegion(region.id)}
                       className={`
-                        px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black
+                        px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-fluid-sm font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black
                         ${activeRegion === region.id
                           ? 'bg-black text-white shadow-md'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                          : 'text-[#555555] font-light hover:text-black hover:bg-[#F8F8F8]'
                         }
                       `}
                       role="tab"
@@ -1460,22 +1460,43 @@ function Home() {
                   ))}
                 </div>
               </div>
-              {/* 지역 상세 페이지 링크 */}
-              <div className="text-center mt-4">
-                <button
-                  onClick={() => router.push(`/regions/${activeRegion}`)}
-                  className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
-                >
-                  <span>
-                    {activeRegion === 'korea' && '🇰🇷 한국 명소 더보기'}
-                    {activeRegion === 'europe' && '🇪🇺 유럽 명소 더보기'}
-                    {activeRegion === 'asia' && '🌏 아시아 명소 더보기'}
-                    {activeRegion === 'americas' && '🌎 아메리카 명소 더보기'}
-                  </span>
-                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
+              {/* 지역 상세 페이지 링크 - 모든 기기 최적화 */}
+              <div className="mt-6 sm:mt-8 px-4 sm:px-6">
+                <div className="bg-[#F8F8F8] rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all duration-300">
+                  <div className="text-center space-y-3 sm:space-y-4">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-800 rounded-full"></div>
+                    </div>
+                    
+                    <div className="space-y-1 sm:space-y-2">
+                      <h3 className="text-fluid-lg sm:text-fluid-xl font-semibold text-black leading-tight">
+                        {activeRegion === 'korea' && '한국 여행지 전체보기'}
+                        {activeRegion === 'europe' && '유럽 여행지 전체보기'}
+                        {activeRegion === 'asia' && '아시아 여행지 전체보기'}
+                        {activeRegion === 'americas' && '아메리카 여행지 전체보기'}
+                      </h3>
+                      
+                      <p className="text-fluid-sm text-[#555555] font-light leading-relaxed max-w-md mx-auto">
+                        {activeRegion === 'korea' && '한국의 모든 인기 명소와 숨은 보석 같은 장소들을 발견해보세요'}
+                        {activeRegion === 'europe' && '유럽 각국의 역사적 명소와 문화 유산을 탐험해보세요'}
+                        {activeRegion === 'asia' && '아시아의 다채로운 문화와 아름다운 자연을 만나보세요'}
+                        {activeRegion === 'americas' && '남북 아메리카의 웅장한 자연과 도시를 경험해보세요'}
+                      </p>
+                    </div>
+                    
+                    <button
+                      onClick={() => router.push(`/regions/${activeRegion}`)}
+                      className="group inline-flex items-center justify-center bg-black text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-fluid-sm sm:text-fluid-base font-semibold hover:bg-gray-800 focus:bg-gray-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 min-w-[160px] sm:min-w-[200px] shadow-lg hover:shadow-xl"
+                    >
+                      <span className="leading-none">
+                        더 많은 명소 보기
+                      </span>
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1504,27 +1525,27 @@ function Home() {
                         
                         {/* 국가명 */}
                         <div className="absolute inset-0 flex items-center justify-center text-white">
-                          <h3 className="font-light text-lg tracking-wider">
+                          <h3 className="text-fluid-lg font-semibold tracking-wider leading-tight">
                             {country.name}
                           </h3>
                         </div>
 
                         {/* 인기 배지 - 모노크롬 */}
                         <div className="absolute top-3 right-3 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
-                          <span className="text-xs text-white font-light tracking-wide">{t('home.popularBadge')}</span>
+                          <span className="text-fluid-xs text-white font-normal tracking-wide leading-tight">{t('home.popularBadge')}</span>
                         </div>
                       </div>
 
                       {/* 카드 콘텐츠 - 모노크롬 스타일 */}
                       <div className="p-6">
                         {/* 설명 */}
-                        <p className="text-sm text-gray-600 mb-5 leading-relaxed font-light">
+                        <p className="text-fluid-sm text-[#555555] font-light mb-5 leading-relaxed">
                           {country.description}
                         </p>
 
                         {/* 인기 관광지 - 클릭 가능한 버튼들 */}
                         <div className="space-y-3 mb-5">
-                          <h4 className="text-xs font-medium text-gray-900 uppercase tracking-[0.1em] letter-spacing-wider">
+                          <h4 className="text-fluid-xs font-semibold text-black uppercase tracking-wide leading-tight">
                             {t('home.countryAttraction')}
                           </h4>
                           {country.attractions.slice(0, 3).map((attraction, idx) => {
@@ -1544,17 +1565,17 @@ function Home() {
                                   
                                   router.push(url);
                                 }}
-                                className="w-full text-left py-3 px-3 -mx-3 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-20 transition-all duration-200"
+                                className="w-full text-left py-3 px-3 -mx-3 rounded-lg hover:bg-[#F8F8F8] focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-20 transition-all duration-200"
                                 aria-label={`${attraction} 가이드 생성하기`}
                               >
                                 <div className="flex items-start space-x-3">
                                   <div className="w-1.5 h-1.5 bg-black rounded-full mt-2 flex-shrink-0"></div>
                                   <div className="flex-1 min-w-0">
-                                    <h5 className="font-medium text-gray-900 mb-1 underline-offset-2 hover:underline">
+                                    <h5 className="font-medium text-black mb-1 underline-offset-2 hover:underline">
                                       {attraction}
                                     </h5>
                                     {description && (
-                                      <p className="text-xs text-gray-600 leading-relaxed line-clamp-3">
+                                      <p className="text-xs text-[#555555] font-light leading-relaxed line-clamp-3">
                                         {description}
                                       </p>
                                     )}
@@ -1568,7 +1589,7 @@ function Home() {
                         {/* 정보 표시 영역 */}
                         <div className="pt-4 border-t border-gray-100">
                           <div className="flex items-center justify-end">
-                            <div className="flex items-center text-sm font-light text-gray-600">
+                            <div className="flex items-center text-sm font-light text-[#555555] font-light">
                               <span className="tracking-wide">{t('home.clickAttraction')}</span>
                               <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672L13.684 21.017l-.073-.046a.5.5 0 01-.179-.704l5.93-8.395-5.93-8.395a.5.5 0 01.179-.704l.073-.046 1.358-.655a.5.5 0 01.721.273l6.5 11.5a.5.5 0 010 .454l-6.5 11.5a.5.5 0 01-.721.273z" />
@@ -1618,13 +1639,13 @@ function Home() {
       />
 
       {/* Footer with Legal Links */}
-      <footer className="relative z-10 bg-gray-50 border-t border-gray-200">
+      <footer className="relative z-10 bg-[#F8F8F8] border-t border-gray-200">
         <div className="max-w-6xl mx-auto px-6 py-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
             {/* Service Info */}
             <div className="md:col-span-2">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('footer.companyName')}</h3>
-              <p className="text-sm text-gray-600 mb-4">
+              <h3 className="text-lg font-semibold text-black mb-4">{t('footer.companyName')}</h3>
+              <p className="text-sm text-[#555555] font-light mb-4">
                 {t('footer.companyDescription')}
               </p>
               <div className="flex items-center space-x-4">
@@ -1634,12 +1655,12 @@ function Home() {
 
             {/* Legal Pages */}
             <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-4">{t('footer.legalInfo')}</h4>
+              <h4 className="text-sm font-semibold text-black mb-4">{t('footer.legalInfo')}</h4>
               <ul className="space-y-2">
                 <li>
                   <a 
                     href="/legal/privacy" 
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
                     {t('footer.privacyPolicy')}
                   </a>
@@ -1647,7 +1668,7 @@ function Home() {
                 <li>
                   <a 
                     href="/legal/terms" 
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
                     {t('footer.termsOfService')}
                   </a>
@@ -1655,7 +1676,7 @@ function Home() {
                 <li>
                   <a 
                     href="/legal/about" 
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
                     {t('footer.aboutUs')}
                   </a>
@@ -1663,7 +1684,7 @@ function Home() {
                 <li>
                   <a 
                     href="/legal/contact" 
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
                     {t('footer.contact')}
                   </a>
@@ -1673,12 +1694,12 @@ function Home() {
 
             {/* Services */}
             <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-4">주요 서비스</h4>
+              <h4 className="text-sm font-semibold text-black mb-4">주요 서비스</h4>
               <ul className="space-y-2">
                 <li>
                   <a 
                     href="/audio-guide" 
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
                     오디오가이드
                   </a>
@@ -1686,7 +1707,7 @@ function Home() {
                 <li>
                   <a 
                     href="/docent" 
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
                     AI 도슨트
                   </a>
@@ -1694,7 +1715,7 @@ function Home() {
                 <li>
                   <a 
                     href="/tour-radio" 
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
                     투어라디오
                   </a>
@@ -1702,7 +1723,7 @@ function Home() {
                 <li>
                   <a 
                     href="/travel-radio" 
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
                     여행라디오
                   </a>
@@ -1710,7 +1731,7 @@ function Home() {
                 <li>
                   <a 
                     href="/ai-travel" 
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
                     AI여행
                   </a>
@@ -1720,12 +1741,12 @@ function Home() {
 
             {/* 여행 도구 */}
             <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-4">여행 도구</h4>
+              <h4 className="text-sm font-semibold text-black mb-4">여행 도구</h4>
               <ul className="space-y-2">
                 <li>
                   <a 
                     href="/trip-planner" 
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
                     AI 여행 계획
                   </a>
@@ -1733,7 +1754,7 @@ function Home() {
                 <li>
                   <a 
                     href="/nomad-calculator" 
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
                     노마드 계산기
                   </a>
@@ -1741,7 +1762,7 @@ function Home() {
                 <li>
                   <a 
                     href="/film-locations" 
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
                     영화 촬영지
                   </a>
@@ -1749,7 +1770,7 @@ function Home() {
                 <li>
                   <a 
                     href="/visa-checker" 
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
                     비자 체커
                   </a>
@@ -1759,20 +1780,20 @@ function Home() {
 
             {/* Support */}
             <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-4">{t('footer.support')}</h4>
+              <h4 className="text-sm font-semibold text-black mb-4">{t('footer.support')}</h4>
               <ul className="space-y-2">
                 <li>
                   <a 
                     href="https://t.me/docenttour" 
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
                     {t('footer.telegramChannel')}
                   </a>
                 </li>
                 <li>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-[#555555] font-light">
                     {t('footer.supportHours')}
                   </span>
                 </li>

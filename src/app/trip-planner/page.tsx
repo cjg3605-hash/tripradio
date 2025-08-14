@@ -8,7 +8,7 @@ const getTripTypes = (t: (key: string) => string) => [
   {
     id: 'solo',
     name: t('tripTypes.solo.name'),
-    emoji: '🎒',
+    // emoji: '🎒', // removed for minimal design
     description: t('tripTypes.solo.description'),
     features: [t('tripTypes.solo.features.safety'), t('tripTypes.solo.features.culture'), t('tripTypes.solo.features.budget')],
     color: 'blue'
@@ -170,51 +170,40 @@ const generateAITripPlan = (destination: string, tripType: string, duration: str
 };
 
 export default function TripPlannerPage() {
-  const { translations } = useLanguage();
+  const { t } = useLanguage();
   
-  // 간단한 번역 함수 - 안전한 접근
-  const t = (key: string) => {
-    if (!translations?.tripPlanner) return key;
-    try {
-      const keys = key.split('.');
-      let value: any = translations.tripPlanner;
-      for (const k of keys) {
-        value = value?.[k];
-        if (value === undefined) return key;
-      }
-      return typeof value === 'string' ? value : key;
-    } catch {
-      return key;
-    }
+  // trip-planner 전용 번역 함수
+  const tripT = (key: string) => {
+    return t(`tripPlanner.${key}`);
   };
   
-  const tripTypes = getTripTypes(t);
+  const tripTypes = getTripTypes(tripT);
   
   return (
     <>
       <KeywordPageSchema 
-        keyword={t('keyword')}
+        keyword={tripT('keyword')}
         pagePath="/trip-planner"
-        title={t('metadata.title')}
-        description={t('metadata.description')}
-        features={[t('features.aiGeneration'), t('features.realtime'), t('features.budget'), t('features.customized'), t('features.localInfo'), t('features.free')]}
+        title={tripT('metadata.title')}
+        description={tripT('metadata.description')}
+        features={[tripT('features.aiGeneration'), tripT('features.realtime'), tripT('features.budget'), tripT('features.customized'), tripT('features.localInfo'), tripT('features.free')]}
       />
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white" style={{ '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px' } as React.CSSProperties}>
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-20 lg:py-32">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
-            <div className="inline-flex items-center px-6 py-3 bg-gray-50 border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-8">
-              {t('badge')}
+            <div className="inline-flex items-center px-6 py-3 bg-[#F8F8F8] border border-gray-200 rounded-full text-sm font-medium text-[#555555] font-light mb-8">
+              {tripT('badge')}
             </div>
-            <h1 className="text-fluid-4xl font-semibold text-gray-900 mb-6 leading-tight">
-              {t('hero.title')}
+            <h1 className="text-fluid-4xl font-semibold text-black mb-6 leading-tight">
+              {tripT('hero.title')}
             </h1>
             <h2 className="text-fluid-2xl font-semibold text-gray-700 mb-8 leading-tight">
-              {t('hero.subtitle')}
+              {tripT('hero.subtitle')}
             </h2>
-            <p className="text-fluid-lg text-gray-600 mb-8 leading-relaxed max-w-3xl mx-auto">
-              {t('hero.description')}
+            <p className="text-fluid-lg text-[#555555] font-light mb-8 leading-relaxed max-w-3xl mx-auto">
+              {tripT('hero.description')}
             </p>
           </div>
         </div>
@@ -223,14 +212,14 @@ export default function TripPlannerPage() {
       {/* Quick Planner Tool */}
       <section className="container mx-auto px-6 pb-20">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-gray-50 p-8 rounded-xl mb-12 shadow-sm">
-            <h2 className="text-fluid-2xl font-semibold text-gray-900 mb-6 text-center leading-snug">
-              {t('quickPlanner.title')}
+          <div className="bg-[#F8F8F8] p-8 rounded-xl mb-12 shadow-sm">
+            <h2 className="text-fluid-2xl font-semibold text-black mb-6 text-center leading-snug">
+              {tripT('quickPlanner.title')}
             </h2>
             
             {/* Step 1: Trip Type Selection */}
             <div className="mb-8">
-              <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('steps.selectStyle')}</h3>
+              <h3 className="text-fluid-xl font-semibold text-black mb-4 leading-snug">{tripT('steps.selectStyle')}</h3>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {tripTypes.map((type) => (
                   <button
@@ -239,10 +228,10 @@ export default function TripPlannerPage() {
                     className="p-4 bg-white border-2 border-gray-200 rounded-lg hover:border-gray-400 transition-all duration-200 text-center group min-h-[88px] flex flex-col justify-center"
                   >
                     <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                      <div className="w-4 h-4 bg-gray-500 rounded"></div>
+                      <div className="w-4 h-4 bg-[#F8F8F8]0 rounded"></div>
                     </div>
-                    <div className="text-sm font-medium text-gray-900 mb-1">{type.name}</div>
-                    <div className="text-xs text-gray-600">{type.description}</div>
+                    <div className="text-sm font-medium text-black mb-1">{type.name}</div>
+                    <div className="text-xs text-[#555555] font-light">{type.description}</div>
                   </button>
                 ))}
               </div>
@@ -251,36 +240,36 @@ export default function TripPlannerPage() {
             {/* Step 2: Destination & Duration */}
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               <div>
-                <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('steps.destinationDuration')}</h3>
+                <h3 className="text-fluid-xl font-semibold text-black mb-4 leading-snug">{tripT('steps.destinationDuration')}</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('form.destination.label')}</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{tripT('form.destination.label')}</label>
                     <input 
                       type="text" 
-                      placeholder={t('form.destination.placeholder')}
+                      placeholder={tripT('form.destination.placeholder')}
                       className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">{t('form.departure')}</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{tripT('form.departure')}</label>
                       <input 
                         type="date" 
                         className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">{t('form.duration')}</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{tripT('form.duration')}</label>
                       <select className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
-                        <option>{t('form.durationOptions.dayTrip')}</option>
-                        <option>{t('form.durationOptions.oneNight')}</option>
-                        <option>{t('form.durationOptions.twoNights')}</option>
-                        <option>{t('form.durationOptions.threeNights')}</option>
-                        <option>{t('form.durationOptions.fourNights')}</option>
-                        <option>{t('form.durationOptions.oneWeek')}</option>
-                        <option>{t('form.durationOptions.twoWeeks')}</option>
-                        <option>{t('form.durationOptions.oneMonth')}</option>
-                        <option>{t('form.durationOptions.custom')}</option>
+                        <option>{tripT('form.durationOptions.dayTrip')}</option>
+                        <option>{tripT('form.durationOptions.oneNight')}</option>
+                        <option>{tripT('form.durationOptions.twoNights')}</option>
+                        <option>{tripT('form.durationOptions.threeNights')}</option>
+                        <option>{tripT('form.durationOptions.fourNights')}</option>
+                        <option>{tripT('form.durationOptions.oneWeek')}</option>
+                        <option>{tripT('form.durationOptions.twoWeeks')}</option>
+                        <option>{tripT('form.durationOptions.oneMonth')}</option>
+                        <option>{tripT('form.durationOptions.custom')}</option>
                       </select>
                     </div>
                   </div>
@@ -288,23 +277,23 @@ export default function TripPlannerPage() {
               </div>
 
               <div>
-                <h3 className="text-fluid-xl font-semibold text-gray-900 mb-4 leading-snug">{t('steps.budgetPreferences')}</h3>
+                <h3 className="text-fluid-xl font-semibold text-black mb-4 leading-snug">{tripT('steps.budgetPreferences')}</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('form.budget')}</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{tripT('form.budget')}</label>
                     <select className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
-                      <option>{t('form.budgetOptions.under20')}</option>
-                      <option>{t('form.budgetOptions.range20to50')}</option>
-                      <option>{t('form.budgetOptions.range50to100')}</option>
-                      <option>{t('form.budgetOptions.range100to200')}</option>
-                      <option>{t('form.budgetOptions.over200')}</option>
-                      <option>{t('form.budgetOptions.unlimited')}</option>
+                      <option>{tripT('form.budgetOptions.under20')}</option>
+                      <option>{tripT('form.budgetOptions.range20to50')}</option>
+                      <option>{tripT('form.budgetOptions.range50to100')}</option>
+                      <option>{tripT('form.budgetOptions.range100to200')}</option>
+                      <option>{tripT('form.budgetOptions.over200')}</option>
+                      <option>{tripT('form.budgetOptions.unlimited')}</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('form.interests')}</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{tripT('form.interests')}</label>
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      {[t('form.interestOptions.food'), t('form.interestOptions.shopping'), t('form.interestOptions.culture'), t('form.interestOptions.nature'), t('form.interestOptions.activities'), t('form.interestOptions.photography'), t('form.interestOptions.nightView'), t('form.interestOptions.spa')].map((interest) => (
+                      {[tripT('form.interestOptions.food'), tripT('form.interestOptions.shopping'), tripT('form.interestOptions.culture'), tripT('form.interestOptions.nature'), tripT('form.interestOptions.activities'), tripT('form.interestOptions.photography'), tripT('form.interestOptions.nightView'), tripT('form.interestOptions.spa')].map((interest) => (
                         <label key={interest} className="flex items-center">
                           <input type="checkbox" className="mr-2" />
                           <span>{interest}</span>
@@ -317,26 +306,26 @@ export default function TripPlannerPage() {
             </div>
 
             {/* User Preferences Panel */}
-            <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-200">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">{t('personalization.title')}</h3>
+            <div className="bg-[#F8F8F8] p-6 rounded-lg mb-8 border border-gray-200">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">{tripT('personalization.title')}</h3>
               <div className="flex flex-wrap gap-2">
                 <button 
                   onClick={() => loadUserPreferences()}
                   className="text-xs bg-white text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200 font-medium"
                 >
-                  {t('personalization.loadSettings')}
+                  {tripT('personalization.loadSettings')}
                 </button>
                 <button 
                   onClick={() => saveUserPreferences()}
                   className="text-xs bg-white text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200 font-medium"
                 >
-                  {t('personalization.saveSettings')}
+                  {tripT('personalization.saveSettings')}
                 </button>
                 <button 
                   onClick={() => showSavedPlans()}
                   className="text-xs bg-white text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200 font-medium"
                 >
-                  {t('personalization.viewSavedPlans')} (<span id="saved-count">0</span>{t('personalization.plansCount')})
+                  {tripT('personalization.viewSavedPlans')} (<span id="saved-count">0</span>{tripT('personalization.plansCount')})
                 </button>
               </div>
             </div>
@@ -348,16 +337,16 @@ export default function TripPlannerPage() {
                 className="bg-black text-white px-10 py-4 rounded-lg font-medium hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg min-h-[44px]"
                 id="generate-plan-btn"
               >
-                <span id="btn-text">{t('form.generateButton')}</span>
-                <span id="btn-loading" className="hidden">{t('form.analyzing')}</span>
+                <span id="btn-text">{tripT('form.generateButton')}</span>
+                <span id="btn-loading" className="hidden">{tripT('form.analyzing')}</span>
               </button>
-              <p className="text-xs text-gray-600 mt-2">{t('form.completionTime')}</p>
+              <p className="text-xs text-[#555555] font-light mt-2">{tripT('form.completionTime')}</p>
             </div>
 
             {/* Saved Plans Display */}
-            <div id="saved-plans" className="hidden mt-8 p-6 bg-gray-50 border border-gray-200 rounded-lg">
+            <div id="saved-plans" className="hidden mt-8 p-6 bg-[#F8F8F8] border border-gray-200 rounded-lg">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">{t('savedPlans.title')}</h3>
+                <h3 className="text-lg font-medium text-black">{tripT('savedPlans.title')}</h3>
                 <button 
                   onClick={() => document.getElementById('saved-plans').classList.add('hidden')}
                   className="text-gray-500 hover:text-gray-700"
@@ -373,19 +362,19 @@ export default function TripPlannerPage() {
             {/* Generated Plan Display */}
             <div id="generated-plan" className="hidden mt-8 p-6 bg-white border border-gray-200 rounded-lg">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">{t('generatedPlan.title')}</h3>
+                <h3 className="text-lg font-medium text-black">{tripT('generatedPlan.title')}</h3>
                 <div className="flex gap-2">
                   <button 
                     onClick={() => savePlan()}
                     className="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-200 transition-all duration-200 font-medium"
                   >
-                    {t('generatedPlan.savePlan')}
+                    {tripT('generatedPlan.savePlan')}
                   </button>
                   <button 
                     onClick={() => exportPlan()}
                     className="text-sm bg-gray-200 text-gray-800 px-3 py-1 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium"
                   >
-                    {t('generatedPlan.exportPDF')}
+                    {tripT('generatedPlan.exportPDF')}
                   </button>
                 </div>
               </div>
@@ -396,19 +385,19 @@ export default function TripPlannerPage() {
                     onClick={() => regeneratePlan()}
                     className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
                   >
-                    {t('generatedPlan.regenerate')}
+                    {tripT('generatedPlan.regenerate')}
                   </button>
                   <button 
                     onClick={() => shareTrip()}
                     className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-all duration-200 text-sm font-medium"
                   >
-                    {t('generatedPlan.share')}
+                    {tripT('generatedPlan.share')}
                   </button>
                   <button 
                     onClick={() => compareWithSimilar()}
-                    className="flex-1 bg-gray-50 text-gray-600 py-2 px-4 rounded-lg hover:bg-gray-100 transition-all duration-200 text-sm font-medium border border-gray-200"
+                    className="flex-1 bg-[#F8F8F8] text-[#555555] font-light py-2 px-4 rounded-lg hover:bg-gray-100 transition-all duration-200 text-sm font-medium border border-gray-200"
                   >
-                    {t('generatedPlan.compare')}
+                    {tripT('generatedPlan.compare')}
                   </button>
                 </div>
               </div>
@@ -417,8 +406,8 @@ export default function TripPlannerPage() {
 
           {/* Popular Destinations Quick Start */}
           <div className="mb-16">
-            <h2 className="text-fluid-2xl font-normal text-gray-900 mb-8 text-center leading-snug">
-              {t('popularDestinations.title')} <span className="font-semibold">{t('popularDestinations.subtitle')}</span>
+            <h2 className="text-fluid-2xl font-normal text-black mb-8 text-center leading-snug">
+              {tripT('popularDestinations.title')} <span className="font-semibold">{tripT('popularDestinations.subtitle')}</span>
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {popularDestinations.map((dest, index) => (
@@ -431,8 +420,8 @@ export default function TripPlannerPage() {
                       <div className="w-6 h-6 bg-gray-400 rounded"></div>
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-medium text-gray-900 mb-1">{dest.name}</h3>
-                      <p className="text-sm text-gray-600 mb-2">{dest.country}</p>
+                      <h3 className="font-medium text-black mb-1">{dest.name}</h3>
+                      <p className="text-sm text-[#555555] font-light mb-2">{dest.country}</p>
                       <div className="flex justify-between text-xs text-gray-500">
                         <span>{dest.duration}</span>
                         <span>{dest.budget}</span>
@@ -446,23 +435,23 @@ export default function TripPlannerPage() {
                       href={`/?destination=${encodeURIComponent(dest.name)}&plan=quick`}
                       className="flex-1 bg-gray-900 text-white py-2 px-3 rounded-lg text-xs text-center hover:bg-gray-800 transition-all duration-200 font-medium"
                     >
-                      {t('destinations.viewGuide')}
+                      {tripT('destinations.viewGuide')}
                     </Link>
                     {dest.region === 'asia' && (
                       <Link
                         href={`/nomad-calculator?region=asia`}
                         className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-xs hover:bg-gray-200 transition-all duration-200 font-medium"
-                        title={t('destinations.nomadInfo')}
+                        title={tripT('destinations.nomadInfo')}
                       >
-                        {t('destinations.nomad')}
+                        {tripT('destinations.nomad')}
                       </Link>
                     )}
                     <Link
                       href={`/visa-checker?country=${encodeURIComponent(dest.country)}`}
                       className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-xs hover:bg-gray-200 transition-all duration-200 font-medium"
-                      title={t('destinations.visaInfo')}
+                      title={tripT('destinations.visaInfo')}
                     >
-                      {t('destinations.visa')}
+                      {tripT('destinations.visa')}
                     </Link>
                   </div>
                 </div>
@@ -471,63 +460,63 @@ export default function TripPlannerPage() {
           </div>
 
           {/* AI Features */}
-          <div className="bg-gray-50 p-8 rounded-lg">
-            <h2 className="text-fluid-2xl font-normal text-gray-900 mb-8 text-center leading-snug">
-              {t('aiFeatures.title')} <span className="font-semibold">{t('aiFeatures.subtitle')}</span>
+          <div className="bg-[#F8F8F8] p-8 rounded-lg">
+            <h2 className="text-fluid-2xl font-normal text-black mb-8 text-center leading-snug">
+              {tripT('aiFeatures.title')} <span className="font-semibold">{tripT('aiFeatures.subtitle')}</span>
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="bg-white p-6 rounded-lg">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <div className="w-6 h-6 border-2 border-gray-500 rounded-full"></div>
                 </div>
-                <h3 className="font-medium text-gray-900 mb-2">{t('aiFeatures.customized.title')}</h3>
-                <p className="text-sm text-gray-600">
-                  {t('aiFeatures.customized.description')}
+                <h3 className="font-medium text-black mb-2">{tripT('aiFeatures.customized.title')}</h3>
+                <p className="text-sm text-[#555555] font-light">
+                  {tripT('aiFeatures.customized.description')}
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <div className="w-4 h-6 bg-gray-600 transform rotate-12"></div>
                 </div>
-                <h3 className="font-medium text-gray-900 mb-2">{t('aiFeatures.realtime.title')}</h3>
-                <p className="text-sm text-gray-600">
-                  {t('aiFeatures.realtime.description')}
+                <h3 className="font-medium text-black mb-2">{tripT('aiFeatures.realtime.title')}</h3>
+                <p className="text-sm text-[#555555] font-light">
+                  {tripT('aiFeatures.realtime.description')}
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <div className="w-6 h-6 bg-gray-500 rounded"></div>
+                  <div className="w-6 h-6 bg-[#F8F8F8]0 rounded"></div>
                 </div>
-                <h3 className="font-medium text-gray-900 mb-2">{t('aiFeatures.detailedInfo.title')}</h3>
-                <p className="text-sm text-gray-600">
-                  {t('aiFeatures.detailedInfo.description')}
+                <h3 className="font-medium text-black mb-2">{tripT('aiFeatures.detailedInfo.title')}</h3>
+                <p className="text-sm text-[#555555] font-light">
+                  {tripT('aiFeatures.detailedInfo.description')}
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
                 </div>
-                <h3 className="font-medium text-gray-900 mb-2">{t('aiFeatures.budgetManagement.title')}</h3>
-                <p className="text-sm text-gray-600">
-                  {t('aiFeatures.budgetManagement.description')}
+                <h3 className="font-medium text-black mb-2">{tripT('aiFeatures.budgetManagement.title')}</h3>
+                <p className="text-sm text-[#555555] font-light">
+                  {tripT('aiFeatures.budgetManagement.description')}
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <div className="w-4 h-6 bg-gray-600 rounded-sm"></div>
                 </div>
-                <h3 className="font-medium text-gray-900 mb-2">{t('aiFeatures.mobileOptimized.title')}</h3>
-                <p className="text-sm text-gray-600">
-                  {t('aiFeatures.mobileOptimized.description')}
+                <h3 className="font-medium text-black mb-2">{tripT('aiFeatures.mobileOptimized.title')}</h3>
+                <p className="text-sm text-[#555555] font-light">
+                  {tripT('aiFeatures.mobileOptimized.description')}
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <div className="w-5 h-5 border-2 border-gray-500 rounded-full"></div>
                 </div>
-                <h3 className="font-medium text-gray-900 mb-2">{t('aiFeatures.audioGuide.title')}</h3>
-                <p className="text-sm text-gray-600">
-                  {t('aiFeatures.audioGuide.description')}
+                <h3 className="font-medium text-black mb-2">{tripT('aiFeatures.audioGuide.title')}</h3>
+                <p className="text-sm text-[#555555] font-light">
+                  {tripT('aiFeatures.audioGuide.description')}
                 </p>
               </div>
             </div>
@@ -540,10 +529,10 @@ export default function TripPlannerPage() {
         <div className="container mx-auto px-6 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-fluid-3xl font-normal mb-6 leading-tight">
-              {t('audioGuideIntegration.title.before')} <span className="font-semibold">{t('audioGuideIntegration.title.highlight')}</span>
+              {tripT('audioGuideIntegration.title.before')} <span className="font-semibold">{tripT('audioGuideIntegration.title.highlight')}</span>
             </h2>
             <p className="text-fluid-lg text-gray-300 mb-8 leading-relaxed">
-              {t('audioGuideIntegration.description')}
+              {tripT('audioGuideIntegration.description')}
             </p>
             <div className="grid md:grid-cols-3 gap-6 mb-12">
               <div className="bg-gray-900 p-6 rounded-lg">
@@ -552,15 +541,15 @@ export default function TripPlannerPage() {
                     <div className="absolute top-1/2 left-1/2 w-1 h-1 bg-gray-900 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
                   </div>
                 </div>
-                <h3 className="font-medium mb-2">{t('audioGuideIntegration.features.autoStart.title')}</h3>
-                <p className="text-sm text-gray-300">{t('audioGuideIntegration.features.autoStart.description')}</p>
+                <h3 className="font-medium mb-2">{tripT('audioGuideIntegration.features.autoStart.title')}</h3>
+                <p className="text-sm text-gray-300">{tripT('audioGuideIntegration.features.autoStart.description')}</p>
               </div>
               <div className="bg-gray-900 p-6 rounded-lg">
                 <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mb-3">
                   <div className="w-4 h-4 border-2 border-gray-900 rounded-full"></div>
                 </div>
-                <h3 className="font-medium mb-2">{t('audioGuideIntegration.features.personalized.title')}</h3>
-                <p className="text-sm text-gray-300">{t('audioGuideIntegration.features.personalized.description')}</p>
+                <h3 className="font-medium mb-2">{tripT('audioGuideIntegration.features.personalized.title')}</h3>
+                <p className="text-sm text-gray-300">{tripT('audioGuideIntegration.features.personalized.description')}</p>
               </div>
               <div className="bg-gray-900 p-6 rounded-lg">
                 <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mb-3">
@@ -568,15 +557,15 @@ export default function TripPlannerPage() {
                     <div className="absolute -top-1 -right-1 w-2 h-2 border border-gray-900 rounded-full bg-white"></div>
                   </div>
                 </div>
-                <h3 className="font-medium mb-2">{t('audioGuideIntegration.features.realtimeUpdate.title')}</h3>
-                <p className="text-sm text-gray-300">{t('audioGuideIntegration.features.realtimeUpdate.description')}</p>
+                <h3 className="font-medium mb-2">{tripT('audioGuideIntegration.features.realtimeUpdate.title')}</h3>
+                <p className="text-sm text-gray-300">{tripT('audioGuideIntegration.features.realtimeUpdate.description')}</p>
               </div>
             </div>
             <Link 
               href="/?planner=integrated"
               className="inline-block bg-white text-black px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200"
             >
-              {t('audioGuideIntegration.tryButton')}
+              {tripT('audioGuideIntegration.tryButton')}
             </Link>
           </div>
         </div>
@@ -635,27 +624,27 @@ export default function TripPlannerPage() {
                 
                 \${Array.from({length: 3}, (_, i) => \`
                   <div class="border border-gray-200 rounded-lg p-4">
-                    <h5 class="font-medium text-gray-900 mb-3">Day \${i+1}</h5>
+                    <h5 class="font-medium text-black mb-3">Day \${i+1}</h5>
                     <div class="space-y-2 text-sm">
                       <div class="flex items-start gap-2">
                         <span class="text-yellow-600">🌅</span>
                         <div>
                           <span class="font-medium">오전:</span>
-                          <span class="text-gray-600 ml-1">\${template.morning[i % template.morning.length]}</span>
+                          <span class="text-[#555555] font-light ml-1">\${template.morning[i % template.morning.length]}</span>
                         </div>
                       </div>
                       <div class="flex items-start gap-2">
                         <span class="text-blue-600">☀️</span>
                         <div>
                           <span class="font-medium">오후:</span>
-                          <span class="text-gray-600 ml-1">\${template.afternoon[i % template.afternoon.length]}</span>
+                          <span class="text-[#555555] font-light ml-1">\${template.afternoon[i % template.afternoon.length]}</span>
                         </div>
                       </div>
                       <div class="flex items-start gap-2">
                         <span class="text-purple-600">🌙</span>
                         <div>
                           <span class="font-medium">저녁:</span>
-                          <span class="text-gray-600 ml-1">\${template.evening[i % template.evening.length]}</span>
+                          <span class="text-[#555555] font-light ml-1">\${template.evening[i % template.evening.length]}</span>
                         </div>
                       </div>
                     </div>
@@ -682,8 +671,8 @@ export default function TripPlannerPage() {
           const typeButtons = document.querySelectorAll('[data-type]');
           typeButtons.forEach(btn => {
             btn.addEventListener('click', function() {
-              typeButtons.forEach(b => b.classList.remove('selected', 'border-gray-400', 'bg-gray-50'));
-              this.classList.add('selected', 'border-gray-400', 'bg-gray-50');
+              typeButtons.forEach(b => b.classList.remove('selected', 'border-gray-400', 'bg-[#F8F8F8]'));
+              this.classList.add('selected', 'border-gray-400', 'bg-[#F8F8F8]');
             });
           });
         });
@@ -760,10 +749,10 @@ export default function TripPlannerPage() {
             list.innerHTML = plans.map(plan => \`
               <div class="bg-white p-4 rounded border border-gray-200 hover:shadow-md transition-all">
                 <div class="flex justify-between items-start mb-2">
-                  <h4 class="font-medium text-gray-900">\${plan.destination}</h4>
+                  <h4 class="font-medium text-black">\${plan.destination}</h4>
                   <span class="text-xs text-gray-500">\${plan.date}</span>
                 </div>
-                <div class="text-sm text-gray-600 mb-3">
+                <div class="text-sm text-[#555555] font-light mb-3">
                   예산: \${plan.preferences?.budget || 'N/A'} | 기간: \${plan.preferences?.duration || 'N/A'}
                 </div>
                 <div class="flex gap-2">

@@ -57,9 +57,9 @@ export default function AiTravelPage() {
         description={t('meta.description')}
         features={[t('aiFeatures.intelligentContent.title'), t('aiFeatures.personalization.title'), t('aiFeatures.locationRecognition.title'), t('aiFeatures.voiceSynthesis.title'), t('aiFeatures.dataIntegration.title'), t('aiFeatures.continuousLearning.title')]}
       />
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white" style={{ '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px' } as React.CSSProperties}>
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-24 lg:py-32">
+      <section className="container mx-auto px-6 py-16 lg:py-24">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
             <div className="inline-flex items-center px-4 py-2 bg-[#F8F8F8] rounded-full text-sm font-medium text-[#555555] mb-6">
@@ -91,12 +91,12 @@ export default function AiTravelPage() {
       </section>
 
       {/* Future of Travel Section */}
-      <section className="py-24 lg:py-32 bg-[#F8F8F8]">
+      <section className="py-16 lg:py-24 bg-[#F8F8F8]">
         <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center mb-20">
-            <h2 className="text-[clamp(2rem,3.5vw,3rem)] font-semibold text-black mb-6 leading-tight">
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] font-semibold text-black mb-4 leading-tight">
               {t('futureOfTravel.title')} 
-              <span className="font-light block mt-2">{t('futureOfTravel.titleBold')}</span>
+              <span className="font-light block mt-1">{t('futureOfTravel.titleBold')}</span>
             </h2>
             <div className="w-16 h-px bg-[#555555] mx-auto"></div>
           </div>
@@ -104,7 +104,9 @@ export default function AiTravelPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <div className="bg-white p-8 rounded-lg border border-[#F8F8F8]">
               <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
-                <div className="text-2xl">😰</div>
+                <div className="w-6 h-6 border-2 border-[#555555] rounded-full flex items-center justify-center">
+                  <div className="w-2 h-2 bg-[#555555] rounded-full"></div>
+                </div>
               </div>
               <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('futureOfTravel.existingProblems.title')}</h3>
               <ul className="text-[#555555] space-y-2 text-sm font-light">
@@ -116,7 +118,9 @@ export default function AiTravelPage() {
             
             <div className="bg-white p-8 rounded-lg border border-[#F8F8F8]">
               <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
-                <div className="text-2xl">🤖</div>
+                <div className="w-6 h-6 bg-black rounded-sm flex items-center justify-center">
+                  <div className="w-3 h-3 bg-white rounded-full"></div>
+                </div>
               </div>
               <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('futureOfTravel.aiInnovation.title')}</h3>
               <ul className="text-[#555555] space-y-2 text-sm font-light">
@@ -128,7 +132,9 @@ export default function AiTravelPage() {
             
             <div className="bg-white p-8 rounded-lg border border-[#F8F8F8]">
               <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
-                <div className="text-2xl">✨</div>
+                <div className="w-6 h-6 border-2 border-[#007AFF] rounded-full flex items-center justify-center">
+                  <div className="w-2 h-2 bg-[#007AFF] rounded-full"></div>
+                </div>
               </div>
               <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('futureOfTravel.futureTravel.title')}</h3>
               <ul className="text-[#555555] space-y-2 text-sm font-light">
@@ -144,10 +150,10 @@ export default function AiTravelPage() {
       {/* AI Features Section */}
       <section id="ai-features" className="py-24 lg:py-32 bg-white">
         <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center mb-20">
-            <h2 className="text-[clamp(2rem,3.5vw,3rem)] font-semibold text-black mb-6 leading-tight">
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] font-semibold text-black mb-4 leading-tight">
               {t('aiFeatures.title')} 
-              <span className="font-light block mt-2">{t('aiFeatures.titleBold')}</span>
+              <span className="font-light block mt-1">{t('aiFeatures.titleBold')}</span>
             </h2>
             <div className="w-16 h-px bg-[#555555] mx-auto"></div>
           </div>
@@ -155,7 +161,7 @@ export default function AiTravelPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
               <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
-                <div className="text-2xl">🧠</div>
+                <div className="w-6 h-6 bg-[#555555] rounded-lg"></div>
               </div>
               <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('aiFeatures.intelligentContent.title')}</h3>
               <p className="text-[#555555] font-light leading-relaxed">
@@ -165,7 +171,11 @@ export default function AiTravelPage() {
             
             <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
               <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
-                <div className="text-2xl">🎯</div>
+                <div className="w-6 h-6 border-2 border-black rounded-full flex items-center justify-center">
+                  <div className="w-3 h-3 border border-black rounded-full flex items-center justify-center">
+                    <div className="w-1 h-1 bg-black rounded-full"></div>
+                  </div>
+                </div>
               </div>
               <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('aiFeatures.personalization.title')}</h3>
               <p className="text-[#555555] font-light leading-relaxed">
@@ -175,7 +185,9 @@ export default function AiTravelPage() {
             
             <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
               <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
-                <div className="text-2xl">📍</div>
+                <div className="w-4 h-6 bg-black rounded-full rounded-b-none flex items-end justify-center">
+                  <div className="w-2 h-2 bg-white rounded-full mb-1"></div>
+                </div>
               </div>
               <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('aiFeatures.locationRecognition.title')}</h3>
               <p className="text-[#555555] font-light leading-relaxed">
@@ -185,7 +197,12 @@ export default function AiTravelPage() {
             
             <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
               <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
-                <div className="text-2xl">🗣️</div>
+                <div className="flex space-x-1">
+                  <div className="w-1 h-4 bg-[#555555] rounded-full"></div>
+                  <div className="w-1 h-5 bg-[#555555] rounded-full"></div>
+                  <div className="w-1 h-3 bg-[#555555] rounded-full"></div>
+                  <div className="w-1 h-5 bg-[#555555] rounded-full"></div>
+                </div>
               </div>
               <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('aiFeatures.voiceSynthesis.title')}</h3>
               <p className="text-[#555555] font-light leading-relaxed">
@@ -195,7 +212,13 @@ export default function AiTravelPage() {
             
             <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
               <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
-                <div className="text-2xl">📚</div>
+                <div className="w-5 h-6 border-2 border-[#555555] rounded-sm">
+                  <div className="h-full w-full flex flex-col justify-center space-y-0.5 px-1">
+                    <div className="h-0.5 bg-[#555555] rounded"></div>
+                    <div className="h-0.5 bg-[#555555] rounded"></div>
+                    <div className="h-0.5 bg-[#555555] rounded"></div>
+                  </div>
+                </div>
               </div>
               <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('aiFeatures.dataIntegration.title')}</h3>
               <p className="text-[#555555] font-light leading-relaxed">
@@ -205,7 +228,11 @@ export default function AiTravelPage() {
             
             <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
               <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
-                <div className="text-2xl">🔄</div>
+                <div className="w-6 h-6 border-2 border-[#555555] rounded-full relative">
+                  <div className="absolute -top-1 right-0 w-2 h-2">
+                    <div className="w-0 h-0 border-l-2 border-b-2 border-[#555555] rotate-45"></div>
+                  </div>
+                </div>
               </div>
               <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('aiFeatures.continuousLearning.title')}</h3>
               <p className="text-[#555555] font-light leading-relaxed">
@@ -217,12 +244,12 @@ export default function AiTravelPage() {
       </section>
 
       {/* AI Journey Section */}
-      <section className="py-24 lg:py-32 bg-[#F8F8F8]">
+      <section className="py-16 lg:py-24 bg-[#F8F8F8]">
         <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center mb-20">
-            <h2 className="text-[clamp(2rem,3.5vw,3rem)] font-semibold text-black mb-6 leading-tight">
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] font-semibold text-black mb-4 leading-tight">
               {t('aiJourney.title')} 
-              <span className="font-light block mt-2">{t('aiJourney.titleBold')}</span>
+              <span className="font-light block mt-1">{t('aiJourney.titleBold')}</span>
             </h2>
             <div className="w-16 h-px bg-[#555555] mx-auto"></div>
           </div>
@@ -232,7 +259,14 @@ export default function AiTravelPage() {
               <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
                 <div className="flex gap-6">
                   <div className="flex-shrink-0 w-16 h-16 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">📋</span>
+                    <div className="w-8 h-10 border-2 border-[#555555] rounded-sm">
+                      <div className="h-full w-full flex flex-col justify-start pt-2 space-y-1 px-1">
+                        <div className="h-0.5 bg-[#555555] rounded"></div>
+                        <div className="h-0.5 bg-[#555555] rounded"></div>
+                        <div className="h-0.5 bg-[#555555] rounded"></div>
+                        <div className="h-0.5 bg-[#555555] rounded w-3/4"></div>
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <h3 className="text-fluid-2xl font-semibold text-black mb-3 leading-snug">{t('aiJourney.planning.title')}</h3>
@@ -251,7 +285,10 @@ export default function AiTravelPage() {
               <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
                 <div className="flex gap-6">
                   <div className="flex-shrink-0 w-16 h-16 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">🧭</span>
+                    <div className="w-8 h-8 border-2 border-[#555555] rounded-full relative">
+                      <div className="absolute top-1/2 left-1/2 w-4 h-0.5 bg-[#555555] transform -translate-x-1/2 -translate-y-1/2 rotate-45"></div>
+                      <div className="absolute top-1 left-1/2 w-0 h-0 border-l-2 border-r-2 border-b-3 border-transparent border-b-[#007AFF] transform -translate-x-1/2"></div>
+                    </div>
                   </div>
                   <div>
                     <h3 className="text-fluid-2xl font-semibold text-black mb-3 leading-snug">{t('aiJourney.navigation.title')}</h3>
@@ -270,7 +307,10 @@ export default function AiTravelPage() {
               <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
                 <div className="flex gap-6">
                   <div className="flex-shrink-0 w-16 h-16 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">🎙️</span>
+                    <div className="relative">
+                      <div className="w-6 h-8 border-2 border-[#555555] rounded-t-full"></div>
+                      <div className="absolute bottom-0 left-1/2 w-4 h-2 bg-[#555555] rounded-sm transform -translate-x-1/2 translate-y-1"></div>
+                    </div>
                   </div>
                   <div>
                     <h3 className="text-fluid-2xl font-semibold text-black mb-3 leading-snug">{t('aiJourney.commentary.title')}</h3>
@@ -289,7 +329,13 @@ export default function AiTravelPage() {
               <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
                 <div className="flex gap-6">
                   <div className="flex-shrink-0 w-16 h-16 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">📱</span>
+                    <div className="w-6 h-10 border-2 border-[#555555] rounded-lg">
+                      <div className="h-full w-full flex flex-col justify-center items-center space-y-1">
+                        <div className="w-4 h-2 bg-[#F8F8F8] rounded"></div>
+                        <div className="w-4 h-3 bg-[#007AFF] rounded-sm"></div>
+                        <div className="w-1 h-1 bg-[#555555] rounded-full"></div>
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <h3 className="text-fluid-2xl font-semibold text-black mb-3 leading-snug">{t('aiJourney.realTimeInfo.title')}</h3>
@@ -310,12 +356,12 @@ export default function AiTravelPage() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-24 lg:py-32 bg-white">
+      <section className="py-16 lg:py-24 bg-white">
         <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center mb-20">
-            <h2 className="text-[clamp(2rem,3.5vw,3rem)] font-semibold text-black mb-6 leading-tight">
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] font-semibold text-black mb-4 leading-tight">
               {t('benefits.title')} 
-              <span className="font-light block mt-2">{t('benefits.titleBold')}</span>
+              <span className="font-light block mt-1">{t('benefits.titleBold')}</span>
             </h2>
             <div className="w-16 h-px bg-[#555555] mx-auto"></div>
           </div>
@@ -325,7 +371,9 @@ export default function AiTravelPage() {
               <div className="bg-white p-6 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
                 <div className="flex gap-4">
                   <div className="flex-shrink-0 w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">💰</span>
+                    <div className="w-6 h-6 border-2 border-[#555555] rounded-full flex items-center justify-center">
+                      <div className="text-xs font-bold text-[#555555]">$</div>
+                    </div>
                   </div>
                   <div>
                     <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-2 leading-snug">{t('benefits.costSaving.title')}</h3>
@@ -339,7 +387,10 @@ export default function AiTravelPage() {
               <div className="bg-white p-6 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
                 <div className="flex gap-4">
                   <div className="flex-shrink-0 w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">⏰</span>
+                    <div className="w-6 h-6 border-2 border-[#555555] rounded-full relative">
+                      <div className="absolute top-1/2 left-1/2 w-2 h-0.5 bg-[#555555] transform -translate-x-1/2 -translate-y-1/2 origin-left rotate-90"></div>
+                      <div className="absolute top-1/2 left-1/2 w-1.5 h-0.5 bg-[#555555] transform -translate-x-1/2 -translate-y-1/2 origin-left"></div>
+                    </div>
                   </div>
                   <div>
                     <h3 className="text-fluid-xl font-semibold text-black mb-2 leading-snug">{t('benefits.timeSaving.title')}</h3>
@@ -353,7 +404,11 @@ export default function AiTravelPage() {
               <div className="bg-white p-6 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
                 <div className="flex gap-4">
                   <div className="flex-shrink-0 w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">🎯</span>
+                    <div className="w-6 h-6 border-2 border-black rounded-full flex items-center justify-center">
+                      <div className="w-3 h-3 border border-black rounded-full flex items-center justify-center">
+                        <div className="w-1 h-1 bg-black rounded-full"></div>
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <h3 className="text-fluid-xl font-semibold text-black mb-2 leading-snug">{t('benefits.personalization.title')}</h3>
@@ -369,7 +424,10 @@ export default function AiTravelPage() {
               <div className="bg-white p-6 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
                 <div className="flex gap-4">
                   <div className="flex-shrink-0 w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">🌍</span>
+                    <div className="w-6 h-6 border-2 border-[#555555] rounded-full relative">
+                      <div className="absolute top-1 left-1.5 w-3 h-2 border border-[#555555] rounded-full"></div>
+                      <div className="absolute bottom-1.5 right-1 w-2 h-1.5 border border-[#555555] rounded-full"></div>
+                    </div>
                   </div>
                   <div>
                     <h3 className="text-fluid-xl font-semibold text-black mb-2 leading-snug">{t('benefits.languageBarrier.title')}</h3>
@@ -383,7 +441,11 @@ export default function AiTravelPage() {
               <div className="bg-white p-6 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
                 <div className="flex gap-4">
                   <div className="flex-shrink-0 w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">🔄</span>
+                    <div className="w-6 h-6 border-2 border-[#555555] rounded-full relative">
+                      <div className="absolute -top-1 right-0 w-2 h-2">
+                        <div className="w-0 h-0 border-l-2 border-b-2 border-[#555555] rotate-45"></div>
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <h3 className="text-fluid-xl font-semibold text-black mb-2 leading-snug">{t('benefits.realTimeUpdate.title')}</h3>
@@ -397,7 +459,13 @@ export default function AiTravelPage() {
               <div className="bg-white p-6 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
                 <div className="flex gap-4">
                   <div className="flex-shrink-0 w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">📚</span>
+                    <div className="w-5 h-6 border-2 border-[#555555] rounded-sm">
+                      <div className="h-full w-full flex flex-col justify-center space-y-0.5 px-1">
+                        <div className="h-0.5 bg-[#555555] rounded"></div>
+                        <div className="h-0.5 bg-[#555555] rounded"></div>
+                        <div className="h-0.5 bg-[#555555] rounded"></div>
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <h3 className="text-fluid-xl font-semibold text-black mb-2 leading-snug">{t('benefits.richInformation.title')}</h3>
@@ -413,13 +481,13 @@ export default function AiTravelPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 lg:py-32 bg-black text-white">
+      <section className="py-16 lg:py-24 bg-black text-white">
         <div className="container mx-auto px-6 text-center">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-[clamp(2rem,3.5vw,3rem)] font-semibold mb-6 leading-tight">
+            <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] font-semibold mb-4 leading-tight">
               {t('cta.title')}
             </h2>
-            <p className="text-[clamp(1rem,1.5vw,1.25rem)] font-light text-[#555555] mb-12 leading-relaxed">
+            <p className="text-[clamp(1rem,1.2vw,1.125rem)] font-light text-white mb-8 leading-relaxed max-w-2xl mx-auto">
               {t('cta.description')}
             </p>
             <Link 

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
 // 30개 영화/드라마 대규모 촬영지 데이터
 const getFilmLocations = (t: (key: string) => string) => [
@@ -11,7 +11,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 2019,
     genre: 'thriller',
-    poster: '🏆',
+    // poster: '🏆',
     locations: [
       { name: t('films.parasite.locations.jahamun.name'), area: t('films.parasite.locations.jahamun.area'), description: t('films.parasite.locations.jahamun.description') },
       { name: t('films.parasite.locations.snu.name'), area: t('films.parasite.locations.snu.area'), description: t('films.parasite.locations.snu.description') },
@@ -26,7 +26,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'drama',
     year: 2021,
     genre: 'drama',
-    poster: '🦑',
+    // poster: '🦑',
     locations: [
       { name: t('films.squidGame.locations.tribowl.name'), area: t('films.squidGame.locations.tribowl.area'), description: t('films.squidGame.locations.tribowl.description') },
       { name: t('films.squidGame.locations.yongyu.name'), area: t('films.squidGame.locations.yongyu.area'), description: t('films.squidGame.locations.yongyu.description') },
@@ -41,7 +41,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'drama', 
     year: 2019,
     genre: 'romance',
-    poster: '🪂',
+    // poster: '🪂',
     locations: [
       { name: t('films.cloy.locations.sigriswil.name'), area: t('films.cloy.locations.sigriswil.area'), description: t('films.cloy.locations.sigriswil.description') },
       { name: t('films.cloy.locations.beolgok.name'), area: t('films.cloy.locations.beolgok.area'), description: t('films.cloy.locations.beolgok.description') },
@@ -56,7 +56,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'drama',
     year: 2016,
     genre: 'fantasy',
-    poster: '👹',
+    // poster: '👹',
     locations: [
       { name: t('films.goblin.locations.deoksugung.name'), area: t('films.goblin.locations.deoksugung.area'), description: t('films.goblin.locations.deoksugung.description') },
       { name: t('films.goblin.locations.jumunjin.name'), area: t('films.goblin.locations.jumunjin.area'), description: t('films.goblin.locations.jumunjin.description') },
@@ -71,7 +71,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 2004,
     genre: 'war',
-    poster: '🇰🇷',
+    // poster: '🇰🇷',
     locations: [
       { name: t('films.taegeukgi.locations.taebaek.name'), area: t('films.taegeukgi.locations.taebaek.area'), description: t('films.taegeukgi.locations.taebaek.description') },
       { name: t('films.taegeukgi.locations.auraji.name'), area: t('films.taegeukgi.locations.auraji.area'), description: t('films.taegeukgi.locations.auraji.description') },
@@ -86,7 +86,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 2020,
     genre: 'drama',
-    poster: '🌿',
+    // poster: '🌿',
     locations: [
       { name: '털사', area: '오클라호마 주', description: '이민 가족의 농장' },
       { name: '아칸소', area: '아칸소 주', description: '주요 배경지' }
@@ -102,7 +102,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 2012,
     genre: 'action',
-    poster: '⚡',
+    // poster: '⚡',
     locations: [
       { name: '스타크 타워', area: '뉴욕 맨해튼', description: '아이언맨의 본거지' },
       { name: '중앙역', area: '뉴욕 맨해튼', description: '최종 결전 장면' },
@@ -117,7 +117,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 2014,
     genre: 'SF',
-    poster: '🌌',
+    // poster: '🌌',
     locations: [
       { name: '아이슬란드 빙하', area: '아이슬란드', description: '얼음 행성 장면' },
       { name: '앨버타 평원', area: '캐나다', description: '옥수수밭 장면' },
@@ -132,7 +132,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 2016,
     genre: 'musical',
-    poster: '🎭',
+    // poster: '🎭',
     locations: [
       { name: '그리피스 천문대', area: '로스앤젤레스', description: '데이트 장면' },
       { name: '허모사 비치', area: '캘리포니아', description: '해변 댄스' },
@@ -147,7 +147,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'animation',
     year: 1995,
     genre: 'animation',
-    poster: '🤠',
+    // poster: '🤠',
     locations: [
       { name: '픽사 스튜디오', area: '캘리포니아', description: '제작사 본사' },
       { name: '샌프란시스코', area: '캘리포니아', description: '도시 배경' }
@@ -163,7 +163,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'animation',
     year: 2013,
     genre: 'animation',
-    poster: '❄️',
+    // poster: '❄️',
     locations: [
       { name: '할슈타트', area: '오스트리아', description: '아렌델 왕국의 모티브' },
       { name: '베르겐', area: '노르웨이', description: '안나와 엘사의 고향 배경' },
@@ -178,7 +178,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 2001,
     genre: 'fantasy',
-    poster: '⚡',
+    // poster: '⚡',
     locations: [
       { name: '옥스퍼드 대학', area: '영국 옥스퍼드', description: '호그와트 내부' },
       { name: '앨닉 성', area: '영국 노섬벌랜드', description: '호그와트 외관' },
@@ -193,7 +193,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 1953,
     genre: 'romance',
-    poster: '🏛️',
+    // poster: '🏛️',
     locations: [
       { name: '트레비 분수', area: '이탈리아 로마', description: '동전 던지기 장면' },
       { name: '스페인 계단', area: '이탈리아 로마', description: '젤라토 먹는 장면' },
@@ -208,7 +208,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 2001,
     genre: 'romance',
-    poster: '💚',
+    // poster: '💚',
     locations: [
       { name: '몽마르트 언덕', area: '프랑스 파리', description: '아멜리의 동네' },
       { name: '사크레쾨르', area: '프랑스 파리', description: '전망 장면' },
@@ -225,7 +225,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'animation',
     year: 2016,
     genre: 'animation',
-    poster: '☄️',
+    // poster: '☄️',
     locations: [
       { name: '스가 신사', area: '일본 도쿄', description: '계단 명장면' },
       { name: '히다시', area: '일본 기후현', description: '시골 마을 배경' },
@@ -240,7 +240,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'animation',
     year: 2001,
     genre: 'animation',
-    poster: '👻',
+    // poster: '👻',
     locations: [
       { name: '도고 온천', area: '일본 에히메현', description: '목욕탕 모티브' },
       { name: '지브리 박물관', area: '일본 도쿄', description: '제작사 박물관' },
@@ -257,7 +257,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 2000,
     genre: 'martial-arts',
-    poster: '🗡️',
+    // poster: '🗡️',
     locations: [
       { name: '우당산', area: '중국 후베이성', description: '무협 액션 장면' },
       { name: '자금성', area: '중국 베이징', description: '궁궐 장면' },
@@ -274,7 +274,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'drama',
     year: 2016,
     genre: 'SF',
-    poster: '🔬',
+    // poster: '🔬',
     locations: [
       { name: '호킨스 중학교', area: '조지아 주', description: '주인공들의 학교' },
       { name: '스타코트 몰', area: '조지아 주', description: '시즌3 주요 무대' },
@@ -289,7 +289,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'drama',
     year: 2019,
     genre: 'zombie',
-    poster: '🧟',
+    // poster: '🧟',
     locations: [
       { name: '문경새재', area: '경북 문경시', description: '조선 궁궐 세트' },
       { name: '해인사', area: '경남 합천군', description: '사찰 장면' },
@@ -306,7 +306,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 2014,
     genre: 'action',
-    poster: '🔫',
+    // poster: '🔫',
     locations: [
       { name: '컨티넨탈 호텔', area: '뉴욕 맨해튼', description: '킬러들의 호텔' },
       { name: '브루클린', area: '뉴욕', description: '존 윅의 집' },
@@ -321,7 +321,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 1996,
     genre: 'action',
-    poster: '🎯',
+    // poster: '🎯',
     locations: [
       { name: '버즈 할리파', area: 'UAE 두바이', description: '톰 크루즈 건물 오르기' },
       { name: '시드니 오페라하우스', area: '호주', description: '추격 장면' },
@@ -338,7 +338,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 1994,
     genre: 'drama',
-    poster: '🏃',
+    // poster: '🏃',
     locations: [
       { name: '새너 광장', area: '조지아 사바나', description: '벤치 장면' },
       { name: '링컨 메모리얼', area: '워싱턴 DC', description: '연설 장면' },
@@ -353,7 +353,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 1997,
     genre: 'romance',
-    poster: '🚢',
+    // poster: '🚢',
     locations: [
       { name: '벨파스트', area: '북아일랜드', description: '타이타닉 건조소' },
       { name: '할리팩스', area: '캐나다', description: '타이타닉 박물관' },
@@ -370,7 +370,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 1994,
     genre: 'comedy',
-    poster: '🎭',
+    // poster: '🎭',
     locations: [
       { name: '로스앤젤레스', area: '캘리포니아', description: '도시 배경' },
       { name: '코코넛 그로브', area: '플로리다', description: '나이트클럽' }
@@ -386,7 +386,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 2017,
     genre: 'horror',
-    poster: '👁️',
+    // poster: '👁️',
     locations: [
       { name: '앨라바마', area: '앨라바마 주', description: '저택 촬영지' },
       { name: '모바일', area: '앨라바마 주', description: '마을 배경' }
@@ -402,7 +402,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 2021,
     genre: 'SF',
-    poster: '🏜️',
+    // poster: '🏜️',
     locations: [
       { name: '와디럼', area: '요단', description: '사막 행성' },
       { name: '아부다비', area: 'UAE', description: '미래 도시' },
@@ -417,7 +417,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     type: 'movie',
     year: 2022,
     genre: 'action',
-    poster: '✈️',
+    // poster: '✈️',
     locations: [
       { name: '샌디에이고', area: '캘리포니아', description: '해군 기지' },
       { name: '모뉴먼트 밸리', area: '유타/아리조나', description: '비행 훈련' }
@@ -433,34 +433,40 @@ const regionKeys = ['all', 'domestic', 'japan', 'china', 'usa', 'europe', 'other
 const difficultyKeys = ['all', 'easy', 'normal', 'hard'];
 
 export default function FilmLocationsPage() {
-  const t = useTranslations('filmLocations');
-  const filmLocations = getFilmLocations(t);
+  const { t } = useLanguage();
+  
+  // film-locations 전용 번역 함수
+  const filmT = (key: string) => {
+    return t(`filmLocations.${key}`);
+  };
+  
+  const filmLocations = getFilmLocations(filmT);
   
   return (
     <>
       <KeywordPageSchema 
-        keyword={t('hero.title')}
+        keyword={filmT('hero.title')}
         pagePath="/film-locations"
-        title={t('hero.description')}
-        description={t('hero.description')}
-        features={[t('features.exactLocation.title'), t('features.photoGuide.title'), t('features.behindStory.title'), t('features.transport'), t('features.nearbyFood'), t('features.audioGuide.title')]}
+        title={filmT('hero.description')}
+        description={filmT('hero.description')}
+        features={[filmT('features.exactLocation.title'), filmT('features.photoGuide.title'), filmT('features.behindStory.title'), filmT('features.transport'), filmT('features.nearbyFood'), filmT('features.audioGuide.title')]}
       />
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white" style={{ '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px' } as React.CSSProperties}>
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-20 lg:py-32">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
-            <div className="inline-flex items-center px-6 py-3 bg-gray-50 border border-gray-200 rounded-full text-sm font-medium text-gray-600 mb-8">
-              {t('badge')}
+            <div className="inline-flex items-center px-6 py-3 bg-[#F8F8F8] border border-[#F8F8F8] rounded-full text-sm font-medium text-[#555555] font-light mb-8">
+              {filmT('badge')}
             </div>
-            <h1 className="text-5xl lg:text-6xl font-light text-gray-900 mb-6 tracking-tight">
-              {t('hero.title')}
+            <h1 className="text-5xl lg:text-6xl font-light text-black mb-6 tracking-tight">
+              {filmT('hero.title')}
             </h1>
-            <h2 className="text-2xl lg:text-3xl font-normal text-gray-700 mb-8">
-              {t('hero.subtitle')}
+            <h2 className="text-2xl lg:text-3xl font-normal text-[#555555] mb-8">
+              {filmT('hero.subtitle')}
             </h2>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-3xl mx-auto">
-              {t('hero.description')}
+            <p className="text-lg text-[#555555] font-light mb-8 leading-relaxed max-w-3xl mx-auto">
+              {filmT('hero.description')}
             </p>
           </div>
         </div>
@@ -470,29 +476,29 @@ export default function FilmLocationsPage() {
       <section className="container mx-auto px-6 pb-8">
         <div className="max-w-6xl mx-auto">
           {/* Search Bar */}
-          <div className="bg-gray-50 p-6 rounded-lg mb-8">
+          <div className="bg-[#F8F8F8] p-6 rounded-lg mb-8">
             <div className="max-w-2xl mx-auto mb-6">
               <input 
                 type="text" 
-                placeholder={t('search.placeholder')}
-                className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-center transition-all duration-200 min-h-[44px]"
+                placeholder={filmT('search.placeholder')}
+                className="w-full p-4 border border-[#555555] rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-center transition-all duration-200 min-h-[44px]"
               />
-              <p className="text-sm text-gray-600 text-center mt-2">
-                {t('search.examples')}
+              <p className="text-sm text-[#555555] font-light text-center mt-2">
+                {filmT('search.examples')}
               </p>
             </div>
             
             {/* Filter Tabs */}
             <div className="flex flex-wrap justify-center gap-4">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-700">{t('filters.genre')}</span>
+                <span className="text-sm font-medium text-[#555555]">{filmT('filters.genre')}</span>
                 <div className="flex flex-wrap gap-2">
                   {genreKeys.map((genreKey) => (
                     <button 
                       key={genreKey}
-                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-all duration-200 font-medium"
+                      className="px-4 py-2 bg-white border border-[#555555] rounded-lg text-sm hover:bg-[#F8F8F8] transition-all duration-200 font-medium"
                     >
-                      {t(`genres.${genreKey}`)}
+                      {filmT(`genres.${genreKey}`)}
                     </button>
                   ))}
                 </div>
@@ -506,22 +512,22 @@ export default function FilmLocationsPage() {
       <section className="container mx-auto px-6 pb-16">
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-light text-gray-900">
-              {t('locations.title')}
+            <h2 className="text-2xl font-light text-black">
+              {filmT('locations.title')}
             </h2>
             <div className="flex gap-2">
-              <select className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm">
-                <option>{t('filters.sortBy.popularity')}</option>
-                <option>{t('filters.sortBy.latest')}</option>
-                <option>{t('filters.sortBy.accessible')}</option>
-                <option>{t('filters.sortBy.distance')}</option>
+              <select className="px-4 py-2 border border-[#555555] rounded-lg bg-white text-sm">
+                <option>{filmT('filters.sortBy.popularity')}</option>
+                <option>{filmT('filters.sortBy.latest')}</option>
+                <option>{filmT('filters.sortBy.accessible')}</option>
+                <option>{filmT('filters.sortBy.distance')}</option>
               </select>
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filmLocations.map((film, index) => (
-              <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300">
+              <div key={index} className="bg-white border border-[#F8F8F8] rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300">
                 {/* Film Header */}
                 <div className="p-6 border-b border-gray-100">
                   <div className="flex items-start justify-between mb-3">
@@ -530,12 +536,12 @@ export default function FilmLocationsPage() {
                         <div className="w-6 h-6 bg-gray-400 rounded"></div>
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{film.title}</h3>
-                        <p className="text-sm text-gray-600">{film.year} · {t(`genres.${film.genre}`)}</p>
+                        <h3 className="font-semibold text-black">{film.title}</h3>
+                        <p className="text-sm text-[#555555] font-light">{film.year} · {filmT(`genres.${film.genre}`)}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs font-medium">
+                      <div className="bg-gray-100 text-[#555555] px-3 py-1 rounded-lg text-xs font-medium">
                         {film.popularity}%
                       </div>
                     </div>
@@ -543,19 +549,19 @@ export default function FilmLocationsPage() {
                   
                   <div className="flex items-center gap-4 text-sm">
                     <span className={`px-3 py-1 rounded-lg text-xs font-medium ${
-                      film.difficulty === 'easy' ? 'bg-gray-50 text-gray-600 border border-gray-200' :
-                      film.difficulty === 'normal' ? 'bg-gray-100 text-gray-700 border border-gray-300' :
+                      film.difficulty === 'easy' ? 'bg-[#F8F8F8] text-[#555555] font-light border border-[#F8F8F8]' :
+                      film.difficulty === 'normal' ? 'bg-gray-100 text-[#555555] border border-[#555555]' :
                       'bg-gray-200 text-gray-800 border border-gray-400'
                     }`}>
-                      {t(`difficulties.${film.difficulty}`)}
+                      {filmT(`difficulties.${film.difficulty}`)}
                     </span>
-                    <span className="text-gray-600">{t('locations.locationCount', film.locations.length)}</span>
+                    <span className="text-[#555555] font-light">{filmT('locations.locationCount', film.locations.length)}</span>
                   </div>
                 </div>
 
                 {/* Locations List */}
                 <div className="p-6">
-                  <h4 className="font-medium text-gray-900 mb-3">{t('locations.mainLocations')}</h4>
+                  <h4 className="font-medium text-black mb-3">{filmT('locations.mainLocations')}</h4>
                   <div className="space-y-3">
                     {film.locations.map((location, locIndex) => (
                       <div key={locIndex} className="flex items-start gap-3">
@@ -563,8 +569,8 @@ export default function FilmLocationsPage() {
                           {locIndex + 1}
                         </div>
                         <div className="flex-1">
-                          <h5 className="font-medium text-sm text-gray-900">{location.name}</h5>
-                          <p className="text-xs text-gray-600 mb-1">{location.area}</p>
+                          <h5 className="font-medium text-sm text-black">{location.name}</h5>
+                          <p className="text-xs text-[#555555] font-light mb-1">{location.area}</p>
                           <p className="text-xs text-gray-500">{location.description}</p>
                         </div>
                       </div>
@@ -578,7 +584,7 @@ export default function FilmLocationsPage() {
                     href={`/?film=${encodeURIComponent(film.title)}&setjetting=true`}
                     className="w-full bg-black text-white py-3 px-4 rounded-lg text-center block hover:bg-gray-800 transition-all duration-200 text-sm font-medium shadow-sm min-h-[44px] flex items-center justify-center"
                   >
-                    {t('locations.detailGuide')}
+                    {filmT('locations.detailGuide')}
                   </Link>
                 </div>
               </div>
@@ -587,61 +593,61 @@ export default function FilmLocationsPage() {
 
           {/* Load More */}
           <div className="text-center mt-12">
-            <button className="bg-gray-100 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-200 transition-colors">
-              {t('locations.loadMore')}
+            <button className="bg-gray-100 text-[#555555] px-8 py-3 rounded-lg hover:bg-gray-200 transition-colors">
+              {filmT('locations.loadMore')}
             </button>
           </div>
         </div>
       </section>
 
       {/* Interactive Features */}
-      <section className="py-20 lg:py-32 bg-gray-50">
+      <section className="py-20 lg:py-32 bg-[#F8F8F8]">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-light text-gray-900 mb-4">
-              {t('features.title')}
+            <h2 className="text-3xl font-light text-black mb-4">
+              {filmT('features.title')}
             </h2>
-            <p className="text-gray-600">{t('features.subtitle')}</p>
+            <p className="text-[#555555] font-light">{filmT('features.subtitle')}</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
+            <div className="bg-white p-6 rounded-lg border border-[#F8F8F8] text-center">
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <div className="w-6 h-6 bg-gray-500 rounded-full"></div>
+                <div className="w-6 h-6 bg-[#F8F8F8]0 rounded-full"></div>
               </div>
-              <h3 className="font-medium text-gray-900 mb-2">{t('features.exactLocation.title')}</h3>
-              <p className="text-sm text-gray-600">
-                {t('features.exactLocation.description')}
+              <h3 className="font-medium text-black mb-2">{filmT('features.exactLocation.title')}</h3>
+              <p className="text-sm text-[#555555] font-light">
+                {filmT('features.exactLocation.description')}
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
+            <div className="bg-white p-6 rounded-lg border border-[#F8F8F8] text-center">
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <div className="w-6 h-4 bg-gray-600 rounded-sm"></div>
               </div>
-              <h3 className="font-medium text-gray-900 mb-2">{t('features.photoGuide.title')}</h3>
-              <p className="text-sm text-gray-600">
-                {t('features.photoGuide.description')}
+              <h3 className="font-medium text-black mb-2">{filmT('features.photoGuide.title')}</h3>
+              <p className="text-sm text-[#555555] font-light">
+                {filmT('features.photoGuide.description')}
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
+            <div className="bg-white p-6 rounded-lg border border-[#F8F8F8] text-center">
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <div className="w-6 h-6 bg-gray-500 rounded-lg"></div>
+                <div className="w-6 h-6 bg-[#F8F8F8]0 rounded-lg"></div>
               </div>
-              <h3 className="font-medium text-gray-900 mb-2">{t('features.behindStory.title')}</h3>
-              <p className="text-sm text-gray-600">
-                {t('features.behindStory.description')}
+              <h3 className="font-medium text-black mb-2">{filmT('features.behindStory.title')}</h3>
+              <p className="text-sm text-[#555555] font-light">
+                {filmT('features.behindStory.description')}
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
+            <div className="bg-white p-6 rounded-lg border border-[#F8F8F8] text-center">
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <div className="w-5 h-5 border-2 border-gray-500 rounded-full"></div>
               </div>
-              <h3 className="font-medium text-gray-900 mb-2">{t('features.audioGuide.title')}</h3>
-              <p className="text-sm text-gray-600">
-                {t('features.audioGuide.description')}
+              <h3 className="font-medium text-black mb-2">{filmT('features.audioGuide.title')}</h3>
+              <p className="text-sm text-[#555555] font-light">
+                {filmT('features.audioGuide.description')}
               </p>
             </div>
           </div>
@@ -652,85 +658,85 @@ export default function FilmLocationsPage() {
       <section className="py-20 lg:py-32 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-2xl font-light text-gray-900 mb-8 text-center">
-              {t('categories.title')}
+            <h2 className="text-2xl font-light text-black mb-8 text-center">
+              {filmT('categories.title')}
             </h2>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Link href="/film-locations?genre=kdrama" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200">
+              <Link href="/film-locations?genre=kdrama" className="bg-[#F8F8F8] p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-[#F8F8F8]">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
                     <div className="w-6 h-6 bg-gray-600 rounded"></div>
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900">{t('categories.kdrama.title')}</h3>
-                    <p className="text-sm text-gray-600">{t('categories.kdrama.description')}</p>
-                    <p className="text-xs text-gray-500 mt-1">{t('categories.kdrama.count')}</p>
+                    <h3 className="font-medium text-black">{filmT('categories.kdrama.title')}</h3>
+                    <p className="text-sm text-[#555555] font-light">{filmT('categories.kdrama.description')}</p>
+                    <p className="text-xs text-gray-500 mt-1">{filmT('categories.kdrama.count')}</p>
                   </div>
                 </div>
               </Link>
 
-              <Link href="/film-locations?genre=hollywood" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200">
+              <Link href="/film-locations?genre=hollywood" className="bg-[#F8F8F8] p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-[#F8F8F8]">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
                     <div className="w-6 h-4 bg-gray-700 rounded-sm"></div>
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900">{t('categories.hollywood.title')}</h3>
-                    <p className="text-sm text-gray-600">{t('categories.hollywood.description')}</p>
-                    <p className="text-xs text-gray-500 mt-1">{t('categories.hollywood.count')}</p>
+                    <h3 className="font-medium text-black">{filmT('categories.hollywood.title')}</h3>
+                    <p className="text-sm text-[#555555] font-light">{filmT('categories.hollywood.description')}</p>
+                    <p className="text-xs text-gray-500 mt-1">{filmT('categories.hollywood.count')}</p>
                   </div>
                 </div>
               </Link>
 
-              <Link href="/film-locations?genre=anime" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200">
+              <Link href="/film-locations?genre=anime" className="bg-[#F8F8F8] p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-[#F8F8F8]">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                    <div className="w-6 h-6 bg-gray-500 rounded-full"></div>
+                    <div className="w-6 h-6 bg-[#F8F8F8]0 rounded-full"></div>
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900">{t('categories.anime.title')}</h3>
-                    <p className="text-sm text-gray-600">{t('categories.anime.description')}</p>
-                    <p className="text-xs text-gray-500 mt-1">{t('categories.anime.count')}</p>
+                    <h3 className="font-medium text-black">{filmT('categories.anime.title')}</h3>
+                    <p className="text-sm text-[#555555] font-light">{filmT('categories.anime.description')}</p>
+                    <p className="text-xs text-gray-500 mt-1">{filmT('categories.anime.count')}</p>
                   </div>
                 </div>
               </Link>
 
-              <Link href="/film-locations?genre=marvel" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200">
+              <Link href="/film-locations?genre=marvel" className="bg-[#F8F8F8] p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-[#F8F8F8]">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
                     <div className="w-4 h-6 bg-gray-600 transform rotate-12"></div>
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900">{t('categories.marvel.title')}</h3>
-                    <p className="text-sm text-gray-600">{t('categories.marvel.description')}</p>
-                    <p className="text-xs text-gray-500 mt-1">{t('categories.marvel.count')}</p>
+                    <h3 className="font-medium text-black">{filmT('categories.marvel.title')}</h3>
+                    <p className="text-sm text-[#555555] font-light">{filmT('categories.marvel.description')}</p>
+                    <p className="text-xs text-gray-500 mt-1">{filmT('categories.marvel.count')}</p>
                   </div>
                 </div>
               </Link>
 
-              <Link href="/film-locations?genre=historic" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200">
+              <Link href="/film-locations?genre=historic" className="bg-[#F8F8F8] p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-[#F8F8F8]">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
                     <div className="w-8 h-6 bg-gray-700 rounded-t-lg"></div>
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900">{t('categories.historic.title')}</h3>
-                    <p className="text-sm text-gray-600">{t('categories.historic.description')}</p>
-                    <p className="text-xs text-gray-500 mt-1">{t('categories.historic.count')}</p>
+                    <h3 className="font-medium text-black">{filmT('categories.historic.title')}</h3>
+                    <p className="text-sm text-[#555555] font-light">{filmT('categories.historic.description')}</p>
+                    <p className="text-xs text-gray-500 mt-1">{filmT('categories.historic.count')}</p>
                   </div>
                 </div>
               </Link>
 
-              <Link href="/film-locations?genre=romance" className="bg-gray-50 p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200">
+              <Link href="/film-locations?genre=romance" className="bg-[#F8F8F8] p-6 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-[#F8F8F8]">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
                     <div className="w-4 h-4 bg-gray-600 rounded-full"></div>
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900">{t('categories.romance.title')}</h3>
-                    <p className="text-sm text-gray-600">{t('categories.romance.description')}</p>
-                    <p className="text-xs text-gray-500 mt-1">{t('categories.romance.count')}</p>
+                    <h3 className="font-medium text-black">{filmT('categories.romance.title')}</h3>
+                    <p className="text-sm text-[#555555] font-light">{filmT('categories.romance.description')}</p>
+                    <p className="text-xs text-gray-500 mt-1">{filmT('categories.romance.count')}</p>
                   </div>
                 </div>
               </Link>
@@ -740,115 +746,115 @@ export default function FilmLocationsPage() {
       </section>
 
       {/* Cross-Tool Integration */}
-      <section className="py-20 lg:py-32 bg-gray-50">
+      <section className="py-20 lg:py-32 bg-[#F8F8F8]">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-light text-gray-900 mb-4">
-              {t('tools.title')}
+            <h2 className="text-3xl font-light text-black mb-4">
+              {filmT('tools.title')}
             </h2>
-            <p className="text-gray-600">{t('tools.subtitle')}</p>
+            <p className="text-[#555555] font-light">{filmT('tools.subtitle')}</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto mb-12">
-            <Link href="/trip-planner?theme=movie" className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-300">
+            <Link href="/trip-planner?theme=movie" className="bg-white p-6 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
               <div className="text-center mb-4">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <div className="w-6 h-6 bg-gray-500 rounded"></div>
+                  <div className="w-6 h-6 bg-[#F8F8F8]0 rounded"></div>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900">{t('tools.tripPlanner.title')}</h3>
+                <h3 className="text-lg font-medium text-black">{filmT('tools.tripPlanner.title')}</h3>
               </div>
-              <p className="text-sm text-gray-600 text-center mb-4">
-                {t('tools.tripPlanner.description')}
+              <p className="text-sm text-[#555555] font-light text-center mb-4">
+                {filmT('tools.tripPlanner.description')}
               </p>
               <div className="text-center">
-                <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs font-medium">{t('tools.tripPlanner.badge')}</span>
+                <span className="bg-gray-100 text-[#555555] px-3 py-1 rounded-lg text-xs font-medium">{filmT('tools.tripPlanner.badge')}</span>
               </div>
             </Link>
 
-            <Link href="/visa-checker?purpose=filming" className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-300">
+            <Link href="/visa-checker?purpose=filming" className="bg-white p-6 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
               <div className="text-center mb-4">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                   <div className="w-5 h-6 bg-gray-600 rounded-sm"></div>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900">{t('tools.visaChecker.title')}</h3>
+                <h3 className="text-lg font-medium text-black">{filmT('tools.visaChecker.title')}</h3>
               </div>
-              <p className="text-sm text-gray-600 text-center mb-4">
-                {t('tools.visaChecker.description')}
+              <p className="text-sm text-[#555555] font-light text-center mb-4">
+                {filmT('tools.visaChecker.description')}
               </p>
               <div className="text-center">
-                <span className="bg-gray-200 text-gray-800 px-3 py-1 rounded-lg text-xs font-medium">{t('tools.visaChecker.badge')}</span>
+                <span className="bg-gray-200 text-gray-800 px-3 py-1 rounded-lg text-xs font-medium">{filmT('tools.visaChecker.badge')}</span>
               </div>
             </Link>
 
-            <div className="bg-white p-6 rounded-lg border border-gray-200">
+            <div className="bg-white p-6 rounded-lg border border-[#F8F8F8]">
               <div className="text-center mb-4">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <div className="w-6 h-4 bg-gray-500 rounded"></div>
+                  <div className="w-6 h-4 bg-[#F8F8F8]0 rounded"></div>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900">{t('tools.collection.title')}</h3>
+                <h3 className="text-lg font-medium text-black">{filmT('tools.collection.title')}</h3>
               </div>
-              <p className="text-sm text-gray-600 text-center mb-4">
-                {t('tools.collection.description')}
+              <p className="text-sm text-[#555555] font-light text-center mb-4">
+                {filmT('tools.collection.description')}
               </p>
               <div className="flex gap-2 justify-center">
                 <button 
                   onClick={() => {
                     const saved = JSON.parse(localStorage.getItem('saved-film-locations') || '[]');
-                    alert(t('tools.collection.savedCount', saved.length));
+                    alert(filmT('tools.collection.savedCount', saved.length));
                   }}
-                  className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs hover:bg-gray-200 transition-all duration-200 font-medium"
+                  className="bg-gray-100 text-[#555555] px-3 py-1 rounded-lg text-xs hover:bg-gray-200 transition-all duration-200 font-medium"
                 >
-                  {t('tools.collection.checkSaved')}
+                  {filmT('tools.collection.checkSaved')}
                 </button>
               </div>
             </div>
           </div>
 
           {/* Popular Film Tourism Routes */}
-          <div className="bg-white p-8 rounded-lg border border-gray-200">
-            <h3 className="text-xl font-medium text-gray-900 mb-6 text-center">{t('routes.title')}</h3>
+          <div className="bg-white p-8 rounded-lg border border-[#F8F8F8]">
+            <h3 className="text-xl font-medium text-black mb-6 text-center">{filmT('routes.title')}</h3>
             <div className="grid md:grid-cols-2 gap-6">
-              <Link href="/trip-planner?route=kdrama-seoul" className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <Link href="/trip-planner?route=kdrama-seoul" className="flex items-center gap-4 p-4 bg-[#F8F8F8] rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
                   <div className="w-4 h-4 bg-gray-600 rounded"></div>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">{t('routes.kdramaSeoul.title')}</h4>
-                  <p className="text-sm text-gray-600">{t('routes.kdramaSeoul.description')}</p>
-                  <span className="text-xs text-blue-600">{t('routes.kdramaSeoul.cost')}</span>
+                  <h4 className="font-medium text-black">{filmT('routes.kdramaSeoul.title')}</h4>
+                  <p className="text-sm text-[#555555] font-light">{filmT('routes.kdramaSeoul.description')}</p>
+                  <span className="text-xs text-blue-600">{filmT('routes.kdramaSeoul.cost')}</span>
                 </div>
               </Link>
               
-              <Link href="/trip-planner?route=ghibli-japan" className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <Link href="/trip-planner?route=ghibli-japan" className="flex items-center gap-4 p-4 bg-[#F8F8F8] rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
                   <div className="w-4 h-3 bg-gray-700 rounded-sm"></div>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">{t('routes.ghibliJapan.title')}</h4>
-                  <p className="text-sm text-gray-600">{t('routes.ghibliJapan.description')}</p>
-                  <span className="text-xs text-blue-600">{t('routes.ghibliJapan.cost')}</span>
+                  <h4 className="font-medium text-black">{filmT('routes.ghibliJapan.title')}</h4>
+                  <p className="text-sm text-[#555555] font-light">{filmT('routes.ghibliJapan.description')}</p>
+                  <span className="text-xs text-blue-600">{filmT('routes.ghibliJapan.cost')}</span>
                 </div>
               </Link>
               
-              <Link href="/trip-planner?route=marvel-usa" className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <Link href="/trip-planner?route=marvel-usa" className="flex items-center gap-4 p-4 bg-[#F8F8F8] rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
                   <div className="w-3 h-4 bg-gray-600 transform rotate-12"></div>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">{t('routes.marvelUsa.title')}</h4>
-                  <p className="text-sm text-gray-600">{t('routes.marvelUsa.description')}</p>
-                  <span className="text-xs text-blue-600">{t('routes.marvelUsa.cost')}</span>
+                  <h4 className="font-medium text-black">{filmT('routes.marvelUsa.title')}</h4>
+                  <p className="text-sm text-[#555555] font-light">{filmT('routes.marvelUsa.description')}</p>
+                  <span className="text-xs text-blue-600">{filmT('routes.marvelUsa.cost')}</span>
                 </div>
               </Link>
               
-              <Link href="/trip-planner?route=lotr-newzealand" className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <Link href="/trip-planner?route=lotr-newzealand" className="flex items-center gap-4 p-4 bg-[#F8F8F8] rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
-                  <div className="w-4 h-4 bg-gray-500 rounded-full"></div>
+                  <div className="w-4 h-4 bg-[#F8F8F8]0 rounded-full"></div>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">{t('routes.lotrNewzealand.title')}</h4>
-                  <p className="text-sm text-gray-600">{t('routes.lotrNewzealand.description')}</p>
-                  <span className="text-xs text-blue-600">{t('routes.lotrNewzealand.cost')}</span>
+                  <h4 className="font-medium text-black">{filmT('routes.lotrNewzealand.title')}</h4>
+                  <p className="text-sm text-[#555555] font-light">{filmT('routes.lotrNewzealand.description')}</p>
+                  <span className="text-xs text-blue-600">{filmT('routes.lotrNewzealand.cost')}</span>
                 </div>
               </Link>
             </div>
@@ -857,43 +863,43 @@ export default function FilmLocationsPage() {
       </section>
 
       {/* Audio Guide Integration for Film Locations */}
-      <section className="py-20 lg:py-32 bg-gray-900 text-white">
+      <section className="py-20 lg:py-32 bg-[#007AFF] text-white">
         <div className="container mx-auto px-6 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl lg:text-4xl font-light mb-6 tracking-tight">
-              {t('audioExperience.title')}
+              {filmT('audioExperience.title')}
             </h2>
             <p className="text-lg lg:text-xl text-gray-300 mb-8 leading-relaxed">
-              {t('audioExperience.description')}
+              {filmT('audioExperience.description')}
             </p>
             <div className="grid md:grid-cols-3 gap-6 mb-12">
-              <div className="bg-gray-900 p-6 rounded-lg">
+              <div className="bg-[#007AFF] p-6 rounded-lg">
                 <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
                   <div className="w-6 h-6 bg-gray-300 rounded-lg"></div>
                 </div>
-                <h3 className="font-medium mb-2">{t('audioExperience.filmingStory.title')}</h3>
-                <p className="text-sm text-gray-300">{t('audioExperience.filmingStory.description')}</p>
+                <h3 className="font-medium mb-2">{filmT('audioExperience.filmingStory.title')}</h3>
+                <p className="text-sm text-gray-300">{filmT('audioExperience.filmingStory.description')}</p>
               </div>
-              <div className="bg-gray-900 p-6 rounded-lg">
+              <div className="bg-[#007AFF] p-6 rounded-lg">
                 <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <div className="w-6 h-6 border-2 border-gray-300 rounded-full"></div>
+                  <div className="w-6 h-6 border-2 border-[#555555] rounded-full"></div>
                 </div>
-                <h3 className="font-medium mb-2">{t('audioExperience.photoSpot.title')}</h3>
-                <p className="text-sm text-gray-300">{t('audioExperience.photoSpot.description')}</p>
+                <h3 className="font-medium mb-2">{filmT('audioExperience.photoSpot.title')}</h3>
+                <p className="text-sm text-gray-300">{filmT('audioExperience.photoSpot.description')}</p>
               </div>
-              <div className="bg-gray-900 p-6 rounded-lg">
+              <div className="bg-[#007AFF] p-6 rounded-lg">
                 <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
                   <div className="w-5 h-5 bg-gray-400 rounded"></div>
                 </div>
-                <h3 className="font-medium mb-2">{t('audioExperience.immersive.title')}</h3>
-                <p className="text-sm text-gray-300">{t('audioExperience.immersive.description')}</p>
+                <h3 className="font-medium mb-2">{filmT('audioExperience.immersive.title')}</h3>
+                <p className="text-sm text-gray-300">{filmT('audioExperience.immersive.description')}</p>
               </div>
             </div>
             <Link 
               href="/?film=experience&setjetting=true"
-              className="inline-block bg-white text-gray-900 px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200 shadow-lg"
+              className="inline-block bg-white text-black px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200 shadow-lg"
             >
-              {t('audioExperience.cta')}
+              {filmT('audioExperience.cta')}
             </Link>
           </div>
         </div>

@@ -1125,6 +1125,7 @@
           }
         },
         "genres": {
+          "all": "전체",
           "drama": "드라마",
           "action": "액션",
           "romance": "로맨스",
@@ -1132,10 +1133,18 @@
           "comedy": "코미디",
           "horror": "호러",
           "fantasy": "판타지",
-          "historical": "사극"
+          "historical": "사극",
+          "sf": "SF",
+          "animation": "애니메이션",
+          "war": "전쟁",
+          "musical": "뮤지컬",
+          "martial-arts": "무협",
+          "zombie": "좀비"
         },
         "difficulties": {
+          "all": "전체",
           "easy": "쉬움",
+          "normal": "보통",
           "medium": "보통",
           "hard": "어려움"
         },
@@ -1143,7 +1152,8 @@
           "title": "촬영지 둘러보기",
           "mainLocations": "주요 촬영지",
           "detailGuide": "상세 가이드 보기",
-          "loadMore": "더 많은 촬영지 보기"
+          "loadMore": "더 많은 촬영지 보기",
+          "locationCount": "{count}개 촬영지"
         },
         "features": {
           "title": "특별한 촬영지 여행",
@@ -2187,6 +2197,119 @@
         "button": "무료 자유여행 계획하기"
       }
     },
+    "docent": {
+      "meta": {
+        "keyword": "AI 도슨트",
+        "title": "AI 도슨트 | 박물관 미술관 무료 오디오 가이드",
+        "description": "박물관과 미술관에서 AI 도슨트가 들려주는 맞춤형 해설. 개인 취향에 맞는 전문적인 문화 해설 서비스.",
+        "features": {
+          "customized": "맞춤형 해설",
+          "realTime": "실시간 생성",
+          "free": "무료 서비스",
+          "flexible": "자유로운 관람",
+          "worldwide": "전세계 지원",
+          "smartphone": "스마트폰 사용"
+        }
+      },
+      "hero": {
+        "badge": "AI Docent • Museum Guide",
+        "title": "박물관이 살아날 때",
+        "subtitle": "AI 도슨트와 함께",
+        "description": "AI 도슨트가 당신의 관심사와 취향에 맞춰 박물관과 미술관의 작품들을 생생하게 해설해드립니다.",
+        "startFree": "무료 시작하기",
+        "serviceIntro": "서비스 소개"
+      },
+      "problems": {
+        "title": "기존 박물관 해설의 아쉬운 점들",
+        "subtitle": "이런 경험 있으시죠?",
+        "expensiveCost": {
+          "title": "비싼 도슨트 비용",
+          "description": "전문 도슨트 서비스는 비용이 많이 들어 부담스러워요"
+        },
+        "fixedSchedule": {
+          "title": "정해진 시간표",
+          "description": "도슨트 투어 시간에 맞춰야 해서 자유롭게 관람하기 어려워요"
+        },
+        "genericContent": {
+          "title": "획일적인 해설",
+          "description": "개인의 관심사나 수준을 고려하지 않은 일반적인 해설만 들을 수 있어요"
+        }
+      },
+      "solution": {
+        "title": "AI 도슨트로 달라지는 관람 경험",
+        "subtitle": "당신만을 위한 맞춤형 문화 해설",
+        "features": {
+          "customized": {
+            "title": "개인 맞춤형 해설",
+            "description": "관람자의 관심 분야, 지식 수준, 연령대에 맞춘 개별화된 해설을 제공합니다"
+          },
+          "realTime": {
+            "title": "실시간 AI 생성",
+            "description": "실시간으로 작품과 전시에 대한 최신 정보와 해석을 생성해드립니다"
+          },
+          "free": {
+            "title": "완전 무료 서비스",
+            "description": "별도 비용 없이 언제든지 고품질의 도슨트 서비스를 이용하실 수 있습니다"
+          },
+          "flexible": {
+            "title": "자유로운 관람 시간",
+            "description": "원하는 시간에, 원하는 속도로, 관심 있는 작품 위주로 자유롭게 관람하세요"
+          },
+          "worldwide": {
+            "title": "전세계 박물관 지원",
+            "description": "세계 유명 박물관과 미술관의 작품 정보를 다국어로 제공합니다"
+          },
+          "smartphone": {
+            "title": "스마트폰으로 간편하게",
+            "description": "별도 장비 없이 스마트폰만으로 전문가 수준의 해설을 들을 수 있습니다"
+          }
+        }
+      },
+      "useCases": {
+        "title": "AI 도슨트를 만날 수 있는 곳",
+        "subtitle": "다양한 문화 공간에서 활용해보세요",
+        "museums": {
+          "title": "박물관",
+          "examples": {
+            "national": "국립중앙박물관, 국립민속박물관",
+            "history": "전쟁기념관, 독립기념관",
+            "science": "국립과천과학관, 서울시립과학관",
+            "international": "루브르, 대영박물관, 메트로폴리탄"
+          }
+        },
+        "galleries": {
+          "title": "미술관",
+          "examples": {
+            "national": "국립현대미술관, 서울시립미술관",
+            "private": "리움미술관, 아모레퍼시픽미술관",
+            "international": "모마, 테이트모던, 구겐하임",
+            "outdoor": "조각공원, 야외전시장"
+          }
+        }
+      },
+      "howToUse": {
+        "title": "AI 도슨트 이용 방법",
+        "steps": {
+          "search": {
+            "title": "박물관 또는 작품 검색",
+            "description": "방문하고자 하는 박물관이나 관심 있는 작품명을 검색하세요"
+          },
+          "interests": {
+            "title": "관심사 선택",
+            "description": "역사, 예술, 과학 등 관심 분야를 선택하여 맞춤 해설을 받으세요"
+          },
+          "listen": {
+            "title": "해설 듣기",
+            "description": "작품 앞에서 AI 도슨트의 전문적이고 흥미로운 해설을 들어보세요"
+          }
+        }
+      },
+      "cta": {
+        "title": "AI 도슨트와 함께 문화를 깊이 있게 경험하세요",
+        "description": "당신만의 전문 도슨트가 언제든 함께 합니다",
+        "startFree": "무료로 시작하기"
+      }
+    },
     "tourRadio": {
       "keyword": "투어 라디오",
       "metadata": {
@@ -2651,8 +2774,29 @@
           "1": {
             "title": "현지 네트워킹",
             "description": "다른 노마드들과 네트워킹하고 현지 커뮤니티에 참여하세요. Facebook 그룹, Meetup, 코워킹 스페이스 이벤트 등을 활용하면 좋습니다."
+          },
+          "2": {
+            "title": "시간대 관리",
+            "description": "클라이언트와의 시간차를 고려하여 업무 일정을 조정하세요. 시차 계산기를 활용하고 미리 회의 시간을 조율하는 것이 중요합니다."
+          },
+          "3": {
+            "title": "보험 가입",
+            "description": "여행자 보험과 건강보험은 필수입니다. 해외에서의 의료비, 기기 도난, 여행 취소 등에 대비한 종합보험을 준비하세요."
+          },
+          "4": {
+            "title": "인터넷 연결",
+            "description": "안정적인 인터넷 연결을 위해 현지 심카드와 포켓 WiFi를 모두 준비하세요. 중요한 업무가 있는 날에는 백업 연결 방법을 확보하는 것이 좋습니다."
+          },
+          "5": {
+            "title": "세금 준비",
+            "description": "디지털 노마드로 활동할 때 세금 문제를 미리 파악하고 준비하세요. 거주 국가와 소득 발생 국가의 세법을 확인하고 필요시 전문가와 상담하세요."
           }
         }
+      },
+      "finalCta": {
+        "title": "이제 노마드 라이프를 시작해보세요",
+        "description": "AI가 추천하는 최적의 노마드 도시에서 당신만의 자유로운 삶을 경험해보세요",
+        "button": "여행 계획 시작하기"
       }
     },
     "filmLocations": {
