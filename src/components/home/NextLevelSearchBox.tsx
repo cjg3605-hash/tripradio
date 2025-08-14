@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 // 새로운 구조화된 위치 데이터 인터페이스
 interface EnhancedLocationSuggestion {
+  id?: string;           // 고유 식별자
   name: string;          // 장소명
   location: string;      // 상세 위치 (기존 호환성)
   region: string;        // 지역/도시
@@ -150,7 +151,7 @@ export default function NextLevelSearchBox() {
       const data = await response.json();
       
       // 첫 번째 결과에서 지역 정보 추출
-      let locationData = null;
+      let locationData: any = null;
       if (data.success && data.data && data.data.length > 0) {
         locationData = data.data[0]; // EnhancedLocationSuggestion 형태
         console.log('✅ 지역 정보 추출 성공:', locationData);

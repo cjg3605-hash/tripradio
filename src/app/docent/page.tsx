@@ -6,8 +6,9 @@ import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
 
 export default function DocentPage() {
   const { t } = useLanguage();
-  const docentT = (key: string) => {
-    return t(`docent.${key}`);
+  const docentT = (key: string): string => {
+    const translation = t(`docent.${key}`);
+    return Array.isArray(translation) ? translation[0] || '' : translation || '';
   };
   
   return (

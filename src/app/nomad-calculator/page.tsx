@@ -98,8 +98,9 @@ export default function NomadCalculatorPage() {
   const { t } = useLanguage();
   
   // nomad-calculator 전용 번역 함수
-  const nomadT = (key: string) => {
-    return t(`nomadCalculator.${key}`);
+  const nomadT = (key: string): string => {
+    const translation = t(`nomadCalculator.${key}`);
+    return Array.isArray(translation) ? translation[0] || '' : translation || '';
   };
   
   const nomadCities = getNomadCities(nomadT);

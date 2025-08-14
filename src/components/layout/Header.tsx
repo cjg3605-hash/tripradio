@@ -12,6 +12,29 @@ interface HeaderProps {
   onHistoryOpen?: () => void;
 }
 
+// 공통 네비게이션 버튼 컴포넌트
+interface NavigationButtonProps {
+  onClick: (e: React.MouseEvent) => void;
+  className?: string;
+  children: React.ReactNode;
+  isMobile?: boolean;
+}
+
+const NavigationButton = ({ onClick, className = '', children, isMobile = false }: NavigationButtonProps) => {
+  const baseClass = isMobile 
+    ? 'flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-gray-50 text-sm text-gray-700 transition-colors duration-150'
+    : 'flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-150';
+  
+  return (
+    <button
+      onClick={onClick}
+      className={`${baseClass} ${className}`}
+    >
+      {children}
+    </button>
+  );
+};
+
 const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -206,10 +229,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
           </div>
           <button 
             onClick={() => router.push('/')}
-            className="btn-base text-fluid-xl font-bold text-black bg-transparent hover:bg-gray-50 transition-all duration-200 relative"
-            style={{
-              padding: 'var(--space-2) var(--space-1)'
-            }}
+            className="btn-base text-lg font-bold text-gray-900 bg-transparent hover:bg-gray-50 transition-all duration-200 relative px-3 py-2"
           >
             {currentLanguage === 'ko' ? '트립라디오' : 'TRIPRADIO'}
           </button>
@@ -232,17 +252,12 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                 }
               }}
               className={`
-                btn-base flex items-center text-fluid-sm transition-all duration-200 ease-out
+                btn-base flex items-center gap-2 text-sm transition-all duration-200 ease-out px-3 py-2 rounded-lg
                 ${isLanguageMenuOpen 
-                  ? 'bg-gray-100 text-gray-900 shadow-button' 
-                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 bg-transparent'
+                  ? 'bg-gray-50 text-gray-900' 
+                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 bg-transparent'
                 }
               `}
-              style={{
-                gap: 'var(--space-1)',
-                padding: 'var(--space-3) var(--space-3)',
-                borderRadius: 'var(--radius-md)'
-              }}
               aria-label={`${String(t('header.language'))}: ${currentConfig?.name}. ${String(t('search.pressEnterToSearch'))}`}
               aria-expanded={isLanguageMenuOpen}
               aria-haspopup="listbox"
@@ -284,7 +299,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                       dropdown-item w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors duration-150
                       focus:outline-none focus:ring-2 focus:ring-black focus:ring-inset
                       ${index === selectedLanguageIndex 
-                        ? 'bg-gray-100 text-gray-900' 
+                        ? 'bg-gray-50 text-gray-900' 
                         : 'hover:bg-gray-50 hover:text-gray-900 text-gray-700'
                       }
                       ${lang.code === currentLanguage 
@@ -301,7 +316,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                     </span>
                     <span>{lang.name}</span>
                     {lang.code === currentLanguage && (
-                      <span className="ml-auto text-xs text-gray-500" aria-label={String(t('header.currentSelectedLanguage'))}>
+                      <span className="ml-auto text-sm text-gray-500" aria-label={String(t('header.currentSelectedLanguage'))}>
                         ✓
                       </span>
                     )}
@@ -312,20 +327,19 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
           </div>
 
           {/* 히스토리 버튼 */}
-          <button
+          <NavigationButton
             onClick={(e) => {
               console.log('🖱️ Desktop history button clicked');
               e.preventDefault();
               e.stopPropagation();
               if (onHistoryOpen) onHistoryOpen();
             }}
-            className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-150"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span>{t('header.history')}</span>
-          </button>
+          </NavigationButton>
 
           {/* 로그인 상태 */}
           {status === 'loading' ? (
@@ -339,7 +353,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                   e.stopPropagation();
                   setIsProfileMenuOpen(!isProfileMenuOpen);
                 }}
-                className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-150"
               >
                 {session.user.image ? (
                   <Image 
@@ -385,18 +399,17 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
               )}
             </div>
           ) : (
-            <button
+            <NavigationButton
               onClick={(e) => {
                 console.log('🖱️ Desktop login button clicked');
                 e.preventDefault();
                 e.stopPropagation();
                 router.push('/auth/signin');
               }}
-              className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-150"
             >
               <LogIn className="w-4 h-4" />
               <span>{t('auth.signin')}</span>
-            </button>
+            </NavigationButton>
           )}
         </div>
 
@@ -457,7 +470,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                       dropdown-item w-full text-left px-3 py-2 flex items-center gap-2 text-sm transition-colors duration-150
                       focus:outline-none focus:ring-2 focus:ring-black focus:ring-inset
                       ${index === selectedLanguageIndex 
-                        ? 'bg-gray-100 text-gray-900' 
+                        ? 'bg-gray-50 text-gray-900' 
                         : 'hover:bg-gray-50 hover:text-gray-900 text-gray-700'
                       }
                       ${lang.code === currentLanguage 
@@ -554,18 +567,18 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
               )}
             </div>
           ) : (
-            <button
+            <NavigationButton
               onClick={(e) => {
                 console.log('🖱️ Mobile login button clicked');
                 e.preventDefault();
                 e.stopPropagation();
                 router.push('/auth/signin');
               }}
-              className="flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-gray-50 text-sm text-gray-700 transition-colors duration-150"
+              isMobile={true}
             >
               <LogIn className="w-4 h-4" />
               <span>{t('auth.signin')}</span>
-            </button>
+            </NavigationButton>
           )}
         </div>
       </div>

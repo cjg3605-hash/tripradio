@@ -15,9 +15,13 @@ export interface LocationData {
   level: number;
   country?: string;
   parent?: string;
+  region?: string;
   aliases: string[];
   coordinates?: { lat: number; lng: number };
   popularity: number; // 1-10 scale
+  requiresRegionalContext?: boolean;
+  found?: boolean;
+  data?: any;
 }
 
 // 🌍 Level 1: Countries (국가)

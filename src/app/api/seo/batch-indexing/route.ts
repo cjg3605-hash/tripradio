@@ -114,10 +114,10 @@ export async function POST(request: NextRequest) {
       const batchPromises = batch.map(async (page) => {
         try {
           let indexingResult;
-          const pageName = page.type === 'guide' ? page.locationname : page.pageName;
+          const pageName = page.type === 'guide' ? (page.locationname || 'Unknown Location') : (page.pageName || 'Unknown Page');
           
           if (page.type === 'guide') {
-            indexingResult = await indexingService.requestIndexingForNewGuide(page.locationname);
+            indexingResult = await indexingService.requestIndexingForNewGuide(page.locationname || '');
           } else {
             indexingResult = await indexingService.requestIndexingForStaticPages(page.urls || []);
           }
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
           return pageResult;
           
         } catch (error) {
-          const pageName = page.type === 'guide' ? page.locationname : page.pageName;
+          const pageName = page.type === 'guide' ? (page.locationname || 'Unknown Location') : (page.pageName || 'Unknown Page');
           console.error(`❌ ${pageName} 색인 실패:`, error);
           
           const failedResult = {

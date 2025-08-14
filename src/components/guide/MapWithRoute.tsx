@@ -52,6 +52,8 @@ interface MapWithRouteProps {
   onPoiClick?: (poiId: any) => void;
   locationName?: string;
   guideCoordinates?: any;
+  currentLocation?: { lat: number; lng: number; name?: string } | null;
+  className?: string;
 }
 
 // 단순한 지도 이동 훅

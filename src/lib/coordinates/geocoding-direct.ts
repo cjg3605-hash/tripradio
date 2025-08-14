@@ -20,6 +20,7 @@ export interface LocationContext {
   region?: string;
   country?: string;
   language?: string;
+  parentRegion?: string;
 }
 
 /**

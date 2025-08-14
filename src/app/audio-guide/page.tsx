@@ -42,6 +42,80 @@ export default function AudioGuidePage() {
   
   return (
     <>
+      <style jsx>{`
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          gap: var(--space-xs);
+          padding: var(--space-xs) var(--space-md);
+          border-radius: var(--radius-md);
+          border: var(--border-thin) solid transparent;
+          font-weight: 600;
+          font-size: var(--fs-h6-d);
+          line-height: 1.2;
+          transition: background var(--dur-md) var(--ease-standard), transform var(--dur-fast);
+          text-decoration: none;
+          cursor: pointer;
+        }
+        .btn--primary {
+          background: var(--color-primary);
+          color: var(--color-bg);
+        }
+        .btn--primary:hover {
+          background: var(--color-primary-hover);
+        }
+        .btn--secondary {
+          background: var(--color-bg);
+          color: var(--color-text-high);
+          border-color: var(--color-border);
+        }
+        .btn--secondary:hover {
+          background: var(--color-bg-alt);
+        }
+        .card {
+          background: var(--color-surface);
+          border: 1px solid var(--color-border);
+          border-radius: var(--radius-lg);
+          padding: var(--space-lg);
+          box-shadow: var(--shadow-sm);
+        }
+        .card__title {
+          margin: 0 0 var(--space-md);
+          font-size: var(--fs-h3-d);
+          font-weight: 600;
+          color: var(--color-text-high);
+          line-height: 1.3;
+        }
+        .card__body {
+          color: var(--color-text-medium);
+        }
+        .body {
+          font-size: var(--fs-body-d);
+          line-height: var(--lh-body);
+        }
+        @media (max-width: 1024px) {
+          .card__title {
+            font-size: var(--fs-h3-t);
+          }
+          .body {
+            font-size: var(--fs-body-t);
+          }
+          .btn {
+            font-size: var(--fs-h6-t);
+          }
+        }
+        @media (max-width: 640px) {
+          .card__title {
+            font-size: var(--fs-h3-m);
+          }
+          .body {
+            font-size: var(--fs-body-m);
+          }
+          .btn {
+            font-size: var(--fs-h6-m);
+          }
+        }
+      `}</style>
       <KeywordPageSchema 
         keyword={t('meta.keyword')}
         pagePath="/audio-guide"
@@ -49,32 +123,64 @@ export default function AudioGuidePage() {
         description={t('meta.description')}
         features={[t('features.aiRealTime.title'), t('features.personalized.title'), t('features.worldwide.title'), t('features.free.title'), t('features.multiLanguage.title'), t('features.offline.title')]}
       />
-      <div className="min-h-screen bg-white font-['SF_Pro_Display','SF_Pro_Text',-apple-system,BlinkMacSystemFont,sans-serif]">
+      <div className="min-h-screen" style={{ 
+        fontFamily: 'var(--font-family-base)',
+        backgroundColor: 'var(--color-bg)'
+      }}>
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-24 lg:py-32">
+      <section className="container mx-auto" style={{ 
+        paddingLeft: 'var(--space-lg)', 
+        paddingRight: 'var(--space-lg)', 
+        paddingTop: 'var(--space-2xl)', 
+        paddingBottom: 'var(--space-2xl)' 
+      }}>
         <div className="max-w-4xl mx-auto text-center">
-          <div className="mb-8">
-            <div className="inline-flex items-center px-4 py-2 bg-[#F8F8F8] rounded-full text-sm font-light text-[#555555] mb-6">
+          <div style={{ marginBottom: 'var(--space-xl)' }}>
+            <div className="inline-flex items-center" style={{ 
+              padding: 'var(--space-xs) var(--space-md)', 
+              backgroundColor: 'var(--color-bg-alt)', 
+              borderRadius: 'var(--radius-lg)', 
+              fontSize: 'var(--fs-body-s-d)', 
+              fontWeight: '400', 
+              color: 'var(--color-text-medium)', 
+              marginBottom: 'var(--space-lg)' 
+            }}>
               {t('hero.badge')}
             </div>
-            <h1 className="text-[clamp(3rem,5vw,4.5rem)] font-semibold text-black mb-6 leading-tight tracking-tight">
+            <h1 style={{ 
+              fontSize: 'var(--fs-h1-d)', 
+              fontWeight: '600', 
+              color: 'var(--color-text-high)', 
+              marginBottom: 'var(--space-lg)', 
+              lineHeight: 'var(--lh-heading)' 
+            }}>
               {t('hero.title')} 
-              <span className="font-light block mt-3">{t('hero.titleBold')}</span>
+              <span className="font-light block" style={{ marginTop: 'var(--space-sm)' }}>{t('hero.titleBold')}</span>
             </h1>
-            <p className="text-[clamp(1rem,1.5vw,1.25rem)] text-[#555555] mb-12 leading-relaxed max-w-3xl mx-auto font-light">
+            <p style={{ 
+              fontSize: 'var(--fs-body-l-d)', 
+              color: 'var(--color-text-medium)', 
+              marginBottom: 'var(--space-2xl)', 
+              lineHeight: 'var(--lh-body)', 
+              maxWidth: '65ch', 
+              marginLeft: 'auto', 
+              marginRight: 'auto' 
+            }}>
               {t('hero.description')}
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row justify-center items-center" style={{ gap: 'var(--space-md)' }}>
             <Link 
               href="/"
-              className="bg-[#007AFF] text-white px-8 py-3 rounded-lg font-medium hover:bg-[#005FCC] transition-colors duration-200 min-w-[200px]"
+              className="btn btn--primary"
+              style={{ minWidth: '200px' }}
             >
               {t('hero.startFree')}
             </Link>
             <Link 
               href="#features"
-              className="border border-[#E5E5E5] text-black px-8 py-3 rounded-lg font-medium hover:bg-[#F8F8F8] transition-colors duration-200 min-w-[200px]"
+              className="btn btn--secondary"
+              style={{ minWidth: '200px' }}
             >
               {t('hero.exploreFeatures')}
             </Link>
@@ -83,76 +189,154 @@ export default function AudioGuidePage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-24 lg:py-32 bg-[#F8F8F8]">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center mb-20">
-            <h2 className="text-[clamp(2rem,3.5vw,3rem)] font-semibold text-black mb-3 leading-tight tracking-tight">
+      <section id="features" style={{ 
+        paddingTop: 'var(--space-2xl)', 
+        paddingBottom: 'var(--space-2xl)', 
+        backgroundColor: 'var(--color-bg-alt)' 
+      }}>
+        <div className="container mx-auto" style={{ 
+          paddingLeft: 'var(--space-lg)', 
+          paddingRight: 'var(--space-lg)' 
+        }}>
+          <div className="max-w-4xl mx-auto text-center" style={{ marginBottom: 'var(--space-2xl)' }}>
+            <h2 style={{ 
+              fontSize: 'var(--fs-h2-d)', 
+              fontWeight: '600', 
+              color: 'var(--color-text-high)', 
+              marginBottom: 'var(--space-sm)', 
+              lineHeight: 'var(--lh-heading)' 
+            }}>
               {t('features.title')} 
-              <span className="font-light block mt-3">{t('features.titleBold')}</span>
+              <span className="font-light block" style={{ marginTop: 'var(--space-sm)' }}>{t('features.titleBold')}</span>
             </h2>
-            <div className="w-16 h-px bg-[#E5E5E5] mx-auto mt-6"></div>
+            <div style={{ 
+              width: '64px', 
+              height: '1px', 
+              backgroundColor: 'var(--color-border)', 
+              margin: 'var(--space-lg) auto 0' 
+            }}></div>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            <div className="bg-white p-8 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
-              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
-                <div className="text-2xl">🤖</div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto" style={{ gap: 'var(--space-xl)' }}>
+            <article className="card">
+              <div style={{ 
+                width: '48px', 
+                height: '48px', 
+                backgroundColor: 'var(--color-bg-alt)', 
+                borderRadius: 'var(--radius-md)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                marginBottom: 'var(--space-lg)', 
+                fontSize: '24px' 
+              }}>
+                🤖
               </div>
-              <h3 className="text-[clamp(1.25rem,2.5vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('features.aiRealTime.title')}</h3>
-              <p className="text-[#555555] leading-relaxed font-light">
+              <h3 className="card__title">{t('features.aiRealTime.title')}</h3>
+              <p className="card__body body">
                 {t('features.aiRealTime.description')}
               </p>
-            </div>
+            </article>
             
-            <div className="bg-white p-8 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
-              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
-                <div className="text-2xl">🎯</div>
+            <article className="card">
+              <div style={{ 
+                width: '48px', 
+                height: '48px', 
+                backgroundColor: 'var(--color-bg-alt)', 
+                borderRadius: 'var(--radius-md)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                marginBottom: 'var(--space-lg)', 
+                fontSize: '24px' 
+              }}>
+                🎯
               </div>
-              <h3 className="text-[clamp(1.25rem,2.5vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('features.personalized.title')}</h3>
-              <p className="text-[#555555] leading-relaxed font-light">
+              <h3 className="card__title">{t('features.personalized.title')}</h3>
+              <p className="card__body body">
                 {t('features.personalized.description')}
               </p>
-            </div>
+            </article>
             
-            <div className="bg-white p-8 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
-              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
-                <div className="text-2xl">🌍</div>
+            <article className="card">
+              <div style={{ 
+                width: '48px', 
+                height: '48px', 
+                backgroundColor: 'var(--color-bg-alt)', 
+                borderRadius: 'var(--radius-md)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                marginBottom: 'var(--space-lg)', 
+                fontSize: '24px' 
+              }}>
+                🌍
               </div>
-              <h3 className="text-[clamp(1.25rem,2.5vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('features.worldwide.title')}</h3>
-              <p className="text-[#555555] leading-relaxed font-light">
+              <h3 className="card__title">{t('features.worldwide.title')}</h3>
+              <p className="card__body body">
                 {t('features.worldwide.description')}
               </p>
-            </div>
+            </article>
             
-            <div className="bg-white p-8 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
-              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
-                <div className="text-2xl">💰</div>
+            <article className="card">
+              <div style={{ 
+                width: '48px', 
+                height: '48px', 
+                backgroundColor: 'var(--color-bg-alt)', 
+                borderRadius: 'var(--radius-md)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                marginBottom: 'var(--space-lg)', 
+                fontSize: '24px' 
+              }}>
+                💰
               </div>
-              <h3 className="text-[clamp(1.25rem,2.5vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('features.free.title')}</h3>
-              <p className="text-[#555555] leading-relaxed font-light">
+              <h3 className="card__title">{t('features.free.title')}</h3>
+              <p className="card__body body">
                 {t('features.free.description')}
               </p>
-            </div>
+            </article>
             
-            <div className="bg-white p-8 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
-              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
-                <div className="text-2xl">🗣️</div>
+            <article className="card">
+              <div style={{ 
+                width: '48px', 
+                height: '48px', 
+                backgroundColor: 'var(--color-bg-alt)', 
+                borderRadius: 'var(--radius-md)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                marginBottom: 'var(--space-lg)', 
+                fontSize: '24px' 
+              }}>
+                🗣️
               </div>
-              <h3 className="text-[clamp(1.25rem,2.5vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('features.multiLanguage.title')}</h3>
-              <p className="text-[#555555] leading-relaxed font-light">
+              <h3 className="card__title">{t('features.multiLanguage.title')}</h3>
+              <p className="card__body body">
                 {t('features.multiLanguage.description')}
               </p>
-            </div>
+            </article>
             
-            <div className="bg-white p-8 rounded-xl border border-[#E5E5E5] hover:shadow-[0_4px_6px_rgba(0,0,0,0.1)] transition-all duration-200">
-              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
-                <div className="text-2xl">📱</div>
+            <article className="card">
+              <div style={{ 
+                width: '48px', 
+                height: '48px', 
+                backgroundColor: 'var(--color-bg-alt)', 
+                borderRadius: 'var(--radius-md)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                marginBottom: 'var(--space-lg)', 
+                fontSize: '24px' 
+              }}>
+                📱
               </div>
-              <h3 className="text-[clamp(1.25rem,2.5vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('features.offline.title')}</h3>
-              <p className="text-[#555555] leading-relaxed font-light">
+              <h3 className="card__title">{t('features.offline.title')}</h3>
+              <p className="card__body body">
                 {t('features.offline.description')}
               </p>
-            </div>
+            </article>
           </div>
         </div>
       </section>

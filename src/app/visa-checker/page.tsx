@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
 // 50개 국가 대규모 비자 정보 데이터 (한국 여권 기준, 2025년)
@@ -714,6 +715,42 @@ export default function VisaCheckerPage() {
   const visaT = (key: string) => {
     return t(`visaChecker.${key}`);
   };
+
+  // Form state management
+  const [destination, setDestination] = useState('');
+  const [purpose, setPurpose] = useState('관광');
+  const [duration, setDuration] = useState('1주 이내');
+  const [searchResults, setSearchResults] = useState<typeof visaInfo | null>(null);
+  const [showResults, setShowResults] = useState(false);
+
+  // Visa checking functionality
+  const handleVisaCheck = () => {
+    if (!destination.trim()) {
+      alert('목적지를 입력해주세요.');
+      return;
+    }
+
+    // Search through visaInfo array for matching countries
+    const results = visaInfo.filter(info => 
+      info.country.toLowerCase().includes(destination.toLowerCase()) ||
+      destination.toLowerCase().includes(info.country.toLowerCase())
+    );
+
+    // Filter by purpose if digital nomad selected
+    const filteredResults = purpose === '디지털노마드' 
+      ? results.filter(info => info.digitalNomad)
+      : results;
+
+    setSearchResults(filteredResults);
+    setShowResults(true);
+
+    // Scroll to results
+    setTimeout(() => {
+      document.getElementById('visa-results')?.scrollIntoView({ 
+        behavior: 'smooth' 
+      });
+    }, 100);
+  };
   
   return (
     <>
@@ -788,7 +825,9 @@ export default function VisaCheckerPage() {
                 <label className="block text-sm font-medium text-[#555555] mb-2">목적지</label>
                 <input 
                   type="text" 
-                  placeholder="예: 중국(무비자 30일), 일본(90일), 태국(90일)..."
+                  placeholder="예: 일본, 태국, 싱가포르..."
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
                   className="w-full p-4 border border-[#555555] rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
                 />
               </div>
@@ -797,7 +836,10 @@ export default function VisaCheckerPage() {
             <div className="grid md:grid-cols-3 gap-4 mt-6">
               <div>
                 <label className="block text-sm font-medium text-[#555555] mb-2">여행 목적</label>
-                <select className="w-full p-4 border border-[#555555] rounded-lg bg-white text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
+                <select 
+                  value={purpose}
+                  onChange={(e) => setPurpose(e.target.value)}
+                  className="w-full p-4 border border-[#555555] rounded-lg bg-white text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
                   <option>관광</option>
                   <option>출장</option>
                   <option>디지털노마드</option>
@@ -808,7 +850,10 @@ export default function VisaCheckerPage() {
               
               <div>
                 <label className="block text-sm font-medium text-[#555555] mb-2">체류 기간</label>
-                <select className="w-full p-4 border border-[#555555] rounded-lg bg-white text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
+                <select 
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  className="w-full p-4 border border-[#555555] rounded-lg bg-white text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
                   <option>1주 이내</option>
                   <option>1개월 이내</option>
                   <option>3개월 이내</option>
@@ -818,7 +863,9 @@ export default function VisaCheckerPage() {
               </div>
               
               <div className="flex items-end">
-                <button className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition-all duration-200 shadow-sm min-h-[44px] flex items-center justify-center">
+                <button 
+                  onClick={handleVisaCheck}
+                  className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition-all duration-200 shadow-sm min-h-[44px] flex items-center justify-center">
                   한국 여권 비자 요구사항 확인
                 </button>
               </div>
@@ -826,6 +873,106 @@ export default function VisaCheckerPage() {
           </div>
         </div>
       </section>
+
+      {/* Search Results */}
+      {showResults && (
+        <section id="visa-results" className="container mx-auto px-6 pb-16">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-2xl font-light text-black mb-8 text-center">
+              <span className="font-semibold">&ldquo;{destination}&rdquo;</span> 비자 검색 결과
+            </h2>
+            
+            {searchResults && searchResults.length > 0 ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {searchResults.map((info, index) => (
+                  <div key={index} className="bg-white border border-[#F8F8F8] rounded-lg p-6 hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
+                          <div className="w-6 h-6 bg-blue-500 rounded"></div>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-black text-lg">{info.country}</h3>
+                          {info.visaFree ? (
+                            <div className="flex items-center gap-2">
+                              <div className="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-xs font-medium">
+                                무비자 {info.maxDays}일
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="bg-red-100 text-red-700 px-3 py-1 rounded-lg text-xs font-medium">
+                              비자 필요
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm text-[#555555] font-medium mb-1">필요 서류</p>
+                        <ul className="text-xs text-[#555555] space-y-1">
+                          {info.requirements.map((req, idx) => (
+                            <li key={idx} className="flex items-center gap-2">
+                              <div className="w-1 h-1 bg-[#555555] rounded-full"></div>
+                              {req}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {info.digitalNomad && (
+                        <div className="bg-blue-50 p-3 rounded-lg">
+                          <p className="text-xs text-blue-700 font-medium mb-1">
+                            디지털 노마드 지원
+                          </p>
+                          {info.nomadVisa && (
+                            <p className="text-xs text-blue-600">{info.nomadVisa}</p>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="pt-2 border-t border-[#F8F8F8]">
+                        <div className="flex items-center justify-between text-xs text-[#555555]">
+                          <span>언어: {info.language}</span>
+                          <span>통화: {info.currency}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="text-2xl">🔍</div>
+                </div>
+                <h3 className="text-lg font-medium text-black mb-2">검색 결과가 없습니다</h3>
+                <p className="text-[#555555] mb-4">
+                  &ldquo;{destination}&rdquo;에 대한 비자 정보를 찾을 수 없습니다.
+                </p>
+                <p className="text-sm text-[#555555]">
+                  아래의 인기 여행지에서 원하는 국가를 찾아보세요.
+                </p>
+              </div>
+            )}
+            
+            {purpose === '디지털노마드' && searchResults && searchResults.length > 0 && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-8">
+                <h3 className="font-semibold text-blue-900 mb-3">💼 디지털 노마드 추가 정보</h3>
+                <p className="text-sm text-blue-800 mb-3">
+                  디지털 노마드로 활동하시는 경우, 각국의 세금 규정과 장기 체류 요건을 반드시 확인하세요.
+                </p>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li>• 소득 증명 서류 및 건강보험 가입 확인</li>
+                  <li>• 현지 세금 신고 의무 및 이중 과세 방지 협정 검토</li>
+                  <li>• 장기 체류 시 거주 등록 및 비자 연장 절차 확인</li>
+                </ul>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Popular Destinations Visa Info */}
       <section className="container mx-auto px-6 pb-16">

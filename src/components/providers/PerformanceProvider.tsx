@@ -63,8 +63,9 @@ export default function PerformanceProvider({ children }: PerformanceProviderPro
       }
     } else {
       endMount(); // Observer가 지원되지 않는 경우에도 마운트 완료 처리
-      return () => {}; // 빈 cleanup 함수 반환
     }
+    
+    return () => {}; // cleanup 함수 반환
   }, [measureRouteChange, measureComponentMount]);
 
   return <>{children}</>;

@@ -436,8 +436,9 @@ export default function FilmLocationsPage() {
   const { t } = useLanguage();
   
   // film-locations 전용 번역 함수
-  const filmT = (key: string) => {
-    return t(`filmLocations.${key}`);
+  const filmT = (key: string): string => {
+    const translation = t(`filmLocations.${key}`);
+    return Array.isArray(translation) ? translation[0] || '' : translation || '';
   };
   
   const filmLocations = getFilmLocations(filmT);

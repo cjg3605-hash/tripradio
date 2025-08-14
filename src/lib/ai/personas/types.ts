@@ -99,6 +99,7 @@ export interface LocationContext {
   primaryFunction?: string;
   userIntent?: string;
   language: string;
+  parentRegion?: string;
 }
 
 /**

@@ -228,7 +228,7 @@ export async function enhanceGuideCoordinates(
                     originalCoords.lat, originalCoords.lng,
                     baseCoordinates.lat, baseCoordinates.lng
                   ) : 0,
-                  method: 'places-api-fallback'
+                  method: 'fallback'
                 });
 
                 result.enhancedCount++;
@@ -252,7 +252,7 @@ export async function enhanceGuideCoordinates(
                   originalCoords.lat, originalCoords.lng,
                   baseCoordinates.lat, baseCoordinates.lng
                 ) : 0,
-                method: 'places-api-error-fallback'
+                method: 'fallback'
               });
 
               result.enhancedCount++;

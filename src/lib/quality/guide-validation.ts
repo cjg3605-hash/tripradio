@@ -183,7 +183,7 @@ async function checkLocationAmbiguity(
 
   // 정적 데이터에서 지역 특정이 필요한지 확인
   const classification = classifyLocationExact(locationName);
-  if (classification.requiresRegionalContext && !parentRegion) {
+  if (classification && classification.requiresRegionalContext && !parentRegion) {
     result.warnings.push({
       type: 'data_inconsistency',
       description: '지역 컨텍스트가 필요한 위치이지만 제공되지 않음',
@@ -202,7 +202,7 @@ async function validateStaticDataMatching(
 ): Promise<void> {
   const classification = classifyLocationExact(locationName);
   
-  if (classification.found && classification.data) {
+  if (classification && classification.found && classification.data) {
     const staticData = classification.data;
     
     // 상위 지역 일치성 검사

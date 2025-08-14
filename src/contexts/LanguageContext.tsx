@@ -418,6 +418,26 @@ interface Translations {
     adsenseNotice: string;
     adsensePolicy: string;
   };
+  aiTravel: {
+    title: string;
+    subtitle: string;
+    description: string;
+  };
+  audioGuide: {
+    title: string;
+    subtitle: string;
+    description: string;
+  };
+  filmLocations: {
+    title: string;
+    subtitle: string;
+    description: string;
+  };
+  docent: {
+    title: string;
+    subtitle: string;
+    description: string;
+  };
   legal: {
     terms: {
       title: string;
@@ -892,6 +912,26 @@ const DEFAULT_TRANSLATIONS: Translations = {
     adsenseNotice: '광고 수익 공지',
     adsensePolicy: 'AdSense 정책'
   },
+  aiTravel: {
+    title: 'AI 여행',
+    subtitle: 'AI가 계획하는 맞춤 여행',
+    description: 'AI 기술로 당신만의 특별한 여행을 계획하세요'
+  },
+  audioGuide: {
+    title: '오디오 가이드',
+    subtitle: '음성으로 듣는 여행 가이드',
+    description: '전문 해설로 더욱 생생한 여행을 경험하세요'
+  },
+  filmLocations: {
+    title: '영화 촬영지',
+    subtitle: '영화 속 그 장소들',
+    description: '좋아하는 영화의 촬영지를 찾아 떠나보세요'
+  },
+  docent: {
+    title: '도슨트',
+    subtitle: '전문가의 문화 해설',
+    description: '전문 도슨트와 함께하는 깊이 있는 문화 체험'
+  },
   legal: {
     terms: {
       title: '이용약관',
@@ -1073,6 +1113,22 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
       footer: {
         ...DEFAULT_TRANSLATIONS.footer,
         ...(translations?.footer || {})
+      },
+      aiTravel: {
+        ...DEFAULT_TRANSLATIONS.aiTravel,
+        ...(translations?.aiTravel || {})
+      },
+      audioGuide: {
+        ...DEFAULT_TRANSLATIONS.audioGuide,
+        ...(translations?.audioGuide || {})
+      },
+      filmLocations: {
+        ...DEFAULT_TRANSLATIONS.filmLocations,
+        ...(translations?.filmLocations || {})
+      },
+      docent: {
+        ...DEFAULT_TRANSLATIONS.docent,
+        ...(translations?.docent || {})
       },
       legal: {
         ...DEFAULT_TRANSLATIONS.legal,
