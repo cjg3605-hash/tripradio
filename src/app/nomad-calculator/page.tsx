@@ -144,20 +144,40 @@ export default function NomadCalculatorPage() {
         features={[nomadT('features.calculator'), nomadT('features.cities'), nomadT('features.budget'), nomadT('features.costs'), nomadT('features.visa'), nomadT('features.planning')]}
       />
       
-      <div className="min-h-screen bg-white" style={{ '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px' } as React.CSSProperties}>
+      <div className="min-h-screen" style={{ 
+        /* Typography tokens */
+        '--font-family-base': '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
+        '--fs-h1-d': '40px', '--fs-h1-t': '34px', '--fs-h1-m': '28px',
+        '--fs-h2-d': '32px', '--fs-h2-t': '28px', '--fs-h2-m': '24px',
+        '--fs-h3-d': '24px', '--fs-h3-t': '22px', '--fs-h3-m': '20px',
+        '--fs-body-l-d': '18px', '--fs-body-l-t': '18px', '--fs-body-l-m': '16px',
+        '--fs-body-d': '16px', '--fs-body-t': '16px', '--fs-body-m': '14px',
+        '--fs-body-s-d': '14px', '--fs-body-s-t': '14px', '--fs-body-s-m': '13px',
+        '--lh-heading': '1.2', '--lh-body': '1.5',
+        /* Radius and shadow tokens */
+        '--radius-sm': '4px', '--radius-md': '8px', '--radius-lg': '16px',
+        '--shadow-sm': '0 1px 2px rgba(0,0,0,.06)', '--shadow-md': '0 4px 10px rgba(0,0,0,.08)', '--shadow-lg': '0 12px 24px rgba(0,0,0,.12)',
+        /* Spacing tokens */
+        '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px',
+        /* Color tokens - styleguide.md compliant */
+        '--color-bg': '#ffffff', '--color-bg-alt': '#f8f8f8', '--color-text-high': '#000000', '--color-text-medium': '#555555', '--color-text-low': 'rgba(0,0,0,0.54)',
+        '--color-primary': '#007AFF', '--color-primary-hover': '#005FCC', '--color-border': '#e6e6e6',
+        backgroundColor: 'var(--color-bg)',
+        fontFamily: 'var(--font-family-base)'
+      } as React.CSSProperties}>
         {/* Hero Section */}
-        <section className="container mx-auto px-6 py-20 lg:py-32">
+        <section className="container mx-auto" style={{ paddingLeft: 'var(--space-lg)', paddingRight: 'var(--space-lg)', paddingTop: 'var(--space-2xl)', paddingBottom: 'var(--space-2xl)' } as React.CSSProperties}>
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center px-6 py-3 bg-[#F8F8F8] border border-gray-200 rounded-full text-sm font-medium text-[#555555] font-light mb-8">
+            <div className="inline-flex items-center rounded-full font-medium font-light" style={{ fontSize: 'var(--fs-body-s-d)', paddingLeft: 'var(--space-lg)', paddingRight: 'var(--space-lg)', paddingTop: 'var(--space-sm)', paddingBottom: 'var(--space-sm)', backgroundColor: 'var(--color-bg-alt)', border: '1px solid var(--color-border)', color: 'var(--color-text-medium)', marginBottom: 'var(--space-xl)' } as React.CSSProperties}>
               {nomadT('badge')}
             </div>
-            <h1 className="text-5xl lg:text-6xl font-light text-black mb-6 tracking-tight">
+            <h1 className="font-light tracking-tight" style={{ fontSize: 'clamp(var(--fs-h1-d), 4vw, 56px)', lineHeight: 'var(--lh-heading)', color: 'var(--color-text-high)', marginBottom: 'var(--space-lg)' } as React.CSSProperties}>
               {nomadT('hero.title')}
             </h1>
-            <h2 className="text-2xl lg:text-3xl font-normal text-gray-700 mb-8">
+            <h2 className="font-normal" style={{ fontSize: 'clamp(var(--fs-h2-m), 3vw, var(--fs-h2-d))', lineHeight: 'var(--lh-heading)', color: 'var(--color-text-medium)', marginBottom: 'var(--space-xl)' } as React.CSSProperties}>
               {nomadT('hero.subtitle')}
             </h2>
-            <p className="text-lg lg:text-xl text-[#555555] font-light mb-12 leading-relaxed max-w-3xl mx-auto">
+            <p className="font-light max-w-3xl mx-auto" style={{ fontSize: 'clamp(var(--fs-body-d), 2vw, var(--fs-body-l-d))', lineHeight: 'var(--lh-body)', color: 'var(--color-text-medium)', marginBottom: 'var(--space-2xl)' } as React.CSSProperties}>
               {nomadT('hero.description')}
             </p>
           </div>
@@ -185,14 +205,14 @@ export default function NomadCalculatorPage() {
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           }
         `}</style>
-        <section className="py-16 lg:py-24 bg-[#F8F8F8]">
-          <div className="container mx-auto px-6">
+        <section style={{ paddingTop: 'var(--space-2xl)', paddingBottom: 'var(--space-2xl)', backgroundColor: 'var(--color-bg-alt)' } as React.CSSProperties}>
+          <div className="container mx-auto" style={{ paddingLeft: 'var(--space-lg)', paddingRight: 'var(--space-lg)' } as React.CSSProperties}>
             <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl lg:text-4xl font-light text-black mb-6">
+              <div className="text-center" style={{ marginBottom: 'var(--space-2xl)' } as React.CSSProperties}>
+                <h2 className="text-3xl lg:text-4xl font-light" style={{ color: 'var(--color-text-high)', marginBottom: 'var(--space-lg)' } as React.CSSProperties}>
                   {nomadT('calculator.title')}
                 </h2>
-                <p className="text-lg text-[#555555] font-light">
+                <p className="text-lg font-light" style={{ color: 'var(--color-text-medium)' } as React.CSSProperties}>
                   {nomadT('calculator.subtitle')}
                 </p>
               </div>

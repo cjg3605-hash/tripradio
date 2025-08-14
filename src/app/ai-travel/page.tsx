@@ -57,32 +57,59 @@ export default function AiTravelPage() {
         description={t('meta.description')}
         features={[t('aiFeatures.intelligentContent.title'), t('aiFeatures.personalization.title'), t('aiFeatures.locationRecognition.title'), t('aiFeatures.voiceSynthesis.title'), t('aiFeatures.dataIntegration.title'), t('aiFeatures.continuousLearning.title')]}
       />
-      <div className="min-h-screen bg-white" style={{ '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px' } as React.CSSProperties}>
+      <div className="min-h-screen" style={{ 
+        /* Typography tokens */
+        '--font-family-base': '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
+        '--fs-h1-d': '40px', '--fs-h1-t': '34px', '--fs-h1-m': '28px',
+        '--fs-h2-d': '32px', '--fs-h2-t': '28px', '--fs-h2-m': '24px',
+        '--fs-h3-d': '24px', '--fs-h3-t': '22px', '--fs-h3-m': '20px',
+        '--fs-h4-d': '20px', '--fs-h4-t': '18px', '--fs-h4-m': '18px',
+        '--fs-body-l-d': '18px', '--fs-body-l-t': '18px', '--fs-body-l-m': '16px',
+        '--fs-body-d': '16px', '--fs-body-t': '16px', '--fs-body-m': '14px',
+        '--fs-body-s-d': '14px', '--fs-body-s-t': '14px', '--fs-body-s-m': '13px',
+        '--fs-caption': '12px', '--lh-heading': '1.2', '--lh-body': '1.5',
+        /* Radius and shadow tokens */
+        '--radius-sm': '4px', '--radius-md': '8px', '--radius-lg': '16px',
+        '--shadow-sm': '0 1px 2px rgba(0,0,0,.06)', '--shadow-md': '0 4px 10px rgba(0,0,0,.08)', '--shadow-lg': '0 12px 24px rgba(0,0,0,.12)',
+        /* Spacing tokens */
+        '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px',
+        /* Color tokens - styleguide.md compliant */
+        '--color-bg': '#ffffff', '--color-bg-alt': '#f8f8f8', '--color-text-high': '#000000', '--color-text-medium': '#555555', '--color-text-low': 'rgba(0,0,0,0.54)',
+        '--color-primary': '#007AFF', '--color-primary-hover': '#005FCC', '--color-border': '#e6e6e6',
+        backgroundColor: 'var(--color-bg)',
+        fontFamily: 'var(--font-family-base)'
+      } as React.CSSProperties}>
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-16 lg:py-24">
+      <section className="container mx-auto" style={{ paddingLeft: 'var(--space-lg)', paddingRight: 'var(--space-lg)', paddingTop: 'var(--space-2xl)', paddingBottom: 'var(--space-2xl)' } as React.CSSProperties}>
         <div className="max-w-4xl mx-auto text-center">
-          <div className="mb-8">
-            <div className="inline-flex items-center px-4 py-2 bg-[#F8F8F8] rounded-full text-sm font-medium text-[#555555] mb-6">
+          <div style={{ marginBottom: 'var(--space-xl)' } as React.CSSProperties}>
+            <div className="inline-flex items-center font-medium" style={{ borderRadius: '9999px', fontSize: 'var(--fs-body-s-d)', paddingLeft: 'var(--space-md)', paddingRight: 'var(--space-md)', paddingTop: 'var(--space-xs)', paddingBottom: 'var(--space-xs)', marginBottom: 'var(--space-lg)', backgroundColor: 'var(--color-bg-alt)', color: 'var(--color-text-medium)' } as React.CSSProperties}>
               {t('hero.badge')}
             </div>
-            <h1 className="text-[clamp(3rem,5vw,4.5rem)] font-semibold text-black mb-6 leading-tight tracking-tight">
+            <h1 className="font-semibold tracking-tight" style={{ fontSize: 'clamp(var(--fs-h1-m), 5vw, var(--fs-h1-d))', lineHeight: 'var(--lh-heading)', marginBottom: 'var(--space-lg)', color: 'var(--color-text-high)' } as React.CSSProperties}>
               {t('hero.title')} 
-              <span className="font-light block mt-3">{t('hero.titleBold')}</span>
+              <span className="font-light block" style={{ marginTop: 'var(--space-sm)' } as React.CSSProperties}>{t('hero.titleBold')}</span>
             </h1>
-            <p className="text-[clamp(1rem,1.5vw,1.25rem)] font-light text-[#555555] mb-12 leading-relaxed max-w-3xl mx-auto">
+            <p className="font-light max-w-3xl mx-auto" style={{ fontSize: 'clamp(var(--fs-body-m), 1.5vw, var(--fs-body-l-d))', lineHeight: 'var(--lh-body)', marginBottom: 'var(--space-2xl)', color: 'var(--color-text-medium)' } as React.CSSProperties}>
               {t('hero.description')}
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row justify-center items-center" style={{ gap: 'var(--space-md)' } as React.CSSProperties}>
             <Link 
               href="/"
-              className="bg-[#007AFF] text-white px-8 py-3 rounded-lg font-medium hover:bg-[#005FCC] transition-colors duration-200 min-w-[200px]"
+              className="font-medium transition-colors duration-200 min-w-[200px]" 
+              style={{ borderRadius: 'var(--radius-lg)', paddingLeft: 'var(--space-xl)', paddingRight: 'var(--space-xl)', paddingTop: 'var(--space-sm)', paddingBottom: 'var(--space-sm)', backgroundColor: 'var(--color-primary)', color: 'var(--color-bg)' } as React.CSSProperties}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
             >
               {t('hero.startFree')}
             </Link>
             <Link 
               href="#ai-features"
-              className="border border-[#555555] text-[#555555] px-8 py-3 rounded-lg font-medium hover:bg-[#F8F8F8] transition-colors duration-200 min-w-[200px]"
+              className="border font-medium transition-colors duration-200 min-w-[200px]"
+              style={{ borderRadius: 'var(--radius-lg)', paddingLeft: 'var(--space-xl)', paddingRight: 'var(--space-xl)', paddingTop: 'var(--space-sm)', paddingBottom: 'var(--space-sm)', borderColor: 'var(--color-text-medium)', color: 'var(--color-text-medium)' } as React.CSSProperties}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-bg-alt)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
               {t('hero.exploreFeaturesButton')}
             </Link>
@@ -91,53 +118,53 @@ export default function AiTravelPage() {
       </section>
 
       {/* Future of Travel Section */}
-      <section className="py-16 lg:py-24 bg-[#F8F8F8]">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] font-semibold text-black mb-4 leading-tight">
+      <section style={{ paddingTop: 'var(--space-2xl)', paddingBottom: 'var(--space-2xl)', backgroundColor: 'var(--color-bg-alt)' } as React.CSSProperties}>
+        <div className="container mx-auto" style={{ paddingLeft: 'var(--space-lg)', paddingRight: 'var(--space-lg)' } as React.CSSProperties}>
+          <div className="max-w-4xl mx-auto text-center" style={{ marginBottom: 'var(--space-2xl)' } as React.CSSProperties}>
+            <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] font-semibold text-black leading-tight" style={{ marginBottom: 'var(--space-md)' } as React.CSSProperties}>
               {t('futureOfTravel.title')} 
-              <span className="font-light block mt-1">{t('futureOfTravel.titleBold')}</span>
+              <span className="font-light block" style={{ marginTop: 'var(--space-2xs)' } as React.CSSProperties}>{t('futureOfTravel.titleBold')}</span>
             </h2>
             <div className="w-16 h-px bg-[#555555] mx-auto"></div>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <div className="bg-white p-8 rounded-lg border border-[#F8F8F8]">
-              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto" style={{ gap: 'var(--space-xl)' } as React.CSSProperties}>
+            <div className="bg-white rounded-lg border border-[#F8F8F8]" style={{ padding: 'var(--space-xl)' } as React.CSSProperties}>
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center" style={{ marginBottom: 'var(--space-lg)' } as React.CSSProperties}>
                 <div className="w-6 h-6 border-2 border-[#555555] rounded-full flex items-center justify-center">
                   <div className="w-2 h-2 bg-[#555555] rounded-full"></div>
                 </div>
               </div>
-              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('futureOfTravel.existingProblems.title')}</h3>
-              <ul className="text-[#555555] space-y-2 text-sm font-light">
+              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black leading-snug" style={{ marginBottom: 'var(--space-md)' } as React.CSSProperties}>{t('futureOfTravel.existingProblems.title')}</h3>
+              <ul className="text-[#555555] text-sm font-light" style={{ gap: 'var(--space-xs)' } as React.CSSProperties}>
                 {existingProblemsItems.map((item: string, index: number) => (
                   <li key={index}>• {item}</li>
                 ))}
               </ul>
             </div>
             
-            <div className="bg-white p-8 rounded-lg border border-[#F8F8F8]">
-              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
+            <div className="bg-white rounded-lg border border-[#F8F8F8]" style={{ padding: 'var(--space-xl)' } as React.CSSProperties}>
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center" style={{ marginBottom: 'var(--space-lg)' } as React.CSSProperties}>
                 <div className="w-6 h-6 bg-black rounded-sm flex items-center justify-center">
                   <div className="w-3 h-3 bg-white rounded-full"></div>
                 </div>
               </div>
-              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('futureOfTravel.aiInnovation.title')}</h3>
-              <ul className="text-[#555555] space-y-2 text-sm font-light">
+              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black leading-snug" style={{ marginBottom: 'var(--space-md)' } as React.CSSProperties}>{t('futureOfTravel.aiInnovation.title')}</h3>
+              <ul className="text-[#555555] text-sm font-light" style={{ gap: 'var(--space-xs)' } as React.CSSProperties}>
                 {aiInnovationItems.map((item: string, index: number) => (
                   <li key={index}>• {item}</li>
                 ))}
               </ul>
             </div>
             
-            <div className="bg-white p-8 rounded-lg border border-[#F8F8F8]">
-              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
+            <div className="bg-white rounded-lg border border-[#F8F8F8]" style={{ padding: 'var(--space-xl)' } as React.CSSProperties}>
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center" style={{ marginBottom: 'var(--space-lg)' } as React.CSSProperties}>
                 <div className="w-6 h-6 border-2 border-[#007AFF] rounded-full flex items-center justify-center">
                   <div className="w-2 h-2 bg-[#007AFF] rounded-full"></div>
                 </div>
               </div>
-              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('futureOfTravel.futureTravel.title')}</h3>
-              <ul className="text-[#555555] space-y-2 text-sm font-light">
+              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black leading-snug" style={{ marginBottom: 'var(--space-md)' } as React.CSSProperties}>{t('futureOfTravel.futureTravel.title')}</h3>
+              <ul className="text-[#555555] text-sm font-light" style={{ gap: 'var(--space-xs)' } as React.CSSProperties}>
                 {futureTravelItems.map((item: string, index: number) => (
                   <li key={index}>• {item}</li>
                 ))}
@@ -148,7 +175,7 @@ export default function AiTravelPage() {
       </section>
 
       {/* AI Features Section */}
-      <section id="ai-features" className="py-24 lg:py-32 bg-white">
+      <section id="ai-features" className="bg-white" style={{ paddingTop: 'var(--space-2xl)', paddingBottom: 'var(--space-2xl)' } as React.CSSProperties}>
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] font-semibold text-black mb-4 leading-tight">
@@ -160,43 +187,43 @@ export default function AiTravelPage() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center" style={{ marginBottom: 'var(--space-lg)' } as React.CSSProperties}>
                 <div className="w-6 h-6 bg-[#555555] rounded-lg"></div>
               </div>
-              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('aiFeatures.intelligentContent.title')}</h3>
+              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black leading-snug" style={{ marginBottom: 'var(--space-md)' } as React.CSSProperties}>{t('aiFeatures.intelligentContent.title')}</h3>
               <p className="text-[#555555] font-light leading-relaxed">
                 {t('aiFeatures.intelligentContent.description')}
               </p>
             </div>
             
             <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center" style={{ marginBottom: 'var(--space-lg)' } as React.CSSProperties}>
                 <div className="w-6 h-6 border-2 border-black rounded-full flex items-center justify-center">
                   <div className="w-3 h-3 border border-black rounded-full flex items-center justify-center">
                     <div className="w-1 h-1 bg-black rounded-full"></div>
                   </div>
                 </div>
               </div>
-              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('aiFeatures.personalization.title')}</h3>
+              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black leading-snug" style={{ marginBottom: 'var(--space-md)' } as React.CSSProperties}>{t('aiFeatures.personalization.title')}</h3>
               <p className="text-[#555555] font-light leading-relaxed">
                 {t('aiFeatures.personalization.description')}
               </p>
             </div>
             
             <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center" style={{ marginBottom: 'var(--space-lg)' } as React.CSSProperties}>
                 <div className="w-4 h-6 bg-black rounded-full rounded-b-none flex items-end justify-center">
                   <div className="w-2 h-2 bg-white rounded-full mb-1"></div>
                 </div>
               </div>
-              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('aiFeatures.locationRecognition.title')}</h3>
+              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black leading-snug" style={{ marginBottom: 'var(--space-md)' } as React.CSSProperties}>{t('aiFeatures.locationRecognition.title')}</h3>
               <p className="text-[#555555] font-light leading-relaxed">
                 {t('aiFeatures.locationRecognition.description')}
               </p>
             </div>
             
             <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center" style={{ marginBottom: 'var(--space-lg)' } as React.CSSProperties}>
                 <div className="flex space-x-1">
                   <div className="w-1 h-4 bg-[#555555] rounded-full"></div>
                   <div className="w-1 h-5 bg-[#555555] rounded-full"></div>
@@ -204,14 +231,14 @@ export default function AiTravelPage() {
                   <div className="w-1 h-5 bg-[#555555] rounded-full"></div>
                 </div>
               </div>
-              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('aiFeatures.voiceSynthesis.title')}</h3>
+              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black leading-snug" style={{ marginBottom: 'var(--space-md)' } as React.CSSProperties}>{t('aiFeatures.voiceSynthesis.title')}</h3>
               <p className="text-[#555555] font-light leading-relaxed">
                 {t('aiFeatures.voiceSynthesis.description')}
               </p>
             </div>
             
             <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center" style={{ marginBottom: 'var(--space-lg)' } as React.CSSProperties}>
                 <div className="w-5 h-6 border-2 border-[#555555] rounded-sm">
                   <div className="h-full w-full flex flex-col justify-center space-y-0.5 px-1">
                     <div className="h-0.5 bg-[#555555] rounded"></div>
@@ -220,21 +247,21 @@ export default function AiTravelPage() {
                   </div>
                 </div>
               </div>
-              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('aiFeatures.dataIntegration.title')}</h3>
+              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black leading-snug" style={{ marginBottom: 'var(--space-md)' } as React.CSSProperties}>{t('aiFeatures.dataIntegration.title')}</h3>
               <p className="text-[#555555] font-light leading-relaxed">
                 {t('aiFeatures.dataIntegration.description')}
               </p>
             </div>
             
             <div className="bg-white p-8 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center mb-6">
+              <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center" style={{ marginBottom: 'var(--space-lg)' } as React.CSSProperties}>
                 <div className="w-6 h-6 border-2 border-[#555555] rounded-full relative">
                   <div className="absolute -top-1 right-0 w-2 h-2">
                     <div className="w-0 h-0 border-l-2 border-b-2 border-[#555555] rotate-45"></div>
                   </div>
                 </div>
               </div>
-              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black mb-4 leading-snug">{t('aiFeatures.continuousLearning.title')}</h3>
+              <h3 className="text-[clamp(1.25rem,2vw,1.5rem)] font-semibold text-black leading-snug" style={{ marginBottom: 'var(--space-md)' } as React.CSSProperties}>{t('aiFeatures.continuousLearning.title')}</h3>
               <p className="text-[#555555] font-light leading-relaxed">
                 {t('aiFeatures.continuousLearning.description')}
               </p>
