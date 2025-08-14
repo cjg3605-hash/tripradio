@@ -145,23 +145,20 @@ export default async function RootLayout({
         {/* DNS Prefetch - Critical 3rd Party Domains */}
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
         <link rel="dns-prefetch" href="//fonts.gstatic.com" />
-        <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
         <link rel="dns-prefetch" href="//pagead2.googlesyndication.com" />
         <link rel="dns-prefetch" href="//www.googletagmanager.com" />
-        <link rel="dns-prefetch" href="//unpkg.com" />
+        {/* CDN 의존성 제거 - 404 오류 방지 */}
+        {/* <link rel="dns-prefetch" href="//cdn.jsdelivr.net" /> */}
+        {/* <link rel="dns-prefetch" href="//unpkg.com" /> */}
         
         {/* Preconnect for Critical Resources - Connection Reuse */}
         <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
+        {/* CDN preconnect 제거 - 404 오류 방지 */}
+        {/* <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" /> */}
         
-        {/* Critical CSS Preload */}
-        <link 
-          rel="preload" 
-          href="/styles/globals.css" 
-          as="style"
-          onload="this.onload=null;this.rel='stylesheet'"
-        />
+        {/* CSS는 import로 처리됨 - preload 제거 */}
+        {/* Next.js에서는 globals.css가 import './globals.css'로 이미 로드됨 */}
         
         {/* Critical Image Preload */}
         <link rel="preload" href="/logo.png" as="image" />
@@ -281,7 +278,9 @@ export default async function RootLayout({
         {/* Software Application Schema for SEO */}
         <SoftwareApplicationSchema />
         
-        {/* Pretendard Font CDN */}
+        {/* Pretendard Font CDN - 임시 비활성화 (404 오류 방지) */}
+        {/* TODO: 로컬 Pretendard 폰트 설치 후 활성화 */}
+        {/*
         <link 
           rel="preload" 
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.woff2" 
@@ -293,6 +292,7 @@ export default async function RootLayout({
           rel="stylesheet" 
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css"
         />
+        */}
       </head>
       <body className={`${roboto.variable} font-sans antialiased`} suppressHydrationWarning>
         {/* AMP 자동 광고는 일반 React 앱에서는 사용하지 않고, 대신 AutoAdSense 컴포넌트 사용 */}

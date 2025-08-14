@@ -1,9 +1,17 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
+import createIntlMiddleware from 'next-intl/middleware';
 import { botDetectionEngine } from './src/lib/security/bot-detection-engine';
 import { captchaSystem } from './src/lib/security/captcha-system';
 import { loginRateLimiter, emailVerificationRateLimiter } from './src/lib/rate-limiter-auth';
+
+// next-intl 미들웨어 설정
+const intlMiddleware = createIntlMiddleware({
+  locales: ['ko', 'en', 'ja', 'zh', 'es'],
+  defaultLocale: 'ko',
+  localeDetection: false
+});
 
 /**
  * 클라이언트 IP 추출 헬퍼 함수
@@ -145,13 +153,25 @@ async function securityMiddleware(request: NextRequest): Promise<NextResponse | 
 
 export default withAuth(
   async function middleware(req) {
-    // 1. 보안 미들웨어 실행
+    // 1. next-intl 미들웨어 실행 (정적 경로 제외)
+    const pathname = req.nextUrl.pathname;
+    const isApiRoute = pathname.startsWith('/api/');
+    const isStaticFile = pathname.includes('.');
+    
+    if (!isApiRoute && !isStaticFile) {
+      const intlResponse = intlMiddleware(req);
+      if (intlResponse instanceof Response) {
+        return intlResponse;
+      }
+    }
+    
+    // 2. 보안 미들웨어 실행
     const securityResponse = await securityMiddleware(req);
     if (securityResponse) {
       return securityResponse;
     }
     
-    // 2. 강제 로그아웃 감지 및 처리
+    // 3. 강제 로그아웃 감지 및 처리
     const isForceLogout = req.nextUrl.pathname === '/api/auth/force-logout';
     if (isForceLogout) {
       // 강제 로그아웃 요청 시 토큰 캐시 무효화
@@ -160,13 +180,13 @@ export default withAuth(
       req.nextauth.token = null;
     }
     
-    // 3. 쿠키 기반 세션 검증 (토큰 캐시 우회)
+    // 4. 쿠키 기반 세션 검증 (토큰 캐시 우회)
     const sessionToken = req.cookies.get('next-auth.session-token')?.value || 
                         req.cookies.get('__Secure-next-auth.session-token')?.value;
     
     const hasValidSession = sessionToken && req.nextauth.token;
     
-    // 4. 기본 인증 처리 (쿠키 검증 기반)
+    // 5. 기본 인증 처리 (쿠키 검증 기반)
     let response: NextResponse;
     
     if (!hasValidSession && req.nextUrl.pathname.startsWith('/mypage')) {
@@ -224,12 +244,14 @@ export default withAuth(
 export const config = {
   matcher: [
     /*
-     * 인증이 필요한 경로만 미들웨어 적용
-     * - /mypage (마이페이지)
-     * - /api/auth/* (인증 API)
-     * - 보안 관련 API 경로들
+     * Match all pathnames except for:
+     * - api routes
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico, robots.txt, sitemap.xml (public files)
+     * - files with extensions
      */
-    '/mypage/:path*',
+    '/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.).*)',
     '/api/auth/:path*',
     '/api/security/:path*',
     '/api/monitoring/:path*'

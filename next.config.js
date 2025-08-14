@@ -1,4 +1,8 @@
 /** @type {import('next').NextConfig} */
+const withNextIntl = require('next-intl/plugin')(
+  // This is the default location for the i18n config
+  './src/i18n.ts'
+);
 const withPWA = require('next-pwa')({
   dest: 'public',
   register: process.env.NODE_ENV !== 'development',
@@ -140,9 +144,7 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  experimental: {
-    esmExternals: 'loose'
-  },
+  // experimental.esmExternals 제거 - webpack 호환성 문제 해결
   // 압축 최적화
   compress: true,
   poweredByHeader: false,
@@ -314,9 +316,36 @@ const nextConfig = {
         },
       };
       
-      // 압축 최적화 (프로덕션에서만)
+      // 압축 최적화 (안전한 TerserPlugin 설정)
       if (!dev) {
         config.optimization.minimize = true;
+        const TerserPlugin = require('terser-webpack-plugin');
+        config.optimization.minimizer = [
+          new TerserPlugin({
+            terserOptions: {
+              compress: {
+                drop_console: false,
+                drop_debugger: true,
+                pure_funcs: [],
+                unsafe: false,
+                unsafe_comps: false,
+                unsafe_math: false,
+                unsafe_proto: false,
+                passes: 1,
+                keep_fargs: true,
+                keep_fnames: true,
+                conditionals: false,
+                evaluate: false,
+              },
+              mangle: false,
+              format: {
+                comments: false,
+                preserve_annotations: true,
+              },
+            },
+            extractComments: false,
+          }),
+        ];
       }
     }
     
@@ -341,4 +370,4 @@ const nextConfig = {
   }
 };
 
-module.exports = withPWA(nextConfig);
+module.exports = withNextIntl(withPWA(nextConfig));
