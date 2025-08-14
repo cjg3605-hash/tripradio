@@ -1461,43 +1461,7 @@ function Home() {
                 </div>
               </div>
               {/* 지역 상세 페이지 링크 - 모든 기기 최적화 */}
-              <div className="mt-6 sm:mt-8 px-4 sm:px-6">
-                <div className="bg-[#F8F8F8] rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all duration-300">
-                  <div className="text-center space-y-3 sm:space-y-4">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-800 rounded-full"></div>
-                    </div>
-                    
-                    <div className="space-y-1 sm:space-y-2">
-                      <h3 className="text-fluid-lg sm:text-fluid-xl font-semibold text-black leading-tight">
-                        {activeRegion === 'korea' && '한국 여행지 전체보기'}
-                        {activeRegion === 'europe' && '유럽 여행지 전체보기'}
-                        {activeRegion === 'asia' && '아시아 여행지 전체보기'}
-                        {activeRegion === 'americas' && '아메리카 여행지 전체보기'}
-                      </h3>
-                      
-                      <p className="text-fluid-sm text-[#555555] font-light leading-relaxed max-w-md mx-auto">
-                        {activeRegion === 'korea' && '한국의 모든 인기 명소와 숨은 보석 같은 장소들을 발견해보세요'}
-                        {activeRegion === 'europe' && '유럽 각국의 역사적 명소와 문화 유산을 탐험해보세요'}
-                        {activeRegion === 'asia' && '아시아의 다채로운 문화와 아름다운 자연을 만나보세요'}
-                        {activeRegion === 'americas' && '남북 아메리카의 웅장한 자연과 도시를 경험해보세요'}
-                      </p>
-                    </div>
-                    
-                    <button
-                      onClick={() => router.push(`/regions/${activeRegion}`)}
-                      className="group inline-flex items-center justify-center bg-black text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-fluid-sm sm:text-fluid-base font-semibold hover:bg-gray-800 focus:bg-gray-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 min-w-[160px] sm:min-w-[200px] shadow-lg hover:shadow-xl"
-                    >
-                      <span className="leading-none">
-                        더 많은 명소 보기
-                      </span>
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
+              {/* 지역 상세 페이지 링크 박스는 카드 아래로 이동 */}
             </div>
 
             {/* 국가 카드 슬라이드 - 인기여행지 스타일 */}
@@ -1589,7 +1553,7 @@ function Home() {
                         {/* 정보 표시 영역 */}
                         <div className="pt-4 border-t border-gray-100">
                           <div className="flex items-center justify-end">
-                            <div className="flex items-center text-sm font-light text-[#555555] font-light">
+                            <div className="flex items-center text-sm font-light text-[#555555]">
                               <span className="tracking-wide">{t('home.clickAttraction')}</span>
                               <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672L13.684 21.017l-.073-.046a.5.5 0 01-.179-.704l5.93-8.395-5.93-8.395a.5.5 0 01.179-.704l.073-.046 1.358-.655a.5.5 0 01.721.273l6.5 11.5a.5.5 0 010 .454l-6.5 11.5a.5.5 0 01-.721.273z" />
@@ -1611,6 +1575,41 @@ function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l4-4m0 0l4-4m-4 4v12" />
                 </svg>
                 <span className="font-medium">{t('home.scrollHint')}</span>
+              </div>
+            </div>
+
+            {/* 지역 상세 페이지 링크 - 카드 하단 중앙 배치 */}
+            <div className="mt-10 sm:mt-12 px-4 sm:px-6">
+              <div className="bg-[#F8F8F8] rounded-2xl p-4 sm:p-5 lg:p-6 border border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all duration-300 max-w-2xl mx-auto text-center">
+                <div className="space-y-2 sm:space-y-3">
+                  <div className="space-y-1 sm:space-y-2">
+                    <h3 className="text-fluid-lg sm:text-fluid-xl font-semibold text-black leading-tight">
+                      {activeRegion === 'korea' && '한국 여행지 전체보기'}
+                      {activeRegion === 'europe' && '유럽 여행지 전체보기'}
+                      {activeRegion === 'asia' && '아시아 여행지 전체보기'}
+                      {activeRegion === 'americas' && '아메리카 여행지 전체보기'}
+                    </h3>
+                    
+                    <p className="text-fluid-sm text-[#555555] font-light leading-relaxed max-w-md mx-auto">
+                      {activeRegion === 'korea' && '모든 인기 명소와 숨은 보석 같은 장소들을 발견해보세요'}
+                      {activeRegion === 'europe' && '유럽 각국의 역사적 명소와 문화 유산을 탐험해보세요'}
+                      {activeRegion === 'asia' && '아시아의 다채로운 문화와 아름다운 자연을 만나보세요'}
+                      {activeRegion === 'americas' && '남북 아메리카의 웅장한 자연과 도시를 경험해보세요'}
+                    </p>
+                  </div>
+                  
+                  <button
+                    onClick={() => router.push(`/regions/${activeRegion}`)}
+                    className="group inline-flex items-center justify-center bg-black text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-fluid-sm sm:text-fluid-base font-semibold hover:bg-gray-800 focus:bg-gray-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 min-w-[160px] sm:min-w-[200px] shadow-lg hover:shadow-xl"
+                  >
+                    <span className="leading-none">
+                      더 많은 명소 보기
+                    </span>
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
 

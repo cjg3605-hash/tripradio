@@ -418,29 +418,29 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                 }
               }}
               className={`
-                flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all duration-200
+                flex items-center gap-1 px-2 py-1.5 rounded-lg text-sm transition-all duration-200
                 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1
                 ${isLanguageMenuOpen 
-                  ? 'bg-gray-100 text-gray-900' 
-                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-gray-50 text-gray-900' 
+                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                 }
               `}
               aria-label={`${String(t('header.language'))}: ${currentConfig?.name}`}
               aria-expanded={isLanguageMenuOpen}
               aria-haspopup="listbox"
             >
-              <Globe className="w-3 h-3" />
+              <Globe className="w-4 h-4" />
               <span role="img" aria-label={`${currentConfig?.name || '한국어'} 국기`}>
                 {currentConfig?.flag}
               </span>
-              <ChevronDown className={`w-2 h-2 transition-transform duration-200 ${
+              <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${
                 isLanguageMenuOpen ? 'rotate-180' : ''
               }`} />
             </button>
 
             {isLanguageMenuOpen && (
               <div 
-                className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-dropdown border border-gray-200 py-1 min-w-24 z-50"
+                className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-dropdown border border-gray-200 py-1 min-w-28 z-50"
                 role="listbox"
                 aria-label={String(t('header.selectLanguage'))}
               >
@@ -454,7 +454,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                       handleLanguageChange(lang.code);
                     }}
                     className={`
-                      dropdown-item w-full text-left px-2 py-1 flex items-center gap-1 text-xs transition-colors duration-150
+                      dropdown-item w-full text-left px-3 py-2 flex items-center gap-2 text-sm transition-colors duration-150
                       focus:outline-none focus:ring-2 focus:ring-black focus:ring-inset
                       ${index === selectedLanguageIndex 
                         ? 'bg-gray-100 text-gray-900' 
@@ -474,7 +474,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                     </span>
                     <span>{lang.name}</span>
                     {lang.code === currentLanguage && (
-                      <span className="ml-auto text-xs text-gray-500" aria-label={String(t('header.currentSelectedLanguage'))}>
+                      <span className="ml-auto text-sm text-gray-500" aria-label={String(t('header.currentSelectedLanguage'))}>
                         ✓
                       </span>
                     )}
@@ -483,22 +483,6 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
               </div>
             )}
           </div>
-
-          {/* 히스토리 버튼 */}
-          <button
-            onClick={(e) => {
-              console.log('🖱️ Mobile history button clicked');
-              e.preventDefault();
-              e.stopPropagation();
-              if (onHistoryOpen) onHistoryOpen();
-            }}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-xs text-gray-700 transition-colors duration-150"
-          >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="hidden sm:inline">{t('header.history')}</span>
-          </button>
 
           {/* 로그인 상태 */}
           {session?.user ? (
@@ -510,24 +494,39 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                   e.stopPropagation();
                   setIsProfileMenuOpen(!isProfileMenuOpen);
                 }}
-                className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-xs text-gray-700 transition-colors duration-150"
+                className="flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-gray-50 text-sm text-gray-700 transition-colors duration-150"
               >
                 {session.user.image ? (
                   <Image 
                     src={session.user.image} 
                     alt={String(t('header.profileAlt'))} 
-                    width={16}
-                    height={16}
-                    className="w-4 h-4 rounded-full"
+                    width={20}
+                    height={20}
+                    className="w-5 h-5 rounded-full"
                   />
                 ) : (
-                  <User className="w-3 h-3" />
+                  <User className="w-4 h-4" />
                 )}
-                <span className="hidden sm:inline">{session.user.name || session.user.email}</span>
+                <ChevronDown className="w-3 h-3" />
               </button>
 
               {isProfileMenuOpen && (
-                <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-dropdown border border-gray-200 py-1 min-w-32 z-50">
+                <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-dropdown border border-gray-200 py-1 min-w-36 z-50">
+                  <button
+                    onClick={(e) => {
+                      console.log('🖱️ Mobile history option clicked');
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (onHistoryOpen) onHistoryOpen();
+                      setIsProfileMenuOpen(false);
+                    }}
+                    className="dropdown-item w-full text-left px-3 py-2 text-sm text-gray-700 transition-colors duration-150 flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {t('header.history')}
+                  </button>
                   <button
                     onClick={(e) => {
                       console.log('🖱️ Mobile mypage option clicked');
@@ -536,7 +535,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                       router.push('/mypage');
                       setIsProfileMenuOpen(false);
                     }}
-                    className="dropdown-item w-full text-left px-2 py-1 text-xs text-gray-700 transition-colors duration-150"
+                    className="dropdown-item w-full text-left px-3 py-2 text-sm text-gray-700 transition-colors duration-150"
                   >
                     {t('profile.mypage')}
                   </button>
@@ -547,7 +546,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                       e.stopPropagation();
                       handleSignOut();
                     }}
-                    className="dropdown-item w-full text-left px-2 py-1 text-xs text-gray-700 transition-colors duration-150"
+                    className="dropdown-item w-full text-left px-3 py-2 text-sm text-gray-700 transition-colors duration-150"
                   >
                     {t('auth.signout')}
                   </button>
@@ -562,10 +561,10 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                 e.stopPropagation();
                 router.push('/auth/signin');
               }}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-xs text-gray-700 transition-colors duration-150"
+              className="flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-gray-50 text-sm text-gray-700 transition-colors duration-150"
             >
-              <LogIn className="w-3 h-3" />
-              <span className="hidden sm:inline">{t('auth.signin')}</span>
+              <LogIn className="w-4 h-4" />
+              <span>{t('auth.signin')}</span>
             </button>
           )}
         </div>
