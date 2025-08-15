@@ -332,7 +332,7 @@ export default function MultiLangGuideClient({
       setIsLoading(false);
       setIsRegenerating(false);
     }
-  }, [locationName, saveToHistory]); // currentLanguage 의존성 제거 (매개변수로 전달되므로)
+  }, [locationName, saveToHistory, regionalContext]); // currentLanguage 의존성 제거 (매개변수로 전달되므로)
 
   // 🌍 사용 가능한 언어 목록 로드
   const loadAvailableLanguages = useCallback(async () => {
@@ -514,7 +514,7 @@ export default function MultiLangGuideClient({
     };
 
     initializeGuide();
-  }, [locationName, initialGuide, requestedLanguage, currentLanguage, loadAvailableLanguages, loadGuideForLanguage, saveToHistory, analyzeRouting]); // 모든 의존성 추가
+  }, [locationName, initialGuide, requestedLanguage, currentLanguage, loadAvailableLanguages, loadGuideForLanguage, saveToHistory, analyzeRouting, parentRegion, shouldShowExploreHub]); // 모든 의존성 추가
 
   // 🚀 좌표 폴링 시작 로직
   useEffect(() => {
@@ -631,7 +631,7 @@ export default function MultiLangGuideClient({
         }
       })();
     }
-  }, [currentLanguage, isLoading, guideData, locationName, saveToHistory]); // 모든 의존성 추가
+  }, [currentLanguage, isLoading, guideData, locationName, saveToHistory, parentRegion]); // 모든 의존성 추가
 
   // 로딩 상태 표시
   if (isLoading) {

@@ -1270,12 +1270,66 @@ export class UltraSpeedOptimizer {
     });
   }
 
-  // 67% 토큰 감소 검증된 프롬프트 최적화
+  // 67% 토큰 감소 검증된 프롬프트 최적화 (분량 보존형)
   optimizePrompt(prompt: string): string {
-    return prompt
-      .replace(/\n\s*\n/g, '\n') // 빈 줄 제거
-      .replace(/\s{2,}/g, ' ') // 다중 공백 제거
+    // 🔍 AI 프롬프트 엔지니어링: 분량 지침 보호 패턴
+    const lengthRequirements = [
+      /1500-1600자/g,
+      /최소 1500자/g,
+      /완전한 내용/g,
+      /완전하고 상세한/g,
+      /🚨.*절대 중요.*🚨/g,
+      /narrative 필드.*완전한 내용/g,
+      /절대 짧게 쓰지 마세요/g
+    ];
+
+    // 🛡️ 분량 관련 문장들을 보호하기 위한 플레이스홀더
+    const protectedSections: string[] = [];
+    let workingPrompt = prompt;
+
+    // 분량 관련 섹션들을 임시로 보호
+    lengthRequirements.forEach((pattern, index) => {
+      const matches = workingPrompt.match(pattern);
+      if (matches) {
+        matches.forEach(match => {
+          const placeholder = `__PROTECTED_${index}_${protectedSections.length}__`;
+          protectedSections.push(match);
+          workingPrompt = workingPrompt.replace(match, placeholder);
+        });
+      }
+    });
+
+    // 🔧 토큰 최적화 적용 (보호된 섹션 제외)
+    const optimized = workingPrompt
+      .replace(/\n\s*\n\s*\n/g, '\n\n') // 3개 이상 연속 줄바꿈만 제거
+      .replace(/[ \t]{3,}/g, ' ') // 3개 이상 공백만 제거 (구조적 공백 보존)
+      .replace(/^\s+/gm, '') // 각 줄 시작의 공백만 제거
       .trim();
+
+    // 🛡️ 보호된 분량 관련 내용 복원
+    let finalPrompt = optimized;
+    protectedSections.forEach((section, index) => {
+      const placeholderPattern = new RegExp(`__PROTECTED_\\d+_${index}__`, 'g');
+      finalPrompt = finalPrompt.replace(placeholderPattern, section);
+    });
+
+    return finalPrompt;
+  }
+
+  // 🎯 분량 보존 전용 최적화 (분량 지침 강화)
+  optimizePromptWithLengthEmphasis(prompt: string): string {
+    const optimized = this.optimizePrompt(prompt);
+    
+    // 🚨 분량 요구사항 재강조 (프롬프트 끝에 추가)
+    const lengthEmphasis = `
+
+🚨 **최종 분량 확인 필수** 🚨
+- narrative 필드: 반드시 1500-1600자 (최소 1500자!)
+- 완전하고 풍부한 내용으로 작성
+- 짧은 내용이나 요약 형태 절대 금지
+- AI는 분량을 최우선으로 고려하여 응답`;
+
+    return optimized + lengthEmphasis;
   }
 
   // 병렬 처리 및 스트리밍 (실제 1.8초 달성)

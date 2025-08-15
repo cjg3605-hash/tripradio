@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 interface MigrationStats {
   processed: number;
@@ -28,7 +28,7 @@ export default function CoordinatesMigrationPage() {
   const [locationFilter, setLocationFilter] = useState('');
 
   // 진행 상황 조회
-  const fetchProgress = async () => {
+  const fetchProgress = useCallback(async () => {
     try {
       const url = locationFilter 
         ? `/api/coordinates/migrate?location=${encodeURIComponent(locationFilter)}`
@@ -43,12 +43,12 @@ export default function CoordinatesMigrationPage() {
     } catch (error) {
       console.error('진행 상황 조회 실패:', error);
     }
-  };
+  }, [locationFilter]);
 
   // 페이지 로드 시 진행 상황 조회
   useEffect(() => {
     fetchProgress();
-  }, [locationFilter]);
+  }, [locationFilter, fetchProgress]);
 
   // 마이그레이션 실행
   const runMigration = async () => {

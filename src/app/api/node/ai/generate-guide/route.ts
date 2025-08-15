@@ -703,8 +703,22 @@ export async function POST(request: NextRequest) {
       console.log('🎯 1억명 검증된 메가 최적화 AI 시스템으로 가이드 생성 (좌표 최적화 적용)');
       prompt = await createMegaOptimizedPrompt(locationName, language, userProfile);
       
-      // 67% 토큰 감소 최적화 적용
-      prompt = ultraSpeedOptimizer.optimizePrompt(prompt);
+      // 🚨 분량 보존 모드: 분량이 중요한 경우 압축 비활성화
+      // 챕터 생성이나 분량이 중요한 경우에는 압축하지 않음
+      const preserveContentLength = generationMode === 'chapter' || 
+                                   prompt.includes('1500-1600자') || 
+                                   prompt.includes('완전한 내용') ||
+                                   prompt.includes('최소 1500자');
+      
+      if (!preserveContentLength) {
+        // 67% 토큰 감소 최적화 적용 (분량이 중요하지 않은 경우만)
+        console.log('🔧 토큰 최적화 적용 (분량 보존 모드 OFF)');
+        prompt = ultraSpeedOptimizer.optimizePrompt(prompt);
+      } else {
+        // 🎯 분량 중요: 스마트 압축 + 분량 지침 강화
+        console.log('📏 분량 보존 모드 활성화 - 스마트 압축 + 분량 강화');
+        prompt = ultraSpeedOptimizer.optimizePromptWithLengthEmphasis(prompt);
+      }
     }
 
     // 재시도 로직이 포함된 AI 응답 생성
