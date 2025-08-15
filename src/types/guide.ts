@@ -155,6 +155,8 @@ export interface GuideMetadata {
   generatedAt?: string;
   version?: string;
   language?: string;
+  guideId?: string | number;
+  id?: string | number;
 }
 
 export interface GuideData {
@@ -164,6 +166,8 @@ export interface GuideData {
   route: GuideRoute;
   realTimeGuide?: RealTimeGuide;
   metadata: GuideMetadata;
+  // 좌표 데이터
+  coordinates?: any[];
   // 좌표 생성 상태 관련 프로퍼티
   coordinateGenerationFailed?: boolean;
   coordinateFailureReason?: string;

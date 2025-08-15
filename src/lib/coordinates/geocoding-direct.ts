@@ -172,14 +172,21 @@ function isValidResult(result: any, originalName: string, context?: LocationCont
   
   // 지역 컨텍스트 검증
   if (context?.country) {
-    const countryNames = getCountryNames(context.country);
+    // 국가 코드 또는 국가명을 국가 코드로 변환
+    const countryCode = normalizeCountryToCode(context.country);
+    const countryNames = getCountryNames(countryCode);
     const hasCountryMatch = countryNames.some(name => 
       result.formatted_address.toLowerCase().includes(name.toLowerCase())
     );
     
+    console.log(`  🔍 국가 검증: ${context.country} → ${countryCode} → [${countryNames.join(', ')}]`);
+    console.log(`  📍 주소에서 확인: ${result.formatted_address}`);
+    
     if (!hasCountryMatch) {
       console.log(`  ⚠️ 국가 불일치: ${context.country} vs ${result.formatted_address}`);
       return false;
+    } else {
+      console.log(`  ✅ 국가 일치 확인됨`);
     }
   }
   
@@ -232,19 +239,160 @@ function calculateNameSimilarity(address: string, targetName: string): number {
 }
 
 /**
- * 🌍 국가 코드별 국가명 목록
+ * 🌍 국가명을 ISO 3166-1 alpha-3 코드로 정규화
+ */
+function normalizeCountryToCode(country: string): string {
+  const countryMappings: { [key: string]: string } = {
+    // 한국
+    'South Korea': 'KOR',
+    'Korea': 'KOR', 
+    '대한민국': 'KOR',
+    '한국': 'KOR',
+    'KR': 'KOR',
+    'KOR': 'KOR',
+    
+    // 중국
+    'China': 'CHN',
+    '중국': 'CHN',
+    'People\'s Republic of China': 'CHN',
+    'CN': 'CHN',
+    'CHN': 'CHN',
+    
+    // 일본
+    'Japan': 'JPN',
+    '일본': 'JPN',
+    'Nippon': 'JPN',
+    'JP': 'JPN',
+    'JPN': 'JPN',
+    
+    // 미국
+    'United States': 'USA',
+    'USA': 'USA',
+    'America': 'USA',
+    '미국': 'USA',
+    'US': 'USA',
+    
+    // 프랑스
+    'France': 'FRA',
+    '프랑스': 'FRA',
+    'République française': 'FRA',
+    'FR': 'FRA',
+    'FRA': 'FRA',
+    
+    // 이탈리아
+    'Italy': 'ITA',
+    '이탈리아': 'ITA',
+    'Italia': 'ITA',
+    'IT': 'ITA',
+    'ITA': 'ITA',
+    
+    // 스페인
+    'Spain': 'ESP',
+    '스페인': 'ESP',
+    'España': 'ESP',
+    'ES': 'ESP',
+    'ESP': 'ESP',
+    
+    // 독일
+    'Germany': 'DEU',
+    '독일': 'DEU',
+    'Deutschland': 'DEU',
+    'DE': 'DEU',
+    'DEU': 'DEU',
+    
+    // 영국
+    'United Kingdom': 'GBR',
+    'UK': 'GBR',
+    '영국': 'GBR',
+    'Britain': 'GBR',
+    'GB': 'GBR',
+    'GBR': 'GBR',
+    
+    // 추가 주요 국가들
+    'Australia': 'AUS',
+    '호주': 'AUS',
+    'AU': 'AUS',
+    'AUS': 'AUS',
+    
+    'Canada': 'CAN',
+    '캐나다': 'CAN',
+    'CA': 'CAN',
+    'CAN': 'CAN',
+    
+    'India': 'IND',
+    '인도': 'IND',
+    'IN': 'IND',
+    'IND': 'IND',
+    
+    'Brazil': 'BRA',
+    '브라질': 'BRA',
+    'BR': 'BRA',
+    'BRA': 'BRA',
+    
+    'Russia': 'RUS',
+    '러시아': 'RUS',
+    'RU': 'RUS',
+    'RUS': 'RUS',
+    
+    'Mexico': 'MEX',
+    '멕시코': 'MEX',
+    'MX': 'MEX',
+    'MEX': 'MEX',
+    
+    'Thailand': 'THA',
+    '태국': 'THA',
+    'TH': 'THA',
+    'THA': 'THA',
+    
+    'Vietnam': 'VNM',
+    '베트남': 'VNM',
+    'VN': 'VNM',
+    'VNM': 'VNM',
+    
+    'Indonesia': 'IDN',
+    '인도네시아': 'IDN',
+    'ID': 'IDN',
+    'IDN': 'IDN',
+    
+    'Malaysia': 'MYS',
+    '말레이시아': 'MYS',
+    'MY': 'MYS',
+    'MYS': 'MYS',
+    
+    'Singapore': 'SGP',
+    '싱가포르': 'SGP',
+    'SG': 'SGP',
+    'SGP': 'SGP'
+  };
+  
+  return countryMappings[country] || country;
+}
+
+/**
+ * 🌍 ISO 3166-1 alpha-3 국가 코드별 국가명 목록
  */
 function getCountryNames(countryCode: string): string[] {
   const countryNames: { [key: string]: string[] } = {
-    'KR': ['South Korea', 'Korea', '대한민국', '한국'],
-    'CN': ['China', '중국', 'People\'s Republic of China'],
-    'JP': ['Japan', '일본', 'Nippon'],
-    'US': ['United States', 'USA', 'America', '미국'],
-    'FR': ['France', '프랑스', 'République française'],
-    'IT': ['Italy', '이탈리아', 'Italia'],
-    'ES': ['Spain', '스페인', 'España'],
-    'DE': ['Germany', '독일', 'Deutschland'],
-    'GB': ['United Kingdom', 'UK', '영국', 'Britain']
+    'KOR': ['South Korea', 'Korea', '대한민국', '한국', 'Republic of Korea'],
+    'CHN': ['China', '중국', 'People\'s Republic of China', '중화인민공화국'],
+    'JPN': ['Japan', '일본', 'Nippon', '日本'],
+    'USA': ['United States', 'USA', 'America', '미국', 'United States of America'],
+    'FRA': ['France', '프랑스', 'République française'],
+    'ITA': ['Italy', '이탈리아', 'Italia'],
+    'ESP': ['Spain', '스페인', 'España'],
+    'DEU': ['Germany', '독일', 'Deutschland'],
+    'GBR': ['United Kingdom', 'UK', '영국', 'Britain', 'Great Britain'],
+    'AUS': ['Australia', '호주', 'Commonwealth of Australia'],
+    'CAN': ['Canada', '캐나다'],
+    'IND': ['India', '인도', 'Republic of India', '인디아'],
+    'BRA': ['Brazil', '브라질', 'Brasil'],
+    'RUS': ['Russia', '러시아', 'Russian Federation'],
+    'MEX': ['Mexico', '멕시코', 'México'],
+    'THA': ['Thailand', '태국', 'Kingdom of Thailand'],
+    'VNM': ['Vietnam', '베트남', 'Viet Nam', 'Socialist Republic of Vietnam'],
+    'IDN': ['Indonesia', '인도네시아', 'Republic of Indonesia'],
+    'MYS': ['Malaysia', '말레이시아'],
+    'SGP': ['Singapore', '싱가포르', 'Republic of Singapore']
   };
   
   return countryNames[countryCode] || [countryCode];

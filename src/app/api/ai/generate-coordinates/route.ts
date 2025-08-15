@@ -42,11 +42,22 @@ async function getCoordinateWithGeocoding(
   const context: SimpleLocationContext = {
     locationName: `${baseLocationName} ${chapterLocation}`,
     region: region,
-    country: country === 'CN' ? 'China' : 
-             country === 'KR' ? 'South Korea' : 
-             country === 'JP' ? 'Japan' :
-             country === 'US' ? 'United States' : country,
-    language: country === 'KR' ? 'ko' : 'en'
+    country: country === 'CHN' ? 'China' : 
+             country === 'KOR' ? 'South Korea' : 
+             country === 'JPN' ? 'Japan' :
+             country === 'USA' ? 'United States' :
+             country === 'FRA' ? 'France' :
+             country === 'DEU' ? 'Germany' :
+             country === 'GBR' ? 'United Kingdom' :
+             country === 'ITA' ? 'Italy' :
+             country === 'ESP' ? 'Spain' : country,
+    language: country === 'KOR' ? 'ko' : 
+              country === 'JPN' ? 'ja' :
+              country === 'CHN' ? 'zh' :
+              country === 'FRA' ? 'fr' :
+              country === 'DEU' ? 'de' :
+              country === 'ESP' ? 'es' :
+              country === 'ITA' ? 'it' : 'en'
   };
   
   // 단순화된 좌표 검색 사용

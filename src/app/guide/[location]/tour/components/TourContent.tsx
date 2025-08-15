@@ -742,7 +742,7 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                       pois={[]} // POI는 비워둠 (챕터 우선)
                       className="w-full"
                       guideCoordinates={guideCoordinates}
-                      guideId={guide?.metadata?.guideId || guide?.id}
+                      guideId={String(guide?.metadata?.guideId || guide?.metadata?.id || '')}
                     />
                   );
                 })()}

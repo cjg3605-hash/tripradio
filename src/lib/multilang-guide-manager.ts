@@ -350,15 +350,16 @@ export class MultiLangGuideManager {
                         (locationData.type === 'city' ? locationData.country : null) ||
                         '미분류';
           const country = locationData.country || '대한민국';
-          const countryCode = country === '한국' ? 'KR' : 
-                             country === '일본' ? 'JP' :
-                             country === '중국' ? 'CN' :
-                             country === '프랑스' ? 'FR' :
-                             country === '미국' ? 'US' :
-                             country === '영국' ? 'GB' :
-                             country === '이탈리아' ? 'IT' :
-                             country === '스페인' ? 'ES' :
-                             country === '독일' ? 'DE' : 'KR';
+          const countryCode = country === '한국' ? 'KOR' : 
+                             country === '대한민국' ? 'KOR' :
+                             country === '일본' ? 'JPN' :
+                             country === '중국' ? 'CHN' :
+                             country === '프랑스' ? 'FRA' :
+                             country === '미국' ? 'USA' :
+                             country === '영국' ? 'GBR' :
+                             country === '이탈리아' ? 'ITA' :
+                             country === '스페인' ? 'ESP' :
+                             country === '독일' ? 'DEU' : 'KOR';
           
           queryParams.set('region', region);
           queryParams.set('country', country);
@@ -381,19 +382,19 @@ export class MultiLangGuideManager {
             console.log('🌍 regionalContext 사용:', regionalContext);
             queryParams.set('region', regionalContext.region || regionalContext.parentRegion || '미분류');
             queryParams.set('country', regionalContext.country || '대한민국');
-            queryParams.set('countryCode', regionalContext.countryCode || 'KR');
+            queryParams.set('countryCode', regionalContext.countryCode || 'KOR');
             queryParams.set('type', regionalContext.type || 'attraction');
           } else if (parentRegion) {
             console.log('🌍 parentRegion 사용:', parentRegion);
             queryParams.set('region', parentRegion);
             queryParams.set('country', '대한민국');
-            queryParams.set('countryCode', 'KR');
+            queryParams.set('countryCode', 'KOR');
             queryParams.set('type', 'attraction');
           } else {
             console.log('⚠️ 모든 지역 분류 실패 - 기본값 사용');
             queryParams.set('region', '미분류');
             queryParams.set('country', '대한민국');
-            queryParams.set('countryCode', 'KR');
+            queryParams.set('countryCode', 'KOR');
             queryParams.set('type', 'attraction');
           }
         }

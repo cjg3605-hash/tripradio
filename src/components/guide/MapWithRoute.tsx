@@ -214,6 +214,8 @@ const MapWithRoute = memo<MapWithRouteProps>(({
 
       return () => clearTimeout(timer);
     }
+    // 조건이 맞지 않는 경우에도 cleanup 함수 반환
+    return () => {};
   }, [activeChapterData]);
 
   // 내 위치로 지도 이동
