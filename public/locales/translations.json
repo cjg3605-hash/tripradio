@@ -22,8 +22,8 @@
       "contact": "문의"
     },
     "home": {
-      "brandTitle": "트립라이도.AI",
-      "title": "트립라이도AI",
+      "brandTitle": "트립라디오.AI",
+      "title": "트립라디오AI",
       "audioGuidePrefix": "AI 오디오가이드 | 무료 체험",
       "subtitle": "가이드없이 자유롭게,",
       "subtitle2": "여행은 깊이있게",
@@ -1040,6 +1040,32 @@
             }
           },
           "tryButton": "통합 서비스 체험하기"
+        },
+        "alerts": {
+          "noSavedSettings": "저장된 설정이 없습니다.",
+          "settingsLoaded": "저장된 설정을 불러왔습니다.",
+          "settingsSaved": "설정이 저장되었습니다.",
+          "enterDestination": "여행지를 입력해주세요.",
+          "noPlanToSave": "저장할 계획이 없습니다.",
+          "planSaved": "계획이 저장되었습니다.",
+          "noPlanToExport": "내보낼 계획이 없습니다.",
+          "noPlanToShare": "공유할 계획이 없습니다.",
+          "confirmRegenerate": "새로운 계획을 생성하시겠습니까? 현재 계획은 사라집니다.",
+          "compareFeatureComingSoon": "비슷한 여행지나 계획과 비교하는 기능은 곧 제공될 예정입니다.",
+          "planCopiedToClipboard": "계획이 클립보드에 복사되었습니다.",
+          "planGenerationError": "여행 계획 생성 중 오류가 발생했습니다.",
+          "planGenerationFailed": "여행 계획 생성에 실패했습니다.",
+          "noSimilarPlans": "유사한 여행 계획이 없습니다.",
+          "foundSimilarPlans": "{count}개의 유사한 계획을 찾았습니다: {destinations}",
+          "deletePlanConfirm": "이 계획을 삭제하시겠습니까?",
+          "planDeleted": "계획이 삭제되었습니다.",
+          "planLoaded": "계획을 불러왔습니다.",
+          "noSavedPlans": "저장된 계획이 없습니다.",
+          "savedPlansEmpty": "저장된 계획이 없습니다.",
+          "settingsPrompt": "설정이 저장되었습니다! 🎯",
+          "linkCopied": "여행 계획 링크가 복사되었습니다! 📋",
+          "loadButton": "불러오기",
+          "deleteButton": "삭제"
         }
       },
       "tripTypes": {
@@ -3767,6 +3793,32 @@
             }
           },
           "tryButton": "Try Integrated Service"
+        },
+        "alerts": {
+          "noSavedSettings": "No saved settings found.",
+          "settingsLoaded": "Saved settings loaded.",
+          "settingsSaved": "Settings saved.",
+          "enterDestination": "Please enter a destination.",
+          "noPlanToSave": "No plan to save.",
+          "planSaved": "Plan saved.",
+          "noPlanToExport": "No plan to export.",
+          "noPlanToShare": "No plan to share.",
+          "confirmRegenerate": "Do you want to generate a new plan? The current plan will be lost.",
+          "compareFeatureComingSoon": "The feature to compare with similar travel destinations or plans will be available soon.",
+          "planCopiedToClipboard": "Plan copied to clipboard.",
+          "planGenerationError": "An error occurred while generating the travel plan.",
+          "planGenerationFailed": "Failed to generate travel plan.",
+          "noSimilarPlans": "No similar travel plans found.",
+          "foundSimilarPlans": "Found {count} similar plans: {destinations}",
+          "deletePlanConfirm": "Do you want to delete this plan?",
+          "planDeleted": "Plan deleted.",
+          "planLoaded": "Plan loaded.",
+          "noSavedPlans": "No saved plans.",
+          "savedPlansEmpty": "No saved plans available.",
+          "settingsPrompt": "Settings saved! 🎯",
+          "linkCopied": "Travel plan link copied to clipboard! 📋",
+          "loadButton": "Load",
+          "deleteButton": "Delete"
         }
       },
       "tripTypes": {

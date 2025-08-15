@@ -1,6 +1,6 @@
 {
   "name": "TripRadio.AI",
-  "short_name": "트립라이도AI",
+  "short_name": "트립라디오AI",
   "description": "AI가 만드는 개인 맞춤형 여행 오디오가이드",
   "start_url": "/",
   "display": "standalone",
