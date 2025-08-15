@@ -1,5 +1,5 @@
 // 업계 표준 경량 지도 컴포넌트 - Uber/Airbnb 방식
-import type { LatLngExpression } from 'leaflet';
+import type { LatLngExpression, Map as LeafletMap } from 'leaflet';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -7,12 +7,8 @@ import { useEffect, useState, useCallback, useRef, memo } from 'react';
 import type { GuideChapter } from '@/types/guide';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-// 지연 로딩 - 실제 필요시에만 로드
-const MapContainer = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.MapContainer })), { ssr: false });
-const TileLayer = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.TileLayer })), { ssr: false });
-const Polyline = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.Polyline })), { ssr: false });
-const Marker = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.Marker })), { ssr: false });
-const Tooltip = dynamic(() => import('react-leaflet').then(mod => ({ default: mod.Tooltip })), { ssr: false });
+// 정적 import로 변경하여 타입 안정성 확보
+import { MapContainer, TileLayer, Polyline, Marker, Tooltip } from 'react-leaflet';
 
 // 위치 버튼 훅
 import { useSimpleGeolocation } from '@/hooks/useSimpleGeolocation';
@@ -57,7 +53,7 @@ interface MapWithRouteProps {
 }
 
 // 단순한 지도 이동 훅
-function useMapFlyTo(mapRef: React.RefObject<any>, lat?: number, lng?: number) {
+function useMapFlyTo(mapRef: React.RefObject<LeafletMap | null>, lat?: number, lng?: number) {
   useEffect(() => {
     if (!lat || !lng || !mapRef.current) return;
     
@@ -144,7 +140,7 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   const { currentLanguage } = useLanguage();
   const geolocation = useSimpleGeolocation();
   const [showMyLocation, setShowMyLocation] = useState(false);
-  const mapRef = useRef<any>(null);
+  const mapRef = useRef<LeafletMap | null>(null);
 
   // 데이터 정규화 - POI를 Chapter 형태로 변환
   const allData = chapters?.length ? chapters : (pois || []).map((poi, index) => ({

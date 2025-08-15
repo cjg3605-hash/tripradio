@@ -253,9 +253,9 @@ const nextConfig = {
   },
   // 번들 크기 최적화
   webpack: (config, { isServer, dev }) => {
-    // 전체 최적화 비활성화 - 개발 및 프로덕션 모두
-    if (!isServer) {
-      // 모든 최적화 비활성화
+    // 개발 환경에서만 최적화 비활성화, 프로덕션에서는 최적화 활성화
+    if (!isServer && dev) {
+      // 개발 환경에서만 최적화 비활성화
       config.optimization = {
         ...config.optimization,
         minimize: false,
@@ -267,6 +267,30 @@ const nextConfig = {
           cacheGroups: {
             default: false,
             vendors: false,
+          }
+        }
+      };
+    } else if (!isServer && !dev) {
+      // 프로덕션 환경에서는 최적화 활성화
+      config.optimization = {
+        ...config.optimization,
+        minimize: true,
+        usedExports: true,
+        sideEffects: false,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            default: {
+              minChunks: 2,
+              priority: -20,
+              reuseExistingChunk: true
+            },
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              priority: -10,
+              chunks: 'all'
+            }
           }
         }
       };

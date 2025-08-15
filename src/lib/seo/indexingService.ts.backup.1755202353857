@@ -75,68 +75,11 @@ export class IndexingService {
       return localizedUrls.map(item => item.url);
     } catch (error) {
       console.log('📝 번역 모듈 없음, 기본 방식 사용:', error);
-      
-      // 올바른 URL 패턴 생성
-      const urls: string[] = [];
-      
-      // 기본 한국어 URL (lang 파라미터 없음)
-      urls.push(`${baseUrl}/guide/${encodeURIComponent(locationName)}`);
-      
-      // 각 언어별 URL (lang 파라미터 포함)
-      languages.forEach(lang => {
-        if (lang !== 'ko') { // 한국어는 이미 추가했으므로 제외
-          urls.push(`${baseUrl}/guide/${encodeURIComponent(locationName)}?lang=${lang}`);
-        }
-      });
-      
-      return urls;
+      // 기본 방식 (한국어 장소명 사용)
+      return languages.map(lang => 
+        `${baseUrl}/guide/${encodeURIComponent(locationName)}?lang=${lang}`
+      );
     }
-  }
-
-  // 랜딩 페이지 URL 생성
-  generateLandingPageUrls(): string[] {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
-    const languages = ['ko', 'en', 'ja', 'zh', 'es'] as const;
-    
-    const landingPages = [
-      '', // 홈페이지
-      'ai-travel',
-      'destinations', 
-      'docent',
-      'travel-radio',
-      'tour-radio',
-      'audio-guide',
-      'free-travel',
-      'visa-checker',
-      'trip-planner',
-      'film-locations',
-      'nomad-calculator'
-    ];
-    
-    const urls: string[] = [];
-    
-    // 각 랜딩 페이지별 다국어 URL 생성
-    landingPages.forEach(page => {
-      languages.forEach(lang => {
-        if (page === '') {
-          // 홈페이지
-          if (lang === 'ko') {
-            urls.push(baseUrl);
-          } else {
-            urls.push(`${baseUrl}?lang=${lang}`);
-          }
-        } else {
-          // 다른 페이지들
-          if (lang === 'ko') {
-            urls.push(`${baseUrl}/${page}`);
-          } else {
-            urls.push(`${baseUrl}/${page}?lang=${lang}`);
-          }
-        }
-      });
-    });
-    
-    return urls;
   }
 
   // Google Indexing API로 단일 URL 색인 요청

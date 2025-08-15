@@ -147,6 +147,10 @@ interface Translations {
       [landmarkKey: string]: string;
     };
     landmarkSuffix: string;
+    accessibility: {
+      skipToMain: string;
+    };
+    pageTitle: string;
   };
   guide: {
     loading: string;
@@ -640,7 +644,11 @@ const DEFAULT_TRANSLATIONS: Translations = {
       '마추픽추': '마추픽추',
       '사그라다 파밀리아': '사그라다 파밀리아'
     },
-    landmarkSuffix: ''
+    landmarkSuffix: '',
+    accessibility: {
+      skipToMain: '메인 콘텐츠로 건너뛰기'
+    },
+    pageTitle: 'TripRadio.AI - AI 오디오가이드 여행 서비스'
   },
   guide: {
     loading: '가이드 로딩 중...',

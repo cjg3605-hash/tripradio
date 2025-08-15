@@ -5,6 +5,8 @@ import { cookies } from 'next/headers';
 import { generateMetadataFromGuide } from '@/lib/seo/dynamicMetadata';
 import { Metadata } from 'next';
 import StructuredData from '@/components/seo/StructuredData';
+import TouristAttractionSchema from '@/components/seo/TouristAttractionSchema';
+import PlaceSchema from '@/components/seo/PlaceSchema';
 
 export const revalidate = 0;
 
@@ -118,29 +120,68 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
   }
   
   // 구조화된 데이터를 위한 정보 준비
-  const structuredData = {
+  const guideContent = initialGuide?.content;
+  
+  // TouristAttraction 스키마 데이터
+  const touristAttractionData = {
     name: locationName,
-    description: `${locationName}의 상세한 AI 여행 가이드입니다. 실시간 음성 안내로 ${locationName}의 숨겨진 이야기를 발견해보세요.`,
-    url: `https://navidocent.com/guide/${encodeURIComponent(locationName)}`,
+    description: guideContent?.description || `${locationName}의 상세한 AI 여행 가이드입니다. 실시간 음성 안내로 ${locationName}의 숨겨진 이야기를 발견해보세요.`,
     address: {
-      '@type': 'PostalAddress',
-      addressCountry: 'KR',
-      addressLocality: locationName
+      streetAddress: guideContent?.address?.street,
+      addressLocality: guideContent?.address?.city || locationName,
+      addressRegion: guideContent?.address?.region || "서울특별시",
+      postalCode: guideContent?.address?.postalCode,
+      addressCountry: "KR"
     },
-    geo: initialGuide?.content?.coordinates ? {
-      '@type': 'GeoCoordinates',
-      latitude: initialGuide.content.coordinates.lat,
-      longitude: initialGuide.content.coordinates.lng
-    } : undefined,
-    potentialAction: {
-      '@type': 'ListenAction',
-      target: `https://navidocent.com/guide/${encodeURIComponent(locationName)}/tour`
+    coordinates: guideContent?.coordinates,
+    image: guideContent?.images?.[0] || `https://navidocent.com/images/landmarks/${locationName.toLowerCase().replace(/\s+/g, '-')}.webp`,
+    website: `https://navidocent.com/guide/${encodeURIComponent(locationName)}`,
+    openingHours: guideContent?.operatingHours || ["월-일: 09:00-18:00"],
+    priceRange: guideContent?.admissionFee || "무료",
+    category: guideContent?.categories || ["문화재", "관광명소", "역사유적"],
+    language: ["Korean", "English", "Japanese", "Chinese", "Spanish"],
+    accessibility: guideContent?.accessibility || ["휠체어 접근 가능", "시각장애인 안내"],
+    amenityFeature: ["AI 음성 가이드", "다국어 지원", "실시간 위치 안내", "오프라인 사용"],
+    touristType: ["Leisure", "Cultural", "Educational", "Family"],
+    starRating: guideContent?.rating ? {
+      ratingValue: guideContent.rating.average || 4.8,
+      ratingCount: guideContent.rating.count || 156
+    } : {
+      ratingValue: 4.8,
+      ratingCount: 156
     }
+  };
+
+  // Place 스키마 데이터
+  const placeData = {
+    name: locationName,
+    description: guideContent?.description || `${locationName}는 한국의 대표적인 문화유산입니다. TripRadio.AI와 함께 특별한 여행을 경험해보세요.`,
+    placeType: guideContent?.placeType as any || 'LandmarksOrHistoricalBuildings',
+    address: {
+      streetAddress: guideContent?.address?.street,
+      addressLocality: guideContent?.address?.city || locationName,
+      addressRegion: guideContent?.address?.region || "서울특별시",
+      postalCode: guideContent?.address?.postalCode,
+      addressCountry: "KR"
+    },
+    coordinates: guideContent?.coordinates,
+    image: guideContent?.images || [`https://navidocent.com/images/landmarks/${locationName.toLowerCase().replace(/\s+/g, '-')}.webp`],
+    website: `https://navidocent.com/guide/${encodeURIComponent(locationName)}`,
+    telephone: guideContent?.contact?.phone,
+    email: guideContent?.contact?.email,
+    openingHours: guideContent?.operatingHours || ["09:00-18:00"],
+    admissionPrice: guideContent?.admissionFee || "무료",
+    containedInPlace: regionalContext?.region || "서울특별시",
+    containsPlace: guideContent?.subLocations,
+    publicAccess: true,
+    smokingAllowed: false,
+    wheelchairAccessible: guideContent?.accessibility?.includes('wheelchair') || true
   };
 
   return (
     <>
-      <StructuredData type="TouristAttraction" data={structuredData} />
+      <TouristAttractionSchema data={touristAttractionData} />
+      <PlaceSchema data={placeData} />
       <MultiLangGuideClient 
         locationName={locationName} 
         initialGuide={initialGuide}

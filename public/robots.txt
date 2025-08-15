@@ -7,20 +7,39 @@ Disallow: /sw.js
 Disallow: /workbox-*.js
 Disallow: /.well-known/
 Disallow: /test/
+Disallow: /debug/
+Disallow: /temp/
+Disallow: /*.js$
+Disallow: /*.css$
+Disallow: /*.json$
 
 # Priority crawling for key SEO pages
+Allow: /guide/
 Allow: /audio-guide
 Allow: /docent
 Allow: /tour-radio
 Allow: /travel-radio
 Allow: /ai-travel
+Allow: /guides
+Allow: /search
+Allow: /regions/
+Allow: /trip-planner
+Allow: /visa-checker
+Allow: /nomad-calculator
+Allow: /film-locations
+
+# Important language versions
+Allow: /*?lang=ko
+Allow: /*?lang=en
+Allow: /*?lang=ja
+Allow: /*?lang=zh
+Allow: /*?lang=es
 
 # Sitemap
 Sitemap: https://navidocent.com/sitemap.xml
-Sitemap: https://navidocent.com/sitemap-keywords.xml
 
-# Crawl-delay (optional - reduces server load)
-Crawl-delay: 1
+# Crawl-delay (reduces server load but allows frequent updates)
+Crawl-delay: 0.5
 
 # Google Crawlers
 User-agent: Googlebot

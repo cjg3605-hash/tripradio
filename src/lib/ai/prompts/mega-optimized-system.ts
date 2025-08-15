@@ -411,7 +411,7 @@ interface OptimizedCoordinate {
   lat: number;
   lng: number;
   accuracy: 'high' | 'medium' | 'low';
-  source: 'geocoding_api';
+  source: 'plus_code' | 'geocoding_api' | 'places_api';
   confidence: number;
 }
 

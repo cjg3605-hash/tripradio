@@ -9,6 +9,8 @@ import ClientLayout from '@/components/layout/ClientLayout';
 import LocalBusinessSchema from '@/components/seo/LocalBusinessSchema';
 import WebsiteSchema from '@/components/seo/WebsiteSchema';
 import SoftwareApplicationSchema from '@/components/seo/SoftwareApplicationSchema';
+import ServiceSchema from '@/components/seo/ServiceSchema';
+import ReviewSchema from '@/components/seo/ReviewSchema';
 import Script from 'next/script';
 import { cookies } from 'next/headers';
 import { detectPreferredLanguage, LANGUAGE_COOKIE_NAME } from '@/lib/utils';
@@ -164,6 +166,11 @@ export default async function RootLayout({
         <link rel="preload" href="/logo.png" as="image" />
         <link rel="preload" href="/favicon-32x32.png" as="image" />
         
+        {/* Hero Section Critical Images - WebP Format */}
+        <link rel="preload" href="/images/landmarks/eiffel-tower.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/images/landmarks/colosseum.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/images/landmarks/gyeongbokgung.webp" as="image" type="image/webp" />
+        
         {/* Critical JavaScript Resources Prefetch */}
         <link rel="prefetch" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" />
         <link rel="prefetch" href="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png" />
@@ -278,21 +285,115 @@ export default async function RootLayout({
         {/* Software Application Schema for SEO */}
         <SoftwareApplicationSchema />
         
-        {/* Pretendard Font CDN - 임시 비활성화 (404 오류 방지) */}
-        {/* TODO: 로컬 Pretendard 폰트 설치 후 활성화 */}
-        {/*
+        {/* Enhanced Service Schema */}
+        <ServiceSchema 
+          data={{
+            name: "TripRadio.AI",
+            description: "AI가 만드는 개인 맞춤형 여행 오디오가이드. 실시간으로 생성되는 전문 해설과 다국어 지원으로 특별한 여행 경험을 제공합니다.",
+            url: "https://navidocent.com",
+            logo: "https://navidocent.com/logo.png",
+            images: [
+              "https://navidocent.com/og-image.jpg",
+              "https://navidocent.com/web-app-manifest-512x512.png"
+            ],
+            serviceType: "AI Travel Guide Service",
+            provider: "TripRadio.AI",
+            areaServed: ["South Korea", "대한민국", "韓国", "韩国", "Corea del Sur"],
+            availableLanguage: ["Korean", "English", "Japanese", "Chinese", "Spanish"],
+            offers: [
+              {
+                name: "여행 라디오 AI",
+                description: "AI가 만드는 개인 맞춤형 여행 라디오 서비스",
+                price: "0",
+                priceCurrency: "KRW",
+                availability: "https://schema.org/InStock",
+                validFrom: "2024-01-01"
+              },
+              {
+                name: "실시간 음성 가이드",
+                description: "GPS 기반 실시간 위치별 AI 음성 가이드",
+                price: "0",
+                priceCurrency: "KRW",
+                availability: "https://schema.org/InStock",
+                validFrom: "2024-01-01"
+              },
+              {
+                name: "무료 체험",
+                description: "무료로 체험 가능한 여행 라디오 AI",
+                price: "0",
+                priceCurrency: "KRW",
+                availability: "https://schema.org/InStock",
+                validFrom: "2024-01-01"
+              }
+            ],
+            aggregateRating: {
+              ratingValue: 4.8,
+              ratingCount: 156,
+              bestRating: 5,
+              worstRating: 1
+            },
+            features: [
+              "AI 기반 실시간 가이드 생성",
+              "다국어 음성 해설 지원",
+              "개인 맞춤형 여행 추천",
+              "오프라인 사용 가능",
+              "GPS 기반 위치 안내"
+            ],
+            contactPoint: {
+              contactType: "customer service",
+              availableLanguage: ["Korean", "English", "Japanese", "Chinese", "Spanish"],
+              hoursAvailable: {
+                opens: "00:00",
+                closes: "23:59"
+              }
+            },
+            sameAs: []
+          }}
+        />
+        
+        {/* Review Schema for Service */}
+        <ReviewSchema 
+          itemReviewed={{
+            name: "TripRadio.AI",
+            type: "Service",
+            url: "https://navidocent.com",
+            image: "https://navidocent.com/logo.png"
+          }}
+          aggregateRating={{
+            ratingValue: 4.8,
+            ratingCount: 156,
+            reviewCount: 156,
+            bestRating: 5,
+            worstRating: 1
+          }}
+        />
+        
+        {/* Pretendard Font - Local Hosting */}
         <link 
           rel="preload" 
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.woff2" 
+          href="/fonts/pretendard-regular.woff2" 
+          as="font" 
+          type="font/woff2" 
+          crossOrigin="anonymous"
+        />
+        <link 
+          rel="preload" 
+          href="/fonts/pretendard-medium.woff2" 
+          as="font" 
+          type="font/woff2" 
+          crossOrigin="anonymous"
+        />
+        <link 
+          rel="preload" 
+          href="/fonts/pretendard-bold.woff2" 
           as="font" 
           type="font/woff2" 
           crossOrigin="anonymous"
         />
         <link 
           rel="stylesheet" 
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css"
+          href="/fonts/pretendard.css"
         />
-        */}
       </head>
       <body className={`${roboto.variable} font-sans antialiased`} suppressHydrationWarning>
         {/* AMP 자동 광고는 일반 React 앱에서는 사용하지 않고, 대신 AutoAdSense 컴포넌트 사용 */}

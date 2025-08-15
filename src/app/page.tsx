@@ -1,15 +1,41 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo, useCallback, Component, ReactNode } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback, Component, ReactNode, Suspense, lazy } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import dynamic from 'next/dynamic';
 
 import StructuredData from '@/components/seo/StructuredData';
 import GuideLoading from '@/components/ui/GuideLoading';
-import OptimalAdSense from '@/components/ads/OptimalAdSense';
-import FAQSchema, { getDefaultFAQs } from '@/components/seo/FAQSchema';
-import BreadcrumbSchema, { generateHomeBreadcrumb } from '@/components/seo/BreadcrumbSchema';
-import ErrorModal, { ErrorModalProps } from '@/components/errors/ErrorModal';
+import SkipToMain from '@/components/accessibility/SkipToMain';
+
+// Dynamic imports for performance optimization
+const OptimalAdSense = dynamic(() => import('@/components/ads/OptimalAdSense'), {
+  loading: () => <div className="h-20 bg-gray-100 animate-pulse rounded-lg"></div>,
+  ssr: false
+});
+
+const FAQSchema = dynamic(() => import('@/components/seo/FAQSchema'), {
+  ssr: true
+});
+
+const BreadcrumbSchema = dynamic(() => import('@/components/seo/BreadcrumbSchema'), {
+  ssr: true
+});
+
+const ErrorModal = dynamic(() => import('@/components/errors/ErrorModal'), {
+  loading: () => null,
+  ssr: false
+});
+
+// Helper functions - import synchronously for immediate use
+import { getDefaultFAQs } from '@/components/seo/FAQSchema';
+import { generateHomeBreadcrumb } from '@/components/seo/BreadcrumbSchema';
+
+// Performance optimization components
+const ImagePreloader = dynamic(() => import('@/components/optimization/ImagePreloader'), {
+  ssr: false
+});
 
 // 에러 바운더리 클래스 컴포넌트
 class ErrorBoundary extends Component<
@@ -410,13 +436,13 @@ function Home() {
     const cacheBuster = isDev ? `?t=${1723122651000}` : ''; // 고정 타임스탬프 사용
     
     return {
-      '에펠탑': `/images/landmarks/eiffel-tower.png`,
-      '콜로세움': `/images/landmarks/colosseum.png`,
-      '타지마할': `/images/landmarks/taj-mahal.png`,
-      '자유의 여신상': `/images/landmarks/statue-of-liberty.png`,
-      '경복궁': `/images/landmarks/gyeongbokgung.png`,
-      '마추픽추': `/images/landmarks/machu-picchu.png`,
-      '사그라다 파밀리아': `/images/landmarks/sagrada-familia.png`
+      '에펠탑': `/images/landmarks/eiffel-tower.webp`,
+      '콜로세움': `/images/landmarks/colosseum.webp`,
+      '타지마할': `/images/landmarks/taj-mahal.webp`,
+      '자유의 여신상': `/images/landmarks/statue-of-liberty.webp`,
+      '경복궁': `/images/landmarks/gyeongbokgung.webp`,
+      '마추픽추': `/images/landmarks/machu-picchu.webp`,
+      '사그라다 파밀리아': `/images/landmarks/sagrada-familia.webp`
     };
   }, []);
 
@@ -500,22 +526,27 @@ function Home() {
     preloadImages();
   }, [landmarks, landmarkImages]);
 
-  // 이미지 로드 에러 처리 헬퍼
+  // 이미지 로드 에러 처리 헬퍼 (WebP fallback 포함)
   const getBackgroundStyle = useCallback((landmark: string) => {
     const hasError = imageLoadErrors.has(landmark);
     if (hasError) {
-      // 폴백: 그라데이션 배경 (텍스트 가독성을 위한 오버레이 추가)
+      // 폴백: WebP 실패 시 PNG 사용, 그것도 실패하면 그라데이션
+      const pngImage = landmarkImages[landmark].replace('.webp', '.png');
       return {
-        background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)'
+        background: `linear-gradient(135deg, rgba(20, 20, 40, 0.9) 0%, rgba(40, 40, 60, 0.9) 100%)`,
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('${pngImage}'), linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)`,
+        backgroundSize: 'cover, cover, cover',
+        backgroundPosition: 'top center',
+        backgroundRepeat: 'no-repeat'
       };
     }
     
     return {
-      // 이미지가 전체를 채우지 못할 경우를 대비한 기본 그라데이션
+      // WebP 우선, PNG fallback, 최종 그라데이션 fallback
       background: `linear-gradient(135deg, rgba(20, 20, 40, 0.9) 0%, rgba(40, 40, 60, 0.9) 100%)`,
       backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('${landmarkImages[landmark]}')`,
-      backgroundSize: 'cover', // cover로 변경하여 전체 영역을 채움
-      backgroundPosition: 'top center', // 이미지 상단부터 표시하여 전체 이미지 보여줌
+      backgroundSize: 'cover',
+      backgroundPosition: 'top center',
       backgroundRepeat: 'no-repeat'
     };
   }, [imageLoadErrors, landmarkImages]);
@@ -1092,8 +1123,10 @@ function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white font-sans relative" style={{ '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px' } as React.CSSProperties}>
-      {/* 배경 - 헤더의 끝선에 맞춰서 시작하고, 검색박스 위까지로 제한 - 모바일 반응형 */}
+    <>
+      <SkipToMain />
+      <div className="min-h-screen bg-white font-sans relative" style={{ '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px' } as React.CSSProperties}>
+        {/* 배경 - 헤더의 끝선에 맞춰서 시작하고, 검색박스 위까지로 제한 - 모바일 반응형 */}
       <div className="hero-background-container">
         {/* 회전하는 배경 이미지들 */}
         {landmarks.map((landmark, index) => (
@@ -1120,16 +1153,27 @@ function Home() {
       <StructuredData type="WebSite" />
       <StructuredData type="TravelAgency" />
       <StructuredData type="SoftwareApplication" />
-      <FAQSchema faqs={getDefaultFAQs(currentLanguage as 'ko' | 'en' | 'ja' | 'zh' | 'es')} language={currentLanguage as 'ko' | 'en' | 'ja' | 'zh' | 'es'} />
-      <BreadcrumbSchema items={generateHomeBreadcrumb()} />
+      <Suspense fallback={null}>
+        <FAQSchema faqs={getDefaultFAQs(currentLanguage as 'ko' | 'en' | 'ja' | 'zh' | 'es')} language={currentLanguage as 'ko' | 'en' | 'ja' | 'zh' | 'es'} />
+        <BreadcrumbSchema items={generateHomeBreadcrumb()} />
+      </Suspense>
+
+      {/* Preload landmark images for better performance */}
+      <ImagePreloader 
+        images={Object.values(landmarkImages)} 
+        priority={false} 
+      />
 
       {/* Main Content */}
-      <main className="relative z-10 overflow-hidden">
+      <main id="main-content" className="relative z-10 overflow-hidden" tabIndex={-1}>
         {/* Hero Section - 모바일 반응형 패딩 */}
-        <section className="relative flex flex-col items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-32 pb-6 sm:pb-8 md:pb-12 min-h-screen">
+        <section className="relative flex flex-col items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-32 pb-6 sm:pb-8 md:pb-12 min-h-screen" aria-labelledby="hero-heading">
             
             {/* 중앙 명소 텍스트 - 2줄 레이아웃 (명소 부분만 회전) */}
             <div className="text-center text-white mb-4 sm:mb-6 w-full flex flex-col items-center justify-center">
+              <h1 id="hero-heading" className="sr-only">
+                {t('home.pageTitle') || 'TripRadio.AI - AI 오디오가이드 여행 서비스'}
+              </h1>
               {/* 첫 번째 줄: [명소] - PC에서 40% 작게, 모바일 그대로 */}
               <div className="font-bold mb-2 flex items-center justify-center w-full" style={{ 
                 textShadow: '2px 2px 8px rgba(0,0,0,0.8)', 
@@ -1424,12 +1468,12 @@ function Home() {
         </section>
 
         {/* Regional Countries Section */}
-        <section className="relative z-10 py-20 lg:py-32 bg-gradient-to-b from-gray-50 to-white">
+        <section className="relative z-10 py-20 lg:py-32 bg-gradient-to-b from-gray-50 to-white" aria-labelledby="popular-destinations-heading">
           <div className="max-w-6xl mx-auto px-6">
             
             {/* 섹션 제목 */}
             <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-black mb-3">
+              <h2 id="popular-destinations-heading" className="text-2xl md:text-3xl font-bold text-black mb-3">
                 {t('home.regionTitles.popularCountries')}
               </h2>
               <p className="text-[#555555] font-light max-w-2xl mx-auto">
@@ -1439,7 +1483,7 @@ function Home() {
             
             {/* 지역별 탭 */}
             <div className="flex justify-center mb-6">
-              <div className="bg-white rounded-xl p-1 shadow-sm border border-gray-100">
+              <div className="bg-white rounded-xl p-1 shadow-sm border border-gray-100" role="tablist" aria-label="지역 선택">
                 <div className="flex space-x-1">
                   {[
                     { id: 'korea', label: t('home.regionTitles.korea') },
@@ -1818,7 +1862,8 @@ function Home() {
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }
 
