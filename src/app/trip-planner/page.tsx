@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-// 여행 타입별 추천 데이터
+// 여행 타입별 추천 데이터 - 직접 useLanguage t 함수 사용
 const getTripTypes = (t: (key: string) => string) => [
   {
     id: 'solo',
@@ -175,10 +175,21 @@ export default function TripPlannerPage() {
   
   // trip-planner 전용 번역 함수
   const tripT = (key: string): string => {
-    return String(t(`tripPlanner.${key}`));
+    const fullKey = key.includes('.') ? key : `tripPlanner.${key}`;
+    const result = t(fullKey);
+    
+    // 번역이 실패한 경우 (키 그대로 반환되는 경우)
+    if (result === fullKey || result === key) {
+      // 키의 마지막 부분을 사용자 친화적 형태로 변환
+      const lastPart = key.split('.').pop() || key;
+      return lastPart.replace(/([A-Z])/g, ' $1').toLowerCase();
+    }
+    
+    return String(result);
   };
   
-  const tripTypes = getTripTypes(tripT);
+  // tripTypes는 직접 t 함수 사용, tripPlanner는 tripT 함수 사용
+  const tripTypes = getTripTypes(t);
   
   // 상태 관리
   const [destination, setDestination] = useState('');
@@ -398,7 +409,7 @@ export default function TripPlannerPage() {
         fontFamily: 'var(--font-family-base)'
       } as React.CSSProperties}>
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-20 lg:py-32">
+      <section className="container mx-auto px-6 py-12 lg:py-16">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
             <div className="inline-flex items-center px-6 py-3 bg-[#F8F8F8] border border-gray-200 rounded-full text-sm font-medium text-[#555555] font-light mb-8">
@@ -792,7 +803,7 @@ export default function TripPlannerPage() {
       </section>
 
       {/* AI Audio Guide Integration */}
-      <section className="py-20 bg-black text-white">
+      <section className="py-12 lg:py-16 bg-black text-white">
         <div className="container mx-auto px-6 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-fluid-3xl font-normal mb-6 leading-tight">

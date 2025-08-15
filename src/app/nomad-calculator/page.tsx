@@ -167,7 +167,7 @@ export default function NomadCalculatorPage() {
         fontFamily: 'var(--font-family-base)'
       } as React.CSSProperties}>
         {/* Hero Section */}
-        <section className="container mx-auto" style={{ paddingLeft: 'var(--space-lg)', paddingRight: 'var(--space-lg)', paddingTop: 'var(--space-2xl)', paddingBottom: 'var(--space-2xl)' } as React.CSSProperties}>
+        <section className="container mx-auto" style={{ paddingLeft: 'var(--space-lg)', paddingRight: 'var(--space-lg)', paddingTop: 'var(--space-xl)', paddingBottom: 'var(--space-lg)' } as React.CSSProperties}>
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center rounded-full font-medium font-light" style={{ fontSize: 'var(--fs-body-s-d)', paddingLeft: 'var(--space-lg)', paddingRight: 'var(--space-lg)', paddingTop: 'var(--space-sm)', paddingBottom: 'var(--space-sm)', backgroundColor: 'var(--color-bg-alt)', border: '1px solid var(--color-border)', color: 'var(--color-text-medium)', marginBottom: 'var(--space-xl)' } as React.CSSProperties}>
               {nomadT('badge')}
@@ -206,7 +206,7 @@ export default function NomadCalculatorPage() {
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           }
         `}</style>
-        <section style={{ paddingTop: 'var(--space-2xl)', paddingBottom: 'var(--space-2xl)', backgroundColor: 'var(--color-bg-alt)' } as React.CSSProperties}>
+        <section style={{ paddingTop: 'var(--space-lg)', paddingBottom: 'var(--space-xl)', backgroundColor: 'var(--color-bg-alt)' } as React.CSSProperties}>
           <div className="container mx-auto" style={{ paddingLeft: 'var(--space-lg)', paddingRight: 'var(--space-lg)' } as React.CSSProperties}>
             <div className="max-w-7xl mx-auto">
               <div className="text-center" style={{ marginBottom: 'var(--space-2xl)' } as React.CSSProperties}>
@@ -391,7 +391,7 @@ export default function NomadCalculatorPage() {
         </section>
 
         {/* Popular Cities */}
-        <section className="py-16 lg:py-24 bg-white">
+        <section className="py-12 lg:py-16 bg-white">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center mb-12">
               <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] font-light text-black mb-4 tracking-tight">
@@ -440,7 +440,7 @@ export default function NomadCalculatorPage() {
         </section>
 
         {/* Nomad Tips */}
-        <section className="py-16 lg:py-24 bg-[#F8F8F8]">
+        <section className="py-12 lg:py-16 bg-[#F8F8F8]">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center mb-12">
               <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] font-light text-black mb-4 tracking-tight">
@@ -519,7 +519,7 @@ export default function NomadCalculatorPage() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 lg:py-32 bg-gray-900 text-white">
+        <section className="py-12 lg:py-16 bg-gray-900 text-white">
           <div className="container mx-auto px-6 text-center">
             <div className="max-w-3xl mx-auto">
               <h2 className="text-3xl lg:text-4xl font-light mb-6 tracking-tight">

@@ -82,7 +82,7 @@ const getFilmLocations = (t: (key: string) => string) => [
     awards: t('films.taegeukgi.awards')
   },
   {
-    title: '미나리',
+    title: '미나리', // 번역 데이터 없음 - 하드코딩 유지
     type: 'movie',
     year: 2020,
     genre: 'drama',
@@ -435,9 +435,10 @@ const difficultyKeys = ['all', 'easy', 'normal', 'hard'];
 export default function FilmLocationsPage() {
   const { t } = useLanguage();
   
-  // film-locations 전용 번역 함수
+  // film-locations 전용 번역 함수 수정
   const filmT = (key: string): string => {
-    const translation = t(`filmLocations.${key}`);
+    // filmLocations 키는 그대로, films 키는 별도 처리
+    const translation = key.startsWith('films.') ? t(key) : t(`filmLocations.${key}`);
     return Array.isArray(translation) ? translation[0] || '' : translation || '';
   };
   
@@ -474,13 +475,13 @@ export default function FilmLocationsPage() {
         fontFamily: 'var(--font-family-base)'
       } as React.CSSProperties}>
       {/* Hero Section */}
-      <section className="container mx-auto px-6 py-20 lg:py-32">
+      <section className="container mx-auto px-6 py-12 lg:py-16">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
             <div className="inline-flex items-center px-6 py-3 bg-[#F8F8F8] border border-[#F8F8F8] rounded-full text-sm font-medium text-[#555555] font-light mb-8">
               {filmT('badge')}
             </div>
-            <h1 className="text-5xl lg:text-6xl font-light text-black mb-6 tracking-tight">
+            <h1 className="font-light tracking-tight" style={{ fontSize: 'clamp(var(--fs-h1-m), 4vw, var(--fs-h1-d))', lineHeight: 'var(--lh-heading)', color: 'var(--color-text-high)', marginBottom: 'var(--space-lg)' } as React.CSSProperties}>
               {filmT('hero.title')}
             </h1>
             <h2 className="text-2xl lg:text-3xl font-normal text-[#555555] mb-8">
@@ -622,7 +623,7 @@ export default function FilmLocationsPage() {
       </section>
 
       {/* Interactive Features */}
-      <section className="py-20 lg:py-32 bg-[#F8F8F8]">
+      <section className="py-12 lg:py-16 bg-[#F8F8F8]">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-3xl font-light text-black mb-4">
@@ -676,7 +677,7 @@ export default function FilmLocationsPage() {
       </section>
 
       {/* Popular Categories */}
-      <section className="py-20 lg:py-32 bg-white">
+      <section className="py-12 lg:py-16 bg-white">
         <div className="container mx-auto px-6">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-2xl font-light text-black mb-8 text-center">
@@ -767,7 +768,7 @@ export default function FilmLocationsPage() {
       </section>
 
       {/* Cross-Tool Integration */}
-      <section className="py-20 lg:py-32 bg-[#F8F8F8]">
+      <section className="py-12 lg:py-16 bg-[#F8F8F8]">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-3xl font-light text-black mb-4">
@@ -884,7 +885,7 @@ export default function FilmLocationsPage() {
       </section>
 
       {/* Audio Guide Integration for Film Locations */}
-      <section className="py-20 lg:py-32 bg-[#007AFF] text-white">
+      <section className="py-12 lg:py-16 bg-[#007AFF] text-white">
         <div className="container mx-auto px-6 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl lg:text-4xl font-light mb-6 tracking-tight">
