@@ -177,6 +177,7 @@ export default function MultiLangGuideClient({
   const [coordinates, setCoordinates] = useState<any>(null);
   const [isCoordinatesPolling, setIsCoordinatesPolling] = useState(false);
   const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingAttemptsRef = useRef(0);
 
   // 🎯 좌표 상태 폴링 함수
   const pollCoordinates = useCallback(async () => {
@@ -249,6 +250,36 @@ export default function MultiLangGuideClient({
     };
   }, [stopCoordinatesPolling]);
 
+  // 🎯 자동 좌표 생성 함수
+  const generateCoordinatesForGuide = useCallback(async (guideId: string, locationName: string) => {
+    try {
+      console.log(`🗺️ 좌표 생성 시작: guideId=${guideId}, location=${locationName}`);
+      
+      const response = await fetch('/api/ai/generate-coordinates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guideId })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log(`✅ 좌표 생성 완료: ${result.coordinates?.length || 0}개 좌표`);
+        // 좌표 생성 완료 후 폴링 시작
+        setIsCoordinatesPolling(true);
+        pollingAttemptsRef.current = 0;
+        pollCoordinates();
+        return result.coordinates;
+      } else {
+        console.error('❌ 좌표 생성 실패:', result.error);
+        return null;
+      }
+    } catch (error) {
+      console.error('❌ 좌표 생성 요청 실패:', error);
+      return null;
+    }
+  }, [pollCoordinates]);
+
   // 히스토리 저장 함수
   const saveToHistory = useCallback(async (guideData: GuideData) => {
     try {
@@ -320,7 +351,25 @@ export default function MultiLangGuideClient({
         // 히스토리 저장
         await saveToHistory(normalizedData);
 
-        // ✅ ${language} 가이드 로드 완료 (source: ${(result as any).source || 'unknown'})
+        // 🎯 새로운 가이드 생성 시 자동 좌표 생성
+        const source = (result as any).source || 'unknown';
+        if (source === 'new' && (result as any).guideId) {
+          console.log('🗺️ 새 가이드 감지 - 자동 좌표 생성 시작');
+          // 백그라운드에서 좌표 생성 (페이지 렌더링과 독립적)
+          generateCoordinatesForGuide((result as any).guideId, locationName).catch(error => {
+            console.error('🗺️ 자동 좌표 생성 실패:', error);
+          });
+        } else {
+          // 기존 가이드인 경우 좌표 확인 후 없으면 폴링 시작
+          if (!normalizedData.coordinates || (normalizedData.coordinates as any)?.length === 0) {
+            console.log('🗺️ 기존 가이드의 좌표 없음 - 폴링 시작');
+            setIsCoordinatesPolling(true);
+            pollingAttemptsRef.current = 0;
+            pollCoordinates();
+          }
+        }
+
+        // ✅ ${language} 가이드 로드 완료 (source: ${source})
       } else {
         throw new Error((result as any).error?.message || result.error || '가이드 로드 실패');
       }
@@ -332,7 +381,7 @@ export default function MultiLangGuideClient({
       setIsLoading(false);
       setIsRegenerating(false);
     }
-  }, [locationName, saveToHistory, regionalContext]); // currentLanguage 의존성 제거 (매개변수로 전달되므로)
+  }, [locationName, saveToHistory, regionalContext, generateCoordinatesForGuide, pollCoordinates]); // 좌표 관련 함수들 의존성 추가
 
   // 🌍 사용 가능한 언어 목록 로드
   const loadAvailableLanguages = useCallback(async () => {

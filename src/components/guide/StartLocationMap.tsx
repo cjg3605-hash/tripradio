@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MapPin } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -25,6 +25,7 @@ interface StartLocationMapProps {
   pois: Array<{ id: string; name: string; lat: number; lng: number; description: string }>;
   className?: string;
   guideCoordinates?: any; // Supabase coordinates 컬럼 데이터
+  guideId?: string; // 가이드 ID for polling
 }
 
 const StartLocationMap: React.FC<StartLocationMapProps> = ({
@@ -33,16 +34,84 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
   chapters = [],
   pois,
   className = '',
-  guideCoordinates
+  guideCoordinates,
+  guideId
 }) => {
   const { t } = useLanguage();
+  
+  // 🎯 실시간 좌표 상태 관리
+  const [currentCoordinates, setCurrentCoordinates] = useState(guideCoordinates);
+  const [isPolling, setIsPolling] = useState(false);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingAttemptsRef = useRef(0);
+  const maxPollingAttempts = 15; // 최대 30초 (2초 * 15회)
+  
+  // 🔄 실시간 좌표 폴링 함수
+  const pollCoordinates = useCallback(async () => {
+    if (!guideId || pollingAttemptsRef.current >= maxPollingAttempts) {
+      setIsPolling(false);
+      return;
+    }
+    
+    try {
+      pollingAttemptsRef.current++;
+      console.log(`🔄 좌표 폴링 시도 ${pollingAttemptsRef.current}/${maxPollingAttempts}`);
+      
+      const response = await fetch(`/api/guides/${guideId}/coordinates`);
+      const result = await response.json();
+      
+      if (result.success && result.hasCoordinates) {
+        console.log('✅ 좌표 폴링 성공:', result.coordinatesCount, '개 좌표');
+        setCurrentCoordinates(result.coordinates);
+        setIsPolling(false);
+        
+        // 폴링 중단
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+        }
+      } else {
+        console.log('⏳ 좌표 아직 생성 중...');
+      }
+    } catch (error) {
+      console.error('❌ 좌표 폴링 오류:', error);
+    }
+  }, [guideId, maxPollingAttempts]);
+  
+  // 🎯 좌표 상태 초기화 및 폴링 시작
+  useEffect(() => {
+    setCurrentCoordinates(guideCoordinates);
+    
+    // 좌표가 없고 guideId가 있으면 폴링 시작
+    const shouldStartPolling = guideId && (!guideCoordinates || 
+      (Array.isArray(guideCoordinates) && guideCoordinates.length === 0));
+    
+    if (shouldStartPolling) {
+      console.log('🔄 StartLocationMap에서 좌표 폴링 시작');
+      setIsPolling(true);
+      pollingAttemptsRef.current = 0;
+      
+      // 즉시 첫 번째 시도
+      pollCoordinates();
+      
+      // 2초마다 폴링
+      pollingIntervalRef.current = setInterval(pollCoordinates, 2000);
+    }
+    
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+    };
+  }, [guideCoordinates, guideId, pollCoordinates]);
   
   // 🎯 가이드 페이지 전용: 인트로 챕터만 필터링 (id === 0 또는 originalIndex === 0)
   const displayChapters = chapters.filter(chapter => chapter.id === 0 || chapter.originalIndex === 0);
   
-  // 🚀 좌표 생성 상태 확인 (빈 배열이면 생성 중)
-  const isCoordinatesLoading = !guideCoordinates || 
-    (Array.isArray(guideCoordinates) && guideCoordinates.length === 0);
+  // 🚀 좌표 생성 상태 확인 (현재 좌표 기준)
+  const isCoordinatesLoading = !currentCoordinates || 
+    (Array.isArray(currentCoordinates) && currentCoordinates.length === 0);
   
   return (
     <div className={`bg-white border border-black/8 rounded-3xl shadow-lg shadow-black/3 overflow-hidden ${className}`}>
@@ -85,8 +154,13 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
             </h4>
             <p className="text-sm text-gray-600 max-w-xs">
               AI가 정확한 위치 정보를 분석하고 있어요.<br />
-              잠시만 기다려주세요...
+              {isPolling ? '잠시만 기다려주세요...' : '좌표 생성이 완료되는 대로 표시됩니다.'}
             </p>
+            {isPolling && (
+              <div className="mt-3 text-xs text-gray-500">
+                폴링 시도: {pollingAttemptsRef.current}/{maxPollingAttempts}
+              </div>
+            )}
           </div>
         </div>
 
@@ -118,7 +192,7 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
             }}
             className="w-full h-full"
             locationName={locationName}
-            guideCoordinates={guideCoordinates}
+            guideCoordinates={currentCoordinates}
           />
         </div>
       </div>

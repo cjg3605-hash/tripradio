@@ -199,20 +199,12 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   // 활성 챕터로 지도 이동
   useMapFlyTo(mapRef, activeChapterData?.lat, activeChapterData?.lng);
 
-  // 지도 렌더링 5초 지연
-  const [showMap, setShowMap] = useState(false);
-  
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowMap(true);
-    }, 5000); // 5초 후 지도 렌더링
-
-    return () => clearTimeout(timer);
-  }, []);
+  // 즉시 지도 렌더링 (좌표 없으면 로딩 상태 표시)
+  const [showMap, setShowMap] = useState(true);
 
   // 지도가 로드된 후 활성 마커로 중심 이동
   useEffect(() => {
-    if (showMap && activeChapterData && mapRef.current) {
+    if (activeChapterData && mapRef.current) {
       const timer = setTimeout(() => {
         const map = mapRef.current;
         if (map && typeof map.flyTo === 'function') {
@@ -222,9 +214,7 @@ const MapWithRoute = memo<MapWithRouteProps>(({
 
       return () => clearTimeout(timer);
     }
-    // else 조건에서도 cleanup 함수 반환
-    return () => {};
-  }, [showMap, activeChapterData]);
+  }, [activeChapterData]);
 
   // 내 위치로 지도 이동
   useEffect(() => {
@@ -245,13 +235,15 @@ const MapWithRoute = memo<MapWithRouteProps>(({
     return `https://mt1.google.com/vt/lyrs=m&hl=${langCode}&x={x}&y={y}&z={z}`;
   };
 
-  // 지도 로딩 중이거나 유효한 좌표가 없으면 로딩/빈 화면
-  if (!showMap || validChapters.length === 0) {
+  // 유효한 좌표가 없으면 로딩 화면
+  if (validChapters.length === 0) {
     return (
       <div className="w-full h-64 bg-gray-100 flex items-center justify-center rounded-lg">
         <div className="text-center text-gray-500">
-          <div className="text-lg mb-2">{!showMap ? "🗺️" : "📍"}</div>
-          <div>{!showMap ? "지도를 로딩 중입니다..." : "유효한 좌표 정보가 없습니다"}</div>
+          <div className="text-lg mb-2">📍</div>
+          <div>지도를 생성중입니다...</div>
+          <div className="text-sm mt-2">AI가 정확한 위치 정보를 분석하고 있어요.</div>
+          <div className="text-sm text-gray-400">잠시만 기다려주세요...</div>
         </div>
       </div>
     );
@@ -262,9 +254,13 @@ const MapWithRoute = memo<MapWithRouteProps>(({
     ? validChapters.map(chapter => [chapter.lat!, chapter.lng!])
     : [];
 
+  // 유니크 키 생성으로 재초기화 방지
+  const mapKey = `map-${locationName}-${validChapters.length}-${activeChapter || 0}`;
+
   return (
     <div className="relative w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
       <MapContainer 
+        key={mapKey}
         center={mapCenter}
         zoom={calculateZoom()}
         className="w-full h-full"

@@ -330,27 +330,94 @@ export class MultiLangGuideManager {
       // URL 파라미터로 지역 정보 전달 (검색박스에서 전달된 구조화된 데이터 활용)
       let apiUrl = '/api/ai/generate-sequential-guide';
       
-      // 지역 정보 추출 (regionalContext 또는 parentRegion에서)
+      // 🌍 통합 지역 분류 시스템 사용
       let queryParams = new URLSearchParams();
       
-      if (regionalContext) {
-        console.log('🌍 regionalContext에서 지역 정보 추출:', regionalContext);
-        queryParams.set('region', regionalContext.region || regionalContext.parentRegion || '미분류');
-        queryParams.set('country', regionalContext.country || '대한민국');
-        queryParams.set('countryCode', regionalContext.countryCode || 'KR');
-        queryParams.set('type', regionalContext.type || 'attraction');
-      } else if (parentRegion) {
-        console.log('🌍 parentRegion에서 지역 정보 추출:', parentRegion);
-        queryParams.set('region', parentRegion);
-        queryParams.set('country', '대한민국'); // 기본값
-        queryParams.set('countryCode', 'KR'); // 기본값
-        queryParams.set('type', 'attraction'); // 기본값
-      } else {
-        console.log('🌍 기본 지역 정보 사용 (한국)');
-        queryParams.set('region', '미분류');
-        queryParams.set('country', '대한민국');
-        queryParams.set('countryCode', 'KR');
-        queryParams.set('type', 'attraction');
+      try {
+        console.log(`🔍 통합 지역 분류 시작: "${locationName}"`);
+        
+        // 통합 지역 분류 시스템 호출 (정적 + 동적)
+        const { classifyLocationDynamic } = await import('@/lib/location/dynamic-location-classifier');
+        const classificationResult = await classifyLocationDynamic(locationName);
+        
+        console.log('🎯 지역 분류 결과:', classificationResult);
+        
+        if (classificationResult.locationData) {
+          const locationData = classificationResult.locationData;
+          
+          // 지역 정보 추출
+          const region = locationData.parent || 
+                        (locationData.type === 'city' ? locationData.country : null) ||
+                        '미분류';
+          const country = locationData.country || '대한민국';
+          const countryCode = country === '한국' ? 'KR' : 
+                             country === '일본' ? 'JP' :
+                             country === '중국' ? 'CN' :
+                             country === '프랑스' ? 'FR' :
+                             country === '미국' ? 'US' :
+                             country === '영국' ? 'GB' :
+                             country === '이탈리아' ? 'IT' :
+                             country === '스페인' ? 'ES' :
+                             country === '독일' ? 'DE' : 'KR';
+          
+          queryParams.set('region', region);
+          queryParams.set('country', country);
+          queryParams.set('countryCode', countryCode);
+          queryParams.set('type', locationData.type || 'landmark');
+          
+          console.log('✅ 자동 추출된 지역 정보:', {
+            locationName,
+            region,
+            country,
+            countryCode,
+            type: locationData.type,
+            source: classificationResult.source,
+            confidence: classificationResult.confidence
+          });
+          
+        } else {
+          // Fallback: regionalContext 사용
+          if (regionalContext) {
+            console.log('🌍 regionalContext 사용:', regionalContext);
+            queryParams.set('region', regionalContext.region || regionalContext.parentRegion || '미분류');
+            queryParams.set('country', regionalContext.country || '대한민국');
+            queryParams.set('countryCode', regionalContext.countryCode || 'KR');
+            queryParams.set('type', regionalContext.type || 'attraction');
+          } else if (parentRegion) {
+            console.log('🌍 parentRegion 사용:', parentRegion);
+            queryParams.set('region', parentRegion);
+            queryParams.set('country', '대한민국');
+            queryParams.set('countryCode', 'KR');
+            queryParams.set('type', 'attraction');
+          } else {
+            console.log('⚠️ 모든 지역 분류 실패 - 기본값 사용');
+            queryParams.set('region', '미분류');
+            queryParams.set('country', '대한민국');
+            queryParams.set('countryCode', 'KR');
+            queryParams.set('type', 'attraction');
+          }
+        }
+        
+      } catch (error) {
+        console.error('❌ 지역 분류 시스템 오류:', error);
+        
+        // 오류 발생 시 기존 로직 사용
+        if (regionalContext) {
+          queryParams.set('region', regionalContext.region || regionalContext.parentRegion || '미분류');
+          queryParams.set('country', regionalContext.country || '대한민국');
+          queryParams.set('countryCode', regionalContext.countryCode || 'KR');
+          queryParams.set('type', regionalContext.type || 'attraction');
+        } else if (parentRegion) {
+          queryParams.set('region', parentRegion);
+          queryParams.set('country', '대한민국');
+          queryParams.set('countryCode', 'KR');
+          queryParams.set('type', 'attraction');
+        } else {
+          queryParams.set('region', '미분류');
+          queryParams.set('country', '대한민국');
+          queryParams.set('countryCode', 'KR');
+          queryParams.set('type', 'attraction');
+        }
       }
       
       // URL 파라미터 추가

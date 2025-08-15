@@ -186,7 +186,10 @@ async function createGuideSequentially(
     console.log(`\n🚀 3단계: 좌표 생성 API 백그라운드 시작`);
     
     // 좌표 생성 API를 즉시 시작 (Promise 반환하지만 await 하지 않음)
-    fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3002'}/api/ai/generate-coordinates`, {
+    // 동적 라우팅 사용 - 배포 환경에서도 작동하도록 동적 URL 생성
+    console.log(`🔗 좌표 API URL: ${baseUrl}/api/ai/generate-coordinates`);
+    
+    fetch(`${baseUrl}/api/ai/generate-coordinates`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -268,6 +271,12 @@ export async function POST(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.nextUrl);
     console.log('🔧 요청 URL:', request.nextUrl.toString());
+    
+    // 현재 요청의 호스트 정보 추출
+    const host = request.headers.get('host') || 'localhost:3000';
+    const protocol = request.headers.get('x-forwarded-proto') || 'http';
+    const baseUrl = `${protocol}://${host}`;
+    console.log('🌐 동적 베이스 URL:', baseUrl);
     
     const body = await request.json();
     console.log('🔧 요청 본문:', body);
