@@ -357,142 +357,96 @@ const LOCATION_EXPERT_PERSONA = `당신은 전세계 지리 및 위치 정보 �
 - 지리적 좌표와 행정구역 정보
 - 관광지의 실제 중요도와 접근성`;
 
-// 🚀 초효율 자동완성 프롬프트 (도시/국가 우선 + 관광명소)
+// 🚀 단순화된 자동완성 프롬프트 (기본 기능만)
 function createAutocompletePrompt(query: string, language: Language): string {
   const prompts = {
-    ko: `중요: 첫 번째 결과는 반드시 사용자가 입력한 장소명 자체여야 함. 전세계에서 가장 유명한 해당 명칭의 장소를 찾아라.
+    ko: `"${query}" 관련 장소 6개를 JSON 배열로 제공해주세요.
 
-"${query}" 검색 결과 6개를 JSON 형태로:
+규칙:
+1. 첫 번째는 "${query}" 자체 (가장 유명한 곳)
+2. 나머지는 관련 장소들
+3. location은 "도시, 국가" 형식
 
-1단계: 가장 유명한 "${query}" 식별
-- 전세계에서 "${query}"라고 불리는 가장 유명하고 잘 알려진 장소를 찾으시오
-- 동명이 장소가 여러 개 있다면 국제적으로 가장 유명한 곳을 선택
-- 한국어로 검색하는 경우 한국 관광객들이 많이 방문하는 유명한 장소 우선
-
-2단계: 정확한 지리적 위치 확인
-- 모든 장소의 location은 "구체적인 도시명, 국가명" 형태 (예: "방콕, 태국", "서울, 대한민국")
-- 지역/주 단위가 아닌 실제 도시명 사용 필수
-
-3단계: 결과 구성 (순서 엄수)
-1. 첫 번째: "${query}"의 정식명칭 (정확한 도시, 국가 위치 포함)
-2-6. 해당 지역의 주요 관광명소
-
-[{"name":"장소명","location":"구체적도시명, 국가명","isMainLocation":true/false}]
-
-특별 지침:
-- "대왕궁" → 태국 방콕의 왕궁 (Grand Palace Bangkok)
-- "만리장성" → 중국 베이징 인근
-- "루브르" → 프랑스 파리
-- "경복궁" → 한국 서울
-- "콜로세움" → 이탈리아 로마
-
-🧪 **테스트 모드**: 지역정보와 국가코드도 함께 추출하세요.
-
-JSON 형식 (새로운 확장 형식):
+JSON 형식:
 [
   {
     "name": "장소명",
     "location": "도시, 국가",
-    "region": "정확한 지역/도시명 (영어)",
-    "country": "국가명 (한국어)",
-    "countryCode": "ISO 3166-1 alpha-3 코드",
     "isMainLocation": true/false
   }
 ]
 
 예시:
-- "대왕궁" → [{"name":"대왕궁","location":"방콕, 태국","region":"Krung Thep Maha Nakhon","country":"태국","countryCode":"THA","isMainLocation":true}...]
-- "만리장성" → [{"name":"만리장성","location":"베이징, 중국","region":"Beijing","country":"중국","countryCode":"CHN","isMainLocation":true}...]
-- "에펠탑" → [{"name":"에펠탑","location":"파리, 프랑스","region":"Paris","country":"프랑스","countryCode":"FRA","isMainLocation":true}...]
+- "대왕궁" → [{"name":"대왕궁","location":"방콕, 태국","isMainLocation":true}...]
+- "에펠탑" → [{"name":"에펠탑","location":"파리, 프랑스","isMainLocation":true}...]`,
 
-📋 국가코드 참조:
-- 한국: KOR, 중국: CHN, 일본: JPN, 태국: THA, 베트남: VNM
-- 프랑스: FRA, 영국: GBR, 독일: DEU, 이탈리아: ITA, 스페인: ESP
-- 미국: USA, 캐나다: CAN, 호주: AUS, 브라질: BRA, 아르헨티나: ARG`,
+    en: `Provide 6 places related to "${query}" in JSON format.
 
-    en: `CRITICAL: First result MUST be the exact location name the user typed. Location field must be in "Specific City, Country" format exactly.
+Rules:
+1. First result must be "${query}" itself (most famous one)
+2. Others are related places
+3. Location format: "City, Country"
 
-Provide 6 results for "${query}" in JSON format:
-
-Step 1: Analyze input location and determine precise location
-- Is "${query}" a city/country/region? → First result MUST be "${query}, CountryName" format
-- Is "${query}" an attraction? → First result with precise "CityName, CountryName" where it's located
-
-Step 2: Ensure location field accuracy
-- ALL location fields must be "Specific City Name, Country Name" format (e.g., "Beijing, China", "Seoul, South Korea")
-- Use actual city names, not regions/states
-
-Step 3: Results structure (strict order)
-1. First: Official name of "${query}" (with precise city location)
-2-6. Major attractions in that area
-
-[{"name":"place","location":"SpecificCity, Country","isMainLocation":true/false}]
-
-🧪 **TEST MODE**: Extract regional info and country codes together.
-
-JSON Format (New Extended Format):
+JSON format:
 [
   {
     "name": "place name",
     "location": "city, country",
-    "region": "precise region/city name (English)",
-    "country": "country name (English)",
-    "countryCode": "ISO 3166-1 alpha-3 code",
     "isMainLocation": true/false
   }
 ]
 
 Examples:
-- "Grand Palace" → [{"name":"Grand Palace","location":"Bangkok, Thailand","region":"Krung Thep Maha Nakhon","country":"Thailand","countryCode":"THA","isMainLocation":true}...]
-- "Great Wall" → [{"name":"Great Wall of China","location":"Beijing, China","region":"Beijing","country":"China","countryCode":"CHN","isMainLocation":true}...]
-- "Eiffel Tower" → [{"name":"Eiffel Tower","location":"Paris, France","region":"Paris","country":"France","countryCode":"FRA","isMainLocation":true}...]
+- "Grand Palace" → [{"name":"Grand Palace","location":"Bangkok, Thailand","isMainLocation":true}...]
+- "Eiffel Tower" → [{"name":"Eiffel Tower","location":"Paris, France","isMainLocation":true}...]`,
 
-📋 Country Code Reference:
-- Korea: KOR, China: CHN, Japan: JPN, Thailand: THA, Vietnam: VNM
-- France: FRA, UK: GBR, Germany: DEU, Italy: ITA, Spain: ESP
-- USA: USA, Canada: CAN, Australia: AUS, Brazil: BRA, Argentina: ARG`,
+    ja: `「${query}」に関連する場所6個をJSON形式で提供してください。
 
-    ja: `重要：最初の結果は、ユーザーが入力した場所名そのものでなければならない。
+ルール:
+1. 最初は「${query}」そのもの（最も有名な場所）
+2. 他は関連する場所
+3. location形式：「都市、国」
 
-「${query}」の検索結果6個をJSON形式で：
+JSON形式:
+[
+  {
+    "name": "場所名",
+    "location": "都市、国",
+    "isMainLocation": true/false
+  }
+]`,
 
-ステップ1：入力場所名の分析
-- 「${query}」は都市/国/地域名か？ → 最初は必ず「${query}、国名」形式
-- 「${query}」は観光名所か？ → 最初は「${query}」そのまま
+    zh: `请提供与"${query}"相关的6个地点，JSON格式。
 
-ステップ2：結果構成（順序厳守）
-1. 最初：「${query}」の正式名称（都市なら「都市、国」、名所なら名所名）
-2-6. その地域の主要観光名所
+规则:
+1. 第一个是"${query}"本身（最著名的）
+2. 其他是相关地点
+3. location格式："城市，国家"
 
-[{"name":"場所名","location":"詳細位置","isMainLocation":true/false}]`,
+JSON格式:
+[
+  {
+    "name": "地点名",
+    "location": "城市，国家",
+    "isMainLocation": true/false
+  }
+]`,
 
-    zh: `重要：第一个结果必须是用户输入的地点名称本身。
+    es: `Proporciona 6 lugares relacionados con "${query}" en formato JSON.
 
-提供"${query}"搜索结果6个，JSON格式：
+Reglas:
+1. El primero debe ser "${query}" en sí (el más famoso)
+2. Los otros son lugares relacionados
+3. Formato location: "Ciudad, País"
 
-步骤1：分析输入地点名
-- "${query}"是城市/国家/地区名？→ 第一个必须是"${query}，国家名"格式
-- "${query}"是旅游景点？→ 第一个是"${query}"原样
-
-步骤2：结果构成（严格顺序）
-1. 第一个："${query}"的正式名称（如果是城市→"城市，国家"，如果是景点→景点名）
-2-6. 该地区的主要旅游景点
-
-[{"name":"地点名","location":"详细位置","isMainLocation":true/false}]`,
-
-    es: `CRÍTICO: El primer resultado DEBE ser exactamente el nombre del lugar que escribió el usuario.
-
-Proporciona 6 resultados para "${query}" en formato JSON:
-
-Paso 1: Analizar ubicación ingresada
-- ¿Es "${query}" una ciudad/país/región? → Primer resultado DEBE ser formato "${query}, NombrePaís"
-- ¿Es "${query}" una atracción? → Primer resultado es "${query}" tal como está
-
-Paso 2: Estructura de resultados (orden estricto)
-1. Primero: Nombre oficial de "${query}" (si ciudad → "Ciudad, País", si atracción → nombre atracción)
-2-6. Principales atracciones de esa área
-
-[{"name":"lugar","location":"ubicación detallada","isMainLocation":true/false}]`
+Formato JSON:
+[
+  {
+    "name": "nombre del lugar",
+    "location": "ciudad, país",
+    "isMainLocation": true/false
+  }
+]`
   };
 
   return prompts[language] || prompts.ko;
@@ -948,146 +902,7 @@ function parseAIResponse<T>(text: string): T | null {
   }
 }
 
-/**
- * 🔧 검색 결과 후처리 - Google API 기반 정확한 지역 정보 추출
- */
-async function postProcessSearchResults(
-  query: string, 
-  suggestions: {name: string, location: string, isMainLocation?: boolean}[],
-  language: string = 'ko'
-): Promise<EnhancedLocationSuggestion[]> {
-  if (!suggestions || suggestions.length === 0) return [];
-  
-  console.log('🔧 Google API 기반 검색 결과 후처리 시작:', { query, suggestionsCount: suggestions.length });
-  
-  // 1단계: 입력된 query가 우리가 알고 있는 도시/국가인지 확인
-  const queryClassification = classifyLocation(query);
-  console.log('🏷️ Query 분류 결과:', queryClassification);
-  
-  const processedResults: EnhancedLocationSuggestion[] = [];
-  
-  // 2단계: 첫 번째 결과로 Gemini 기반 정확한 지역 정보 추출 (1회만 호출)
-  let primaryRegionalInfo: { region: string; country: string; countryCode: string } | null = null;
-  
-  // 첫 번째 결과로 대표 지역 정보 추출
-  if (suggestions.length > 0) {
-    console.log(`🤖 첫 번째 결과 "${suggestions[0].name}" Gemini 정확 추출 시도 (대표 지역 정보)`);
-    
-    // 🚀 강화된 Gemini - 무조건 성공하도록 변경됨
-    primaryRegionalInfo = await extractRegionalInfoAccurate(suggestions[0].name, language);
-    console.log(`✅ Gemini 지역 정보 추출 완료 (대표 지역):`, primaryRegionalInfo);
-  }
-  
-  // 3단계: 모든 결과에 대표 지역 정보 적용 또는 개별 fallback 사용
-  for (let index = 0; index < suggestions.length; index++) {
-    const suggestion = suggestions[index];
-    
-    let regionalInfo: { region: string; country: string; countryCode: string };
-    
-    // 첫 번째 결과는 이미 추출한 정확한 정보 사용
-    if (index === 0) {
-      regionalInfo = primaryRegionalInfo!; // 무조건 성공하므로 non-null assertion 사용
-      console.log(`🏆 첫 번째 결과 "${suggestion.name}": 정확한 지역 정보 사용`);
-    } else {
-      // 나머지 결과들은 fallback 우선 시도
-      const fallbackInfo = extractRegionalInfoFallback(suggestion.location, suggestion.name);
-      
-      // fallback이 불명확하고 대표 지역 정보가 있으면 대표 지역 정보 재사용 (절대 KOR 기본값 사용 안함)
-      if (primaryRegionalInfo && 
-          ((fallbackInfo.countryCode === 'UNK' && primaryRegionalInfo.countryCode !== 'UNK') ||
-          (fallbackInfo.region === '미분류' && primaryRegionalInfo.region !== '미분류'))) {
-        
-        console.log(`🔄 ${suggestion.name}: fallback 불명확, 대표 지역 정보 재사용 (${primaryRegionalInfo.countryCode})`);
-        regionalInfo = primaryRegionalInfo;
-      } else {
-        regionalInfo = fallbackInfo;
-        console.log(`📍 ${suggestion.name}: fallback 지역 정보 사용 (${fallbackInfo.countryCode})`);
-      }
-    }
-    
-    console.log(`🌍 ${suggestion.name}의 최종 지역 정보:`, regionalInfo);
-    
-    // 위치 타입 결정
-    let locationType: 'location' | 'attraction' = 'attraction';
-    const suggestionClassification = classifyLocation(suggestion.name);
-    
-    if (index === 0 || suggestion.isMainLocation || 
-        (suggestionClassification && ['country', 'province', 'city'].includes(suggestionClassification.type))) {
-      locationType = 'location';
-    }
-    
-    const enhancedSuggestion: EnhancedLocationSuggestion = {
-      name: suggestion.name,
-      location: suggestion.location,
-      region: regionalInfo.region,
-      country: regionalInfo.country,
-      countryCode: regionalInfo.countryCode,
-      type: locationType,
-      isMainLocation: index === 0 || suggestion.isMainLocation === true,
-      category: locationType === 'location' ? 'location' : 'attraction',
-      confidence: 0.9 - (index * 0.1), // 순서에 따른 신뢰도
-      metadata: {
-        isOfficial: index === 0 || suggestion.isMainLocation === true,
-        popularity: Math.max(10 - index, 1)
-      }
-    };
-    
-    processedResults.push(enhancedSuggestion);
-    
-    // API 호출 제한을 위한 짧은 대기 (첫 번째만 Google API 사용하므로 안전)
-    if (index === 0) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-  }
-  
-  // 3단계: 첫 번째 결과가 올바른 위치 타입인지 확인
-  if (queryClassification && ['country', 'province', 'city'].includes(queryClassification.type)) {
-    const firstResult = processedResults[0];
-    
-    // 첫 번째 결과가 도시/지역이 아니라면 올바른 순서로 재정렬
-    if (firstResult.type !== 'location') {
-      console.log('⚠️ 첫 번째 결과가 도시/지역이 아님, 재정렬 시작');
-      
-      const correctLocationIndex = processedResults.findIndex(result => 
-        result.type === 'location' &&
-        (result.name.toLowerCase().includes(query.toLowerCase()) || 
-         query.toLowerCase().includes(result.name.toLowerCase()))
-      );
-      
-      if (correctLocationIndex > 0) {
-        // 올바른 위치를 첫 번째로 이동
-        const correctLocation = { ...processedResults[correctLocationIndex], isMainLocation: true };
-        const reorderedResults = [
-          correctLocation,
-          ...processedResults.slice(0, correctLocationIndex),
-          ...processedResults.slice(correctLocationIndex + 1)
-        ];
-        
-        // isMainLocation 플래그 재설정
-        reorderedResults.forEach((result, idx) => {
-          result.isMainLocation = idx === 0;
-        });
-        
-        console.log('✅ 재정렬 완료:', {
-          original: processedResults.map(s => s.name),
-          reordered: reorderedResults.map(s => s.name)
-        });
-        
-        return reorderedResults;
-      }
-    }
-  }
-  
-  console.log('✅ Google API 기반 후처리 완료:', {
-    results: processedResults.length,
-    firstResult: processedResults[0]?.name,
-    firstRegion: processedResults[0]?.region,
-    firstCountry: processedResults[0]?.country,
-    firstCountryCode: processedResults[0]?.countryCode
-  });
-  
-  return processedResults;
-}
+// 🗑️ 복잡한 후처리 함수 제거됨 - 기본 자동완성만 사용
 
 // 🗑️ 사용하지 않는 함수 제거됨 (AI 자동완성만 사용)
 
@@ -1141,10 +956,10 @@ export async function GET(request: NextRequest) {
     const autocompletePrompt = createAutocompletePrompt(sanitizedQuery, lang);
     
     try {
-      // 10초 타임아웃 설정
+      // 15초 타임아웃 설정 (여유있게)
       const autocompletePromise = model.generateContent(autocompletePrompt);
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Gemini API timeout')), 10000)
+        setTimeout(() => reject(new Error('Gemini API timeout')), 15000)
       );
       
       const autocompleteResult = await Promise.race([autocompletePromise, timeoutPromise]);
@@ -1162,28 +977,29 @@ export async function GET(request: NextRequest) {
       if (suggestions && suggestions.length > 0) {
         console.log('✅ AI 자동완성 성공:', suggestions.length, '개');
         
-        // 🔧 Google API 기반 위치 분류 시스템을 활용한 결과 후처리
-        const processedSuggestions = await postProcessSearchResults(sanitizedQuery, suggestions.slice(0, 6), lang);
+        // 🚀 단순화: 기본 자동완성 결과만 반환 (후처리 제거)
+        const basicSuggestions = suggestions.slice(0, 6).map((suggestion, index) => ({
+          name: suggestion.name,
+          location: suggestion.location,
+          isMainLocation: index === 0 || suggestion.isMainLocation === true,
+          category: 'attraction',
+          confidence: 0.9 - (index * 0.1)
+        }));
         
-        console.log('🔧 후처리 완료:', {
-          original: suggestions.slice(0, 6).map(s => s.name),
-          processed: processedSuggestions.map(s => s.name),
-          firstIsMainLocation: processedSuggestions[0]?.isMainLocation
-        });
+        console.log('🚀 단순 자동완성 완료:', basicSuggestions.map(s => s.name));
 
         // 캐시에 저장
         cache.set(cacheKey, {
-          data: processedSuggestions,
+          data: basicSuggestions,
           timestamp: Date.now()
         });
         
         return NextResponse.json({
           success: true,
-          data: processedSuggestions,
+          data: basicSuggestions,
           source: 'ai_autocomplete',
-          enhanced: true,
-          fallback: false,
-          postProcessed: true
+          enhanced: false,
+          fallback: false
         });
       }
     } catch (aiError) {

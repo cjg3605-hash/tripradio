@@ -144,45 +144,58 @@ export default function NextLevelSearchBox() {
     setIsFocused(false);
     
     try {
-      // 직접 입력의 경우 자동완성 AI를 통해 지역 정보 추출
-      console.log('🔍 직접 입력 처리 시작:', query.trim());
+      // 🚀 직접 입력 시에도 지역정보 추출 API 호출
+      console.log('🌍 직접 입력 지역정보 추출 시작:', query.trim());
       
-      const response = await fetch(`/api/locations/search?q=${encodeURIComponent(query.trim())}&lang=${currentLanguage}`);
-      const data = await response.json();
+      const extractResponse = await fetch('/api/locations/extract-regional-info', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          placeName: query.trim(),
+          language: currentLanguage
+        })
+      });
       
-      // 첫 번째 결과에서 지역 정보 추출
-      let locationData: any = null;
-      if (data.success && data.data && data.data.length > 0) {
-        locationData = data.data[0]; // EnhancedLocationSuggestion 형태
-        console.log('✅ 지역 정보 추출 성공:', locationData);
-      }
+      const extractData = await extractResponse.json();
       
-      // URL에 지역 정보 포함하여 전달
       let targetUrl = `/guide/${encodeURIComponent(query.trim())}`;
-      if (locationData) {
+      
+      if (extractData.success) {
+        // 🎉 지역정보 추출 성공
+        console.log('✅ 직접 입력 지역정보 추출 성공:', extractData.data);
         const urlParams = new URLSearchParams({
-          region: locationData.region || '',
-          country: locationData.country || '',
-          countryCode: locationData.countryCode || '',
-          type: locationData.type || 'attraction'
+          region: extractData.data.region || '',
+          country: extractData.data.country || '',
+          countryCode: extractData.data.countryCode || '',
+          type: 'attraction'
         });
         targetUrl += `?${urlParams.toString()}`;
+      } else {
+        console.warn('⚠️ 직접 입력 지역정보 추출 실패:', extractData.error);
       }
+      
+      console.log('🚀 직접 입력으로 이동:', {
+        query: query.trim(),
+        extractedInfo: extractData.success ? extractData.data : 'failed',
+        url: targetUrl
+      });
       
       setTimeout(() => {
         router.push(targetUrl);
       }, 100);
       
     } catch (error) {
-      console.warn('❌ 직접 입력 지역 정보 추출 실패:', error);
-      // 실패 시 기존 방식으로 폴백
+      console.error('❌ 직접 입력 지역정보 추출 API 오류:', error);
+      // 오류 발생 시 기본 처리
       setTimeout(() => {
         router.push(`/guide/${encodeURIComponent(query.trim())}`);
       }, 100);
     }
   };
 
-  const handleSuggestionClick = (suggestion: Suggestion) => {
+  const handleSuggestionClick = async (suggestion: Suggestion) => {
     console.log('🎯 자동완성 선택:', suggestion);
     
     // 입력창에 선택된 제안사항 채우기
@@ -196,27 +209,63 @@ export default function NextLevelSearchBox() {
     setSelectedIndex(-1);
     setIsSubmitting(true);
     
-    // 구조화된 지역 정보와 함께 바로 검색 실행
-    const urlParams = new URLSearchParams({
-      region: suggestion.region || '',
-      country: suggestion.country || '',
-      countryCode: suggestion.countryCode || '',
-      type: suggestion.type || 'attraction'
-    });
-    
-    const targetUrl = `/guide/${encodeURIComponent(suggestion.name)}?${urlParams.toString()}`;
-    
-    console.log('🚀 자동완성 선택으로 이동:', {
-      name: suggestion.name,
-      region: suggestion.region,
-      country: suggestion.country,
-      countryCode: suggestion.countryCode,
-      url: targetUrl
-    });
-    
-    setTimeout(() => {
-      router.push(targetUrl);
-    }, 100);
+    try {
+      // 🚀 지역정보 추출 API 호출 (선택 시점에서)
+      console.log('🌍 지역정보 추출 시작:', suggestion.name);
+      
+      const extractResponse = await fetch('/api/locations/extract-regional-info', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          placeName: suggestion.name,
+          language: currentLanguage
+        })
+      });
+      
+      const extractData = await extractResponse.json();
+      
+      let urlParams: URLSearchParams;
+      
+      if (extractData.success) {
+        // 🎉 지역정보 추출 성공
+        console.log('✅ 지역정보 추출 성공:', extractData.data);
+        urlParams = new URLSearchParams({
+          region: extractData.data.region || '',
+          country: extractData.data.country || '',
+          countryCode: extractData.data.countryCode || '',
+          type: 'attraction'
+        });
+      } else {
+        // ⚠️ 지역정보 추출 실패 - 기본 처리
+        console.warn('⚠️ 지역정보 추출 실패:', extractData.error);
+        urlParams = new URLSearchParams({
+          type: 'attraction'
+        });
+      }
+      
+      const targetUrl = `/guide/${encodeURIComponent(suggestion.name)}?${urlParams.toString()}`;
+      
+      console.log('🚀 자동완성 선택으로 이동:', {
+        name: suggestion.name,
+        extractedInfo: extractData.success ? extractData.data : 'failed',
+        url: targetUrl
+      });
+      
+      setTimeout(() => {
+        router.push(targetUrl);
+      }, 100);
+      
+    } catch (error) {
+      console.error('❌ 지역정보 추출 API 오류:', error);
+      
+      // 오류 발생 시 기본 처리
+      const fallbackUrl = `/guide/${encodeURIComponent(suggestion.name)}`;
+      setTimeout(() => {
+        router.push(fallbackUrl);
+      }, 100);
+    }
   };
 
   const handleExplorationClick = (suggestion: Suggestion) => {
