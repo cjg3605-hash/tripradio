@@ -8,9 +8,9 @@ import { supabase } from '@/lib/supabaseClient';
 interface EnhancedLocationData {
   name: string;
   location: string;
-  region: string;
-  country: string;
-  countryCode: string;
+  region: string | null;
+  country: string | null;
+  countryCode: string | null;
   type: 'location' | 'attraction';
 }
 
@@ -48,14 +48,14 @@ const getGeminiClient = () => {
  * 🌍 URL 쿼리 파라미터에서 지역 정보 추출
  */
 function extractLocationDataFromRequest(locationName: string, searchParams: URLSearchParams): EnhancedLocationData {
-  const region = searchParams.get('region') || '미분류';
-  const country = searchParams.get('country') || '대한민국';
-  const countryCode = searchParams.get('countryCode') || 'KR';
+  const region = searchParams.get('region') || null;
+  const country = searchParams.get('country') || null;
+  const countryCode = searchParams.get('countryCode') || null;
   const type = (searchParams.get('type') as 'location' | 'attraction') || 'attraction';
 
   return {
     name: locationName,
-    location: `${region}, ${country}`, // 기존 호환성
+    location: region && country ? `${region}, ${country}` : locationName, // null 안전 처리
     region: region,
     country: country,
     countryCode: countryCode,
@@ -84,14 +84,55 @@ async function createGuideSequentially(
   let dbRecord: any = null;
   
   try {
-    // 💾 1단계: DB 기본 레코드 생성 (지역명, 국가만)
+    // 💾 1단계: DB 기본 레코드 생성 (정확한 지역정보가 있는 경우만)
     console.log(`\n💾 1단계: DB 기본 레코드 생성`);
+    console.log(`🌍 전달받은 지역정보:`, {
+      region: locationData.region,
+      country: locationData.country,
+      countryCode: locationData.countryCode
+    });
+
+    // 🎯 Google API 기반 정확한 지역 정보 추출 (URL 파라미터가 없을 경우)
+    if (!locationData.countryCode || !locationData.region) {
+      console.log(`🔍 지역 정보 부족, Google API로 정확한 정보 추출 시도`);
+      
+      try {
+        const { extractAccurateLocationInfo } = await import('@/lib/coordinates/accurate-country-extractor');
+        const accurateInfo = await extractAccurateLocationInfo(locationData.name, language);
+        
+        if (accurateInfo && accurateInfo.countryCode) {
+          console.log('✅ Google API 기반 정확한 지역 정보 추출 성공:', {
+            placeName: accurateInfo.placeName,
+            region: accurateInfo.region,
+            country: accurateInfo.country,
+            countryCode: accurateInfo.countryCode,
+            confidence: (accurateInfo.confidence * 100).toFixed(1) + '%'
+          });
+          
+          // Google API에서 추출한 정확한 정보로 업데이트
+          locationData.region = accurateInfo.region;
+          locationData.country = accurateInfo.country;
+          locationData.countryCode = accurateInfo.countryCode;
+          locationData.location = `${accurateInfo.region}, ${accurateInfo.country}`;
+          
+          console.log('🔄 지역 정보 업데이트 완료:', {
+            region: locationData.region,
+            country: locationData.country,
+            countryCode: locationData.countryCode
+          });
+        } else {
+          console.log('⚠️ Google API 추출 실패, 기존 정보 유지');
+        }
+      } catch (error) {
+        console.error('❌ Google API 추출 중 오류:', error);
+      }
+    }
     
     const initialData = {
       locationname: locationData.name.toLowerCase().trim(),
       language: language.toLowerCase().trim(),
-      location_region: locationData.region,
-      country_code: locationData.countryCode,
+      location_region: locationData.region, // Google API에서 정확히 추출된 정보
+      country_code: locationData.countryCode, // Google API에서 정확히 추출된 정보
       coordinates: [], // 빈 배열로 설정 (나중에 별도 처리)
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()

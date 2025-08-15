@@ -405,7 +405,18 @@ function HomeClient() {
           setUIState({ type: 'SET_QUERY', payload: suggestionText });
           setUIState({ type: 'SET_FOCUSED', payload: false });
           setUIState({ type: 'SET_SELECTED_INDEX', payload: -1 });
-          router.push(`/guide/${encodeURIComponent(suggestionText)}`);
+          
+          // 자동완성에서 추출한 정확한 지역정보를 URL 파라미터로 전달
+          const params = new URLSearchParams();
+          if ((selectedSuggestion as any).region) params.set('region', (selectedSuggestion as any).region);
+          if ((selectedSuggestion as any).country) params.set('country', (selectedSuggestion as any).country);
+          if ((selectedSuggestion as any).countryCode) params.set('countryCode', (selectedSuggestion as any).countryCode);
+          if ((selectedSuggestion as any).type) params.set('type', (selectedSuggestion as any).type);
+          
+          const queryString = params.toString();
+          const url = `/guide/${encodeURIComponent(suggestionText)}${queryString ? `?${queryString}` : ''}`;
+          
+          router.push(url);
         } else {
           handleSearch();
         }
@@ -725,7 +736,18 @@ function HomeClient() {
                           setUIState({ type: 'SET_QUERY', payload: selectedLocation });
                           setUIState({ type: 'SET_FOCUSED', payload: false });
                           setUIState({ type: 'SET_SELECTED_INDEX', payload: -1 });
-                          router.push(`/guide/${encodeURIComponent(selectedLocation)}`);
+                          
+                          // 자동완성에서 추출한 정확한 지역정보를 URL 파라미터로 전달
+                          const params = new URLSearchParams();
+                          if ((suggestion as any).region) params.set('region', (suggestion as any).region);
+                          if ((suggestion as any).country) params.set('country', (suggestion as any).country);
+                          if ((suggestion as any).countryCode) params.set('countryCode', (suggestion as any).countryCode);
+                          if ((suggestion as any).type) params.set('type', (suggestion as any).type);
+                          
+                          const queryString = params.toString();
+                          const url = `/guide/${encodeURIComponent(selectedLocation)}${queryString ? `?${queryString}` : ''}`;
+                          
+                          router.push(url);
                         }}
                         onMouseEnter={() => setUIState({ type: 'SET_SELECTED_INDEX', payload: index })}
                         onMouseLeave={() => setUIState({ type: 'SET_SELECTED_INDEX', payload: -1 })}

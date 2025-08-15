@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
 import { simpleGeocode } from '@/lib/coordinates/simple-geocoding';
+import { extractAccurateLocationInfo } from '@/lib/coordinates/accurate-country-extractor';
 
 export const runtime = 'nodejs';
 
@@ -819,29 +820,41 @@ export async function POST(request: NextRequest) {
 
     console.log(`✅ ${language} AI 가이드 파싱 완료 - 이제 간단한 좌표 생성 시작`);
     
-    // 🎯 3단계: 간단한 지오코딩으로 좌표 생성
-    console.log(`\n🔍 간단한 지오코딩 시작`);
+    // 🎯 3단계: 정확한 국가코드 추출 시스템으로 좌표 생성
+    console.log(`\n🔍 정확한 위치 정보 추출 시작`);
     
-    // 간단한 지오코딩 호출
-    const simpleResult = await simpleGeocode(locationName);
+    // 새로운 정확한 국가코드 추출 시스템 호출
+    const accurateResult = await extractAccurateLocationInfo(locationName, language);
     
     let baseCoordinates: { lat: number; lng: number } | null = null;
     let finalRegionalInfo = initialRegionalInfo;
     
-    if (simpleResult) {
-      console.log(`✅ 간단한 지오코딩 성공`);
-      baseCoordinates = simpleResult.coordinates;
+    if (accurateResult) {
+      console.log(`✅ 정확한 위치 정보 추출 성공`);
+      baseCoordinates = accurateResult.coordinates;
       
       // Google API에서 가져온 정확한 지역 정보로 업데이트
       finalRegionalInfo = {
-        location_region: simpleResult.location_region,
-        country_code: simpleResult.country_code
+        location_region: accurateResult.region,
+        country_code: accurateResult.countryCode
       };
       
       console.log(`📍 기본 좌표: ${baseCoordinates.lat}, ${baseCoordinates.lng}`);
       console.log(`🌍 업데이트된 지역 정보:`, finalRegionalInfo);
+      console.log(`🎯 정확성: ${(accurateResult.confidence * 100).toFixed(1)}%`);
     } else {
-      console.log(`⚠️ 지오코딩 실패 - 좌표 없이 진행`);
+      console.log(`⚠️ 정확한 위치 정보 추출 실패 - 기본값 사용`);
+      // fallback으로 기존 simpleGeocode 사용
+      const simpleResult = await simpleGeocode(locationName);
+      if (simpleResult) {
+        baseCoordinates = simpleResult.coordinates;
+        finalRegionalInfo = {
+          location_region: simpleResult.location_region,
+          country_code: simpleResult.country_code
+        };
+        console.log(`📍 fallback 좌표: ${baseCoordinates.lat}, ${baseCoordinates.lng}`);
+        console.log(`🌍 fallback 지역 정보:`, finalRegionalInfo);
+      }
     }
     
     // 모든 챕터에 기본 좌표 적용

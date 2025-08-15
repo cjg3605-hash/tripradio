@@ -327,96 +327,109 @@ export class MultiLangGuideManager {
       console.log(`🎨 ${language} 가이드가 없음 - 새로 생성`);
 
       // 🚀 새로운 순차 API 라우트를 통해 AI 가이드 생성 요청
-      // URL 파라미터로 지역 정보 전달 (검색박스에서 전달된 구조화된 데이터 활용)
+      // URL 파라미터로 지역 정보 전달 (Google API 기반 정확한 정보 우선 사용)
       let apiUrl = '/api/ai/generate-sequential-guide';
       
-      // 🌍 통합 지역 분류 시스템 사용
+      // 🌍 Google API 기반 정확한 지역 정보 추출 시스템 사용
       let queryParams = new URLSearchParams();
       
       try {
-        console.log(`🔍 통합 지역 분류 시작: "${locationName}"`);
+        console.log(`🔍 Google API 기반 정확한 지역 정보 추출 시작: "${locationName}"`);
         
-        // 통합 지역 분류 시스템 호출 (정적 + 동적)
-        const { classifyLocationDynamic } = await import('@/lib/location/dynamic-location-classifier');
-        const classificationResult = await classifyLocationDynamic(locationName);
+        // 🎯 Google API 기반 정확한 지역 정보 추출 시도
+        const { extractAccurateLocationInfo } = await import('@/lib/coordinates/accurate-country-extractor');
+        const accurateInfo = await extractAccurateLocationInfo(locationName, language);
         
-        console.log('🎯 지역 분류 결과:', classificationResult);
-        
-        if (classificationResult.locationData) {
-          const locationData = classificationResult.locationData;
-          
-          // 지역 정보 추출
-          const region = locationData.parent || 
-                        (locationData.type === 'city' ? locationData.country : null) ||
-                        '미분류';
-          const country = locationData.country || '대한민국';
-          const countryCode = country === '한국' ? 'KOR' : 
-                             country === '대한민국' ? 'KOR' :
-                             country === '일본' ? 'JPN' :
-                             country === '중국' ? 'CHN' :
-                             country === '프랑스' ? 'FRA' :
-                             country === '미국' ? 'USA' :
-                             country === '영국' ? 'GBR' :
-                             country === '이탈리아' ? 'ITA' :
-                             country === '스페인' ? 'ESP' :
-                             country === '독일' ? 'DEU' : 'KOR';
-          
-          queryParams.set('region', region);
-          queryParams.set('country', country);
-          queryParams.set('countryCode', countryCode);
-          queryParams.set('type', locationData.type || 'landmark');
-          
-          console.log('✅ 자동 추출된 지역 정보:', {
-            locationName,
-            region,
-            country,
-            countryCode,
-            type: locationData.type,
-            source: classificationResult.source,
-            confidence: classificationResult.confidence
+        if (accurateInfo && accurateInfo.countryCode) {
+          console.log('✅ Google API 기반 정확한 지역 정보 추출 성공:', {
+            placeName: accurateInfo.placeName,
+            region: accurateInfo.region,
+            country: accurateInfo.country,
+            countryCode: accurateInfo.countryCode,
+            confidence: (accurateInfo.confidence * 100).toFixed(1) + '%'
           });
           
+          // Google API에서 추출한 정확한 정보 사용
+          queryParams.set('region', accurateInfo.region);
+          queryParams.set('country', accurateInfo.country);
+          queryParams.set('countryCode', accurateInfo.countryCode);
+          queryParams.set('type', 'attraction'); // 기본값
+          
         } else {
-          // Fallback: regionalContext 사용
-          if (regionalContext) {
-            console.log('🌍 regionalContext 사용:', regionalContext);
-            queryParams.set('region', regionalContext.region || regionalContext.parentRegion || '미분류');
-            queryParams.set('country', regionalContext.country || '대한민국');
-            queryParams.set('countryCode', regionalContext.countryCode || 'KOR');
-            queryParams.set('type', regionalContext.type || 'attraction');
-          } else if (parentRegion) {
-            console.log('🌍 parentRegion 사용:', parentRegion);
-            queryParams.set('region', parentRegion);
-            queryParams.set('country', '대한민국');
-            queryParams.set('countryCode', 'KOR');
-            queryParams.set('type', 'attraction');
+          console.log('⚠️ Google API 추출 실패, 기존 분류 시스템 사용');
+          
+          // Fallback: 기존 통합 지역 분류 시스템 사용
+          const { classifyLocationDynamic } = await import('@/lib/location/dynamic-location-classifier');
+          const classificationResult = await classifyLocationDynamic(locationName);
+          
+          console.log('🎯 Fallback 지역 분류 결과:', classificationResult);
+          
+          if (classificationResult.locationData) {
+            const locationData = classificationResult.locationData;
+            
+            // 지역 정보 추출
+            const region = locationData.parent || 
+                          (locationData.type === 'city' ? locationData.country : null) ||
+                          null;
+            const country = locationData.country || null;
+            const countryCode = country === '한국' ? 'KOR' : 
+                               country === '대한민국' ? 'KOR' :
+                               country === '일본' ? 'JPN' :
+                               country === '중국' ? 'CHN' :
+                               country === '프랑스' ? 'FRA' :
+                               country === '미국' ? 'USA' :
+                               country === '영국' ? 'GBR' :
+                               country === '이탈리아' ? 'ITA' :
+                               country === '스페인' ? 'ESP' :
+                               country === '독일' ? 'DEU' : null; // 기본값 제거
+            
+            if (region) queryParams.set('region', region);
+            if (country) queryParams.set('country', country);
+            if (countryCode) queryParams.set('countryCode', countryCode);
+            queryParams.set('type', locationData.type || 'landmark');
+            
+            console.log('✅ Fallback으로 추출된 지역 정보:', {
+              locationName,
+              region,
+              country,
+              countryCode,
+              type: locationData.type,
+              source: classificationResult.source,
+              confidence: classificationResult.confidence
+            });
+            
           } else {
-            console.log('⚠️ 모든 지역 분류 실패 - 기본값 사용');
-            queryParams.set('region', '미분류');
-            queryParams.set('country', '대한민국');
-            queryParams.set('countryCode', 'KOR');
-            queryParams.set('type', 'attraction');
+            // Final Fallback: regionalContext 사용
+            if (regionalContext) {
+              console.log('🌍 regionalContext 사용:', regionalContext);
+              if (regionalContext.region) queryParams.set('region', regionalContext.region);
+              if (regionalContext.country) queryParams.set('country', regionalContext.country);
+              if (regionalContext.countryCode) queryParams.set('countryCode', regionalContext.countryCode);
+              queryParams.set('type', regionalContext.type || 'attraction');
+            } else if (parentRegion) {
+              console.log('🌍 parentRegion 사용:', parentRegion);
+              queryParams.set('region', parentRegion);
+              queryParams.set('type', 'attraction');
+            } else {
+              console.log('⚠️ 모든 지역 분류 실패 - null 값 처리');
+              queryParams.set('type', 'attraction');
+            }
           }
         }
         
       } catch (error) {
-        console.error('❌ 지역 분류 시스템 오류:', error);
+        console.error('❌ 지역 정보 추출 시스템 오류:', error);
         
-        // 오류 발생 시 기존 로직 사용
+        // 오류 발생 시 기존 로직 사용 (null 안전 처리)
         if (regionalContext) {
-          queryParams.set('region', regionalContext.region || regionalContext.parentRegion || '미분류');
-          queryParams.set('country', regionalContext.country || '대한민국');
-          queryParams.set('countryCode', regionalContext.countryCode || 'KR');
+          if (regionalContext.region) queryParams.set('region', regionalContext.region);
+          if (regionalContext.country) queryParams.set('country', regionalContext.country);
+          if (regionalContext.countryCode) queryParams.set('countryCode', regionalContext.countryCode);
           queryParams.set('type', regionalContext.type || 'attraction');
         } else if (parentRegion) {
           queryParams.set('region', parentRegion);
-          queryParams.set('country', '대한민국');
-          queryParams.set('countryCode', 'KR');
           queryParams.set('type', 'attraction');
         } else {
-          queryParams.set('region', '미분류');
-          queryParams.set('country', '대한민국');
-          queryParams.set('countryCode', 'KR');
           queryParams.set('type', 'attraction');
         }
       }
