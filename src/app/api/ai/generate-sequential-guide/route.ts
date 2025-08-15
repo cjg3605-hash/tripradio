@@ -69,6 +69,7 @@ function extractLocationDataFromRequest(locationName: string, searchParams: URLS
 async function createGuideSequentially(
   locationData: EnhancedLocationData,
   language: string,
+  baseUrl: string,
   userProfile?: any
 ): Promise<{ success: boolean; data?: any; error?: any; guideId?: string }> {
   const startTime = Date.now();
@@ -244,19 +245,33 @@ async function createGuideSequentially(
 
   } catch (error) {
     console.error('❌ 순차 가이드 생성 중 오류:', error);
+    console.error('❌ 오류 상세:', {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      locationData: locationData,
+      language: language,
+      dbRecordId: dbRecord?.id
+    });
     
     // 오류 발생 시 DB 레코드 상태 업데이트
     if (dbRecord?.id) {
       try {
-        await supabase
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const { error: updateError } = await supabase
           .from('guides')
           .update({
-            error_message: error instanceof Error ? error.message : String(error),
+            error_message: errorMessage,
             updated_at: new Date().toISOString()
           })
           .eq('id', dbRecord.id);
+          
+        if (updateError) {
+          console.error('❌ 오류 상태 DB 업데이트 실패:', updateError);
+        } else {
+          console.log('✅ 오류 상태 DB 업데이트 완료:', { guideId: dbRecord.id, errorMessage });
+        }
       } catch (updateError) {
-        console.error('❌ 오류 상태 업데이트 실패:', updateError);
+        console.error('❌ 오류 상태 업데이트 중 예외:', updateError);
       }
     }
 
@@ -274,11 +289,27 @@ export async function POST(request: NextRequest) {
     
     // 현재 요청의 호스트 정보 추출
     const host = request.headers.get('host') || 'localhost:3000';
-    const protocol = request.headers.get('x-forwarded-proto') || 'http';
+    const protocol = request.headers.get('x-forwarded-proto') || 'https';
     const baseUrl = `${protocol}://${host}`;
     console.log('🌐 동적 베이스 URL:', baseUrl);
     
-    const body = await request.json();
+    // 요청 본문 안전하게 파싱
+    let body;
+    try {
+      const text = await request.text();
+      console.log('🔧 요청 본문 텍스트:', text);
+      body = text ? JSON.parse(text) : {};
+    } catch (parseError) {
+      console.error('❌ JSON 파싱 오류:', parseError);
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: '잘못된 JSON 형식입니다.' 
+        },
+        { status: 400 }
+      );
+    }
+    
     console.log('🔧 요청 본문:', body);
     
     const { locationName, language, userProfile } = body;
@@ -308,7 +339,7 @@ export async function POST(request: NextRequest) {
     console.log(`🌍 추출된 지역 정보:`, locationData);
 
     // 순차 가이드 생성 실행
-    const result = await createGuideSequentially(locationData, language, userProfile);
+    const result = await createGuideSequentially(locationData, language, baseUrl, userProfile);
     
     if (result.success) {
       return NextResponse.json({
@@ -330,6 +361,16 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error(`❌ 순차 API 완전 실패:`, error);
+    console.error('❌ API 요청 상세:', {
+      url: request.nextUrl.toString(),
+      method: request.method,
+      headers: Object.fromEntries(request.headers.entries()),
+      error: error instanceof Error ? {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      } : String(error)
+    });
     
     const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다';
     
@@ -338,9 +379,11 @@ export async function POST(request: NextRequest) {
         success: false, 
         error: `순차 가이드 생성 실패: ${errorMessage}`,
         source: 'sequential_api',
+        timestamp: new Date().toISOString(),
         details: process.env.NODE_ENV === 'development' ? {
           stack: error instanceof Error ? error.stack : undefined,
-          name: error instanceof Error ? error.name : undefined
+          name: error instanceof Error ? error.name : undefined,
+          cause: error instanceof Error ? error.cause : undefined
         } : undefined
       },
       { status: 500 }
