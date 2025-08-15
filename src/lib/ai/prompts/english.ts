@@ -793,9 +793,11 @@ export const createEnglishGuidePromptForIndex = (locationName: string, userProfi
 };
 
 // Default export for compatibility
-export default {
+const englishPrompts = {
   createEnglishGuidePrompt,
   createEnglishStructurePrompt,
   createEnglishChapterPrompt,
   createEnglishFinalPrompt
 };
+
+export default englishPrompts;

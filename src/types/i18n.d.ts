@@ -34,6 +34,19 @@ declare module 'next-i18next' {
       season: string;
       nextMove: string;
     };
+    tripPlanner: {
+      title: string;
+      subtitle: string;
+      days: string;
+      budget: string;
+      travelers: string;
+      interests: string;
+      generatePlan: string;
+      loading: string;
+      error: string;
+      retry: string;
+      [key: string]: string;
+    };
     // Add other translation namespaces and their types here
   }
 }

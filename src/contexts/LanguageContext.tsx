@@ -456,6 +456,36 @@ interface Translations {
       lastUpdated: string;
     };
   };
+  tripPlanner: {
+    keyword: string;
+    badge: string;
+    hero: {
+      title: string;
+      subtitle: string;
+      description: string;
+    };
+    quickPlanner: {
+      title: string;
+    };
+    steps: {
+      selectStyle: string;
+      destinationDuration: string;
+      budgetPreferences: string;
+    };
+    form: {
+      destination: {
+        label: string;
+        placeholder: string;
+      };
+      departure: string;
+      duration: string;
+      budget: string;
+      interests: string;
+      generateButton: string;
+      analyzing: string;
+      completionTime: string;
+    };
+  };
 }
 
 // 기본 번역 데이터 (한국어)

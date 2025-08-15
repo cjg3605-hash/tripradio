@@ -21,7 +21,7 @@ const MapWithRoute = dynamic(() => import('./MapWithRoute'), {
 interface StartLocationMapProps {
   locationName: string;
   startPoint: { lat: number; lng: number; name: string };
-  chapters?: Array<{ id: number; title: string; lat: number; lng: number; narrative?: string; originalIndex: number }>;
+  chapters?: Array<{ id: number; title: string; lat: number; lng: number; narrative?: string; originalIndex: number; coordinates?: { lat: number; lng: number } }>;
   pois: Array<{ id: string; name: string; lat: number; lng: number; description: string }>;
   className?: string;
   guideCoordinates?: any; // Supabase coordinates 컬럼 데이터

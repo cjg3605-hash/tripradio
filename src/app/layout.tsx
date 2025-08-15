@@ -390,10 +390,6 @@ export default async function RootLayout({
           type="font/woff2" 
           crossOrigin="anonymous"
         />
-        <link 
-          rel="stylesheet" 
-          href="/fonts/pretendard.css"
-        />
       </head>
       <body className={`${roboto.variable} font-sans antialiased`} suppressHydrationWarning>
         {/* AMP 자동 광고는 일반 React 앱에서는 사용하지 않고, 대신 AutoAdSense 컴포넌트 사용 */}

@@ -5,45 +5,45 @@ import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 // 여행 타입별 추천 데이터 - 직접 useLanguage t 함수 사용
-const getTripTypes = (t: (key: string) => string) => [
+const getTripTypes = (t: (key: string, params?: Record<string, string>) => string | string[]) => [
   {
     id: 'solo',
-    name: t('tripTypes.solo.name'),
+    name: String(t('tripTypes.solo.name')),
     // emoji: '🎒', // removed for minimal design
-    description: t('tripTypes.solo.description'),
-    features: [t('tripTypes.solo.features.safety'), t('tripTypes.solo.features.culture'), t('tripTypes.solo.features.budget')],
+    description: String(t('tripTypes.solo.description')),
+    features: [String(t('tripTypes.solo.features.safety')), String(t('tripTypes.solo.features.culture')), String(t('tripTypes.solo.features.budget'))],
     color: 'blue'
   },
   {
     id: 'couple',
-    name: t('tripTypes.couple.name'),
+    name: String(t('tripTypes.couple.name')),
     emoji: '💕',
-    description: t('tripTypes.couple.description'),
-    features: [t('tripTypes.couple.features.romantic'), t('tripTypes.couple.features.activities'), t('tripTypes.couple.features.photos')],
+    description: String(t('tripTypes.couple.description')),
+    features: [String(t('tripTypes.couple.features.romantic')), String(t('tripTypes.couple.features.activities')), String(t('tripTypes.couple.features.photos'))],
     color: 'pink'
   },
   {
     id: 'family',
-    name: t('tripTypes.family.name'),
+    name: String(t('tripTypes.family.name')),
     emoji: '👨‍👩‍👧‍👦',
-    description: t('tripTypes.family.description'),
-    features: [t('tripTypes.family.features.kidFriendly'), t('tripTypes.family.features.safety'), t('tripTypes.family.features.educational')],
+    description: String(t('tripTypes.family.description')),
+    features: [String(t('tripTypes.family.features.kidFriendly')), String(t('tripTypes.family.features.safety')), String(t('tripTypes.family.features.educational'))],
     color: 'green'
   },
   {
     id: 'friends',
-    name: t('tripTypes.friends.name'),
+    name: String(t('tripTypes.friends.name')),
     emoji: '👯‍♀️',
-    description: t('tripTypes.friends.description'),
-    features: [t('tripTypes.friends.features.activities'), t('tripTypes.friends.features.instagramSpots'), t('tripTypes.friends.features.nightlife')],
+    description: String(t('tripTypes.friends.description')),
+    features: [String(t('tripTypes.friends.features.activities')), String(t('tripTypes.friends.features.instagramSpots')), String(t('tripTypes.friends.features.nightlife'))],
     color: 'purple'
   },
   {
     id: 'nomad',
-    name: t('tripTypes.nomad.name'),
+    name: String(t('tripTypes.nomad.name')),
     emoji: '💻',
-    description: t('tripTypes.nomad.description'),
-    features: [t('tripTypes.nomad.features.wifi'), t('tripTypes.nomad.features.coworking'), t('tripTypes.nomad.features.longTerm')],
+    description: String(t('tripTypes.nomad.description')),
+    features: [String(t('tripTypes.nomad.features.wifi')), String(t('tripTypes.nomad.features.coworking')), String(t('tripTypes.nomad.features.longTerm'))],
     color: 'orange'
   }
 ];
