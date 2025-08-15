@@ -100,7 +100,6 @@ export class IndexingService {
     
     const landingPages = [
       '', // 홈페이지
-      'ai-travel',
       'destinations', 
       'docent',
       'travel-radio',

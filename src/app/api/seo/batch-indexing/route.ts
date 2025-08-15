@@ -272,10 +272,6 @@ function getStaticPages(): Array<{ pageName: string; urls: string[] }> {
     },
     // 서비스 페이지들
     {
-      pageName: 'AI Travel Guide',
-      urls: [`${baseUrl}/ai-travel`, `${baseUrl}/en/ai-travel-guide`]
-    },
-    {
       pageName: 'Audio Guide',
       urls: [`${baseUrl}/audio-guide`]
     },

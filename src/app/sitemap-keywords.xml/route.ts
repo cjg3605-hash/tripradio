@@ -29,12 +29,6 @@ export async function GET(): Promise<Response> {
       changeFrequency: 'weekly' as const,
       priority: 0.9,
     },
-    {
-      url: `${baseUrl}/ai-travel`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly' as const,
-      priority: 0.9,
-    },
   ];
 
   // Generate XML sitemap manually for better control

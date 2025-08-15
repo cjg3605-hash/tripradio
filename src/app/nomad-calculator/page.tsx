@@ -169,17 +169,11 @@ export default function NomadCalculatorPage() {
         {/* Hero Section */}
         <section className="container mx-auto" style={{ paddingLeft: 'var(--space-lg)', paddingRight: 'var(--space-lg)', paddingTop: 'var(--space-xl)', paddingBottom: 'var(--space-lg)' } as React.CSSProperties}>
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center rounded-full font-medium font-light" style={{ fontSize: 'var(--fs-body-s-d)', paddingLeft: 'var(--space-lg)', paddingRight: 'var(--space-lg)', paddingTop: 'var(--space-sm)', paddingBottom: 'var(--space-sm)', backgroundColor: 'var(--color-bg-alt)', border: '1px solid var(--color-border)', color: 'var(--color-text-medium)', marginBottom: 'var(--space-xl)' } as React.CSSProperties}>
-              {nomadT('badge')}
-            </div>
             <h1 className="font-light tracking-tight" style={{ fontSize: 'clamp(var(--fs-h1-d), 4vw, 56px)', lineHeight: 'var(--lh-heading)', color: 'var(--color-text-high)', marginBottom: 'var(--space-lg)' } as React.CSSProperties}>
               {nomadT('hero.title')}
             </h1>
-            <h2 className="font-normal" style={{ fontSize: 'clamp(var(--fs-h2-m), 3vw, var(--fs-h2-d))', lineHeight: 'var(--lh-heading)', color: 'var(--color-text-medium)', marginBottom: 'var(--space-xl)' } as React.CSSProperties}>
-              {nomadT('hero.subtitle')}
-            </h2>
-            <p className="font-light max-w-3xl mx-auto" style={{ fontSize: 'clamp(var(--fs-body-d), 2vw, var(--fs-body-l-d))', lineHeight: 'var(--lh-body)', color: 'var(--color-text-medium)', marginBottom: 'var(--space-2xl)' } as React.CSSProperties}>
-              {nomadT('hero.description')}
+            <p className="font-light max-w-3xl mx-auto" style={{ fontSize: 'clamp(var(--fs-body-d), 2vw, var(--fs-body-l-d))', lineHeight: 'var(--lh-body)', color: 'var(--color-text-medium)', marginBottom: 'var(--space-xl)' } as React.CSSProperties}>
+              당신의 라이프스타일에 맞는 도시를 찾아보세요
             </p>
           </div>
         </section>

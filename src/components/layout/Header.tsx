@@ -229,9 +229,9 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
           </div>
           <button 
             onClick={() => router.push('/')}
-            className="btn-base text-lg font-bold text-gray-900 bg-transparent hover:bg-gray-50 transition-all duration-200 relative px-3 py-2"
+            className="btn-base text-xl font-bold text-gray-900 bg-transparent hover:bg-gray-50 transition-all duration-200 relative px-3 py-2"
           >
-            {currentLanguage === 'ko' ? '트립라디오' : 'TRIPRADIO'}
+            {currentLanguage === 'ko' ? '트립라이도.AI' : 'TripRadio.AI'}
           </button>
         </div>
 

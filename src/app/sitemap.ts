@@ -106,12 +106,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly',
       priority: 0.9,
     },
-    {
-      url: 'https://navidocent.com/ai-travel',
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
     // 새로운 여행 관련 페이지들
     {
       url: 'https://navidocent.com/travel',

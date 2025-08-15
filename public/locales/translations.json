@@ -22,8 +22,8 @@
       "contact": "문의"
     },
     "home": {
-      "brandTitle": "트립라디오.AI",
-      "title": "트립라디오AI",
+      "brandTitle": "트립라이도.AI",
+      "title": "트립라이도AI",
       "audioGuidePrefix": "AI 오디오가이드 | 무료 체험",
       "subtitle": "가이드없이 자유롭게,",
       "subtitle2": "여행은 깊이있게",
@@ -3620,11 +3620,200 @@
         }
       },
       "tripPlanner": {
+        "keyword": "AI Travel Planning",
+        "metadata": {
+          "title": "AI Travel Planning Tool | Automated Custom Travel Itinerary TripRadio.AI",
+          "description": "🗺️ AI automatically generates perfect travel itineraries tailored to your preferences and budget. Plan accommodations, transportation, and attractions all at once"
+        },
+        "features": {
+          "aiGeneration": "AI Itinerary Generation",
+          "realtime": "Real-time Recommendations",
+          "budget": "Budget Management",
+          "customized": "Custom Routes",
+          "localInfo": "Local Information",
+          "free": "Completely Free"
+        },
         "badge": "Smart Trip Planner • AI-Powered Planning",
         "hero": {
           "title": "AI Creates Your",
           "subtitle": "Perfect Travel Plan",
           "description": "AI generates optimal travel plans in real-time based on your preferences, budget, and schedule. No more wasting time on complex planning"
+        },
+        "quickPlanner": {
+          "title": "Complete Travel Plan in <span class=\"font-semibold\">3 Minutes</span>"
+        },
+        "steps": {
+          "selectStyle": "1. Choose Your Travel Style",
+          "destinationDuration": "2. Destination & Duration",
+          "budgetPreferences": "3. Budget & Preferences"
+        },
+        "form": {
+          "destination": {
+            "label": "Where would you like to go?",
+            "placeholder": "e.g. Jeju Island, Osaka, Paris..."
+          },
+          "departure": "Departure Date",
+          "duration": "How many days?",
+          "durationOptions": {
+            "dayTrip": "Day Trip",
+            "oneNight": "1 Night 2 Days",
+            "twoNights": "2 Nights 3 Days",
+            "threeNights": "3 Nights 4 Days",
+            "fourNights": "4 Nights 5 Days",
+            "oneWeek": "1 Week",
+            "twoWeeks": "2 Weeks",
+            "oneMonth": "1 Month",
+            "custom": "Custom"
+          },
+          "budget": "Budget (per person)",
+          "budgetOptions": {
+            "under20": "Under $200",
+            "range20to50": "$200-500",
+            "range50to100": "$500-1000",
+            "range100to200": "$1000-2000",
+            "over200": "Over $2000",
+            "unlimited": "No Budget Limit"
+          },
+          "interests": "Interests (multiple selection)",
+          "interestOptions": {
+            "food": "Food & Dining",
+            "shopping": "Shopping",
+            "culture": "History & Culture",
+            "nature": "Nature & Relaxation",
+            "activities": "Activities",
+            "photography": "Photography",
+            "nightView": "Night Views",
+            "spa": "Hot Springs & Spa"
+          },
+          "generateButton": "Generate AI Travel Plan",
+          "analyzing": "Analyzing plan...",
+          "completionTime": "Completed within 30 seconds on average"
+        },
+        "popularDestinations": {
+          "title": "Quick Start with",
+          "subtitle": "Popular Destinations"
+        },
+        "personalization": {
+          "title": "Personalization Settings",
+          "loadSettings": "Load Settings",
+          "saveSettings": "Save Settings",
+          "viewSavedPlans": "View Saved Plans",
+          "plansCount": " plans"
+        },
+        "savedPlans": {
+          "title": "Saved Travel Plans"
+        },
+        "generatedPlan": {
+          "title": "Generated Travel Plan",
+          "savePlan": "Save Plan",
+          "exportPDF": "Export PDF",
+          "regenerate": "Regenerate",
+          "share": "Share",
+          "compare": "Compare Similar Plans"
+        },
+        "destinations": {
+          "viewGuide": "View Guide",
+          "nomad": "Nomad",
+          "nomadInfo": "Nomad Information",
+          "visa": "Visa",
+          "visaInfo": "Visa Information"
+        },
+        "aiFeatures": {
+          "title": "AI-Powered",
+          "subtitle": "Smart Features",
+          "customized": {
+            "title": "Personalized Recommendations",
+            "description": "Analyzes your travel style and preferences to suggest optimal travel plans"
+          },
+          "realtime": {
+            "title": "Real-time Information",
+            "description": "Reflects real-time traffic, weather, and crowd information updates"
+          },
+          "detailedInfo": {
+            "title": "Detailed Information",
+            "description": "Provides detailed information and tips for attractions, restaurants, and accommodations"
+          },
+          "budgetManagement": {
+            "title": "Budget Management",
+            "description": "Suggests smart budget allocation for the best travel within your set budget"
+          },
+          "mobileOptimized": {
+            "title": "Mobile Optimized",
+            "description": "Conveniently check and modify travel plans on your smartphone anytime, anywhere"
+          },
+          "audioGuide": {
+            "title": "Audio Guide Integration",
+            "description": "Experience richer travel with AI audio guides linked to your generated travel plan"
+          }
+        },
+        "audioGuideIntegration": {
+          "title": {
+            "before": "AI Audio Guide with",
+            "highlight": "Your Travel Plan"
+          },
+          "description": "Customized audio guides are automatically provided at each location according to your generated travel plan",
+          "features": {
+            "autoStart": {
+              "title": "Auto Play",
+              "description": "Automatically starts location-specific guides when you arrive at your destination"
+            },
+            "personalized": {
+              "title": "Personalized",
+              "description": "Provides personalized explanations tailored to your interests and travel style"
+            },
+            "realtimeUpdate": {
+              "title": "Real-time Updates",
+              "description": "Instantly updates with new guide information when you change plans during travel"
+            }
+          },
+          "tryButton": "Try Integrated Service"
+        }
+      },
+      "tripTypes": {
+        "solo": {
+          "name": "Solo Travel",
+          "description": "Independent travel focusing on personal experiences",
+          "features": {
+            "safety": "Safe routes",
+            "culture": "Cultural immersion", 
+            "budget": "Budget-friendly"
+          }
+        },
+        "couple": {
+          "name": "Couple Travel", 
+          "description": "Romantic experiences perfect for couples",
+          "features": {
+            "romantic": "Romantic spots",
+            "activities": "Couple activities",
+            "photos": "Photo opportunities"
+          }
+        },
+        "family": {
+          "name": "Family Travel",
+          "description": "Family-friendly activities and safe environments",
+          "features": {
+            "kidFriendly": "Kid-friendly",
+            "safety": "Safe destinations",
+            "educational": "Educational experiences"
+          }
+        },
+        "friends": {
+          "name": "Friends Travel",
+          "description": "Fun group activities and social experiences", 
+          "features": {
+            "activities": "Group activities",
+            "instagramSpots": "Instagram spots",
+            "nightlife": "Nightlife"
+          }
+        },
+        "nomad": {
+          "name": "Digital Nomad",
+          "description": "Work-friendly destinations with good infrastructure",
+          "features": {
+            "wifi": "Reliable WiFi",
+            "coworking": "Co-working spaces",
+            "longTerm": "Long-term stay"
+          }
         }
       },
       "filmLocations": {

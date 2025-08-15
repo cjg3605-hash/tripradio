@@ -1778,14 +1778,6 @@ function Home() {
                     여행라디오
                   </a>
                 </li>
-                <li>
-                  <a 
-                    href="/ai-travel" 
-                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
-                  >
-                    AI여행
-                  </a>
-                </li>
               </ul>
             </div>
 

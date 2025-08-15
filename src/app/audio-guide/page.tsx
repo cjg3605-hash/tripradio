@@ -152,12 +152,9 @@ export default function AudioGuidePage() {
         <section id="features" className="py-12 lg:py-16 bg-[#F8F8F8]">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-light text-black mb-4 tracking-tight">
-                {audioT('features.title')}
+              <h2 className="text-2xl lg:text-3xl font-bold text-black mb-4 tracking-tight">
+                {audioT('features.title')} {audioT('features.titleBold')}
               </h2>
-              <p className="text-lg text-[#555555] font-light">
-                {audioT('features.titleBold')}
-              </p>
             </div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -180,12 +177,9 @@ export default function AudioGuidePage() {
         <section className="py-12 lg:py-16 bg-white">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-light text-black mb-4 tracking-tight">
-                {audioT('comparison.title')}
+              <h2 className="text-2xl lg:text-3xl font-bold text-black mb-4 tracking-tight">
+                {audioT('comparison.title')} {audioT('comparison.titleBold')}
               </h2>
-              <p className="text-lg text-[#555555] font-light">
-                {audioT('comparison.titleBold')}
-              </p>
             </div>
             
             <div className="max-w-5xl mx-auto">
