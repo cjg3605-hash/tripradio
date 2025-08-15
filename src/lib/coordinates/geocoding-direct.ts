@@ -13,6 +13,7 @@ export interface GeocodingResult {
   address: string;
   confidence: number; // 0-1 범위
   source: 'geocoding_api';
+  fullGoogleResult?: any; // 전체 Google API 응답 (지역 정보 추출용)
 }
 
 export interface LocationContext {
@@ -62,8 +63,8 @@ export async function searchLocationDirect(
       if (data.status === 'OK' && data.results.length > 0) {
         const result = data.results[0];
         
-        // 결과 검증
-        if (isValidResult(result, locationName, context)) {
+        // 🎯 Google API 신뢰 우선: 기본 검증만 수행
+        if (result.geometry?.location?.lat && result.geometry?.location?.lng) {
           const geoResult: GeocodingResult = {
             coordinates: {
               lat: result.geometry.location.lat,
@@ -71,16 +72,19 @@ export async function searchLocationDirect(
             },
             address: result.formatted_address,
             confidence: calculateConfidence(result, query, locationName),
-            source: 'geocoding_api'
+            source: 'geocoding_api',
+            // 🎯 전체 Google API 응답 데이터 포함 (지역 정보 추출용)
+            fullGoogleResult: result
           };
           
           console.log(`✅ 검색 성공: ${result.formatted_address}`);
           console.log(`📍 좌표: ${geoResult.coordinates.lat}, ${geoResult.coordinates.lng}`);
           console.log(`🎯 신뢰도: ${(geoResult.confidence * 100).toFixed(1)}%`);
+          console.log(`📊 address_components: ${result.address_components?.length || 0}개`);
           
           return geoResult;
         } else {
-          console.log(`  ⚠️ 검증 실패: 관련성 낮음`);
+          console.log(`  ⚠️ 좌표 데이터 없음`);
         }
       } else {
         console.log(`  ❌ 검색 실패: ${data.status}`);

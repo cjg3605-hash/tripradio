@@ -217,9 +217,9 @@ export default function TripPlannerPage() {
       setBudget(parsed.budget || '적당히');
       setDuration(parsed.duration || '2-3일');
       setTripType(parsed.tripType || '관광');
-      alert('저장된 설정을 불러왔습니다.');
+      alert(tripT('alerts.settingsLoaded'));
     } else {
-      alert('저장된 설정이 없습니다.');
+      alert(tripT('alerts.noSavedSettings'));
     }
   };
 
@@ -227,7 +227,7 @@ export default function TripPlannerPage() {
   const saveUserPreferences = () => {
     const preferences = { budget, duration, tripType };
     localStorage.setItem('tripPlannerPreferences', JSON.stringify(preferences));
-    alert('설정이 저장되었습니다.');
+    alert(tripT('alerts.settingsSaved'));
   };
 
   // 저장된 계획들 보기/숨기기
@@ -238,7 +238,7 @@ export default function TripPlannerPage() {
   // AI 여행 계획 생성
   const generateTripPlan = async () => {
     if (!destination.trim()) {
-      alert('여행지를 입력해주세요.');
+      alert(tripT('alerts.enterDestination'));
       return;
     }
 
@@ -261,11 +261,11 @@ export default function TripPlannerPage() {
         const plan = formatTripPlan(data, destination, budget, duration, tripType);
         setGeneratedPlan(plan);
       } else {
-        throw new Error('여행 계획 생성에 실패했습니다.');
+        throw new Error(tripT('alerts.planGenerationFailed'));
       }
     } catch (error) {
       console.error('Error generating trip plan:', error);
-      alert('여행 계획 생성 중 오류가 발생했습니다.');
+      alert(tripT('alerts.planGenerationError'));
     } finally {
       setIsGenerating(false);
     }
@@ -297,7 +297,7 @@ export default function TripPlannerPage() {
   // 계획 저장
   const savePlan = () => {
     if (!generatedPlan) {
-      alert('저장할 계획이 없습니다.');
+      alert(tripT('alerts.noPlanToSave'));
       return;
     }
 
@@ -312,13 +312,13 @@ export default function TripPlannerPage() {
     const updatedPlans = [...savedPlans, newPlan];
     setSavedPlans(updatedPlans);
     localStorage.setItem('savedTripPlans', JSON.stringify(updatedPlans));
-    alert('계획이 저장되었습니다.');
+    alert(tripT('alerts.planSaved'));
   };
 
   // 계획 내보내기
   const exportPlan = () => {
     if (!generatedPlan) {
-      alert('내보낼 계획이 없습니다.');
+      alert(tripT('alerts.noPlanToExport'));
       return;
     }
     
@@ -335,7 +335,7 @@ export default function TripPlannerPage() {
 
   // 계획 재생성
   const regeneratePlan = () => {
-    if (confirm('새로운 계획을 생성하시겠습니까? 현재 계획은 사라집니다.')) {
+    if (confirm(tripT('alerts.confirmRegenerate'))) {
       setGeneratedPlan('');
       generateTripPlan();
     }
@@ -344,7 +344,7 @@ export default function TripPlannerPage() {
   // 여행 공유
   const shareTrip = async () => {
     if (!generatedPlan) {
-      alert('공유할 계획이 없습니다.');
+      alert(tripT('alerts.noPlanToShare'));
       return;
     }
 
@@ -369,13 +369,13 @@ export default function TripPlannerPage() {
   const copyToClipboard = () => {
     const text = generatedPlan.replace(/<[^>]*>/g, '');
     navigator.clipboard.writeText(text).then(() => {
-      alert('계획이 클립보드에 복사되었습니다.');
+      alert(tripT('alerts.planCopiedToClipboard'));
     });
   };
 
   // 유사한 계획과 비교
   const compareWithSimilar = () => {
-    alert('비슷한 여행지나 계획과 비교하는 기능은 곧 제공될 예정입니다.');
+    alert(tripT('alerts.compareFeatureComingSoon'));
   };
   
   return (
@@ -594,7 +594,7 @@ export default function TripPlannerPage() {
                 </div>
                 <div className="space-y-3">
                   {savedPlans.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8">저장된 계획이 없습니다.</p>
+                    <p className="text-gray-500 text-center py-8">{tripT('alerts.savedPlansEmpty')}</p>
                   ) : (
                     savedPlans.map((plan) => (
                       <div key={plan.id} className="bg-white p-4 rounded-lg border border-gray-200">
@@ -615,7 +615,7 @@ export default function TripPlannerPage() {
                             }}
                             className="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                           >
-                            불러오기
+                            {tripT('alerts.loadButton')}
                           </button>
                           <button 
                             onClick={() => {
@@ -625,7 +625,7 @@ export default function TripPlannerPage() {
                             }}
                             className="text-xs bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                           >
-                            삭제
+                            {tripT('alerts.deleteButton')}
                           </button>
                         </div>
                       </div>
@@ -853,6 +853,15 @@ export default function TripPlannerPage() {
       {/* JavaScript 로직 */}
       <script dangerouslySetInnerHTML={{
         __html: `
+        // 번역 문자열
+        const translations = {
+          settingsPrompt: '${tripT('alerts.settingsPrompt')}',
+          savedPlansEmpty: '${tripT('alerts.savedPlansEmpty')}',
+          loadButton: '${tripT('alerts.loadButton')}',
+          deleteButton: '${tripT('alerts.deleteButton')}',
+          linkCopied: '${tripT('alerts.linkCopied')}'
+        };
+        
         // 여행 계획 생성 함수
         function generateTripPlan() {
           const btn = document.getElementById('generate-plan-btn');
@@ -966,7 +975,7 @@ export default function TripPlannerPage() {
             savedAt: new Date().toISOString()
           };
           localStorage.setItem('tripPlannerPrefs', JSON.stringify(prefs));
-          alert('설정이 저장되었습니다! 🎯');
+          alert(translations.settingsPrompt);
         }
         
         // 사용자 설정 불러오기
@@ -1024,7 +1033,7 @@ export default function TripPlannerPage() {
           const list = document.getElementById('saved-plans-list');
           
           if (plans.length === 0) {
-            list.innerHTML = '<p class="text-gray-500 text-center py-4">저장된 계획이 없습니다.</p>';
+            list.innerHTML = \`<p class="text-gray-500 text-center py-4">\${translations.savedPlansEmpty}</p>\`;
           } else {
             list.innerHTML = plans.map(plan => \`
               <div class="bg-white p-4 rounded border border-gray-200 hover:shadow-md transition-all">
@@ -1036,8 +1045,8 @@ export default function TripPlannerPage() {
                   예산: \${plan.preferences?.budget || 'N/A'} | 기간: \${plan.preferences?.duration || 'N/A'}
                 </div>
                 <div class="flex gap-2">
-                  <button onclick="loadSavedPlan(\${plan.id})" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200">불러오기</button>
-                  <button onclick="deleteSavedPlan(\${plan.id})" class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded hover:bg-red-200">삭제</button>
+                  <button onclick="loadSavedPlan(\${plan.id})" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200">\${translations.loadButton}</button>
+                  <button onclick="deleteSavedPlan(\${plan.id})" class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded hover:bg-red-200">\${translations.deleteButton}</button>
                 </div>
               </div>
             \`).join('');
@@ -1122,7 +1131,7 @@ export default function TripPlannerPage() {
             });
           } else {
             navigator.clipboard.writeText(text);
-            alert('여행 계획 링크가 복사되었습니다! 📋');
+            alert(translations.linkCopied);
           }
         }
         
