@@ -177,14 +177,6 @@ export default function TripPlannerPage() {
   const tripT = (key: string): string => {
     const fullKey = key.includes('.') ? key : `tripPlanner.${key}`;
     const result = t(fullKey);
-    
-    // 번역이 실패한 경우 (키 그대로 반환되는 경우)
-    if (result === fullKey || result === key) {
-      // 키의 마지막 부분을 사용자 친화적 형태로 변환
-      const lastPart = key.split('.').pop() || key;
-      return lastPart.replace(/([A-Z])/g, ' $1').toLowerCase();
-    }
-    
     return String(result);
   };
   

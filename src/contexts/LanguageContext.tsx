@@ -953,6 +953,36 @@ const DEFAULT_TRANSLATIONS: Translations = {
       content: '개인정보 처리에 관한 방침 내용',
       lastUpdated: '최종 업데이트'
     }
+  },
+  tripPlanner: {
+    keyword: 'AI 여행 계획',
+    badge: 'Smart Trip Planner',
+    hero: {
+      title: 'AI가 만드는 여행 계획',
+      subtitle: '완벽한 여행 계획',
+      description: '당신의 취향에 맞춘 완벽한 여행 계획'
+    },
+    quickPlanner: {
+      title: '빠른 여행 계획'
+    },
+    steps: {
+      selectStyle: '여행 스타일 선택',
+      destinationDuration: '목적지와 기간',
+      budgetPreferences: '예산과 선호사항'
+    },
+    form: {
+      destination: {
+        label: '목적지',
+        placeholder: '어디로 가실 건가요?'
+      },
+      departure: '출발일',
+      duration: '기간',
+      budget: '예산',
+      interests: '관심사',
+      generateButton: '계획 생성',
+      analyzing: '분석 중...',
+      completionTime: '완성 시간'
+    }
   }
 };
 
@@ -1149,6 +1179,11 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
           ...DEFAULT_TRANSLATIONS.legal.privacy,
           ...(translations?.legal?.privacy || {})
         }
+      },
+      // 🔥 tripPlanner 필드 추가
+      tripPlanner: {
+        ...DEFAULT_TRANSLATIONS.tripPlanner,
+        ...(translations?.tripPlanner || {})
       }
     };
     
@@ -1269,10 +1304,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         }
         
         // 🔥 fallback 처리 개선
-        // 1. 영어 번역에서 시도
-        if (currentLanguage !== 'ko' && translations) {
+        // 1. 현재 언어의 번역에서 다시 한번 전체 경로로 시도
+        if (translations) {
+          const fullTranslations = translations as any;
           const fallbackKeys = key.split('.');
-          let fallbackValue: any = translations;
+          let fallbackValue: any = fullTranslations;
           
           for (const fk of fallbackKeys) {
             if (fallbackValue && typeof fallbackValue === 'object' && fk in fallbackValue) {
