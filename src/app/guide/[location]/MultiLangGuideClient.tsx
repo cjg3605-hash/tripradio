@@ -190,9 +190,10 @@ export default function MultiLangGuideClient({
     try {
       const normLocation = normalizeLocationName(guideData.metadata.originalLocationName);
       
-      console.log('🔍 좌표 폴링 시작:', { 
+      console.log('🔄 [좌표 폴링] DB에서 백그라운드 생성된 좌표 확인 중:', { 
         locationName: normLocation, 
-        language: currentLanguage.toLowerCase() 
+        language: currentLanguage.toLowerCase(),
+        attempt: pollingAttemptsRef.current + 1
       });
 
       const { data, error } = await supabase
@@ -208,7 +209,7 @@ export default function MultiLangGuideClient({
       }
 
       if (data?.coordinates && Array.isArray(data.coordinates) && data.coordinates.length > 0) {
-        console.log('✅ 좌표 폴링 성공:', data.coordinates.length, '개 좌표 발견');
+        console.log(`✅ [좌표 폴링] 성공: ${data.coordinates.length}개 챕터 좌표 발견 (백그라운드 생성 완료)`);
         setCoordinates(data.coordinates);
         setIsCoordinatesPolling(false);
         
@@ -218,7 +219,7 @@ export default function MultiLangGuideClient({
           pollingTimeoutRef.current = null;
         }
       } else {
-        console.log('⏳ 좌표 아직 생성 중... 3초 후 재시도');
+        console.log(`⏳ [좌표 폴링] 백그라운드 좌표 생성 진행 중... 3초 후 재시도 (${pollingAttemptsRef.current + 1}/10)`);
         
         // 3초 후 재시도 (최대 5회 = 15초)
         pollingTimeoutRef.current = setTimeout(() => {
@@ -250,10 +251,11 @@ export default function MultiLangGuideClient({
     };
   }, [stopCoordinatesPolling]);
 
-  // 🎯 자동 좌표 생성 함수
+  // 🎯 백그라운드 좌표 생성 함수 (Geocoding API 직접 활용)
   const generateCoordinatesForGuide = useCallback(async (guideId: string, locationName: string) => {
     try {
-      console.log(`🗺️ 좌표 생성 시작: guideId=${guideId}, location=${locationName}`);
+      console.log(`🗺️ [백그라운드 좌표 생성] 시작: "${locationName}" (guideId: ${guideId})`);
+      console.log(`🔍 [백그라운드 좌표 생성] Geocoding API로 정확한 좌표 검색 중...`);
       
       const response = await fetch('/api/ai/generate-coordinates', {
         method: 'POST',
@@ -264,18 +266,23 @@ export default function MultiLangGuideClient({
       const result = await response.json();
       
       if (result.success) {
-        console.log(`✅ 좌표 생성 완료: ${result.coordinates?.length || 0}개 좌표`);
+        console.log(`✅ [백그라운드 좌표 생성] 성공: ${result.coordinates?.length || 0}개 챕터 좌표 생성 완료`);
+        console.log(`🎯 [백그라운드 좌표 생성] 방법: ${result.method || 'Geocoding API 직접 검색'}`);
+        console.log(`⏱️ [백그라운드 좌표 생성] 소요시간: ${result.generationTime || 0}ms`);
         // 좌표 생성 완료 후 폴링 시작
         setIsCoordinatesPolling(true);
         pollingAttemptsRef.current = 0;
         pollCoordinates();
         return result.coordinates;
       } else {
-        console.error('❌ 좌표 생성 실패:', result.error);
+        console.error(`❌ [백그라운드 좌표 생성] 실패: ${result.error}`);
+        if (result.suggestion) {
+          console.log(`💡 [백그라운드 좌표 생성] 제안: ${result.suggestion}`);
+        }
         return null;
       }
     } catch (error) {
-      console.error('❌ 좌표 생성 요청 실패:', error);
+      console.error(`❌ [백그라운드 좌표 생성] 요청 실패:`, error);
       return null;
     }
   }, [pollCoordinates]);
@@ -354,15 +361,15 @@ export default function MultiLangGuideClient({
         // 🎯 새로운 가이드 생성 시 자동 좌표 생성
         const source = (result as any).source || 'unknown';
         if (source === 'new' && (result as any).guideId) {
-          console.log('🗺️ 새 가이드 감지 - 자동 좌표 생성 시작');
+          console.log(`🗺️ [가이드 생성 완료] "${locationName}" - 백그라운드 좌표 생성 시작`);
           // 백그라운드에서 좌표 생성 (페이지 렌더링과 독립적)
           generateCoordinatesForGuide((result as any).guideId, locationName).catch(error => {
-            console.error('🗺️ 자동 좌표 생성 실패:', error);
+            console.error('🗺️ [백그라운드 좌표 생성] 자동 시작 실패:', error);
           });
         } else {
           // 기존 가이드인 경우 좌표 확인 후 없으면 폴링 시작
           if (!normalizedData.coordinates || (normalizedData.coordinates as any)?.length === 0) {
-            console.log('🗺️ 기존 가이드의 좌표 없음 - 폴링 시작');
+            console.log(`🗺️ [기존 가이드] "${locationName}" 좌표 없음 - 백그라운드 생성 상태 확인 시작`);
             setIsCoordinatesPolling(true);
             pollingAttemptsRef.current = 0;
             pollCoordinates();
@@ -574,11 +581,11 @@ export default function MultiLangGuideClient({
       
       if (existingCoordinates && Array.isArray(existingCoordinates) && existingCoordinates.length > 0) {
         // 이미 좌표가 있으면 상태 업데이트
-        console.log('✅ 기존 좌표 데이터 발견:', existingCoordinates.length, '개');
+        console.log(`✅ [기존 좌표 발견] ${existingCoordinates.length}개 챕터 좌표 (백그라운드 생성 완료)`);
         setCoordinates(existingCoordinates);
       } else {
         // 좌표가 없으면 폴링 시작
-        console.log('🔍 좌표 없음 - 폴링 시작');
+        console.log('🔍 [좌표 상태 확인] 백그라운드 생성 상태 폴링 시작');
         pollCoordinates();
       }
     }

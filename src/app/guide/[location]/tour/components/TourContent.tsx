@@ -146,37 +146,12 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
   const humanStories = currentChapter?.humanStories || '';
   const nextDirection = currentChapter?.nextDirection || '';
 
-  // 🔍 챕터별 좌표 데이터 상세 디버깅
-  console.log('🔍 TourContent 데이터 구조 (인트로 챕터 포함):', {
-    hasRealTimeGuide: !!guide?.realTimeGuide,
-    originalChaptersLength: guide?.realTimeGuide?.chapters?.length || 0,
-    totalChaptersWithIntro: totalChapters,
-    currentChapterIndex,
-    isIntroChapter: currentChapterIndex === 0,
-    currentChapter: currentChapter ? {
-      id: currentChapter.id,
-      title: currentChapter.title,
-      hasNarrative: !!currentChapter.narrative,
-      hasSceneDescription: !!currentChapter.sceneDescription,
-      hasCoreNarrative: !!currentChapter.coreNarrative,
-      hasHumanStories: !!currentChapter.humanStories,
-      hasNextDirection: !!currentChapter.nextDirection,
-      // 🚨 좌표 데이터 확인
-      coordinates: currentChapter.coordinates || null,
-      lat: currentChapter.lat || null,
-      lng: currentChapter.lng || null,
-      location: currentChapter.location || null
-    } : null,
-    // 🚨 전체 챕터 좌표 정보
-    allChaptersCoordinates: allChapters.map(chapter => ({
-      id: chapter.id,
-      title: chapter.title,
-      coordinates: chapter.coordinates || null,
-      lat: chapter.lat || null,
-      lng: chapter.lng || null,
-      location: chapter.location || null,
-      hasCoordinateData: !!(chapter.coordinates || chapter.lat || chapter.location)
-    }))
+  // 🗺️ 백그라운드 좌표 생성 상태 확인
+  console.log('🗺️ 좌표 생성 상태:', {
+    hasGuideCoordinates: !!(guideCoordinates && Array.isArray(guideCoordinates) && guideCoordinates.length > 0),
+    coordinatesCount: guideCoordinates?.length || 0,
+    chaptersCount: allChapters.length,
+    locationName: guide?.metadata?.originalLocationName
   });
 
   // refs 안전한 초기화
@@ -612,32 +587,12 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                       '로마': { lat: 41.9028, lng: 12.4964 }
                     };
                     
-                    console.log(`🔍 좌표 매칭 시도: "${locationName}"`);
-                    
-                    // 1. 정확한 매칭 시도
-                    let baseCoord = cityCoords[locationName];
-                    if (baseCoord) {
-                      console.log(`✅ 정확 매칭: ${locationName} → ${baseCoord.lat}, ${baseCoord.lng}`);
-                    } else {
-                      // 2. 부분 매칭 시도 (한국 명소 우선)
-                      const koreanMatches = Object.keys(cityCoords).filter(city => 
-                        city.includes('경복') || city.includes('남산') || city.includes('명동') || 
-                        city.includes('서울') || city.includes('부산') || city.includes('제주')
-                      );
-                      
-                      const matchedCity = koreanMatches.find(city => 
-                        locationName.includes(city) || city.includes(locationName)
-                      );
-                      
-                      if (matchedCity) {
-                        baseCoord = cityCoords[matchedCity];
-                        console.log(`🎯 부분 매칭: ${locationName} → ${matchedCity} → ${baseCoord.lat}, ${baseCoord.lng}`);
-                      } else {
-                        // 3. 기본값: 서울 중심
-                        baseCoord = cityCoords['서울'];
-                        console.log(`🏠 기본값 사용: ${locationName} → 서울 → ${baseCoord.lat}, ${baseCoord.lng}`);
-                      }
-                    }
+                    // 폴백 좌표 매칭 (백그라운드 좌표 생성 실패시)
+                    let baseCoord = cityCoords[locationName] || 
+                                  Object.entries(cityCoords).find(([city]) => 
+                                    locationName.includes(city) || city.includes(locationName)
+                                  )?.[1] || 
+                                  cityCoords['서울'];
                     
                     // 챕터별 스마트 분산 (원형 배치)
                     const angle = (index / total) * 2 * Math.PI;
@@ -650,29 +605,30 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                   };
                   
                   const chaptersForMap = allChapters.map((chapter, index) => {
-                    // 🎯 AI 생성 좌표를 그대로 사용 (Enhanced Service로 보정된)
+                    // 🗺️ 우선순위: guideCoordinates(DB) > content 좌표 > 폴백
                     let coords;
                     
-                    if (chapter.coordinates?.lat && chapter.coordinates?.lng) {
-                      // AI가 생성한 좌표 사용 (Enhanced Service로 보정되어야 함)
+                    if (guideCoordinates && guideCoordinates[index]) {
+                      // DB에서 가져온 정확한 좌표 사용 (백그라운드 API로 생성된)
+                      coords = {
+                        lat: guideCoordinates[index].lat,
+                        lng: guideCoordinates[index].lng
+                      };
+                    } else if (chapter.coordinates?.lat && chapter.coordinates?.lng) {
+                      // content에 저장된 좌표 사용 (폴백)
                       coords = {
                         lat: chapter.coordinates.lat,
                         lng: chapter.coordinates.lng
                       };
-                      console.log(`🤖 AI 좌표 사용 - 챕터 ${chapter.id}: ${coords.lat}, ${coords.lng}`);
-                      
                     } else if (chapter.lat && chapter.lng) {
-                      // 대체 좌표 필드 사용
+                      // 기타 좌표 필드 사용 (폴백)
                       coords = {
                         lat: chapter.lat,
                         lng: chapter.lng
                       };
-                      console.log(`📍 기존 좌표 사용 - 챕터 ${chapter.id}: ${coords.lat}, ${coords.lng}`);
-                      
                     } else {
-                      // 폴백: 동적 좌표 생성
+                      // 최종 폴백: 동적 좌표 생성
                       coords = getSmartCoordinates(locationName || '', index, allChapters.length);
-                      console.log(`🔄 동적 좌표 생성 - 챕터 ${chapter.id}: ${coords.lat}, ${coords.lng}`);
                     }
                     
                     return {
@@ -703,7 +659,6 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                         lng: validChapter.lng, 
                         name: `${locationName} 시작점` 
                       };
-                      console.log('✅ 실제 챕터 좌표로 중심점 설정:', smartStartPoint);
                     } else {
                       // 모든 챕터 좌표의 평균값 계산
                       const validCoords = chaptersForMap.filter(c => 
@@ -714,24 +669,23 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                         const avgLat = validCoords.reduce((sum, c) => sum + c.lat, 0) / validCoords.length;
                         const avgLng = validCoords.reduce((sum, c) => sum + c.lng, 0) / validCoords.length;
                         smartStartPoint = { lat: avgLat, lng: avgLng, name: `${locationName} 중심점` };
-                        console.log('🎯 평균 좌표로 중심점 설정:', smartStartPoint);
                       } else {
                         // 최후 폴백: 기본 좌표
                         smartStartPoint = { lat: 48.8584, lng: 2.2945, name: '에펠탑' };
-                        console.log('⚠️ 폴백 좌표 사용:', smartStartPoint);
                       }
                     }
                   } else {
                     // 챕터가 없을 때 기본값
                     smartStartPoint = { lat: 48.8584, lng: 2.2945, name: '에펠탑' };
-                    console.log('📍 기본 좌표 사용 (챕터 없음):', smartStartPoint);
                   }
-                  
-                  console.log('🗺️ 지도 데이터 (API 없음):', {
-                    locationName,
-                    smartStartPoint,
+
+                  // 🗺️ StartLocationMap 전달 데이터 로깅
+                  console.log('🗺️ [TourContent → StartLocationMap] 데이터 전달:', {
+                    hasGuideCoordinates: !!(guideCoordinates && Array.isArray(guideCoordinates) && guideCoordinates.length > 0),
+                    coordinatesCount: guideCoordinates?.length || 0,
                     chaptersCount: chaptersForMap.length,
-                    chapters: chaptersForMap.map(c => ({ id: c.id, title: c.title, lat: c.lat, lng: c.lng }))
+                    guideId: String(guide?.metadata?.guideId || guide?.metadata?.id || ''),
+                    startPoint: smartStartPoint
                   });
 
                   return (
