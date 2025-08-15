@@ -360,93 +360,20 @@ const LOCATION_EXPERT_PERSONA = `당신은 전세계 지리 및 위치 정보 �
 // 🚀 단순화된 자동완성 프롬프트 (기본 기능만)
 function createAutocompletePrompt(query: string, language: Language): string {
   const prompts = {
-    ko: `"${query}" 관련 장소 6개를 JSON 배열로 제공해주세요.
+    ko: `"${query}" 관련 장소 6개 JSON:
+[{"name":"${query}","location":"도시, 국가","isMainLocation":true},{"name":"관련장소1","location":"도시, 국가","isMainLocation":false}...]`,
 
-규칙:
-1. 첫 번째는 "${query}" 자체 (가장 유명한 곳)
-2. 나머지는 관련 장소들
-3. location은 "도시, 국가" 형식
+    en: `"${query}" related places 6 JSON:
+[{"name":"${query}","location":"City, Country","isMainLocation":true},{"name":"related1","location":"City, Country","isMainLocation":false}...]`,
 
-JSON 형식:
-[
-  {
-    "name": "장소명",
-    "location": "도시, 국가",
-    "isMainLocation": true/false
-  }
-]
+    ja: `「${query}」関連場所6個JSON:
+[{"name":"${query}","location":"都市、国","isMainLocation":true},{"name":"関連場所1","location":"都市、国","isMainLocation":false}...]`,
 
-예시:
-- "대왕궁" → [{"name":"대왕궁","location":"방콕, 태국","isMainLocation":true}...]
-- "에펠탑" → [{"name":"에펠탑","location":"파리, 프랑스","isMainLocation":true}...]`,
+    zh: `"${query}"相关地点6个JSON:
+[{"name":"${query}","location":"城市，国家","isMainLocation":true},{"name":"相关地点1","location":"城市，国家","isMainLocation":false}...]`,
 
-    en: `Provide 6 places related to "${query}" in JSON format.
-
-Rules:
-1. First result must be "${query}" itself (most famous one)
-2. Others are related places
-3. Location format: "City, Country"
-
-JSON format:
-[
-  {
-    "name": "place name",
-    "location": "city, country",
-    "isMainLocation": true/false
-  }
-]
-
-Examples:
-- "Grand Palace" → [{"name":"Grand Palace","location":"Bangkok, Thailand","isMainLocation":true}...]
-- "Eiffel Tower" → [{"name":"Eiffel Tower","location":"Paris, France","isMainLocation":true}...]`,
-
-    ja: `「${query}」に関連する場所6個をJSON形式で提供してください。
-
-ルール:
-1. 最初は「${query}」そのもの（最も有名な場所）
-2. 他は関連する場所
-3. location形式：「都市、国」
-
-JSON形式:
-[
-  {
-    "name": "場所名",
-    "location": "都市、国",
-    "isMainLocation": true/false
-  }
-]`,
-
-    zh: `请提供与"${query}"相关的6个地点，JSON格式。
-
-规则:
-1. 第一个是"${query}"本身（最著名的）
-2. 其他是相关地点
-3. location格式："城市，国家"
-
-JSON格式:
-[
-  {
-    "name": "地点名",
-    "location": "城市，国家",
-    "isMainLocation": true/false
-  }
-]`,
-
-    es: `Proporciona 6 lugares relacionados con "${query}" en formato JSON.
-
-Reglas:
-1. El primero debe ser "${query}" en sí (el más famoso)
-2. Los otros son lugares relacionados
-3. Formato location: "Ciudad, País"
-
-Formato JSON:
-[
-  {
-    "name": "nombre del lugar",
-    "location": "ciudad, país",
-    "isMainLocation": true/false
-  }
-]`
+    es: `"${query}" lugares relacionados 6 JSON:
+[{"name":"${query}","location":"Ciudad, País","isMainLocation":true},{"name":"relacionado1","location":"Ciudad, País","isMainLocation":false}...]`
   };
 
   return prompts[language] || prompts.ko;
@@ -886,11 +813,18 @@ function parseAIResponse<T>(text: string): T | null {
     try {
       return JSON.parse(cleanText) as T;
     } catch {
-      // JSON 추출 시도
-      const jsonMatch = cleanText.match(/\[[\s\S]*?\]|\{[\s\S]*?\}/);
-      if (jsonMatch) {
-        console.log('🎯 추출된 JSON:', jsonMatch[0].substring(0, 100));
-        return JSON.parse(jsonMatch[0]) as T;
+      // JSON 추출 시도 - 배열 우선 매칭 (non-greedy를 greedy로 변경)
+      const arrayMatch = cleanText.match(/\[[\s\S]*\]/);
+      if (arrayMatch) {
+        console.log('🎯 추출된 배열 JSON:', arrayMatch[0].substring(0, 100));
+        return JSON.parse(arrayMatch[0]) as T;
+      }
+      
+      // 배열이 없으면 객체 매칭
+      const objectMatch = cleanText.match(/\{[\s\S]*?\}/);
+      if (objectMatch) {
+        console.log('🎯 추출된 객체 JSON:', objectMatch[0].substring(0, 100));
+        return JSON.parse(objectMatch[0]) as T;
       }
       throw new Error('JSON 형태를 찾을 수 없음');
     }
@@ -943,10 +877,10 @@ export async function GET(request: NextRequest) {
     const model = gemini.getGenerativeModel({
       model: 'gemini-2.5-flash-lite', // 초고속 경량 모델
       generationConfig: {
-        temperature: 0.1, // 정확성 우선
-        maxOutputTokens: 250, // 최소한으로 줄임
-        topP: 0.9,
-        topK: 5, // 더 focused
+        temperature: 0.3, // 적절한 창의성과 정확성의 균형
+        maxOutputTokens: 450, // 최적화된 토큰 수 (6개 항목에 딱 맞게)
+        topP: 0.8, // 품질 유지하면서 속도 개선
+        topK: 10, // 더 넓은 선택권으로 빠른 결정
         responseMimeType: "application/json", // JSON 강제
       }
     });
@@ -956,10 +890,10 @@ export async function GET(request: NextRequest) {
     const autocompletePrompt = createAutocompletePrompt(sanitizedQuery, lang);
     
     try {
-      // 15초 타임아웃 설정 (여유있게)
+      // 5초 타임아웃 설정 (최적화된 응답 시간)
       const autocompletePromise = model.generateContent(autocompletePrompt);
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Gemini API timeout')), 15000)
+        setTimeout(() => reject(new Error('Gemini API timeout')), 5000)
       );
       
       const autocompleteResult = await Promise.race([autocompletePromise, timeoutPromise]);
