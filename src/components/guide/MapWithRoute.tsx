@@ -173,25 +173,33 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   const [showMyLocation, setShowMyLocation] = useState(false);
   const [isLoadingCoordinates, setIsLoadingCoordinates] = useState(true);
   const [lastCoordinatesLength, setLastCoordinatesLength] = useState(0);
+  const [coordinatesSignal, setCoordinatesSignal] = useState(0); // 좌표 변경 신호
   const mapRef = useRef<LeafletMap | null>(null);
 
-  // 좌표 변경 감지 및 로딩 상태 관리 (의존성 최적화)
+  // 🎯 실시간 좌표 감지 시스템 - 좌표 변경 시 즉시 신호 발송
   useEffect(() => {
     const currentLength = guideCoordinates?.length || 0;
     const hasChapters = chapters?.length > 0;
     
-    if (currentLength > 0) {
-      // 좌표가 있으면 즉시 로딩 해제
+    console.log(`🗺️ 좌표 감지: length=${currentLength}, hasChapters=${hasChapters}`);
+    
+    if (currentLength > 0 && currentLength !== lastCoordinatesLength) {
+      // 새로운 좌표가 감지되면 신호 발송
+      console.log(`✅ 새 좌표 감지됨! ${lastCoordinatesLength} → ${currentLength}`);
       setIsLoadingCoordinates(false);
       setLastCoordinatesLength(currentLength);
-    } else if (hasChapters) {
+      setCoordinatesSignal(prev => prev + 1); // 지도 리렌더링 신호
+    } else if (hasChapters && currentLength === 0) {
       // 챕터는 있지만 좌표가 없으면 로딩 상태
+      console.log(`⏳ 좌표 대기 중...`);
       setIsLoadingCoordinates(true);
     }
-  }, [guideCoordinates?.length, chapters?.length]); // 의존성 단순화
+  }, [guideCoordinates?.length, chapters?.length, lastCoordinatesLength]);
 
-  // 데이터 정규화 및 유효한 좌표 필터링 (useMemo로 최적화)
+  // 🎯 신호 기반 데이터 정규화 - 좌표 변경 신호에 반응
   const validChapters = useMemo(() => {
+    console.log(`🔄 지도 데이터 재계산 (신호: ${coordinatesSignal})`);
+    
     // POI를 Chapter 형태로 변환
     const allData = chapters?.length ? chapters : (pois || []).map((poi, index) => ({
       id: parseInt(poi.id.replace(/\D/g, '')) || index,
@@ -202,7 +210,7 @@ const MapWithRoute = memo<MapWithRouteProps>(({
     }));
 
     // 유효한 좌표만 필터링
-    return allData
+    const filtered = allData
       .map((item, index) => {
         const [lat, lng] = chapters ? getLatLng(item, guideCoordinates, index) : [item.lat, item.lng];
         return { ...item, originalIndex: index, lat, lng };
@@ -213,7 +221,10 @@ const MapWithRoute = memo<MapWithRouteProps>(({
         item.lat >= -90 && item.lat <= 90 &&
         item.lng >= -180 && item.lng <= 180
       );
-  }, [chapters, pois, guideCoordinates]);
+    
+    console.log(`📍 유효한 좌표 ${filtered.length}개 발견`);
+    return filtered;
+  }, [chapters, pois, guideCoordinates, coordinatesSignal]); // 신호 의존성 추가
 
   // 활성 챕터 데이터 찾기
   const activeChapterData = validChapters.find(c => c.originalIndex === activeChapter);
@@ -262,10 +273,11 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   // 활성 챕터로 지도 이동
   useMapFlyTo(mapRef, activeChapterData?.lat, activeChapterData?.lng);
 
-  // 좌표 생성 완료 시 첫 번째 마커로 자동 이동
+  // 🎯 신호 기반 지도 자동 이동 - 좌표 변경 신호에 즉시 반응
   useEffect(() => {
-    if (!isLoadingCoordinates && validChapters.length > 0 && mapRef.current) {
+    if (!isLoadingCoordinates && validChapters.length > 0 && coordinatesSignal > 0) {
       const firstChapter = validChapters[0];
+      console.log(`🎯 좌표 신호 받음! 첫 번째 마커로 이동: ${firstChapter.title}`);
       
       const timer = setTimeout(() => {
         const map = mapRef.current;
@@ -275,11 +287,11 @@ const MapWithRoute = memo<MapWithRouteProps>(({
             easeLinearity: 0.1 
           });
         }
-      }, 800);
+      }, 300); // 더 빠른 반응
 
       return () => clearTimeout(timer);
     }
-  }, [isLoadingCoordinates, validChapters]);
+  }, [coordinatesSignal, isLoadingCoordinates, validChapters]); // 신호 우선 의존성
 
   // 지도가 로드된 후 활성 마커로 중심 이동
   useEffect(() => {
@@ -317,10 +329,12 @@ const MapWithRoute = memo<MapWithRouteProps>(({
     return `https://mt1.google.com/vt/lyrs=m&hl=${langCode}&x={x}&y={y}&z={z}`;
   };
 
-  // 로딩 조건 단순화: 좌표 대기 중이거나 매칭 실패인 경우에만 로딩 화면
-  if ((isLoadingCoordinates && chapters?.length > 0) || (validChapters.length === 0 && chapters?.length > 0)) {
+  // 🎯 신호 기반 로딩 조건 - 좌표 신호를 받을 때까지 로딩
+  if (isLoadingCoordinates && chapters?.length > 0) {
     const hasCoordinates = guideCoordinates?.length > 0;
     const isMatching = hasCoordinates && validChapters.length === 0;
+    
+    console.log(`💭 로딩 화면 표시: coordinates=${hasCoordinates}, matching=${isMatching}`);
     
     return (
       <div className="w-full h-64 bg-gray-50 flex items-center justify-center rounded-lg border border-gray-200">
@@ -344,6 +358,7 @@ const MapWithRoute = memo<MapWithRouteProps>(({
               </div>
             </>
           )}
+          <div className="text-xs mt-2 text-gray-400">신호 대기 중...</div>
         </div>
       </div>
     );
@@ -367,8 +382,8 @@ const MapWithRoute = memo<MapWithRouteProps>(({
     ? validChapters.map(chapter => [chapter.lat!, chapter.lng!])
     : [];
 
-  // 유니크 키 생성으로 재초기화 방지
-  const mapKey = `map-${locationName}-${validChapters.length}-${activeChapter || 0}`;
+  // 🎯 신호 기반 유니크 키 생성 - 좌표 변경 시 지도 리렌더링
+  const mapKey = `map-${locationName}-${validChapters.length}-${activeChapter || 0}-${coordinatesSignal}`;
 
   return (
     <div className="relative w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
@@ -383,9 +398,12 @@ const MapWithRoute = memo<MapWithRouteProps>(({
         style={{ width: '100%', height: '100%' }}
         ref={mapRef}
         whenReady={() => {
-          // 지도가 완전히 로드된 후 첫 번째 마커 또는 활성 마커로 이동
+          // 🎯 지도 초기화 완료 시 신호 기반 위치 이동
+          console.log(`🗺️ 지도 준비 완료! validChapters: ${validChapters.length}개`);
+          
           if (mapRef.current && validChapters.length > 0) {
             const targetChapter = activeChapterData || validChapters[0];
+            console.log(`📍 초기 위치: ${targetChapter.title}`);
             
             setTimeout(() => {
               const map = mapRef.current;
