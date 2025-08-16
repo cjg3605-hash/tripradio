@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
 import { supabase } from '@/lib/supabaseClient';
+import { ServiceValidators } from '@/lib/env-validator';
+import { withSupabaseRetry, withGoogleAPIRetry, withFetchRetry, retryStats } from '@/lib/api-retry';
+import { createErrorResponse, SpecializedErrorHandlers, errorStats } from '@/lib/error-handler';
 // Plus Code 관련 import 제거 - AI 가이드 생성 우선으로 변경
 
 // 타입 정의
@@ -29,6 +32,13 @@ export const runtime = 'nodejs';
 
 // Gemini 클라이언트 초기화 함수
 const getGeminiClient = () => {
+  // 🔒 런타임 환경변수 검증
+  const validation = ServiceValidators.gemini();
+  if (!validation.isValid) {
+    console.error('❌ Gemini API 환경변수 검증 실패:', validation.missingKeys);
+    throw new Error(`Server configuration error: Missing required keys: ${validation.missingKeys.join(', ')}`);
+  }
+
   const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
   
   if (!apiKey) {
@@ -37,9 +47,11 @@ const getGeminiClient = () => {
   }
   
   try {
-    return new GoogleGenerativeAI(apiKey);
+    const client = new GoogleGenerativeAI(apiKey);
+    console.log('✅ Gemini API 클라이언트 초기화 성공');
+    return client;
   } catch (error) {
-    console.error('Failed to initialize Gemini AI:', error);
+    console.error('❌ Gemini AI 초기화 실패:', error);
     throw new Error('Failed to initialize AI service');
   }
 };
@@ -138,17 +150,30 @@ async function createGuideSequentially(
       updated_at: new Date().toISOString()
     };
 
-    const { data, error } = await supabase
-      .from('guides')
-      .upsert(initialData, {
-        onConflict: 'locationname,language'
-      })
-      .select()
-      .single();
+    const { data, error } = await withSupabaseRetry(async () => {
+      retryStats.recordAttempt('supabase-upsert-initial');
+      const result = await supabase
+        .from('guides')
+        .upsert(initialData, {
+          onConflict: 'locationname,language'
+        })
+        .select()
+        .single();
+      
+      if (result.error) {
+        retryStats.recordFailure('supabase-upsert-initial');
+        throw result.error;
+      }
+      
+      retryStats.recordSuccess('supabase-upsert-initial');
+      return result;
+    }, 'DB 기본 레코드 생성');
 
     if (error) {
       console.error('❌ DB 기본 레코드 생성 실패:', error);
-      return { success: false, error: `DB 생성 실패: ${error.message}` };
+      const errorInfo = SpecializedErrorHandlers.guideGeneration(error, locationData.name);
+      errorStats.recordError(errorInfo.type);
+      return { success: false, error: errorInfo.userMessage };
     }
 
     dbRecord = data;
@@ -181,9 +206,21 @@ async function createGuideSequentially(
       }
     });
 
-    const aiResult = await model.generateContent(prompt);
-    const aiResponse = await aiResult.response;
-    const text = aiResponse.text();
+    const { aiResult, text } = await withGoogleAPIRetry(async () => {
+      retryStats.recordAttempt('gemini-generate-content');
+      
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const content = response.text();
+      
+      if (!content) {
+        retryStats.recordFailure('gemini-generate-content');
+        throw new Error('AI 응답이 비어있습니다');
+      }
+      
+      retryStats.recordSuccess('gemini-generate-content');
+      return { aiResult: result, text: content };
+    }, 'Gemini AI 가이드 생성');
     
     if (!text) {
       throw new Error('AI 응답이 비어있습니다');
@@ -231,13 +268,14 @@ async function createGuideSequentially(
     // 동적 라우팅 사용 - 배포 환경에서도 작동하도록 동적 URL 생성
     console.log(`🔗 좌표 API URL: ${baseUrl}/api/ai/generate-coordinates`);
     
-    fetch(`${baseUrl}/api/ai/generate-coordinates`, {
+    // 🔄 좌표 생성도 재시도 로직 적용
+    withFetchRetry(`${baseUrl}/api/ai/generate-coordinates`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ guideId: dbRecord.id })
-    })
+    }, '좌표 생성 API 호출')
     .then(response => response.json())
     .then(result => {
       if (result.success) {
@@ -247,7 +285,7 @@ async function createGuideSequentially(
       }
     })
     .catch(error => {
-      console.error('❌ 좌표 API 호출 실패:', error);
+      console.error('❌ 좌표 API 호출 최종 실패:', error);
     });
 
     // 💾 3단계: DB 최종 업데이트 (좌표 생성과 병렬 처리)
@@ -259,14 +297,28 @@ async function createGuideSequentially(
       updated_at: new Date().toISOString()
     };
 
-    const { error: updateError } = await supabase
-      .from('guides')
-      .update(finalUpdateData)
-      .eq('id', dbRecord.id);
+    const { error: updateError } = await withSupabaseRetry(async () => {
+      retryStats.recordAttempt('supabase-update-final');
+      
+      const result = await supabase
+        .from('guides')
+        .update(finalUpdateData)
+        .eq('id', dbRecord.id);
+      
+      if (result.error) {
+        retryStats.recordFailure('supabase-update-final');
+        throw result.error;
+      }
+      
+      retryStats.recordSuccess('supabase-update-final');
+      return result;
+    }, 'DB 최종 업데이트');
 
     if (updateError) {
       console.error('❌ DB 최종 업데이트 실패:', updateError);
-      return { success: false, error: `DB 업데이트 실패: ${updateError.message}` };
+      const errorInfo = SpecializedErrorHandlers.guideGeneration(updateError, locationData.name);
+      errorStats.recordError(errorInfo.type);
+      return { success: false, error: errorInfo.userMessage };
     }
 
     const totalTime = Date.now() - startTime;
@@ -277,6 +329,10 @@ async function createGuideSequentially(
       country: locationData.country,
       coordinatesStatus: '백그라운드에서 생성 중'
     });
+    
+    // 📊 재시도 통계 및 에러 통계 로깅
+    retryStats.logStats();
+    errorStats.logStats();
 
     return { 
       success: true, 
@@ -286,22 +342,30 @@ async function createGuideSequentially(
 
   } catch (error) {
     console.error('❌ 순차 가이드 생성 중 오류:', error);
+    
+    // 🚨 특화된 에러 처리
+    const errorInfo = SpecializedErrorHandlers.guideGeneration(error, locationData.name);
+    errorStats.recordError(errorInfo.type);
+    
     console.error('❌ 오류 상세:', {
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
+      type: errorInfo.type,
+      message: errorInfo.message,
+      userMessage: errorInfo.userMessage,
+      retryable: errorInfo.retryable,
       locationData: locationData,
       language: language,
-      dbRecordId: dbRecord?.id
+      dbRecordId: dbRecord?.id,
+      stack: error instanceof Error ? error.stack : undefined
     });
     
     // 오류 발생 시 DB 레코드 상태 업데이트
     if (dbRecord?.id) {
       try {
-        const errorMessage = error instanceof Error ? error.message : String(error);
         const { error: updateError } = await supabase
           .from('guides')
           .update({
-            error_message: errorMessage,
+            error_message: errorInfo.message,
+            error_type: errorInfo.type,
             updated_at: new Date().toISOString()
           })
           .eq('id', dbRecord.id);
@@ -309,7 +373,11 @@ async function createGuideSequentially(
         if (updateError) {
           console.error('❌ 오류 상태 DB 업데이트 실패:', updateError);
         } else {
-          console.log('✅ 오류 상태 DB 업데이트 완료:', { guideId: dbRecord.id, errorMessage });
+          console.log('✅ 오류 상태 DB 업데이트 완료:', { 
+            guideId: dbRecord.id, 
+            errorType: errorInfo.type,
+            errorMessage: errorInfo.message
+          });
         }
       } catch (updateError) {
         console.error('❌ 오류 상태 업데이트 중 예외:', updateError);
@@ -318,7 +386,9 @@ async function createGuideSequentially(
 
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다'
+      error: errorInfo.userMessage,
+      errorType: errorInfo.type,
+      retryable: errorInfo.retryable
     };
   }
 }
@@ -411,45 +481,33 @@ export async function POST(request: NextRequest) {
         source: 'sequential_api'
       });
     } else {
+      // 🚨 결과에 errorType이 있으면 활용
+      const statusCode = result.retryable ? 503 : 500;
+      
       return NextResponse.json(
         { 
           success: false, 
           error: result.error,
-          source: 'sequential_api'
+          errorType: result.errorType,
+          retryable: result.retryable,
+          source: 'sequential_api',
+          timestamp: new Date().toISOString()
         },
-        { status: 500 }
+        { 
+          status: statusCode,
+          headers: {
+            'X-Error-Type': result.errorType || 'UNKNOWN',
+            'X-Retryable': String(result.retryable || false)
+          }
+        }
       );
     }
 
   } catch (error) {
     console.error(`❌ 순차 API 완전 실패:`, error);
-    console.error('❌ API 요청 상세:', {
-      url: request.nextUrl.toString(),
-      method: request.method,
-      headers: Object.fromEntries(request.headers.entries()),
-      error: error instanceof Error ? {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
-      } : String(error)
-    });
     
-    const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다';
-    
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: `순차 가이드 생성 실패: ${errorMessage}`,
-        source: 'sequential_api',
-        timestamp: new Date().toISOString(),
-        details: process.env.NODE_ENV === 'development' ? {
-          stack: error instanceof Error ? error.stack : undefined,
-          name: error instanceof Error ? error.name : undefined,
-          cause: error instanceof Error ? error.cause : undefined
-        } : undefined
-      },
-      { status: 500 }
-    );
+    // 🚨 최상위 에러 처리
+    return createErrorResponse(error, '순차 가이드 생성 API');
   }
 }
 

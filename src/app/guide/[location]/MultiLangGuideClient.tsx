@@ -174,89 +174,85 @@ export default function MultiLangGuideClient({
   const [routingResult, setRoutingResult] = useState<any>(null);
   const [shouldShowExploreHub, setShouldShowExploreHub] = useState(false);
   
-  // 🚀 좌표 상태 관리
+  // 🚀 좌표 상태 관리 (폴링 제거)
   const [coordinates, setCoordinates] = useState<any>(null);
-  const [isCoordinatesPolling, setIsCoordinatesPolling] = useState(false);
-  const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const pollingAttemptsRef = useRef(0);
 
-  // 🎯 좌표 상태 폴링 함수
-  const pollCoordinates = useCallback(async () => {
-    if (!guideData?.metadata?.originalLocationName || !currentLanguage || isCoordinatesPolling) {
-      return;
+  // 🔍 실제 DB 상태 조회 및 로깅 강화 함수
+  const checkDatabaseCoordinates = useCallback(async () => {
+    if (!guideData?.metadata?.originalLocationName || !currentLanguage) {
+      console.log('🔍 [DB 조회] 스킵 - 필수 데이터 없음:', {
+        hasLocationName: !!guideData?.metadata?.originalLocationName,
+        hasLanguage: !!currentLanguage
+      });
+      return null;
     }
 
-    setIsCoordinatesPolling(true);
-    
     try {
       const normLocation = normalizeLocationName(guideData.metadata.originalLocationName);
       
-      console.log('🔄 [좌표 폴링] DB에서 백그라운드 생성된 좌표 확인 중:', { 
+      console.log('🔍 [DB 조회] coordinates 칼럼 상태 확인 시작:', { 
         locationName: normLocation, 
         language: currentLanguage.toLowerCase(),
-        attempt: pollingAttemptsRef.current + 1
+        timestamp: new Date().toISOString()
       });
 
-      const { data, error } = await supabase
+      // 전체 가이드 정보 조회 (디버깅용)
+      const { data: fullData, error: fullError } = await supabase
         .from('guides')
-        .select('coordinates')
+        .select('id, locationname, language, coordinates, created_at, updated_at')
         .eq('locationname', normLocation)
         .eq('language', currentLanguage.toLowerCase())
         .maybeSingle();
 
-      if (error) {
-        console.error('❌ 좌표 폴링 오류:', error);
-        return;
+      console.log('🔍 [DB 조회] 전체 가이드 데이터:', {
+        found: !!fullData,
+        error: fullError,
+        data: fullData ? {
+          id: fullData.id,
+          locationname: fullData.locationname,
+          language: fullData.language,
+          hasCoordinates: !!fullData.coordinates,
+          coordinatesType: typeof fullData.coordinates,
+          coordinatesLength: Array.isArray(fullData.coordinates) ? fullData.coordinates.length : null,
+          coordinatesPreview: Array.isArray(fullData.coordinates) ? 
+            fullData.coordinates.slice(0, 2).map(c => ({ title: c?.title, lat: c?.lat, lng: c?.lng })) : null,
+          created_at: fullData.created_at,
+          updated_at: fullData.updated_at
+        } : null
+      });
+
+      if (fullError) {
+        console.error('❌ [DB 조회] 오류:', fullError);
+        return null;
       }
 
-      if (data?.coordinates && Array.isArray(data.coordinates) && data.coordinates.length > 0) {
-        console.log(`✅ [좌표 폴링] 성공: ${data.coordinates.length}개 챕터 좌표 발견 (백그라운드 생성 완료)`);
-        setCoordinates(data.coordinates);
-        setIsCoordinatesPolling(false);
-        
-        // 폴링 중단
-        if (pollingTimeoutRef.current) {
-          clearTimeout(pollingTimeoutRef.current);
-          pollingTimeoutRef.current = null;
-        }
+      if (fullData?.coordinates && Array.isArray(fullData.coordinates) && fullData.coordinates.length > 0) {
+        console.log(`✅ [DB 조회] coordinates 발견!`, {
+          count: fullData.coordinates.length,
+          sample: fullData.coordinates[0],
+          allValid: fullData.coordinates.every(c => c?.lat && c?.lng)
+        });
+        setCoordinates(fullData.coordinates);
+        return fullData.coordinates;
       } else {
-        console.log(`⏳ [좌표 폴링] 백그라운드 좌표 생성 진행 중... 3초 후 재시도 (${pollingAttemptsRef.current + 1}/10)`);
-        
-        // 3초 후 재시도 (최대 5회 = 15초)
-        pollingTimeoutRef.current = setTimeout(() => {
-          if (isCoordinatesPolling) {
-            pollCoordinates();
-          }
-        }, 3000);
+        console.log(`❌ [DB 조회] coordinates 없음:`, {
+          hasCoordinates: !!fullData?.coordinates,
+          coordinatesValue: fullData?.coordinates,
+          isArray: Array.isArray(fullData?.coordinates),
+          length: Array.isArray(fullData?.coordinates) ? fullData.coordinates.length : 'N/A'
+        });
+        return null;
       }
     } catch (error) {
-      console.error('❌ 좌표 폴링 예외:', error);
-    } finally {
-      // 폴링 상태는 성공 시에만 false로 변경 (재시도를 위해)
+      console.error('❌ [DB 조회] 예외:', error);
+      return null;
     }
-  }, [guideData?.metadata?.originalLocationName, currentLanguage, isCoordinatesPolling]);
+  }, [guideData?.metadata?.originalLocationName, currentLanguage]);
 
-  // 🔄 폴링 정리 함수
-  const stopCoordinatesPolling = useCallback(() => {
-    setIsCoordinatesPolling(false);
-    if (pollingTimeoutRef.current) {
-      clearTimeout(pollingTimeoutRef.current);
-      pollingTimeoutRef.current = null;
-    }
-  }, []);
-
-  // 컴포넌트 언마운트 시 정리
-  useEffect(() => {
-    return () => {
-      stopCoordinatesPolling();
-    };
-  }, [stopCoordinatesPolling]);
-
-  // 🎯 백그라운드 좌표 생성 함수 (Geocoding API 직접 활용)
+  // 🎯 좌표 생성 함수 - 완료 후 즉시 새 좌표로 업데이트
   const generateCoordinatesForGuide = useCallback(async (guideId: string, locationName: string) => {
     try {
-      console.log(`🗺️ [백그라운드 좌표 생성] 시작: "${locationName}" (guideId: ${guideId})`);
-      console.log(`🔍 [백그라운드 좌표 생성] Geocoding API로 정확한 좌표 검색 중...`);
+      console.log(`🗺️ [좌표 생성] 시작: "${locationName}" (guideId: ${guideId})`);
       
       const response = await fetch('/api/ai/generate-coordinates', {
         method: 'POST',
@@ -266,27 +262,23 @@ export default function MultiLangGuideClient({
       
       const result = await response.json();
       
-      if (result.success) {
-        console.log(`✅ [백그라운드 좌표 생성] 성공: ${result.coordinates?.length || 0}개 챕터 좌표 생성 완료`);
-        console.log(`🎯 [백그라운드 좌표 생성] 방법: ${result.method || 'Geocoding API 직접 검색'}`);
-        console.log(`⏱️ [백그라운드 좌표 생성] 소요시간: ${result.generationTime || 0}ms`);
-        // 좌표 생성 완료 후 폴링 시작
-        setIsCoordinatesPolling(true);
-        pollingAttemptsRef.current = 0;
-        pollCoordinates();
+      if (result.success && result.coordinates) {
+        console.log(`✅ [좌표 생성] 성공: ${result.coordinates.length}개 좌표 생성 완료`);
+        console.log(`⏱️ [좌표 생성] 소요시간: ${result.generationTime}ms`);
+        
+        // 🎯 핵심: 좌표 생성 완료 후 즉시 coordinates 상태 업데이트
+        setCoordinates(result.coordinates);
+        
         return result.coordinates;
       } else {
-        console.error(`❌ [백그라운드 좌표 생성] 실패: ${result.error}`);
-        if (result.suggestion) {
-          console.log(`💡 [백그라운드 좌표 생성] 제안: ${result.suggestion}`);
-        }
+        console.error(`❌ [좌표 생성] 실패: ${result.error}`);
         return null;
       }
     } catch (error) {
-      console.error(`❌ [백그라운드 좌표 생성] 요청 실패:`, error);
+      console.error(`❌ [좌표 생성] 요청 실패:`, error);
       return null;
     }
-  }, [pollCoordinates]);
+  }, []);
 
   // 히스토리 저장 함수
   const saveToHistory = useCallback(async (guideData: GuideData) => {
@@ -382,22 +374,19 @@ export default function MultiLangGuideClient({
         // 히스토리 저장
         await saveToHistory(normalizedData);
 
-        // 🎯 새로운 가이드 생성 시 자동 좌표 생성
+        // 🎯 좌표 생성 로직 - 새 가이드이거나 기존 가이드에 좌표가 없으면 생성
         const source = (result as any).source || 'unknown';
-        if (source === 'new' && (result as any).guideId) {
-          console.log(`🗺️ [가이드 생성 완료] "${locationName}" - 백그라운드 좌표 생성 시작`);
-          // 백그라운드에서 좌표 생성 (페이지 렌더링과 독립적)
+        const hasCoordinates = normalizedData.coordinates && (normalizedData.coordinates as any)?.length > 0;
+        
+        if (!hasCoordinates && (result as any).guideId) {
+          console.log(`🗺️ [좌표 생성 필요] "${locationName}" (source: ${source})`);
+          // 좌표가 없으면 즉시 생성 (새 가이드든 기존 가이드든 상관없이)
           generateCoordinatesForGuide((result as any).guideId, locationName).catch(error => {
-            console.error('🗺️ [백그라운드 좌표 생성] 자동 시작 실패:', error);
+            console.error('🗺️ [좌표 생성] 실패:', error);
           });
-        } else {
-          // 기존 가이드인 경우 좌표 확인 후 없으면 폴링 시작
-          if (!normalizedData.coordinates || (normalizedData.coordinates as any)?.length === 0) {
-            console.log(`🗺️ [기존 가이드] "${locationName}" 좌표 없음 - 백그라운드 생성 상태 확인 시작`);
-            setIsCoordinatesPolling(true);
-            pollingAttemptsRef.current = 0;
-            pollCoordinates();
-          }
+        } else if (hasCoordinates) {
+          console.log(`✅ [좌표 존재] "${locationName}" - ${(normalizedData.coordinates as any).length}개 좌표`);
+          setCoordinates(normalizedData.coordinates);
         }
 
         // ✅ ${language} 가이드 로드 완료 (source: ${source})
@@ -412,7 +401,7 @@ export default function MultiLangGuideClient({
       setIsLoading(false);
       setIsRegenerating(false);
     }
-  }, [locationName, saveToHistory, regionalContext, generateCoordinatesForGuide, pollCoordinates]); // 좌표 관련 함수들 의존성 추가
+  }, [locationName, saveToHistory, regionalContext, generateCoordinatesForGuide, checkDatabaseCoordinates]); // 좌표 관련 함수들 의존성 추가
 
   // 🌍 사용 가능한 언어 목록 로드
   const loadAvailableLanguages = useCallback(async () => {
@@ -596,24 +585,18 @@ export default function MultiLangGuideClient({
     initializeGuide();
   }, [locationName, initialGuide, requestedLanguage, currentLanguage, loadAvailableLanguages, loadGuideForLanguage, saveToHistory, analyzeRouting, parentRegion, shouldShowExploreHub]); // 모든 의존성 추가
 
-  // 🚀 좌표 폴링 시작 로직
+  // 🎯 좌표 상태 확인 - 폴링 시스템 제거
   useEffect(() => {
-    // 가이드 데이터가 로드되고 좌표가 없을 때 폴링 시작
     if (!isLoading && guideData && !coordinates) {
-      // 기존 좌표 데이터 확인 (guideData에서)
+      // 가이드 데이터에서 좌표 확인
       const existingCoordinates = (guideData as any)?.coordinates;
       
       if (existingCoordinates && Array.isArray(existingCoordinates) && existingCoordinates.length > 0) {
-        // 이미 좌표가 있으면 상태 업데이트
-        console.log(`✅ [기존 좌표 발견] ${existingCoordinates.length}개 챕터 좌표 (백그라운드 생성 완료)`);
+        console.log(`✅ [기존 좌표 발견] ${existingCoordinates.length}개 좌표`);
         setCoordinates(existingCoordinates);
-      } else {
-        // 좌표가 없으면 폴링 시작
-        console.log('🔍 [좌표 상태 확인] 백그라운드 생성 상태 폴링 시작');
-        pollCoordinates();
       }
     }
-  }, [isLoading, guideData, coordinates, pollCoordinates]);
+  }, [isLoading, guideData, coordinates]);
 
   // 🔄 언어 변경 추적용 ref
   const lastLanguageRef = useRef<string | null>(null);

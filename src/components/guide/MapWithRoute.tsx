@@ -172,51 +172,20 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   const geolocation = useSimpleGeolocation();
   const [showMyLocation, setShowMyLocation] = useState(false);
   const [isLoadingCoordinates, setIsLoadingCoordinates] = useState(true);
-  const [coordinatesSignal, setCoordinatesSignal] = useState(0); // 좌표 변경 신호
-  const [shouldRefresh, setShouldRefresh] = useState(false); // 5초 후 새로고침 상태
+  const [coordinatesSignal, setCoordinatesSignal] = useState(0);
   const mapRef = useRef<LeafletMap | null>(null);
 
-  // 🔄 5초 후 지도 컴포넌트 새로고침 시스템
+  // 🎯 단순 좌표 상태 관리 - 폴링 시스템 제거
   useEffect(() => {
-    if (!chapters?.length) {
-      console.log(`❌ 새로고침 시작 조건 불충족: chapters=${chapters?.length || 0}`);
-      return;
-    }
+    const hasCoordinates = guideCoordinates && guideCoordinates.length > 0;
+    const hasChapters = chapters && chapters.length > 0;
     
-    // 이미 좌표가 있으면 새로고침 불필요
-    if (guideCoordinates && guideCoordinates.length > 0) {
-      console.log(`✅ 새로고침 불필요 - 이미 좌표 존재: ${guideCoordinates.length}개`);
-      setIsLoadingCoordinates(false);
-      return;
-    }
-    
-    console.log(`⏱️ 5초 후 지도 새로고침 예약`);
-    
-    const refreshTimer = setTimeout(() => {
-      console.log(`🔄 5초 경과 - 지도 컴포넌트 새로고침`);
-      setShouldRefresh(true);
-      setCoordinatesSignal(prev => prev + 1);
-      setIsLoadingCoordinates(false);
-    }, 5000);
-    
-    return () => {
-      clearTimeout(refreshTimer);
-    };
-  }, [chapters?.length, guideCoordinates?.length]);
-
-  // 좌표 변경 감지 시스템
-  useEffect(() => {
-    const currentLength = guideCoordinates?.length || 0;
-    const hasChapters = chapters?.length > 0;
-    
-    console.log(`🗺️ 좌표 감지: length=${currentLength}, hasChapters=${hasChapters}`);
-    
-    if (currentLength > 0) {
-      console.log(`✅ 좌표 감지됨! ${currentLength}개`);
+    if (hasCoordinates) {
+      console.log(`✅ 좌표 데이터 확인됨: ${guideCoordinates.length}개`);
       setIsLoadingCoordinates(false);
       setCoordinatesSignal(prev => prev + 1);
-    } else if (hasChapters && currentLength === 0) {
-      console.log(`⏳ 좌표 대기 중...`);
+    } else if (hasChapters) {
+      console.log(`⏳ 좌표 대기 중... (${chapters.length}개 챕터)`);
       setIsLoadingCoordinates(true);
     }
   }, [guideCoordinates?.length, chapters?.length]);
@@ -387,7 +356,7 @@ const MapWithRoute = memo<MapWithRouteProps>(({
             </>
           )}
           <div className="text-xs mt-2 text-gray-400">
-            5초 후 자동 새로고침...
+            좌표 생성 중...
           </div>
         </div>
       </div>
@@ -412,8 +381,8 @@ const MapWithRoute = memo<MapWithRouteProps>(({
     ? validChapters.map(chapter => [chapter.lat!, chapter.lng!])
     : [];
 
-  // 신호 기반 유니크 키 생성 - 좌표 변경 시 지도 리렌더링
-  const mapKey = `map-${locationName}-${validChapters.length}-${activeChapter || 0}-${coordinatesSignal}-${shouldRefresh ? 'refreshed' : 'initial'}`;
+  // 좌표 변경 시 지도 리렌더링을 위한 유니크 키
+  const mapKey = `map-${locationName}-${validChapters.length}-${activeChapter || 0}-${coordinatesSignal}`;
 
   return (
     <div className="relative w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">

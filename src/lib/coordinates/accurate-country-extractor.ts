@@ -29,10 +29,11 @@ export async function extractAccurateLocationInfo(
   language: string = 'ko'
 ): Promise<AccurateLocationInfo | null> {
   try {
+    // 🔒 Google Places API 키 검증 (선택적)
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
     if (!apiKey) {
-      console.error('❌ GOOGLE_PLACES_API_KEY 환경변수가 설정되지 않음');
-      return null;
+      console.warn('⚠️ GOOGLE_PLACES_API_KEY 환경변수가 설정되지 않음, 폴백 시스템 사용');
+      return null; // 폴백 시스템이 처리함
     }
 
     console.log(`🔍 정확한 지역 정보 추출 시작: "${placeName}"`);
@@ -98,7 +99,7 @@ export async function extractAccurateLocationInfo(
 }
 
 /**
- * 🔍 다중 검색어 생성 (한국어 + 영어 + 현지어)
+ * 🔍 다중 검색어 생성 (전세계 명소 다국어 지원)
  */
 function generateSearchQueries(placeName: string, language: string): string[] {
   const queries: string[] = [];
@@ -106,80 +107,92 @@ function generateSearchQueries(placeName: string, language: string): string[] {
   // 기본 검색어
   queries.push(placeName);
   
-  // 유명 관광지별 다국어 검색어 추가
+  // 🌍 전세계 유명 관광지별 다국어 검색어 (대폭 확장)
   const famousPlaceTranslations: { [key: string]: string[] } = {
-    '대왕궁': [
-      'Grand Palace Bangkok',
-      'Grand Palace Thailand',
-      'Wat Phra Kaew',
-      'Royal Palace Bangkok',
-      'พระบรมมหาราชวัง',
-      'กรุงเทพ พระบรมมหาราชวัง'
-    ],
-    '만리장성': [
-      'Great Wall of China',
-      'Great Wall Beijing',
-      'Badaling Great Wall',
-      '万里长城',
-      '北京长城'
-    ],
-    '에펠탑': [
-      'Eiffel Tower',
-      'Tour Eiffel',
-      'Eiffel Tower Paris',
-      'Tour Eiffel Paris'
-    ],
-    '루브르': [
-      'Louvre Museum',
-      'Musée du Louvre',
-      'Louvre Paris'
-    ],
-    '콜로세움': [
-      'Colosseum',
-      'Colosseo',
-      'Colosseum Rome',
-      'Roman Colosseum'
-    ],
-    '사그라다파밀리아': [
-      'Sagrada Familia',
-      'Basílica de la Sagrada Família',
-      'Sagrada Familia Barcelona'
-    ],
-    '자유의여신상': [
-      'Statue of Liberty',
-      'Liberty Island',
-      'Statue of Liberty New York'
-    ],
-    '시드니오페라하우스': [
-      'Sydney Opera House',
-      'Opera House Sydney'
-    ],
-    '타지마할': [
-      'Taj Mahal',
-      'Taj Mahal Agra',
-      'ताज महल'
-    ],
-    '마추픽추': [
-      'Machu Picchu',
-      'Machu Picchu Peru',
-      'Ciudadela Inca'
-    ]
+    // 🇫🇷 프랑스
+    '에펠탑': ['Eiffel Tower', 'Tour Eiffel', 'Eiffel Tower Paris', 'Tour Eiffel Paris'],
+    '루브르': ['Louvre Museum', 'Musée du Louvre', 'Louvre Paris'],
+    '루브르박물관': ['Louvre Museum', 'Musée du Louvre', 'Louvre Paris'],
+    '노트르담': ['Notre Dame Cathedral', 'Cathédrale Notre-Dame', 'Notre Dame Paris'],
+    '베르사유': ['Palace of Versailles', 'Château de Versailles'],
+    
+    // 🇮🇹 이탈리아
+    '콜로세움': ['Colosseum', 'Colosseo', 'Colosseum Rome', 'Roman Colosseum'],
+    '피사의사탑': ['Leaning Tower of Pisa', 'Torre di Pisa'],
+    '바티칸': ['Vatican City', 'Città del Vaticano'],
+    '베네치아': ['Venice', 'Venezia'],
+    
+    // 🇪🇸 스페인
+    '사그라다파밀리아': ['Sagrada Familia', 'Basílica de la Sagrada Família', 'Sagrada Familia Barcelona'],
+    '구엘공원': ['Park Güell', 'Parque Güell', 'Parc Güell'],
+    '알함브라': ['Alhambra', 'Alhambra Palace', 'Alhambra Granada'],
+    
+    // 🇬🇧 영국
+    '빅벤': ['Big Ben', 'Elizabeth Tower', 'Big Ben London'],
+    '런던브리지': ['London Bridge', 'Tower Bridge'],
+    '스톤헨지': ['Stonehenge'],
+    
+    // 🇺🇸 미국
+    '자유의여신상': ['Statue of Liberty', 'Liberty Island', 'Statue of Liberty New York'],
+    '타임스스퀘어': ['Times Square', 'Times Square NYC'],
+    '그랜드캐니언': ['Grand Canyon', 'Grand Canyon Arizona'],
+    '골든게이트브리지': ['Golden Gate Bridge', 'Golden Gate San Francisco'],
+    
+    // 🇨🇳 중국
+    '만리장성': ['Great Wall of China', 'Great Wall Beijing', 'Badaling Great Wall', '万里长城', '北京长城'],
+    '자금성': ['Forbidden City', '紫禁城', 'Palace Museum', 'Forbidden City Beijing'],
+    '천안문': ['Tiananmen Square', '天安门广场'],
+    
+    // 🇯🇵 일본
+    '후지산': ['Mount Fuji', '富士山', 'Fujisan'],
+    '도쿄타워': ['Tokyo Tower', '東京タワー'],
+    '금각사': ['Kinkaku-ji', '金閣寺', 'Golden Pavilion'],
+    
+    // 🇮🇳 인도
+    '타지마할': ['Taj Mahal', 'Taj Mahal Agra', 'ताज महल'],
+    
+    // 🇹🇭 태국
+    '대왕궁': ['Grand Palace Bangkok', 'Grand Palace Thailand', 'Wat Phra Kaew', 'Royal Palace Bangkok', 'พระบรมมหาราชวัง'],
+    
+    // 🇦🇺 호주
+    '시드니오페라하우스': ['Sydney Opera House', 'Opera House Sydney'],
+    
+    // 🇪🇬 이집트
+    '피라미드': ['Pyramids of Giza', 'Great Pyramid', 'أهرامات الجيزة'],
+    '스핑크스': ['Great Sphinx', 'أبو الهول'],
+    
+    // 🇵🇪 페루
+    '마추픽추': ['Machu Picchu', 'Machu Picchu Peru', 'Ciudadela Inca'],
+    
+    // 🇧🇷 브라질
+    '리우데자네이루': ['Rio de Janeiro', 'Christ the Redeemer', 'Cristo Redentor'],
+    
+    // 🇷🇺 러시아
+    '크렘린': ['Kremlin', 'московский кремль', 'Red Square'],
+    
+    // 🇰🇷 한국 (주요 명소만)
+    '경복궁': ['Gyeongbokgung Palace', 'Gyeongbok Palace'],
+    '제주도': ['Jeju Island', 'Jeju-do']
   };
   
   // 일치하는 번역어 추가
   const translations = famousPlaceTranslations[placeName];
   if (translations) {
     queries.push(...translations);
+    console.log(`🌍 다국어 검색어 추가: ${placeName} → [${translations.join(', ')}]`);
   }
   
-  // 일반적인 관광지 키워드 추가
-  const tourismKeywords = ['tourist attraction', 'landmark', 'palace', 'temple', 'museum'];
+  // 일반적인 관광지 키워드 추가 (언어별)
+  const tourismKeywords = language === 'ko' 
+    ? ['관광지', '명소', '여행지', '박물관', '궁전', '사원']
+    : ['tourist attraction', 'landmark', 'palace', 'temple', 'museum', 'monument'];
+  
   tourismKeywords.forEach(keyword => {
     queries.push(`${placeName} ${keyword}`);
   });
   
   // 중복 제거 및 정리
-  return [...new Set(queries)].slice(0, 8); // 최대 8개로 제한
+  return [...new Set(queries)].slice(0, 10); // 최대 10개로 확장
 }
 
 /**

@@ -7,6 +7,7 @@
 
 import { supabase } from '@/lib/supabaseClient';
 import { classifyLocation, LocationData, PageType, determinePageType } from './location-classification';
+import { findGlobalLandmark, convertToLocationData, GLOBAL_LANDMARKS } from './global-landmark-classifier';
 
 interface LocationClassificationCache {
   [key: string]: {
@@ -242,66 +243,140 @@ async function classifyLocationWithAI(locationName: string): Promise<LocationDat
 }
 
 /**
- * 휴리스틱 기반 분류 (AI 대신 임시 사용)
+ * 휴리스틱 기반 분류 (전세계 공통 패턴) - 범용적 지역 인식
  */
 function classifyByHeuristics(locationName: string): LocationData {
-  // 간단한 키워드 기반 분류
-  if (locationName.includes('관광단지') || locationName.includes('리조트') || locationName.includes('테마파크')) {
-    return {
-      type: 'attraction',
-      level: 4,
-      country: '한국',
-      aliases: [locationName],
-      coordinates: { lat: 0, lng: 0 }, // 실제로는 Google에서 가져옴
-      popularity: 6
-    };
+  const name = locationName.toLowerCase();
+  
+  // 🌍 전세계 공통 명소 키워드 패턴 매칭
+  const globalPatterns = {
+    // 궁전/성 관련
+    palace: ['palace', 'castle', 'château', 'palacio', 'palazzo', '궁', '궁전', '성'],
+    
+    // 종교 건물
+    religious: ['cathedral', 'church', 'temple', 'mosque', 'abbey', 'basilica', 'sanctuary', 
+               '대성당', '성당', '교회', '사원', '절', '모스크'],
+    
+    // 박물관/갤러리
+    museum: ['museum', 'gallery', 'musée', 'museo', 'museu', '박물관', '미술관', '갤러리'],
+    
+    // 타워/높은 건물
+    tower: ['tower', 'spire', 'skyscraper', 'building', 'torre', 'tour', '타워', '탑', '빌딩'],
+    
+    // 다리
+    bridge: ['bridge', 'pont', 'ponte', 'puente', '다리', '대교'],
+    
+    // 광장/공원
+    square: ['square', 'plaza', 'place', 'piazza', 'park', 'garden', '광장', '공원', '정원'],
+    
+    // 산/자연
+    mountain: ['mountain', 'mount', 'peak', 'hill', 'volcano', 'mont', 'monte', '산', '봉우리'],
+    
+    // 섬
+    island: ['island', 'isle', 'isola', 'isla', 'île', '섬', '도'],
+    
+    // 해변/바다
+    beach: ['beach', 'bay', 'coast', 'shore', 'sea', 'ocean', 'playa', 'plage', '해변', '바다'],
+    
+    // 벽/장성
+    wall: ['wall', 'great wall', 'muralla', 'mur', '성벽', '장성', '벽'],
+    
+    // 분수대/기념물
+    monument: ['fountain', 'monument', 'memorial', 'statue', 'obelisk', '분수대', '기념물', '동상'],
+    
+    // 극장/오페라하우스
+    theater: ['theater', 'theatre', 'opera house', 'concert hall', '극장', '오페라하우스']
+  };
+  
+  // 패턴 매칭을 통한 타입 결정
+  let detectedType: LocationData['type'] = 'landmark';
+  let matchedPattern = '';
+  
+  for (const [category, patterns] of Object.entries(globalPatterns)) {
+    for (const pattern of patterns) {
+      if (name.includes(pattern.toLowerCase())) {
+        detectedType = 'landmark';
+        matchedPattern = pattern;
+        break;
+      }
+    }
+    if (matchedPattern) break;
   }
   
-  // 구체적인 건물/명소 패턴들 - 모두 landmark로 분류
-  const landmarkPatterns = [
-    '궁', '궁전', '저택', '관', '별장', // 궁전/저택
-    '사', '사원', '성당', '교회', '절', // 종교건물
-    '탑', '타워', '문', '성문', // 랜드마크
-    '박물관', '미술관', '갤러리', // 문화시설
-    '다리', '광장', '공원', // 공공시설
-    '구엘', 'güell', '가우디', 'gaudi', // 가우디 관련
-    'palace', 'mansion', 'house', 'villa', 'cathedral', 'temple', 'church', 'museum', 'gallery', 'tower', 'bridge' // 영어 패턴
-  ];
+  // 🌍 전세계 공통 지역 추론 시스템
+  let inferredCountry = '알 수 없음';
+  let inferredRegion = '미분류';
   
-  const isLandmark = landmarkPatterns.some(pattern => 
-    locationName.toLowerCase().includes(pattern.toLowerCase())
-  );
-  
-  if (isLandmark) {
-    return {
-      type: 'landmark',
-      level: 4,
-      country: '알 수 없음', // AI가 나중에 판단하도록 
-      aliases: [locationName],
-      coordinates: { lat: 0, lng: 0 },
-      popularity: 7
+  // 언어별 추론
+  if (/^[가-힣\s]+$/.test(locationName)) {
+    // 한글만 포함된 경우
+    inferredCountry = '한국';
+    if (name.includes('서울') || name.includes('강남') || name.includes('명동')) {
+      inferredRegion = '서울특별시';
+    } else if (name.includes('부산') || name.includes('해운대')) {
+      inferredRegion = '부산광역시';
+    } else if (name.includes('제주')) {
+      inferredRegion = '제주특별자치도';
+    } else if (name.includes('경기') || name.includes('수원') || name.includes('성남')) {
+      inferredRegion = '경기도';
+    } else if (name.includes('강원') || name.includes('춘천') || name.includes('강릉')) {
+      inferredRegion = '강원도';
+    }
+  } else if (/[a-zA-Z]/.test(locationName)) {
+    // 영어 포함된 경우 - 키워드 기반 추론
+    const countryKeywords = {
+      'paris': { country: '프랑스', region: '일드프랑스' },
+      'london': { country: '영국', region: '잉글랜드' },
+      'rome': { country: '이탈리아', region: '라치오' },
+      'barcelona': { country: '스페인', region: '카탈루냐' },
+      'new york': { country: '미국', region: '뉴욕' },
+      'tokyo': { country: '일본', region: '간토' },
+      'beijing': { country: '중국', region: '베이징' },
+      'bangkok': { country: '태국', region: '방콕' },
+      'sydney': { country: '호주', region: '뉴사우스웨일스' },
+      'moscow': { country: '러시아', region: '모스크바' },
+      'berlin': { country: '독일', region: '베를린' },
+      'amsterdam': { country: '네덜란드', region: '북홀란트' },
+      'vienna': { country: '오스트리아', region: '비엔나' },
+      'prague': { country: '체코', region: '프라하' }
     };
+    
+    for (const [keyword, info] of Object.entries(countryKeywords)) {
+      if (name.includes(keyword)) {
+        inferredCountry = info.country;
+        inferredRegion = info.region;
+        break;
+      }
+    }
   }
   
-  if (locationName.includes('시') || locationName.includes('구')) {
-    return {
-      type: 'city',
-      level: 3,
-      country: '한국',
-      aliases: [locationName],
-      coordinates: { lat: 0, lng: 0 },
-      popularity: 6
-    };
+  // 도시 패턴 감지
+  const cityPatterns = ['city', 'ville', 'ciudad', 'città', '시', '구'];
+  const isCityPattern = cityPatterns.some(pattern => name.includes(pattern.toLowerCase()));
+  
+  if (isCityPattern) {
+    detectedType = 'city';
   }
   
-  // 기본값: landmark
+  // 관광지/테마파크 패턴
+  const attractionPatterns = ['resort', 'park', 'land', 'world', 'theme', 'amusement', 
+                             '리조트', '테마파크', '놀이공원', '관광단지'];
+  const isAttraction = attractionPatterns.some(pattern => name.includes(pattern.toLowerCase()));
+  
+  if (isAttraction) {
+    detectedType = 'attraction';
+  }
+  
+  console.log(`🔍 휴리스틱 분류: "${locationName}" → ${detectedType} (${inferredCountry}, ${inferredRegion})`);
+  
   return {
-    type: 'landmark',
-    level: 4,
-    country: '한국',
+    type: detectedType,
+    level: detectedType === 'city' ? 3 : 4,
+    country: inferredCountry,
+    parent: inferredRegion,
     aliases: [locationName],
     coordinates: { lat: 0, lng: 0 },
-    popularity: 5
+    popularity: matchedPattern ? 6 : 5 // 패턴 매칭된 경우 약간 높은 인기도
   };
 }
 
@@ -336,15 +411,29 @@ function saveToCache(locationName: string, locationData: LocationData, ttl: numb
 }
 
 /**
- * 메인 동적 위치 분류 함수
+ * 메인 동적 위치 분류 함수 - 전세계 명소 우선 분류
  */
 export async function classifyLocationDynamic(locationName: string): Promise<{
   locationData: LocationData | null;
   pageType: PageType;
-  source: 'static' | 'cache' | 'google' | 'db' | 'ai' | 'fallback';
+  source: 'static' | 'cache' | 'google' | 'db' | 'ai' | 'fallback' | 'global_landmarks';
   confidence: number;
 }> {
   const normalizedName = locationName.trim();
+  
+  // 🌍 0단계: 전세계 명소 데이터베이스에서 우선 확인 (가장 정확)
+  const globalLandmark = findGlobalLandmark(normalizedName);
+  if (globalLandmark) {
+    const locationData = convertToLocationData(globalLandmark);
+    console.log(`🌍 전세계 명소 데이터베이스 매칭: "${normalizedName}" → ${globalLandmark.country} ${globalLandmark.region} (인기도: ${globalLandmark.popularity}/10)`);
+    
+    return {
+      locationData,
+      pageType: determinePageType(locationData),
+      source: 'global_landmarks',
+      confidence: 0.98 // 가장 높은 신뢰도
+    };
+  }
   
   // 1단계: 정적 데이터에서 확인
   const staticResult = classifyLocation(normalizedName);
