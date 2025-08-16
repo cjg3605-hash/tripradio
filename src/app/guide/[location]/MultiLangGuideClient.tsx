@@ -179,16 +179,28 @@ export default function MultiLangGuideClient({
 
   // 🔍 실제 DB 상태 조회 및 로깅 강화 함수
   const checkDatabaseCoordinates = useCallback(async () => {
-    if (!guideData?.metadata?.originalLocationName || !currentLanguage) {
+    console.log('🔍 [DB 조회] 시작 조건 체크:', {
+      hasGuideData: !!guideData,
+      hasMetadata: !!guideData?.metadata,
+      originalLocationName: guideData?.metadata?.originalLocationName,
+      locationName: locationName,
+      currentLanguage: currentLanguage,
+      hasCurrentLanguage: !!currentLanguage
+    });
+
+    // 위치명과 언어가 있어야 조회 가능
+    const targetLocationName = guideData?.metadata?.originalLocationName || locationName;
+    
+    if (!targetLocationName || !currentLanguage) {
       console.log('🔍 [DB 조회] 스킵 - 필수 데이터 없음:', {
-        hasLocationName: !!guideData?.metadata?.originalLocationName,
+        targetLocationName,
         hasLanguage: !!currentLanguage
       });
       return null;
     }
 
     try {
-      const normLocation = normalizeLocationName(guideData.metadata.originalLocationName);
+      const normLocation = normalizeLocationName(targetLocationName);
       
       console.log('🔍 [DB 조회] coordinates 칼럼 상태 확인 시작:', { 
         locationName: normLocation, 
@@ -232,7 +244,9 @@ export default function MultiLangGuideClient({
           sample: fullData.coordinates[0],
           allValid: fullData.coordinates.every(c => c?.lat && c?.lng)
         });
+        console.log(`🔄 [DB 조회] setCoordinates 호출 중...`);
         setCoordinates(fullData.coordinates);
+        console.log(`✅ [DB 조회] setCoordinates 완료`);
         return fullData.coordinates;
       } else {
         console.log(`❌ [DB 조회] coordinates 없음:`, {
@@ -407,6 +421,18 @@ export default function MultiLangGuideClient({
         }
 
         // ✅ ${language} 가이드 로드 완료 (source: ${source})
+        
+        // 🔍 로드 완료 후 좌표 상태 재확인 (페이지 새로고침 시 대비)
+        setTimeout(async () => {
+          if (!coordinates || (Array.isArray(coordinates) && coordinates.length === 0)) {
+            console.log('🔄 [로드 완료 후] 좌표 재확인 시작...');
+            const reCheckedCoordinates = await checkDatabaseCoordinates();
+            if (reCheckedCoordinates && reCheckedCoordinates.length > 0) {
+              console.log(`✅ [로드 완료 후] 좌표 재확인 성공: ${reCheckedCoordinates.length}개`);
+            }
+          }
+        }, 1000);
+        
       } else {
         throw new Error((result as any).error?.message || result.error || '가이드 로드 실패');
       }
@@ -622,6 +648,17 @@ export default function MultiLangGuideClient({
       }
     }
   }, [isLoading, guideData, coordinates]);
+
+  // 🔍 coordinates 상태 변경 모니터링
+  useEffect(() => {
+    console.log('🔄 [coordinates 상태 변경]', {
+      hasCoordinates: !!coordinates,
+      coordinatesType: typeof coordinates,
+      coordinatesLength: Array.isArray(coordinates) ? coordinates.length : null,
+      coordinatesPreview: Array.isArray(coordinates) ? coordinates.slice(0, 2) : coordinates,
+      timestamp: new Date().toISOString()
+    });
+  }, [coordinates]);
 
   // 🔄 언어 변경 추적용 ref
   const lastLanguageRef = useRef<string | null>(null);
