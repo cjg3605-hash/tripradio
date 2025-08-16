@@ -50,7 +50,6 @@ interface MapWithRouteProps {
   guideCoordinates?: any;
   currentLocation?: { lat: number; lng: number; name?: string } | null;
   className?: string;
-  guideId?: string; // 폴링용 가이드 ID 추가
 }
 
 // 단순한 지도 이동 훅
@@ -167,125 +166,67 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   showUserLocation = false, 
   onPoiClick, 
   locationName,
-  guideCoordinates,
-  guideId
+  guideCoordinates
 }) => {
   const { currentLanguage } = useLanguage();
   const geolocation = useSimpleGeolocation();
   const [showMyLocation, setShowMyLocation] = useState(false);
   const [isLoadingCoordinates, setIsLoadingCoordinates] = useState(true);
-  const [lastCoordinatesLength, setLastCoordinatesLength] = useState(0);
   const [coordinatesSignal, setCoordinatesSignal] = useState(0); // 좌표 변경 신호
-  const [polledCoordinates, setPolledCoordinates] = useState<any[]>([]); // 폴링된 좌표 데이터
-  const [isPollingActive, setIsPollingActive] = useState(false); // 폴링 상태 관리
+  const [shouldRefresh, setShouldRefresh] = useState(false); // 5초 후 새로고침 상태
   const mapRef = useRef<LeafletMap | null>(null);
-  const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 🔄 실시간 좌표 폴링 시스템 - 데이터베이스에서 좌표 생성 감지
+  // 🔄 5초 후 지도 컴포넌트 새로고침 시스템
   useEffect(() => {
-    if (!guideId || !chapters?.length) {
-      console.log(`❌ 폴링 시작 조건 불충족: guideId=${!!guideId}, chapters=${chapters?.length || 0}`);
+    if (!chapters?.length) {
+      console.log(`❌ 새로고침 시작 조건 불충족: chapters=${chapters?.length || 0}`);
       return;
     }
     
-    // 🚨 중요: 이미 좌표가 있거나 폴링 중이면 시작하지 않음
-    const existingCoordinates = polledCoordinates.length > 0 || (guideCoordinates && guideCoordinates.length > 0);
-    if (existingCoordinates) {
-      console.log(`✅ 폴링 불필요 - 이미 좌표 존재: polled=${polledCoordinates.length}, props=${guideCoordinates?.length || 0}`);
+    // 이미 좌표가 있으면 새로고침 불필요
+    if (guideCoordinates && guideCoordinates.length > 0) {
+      console.log(`✅ 새로고침 불필요 - 이미 좌표 존재: ${guideCoordinates.length}개`);
+      setIsLoadingCoordinates(false);
       return;
     }
     
-    if (isPollingActive) {
-      console.log(`⚠️ 폴링 중복 방지 - 이미 활성화됨`);
-      return;
-    }
+    console.log(`⏱️ 5초 후 지도 새로고침 예약`);
     
-    console.log(`🔄 좌표 폴링 시작: guideId=${guideId}, chapters=${chapters.length}개`);
-    setIsPollingActive(true);
-    
-    const startPolling = () => {
-      pollingRef.current = setInterval(async () => {
-        try {
-          console.log(`🔍 좌표 폴링 중... (${new Date().toLocaleTimeString()})`);
-          const response = await fetch(`/api/guides/${guideId}/coordinates`);
-          
-          if (response.ok) {
-            const data = await response.json();
-            console.log(`📡 폴링 응답:`, { success: data.success, count: data.coordinates?.length || 0 });
-            
-            if (data.success && data.coordinates?.length > 0) {
-              console.log(`🎯 폴링으로 좌표 발견! ${data.coordinates.length}개`);
-              setPolledCoordinates(data.coordinates);
-              setIsLoadingCoordinates(false);
-              setCoordinatesSignal(prev => prev + 1);
-              
-              // 폴링 완전 중단
-              if (pollingRef.current) {
-                clearInterval(pollingRef.current);
-                pollingRef.current = null;
-                setIsPollingActive(false);
-                console.log(`✅ 폴링 완료 - 좌표 발견으로 영구 중단`);
-              }
-            }
-          }
-        } catch (error) {
-          console.warn('📡 폴링 오류:', error);
-        }
-      }, 2000); // 2초마다 폴링
-    };
-    
-    // 즉시 폴링 시작
-    startPolling();
-    
-    // 10초 후 타임아웃
-    const timeoutId = setTimeout(() => {
-      if (pollingRef.current) {
-        clearInterval(pollingRef.current);
-        pollingRef.current = null;
-        setIsPollingActive(false);
-        console.log(`⏰ 폴링 타임아웃 - 10초 후 중단`);
-      }
-    }, 10000);
+    const refreshTimer = setTimeout(() => {
+      console.log(`🔄 5초 경과 - 지도 컴포넌트 새로고침`);
+      setShouldRefresh(true);
+      setCoordinatesSignal(prev => prev + 1);
+      setIsLoadingCoordinates(false);
+    }, 5000);
     
     return () => {
-      if (pollingRef.current) {
-        clearInterval(pollingRef.current);
-        pollingRef.current = null;
-        setIsPollingActive(false);
-        console.log(`🧹 폴링 정리 - 컴포넌트 정리`);
-      }
-      clearTimeout(timeoutId);
+      clearTimeout(refreshTimer);
     };
-  }, [guideId, chapters?.length, polledCoordinates.length, guideCoordinates?.length, isPollingActive, guideCoordinates]);
+  }, [chapters?.length, guideCoordinates?.length]);
 
-  // 🎯 좌표 변경 감지 시스템 - props 또는 폴링 데이터 감지
+  // 좌표 변경 감지 시스템
   useEffect(() => {
-    // 폴링된 좌표 우선 사용, 없으면 props 좌표 사용
-    const coordinates = polledCoordinates.length > 0 ? polledCoordinates : guideCoordinates;
-    const currentLength = coordinates?.length || 0;
+    const currentLength = guideCoordinates?.length || 0;
     const hasChapters = chapters?.length > 0;
     
-    console.log(`🗺️ 좌표 감지: length=${currentLength}, hasChapters=${hasChapters}, source=${polledCoordinates.length > 0 ? 'polling' : 'props'}`);
+    console.log(`🗺️ 좌표 감지: length=${currentLength}, hasChapters=${hasChapters}`);
     
-    if (currentLength > 0 && currentLength !== lastCoordinatesLength) {
-      // 새로운 좌표가 감지되면 신호 발송
-      console.log(`✅ 새 좌표 감지됨! ${lastCoordinatesLength} → ${currentLength}`);
+    if (currentLength > 0) {
+      console.log(`✅ 좌표 감지됨! ${currentLength}개`);
       setIsLoadingCoordinates(false);
-      setLastCoordinatesLength(currentLength);
-      setCoordinatesSignal(prev => prev + 1); // 지도 리렌더링 신호
+      setCoordinatesSignal(prev => prev + 1);
     } else if (hasChapters && currentLength === 0) {
-      // 챕터는 있지만 좌표가 없으면 로딩 상태
       console.log(`⏳ 좌표 대기 중...`);
       setIsLoadingCoordinates(true);
     }
-  }, [polledCoordinates, guideCoordinates, chapters?.length, lastCoordinatesLength]);
+  }, [guideCoordinates?.length, chapters?.length]);
 
   // 🎯 신호 기반 데이터 정규화 - 좌표 변경 신호에 반응
   const validChapters = useMemo(() => {
     console.log(`🔄 지도 데이터 재계산 (신호: ${coordinatesSignal})`);
     
-    // 폴링된 좌표 우선 사용, 없으면 props 좌표 사용
-    const coordinates = polledCoordinates.length > 0 ? polledCoordinates : guideCoordinates;
+    // guideCoordinates 사용
+    const coordinates = guideCoordinates;
     
     // POI를 Chapter 형태로 변환
     const allData = chapters?.length ? chapters : (pois || []).map((poi, index) => ({
@@ -309,9 +250,9 @@ const MapWithRoute = memo<MapWithRouteProps>(({
         item.lng >= -180 && item.lng <= 180
       );
     
-    console.log(`📍 유효한 좌표 ${filtered.length}개 발견 (source: ${polledCoordinates.length > 0 ? 'polling' : 'props'})`);
+    console.log(`📍 유효한 좌표 ${filtered.length}개 발견`);
     return filtered;
-  }, [chapters, pois, polledCoordinates, guideCoordinates, coordinatesSignal]); // 폴링 좌표 의존성 추가
+  }, [chapters, pois, guideCoordinates, coordinatesSignal]);
 
   // 활성 챕터 데이터 찾기
   const activeChapterData = validChapters.find(c => c.originalIndex === activeChapter);
@@ -416,14 +357,12 @@ const MapWithRoute = memo<MapWithRouteProps>(({
     return `https://mt1.google.com/vt/lyrs=m&hl=${langCode}&x={x}&y={y}&z={z}`;
   };
 
-  // 🎯 신호 기반 로딩 조건 - 좌표 신호를 받을 때까지 로딩
+  // 로딩 조건 - 좌표가 없을 때만 로딩
   if (isLoadingCoordinates && chapters?.length > 0) {
-    const coordinates = polledCoordinates.length > 0 ? polledCoordinates : guideCoordinates;
-    const hasCoordinates = coordinates?.length > 0;
+    const hasCoordinates = guideCoordinates?.length > 0;
     const isMatching = hasCoordinates && validChapters.length === 0;
-    const isPolling = pollingRef.current !== null;
     
-    console.log(`💭 로딩 화면 표시: coordinates=${hasCoordinates}, matching=${isMatching}, polling=${isPolling}`);
+    console.log(`💭 로딩 화면 표시: coordinates=${hasCoordinates}, matching=${isMatching}`);
     
     return (
       <div className="w-full h-64 bg-gray-50 flex items-center justify-center rounded-lg border border-gray-200">
@@ -439,9 +378,7 @@ const MapWithRoute = memo<MapWithRouteProps>(({
             </>
           ) : (
             <>
-              <div className="text-sm font-medium mb-3">
-                {isPolling ? '좌표 생성 감지 중' : '지도 생성 중'}
-              </div>
+              <div className="text-sm font-medium mb-3">지도 생성 중</div>
               <div className="flex items-center justify-center gap-1">
                 <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse"></div>
                 <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.3s'}}></div>
@@ -450,7 +387,7 @@ const MapWithRoute = memo<MapWithRouteProps>(({
             </>
           )}
           <div className="text-xs mt-2 text-gray-400">
-            {isPolling ? '데이터베이스 폴링 중...' : '신호 대기 중...'}
+            5초 후 자동 새로고침...
           </div>
         </div>
       </div>
@@ -475,8 +412,8 @@ const MapWithRoute = memo<MapWithRouteProps>(({
     ? validChapters.map(chapter => [chapter.lat!, chapter.lng!])
     : [];
 
-  // 🎯 신호 기반 유니크 키 생성 - 좌표 변경 시 지도 리렌더링
-  const mapKey = `map-${locationName}-${validChapters.length}-${activeChapter || 0}-${coordinatesSignal}`;
+  // 신호 기반 유니크 키 생성 - 좌표 변경 시 지도 리렌더링
+  const mapKey = `map-${locationName}-${validChapters.length}-${activeChapter || 0}-${coordinatesSignal}-${shouldRefresh ? 'refreshed' : 'initial'}`;
 
   return (
     <div className="relative w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white">
@@ -491,7 +428,6 @@ const MapWithRoute = memo<MapWithRouteProps>(({
         style={{ width: '100%', height: '100%' }}
         ref={mapRef}
         whenReady={() => {
-          // 🎯 지도 초기화 완료 시 신호 기반 위치 이동
           console.log(`🗺️ 지도 준비 완료! validChapters: ${validChapters.length}개`);
           
           if (mapRef.current && validChapters.length > 0) {
