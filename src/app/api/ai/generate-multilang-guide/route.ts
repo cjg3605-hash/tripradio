@@ -684,18 +684,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 🌍 1단계: 기본 지역 정보 추출
-    console.log(`\n🌍 1단계: 기본 지역 정보 추출: ${locationName}`);
+    // 🌍 1단계: 지역 정보 우선순위 적용
+    console.log(`\n🌍 1단계: 지역 정보 우선순위 적용: ${locationName}`);
+    console.log(`📍 URL 파라미터 지역정보: region=${finalRegion}, countryCode=${finalCountryCode}`);
     
-    // 향상된 regionalContext 구성
-    const enhancedRegionalContext = {
-      ...(regionalContext || {}),
-      region: finalRegion,
-      countryCode: finalCountryCode
-    };
+    let finalRegionalInfo: { location_region: string | null; country_code: string | null; };
     
-    const initialRegionalInfo = extractRegionalInfo(locationName, finalParentRegion, enhancedRegionalContext);
-    console.log(`🌍 기본 지역 정보:`, initialRegionalInfo);
+    // 🎯 핵심: URL 파라미터가 있으면 그대로 사용, 없으면 null로 유지
+    if (finalRegion && finalCountryCode) {
+      finalRegionalInfo = {
+        location_region: finalRegion,
+        country_code: finalCountryCode
+      };
+      console.log(`✅ URL 파라미터 지역정보 그대로 사용:`, finalRegionalInfo);
+    } else {
+      // URL 파라미터가 없으면 지역정보 없이 진행 (fallback 추론 안함)
+      finalRegionalInfo = {
+        location_region: null,
+        country_code: null
+      };
+      console.log(`⚠️ URL 파라미터 없음, 지역정보 없이 진행`);
+    }
 
     // ⚡ 2단계: AI 가이드 생성 (지오코딩은 나중에 간단하게 처리)
     console.log(`\n⚡ 2단계: AI 가이드 생성 시작`);
@@ -705,11 +714,13 @@ export async function POST(request: NextRequest) {
       try {
         console.log(`🤖 AI 가이드 생성 시작: ${language}`);
         
-        // 프롬프트 생성
+        // 🎯 프롬프트 생성 - 정적 데이터 제거, 동적 추론만 사용
         const contextualLocationName = finalParentRegion 
           ? `${locationName} (${finalParentRegion} 지역)`
           : locationName;
+        
         const prompt = await createAutonomousGuidePrompt(contextualLocationName, language, userProfile);
+        console.log(`📝 Gemini 동적 추론용 프롬프트 생성 완료: ${prompt.length}자`);
         
         // AI 모델 호출
         const genAI = getGeminiClient();
@@ -902,152 +913,56 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    console.log(`✅ ${language} AI 가이드 파싱 완료 - 이제 간단한 좌표 생성 시작`);
+    console.log(`✅ ${language} AI 가이드 파싱 완료 - 좌표는 별도 API에서 처리`);
     
-    // 🎯 3단계: 정확한 국가코드 추출 시스템으로 좌표 생성
-    console.log(`\n🔍 정확한 위치 정보 추출 시작`);
+    // 🎯 3단계: 좌표 생성 제거 - /api/ai/generate-coordinates에서 별도 처리
+    console.log(`\n📍 좌표 생성은 별도 API에서 처리, 가이드 생성만 담당`);
     
-    // 새로운 정확한 국가코드 추출 시스템 호출
-    const accurateResult = await extractAccurateLocationInfo(locationName, language);
-    
+    // 기본 좌표 없이 진행 (좌표는 별도 API에서 생성)
     let baseCoordinates: { lat: number; lng: number } | null = null;
-    let finalRegionalInfo = initialRegionalInfo;
     
-    if (accurateResult) {
-      console.log(`✅ 정확한 위치 정보 추출 성공`);
-      baseCoordinates = accurateResult.coordinates;
-      
-      // Google API에서 가져온 정확한 지역 정보로 업데이트
-      finalRegionalInfo = {
-        location_region: accurateResult.region,
-        country_code: accurateResult.countryCode
-      };
-      
-      console.log(`📍 기본 좌표: ${baseCoordinates.lat}, ${baseCoordinates.lng}`);
-      console.log(`🌍 업데이트된 지역 정보:`, finalRegionalInfo);
-      console.log(`🎯 정확성: ${(accurateResult.confidence * 100).toFixed(1)}%`);
-    } else {
-      console.log(`⚠️ 정확한 위치 정보 추출 실패 - 기본값 사용`);
-      // fallback으로 기존 simpleGeocode 사용
-      const simpleResult = await simpleGeocode(locationName);
-      if (simpleResult) {
-        baseCoordinates = simpleResult.coordinates;
-        finalRegionalInfo = {
-          location_region: simpleResult.location_region,
-          country_code: simpleResult.country_code
-        };
-        console.log(`📍 fallback 좌표: ${baseCoordinates.lat}, ${baseCoordinates.lng}`);
-        console.log(`🌍 fallback 지역 정보:`, finalRegionalInfo);
-      }
-    }
-    
-    // 모든 챕터에 기본 좌표 적용
-    const coordinatesArray: ({ lat: number; lng: number } | null)[] = [];
-    if (validChapters && validChapters.length > 0) {
-      for (let i = 0; i < validChapters.length; i++) {
-        coordinatesArray.push(baseCoordinates);
-      }
-      console.log(`📊 챕터 좌표 배열: ${coordinatesArray.length}개 (모두 기본 좌표 사용)`);
-    }
-    
-    // 🎯 4단계: 생성된 좌표를 챕터에 적용
-    console.log(`\n📍 챕터에 좌표 적용 시작`);
+    // 🎯 4단계: 좌표 없이 챕터 구조만 유지 (좌표는 별도 API에서 생성)
+    console.log(`\n📍 좌표 없이 챕터 구조만 유지`);
     
     if (guideData.realTimeGuide?.chapters && validChapters.length > 0) {
-      console.log(`📍 ${validChapters.length}개 유효한 챕터에 좌표 적용`);
+      console.log(`📍 ${validChapters.length}개 유효한 챕터 구조 유지`);
       
-      // 각 챕터에 해당하는 좌표 적용
+      // 좌표 없이 챕터 구조만 유지
       guideData.realTimeGuide.chapters = validChapters.map((chapter: any, index: number) => {
-        const chapterCoordinate = coordinatesArray[index] || 
-          (baseCoordinates ? {
-            lat: baseCoordinates.lat,
-            lng: baseCoordinates.lng
-          } : { lat: 37.5665, lng: 126.9780 }); // 기본값: 서울시청
-        
-        // 🎯 정규화된 챕터 구조: narrative와 nextDirection 사이에 coordinates 추가
         const normalizedChapter = {
-          ...chapter,
-          coordinates: chapterCoordinate ? {
-            lat: chapterCoordinate.lat,
-            lng: chapterCoordinate.lng
-          } : { lat: 37.5665, lng: 126.9780 }
+          ...chapter
+          // coordinates는 별도 API에서 생성
         };
         
-        console.log(`  ✅ 챕터 ${index}: "${chapter.title}" → 좌표 (${normalizedChapter.coordinates.lat}, ${normalizedChapter.coordinates.lng}) 적용`);
+        console.log(`  ✅ 챕터 ${index}: "${chapter.title}" → 구조 유지 (좌표는 별도 API)`);
         return normalizedChapter;
       });
       
-      console.log(`✅ 총 ${validChapters.length}개 챕터에 좌표 적용 완료`);
-      
-      // 좌표 성공 정보 저장
-      guideData.locationCoordinateStatus = {
-        locationName: locationName,
-        coordinateSearchAttempted: true,
-        coordinateFound: !!baseCoordinates,
-        coordinateSource: baseCoordinates ? 'simple_geocoding' : 'fallback_default',
-        coordinates: baseCoordinates,
-        lastAttempt: new Date().toISOString()
-      };
+      console.log(`✅ 총 ${validChapters.length}개 챕터 구조 유지 완료`);
       
     } else {
       console.log(`⚠️ 유효한 챕터가 없음 - 기본 구조 생성`);
       
-      // 기본 챕터 구조 생성
+      // 기본 챕터 구조 생성 (좌표 없이)
       guideData.realTimeGuide = guideData.realTimeGuide || {};
       guideData.realTimeGuide.chapters = [
         {
           id: 1,
           title: `${locationName} 가이드`,
           narrative: `${locationName}에 대한 안내입니다.`,
-          coordinates: baseCoordinates || { lat: 37.5665, lng: 126.9780 },
           nextDirection: `${locationName} 탐방을 시작해보세요.`
         }
       ];
       
-      // 좌표 성공 정보 저장
-      guideData.locationCoordinateStatus = {
-        locationName: locationName,
-        coordinateSearchAttempted: true,
-        coordinateFound: !!baseCoordinates,
-        coordinateSource: baseCoordinates ? 'simple_geocoding' : 'fallback_default',
-        coordinates: baseCoordinates,
-        lastAttempt: new Date().toISOString()
-      };
-      
-      console.log(`✅ 기본 챕터 구조 생성 및 좌표 적용 완료`);
-    }
-
-    // 🎯 5단계: 생성된 coordinatesArray를 guideData에 추가 (DB 저장용)
-    console.log(`\n📍 좌표 배열을 guideData에 추가`);
-    
-    // DB 저장용 좌표 배열 구성
-    const dbCoordinatesArray: { chapterId: any; title: string; lat: number; lng: number }[] = [];
-    if (validChapters && validChapters.length > 0) {
-      validChapters.forEach((chapter, index) => {
-        const coord = coordinatesArray[index] || baseCoordinates;
-        if (coord) {
-          dbCoordinatesArray.push({
-            chapterId: chapter.id || index,
-            title: chapter.title || `챕터 ${index + 1}`,
-            lat: coord.lat,
-            lng: coord.lng
-          });
-        }
-      });
+      console.log(`✅ 기본 챕터 구조 생성 완료`);
     }
     
-    guideData.coordinatesArray = dbCoordinatesArray;
-    
-    console.log(`✅ DB 저장용 좌표 배열 추가 완료: ${dbCoordinatesArray.length}개`);
-    dbCoordinatesArray.forEach((coord, idx) => {
-      console.log(`  ${idx + 1}. [${coord.chapterId}] ${coord.title}: (${coord.lat}, ${coord.lng})`);
-    });
-    
-    // 🎯 6단계: 지역 정보를 guideData에 추가
+    // 🎯 5단계: 최종 지역 정보를 guideData에 추가 (URL 파라미터 우선)
     guideData.regionalInfo = finalRegionalInfo;
-    console.log(`🌍 지역 정보가 가이드 데이터에 추가됨:`, finalRegionalInfo);
+    console.log(`🌍 최종 지역 정보가 가이드 데이터에 추가됨:`, finalRegionalInfo);
+    console.log(`📊 지역 정보 소스: ${finalRegion && finalCountryCode ? 'URL 파라미터 (자동완성/지역추출 Gemini 동적 추론)' : '내부 추론 로직'}`);
     
-    // 🎯 7단계: 최종 응답 반환 (가이드 생성만 담당, DB 저장은 별도 처리)
+    // 🎯 6단계: 최종 응답 반환 (가이드 생성만 담당, DB 저장은 별도 처리)
     console.log(`\n✅ ${language} 가이드 생성 최종 완료`);
     
     return NextResponse.json({
