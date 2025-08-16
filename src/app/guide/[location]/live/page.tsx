@@ -73,6 +73,7 @@ const LiveTourPage: React.FC = () => {
   const [poisWithChapters, setPoisWithChapters] = useState<POI[]>([]);
   const [isLoadingPOIs, setIsLoadingPOIs] = useState(false);
   const [poisError, setPoisError] = useState<string | null>(null);
+  const [actualGuideId, setActualGuideId] = useState<string | null>(null);
 
 
 
@@ -97,12 +98,16 @@ const LiveTourPage: React.FC = () => {
           
           const { data: coordsData } = await supabase
             .from('guides')
-            .select('coordinates')
+            .select('id, coordinates')
             .eq('locationname', normalizedLocation)
             .eq('language', currentLanguage)
             .maybeSingle();
           
           console.log('📍 전역 데이터용 coordinates 별도 조회 완료');
+          if (coordsData?.id) {
+            setActualGuideId(coordsData.id);
+            console.log(`🆔 실제 가이드 ID 설정: ${coordsData.id}`);
+          }
           await processGuideData(globalGuideData, coordsData?.coordinates);
           return;
         }
@@ -129,7 +134,7 @@ const LiveTourPage: React.FC = () => {
         
         const { data, error } = await supabase
           .from('guides')
-          .select('content, coordinates')
+          .select('id, content, coordinates')
           .eq('locationname', normalizedLocation)
           .eq('language', currentLanguage)
           .maybeSingle();
@@ -142,6 +147,10 @@ const LiveTourPage: React.FC = () => {
         
         if (data?.content) {
           console.log('🗄️ DB에서 데이터 로드 성공');
+          if (data.id) {
+            setActualGuideId(data.id);
+            console.log(`🆔 실제 가이드 ID 설정: ${data.id}`);
+          }
           await processGuideData(data.content, data.coordinates);
         } else {
           setPoisError('해당 위치의 가이드 데이터가 없습니다');
@@ -767,6 +776,7 @@ const LiveTourPage: React.FC = () => {
                   className="w-full h-full"
                   locationName={locationName}
                   guideCoordinates={undefined} // live 페이지에서는 POI 데이터 사용
+                  guideId={actualGuideId || `guide_${locationName}`} // 실시간 좌표 감지를 위한 실제 가이드 ID 전달
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gray-50">
