@@ -31,7 +31,7 @@ interface AggregateRatingData {
 interface ReviewSchemaProps {
   itemReviewed: {
     name: string;
-    type: 'TouristAttraction' | 'Service' | 'Place' | 'SoftwareApplication';
+    type: 'SoftwareApplication' | 'LocalBusiness' | 'Organization' | 'Product';
     url: string;
     image?: string;
   };

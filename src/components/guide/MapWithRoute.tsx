@@ -50,6 +50,7 @@ interface MapWithRouteProps {
   guideCoordinates?: any;
   currentLocation?: { lat: number; lng: number; name?: string } | null;
   className?: string;
+  guideId?: string;
 }
 
 // 단순한 지도 이동 훅
@@ -231,18 +232,14 @@ const MapWithRoute = memo<MapWithRouteProps>(({
     let timeoutId: NodeJS.Timeout | null = null;
     
     // 상황 1: 좌표는 있지만 매칭이 안 되는 경우
-    if (guideCoordinates?.length > 0 && chapters?.length > 0 && validChapters.length === 0) {
-      console.log(`⏱️ [타임아웃] 좌표-챕터 매칭 실패, 5초 후 로딩 해제`);
+    if (guideCoordinates?.length > 0 && chapters && chapters.length > 0 && validChapters.length === 0) {
       timeoutId = setTimeout(() => {
-        console.log(`🔚 [타임아웃] 매칭 실패로 로딩 해제`);
         setIsLoadingCoordinates(false);
       }, 5000);
     }
     // 상황 2: 챕터는 있지만 좌표가 전혀 없는 경우 (좌표 생성 실패 대비)
-    else if (!guideCoordinates?.length && chapters?.length > 0 && isLoadingCoordinates) {
-      console.log(`⏱️ [타임아웃] 좌표 없음, 8초 후 로딩 해제`);
+    else if (!guideCoordinates?.length && chapters && chapters.length > 0 && isLoadingCoordinates) {
       timeoutId = setTimeout(() => {
-        console.log(`🔚 [타임아웃] 좌표 생성 실패로 로딩 해제`);
         setIsLoadingCoordinates(false);
       }, 8000); // 좌표 생성 + 5초 새로고침을 고려해 8초로 설정
     }
@@ -290,7 +287,6 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   useEffect(() => {
     if (!isLoadingCoordinates && validChapters.length > 0 && coordinatesSignal > 0) {
       const firstChapter = validChapters[0];
-      console.log(`🎯 좌표 신호 받음! 첫 번째 마커로 이동: ${firstChapter.title}`);
       
       const timer = setTimeout(() => {
         const map = mapRef.current;
@@ -300,10 +296,11 @@ const MapWithRoute = memo<MapWithRouteProps>(({
             easeLinearity: 0.1 
           });
         }
-      }, 300); // 더 빠른 반응
+      }, 300);
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [coordinatesSignal, isLoadingCoordinates, validChapters]); // 신호 우선 의존성
 
   // 지도가 로드된 후 활성 마커로 중심 이동
@@ -321,6 +318,7 @@ const MapWithRoute = memo<MapWithRouteProps>(({
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [activeChapterData, isLoadingCoordinates]);
 
   // 내 위치로 지도 이동
@@ -331,6 +329,7 @@ const MapWithRoute = memo<MapWithRouteProps>(({
         map.flyTo([geolocation.latitude, geolocation.longitude], 17, { duration: 1 });
       }
     }
+    return undefined;
   }, [showMyLocation, geolocation.latitude, geolocation.longitude]);
 
   // 언어별 타일 URL
@@ -343,11 +342,10 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   };
 
   // 로딩 조건 - 좌표가 없을 때만 로딩
-  if (isLoadingCoordinates && chapters?.length > 0) {
+  if (isLoadingCoordinates && chapters && chapters.length > 0) {
     const hasCoordinates = guideCoordinates?.length > 0;
     const isMatching = hasCoordinates && validChapters.length === 0;
     
-    console.log(`💭 로딩 화면 표시: coordinates=${hasCoordinates}, matching=${isMatching}`);
     
     return (
       <div className="w-full h-64 bg-gray-50 flex items-center justify-center rounded-lg border border-gray-200">

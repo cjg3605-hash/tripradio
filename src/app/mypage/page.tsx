@@ -22,11 +22,8 @@ import {
   Archive,
   FileText,
   Upload,
-  Heart,
-  Brain,
-  Sparkles
+  Heart
 } from 'lucide-react';
-import PersonalityDiagnosisModal from '@/components/personality/PersonalityDiagnosisModal';
 import { ResponsiveContainer, PageHeader, Card, Grid, Stack, Flex, EmptyState } from '@/components/layout/ResponsiveContainer';
 import { Button } from '@/components/ui/button';
 
@@ -178,27 +175,9 @@ export default function MyPage() {
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showPersonalityModal, setShowPersonalityModal] = useState(false);
-  const [personalityResults, setPersonalityResults] = useState<any>(null);
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'chapters'>('date');
   const [filterLanguage, setFilterLanguage] = useState<string>('all');
 
-  // 개인화 진단 결과 로드
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('personalityDiagnosis');
-      if (saved) {
-        setPersonalityResults(JSON.parse(saved));
-      }
-    } catch (error) {
-      console.error('개인화 진단 결과 로드 실패:', error);
-    }
-  }, []);
-
-  // 개인화 진단 완료 핸들러
-  const handlePersonalityComplete = (results: any) => {
-    setPersonalityResults(results);
-  };
 
   // 데이터 로드
   useEffect(() => {
@@ -571,79 +550,6 @@ export default function MyPage() {
       case 'settings':
         return (
           <div className="max-w-4xl space-y-6">
-            {/* 개인화 가이드 진단 섹션 */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Brain className="w-6 h-6 text-black" />
-                <h3 className="text-lg font-semibold text-black">
-                  {t('mypage.personalityTitle') || '개인화 가이드 맨춤 진단'}
-                </h3>
-                <Sparkles className="w-5 h-5 text-gray-600" />
-              </div>
-
-              {personalityResults ? (
-                <div className="space-y-4">
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm font-medium text-green-800">{t('mypage.diagnosisComplete') || '진단 완료'}</span>
-                    </div>
-                    <p className="text-green-700 text-sm">
-                      {t('mypage.diagnosisCompleteDesc') || '당신의 성격 유형에 맞는 개인화된 가이드가 제공됩니다.'}
-                    </p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <div className="text-sm text-gray-600 mb-1">{t('mypage.reliability') || '신뢰도'}</div>
-                      <div className="text-lg font-semibold text-black">95%</div>
-                    </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <div className="text-sm text-gray-600 mb-1">{t('mypage.accuracy') || '정확도'}</div>
-                      <div className="text-lg font-semibold text-black">92%</div>
-                    </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <div className="text-sm text-gray-600 mb-1">{t('mypage.timeRequired') || '소요시간'}</div>
-                      <div className="text-lg font-semibold text-black">2분</div>
-                    </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <div className="text-sm text-gray-600 mb-1">{t('mypage.verifiedCountries') || '검증국가'}</div>
-                      <div className="text-lg font-semibold text-black">20개국</div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => setShowPersonalityModal(true)}
-                    className="w-full md:w-auto px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    {t('mypage.retakeDiagnosis') || '다시 진단하기'}
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <p className="text-gray-600 leading-relaxed">
-                    {t('mypage.diagnosisInfo') || '100만명 AI 시뮬레이션으로 검증된 5문항 진단으로 95%의 정확도로 개인화 가이드를 제공합니다. 20개국 문화적 공정성 검증 완룼.'}
-                  </p>
-                  
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 className="font-medium text-blue-900 mb-2">{t('mypage.changesAfterDiagnosis') || '진단 후 변화'}</h4>
-                    <ul className="text-sm text-blue-700 space-y-1">
-                      <li>• {t('mypage.feature1') || '당신의 성격에 맞는 콘텐츠 깊이 조절'}</li>
-                      <li>• {t('mypage.feature2') || '개인 맞춤형 가이드 스타일 적용'}</li>
-                      <li>• {t('mypage.feature3') || '상호작용 레벨 최적화'}</li>
-                      <li>• {t('mypage.feature4') || '감정적 어조 개인화'}</li>
-                    </ul>
-                  </div>
-
-                  <button
-                    onClick={() => setShowPersonalityModal(true)}
-                    className="w-full md:w-auto bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors"
-                  >
-                    {t('mypage.startDiagnosis') || '진단 시작하기'}
-                  </button>
-                </div>
-              )}
-            </div>
 
             {/* 계정 설정 */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -978,12 +884,6 @@ export default function MyPage() {
         )}
       </div>
 
-      {/* 개인화 진단 모달 */}
-      <PersonalityDiagnosisModal
-        isOpen={showPersonalityModal}
-        onClose={() => setShowPersonalityModal(false)}
-        onComplete={handlePersonalityComplete}
-      />
     </div>
   );
 }

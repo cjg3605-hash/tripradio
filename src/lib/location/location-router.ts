@@ -26,7 +26,7 @@ export interface LocationRoutingResult {
   processingMethod: 'exact_match' | 'fuzzy_match' | 'intent_analysis' | 'dynamic' | 'fallback';
   reasoning: string;
   suggestedQuery?: string; // 검색어 보정 제안
-  source?: 'static' | 'cache' | 'google' | 'db' | 'ai' | 'fallback'; // 동적 분류 소스
+  source?: 'static' | 'cache' | 'google' | 'db' | 'ai' | 'fallback' | 'global_landmarks'; // 동적 분류 소스
 }
 
 /**

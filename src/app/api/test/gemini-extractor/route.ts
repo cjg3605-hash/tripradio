@@ -50,7 +50,13 @@ export async function POST(request: NextRequest) {
     
     console.log(`🧪 배치 테스트 시작: ${testCases.length}개 장소`);
     
-    const results = [];
+    const results: Array<{
+      placeName: string;
+      success: boolean;
+      data?: any;
+      error?: string;
+      valid: boolean;
+    }> = [];
     
     for (let i = 0; i < testCases.length; i++) {
       const placeName = testCases[i];
@@ -63,7 +69,7 @@ export async function POST(request: NextRequest) {
           placeName,
           success: !!dbInfo,
           data: dbInfo,
-          valid: dbInfo ? (
+          valid: dbInfo ? !!(
             dbInfo.location_region &&
             dbInfo.country_code &&
             dbInfo.country_code.length === 3 &&

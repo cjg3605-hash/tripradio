@@ -261,7 +261,7 @@ export default function MultiLangGuideClient({
       console.error('❌ [DB 조회] 예외:', error);
       return null;
     }
-  }, [guideData?.metadata?.originalLocationName, currentLanguage]);
+  }, [guideData?.metadata?.originalLocationName, currentLanguage, locationName]);
 
   // 🎯 좌표 생성 함수 - 완료 후 즉시 새 좌표로 업데이트
   const generateCoordinatesForGuide = useCallback(async (guideId: string, locationName: string) => {
@@ -383,6 +383,12 @@ export default function MultiLangGuideClient({
         }
         
         setGuideData(normalizedData);
+        
+        // 🎯 핵심: guideData 설정과 동시에 coordinates도 즉시 설정
+        if (normalizedData.coordinates && Array.isArray(normalizedData.coordinates) && normalizedData.coordinates.length > 0) {
+          console.log(`🔥 [즉시 설정] guideData 로드와 함께 coordinates 설정: ${normalizedData.coordinates.length}개`);
+          setCoordinates(normalizedData.coordinates);
+        }
         setSource((result as any).source || 'unknown');
 
         // 히스토리 저장
@@ -417,6 +423,7 @@ export default function MultiLangGuideClient({
             });
         } else if (hasCoordinates) {
           console.log(`✅ [좌표 존재] "${locationName}" - ${(normalizedData.coordinates as any).length}개 좌표`);
+          console.log(`🔄 [좌표 존재] setCoordinates 재호출로 확실히 설정`);
           setCoordinates(normalizedData.coordinates);
         }
 
@@ -452,7 +459,7 @@ export default function MultiLangGuideClient({
       setIsLoading(false);
       setIsRegenerating(false);
     }
-  }, [locationName, saveToHistory, regionalContext, generateCoordinatesForGuide, checkDatabaseCoordinates]); // 좌표 관련 함수들 의존성 추가
+  }, [locationName, saveToHistory, regionalContext, generateCoordinatesForGuide, checkDatabaseCoordinates, guideData, currentLanguage]); // 의존성 추가
 
   // 🌍 사용 가능한 언어 목록 로드
   const loadAvailableLanguages = useCallback(async () => {
@@ -832,8 +839,8 @@ export default function MultiLangGuideClient({
           <div>언어: {currentLanguage}</div>
           <div>소스: {source}</div>
           <div>가능한 언어: {availableLanguages.join(', ')}</div>
-          <div>챕터 수: {guideData.realTimeGuide?.chapters?.length || 0}</div>
-          <div>생성 시간: {guideData.metadata.generatedAt ? new Date(guideData.metadata.generatedAt).toLocaleTimeString() : 'N/A'}</div>
+          <div>챕터 수: {guideData?.realTimeGuide?.chapters?.length || 0}</div>
+          <div>생성 시간: {guideData?.metadata?.generatedAt ? new Date(guideData.metadata.generatedAt).toLocaleTimeString() : 'N/A'}</div>
         </div>
       )}
 
@@ -942,9 +949,21 @@ export default function MultiLangGuideClient({
         ) : (
           <>
             <MinimalTourContent 
-              guide={guideData}
+              guide={guideData!}
               language={currentLanguage}
-              guideCoordinates={coordinates || (guideData as any)?.coordinates}
+              guideCoordinates={(() => {
+                const coordsToUse = coordinates || (guideData as any)?.coordinates;
+                console.log('🎯 [TourContent 전달] guideCoordinates:', {
+                  fromCoordinatesState: !!coordinates,
+                  coordinatesLength: Array.isArray(coordinates) ? coordinates.length : null,
+                  fromGuideData: !!(guideData as any)?.coordinates,
+                  guideDataCoordsLength: Array.isArray((guideData as any)?.coordinates) ? (guideData as any).coordinates.length : null,
+                  finalCoords: !!coordsToUse,
+                  finalCoordsLength: Array.isArray(coordsToUse) ? coordsToUse.length : null,
+                  finalCoordsPreview: Array.isArray(coordsToUse) ? coordsToUse.slice(0, 2) : coordsToUse
+                });
+                return coordsToUse;
+              })()}
             />
             
             {/* 광고 배치: 가이드 콘텐츠 하단 */}

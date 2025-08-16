@@ -83,7 +83,7 @@ async function createGuideSequentially(
   language: string,
   baseUrl: string,
   userProfile?: any
-): Promise<{ success: boolean; data?: any; error?: any; guideId?: string }> {
+): Promise<{ success: boolean; data?: any; error?: any; guideId?: string; errorType?: string; retryable?: boolean }> {
   const startTime = Date.now();
   console.log(`\n🚀 순차 가이드 생성 시작:`, {
     name: locationData.name,

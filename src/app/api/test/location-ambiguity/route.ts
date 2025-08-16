@@ -234,7 +234,23 @@ export async function POST(request: NextRequest) {
 
     console.log('🎯 배치 테스트 시작:', testQueries);
 
-    const results = [];
+    const results: Array<{
+      query: string;
+      smartResolution: {
+        success: boolean;
+        selectedLocation?: string;
+        region?: string;
+        confidence?: number;
+        method?: string;
+        error?: string;
+      };
+      fullProcessing: {
+        success: boolean;
+        method?: string;
+        finalLocation?: string;
+        error?: string;
+      };
+    }> = [];
 
     for (const query of testQueries) {
       console.log(`🧪 테스트 중: "${query}"`);

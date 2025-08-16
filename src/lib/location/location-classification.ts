@@ -22,6 +22,7 @@ export interface LocationData {
   requiresRegionalContext?: boolean;
   found?: boolean;
   data?: any;
+  continent?: string;
 }
 
 // 🌍 Level 1: Countries (국가)

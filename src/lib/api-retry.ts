@@ -98,7 +98,7 @@ export async function withRetry<T>(
         ? finalConfig.delayMs * Math.pow(2, attempt)
         : finalConfig.delayMs;
       
-      console.warn(`⚠️ ${attempt + 1}번째 시도 실패, ${delay}ms 후 재시도:`, error.message || error);
+      console.warn(`⚠️ ${attempt + 1}번째 시도 실패, ${delay}ms 후 재시도:`, error instanceof Error ? error.message : String(error));
       
       finalConfig.onRetry?.(attempt + 1, error);
       

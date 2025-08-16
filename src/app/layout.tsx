@@ -351,11 +351,11 @@ export default async function RootLayout({
           }}
         />
         
-        {/* Review Schema for Service */}
+        {/* Review Schema for Software Application */}
         <ReviewSchema 
           itemReviewed={{
             name: "TripRadio.AI",
-            type: "Service",
+            type: "SoftwareApplication",
             url: "https://navidocent.com",
             image: "https://navidocent.com/logo.png"
           }}
