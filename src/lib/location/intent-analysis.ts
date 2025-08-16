@@ -76,21 +76,26 @@ function createIntentAnalysisPrompt(query: string, language: string = 'ko'): str
 - 탐색 의도: "세비야에는 뭐가 있지?", "어디 갈까?" → RegionExploreHub
 - 구체적 정보: "에펠탑 입장료", "가는 방법" → DetailedGuidePage
 
+**🚨 중요: 의심스러우면 DetailedGuidePage 우선 원칙**
+
 **핵심 분류 규칙 (전세계 적용)**:
 
-🏙️ **RegionExploreHub** (도시/지역 탐색):
-- **전세계 도시명**: "리오데자네이루", "부에노스아이레스", "카이로", "카사블랑카", "방콕", "싱가포르", "시드니", "프라하"
-- **아시아 도시**: "방콕", "싱가포르", "뭄바이", "델리", "상하이", "홍콩"  
-- **유럽 도시**: "세비야", "바르셀로나", "프라하", "스톡홀름", "암스테르담"
-- **아메리카 도시**: "리오데자네이루", "부에노스아이레스", "토론토", "멕시코시티"
-- **아프리카/오세아니아**: "카이로", "카사블랑카", "시드니", "오클랜드"
-- **국가/지역**: 모든 국가명, 주/지역명
+🏙️ **RegionExploreHub** (도시/지역 탐색) - 매우 엄격한 기준:
+- **명확한 도시**: "서울", "파리", "뉴욕", "도쿄", "런던", "베를린", "마드리드" 등 **세계적으로 잘 알려진 도시명만**
+- **명확한 국가**: "프랑스", "스페인", "이탈리아", "일본", "한국" 등 **명확한 국가명만**
+- **명확한 지역**: "토스카나", "안달루시아", "캘리포니아" 등 **명확한 주/지역명만**
 
-🏛️ **DetailedGuidePage** (구체적 장소):
-- **세계적 명소**: "마추픽추", "앙코르와트", "타지마할", "오페라하우스", "크라이스트 더 리디머"
-- **건물/유적**: "사그라다 파밀리아", "콜로세움", "자유의여신상", "만리장성"
-- **지구/동네**: "홍대", "시부야", "타임스스퀘어", "몽마르트"
-- **구체적 장소**: "~궁", "~사원", "~박물관", "~타워", "~다리"
+🏛️ **DetailedGuidePage** (구체적 장소) - 기본값 우선:
+- **모든 건물명**: 궁전, 저택, 성당, 박물관, 타워, 다리 등
+- **모든 명소**: 유적지, 관광지, 테마파크, 기념물 등  
+- **애매한 이름**: 도시명인지 확실하지 않은 모든 것
+- **신규/생소한 이름**: 정확히 모르는 모든 장소
+
+**⚠️ 절대 원칙: 확실하지 않으면 DetailedGuidePage**
+- 도시인지 명소인지 애매하면 → DetailedGuidePage
+- 처음 들어본 이름이면 → DetailedGuidePage  
+- 구체적인 건물명 패턴이면 → DetailedGuidePage
+- 의심의 여지가 조금이라도 있으면 → DetailedGuidePage
 
 **전세계 도시 분류 예시**:
 - "리오데자네이루" → 브라질 도시 → RegionExploreHub
@@ -131,21 +136,26 @@ Precisely identify what the search query is:
 - Exploration intent: "What's in Seville?", "Where to go?" → RegionExploreHub
 - Specific info: "Eiffel Tower tickets", "How to get there" → DetailedGuidePage
 
+**🚨 Important: When in doubt, prioritize DetailedGuidePage**
+
 **Core Classification Rules (Global Application)**:
 
-🏙️ **RegionExploreHub** (City/Region Exploration):
-- **Global Cities**: "Rio de Janeiro", "Buenos Aires", "Cairo", "Casablanca", "Bangkok", "Singapore", "Sydney", "Prague"
-- **Asian Cities**: "Bangkok", "Singapore", "Mumbai", "Delhi", "Shanghai", "Hong Kong"
-- **European Cities**: "Seville", "Barcelona", "Prague", "Stockholm", "Amsterdam"  
-- **American Cities**: "Rio de Janeiro", "Buenos Aires", "Toronto", "Mexico City"
-- **Africa/Oceania**: "Cairo", "Casablanca", "Sydney", "Auckland"
-- **Countries/Regions**: All country names, states/provinces
+🏙️ **RegionExploreHub** (City/Region Exploration) - Very Strict Criteria:
+- **Clear Cities Only**: "Seoul", "Paris", "New York", "Tokyo", "London", "Berlin", "Madrid" etc. **Only globally well-known city names**
+- **Clear Countries Only**: "France", "Spain", "Italy", "Japan", "Korea" etc. **Only clear country names**
+- **Clear Regions Only**: "Tuscany", "Andalusia", "California" etc. **Only clear state/province names**
 
-🏛️ **DetailedGuidePage** (Specific Places):
-- **World Landmarks**: "Machu Picchu", "Angkor Wat", "Taj Mahal", "Opera House", "Christ the Redeemer"
-- **Buildings/Monuments**: "Sagrada Familia", "Colosseum", "Statue of Liberty", "Great Wall"
-- **Districts/Neighborhoods**: "Hongdae", "Shibuya", "Times Square", "Montmartre"
-- **Specific Venues**: "~Palace", "~Temple", "~Museum", "~Tower", "~Bridge"
+🏛️ **DetailedGuidePage** (Specific Places) - Default Priority:
+- **All Building Names**: Palaces, mansions, cathedrals, museums, towers, bridges etc.
+- **All Landmarks**: Historic sites, tourist attractions, theme parks, monuments etc.
+- **Ambiguous Names**: Anything not clearly identifiable as a city
+- **New/Unfamiliar Names**: Any place you're not completely sure about
+
+**⚠️ Absolute Rule: When uncertain, choose DetailedGuidePage**
+- City vs landmark ambiguous → DetailedGuidePage
+- Never heard the name before → DetailedGuidePage
+- Contains building name patterns → DetailedGuidePage
+- Any doubt whatsoever → DetailedGuidePage
 
 **Global City Classification Examples**:
 - "Rio de Janeiro" → Brazilian city → RegionExploreHub
@@ -272,7 +282,15 @@ export function analyzeIntentByRules(query: string): IntentAnalysis | null {
     
     // 구체적 위치 표현
     '~역', '~동', '~구', '~번지', '근처', '주변',
-    'station', 'near', 'around', 'close to'
+    'station', 'near', 'around', 'close to',
+    
+    // 구체적 건물/명소 패턴
+    '저택', '궁전', '궁', '관', '별장', '성당', '사원', '교회', '박물관', '미술관', '타워', '다리', '문', '광장',
+    'palace', 'mansion', 'house', 'villa', 'cathedral', 'temple', 'church', 'museum', 'gallery', 'tower', 'bridge', 'gate', 'square',
+    'palau', 'casa', 'sagrada', 'basilica',
+    
+    // 가우디 관련 패턴  
+    '구엘', 'güell', 'gaudi', '가우디', '바트요', 'batlló', '밀라', 'milà'
   ];
   
   // 명확한 RegionExploreHub 신호들  

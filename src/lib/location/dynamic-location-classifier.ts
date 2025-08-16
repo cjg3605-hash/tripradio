@@ -257,11 +257,26 @@ function classifyByHeuristics(locationName: string): LocationData {
     };
   }
   
-  if (locationName.includes('궁') || locationName.includes('사') || locationName.includes('탑') || locationName.includes('박물관')) {
+  // 구체적인 건물/명소 패턴들 - 모두 landmark로 분류
+  const landmarkPatterns = [
+    '궁', '궁전', '저택', '관', '별장', // 궁전/저택
+    '사', '사원', '성당', '교회', '절', // 종교건물
+    '탑', '타워', '문', '성문', // 랜드마크
+    '박물관', '미술관', '갤러리', // 문화시설
+    '다리', '광장', '공원', // 공공시설
+    '구엘', 'güell', '가우디', 'gaudi', // 가우디 관련
+    'palace', 'mansion', 'house', 'villa', 'cathedral', 'temple', 'church', 'museum', 'gallery', 'tower', 'bridge' // 영어 패턴
+  ];
+  
+  const isLandmark = landmarkPatterns.some(pattern => 
+    locationName.toLowerCase().includes(pattern.toLowerCase())
+  );
+  
+  if (isLandmark) {
     return {
       type: 'landmark',
       level: 4,
-      country: '한국',
+      country: '알 수 없음', // AI가 나중에 판단하도록 
       aliases: [locationName],
       coordinates: { lat: 0, lng: 0 },
       popularity: 7

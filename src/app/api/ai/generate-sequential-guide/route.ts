@@ -353,8 +353,16 @@ export async function POST(request: NextRequest) {
     
     console.log('🔧 요청 본문:', body);
     
-    const { locationName, language, userProfile } = body;
-    console.log('🔧 추출된 값:', { locationName, language, userProfile });
+    const { 
+      locationName, 
+      language, 
+      userProfile, 
+      parentRegion,
+      regionalContext,
+      locationRegion,
+      countryCode
+    } = body;
+    console.log('🔧 추출된 값:', { locationName, language, userProfile, locationRegion, countryCode });
 
     // 입력 검증
     if (!locationName || !language) {
@@ -375,9 +383,22 @@ export async function POST(request: NextRequest) {
     });
 
     // URL 파라미터에서 지역 정보 추출
-    const locationData = extractLocationDataFromRequest(locationName, searchParams);
+    const urlLocationData = extractLocationDataFromRequest(locationName, searchParams);
     
-    console.log(`🌍 추출된 지역 정보:`, locationData);
+    // 🌍 지역정보 우선순위: body > URL 파라미터
+    const locationData = {
+      ...urlLocationData,
+      region: locationRegion || parentRegion || urlLocationData.region,
+      countryCode: countryCode || urlLocationData.countryCode,
+      country: regionalContext?.country || urlLocationData.country
+    };
+    
+    // location 필드 업데이트
+    if (locationData.region && locationData.country) {
+      locationData.location = `${locationData.region}, ${locationData.country}`;
+    }
+    
+    console.log(`🌍 통합된 지역 정보:`, locationData);
 
     // 순차 가이드 생성 실행
     const result = await createGuideSequentially(locationData, language, baseUrl, userProfile);

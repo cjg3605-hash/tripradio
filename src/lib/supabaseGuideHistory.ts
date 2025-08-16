@@ -85,20 +85,40 @@ export async function saveGuideWithChapters(
   locationName: string,
   language: string,
   guideData: any,
-  detailedChapters?: any[]
+  detailedChapters?: any[],
+  locationRegion?: string,
+  countryCode?: string
 ) {
   try {
     console.log('💾 가이드+챕터 통합 저장 시작:', { locationName, language, hasDetailedChapters: !!detailedChapters });
 
-    // 1. 기본 가이드 저장 (기존 방식)
+    // 1. 기본 가이드 저장 (지역정보 포함)
+    const guideRecord: any = {
+      locationname: locationName.toLowerCase().trim(),
+      language: language.toLowerCase().trim(),
+      content: guideData,
+      updated_at: new Date().toISOString()
+    };
+
+    // 🌍 지역정보가 제공된 경우 추가
+    if (locationRegion) {
+      guideRecord.location_region = locationRegion;
+    }
+    if (countryCode) {
+      guideRecord.country_code = countryCode;
+    }
+
+    console.log('💾 DB 저장 데이터:', { 
+      locationName, 
+      language, 
+      locationRegion, 
+      countryCode,
+      hasContent: !!guideData 
+    });
+
     const { data: guideResult, error: guideError } = await supabase
       .from('guides')
-      .upsert([{
-        locationname: locationName.toLowerCase().trim(),
-        language: language.toLowerCase().trim(),
-        content: guideData,
-        updated_at: new Date().toISOString()
-      }])
+      .upsert([guideRecord])
       .select('id')
       .single();
 

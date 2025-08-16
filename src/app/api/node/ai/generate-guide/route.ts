@@ -254,11 +254,13 @@ class MegaOptimizedGuideManager {
     }
   }
 
-  // 🎯 완전한 가이드 저장
+  // 🎯 완전한 가이드 저장 (지역정보 포함)
   async saveCompleteGuide(
     locationName: string,
     language: string,
-    guideData: any
+    guideData: any,
+    locationRegion?: string,
+    countryCode?: string
   ): Promise<{ success: boolean; error?: any; isNew?: boolean }> {
     try {
       const normLocation = normalize(locationName);
@@ -274,27 +276,61 @@ class MegaOptimizedGuideManager {
       const isNew = !existing;
 
       if (isNew) {
-        // 새로운 가이드 생성
+        // 새로운 가이드 생성 (지역정보 포함)
+        const insertRecord: any = {
+          location_key: key,
+          location_name: locationName,
+          language: language,
+          content: guideData,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+
+        // 🌍 지역정보가 제공된 경우 추가
+        if (locationRegion) {
+          insertRecord.location_region = locationRegion;
+        }
+        if (countryCode) {
+          insertRecord.country_code = countryCode;
+        }
+
+        console.log('💾 새로운 가이드 저장:', { 
+          locationName, 
+          language, 
+          locationRegion, 
+          countryCode 
+        });
+
         const { error: insertError } = await supabase
           .from('guides')
-          .insert({
-            location_key: key,
-            location_name: locationName,
-            language: language,
-            content: guideData,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          });
+          .insert(insertRecord);
 
         if (insertError) throw insertError;
       } else {
-        // 기존 가이드 업데이트
+        // 기존 가이드 업데이트 (지역정보 포함)
+        const updateRecord: any = {
+          content: guideData,
+          updated_at: new Date().toISOString()
+        };
+
+        // 🌍 지역정보가 제공된 경우 업데이트
+        if (locationRegion) {
+          updateRecord.location_region = locationRegion;
+        }
+        if (countryCode) {
+          updateRecord.country_code = countryCode;
+        }
+
+        console.log('💾 기존 가이드 업데이트:', { 
+          locationName, 
+          language, 
+          locationRegion, 
+          countryCode 
+        });
+
         const { error: updateError } = await supabase
           .from('guides')
-          .update({ 
-            content: guideData,
-            updated_at: new Date().toISOString()
-          })
+          .update(updateRecord)
           .eq('location_key', key);
 
         if (updateError) throw updateError;
@@ -601,6 +637,11 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🚀 최적화된 가이드 생성 API 시작');
 
+    // 🌍 URL 파라미터에서 지역정보 추출
+    const { searchParams } = new URL(request.url);
+    const urlRegion = searchParams.get('region');
+    const urlCountryCode = searchParams.get('countryCode');
+
     const body = await request.json();
     const { 
       locationName, 
@@ -608,8 +649,22 @@ export async function POST(request: NextRequest) {
       userProfile,
       forceRegenerate = false,
       generationMode = 'autonomous',
-      targetChapter = null
+      targetChapter = null,
+      // 🌍 본문에서도 지역정보 추출 (URL 파라미터보다 우선)
+      locationRegion,
+      countryCode
     } = body;
+
+    // 🌍 지역정보 우선순위: 본문 > URL 파라미터
+    const finalRegion = locationRegion || urlRegion;
+    const finalCountryCode = countryCode || urlCountryCode;
+
+    console.log('🌍 지역정보 추출 결과:', {
+      locationName,
+      finalRegion,
+      finalCountryCode,
+      source: locationRegion ? 'body' : (urlRegion ? 'url' : 'none')
+    });
 
     // 입력 검증
     if (!locationName?.trim()) {
@@ -944,7 +999,9 @@ export async function POST(request: NextRequest) {
       saveResult = await guideManager.saveCompleteGuide(
         locationName,
         language,
-        finalData
+        finalData,
+        finalRegion,
+        finalCountryCode
       );
 
       if (!saveResult.success) {

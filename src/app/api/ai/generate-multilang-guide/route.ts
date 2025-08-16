@@ -595,8 +595,26 @@ function inferRegionalInfoFromLocationName(locationName: string): {
 
 export async function POST(request: NextRequest) {
   try {
+    // 🌍 URL 파라미터에서 지역정보 추출
+    const { searchParams } = new URL(request.url);
+    const urlRegion = searchParams.get('region');
+    const urlCountryCode = searchParams.get('countryCode');
+
     const body = await request.json();
-    const { locationName, language, userProfile, parentRegion, regionalContext } = body;
+    const { 
+      locationName, 
+      language, 
+      userProfile, 
+      parentRegion,
+      regionalContext,
+      locationRegion,
+      countryCode
+    } = body;
+
+    // 🌍 지역정보 우선순위: 본문 > URL 파라미터
+    const finalRegion = locationRegion || urlRegion;
+    const finalCountryCode = countryCode || urlCountryCode;
+    const finalParentRegion = parentRegion || finalRegion;
 
     if (!locationName || !language) {
       return NextResponse.json(
@@ -610,7 +628,15 @@ export async function POST(request: NextRequest) {
 
     // 🌍 1단계: 기본 지역 정보 추출
     console.log(`\n🌍 1단계: 기본 지역 정보 추출: ${locationName}`);
-    const initialRegionalInfo = extractRegionalInfo(locationName, parentRegion, regionalContext);
+    
+    // 향상된 regionalContext 구성
+    const enhancedRegionalContext = {
+      ...(regionalContext || {}),
+      region: finalRegion,
+      countryCode: finalCountryCode
+    };
+    
+    const initialRegionalInfo = extractRegionalInfo(locationName, finalParentRegion, enhancedRegionalContext);
     console.log(`🌍 기본 지역 정보:`, initialRegionalInfo);
 
     // ⚡ 2단계: AI 가이드 생성 (지오코딩은 나중에 간단하게 처리)
@@ -622,8 +648,8 @@ export async function POST(request: NextRequest) {
         console.log(`🤖 AI 가이드 생성 시작: ${language}`);
         
         // 프롬프트 생성
-        const contextualLocationName = parentRegion 
-          ? `${locationName} (${parentRegion} 지역)`
+        const contextualLocationName = finalParentRegion 
+          ? `${locationName} (${finalParentRegion} 지역)`
           : locationName;
         const prompt = await createAutonomousGuidePrompt(contextualLocationName, language, userProfile);
         

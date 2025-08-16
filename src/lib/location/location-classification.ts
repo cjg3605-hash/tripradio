@@ -1008,6 +1008,23 @@ export const TEST_CASES = [
   { input: "시부야", expected: "DetailedGuidePage", type: "district" },
   { input: "몽마르트", expected: "DetailedGuidePage", type: "district" },
   
+  // 가우디 건축물들 (모두 구체적 명소)
+  { input: "구엘저택", expected: "DetailedGuidePage", type: "landmark" },
+  { input: "구엘궁", expected: "DetailedGuidePage", type: "landmark" },
+  { input: "구엘궁전", expected: "DetailedGuidePage", type: "landmark" },
+  { input: "구엘공원", expected: "DetailedGuidePage", type: "landmark" },
+  { input: "Park Güell", expected: "DetailedGuidePage", type: "landmark" },
+  { input: "Palau Güell", expected: "DetailedGuidePage", type: "landmark" },
+  { input: "Casa Batlló", expected: "DetailedGuidePage", type: "landmark" },
+  { input: "카사 바트요", expected: "DetailedGuidePage", type: "landmark" },
+  { input: "사그라다 파밀리아", expected: "DetailedGuidePage", type: "landmark" },
+  
+  // 기타 구체적 명소들 
+  { input: "루브르박물관", expected: "DetailedGuidePage", type: "landmark" },
+  { input: "대영박물관", expected: "DetailedGuidePage", type: "landmark" },
+  { input: "노트르담 대성당", expected: "DetailedGuidePage", type: "landmark" },
+  { input: "콜로세움", expected: "DetailedGuidePage", type: "landmark" },
+  
   // Fuzzy 매칭 테스트
   { input: "seoul", expected: "RegionExploreHub", type: "city" },
   { input: "seville", expected: "RegionExploreHub", type: "city" },

@@ -665,7 +665,8 @@ export default function MultiLangGuideClient({
             translatedLocationName,
             currentLanguage,
             undefined,
-            languageChangeParentRegion
+            languageChangeParentRegion,
+            regionalContext // 🌍 언어 변경 시에도 지역정보 전달
           );
 
           if (result.success && result.data) {
@@ -687,7 +688,7 @@ export default function MultiLangGuideClient({
         }
       })();
     }
-  }, [currentLanguage, isLoading, guideData, locationName, saveToHistory, parentRegion]); // 모든 의존성 추가
+  }, [currentLanguage, isLoading, guideData, locationName, saveToHistory, parentRegion, regionalContext]); // 모든 의존성 추가
 
   // 로딩 상태 표시
   if (isLoading) {
