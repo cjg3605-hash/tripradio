@@ -330,89 +330,99 @@ export class MultiLangGuideManager {
       // URL 파라미터로 지역 정보 전달 (Google API 기반 정확한 정보 우선 사용)
       let apiUrl = '/api/ai/generate-sequential-guide';
       
-      // 🌍 Google API 기반 정확한 지역 정보 추출 시스템 사용
+      // 🌍 지역 정보 우선순위: SessionStorage > Google API > Fallback
       let queryParams = new URLSearchParams();
       
       try {
-        console.log(`🔍 Google API 기반 정확한 지역 정보 추출 시작: "${locationName}"`);
-        
-        // 🎯 Google API 기반 정확한 지역 정보 추출 시도
-        const { extractAccurateLocationInfo } = await import('@/lib/coordinates/accurate-country-extractor');
-        const accurateInfo = await extractAccurateLocationInfo(locationName, language);
-        
-        if (accurateInfo && accurateInfo.countryCode) {
-          console.log('✅ Google API 기반 정확한 지역 정보 추출 성공:', {
-            placeName: accurateInfo.placeName,
-            region: accurateInfo.region,
-            country: accurateInfo.country,
-            countryCode: accurateInfo.countryCode,
-            confidence: (accurateInfo.confidence * 100).toFixed(1) + '%'
-          });
-          
-          // Google API에서 추출한 정확한 정보 사용
-          queryParams.set('region', accurateInfo.region);
-          queryParams.set('country', accurateInfo.country);
-          queryParams.set('countryCode', accurateInfo.countryCode);
-          queryParams.set('type', 'attraction'); // 기본값
+        // 🥇 1순위: SessionStorage의 자동완성 데이터 사용 (가장 정확)
+        if (regionalContext && regionalContext.region && regionalContext.country && regionalContext.countryCode) {
+          console.log('✅ SessionStorage 자동완성 데이터 우선 사용:', regionalContext);
+          queryParams.set('region', regionalContext.region);
+          queryParams.set('country', regionalContext.country);
+          queryParams.set('countryCode', regionalContext.countryCode);
+          queryParams.set('type', regionalContext.type || 'attraction');
           
         } else {
-          console.log('⚠️ Google API 추출 실패, 기존 분류 시스템 사용');
+          console.log(`🔍 SessionStorage 데이터 불완전, Google API 기반 정확한 지역 정보 추출 시작: "${locationName}"`);
           
-          // Fallback: 기존 통합 지역 분류 시스템 사용
-          const { classifyLocationDynamic } = await import('@/lib/location/dynamic-location-classifier');
-          const classificationResult = await classifyLocationDynamic(locationName);
+          // 🥈 2순위: Google API 기반 정확한 지역 정보 추출 시도
+          const { extractAccurateLocationInfo } = await import('@/lib/coordinates/accurate-country-extractor');
+          const accurateInfo = await extractAccurateLocationInfo(locationName, language);
           
-          console.log('🎯 Fallback 지역 분류 결과:', classificationResult);
-          
-          if (classificationResult.locationData) {
-            const locationData = classificationResult.locationData;
-            
-            // 지역 정보 추출
-            const region = locationData.parent || 
-                          (locationData.type === 'city' ? locationData.country : null) ||
-                          null;
-            const country = locationData.country || null;
-            const countryCode = country === '한국' ? 'KOR' : 
-                               country === '대한민국' ? 'KOR' :
-                               country === '일본' ? 'JPN' :
-                               country === '중국' ? 'CHN' :
-                               country === '프랑스' ? 'FRA' :
-                               country === '미국' ? 'USA' :
-                               country === '영국' ? 'GBR' :
-                               country === '이탈리아' ? 'ITA' :
-                               country === '스페인' ? 'ESP' :
-                               country === '독일' ? 'DEU' : null; // 기본값 제거
-            
-            if (region) queryParams.set('region', region);
-            if (country) queryParams.set('country', country);
-            if (countryCode) queryParams.set('countryCode', countryCode);
-            queryParams.set('type', locationData.type || 'landmark');
-            
-            console.log('✅ Fallback으로 추출된 지역 정보:', {
-              locationName,
-              region,
-              country,
-              countryCode,
-              type: locationData.type,
-              source: classificationResult.source,
-              confidence: classificationResult.confidence
+          if (accurateInfo && accurateInfo.countryCode) {
+            console.log('✅ Google API 기반 정확한 지역 정보 추출 성공:', {
+              placeName: accurateInfo.placeName,
+              region: accurateInfo.region,
+              country: accurateInfo.country,
+              countryCode: accurateInfo.countryCode,
+              confidence: (accurateInfo.confidence * 100).toFixed(1) + '%'
             });
             
+            // Google API에서 추출한 정확한 정보 사용
+            queryParams.set('region', accurateInfo.region);
+            queryParams.set('country', accurateInfo.country);
+            queryParams.set('countryCode', accurateInfo.countryCode);
+            queryParams.set('type', 'attraction'); // 기본값
+          
           } else {
-            // Final Fallback: regionalContext 사용
-            if (regionalContext) {
-              console.log('🌍 regionalContext 사용:', regionalContext);
-              if (regionalContext.region) queryParams.set('region', regionalContext.region);
-              if (regionalContext.country) queryParams.set('country', regionalContext.country);
-              if (regionalContext.countryCode) queryParams.set('countryCode', regionalContext.countryCode);
-              queryParams.set('type', regionalContext.type || 'attraction');
-            } else if (parentRegion) {
-              console.log('🌍 parentRegion 사용:', parentRegion);
-              queryParams.set('region', parentRegion);
-              queryParams.set('type', 'attraction');
+            console.log('⚠️ Google API 추출 실패, 기존 분류 시스템 사용');
+            
+            // 🥉 3순위: Fallback: 기존 통합 지역 분류 시스템 사용
+            const { classifyLocationDynamic } = await import('@/lib/location/dynamic-location-classifier');
+            const classificationResult = await classifyLocationDynamic(locationName);
+            
+            console.log('🎯 Fallback 지역 분류 결과:', classificationResult);
+            
+            if (classificationResult.locationData) {
+              const locationData = classificationResult.locationData;
+              
+              // 지역 정보 추출
+              const region = locationData.parent || 
+                            (locationData.type === 'city' ? locationData.country : null) ||
+                            null;
+              const country = locationData.country || null;
+              const countryCode = country === '한국' ? 'KOR' : 
+                                 country === '대한민국' ? 'KOR' :
+                                 country === '일본' ? 'JPN' :
+                                 country === '중국' ? 'CHN' :
+                                 country === '프랑스' ? 'FRA' :
+                                 country === '미국' ? 'USA' :
+                                 country === '영국' ? 'GBR' :
+                                 country === '이탈리아' ? 'ITA' :
+                                 country === '스페인' ? 'ESP' :
+                                 country === '독일' ? 'DEU' : null; // 기본값 제거
+              
+              if (region) queryParams.set('region', region);
+              if (country) queryParams.set('country', country);
+              if (countryCode) queryParams.set('countryCode', countryCode);
+              queryParams.set('type', locationData.type || 'landmark');
+              
+              console.log('✅ Fallback으로 추출된 지역 정보:', {
+                locationName,
+                region,
+                country,
+                countryCode,
+                type: locationData.type,
+                source: classificationResult.source,
+                confidence: classificationResult.confidence
+              });
+              
             } else {
-              console.log('⚠️ 모든 지역 분류 실패 - null 값 처리');
-              queryParams.set('type', 'attraction');
+              // 🥀 최종 Fallback: 부분 regionalContext나 parentRegion 사용
+              if (regionalContext && (regionalContext.region || regionalContext.country)) {
+                console.log('🌍 부분 regionalContext 사용:', regionalContext);
+                if (regionalContext.region) queryParams.set('region', regionalContext.region);
+                if (regionalContext.country) queryParams.set('country', regionalContext.country);
+                if (regionalContext.countryCode) queryParams.set('countryCode', regionalContext.countryCode);
+                queryParams.set('type', regionalContext.type || 'attraction');
+              } else if (parentRegion) {
+                console.log('🌍 parentRegion 사용:', parentRegion);
+                queryParams.set('region', parentRegion);
+                queryParams.set('type', 'attraction');
+              } else {
+                console.log('⚠️ 모든 지역 분류 실패 - 기본값 사용');
+                queryParams.set('type', 'attraction');
+              }
             }
           }
         }

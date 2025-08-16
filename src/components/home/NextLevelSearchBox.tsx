@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { saveAutocompleteData } from '@/lib/cache/autocompleteStorage';
+import { smartResolveLocation } from '@/lib/location/smart-location-resolver';
 // import { enhancedLocationSearch, SearchCandidate, SearchFilters } from '@/lib/search/enhanced-search-system';
 
 // 새로운 구조화된 위치 데이터 인터페이스
@@ -282,133 +283,103 @@ export default function NextLevelSearchBox() {
     setIsFocused(false);
     
     try {
-      // 🚀 엔터 입력 시 자동완성 API로 첫 번째 결과 가져오기
-      console.log('🔍 엔터 입력 - 자동완성 API 호출:', query.trim());
+      // 🤖 스마트 위치 해결 시스템 사용
+      console.log('🤖 스마트 위치 해결 시작:', query.trim());
       
-      const searchResponse = await fetch(`/api/locations/search?q=${encodeURIComponent(query.trim())}&lang=${currentLanguage}`);
-      const searchData = await searchResponse.json();
+      const smartResolution = await smartResolveLocation(
+        query.trim(),
+        query.trim(), // userQuery로 전체 검색어 전달
+        '' // userContext는 빈 문자열
+      );
       
-      if (searchData.success && searchData.data && searchData.data.length > 0) {
-        // 첫 번째 자동완성 결과 사용
-        const firstSuggestion = searchData.data[0];
-        console.log('✅ 자동완성 첫 번째 결과:', firstSuggestion);
-        
-        // 자동완성 클릭과 동일한 로직으로 처리
-        const parts = firstSuggestion.location.split(',').map(part => part.trim());
-        
-        if (parts.length >= 2) {
-          const region = parts[0]; // 지역명
-          const country = parts[1]; // 국가명
-          
-          // 국가명을 국가코드로 변환
-          console.log('🌍 국가코드 변환 시작:', country);
-          const countryCode = await getCountryCode(country);
-          
-          // 🆕 SessionStorage에 자동완성 데이터 저장 (성공/실패 상관없이)
-          const parsedInfo = {
-            region: region,
-            country: country,
-            countryCode: countryCode || undefined
-          };
-          
-          const saved = saveAutocompleteData(query.trim(), firstSuggestion, parsedInfo);
-          console.log('💾 SessionStorage 저장 결과:', saved);
-          
-          if (countryCode) {
-            // 성공: 정확한 지역정보로 이동
-            const urlParams = new URLSearchParams({
-              region: region,
-              country: country,
-              countryCode: countryCode,
-              type: 'attraction'
-            });
-            
-            const targetUrl = `/guide/${encodeURIComponent(query.trim())}?${urlParams.toString()}`;
-            
-            console.log('🚀 엔터 입력 → 자동완성 로직 적용 성공:', {
-              query: query.trim(),
-              suggestion: firstSuggestion.name,
-              region: region,
-              country: country,
-              countryCode: countryCode,
-              url: targetUrl
-            });
-            
-            setTimeout(() => {
-              router.push(targetUrl);
-            }, 100);
-            return;
-          } else {
-            // 국가코드 변환 실패해도 SessionStorage 데이터는 저장됨
-            console.log('⚠️ 국가코드 변환 실패했지만 SessionStorage에는 저장됨');
-          }
-        } else {
-          // 파싱 실패시에도 원본 데이터 저장
-          console.log('⚠️ location 파싱 실패, 원본 데이터로 저장');
-          const parsedInfo = {
-            region: firstSuggestion.name || query.trim(),
-            country: '',
-            countryCode: undefined
-          };
-          
-          saveAutocompleteData(query.trim(), firstSuggestion, parsedInfo);
-        }
-      } else {
-        // 자동완성 결과가 없어도 기본 정보는 저장
-        console.log('⚠️ 자동완성 결과 없음, 기본 정보로 저장');
-        const basicData = {
-          name: query.trim(),
-          location: '',
-          type: 'attraction',
-          confidence: 0.5
-        };
-        const parsedInfo = {
-          region: query.trim(),
-          country: '',
-          countryCode: undefined
-        };
-        
-        saveAutocompleteData(query.trim(), basicData, parsedInfo);
-      }
+      console.log('✅ 스마트 해결 완료:', smartResolution);
       
-      // 기본 URL로 이동 (SessionStorage 데이터와 함께)
-      console.log('🚀 기본 URL로 이동 (SessionStorage 데이터 포함)');
-      const fallbackUrl = `/guide/${encodeURIComponent(query.trim())}`;
+      const selectedLocation = smartResolution.selectedLocation;
       
-      setTimeout(() => {
-        router.push(fallbackUrl);
-      }, 100);
+      // 선택된 위치 정보로 SessionStorage 저장 및 네비게이션
+      const autocompleteData = {
+        name: selectedLocation.displayName,
+        location: `${selectedLocation.region}, ${selectedLocation.country}`,
+        region: selectedLocation.region,
+        country: selectedLocation.country,
+        countryCode: getCountryCode(selectedLocation.country),
+        type: 'attraction' as const,
+        confidence: smartResolution.confidence,
+        timestamp: Date.now()
+      };
+      
+      console.log('💾 SessionStorage 저장:', autocompleteData);
+      saveAutocompleteData(autocompleteData);
+      
+      // 🚀 가이드 페이지로 이동
+      const locationPath = encodeURIComponent(selectedLocation.displayName.toLowerCase().trim());
+      const targetUrl = `/guide/${locationPath}?lang=${currentLanguage}`;
+      console.log('🎯 네비게이션:', targetUrl);
+      
+      router.push(targetUrl);
+      
+      return; // 성공적으로 스마트 해결된 경우 여기서 종료
       
     } catch (error) {
-      console.error('❌ 엔터 입력 처리 오류:', error);
+      console.warn('⚠️ 스마트 해결 실패, 기존 방식 사용:', error);
       
-      // 오류 발생 시에도 기본 정보는 저장 시도
+      // Fallback: 기존 자동완성 API 방식
       try {
-        const basicData = {
-          name: query.trim(),
-          location: '',
-          type: 'attraction',
-          confidence: 0.3
-        };
-        const parsedInfo = {
-          region: query.trim(),
-          country: '',
-          countryCode: undefined
-        };
+        console.log('🔍 Fallback - 자동완성 API 호출:', query.trim());
         
-        saveAutocompleteData(query.trim(), basicData, parsedInfo);
-        console.log('💾 오류 상황에서도 기본 데이터 저장 완료');
-      } catch (storageError) {
-        console.error('❌ SessionStorage 저장마저 실패:', storageError);
+        const searchResponse = await fetch(`/api/locations/search?q=${encodeURIComponent(query.trim())}&lang=${currentLanguage}`);
+        const searchData = await searchResponse.json();
+        
+        if (searchData.success && searchData.data && searchData.data.length > 0) {
+          // 첫 번째 자동완성 결과 사용
+          const firstSuggestion = searchData.data[0];
+          console.log('✅ Fallback 첫 번째 결과:', firstSuggestion);
+          
+          // Fallback 자동완성 데이터 저장 및 처리
+          const fallbackData = {
+            name: firstSuggestion.name,
+            location: firstSuggestion.location,
+            region: firstSuggestion.region || 'unknown',
+            country: firstSuggestion.country || 'unknown', 
+            countryCode: firstSuggestion.countryCode || 'unknown',
+            type: 'attraction' as const,
+            confidence: 0.7,
+            timestamp: Date.now()
+          };
+          
+          console.log('💾 Fallback SessionStorage 저장:', fallbackData);
+          saveAutocompleteData(fallbackData);
+          
+          // 가이드 페이지로 이동
+          const locationPath = encodeURIComponent(firstSuggestion.name.toLowerCase().trim());
+          const targetUrl = `/guide/${locationPath}?lang=${currentLanguage}`;
+          console.log('🎯 Fallback 네비게이션:', targetUrl);
+          
+          router.push(targetUrl);
+          return;
+        }
+      } catch (fallbackError) {
+        console.error('❌ Fallback 검색 실패:', fallbackError);
       }
       
-      // 기본 처리
-      const fallbackUrl = `/guide/${encodeURIComponent(query.trim())}`;
-      setTimeout(() => {
-        router.push(fallbackUrl);
-      }, 100);
+      // 최종 fallback: 기본 데이터로 저장하고 이동
+      console.log('🚨 최종 Fallback - 기본 데이터로 처리');
+      const finalFallbackData = {
+        name: query.trim(),
+        location: '',
+        region: 'unknown',
+        country: 'unknown',
+        countryCode: 'unknown',
+        type: 'attraction' as const,
+        confidence: 0.3,
+        timestamp: Date.now()
+      };
+      
+      saveAutocompleteData(finalFallbackData);
+      
+      const finalUrl = `/guide/${encodeURIComponent(query.trim())}?lang=${currentLanguage}`;
+      router.push(finalUrl);
     } finally {
-      // 상태 복원을 보장
       setIsSubmitting(false);
     }
   };
