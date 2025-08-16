@@ -381,9 +381,26 @@ export default function MultiLangGuideClient({
         if (!hasCoordinates && (result as any).guideId) {
           console.log(`🗺️ [좌표 생성 필요] "${locationName}" (source: ${source})`);
           // 좌표가 없으면 즉시 생성 (새 가이드든 기존 가이드든 상관없이)
-          generateCoordinatesForGuide((result as any).guideId, locationName).catch(error => {
-            console.error('🗺️ [좌표 생성] 실패:', error);
-          });
+          generateCoordinatesForGuide((result as any).guideId, locationName)
+            .then((coordinates) => {
+              if (coordinates) {
+                console.log(`✅ [좌표 생성 완료] 5초 후 지도 새로고침 시작`);
+                // 🎯 좌표 생성 완료 후 5초 뒤 DB에서 새로운 좌표 조회
+                setTimeout(async () => {
+                  console.log(`🔄 [5초 새로고침] DB에서 좌표 재조회 시작`);
+                  const freshCoordinates = await checkDatabaseCoordinates();
+                  if (freshCoordinates && freshCoordinates.length > 0) {
+                    console.log(`✅ [5초 새로고침] 성공: ${freshCoordinates.length}개 좌표 업데이트`);
+                    setCoordinates(freshCoordinates);
+                  } else {
+                    console.log(`⚠️ [5초 새로고침] DB 조회 실패, 생성된 좌표 사용`);
+                  }
+                }, 5000);
+              }
+            })
+            .catch(error => {
+              console.error('🗺️ [좌표 생성] 실패:', error);
+            });
         } else if (hasCoordinates) {
           console.log(`✅ [좌표 존재] "${locationName}" - ${(normalizedData.coordinates as any).length}개 좌표`);
           setCoordinates(normalizedData.coordinates);

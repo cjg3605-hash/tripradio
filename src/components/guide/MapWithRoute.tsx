@@ -226,17 +226,33 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   // 활성 챕터 데이터 찾기
   const activeChapterData = validChapters.find(c => c.originalIndex === activeChapter);
 
-  // 매칭 실패 시 타임아웃 처리 (단순화)
+  // 🎯 확장된 타임아웃 처리 - 다양한 상황에서 5초 후 로딩 해제
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
+    
+    // 상황 1: 좌표는 있지만 매칭이 안 되는 경우
     if (guideCoordinates?.length > 0 && chapters?.length > 0 && validChapters.length === 0) {
-      // 5초 후에도 매칭이 안 되면 로딩 해제
-      const timeoutId = setTimeout(() => {
+      console.log(`⏱️ [타임아웃] 좌표-챕터 매칭 실패, 5초 후 로딩 해제`);
+      timeoutId = setTimeout(() => {
+        console.log(`🔚 [타임아웃] 매칭 실패로 로딩 해제`);
         setIsLoadingCoordinates(false);
       }, 5000);
-      
-      return () => clearTimeout(timeoutId);
     }
-  }, [guideCoordinates?.length, chapters?.length, validChapters.length]);
+    // 상황 2: 챕터는 있지만 좌표가 전혀 없는 경우 (좌표 생성 실패 대비)
+    else if (!guideCoordinates?.length && chapters?.length > 0 && isLoadingCoordinates) {
+      console.log(`⏱️ [타임아웃] 좌표 없음, 8초 후 로딩 해제`);
+      timeoutId = setTimeout(() => {
+        console.log(`🔚 [타임아웃] 좌표 생성 실패로 로딩 해제`);
+        setIsLoadingCoordinates(false);
+      }, 8000); // 좌표 생성 + 5초 새로고침을 고려해 8초로 설정
+    }
+    
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [guideCoordinates?.length, chapters?.length, validChapters.length, isLoadingCoordinates]);
 
   // 지도 중심점 계산 - activeChapter가 있으면 해당 위치를 중심으로
   const mapCenter: LatLngExpression = center && center.lat && center.lng 
