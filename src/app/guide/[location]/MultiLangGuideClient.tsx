@@ -413,8 +413,16 @@ export default function MultiLangGuideClient({
 
     } catch (err) {
       console.error('❌ 가이드 로드 오류:', err);
+      console.error('❌ 에러 상세 정보:', {
+        location: locationName,
+        language: language,
+        forceRegenerate,
+        errorMessage: err instanceof Error ? err.message : String(err),
+        errorStack: err instanceof Error ? err.stack : undefined
+      });
       setError(err instanceof Error ? err.message : '가이드 로드 중 오류가 발생했습니다.');
     } finally {
+      console.log(`🔚 loadGuideForLanguage 완료: isLoading false 설정 (location: ${locationName})`);
       setIsLoading(false);
       setIsRegenerating(false);
     }
@@ -734,8 +742,8 @@ export default function MultiLangGuideClient({
     );
   }
 
-  // 에러 상태 (가이드가 없는 경우)
-  if (!guideData || error) {
+  // 에러 상태 (로딩 완료했는데 가이드가 없거나 명시적 에러)
+  if ((!isLoading && !guideData) || error) {
     return (
       <div className="min-h-screen bg-gray-50 ios-viewport-fix">
         <div className="container-responsive"
