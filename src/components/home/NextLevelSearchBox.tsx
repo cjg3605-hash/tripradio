@@ -302,14 +302,22 @@ export default function NextLevelSearchBox() {
         location: `${selectedLocation.region}, ${selectedLocation.country}`,
         region: selectedLocation.region,
         country: selectedLocation.country,
-        countryCode: getCountryCode(selectedLocation.country),
+        countryCode: await getCountryCode(selectedLocation.country) || undefined,
         type: 'attraction' as const,
         confidence: smartResolution.confidence,
         timestamp: Date.now()
       };
       
       console.log('💾 SessionStorage 저장:', autocompleteData);
-      saveAutocompleteData(autocompleteData);
+      saveAutocompleteData(
+        selectedLocation.displayName,
+        autocompleteData,
+        {
+          region: selectedLocation.region,
+          country: selectedLocation.country,
+          countryCode: await getCountryCode(selectedLocation.country) || undefined
+        }
+      );
       
       // 🚀 가이드 페이지로 이동
       const locationPath = encodeURIComponent(selectedLocation.displayName.toLowerCase().trim());
@@ -348,7 +356,15 @@ export default function NextLevelSearchBox() {
           };
           
           console.log('💾 Fallback SessionStorage 저장:', fallbackData);
-          saveAutocompleteData(fallbackData);
+          saveAutocompleteData(
+            firstSuggestion.name,
+            fallbackData,
+            {
+              region: firstSuggestion.region || 'unknown',
+              country: firstSuggestion.country || 'unknown',
+              countryCode: firstSuggestion.countryCode || 'unknown'
+            }
+          );
           
           // 가이드 페이지로 이동
           const locationPath = encodeURIComponent(firstSuggestion.name.toLowerCase().trim());
@@ -375,7 +391,15 @@ export default function NextLevelSearchBox() {
         timestamp: Date.now()
       };
       
-      saveAutocompleteData(finalFallbackData);
+      saveAutocompleteData(
+        query.trim(),
+        finalFallbackData,
+        {
+          region: 'unknown',
+          country: 'unknown',
+          countryCode: 'unknown'
+        }
+      );
       
       const finalUrl = `/guide/${encodeURIComponent(query.trim())}?lang=${currentLanguage}`;
       router.push(finalUrl);

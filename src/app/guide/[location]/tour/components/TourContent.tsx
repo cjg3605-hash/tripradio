@@ -605,27 +605,17 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                   };
                   
                   const chaptersForMap = allChapters.map((chapter, index) => {
-                    // 🗺️ 우선순위: guideCoordinates(DB) > content 좌표 > 폴백
+                    // 🗺️ guides.coordinates 컬럼에서만 좌표 사용 (content 좌표 사용 금지)
                     let coords;
                     
-                    if (guideCoordinates && guideCoordinates[index]) {
-                      // DB에서 가져온 정확한 좌표 사용 (백그라운드 API로 생성된)
+                    if (guideCoordinates && Array.isArray(guideCoordinates) && guideCoordinates[index]) {
+                      // DB guides.coordinates 컬럼에서 인덱스 기반으로 정확한 좌표 사용
+                      const coord = guideCoordinates[index];
                       coords = {
-                        lat: guideCoordinates[index].lat,
-                        lng: guideCoordinates[index].lng
+                        lat: coord.lat ?? coord.latitude,
+                        lng: coord.lng ?? coord.longitude
                       };
-                    } else if (chapter.coordinates?.lat && chapter.coordinates?.lng) {
-                      // content에 저장된 좌표 사용 (폴백)
-                      coords = {
-                        lat: chapter.coordinates.lat,
-                        lng: chapter.coordinates.lng
-                      };
-                    } else if (chapter.lat && chapter.lng) {
-                      // 기타 좌표 필드 사용 (폴백)
-                      coords = {
-                        lat: chapter.lat,
-                        lng: chapter.lng
-                      };
+                      console.log(`🗺️ [TourContent 좌표 매칭] 챕터 ${index} "${chapter.title}" → (${coords.lat}, ${coords.lng})`);
                     } else {
                       // 최종 폴백: 동적 좌표 생성
                       coords = getSmartCoordinates(locationName || '', index, allChapters.length);

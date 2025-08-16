@@ -64,22 +64,38 @@ function useMapFlyTo(mapRef: React.RefObject<LeafletMap | null>, lat?: number, l
   }, [mapRef, lat, lng]);
 }
 
-// 좌표 추출 유틸리티
-function getLatLng(chapter: Chapter, guideCoordinates?: any): [number | undefined, number | undefined] {
-  // Supabase coordinates 우선
+// 좌표 추출 유틸리티 - guides.coordinates 컬럼 전용
+function getLatLng(chapter: Chapter, guideCoordinates?: any, chapterIndex?: number): [number | undefined, number | undefined] {
+  // guides.coordinates 컬럼에서만 좌표 사용 (content 좌표 사용 금지)
   if (guideCoordinates?.length > 0) {
-    const coord = guideCoordinates.find((c: any) => 
-      c.id === chapter.id || c.step === chapter.id || c.title === chapter.title
-    );
+    // 다중 매칭 전략: 인덱스 > ID > step > title 기반 (인덱스 우선)
+    let coord;
+    
+    // 1순위: 인덱스 기반 매칭 (가장 정확)
+    if (chapterIndex !== undefined && guideCoordinates[chapterIndex]) {
+      coord = guideCoordinates[chapterIndex];
+    }
+    // 2순위: ID/step/title 기반 매칭
+    else {
+      coord = guideCoordinates.find((c: any) => 
+        c.id === chapter.id || 
+        c.step === chapter.id || 
+        c.chapterId === chapter.id ||
+        c.title === chapter.title ||
+        (c.step - 1) === chapter.id // 0-based vs 1-based 인덱스 보정
+      );
+    }
+    
     if (coord) {
+      console.log(`🗺️ [좌표 매칭 성공] 챕터 "${chapter.title}" → (${coord.lat}, ${coord.lng})`);
       return [coord.lat ?? coord.latitude, coord.lng ?? coord.longitude];
+    } else {
+      console.log(`⚠️ [좌표 매칭 실패] 챕터 "${chapter.title}" (ID: ${chapter.id}, Index: ${chapterIndex})`);
     }
   }
 
-  // 기본 좌표 매핑
-  const lat = chapter.location?.lat ?? chapter.coordinates?.lat ?? chapter.lat ?? chapter.latitude;
-  const lng = chapter.location?.lng ?? chapter.coordinates?.lng ?? chapter.lng ?? chapter.longitude;
-  return [lat, lng];
+  // guides.coordinates가 없으면 좌표 없음으로 처리 (content 좌표 사용 안 함)
+  return [undefined, undefined];
 }
 
 // 내 위치 버튼
@@ -154,7 +170,7 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   // 유효한 좌표만 필터링
   const validChapters = allData
     .map((item, index) => {
-      const [lat, lng] = chapters ? getLatLng(item, guideCoordinates) : [item.lat, item.lng];
+      const [lat, lng] = chapters ? getLatLng(item, guideCoordinates, index) : [item.lat, item.lng];
       return { ...item, originalIndex: index, lat, lng };
     })
     .filter(item => 

@@ -54,7 +54,15 @@ export async function processLocationForNavigation(
         timestamp: Date.now()
       };
       
-      saveAutocompleteData(autocompleteData);
+      saveAutocompleteData(
+        smartResult.selectedLocation.displayName,
+        autocompleteData,
+        {
+          region: smartResult.selectedLocation.region,
+          country: smartResult.selectedLocation.country,
+          countryCode: getCountryCodeFromName(smartResult.selectedLocation.country)
+        }
+      );
       
       const locationPath = encodeURIComponent(smartResult.selectedLocation.displayName.toLowerCase().trim());
       const url = `/guide/${locationPath}?lang=${language}`;
@@ -104,7 +112,15 @@ export async function processLocationForNavigation(
         timestamp: Date.now()
       };
       
-      saveAutocompleteData(fallbackData);
+      saveAutocompleteData(
+        firstResult.name,
+        fallbackData,
+        {
+          region: firstResult.region || 'unknown',
+          country: firstResult.country || 'unknown',
+          countryCode: firstResult.countryCode || 'unknown'
+        }
+      );
       
       const locationPath = encodeURIComponent(firstResult.name.toLowerCase().trim());
       const url = `/guide/${locationPath}?lang=${language}`;
@@ -142,7 +158,15 @@ export async function processLocationForNavigation(
     timestamp: Date.now()
   };
   
-  saveAutocompleteData(basicData);
+  saveAutocompleteData(
+    query,
+    basicData,
+    {
+      region: 'unknown',
+      country: 'unknown',
+      countryCode: 'unknown'
+    }
+  );
   
   const locationPath = encodeURIComponent(query.toLowerCase().trim());
   const url = `/guide/${locationPath}?lang=${language}`;

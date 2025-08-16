@@ -753,7 +753,7 @@ export async function POST(request: NextRequest) {
     // AI 생성 결과 처리
     console.log(`✅ AI 생성 완료`);
     const text = aiGenerationResult;
-    console.log(`🌍 기본 지역 정보:`, initialRegionalInfo);
+    console.log(`🌍 기본 지역 정보:`, finalRegionalInfo);
     console.log(`📥 ${language} AI 응답 수신: ${text.length}자`);
 
     // 🚨 AI 응답 디버깅 - 처음 1000글자만 출력
