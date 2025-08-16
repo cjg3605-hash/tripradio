@@ -445,6 +445,56 @@ function inferCountryCodeFromRegion(region: string): string {
 }
 
 /**
+ * 🎯 관광 접근성 기반 지역 추론 (동적 방식)
+ */
+function inferRegionByTourismAccessibility(locationName: string): {
+  location_region: string | null;
+  country_code: string | null;
+} {
+  const name = locationName.toLowerCase();
+  
+  // 관광 접근성 점수 기반 지역 선택
+  const accessibilityScore = {
+    seoul: 0,
+    busan: 0,
+    gyeongju: 0,
+    jeju: 0
+  };
+  
+  // 국제적 인지도 및 교통 접근성 평가
+  if (name.includes('용궁') || name.includes('바다') || name.includes('해안')) {
+    accessibilityScore.busan += 3; // 해안 접근성
+  }
+  
+  if (name.includes('역사') || name.includes('고대') || name.includes('신라')) {
+    accessibilityScore.gyeongju += 2; // 역사적 중요성
+  }
+  
+  if (name.includes('도심') || name.includes('중심')) {
+    accessibilityScore.seoul += 2; // 도심 접근성
+  }
+  
+  // 관광 인프라 평가 (국제공항, KTX, 지하철)
+  accessibilityScore.seoul += 3; // 최고 교통 인프라
+  accessibilityScore.busan += 2; // 좋은 교통 인프라
+  accessibilityScore.jeju += 1;  // 공항 접근성
+  accessibilityScore.gyeongju += 1; // KTX 접근성
+  
+  // 최고 점수 지역 선택
+  const maxScore = Math.max(...Object.values(accessibilityScore));
+  const selectedRegion = Object.entries(accessibilityScore)
+    .find(([_, score]) => score === maxScore)?.[0];
+  
+  switch (selectedRegion) {
+    case 'busan': return { location_region: '부산광역시', country_code: 'KOR' };
+    case 'seoul': return { location_region: '서울특별시', country_code: 'KOR' };
+    case 'gyeongju': return { location_region: '경상북도', country_code: 'KOR' };
+    case 'jeju': return { location_region: '제주특별자치도', country_code: 'KOR' };
+    default: return { location_region: '부산광역시', country_code: 'KOR' }; // 기본값: 관광 접근성 우수
+  }
+}
+
+/**
  * 🌍 장소명으로부터 지역 정보 추정 (강화된 버전)
  */
 function inferRegionalInfoFromLocationName(locationName: string): {
@@ -506,7 +556,15 @@ function inferRegionalInfoFromLocationName(locationName: string): {
     return { location_region: '웨스턴케이프', country_code: 'ZAF' };
   }
   
-  // 🇰🇷 한국 지역들
+  // 🇰🇷 한국 지역들 (동적 패턴 인식)
+  
+  // 🏯 관광지 패턴 기반 지역 추론
+  else if (name.includes('사') || name.includes('절') || name.includes('temple')) {
+    // 사찰/절의 경우 관광 접근성이 좋은 주요 도시 우선
+    return inferRegionByTourismAccessibility(name);
+  }
+  
+  // 일반 지역별 매핑
   else if (name.includes('서울') || name.includes('seoul')) {
     return { location_region: '서울특별시', country_code: 'KOR' };
   } else if (name.includes('부산') || name.includes('busan')) {

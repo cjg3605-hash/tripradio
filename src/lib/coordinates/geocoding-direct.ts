@@ -114,6 +114,10 @@ function generateSearchQueries(locationName: string, context?: LocationContext):
   const region = context?.region || '';
   const country = context?.country || '';
   
+  // 🎯 동적 관광지 패턴 인식 및 검색어 최적화
+  const optimizedQueries = generateOptimizedQueries(locationName, region, country, context?.language);
+  queries.push(...optimizedQueries);
+  
   // 1순위: 지역 + 장소명 조합
   if (region && country) {
     queries.push(`${locationName}, ${region}, ${country}`);
@@ -144,6 +148,64 @@ function generateSearchQueries(locationName: string, context?: LocationContext):
   
   // 중복 제거
   return [...new Set(queries)];
+}
+
+/**
+ * 🎯 동적 관광지 패턴 인식 및 검색어 최적화
+ */
+function generateOptimizedQueries(locationName: string, region: string, country: string, language?: string): string[] {
+  const queries: string[] = [];
+  const name = locationName.toLowerCase();
+  
+  // 🏯 종교 건물 패턴 인식 및 최적화
+  if (name.includes('사') || name.includes('절') || name.includes('temple')) {
+    // 유명 관광지가 있는 지역 우선
+    const majorTouristCities = ['부산', '서울', '경주', '제주', 'busan', 'seoul', 'gyeongju', 'jeju'];
+    const hasMajorCity = majorTouristCities.some(city => 
+      region.toLowerCase().includes(city) || country.toLowerCase().includes(city)
+    );
+    
+    if (hasMajorCity && language === 'ko') {
+      // 한국 사찰의 경우 관광지 중심의 검색어 추가
+      queries.push(`${locationName} 관광명소`);
+      queries.push(`${locationName} 템플스테이`);
+      queries.push(`${locationName} 문화재`);
+    }
+    
+    // 영문명 추가 (국제 관광객용)
+    if (language === 'ko') {
+      queries.push(`${locationName} temple`);
+    }
+  }
+  
+  // 🏰 궁궐 패턴 인식
+  if (name.includes('궁') || name.includes('palace')) {
+    queries.push(`${locationName} 궁궐`);
+    queries.push(`${locationName} palace`);
+    if (language === 'ko') {
+      queries.push(`${locationName} 관람`);
+      queries.push(`${locationName} 문화재`);
+    }
+  }
+  
+  // 🏖️ 해변/바다 관련 패턴
+  if (name.includes('해수욕장') || name.includes('해변') || name.includes('beach')) {
+    queries.push(`${locationName} 해수욕장`);
+    queries.push(`${locationName} beach`);
+    if (region.includes('부산') || region.includes('busan')) {
+      queries.push(`${locationName} 부산`);
+    }
+  }
+  
+  // 🗻 산/공원 패턴
+  if (name.includes('산') || name.includes('공원') || name.includes('mountain') || name.includes('park')) {
+    queries.push(`${locationName} 등산`);
+    queries.push(`${locationName} 국립공원`);
+    queries.push(`${locationName} mountain`);
+    queries.push(`${locationName} national park`);
+  }
+  
+  return queries;
 }
 
 /**
