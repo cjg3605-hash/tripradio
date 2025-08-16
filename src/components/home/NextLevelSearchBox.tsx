@@ -31,6 +31,50 @@ interface ExplorationSuggestion {
   searchable: boolean;
 }
 
+// 🌍 국가코드 캐시 (메모리 캐싱)
+const countryCodeCache = new Map<string, string>();
+
+// 🚀 REST Countries API 기반 국가코드 변환
+async function getCountryCode(countryName: string): Promise<string | null> {
+  try {
+    // 캐시 확인
+    const cached = countryCodeCache.get(countryName);
+    if (cached) {
+      console.log('💾 국가코드 캐시 히트:', countryName, '→', cached);
+      return cached;
+    }
+    
+    console.log('🌍 REST Countries API 국가코드 변환:', countryName);
+    
+    // REST Countries API 호출
+    const response = await fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(countryName)}?fields=cca3`);
+    
+    if (!response.ok) {
+      console.warn('⚠️ REST Countries API 응답 실패:', response.status);
+      return null;
+    }
+    
+    const data = await response.json();
+    
+    if (data && data.length > 0 && data[0].cca3) {
+      const countryCode = data[0].cca3; // ISO 3166-1 alpha-3 코드
+      
+      // 캐시에 저장
+      countryCodeCache.set(countryName, countryCode);
+      
+      console.log('✅ 국가코드 변환 성공:', countryName, '→', countryCode);
+      return countryCode;
+    }
+    
+    console.warn('⚠️ 국가코드 데이터 없음:', countryName);
+    return null;
+    
+  } catch (error) {
+    console.error('❌ 국가코드 변환 오류:', error);
+    return null;
+  }
+}
+
 export default function NextLevelSearchBox() {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -210,55 +254,62 @@ export default function NextLevelSearchBox() {
     setIsSubmitting(true);
     
     try {
-      // 🚀 지역정보 추출 API 호출 (선택 시점에서)
-      console.log('🌍 지역정보 추출 시작:', suggestion.name);
+      // 🚀 자동완성 location 필드 직접 파싱
+      console.log('📍 자동완성 location 파싱:', suggestion.location);
       
-      const extractResponse = await fetch('/api/locations/extract-regional-info', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          placeName: suggestion.name,
-          language: currentLanguage
-        })
-      });
+      // "부산, 대한민국" 형태를 파싱
+      const parts = suggestion.location.split(',').map(part => part.trim());
       
-      const extractData = await extractResponse.json();
-      
-      let urlParams: URLSearchParams;
-      
-      if (extractData.success) {
-        // 🎉 지역정보 추출 성공
-        console.log('✅ 지역정보 추출 성공:', extractData.data);
-        urlParams = new URLSearchParams({
-          region: extractData.data.region || '',
-          country: extractData.data.country || '',
-          countryCode: extractData.data.countryCode || '',
-          type: 'attraction'
-        });
+      if (parts.length >= 2) {
+        const region = parts[0]; // 부산
+        const country = parts[1]; // 대한민국
+        
+        // 국가명만 국가코드로 변환
+        console.log('🌍 국가코드 변환 시작:', country);
+        const countryCode = await getCountryCode(country);
+        
+        if (countryCode) {
+          // 성공: 정확한 지역정보로 이동
+          const urlParams = new URLSearchParams({
+            region: region,
+            country: country,
+            countryCode: countryCode,
+            type: 'attraction'
+          });
+          
+          const targetUrl = `/guide/${encodeURIComponent(suggestion.name)}?${urlParams.toString()}`;
+          
+          console.log('🚀 자동완성 → URL 파라미터 변환 성공:', {
+            name: suggestion.name,
+            region: region,
+            country: country,
+            countryCode: countryCode,
+            url: targetUrl
+          });
+          
+          setTimeout(() => {
+            router.push(targetUrl);
+          }, 100);
+          
+        } else {
+          // 국가코드 변환 실패: 장소명만으로 이동
+          console.warn('⚠️ 국가코드 변환 실패, 장소명만으로 이동');
+          const fallbackUrl = `/guide/${encodeURIComponent(suggestion.name)}`;
+          setTimeout(() => {
+            router.push(fallbackUrl);
+          }, 100);
+        }
       } else {
-        // ⚠️ 지역정보 추출 실패 - 기본 처리
-        console.warn('⚠️ 지역정보 추출 실패:', extractData.error);
-        urlParams = new URLSearchParams({
-          type: 'attraction'
-        });
+        // location 파싱 실패: 장소명만으로 이동
+        console.warn('⚠️ location 파싱 실패, 장소명만으로 이동');
+        const fallbackUrl = `/guide/${encodeURIComponent(suggestion.name)}`;
+        setTimeout(() => {
+          router.push(fallbackUrl);
+        }, 100);
       }
       
-      const targetUrl = `/guide/${encodeURIComponent(suggestion.name)}?${urlParams.toString()}`;
-      
-      console.log('🚀 자동완성 선택으로 이동:', {
-        name: suggestion.name,
-        extractedInfo: extractData.success ? extractData.data : 'failed',
-        url: targetUrl
-      });
-      
-      setTimeout(() => {
-        router.push(targetUrl);
-      }, 100);
-      
     } catch (error) {
-      console.error('❌ 지역정보 추출 API 오류:', error);
+      console.error('❌ 자동완성 처리 오류:', error);
       
       // 오류 발생 시 기본 처리
       const fallbackUrl = `/guide/${encodeURIComponent(suggestion.name)}`;
