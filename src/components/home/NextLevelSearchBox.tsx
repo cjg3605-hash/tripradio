@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { saveAutocompleteData } from '@/lib/cache/autocompleteStorage';
 // import { enhancedLocationSearch, SearchCandidate, SearchFilters } from '@/lib/search/enhanced-search-system';
 
 // 새로운 구조화된 위치 데이터 인터페이스
@@ -34,9 +35,51 @@ interface ExplorationSuggestion {
 // 🌍 국가코드 캐시 (메모리 캐싱)
 const countryCodeCache = new Map<string, string>();
 
+// 🌏 한국어 국가명 → 영어 매핑 (REST Countries API 호환)
+const koreanCountryMap: Record<string, string> = {
+  '대한민국': 'South Korea',
+  '한국': 'South Korea',
+  '미국': 'United States',
+  '일본': 'Japan',
+  '중국': 'China',
+  '영국': 'United Kingdom',
+  '프랑스': 'France',
+  '독일': 'Germany',
+  '이탈리아': 'Italy',
+  '스페인': 'Spain',
+  '러시아': 'Russia',
+  '인도': 'India',
+  '브라질': 'Brazil',
+  '캐나다': 'Canada',
+  '호주': 'Australia',
+  '태국': 'Thailand',
+  '베트남': 'Vietnam',
+  '싱가포르': 'Singapore',
+  '말레이시아': 'Malaysia',
+  '인도네시아': 'Indonesia',
+  '필리핀': 'Philippines',
+  '터키': 'Turkey',
+  '이집트': 'Egypt',
+  '남아프리카공화국': 'South Africa',
+  '멕시코': 'Mexico',
+  '아르헨티나': 'Argentina',
+  '칠레': 'Chile',
+  '페루': 'Peru',
+  '네덜란드': 'Netherlands',
+  '벨기에': 'Belgium',
+  '스위스': 'Switzerland',
+  '오스트리아': 'Austria',
+  '노르웨이': 'Norway',
+  '스웨덴': 'Sweden',
+  '덴마크': 'Denmark',
+  '핀란드': 'Finland'
+};
+
 // 🚀 REST Countries API 기반 국가코드 변환
 async function getCountryCode(countryName: string): Promise<string | null> {
   try {
+    console.log('🔍 국가코드 변환 요청:', countryName);
+    
     // 캐시 확인
     const cached = countryCodeCache.get(countryName);
     if (cached) {
@@ -44,33 +87,56 @@ async function getCountryCode(countryName: string): Promise<string | null> {
       return cached;
     }
     
-    console.log('🌍 REST Countries API 국가코드 변환:', countryName);
-    
-    // REST Countries API 호출
-    const response = await fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(countryName)}?fields=cca3`);
-    
-    if (!response.ok) {
-      console.warn('⚠️ REST Countries API 응답 실패:', response.status);
-      return null;
+    // 🌏 한국어 국가명을 영어로 변환
+    const englishCountryName = koreanCountryMap[countryName] || countryName;
+    if (englishCountryName !== countryName) {
+      console.log('🈯 한국어 국가명 매핑:', countryName, '→', englishCountryName);
     }
     
-    const data = await response.json();
+    console.log('🌍 REST Countries API 국가코드 변환 시작:', englishCountryName);
     
-    if (data && data.length > 0 && data[0].cca3) {
-      const countryCode = data[0].cca3; // ISO 3166-1 alpha-3 코드
-      
-      // 캐시에 저장
-      countryCodeCache.set(countryName, countryCode);
-      
-      console.log('✅ 국가코드 변환 성공:', countryName, '→', countryCode);
-      return countryCode;
+    // 여러 API 엔드포인트 시도
+    const endpoints = [
+      `https://restcountries.com/v3.1/name/${encodeURIComponent(englishCountryName)}?fields=cca3`,
+      `https://restcountries.com/v3.1/translation/${encodeURIComponent(englishCountryName)}?fields=cca3`
+    ];
+    
+    for (const endpoint of endpoints) {
+      try {
+        console.log('📡 API 호출:', endpoint);
+        const response = await fetch(endpoint);
+        
+        if (!response.ok) {
+          console.warn('⚠️ API 응답 실패:', response.status, endpoint);
+          continue;
+        }
+        
+        const data = await response.json();
+        console.log('📋 API 응답 데이터:', data);
+        
+        if (data && data.length > 0 && data[0].cca3) {
+          const countryCode = data[0].cca3; // ISO 3166-1 alpha-3 코드
+          
+          // 원래 한국어 이름과 영어 이름 모두 캐시에 저장
+          countryCodeCache.set(countryName, countryCode);
+          if (englishCountryName !== countryName) {
+            countryCodeCache.set(englishCountryName, countryCode);
+          }
+          
+          console.log('✅ 국가코드 변환 성공:', countryName, '→', countryCode);
+          return countryCode;
+        }
+      } catch (endpointError) {
+        console.warn('⚠️ API 엔드포인트 오류:', endpoint, endpointError);
+        continue;
+      }
     }
     
-    console.warn('⚠️ 국가코드 데이터 없음:', countryName);
+    console.warn('⚠️ 모든 API 엔드포인트 실패, 국가코드 데이터 없음:', countryName, '(영어명:', englishCountryName, ')');
     return null;
     
   } catch (error) {
-    console.error('❌ 국가코드 변환 오류:', error);
+    console.error('❌ 국가코드 변환 전체 오류:', error);
     return null;
   }
 }
@@ -133,6 +199,7 @@ export default function NextLevelSearchBox() {
           setSuggestions(data.success ? data.data : []);
           setExplorationSuggestions(data.explorationSuggestions || []);
           setShowExploration(data.hasExploration || false);
+          console.log('🔄 자동완성 결과 받음 - selectedIndex 초기화 (-1)');
           setSelectedIndex(-1);
           setHasAttemptedSearch(true); // 검색 시도 완료
         } catch (error) {
@@ -151,6 +218,7 @@ export default function NextLevelSearchBox() {
       setExplorationSuggestions([]);
       setShowExploration(false);
       setIsTyping(false);
+      console.log('🔄 검색어 무효 - selectedIndex 초기화 (-1)');
       setSelectedIndex(-1);
       setHasAttemptedSearch(false); // 검색 시도 초기화
       return undefined;
@@ -159,83 +227,189 @@ export default function NextLevelSearchBox() {
 
   // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    console.log('⌨️ 키보드 이벤트:', {
+      key: e.key,
+      selectedIndex,
+      suggestionsLength: suggestions.length,
+      isFocused,
+      query: query.trim(),
+      isSubmitting
+    });
+
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelectedIndex(prev => 
-        prev < suggestions.length - 1 ? prev + 1 : prev
-      );
+      const newIndex = selectedIndex < suggestions.length - 1 ? selectedIndex + 1 : selectedIndex;
+      console.log('🔽 ArrowDown:', { from: selectedIndex, to: newIndex });
+      setSelectedIndex(newIndex);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
+      const newIndex = selectedIndex > 0 ? selectedIndex - 1 : -1;
+      console.log('🔼 ArrowUp:', { from: selectedIndex, to: newIndex });
+      setSelectedIndex(newIndex);
     } else if (e.key === 'Enter') {
       e.preventDefault();
+      console.log('🎯 Enter 키 감지:', {
+        selectedIndex,
+        hasSuggestion: selectedIndex >= 0 && suggestions[selectedIndex],
+        suggestionName: selectedIndex >= 0 && suggestions[selectedIndex] ? suggestions[selectedIndex].name : null,
+        willCallHandleSearch: !(selectedIndex >= 0 && suggestions[selectedIndex])
+      });
+      
       if (selectedIndex >= 0 && suggestions[selectedIndex]) {
         // 키보드로 선택된 항목을 클릭한 것과 동일하게 처리
+        console.log('🚀 handleSuggestionClick 호출:', suggestions[selectedIndex]);
         handleSuggestionClick(suggestions[selectedIndex]);
       } else {
+        console.log('🚀 handleSearch 호출 준비 중...');
         handleSearch();
       }
     } else if (e.key === 'Escape') {
+      console.log('🔄 Escape 키 - 포커스 해제');
       setIsFocused(false);
       inputRef.current?.blur();
     }
   };
 
   const handleSearch = async () => {
-    if (!query.trim() || isSubmitting) return;
+    console.log('🚀 handleSearch 함수 호출됨:', { query: query.trim(), isSubmitting });
+    
+    if (!query.trim() || isSubmitting) {
+      console.log('⚠️ handleSearch 조기 종료:', { hasQuery: !!query.trim(), isSubmitting });
+      return;
+    }
     
     setIsSubmitting(true);
     setIsFocused(false);
     
     try {
-      // 🚀 직접 입력 시에도 지역정보 추출 API 호출
-      console.log('🌍 직접 입력 지역정보 추출 시작:', query.trim());
+      // 🚀 엔터 입력 시 자동완성 API로 첫 번째 결과 가져오기
+      console.log('🔍 엔터 입력 - 자동완성 API 호출:', query.trim());
       
-      const extractResponse = await fetch('/api/locations/extract-regional-info', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          placeName: query.trim(),
-          language: currentLanguage
-        })
-      });
+      const searchResponse = await fetch(`/api/locations/search?q=${encodeURIComponent(query.trim())}&lang=${currentLanguage}`);
+      const searchData = await searchResponse.json();
       
-      const extractData = await extractResponse.json();
-      
-      let targetUrl = `/guide/${encodeURIComponent(query.trim())}`;
-      
-      if (extractData.success) {
-        // 🎉 지역정보 추출 성공
-        console.log('✅ 직접 입력 지역정보 추출 성공:', extractData.data);
-        const urlParams = new URLSearchParams({
-          region: extractData.data.region || '',
-          country: extractData.data.country || '',
-          countryCode: extractData.data.countryCode || '',
-          type: 'attraction'
-        });
-        targetUrl += `?${urlParams.toString()}`;
+      if (searchData.success && searchData.data && searchData.data.length > 0) {
+        // 첫 번째 자동완성 결과 사용
+        const firstSuggestion = searchData.data[0];
+        console.log('✅ 자동완성 첫 번째 결과:', firstSuggestion);
+        
+        // 자동완성 클릭과 동일한 로직으로 처리
+        const parts = firstSuggestion.location.split(',').map(part => part.trim());
+        
+        if (parts.length >= 2) {
+          const region = parts[0]; // 지역명
+          const country = parts[1]; // 국가명
+          
+          // 국가명을 국가코드로 변환
+          console.log('🌍 국가코드 변환 시작:', country);
+          const countryCode = await getCountryCode(country);
+          
+          // 🆕 SessionStorage에 자동완성 데이터 저장 (성공/실패 상관없이)
+          const parsedInfo = {
+            region: region,
+            country: country,
+            countryCode: countryCode || undefined
+          };
+          
+          const saved = saveAutocompleteData(query.trim(), firstSuggestion, parsedInfo);
+          console.log('💾 SessionStorage 저장 결과:', saved);
+          
+          if (countryCode) {
+            // 성공: 정확한 지역정보로 이동
+            const urlParams = new URLSearchParams({
+              region: region,
+              country: country,
+              countryCode: countryCode,
+              type: 'attraction'
+            });
+            
+            const targetUrl = `/guide/${encodeURIComponent(query.trim())}?${urlParams.toString()}`;
+            
+            console.log('🚀 엔터 입력 → 자동완성 로직 적용 성공:', {
+              query: query.trim(),
+              suggestion: firstSuggestion.name,
+              region: region,
+              country: country,
+              countryCode: countryCode,
+              url: targetUrl
+            });
+            
+            setTimeout(() => {
+              router.push(targetUrl);
+            }, 100);
+            return;
+          } else {
+            // 국가코드 변환 실패해도 SessionStorage 데이터는 저장됨
+            console.log('⚠️ 국가코드 변환 실패했지만 SessionStorage에는 저장됨');
+          }
+        } else {
+          // 파싱 실패시에도 원본 데이터 저장
+          console.log('⚠️ location 파싱 실패, 원본 데이터로 저장');
+          const parsedInfo = {
+            region: firstSuggestion.name || query.trim(),
+            country: '',
+            countryCode: undefined
+          };
+          
+          saveAutocompleteData(query.trim(), firstSuggestion, parsedInfo);
+        }
       } else {
-        console.warn('⚠️ 직접 입력 지역정보 추출 실패:', extractData.error);
+        // 자동완성 결과가 없어도 기본 정보는 저장
+        console.log('⚠️ 자동완성 결과 없음, 기본 정보로 저장');
+        const basicData = {
+          name: query.trim(),
+          location: '',
+          type: 'attraction',
+          confidence: 0.5
+        };
+        const parsedInfo = {
+          region: query.trim(),
+          country: '',
+          countryCode: undefined
+        };
+        
+        saveAutocompleteData(query.trim(), basicData, parsedInfo);
       }
       
-      console.log('🚀 직접 입력으로 이동:', {
-        query: query.trim(),
-        extractedInfo: extractData.success ? extractData.data : 'failed',
-        url: targetUrl
-      });
+      // 기본 URL로 이동 (SessionStorage 데이터와 함께)
+      console.log('🚀 기본 URL로 이동 (SessionStorage 데이터 포함)');
+      const fallbackUrl = `/guide/${encodeURIComponent(query.trim())}`;
       
       setTimeout(() => {
-        router.push(targetUrl);
+        router.push(fallbackUrl);
       }, 100);
       
     } catch (error) {
-      console.error('❌ 직접 입력 지역정보 추출 API 오류:', error);
-      // 오류 발생 시 기본 처리
+      console.error('❌ 엔터 입력 처리 오류:', error);
+      
+      // 오류 발생 시에도 기본 정보는 저장 시도
+      try {
+        const basicData = {
+          name: query.trim(),
+          location: '',
+          type: 'attraction',
+          confidence: 0.3
+        };
+        const parsedInfo = {
+          region: query.trim(),
+          country: '',
+          countryCode: undefined
+        };
+        
+        saveAutocompleteData(query.trim(), basicData, parsedInfo);
+        console.log('💾 오류 상황에서도 기본 데이터 저장 완료');
+      } catch (storageError) {
+        console.error('❌ SessionStorage 저장마저 실패:', storageError);
+      }
+      
+      // 기본 처리
+      const fallbackUrl = `/guide/${encodeURIComponent(query.trim())}`;
       setTimeout(() => {
-        router.push(`/guide/${encodeURIComponent(query.trim())}`);
+        router.push(fallbackUrl);
       }, 100);
+    } finally {
+      // 상태 복원을 보장
+      setIsSubmitting(false);
     }
   };
 
@@ -268,6 +442,16 @@ export default function NextLevelSearchBox() {
         console.log('🌍 국가코드 변환 시작:', country);
         const countryCode = await getCountryCode(country);
         
+        // 🆕 SessionStorage에 자동완성 데이터 저장 (성공/실패 상관없이)
+        const parsedInfo = {
+          region: region,
+          country: country,
+          countryCode: countryCode || undefined
+        };
+        
+        const saved = saveAutocompleteData(suggestion.name, suggestion, parsedInfo);
+        console.log('💾 자동완성 클릭 → SessionStorage 저장 결과:', saved);
+        
         if (countryCode) {
           // 성공: 정확한 지역정보로 이동
           const urlParams = new URLSearchParams({
@@ -292,16 +476,24 @@ export default function NextLevelSearchBox() {
           }, 100);
           
         } else {
-          // 국가코드 변환 실패: 장소명만으로 이동
-          console.warn('⚠️ 국가코드 변환 실패, 장소명만으로 이동');
+          // 국가코드 변환 실패해도 SessionStorage 데이터는 저장됨
+          console.log('⚠️ 국가코드 변환 실패했지만 SessionStorage에는 저장됨');
           const fallbackUrl = `/guide/${encodeURIComponent(suggestion.name)}`;
           setTimeout(() => {
             router.push(fallbackUrl);
           }, 100);
         }
       } else {
-        // location 파싱 실패: 장소명만으로 이동
-        console.warn('⚠️ location 파싱 실패, 장소명만으로 이동');
+        // location 파싱 실패시에도 원본 데이터 저장
+        console.log('⚠️ location 파싱 실패, 원본 데이터로 저장');
+        const parsedInfo = {
+          region: suggestion.name,
+          country: '',
+          countryCode: undefined
+        };
+        
+        saveAutocompleteData(suggestion.name, suggestion, parsedInfo);
+        
         const fallbackUrl = `/guide/${encodeURIComponent(suggestion.name)}`;
         setTimeout(() => {
           router.push(fallbackUrl);
@@ -311,7 +503,21 @@ export default function NextLevelSearchBox() {
     } catch (error) {
       console.error('❌ 자동완성 처리 오류:', error);
       
-      // 오류 발생 시 기본 처리
+      // 오류 발생 시에도 기본 정보는 저장 시도
+      try {
+        const parsedInfo = {
+          region: suggestion.name,
+          country: '',
+          countryCode: undefined
+        };
+        
+        saveAutocompleteData(suggestion.name, suggestion, parsedInfo);
+        console.log('💾 오류 상황에서도 기본 데이터 저장 완료');
+      } catch (storageError) {
+        console.error('❌ SessionStorage 저장마저 실패:', storageError);
+      }
+      
+      // 기본 처리
       const fallbackUrl = `/guide/${encodeURIComponent(suggestion.name)}`;
       setTimeout(() => {
         router.push(fallbackUrl);
@@ -347,13 +553,16 @@ export default function NextLevelSearchBox() {
   };
 
   const handleFocus = () => {
+    console.log('🎯 입력창 포커스 취득');
     setIsFocused(true);
   };
 
   const handleBlur = () => {
     // 클릭이 아닌 다른 이유로 포커스가 해제될 때만 처리
     // (예: Tab 키, 다른 곳 클릭 등)
+    console.log('🔄 입력창 포커스 해제 - 200ms 후 selectedIndex 초기화');
     setTimeout(() => {
+      console.log('🔄 포커스 해제 완료:', { selectedIndex, isFocused });
       setIsFocused(false);
       setSelectedIndex(-1);
     }, 200); // 충분한 시간을 주어 클릭 이벤트가 먼저 처리되도록 함

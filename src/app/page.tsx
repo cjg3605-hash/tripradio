@@ -146,6 +146,115 @@ const isValidCountriesData = (data: any): boolean => {
   return data && typeof data === 'object' && !Array.isArray(data);
 };
 
+// 🌍 국가코드 캐시 (메모리 캐싱)
+const countryCodeCache = new Map<string, string>();
+
+// 🌏 한국어 국가명 → 영어 매핑 (REST Countries API 호환)
+const koreanCountryMap: Record<string, string> = {
+  '대한민국': 'South Korea',
+  '한국': 'South Korea',
+  '미국': 'United States',
+  '일본': 'Japan',
+  '중국': 'China',
+  '영국': 'United Kingdom',
+  '프랑스': 'France',
+  '독일': 'Germany',
+  '이탈리아': 'Italy',
+  '스페인': 'Spain',
+  '러시아': 'Russia',
+  '인도': 'India',
+  '브라질': 'Brazil',
+  '캐나다': 'Canada',
+  '호주': 'Australia',
+  '태국': 'Thailand',
+  '베트남': 'Vietnam',
+  '싱가포르': 'Singapore',
+  '말레이시아': 'Malaysia',
+  '인도네시아': 'Indonesia',
+  '필리핀': 'Philippines',
+  '터키': 'Turkey',
+  '이집트': 'Egypt',
+  '남아프리카공화국': 'South Africa',
+  '멕시코': 'Mexico',
+  '아르헨티나': 'Argentina',
+  '칠레': 'Chile',
+  '페루': 'Peru',
+  '네덜란드': 'Netherlands',
+  '벨기에': 'Belgium',
+  '스위스': 'Switzerland',
+  '오스트리아': 'Austria',
+  '노르웨이': 'Norway',
+  '스웨덴': 'Sweden',
+  '덴마크': 'Denmark',
+  '핀란드': 'Finland'
+};
+
+// 🚀 REST Countries API 기반 국가코드 변환
+async function getCountryCode(countryName: string): Promise<string | null> {
+  try {
+    console.log('🔍 국가코드 변환 요청:', countryName);
+    
+    // 캐시 확인
+    const cached = countryCodeCache.get(countryName);
+    if (cached) {
+      console.log('💾 국가코드 캐시 히트:', countryName, '→', cached);
+      return cached;
+    }
+    
+    // 🌏 한국어 국가명을 영어로 변환
+    const englishCountryName = koreanCountryMap[countryName] || countryName;
+    if (englishCountryName !== countryName) {
+      console.log('🈯 한국어 국가명 매핑:', countryName, '→', englishCountryName);
+    }
+    
+    console.log('🌍 REST Countries API 국가코드 변환 시작:', englishCountryName);
+    
+    // 여러 API 엔드포인트 시도
+    const endpoints = [
+      `https://restcountries.com/v3.1/name/${encodeURIComponent(englishCountryName)}?fields=cca3`,
+      `https://restcountries.com/v3.1/translation/${encodeURIComponent(englishCountryName)}?fields=cca3`
+    ];
+    
+    for (const endpoint of endpoints) {
+      try {
+        console.log('📡 API 호출:', endpoint);
+        const response = await fetch(endpoint);
+        
+        if (!response.ok) {
+          console.warn('⚠️ API 응답 실패:', response.status, endpoint);
+          continue;
+        }
+        
+        const data = await response.json();
+        console.log('📋 API 응답 데이터:', data);
+        
+        if (data && data.length > 0 && data[0].cca3) {
+          const countryCode = data[0].cca3; // ISO 3166-1 alpha-3 코드
+          
+          // 원래 한국어 이름과 영어 이름 모두 캐시에 저장
+          countryCodeCache.set(countryName, countryCode);
+          if (englishCountryName !== countryName) {
+            countryCodeCache.set(englishCountryName, countryCode);
+          }
+          
+          console.log('✅ 국가코드 변환 성공:', countryName, '→', countryCode);
+          return countryCode;
+        }
+      } catch (endpointError) {
+        console.warn('⚠️ API 엔드포인트 오류:', endpoint, endpointError);
+        continue;
+      }
+    }
+    
+    console.warn('⚠️ 모든 API 엔드포인트 실패, 국가코드 데이터 없음:', countryName, '(영어명:', englishCountryName, ')');
+    return null;
+    
+  } catch (error) {
+    console.error('❌ 국가코드 변환 전체 오류:', error);
+    return null;
+  }
+}
+
 function Home() {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
@@ -764,16 +873,74 @@ function Home() {
     };
   }, []);
 
-  // 검색 실행 (메모리 안전, 분리된 로딩 상태)
+  // 검색 실행 (자동완성 결과 활용, 지역정보 파라미터 생성)
   const handleSearch = useCallback(async () => {
     if (!query.trim() || !isMountedRef.current) return;
     
+    console.log('🚀 handleSearch 함수 호출됨 (page.tsx):', { query: query.trim() });
+    
     setCurrentLoadingQuery(query.trim());
     setLoadingState('search', true);
+    
     try {
+      // 🚀 엔터 입력 시 자동완성 API로 첫 번째 결과 가져오기
+      console.log('🔍 엔터 입력 - 자동완성 API 호출:', query.trim());
+      
+      const searchResponse = await fetch(`/api/locations/search?q=${encodeURIComponent(query.trim())}&lang=${currentLanguage}`);
+      const searchData = await searchResponse.json();
+      
+      if (searchData.success && searchData.data && searchData.data.length > 0) {
+        // 첫 번째 자동완성 결과 사용
+        const firstSuggestion = searchData.data[0];
+        console.log('✅ 자동완성 첫 번째 결과:', firstSuggestion);
+        
+        // 자동완성 클릭과 동일한 로직으로 처리
+        const parts = firstSuggestion.location.split(',').map((part: string) => part.trim());
+        
+        if (parts.length >= 2) {
+          const region = parts[0]; // 지역명
+          const country = parts[1]; // 국가명
+          
+          // 국가명을 국가코드로 변환
+          console.log('🌍 국가코드 변환 시작:', country);
+          const countryCode = await getCountryCode(country);
+          
+          if (countryCode) {
+            // 성공: 정확한 지역정보로 이동
+            const urlParams = new URLSearchParams({
+              region: region,
+              country: country,
+              countryCode: countryCode,
+              type: 'attraction',
+              lang: currentLanguage
+            });
+            
+            const targetUrl = `/guide/${encodeURIComponent(query.trim())}?${urlParams.toString()}`;
+            
+            console.log('🚀 엔터 입력 → 자동완성 로직 적용 성공 (page.tsx):', {
+              query: query.trim(),
+              suggestion: firstSuggestion.name,
+              region: region,
+              country: country,
+              countryCode: countryCode,
+              url: targetUrl
+            });
+            
+            router.push(targetUrl);
+            return;
+          }
+        }
+      }
+      
+      // 자동완성 결과가 없거나 파싱 실패 시 기본 처리
+      console.warn('⚠️ 자동완성 결과 없음 또는 파싱 실패 - 기본 URL로 이동 (page.tsx)');
       router.push(`/guide/${encodeURIComponent(query.trim())}?lang=${currentLanguage}`);
+      
     } catch (error) {
-      console.error('Search error:', error);
+      console.error('❌ 엔터 입력 처리 오류 (page.tsx):', error);
+      
+      // 오류 발생 시 기본 처리
+      router.push(`/guide/${encodeURIComponent(query.trim())}?lang=${currentLanguage}`);
     } finally {
       if (isMountedRef.current) {
         setLoadingState('search', false);

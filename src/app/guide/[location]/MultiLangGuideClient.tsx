@@ -26,6 +26,7 @@ import { safeUserProfile, normalizeLocationName } from '@/lib/utils';
 import GuideLoading from '@/components/ui/GuideLoading';
 import { routeLocationQueryCached } from '@/lib/location/location-router';
 import { supabase } from '@/lib/supabaseClient';
+import { getAutocompleteData } from '@/lib/cache/autocompleteStorage';
 
 // RegionExploreHub 동적 로드
 const RegionExploreHub = dynamic(() => import('./RegionExploreHub'), {
@@ -317,6 +318,29 @@ export default function MultiLangGuideClient({
     setError(null);
 
     try {
+      // 🆕 SessionStorage에서 자동완성 데이터 우선 확인
+      let enhancedRegionalContext = regionalContext;
+      
+      if (!forceRegenerate) {
+        const autocompleteData = getAutocompleteData(locationName);
+        
+        if (autocompleteData) {
+          console.log('✅ SessionStorage에서 자동완성 데이터 발견:', autocompleteData);
+          
+          // 자동완성 데이터로 regionalContext 강화
+          enhancedRegionalContext = {
+            region: autocompleteData.region,
+            country: autocompleteData.country,
+            countryCode: autocompleteData.countryCode,
+            type: autocompleteData.type as 'location' | 'attraction'
+          };
+          
+          console.log('🚀 자동완성 데이터로 지역 컨텍스트 강화:', enhancedRegionalContext);
+        } else {
+          console.log('📭 SessionStorage에 자동완성 데이터 없음, 기존 방식 사용');
+        }
+      }
+
       // 🔄 ${language} 가이드 로드: locationName, { forceRegenerate }
 
       let result;
@@ -330,13 +354,13 @@ export default function MultiLangGuideClient({
           contextualParentRegion
         );
       } else {
-        // 🚀 스마트 언어 전환 (새로운 regionalContext 포함)
+        // 🚀 스마트 언어 전환 (강화된 regionalContext 포함)
         result = await MultiLangGuideManager.smartLanguageSwitch(
           locationName,
           language,
           undefined,
           contextualParentRegion,
-          regionalContext // 새로운 구조화된 지역 정보 전달
+          enhancedRegionalContext // 자동완성 데이터로 강화된 지역 정보 전달
         );
       }
 
