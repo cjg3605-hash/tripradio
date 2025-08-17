@@ -149,7 +149,30 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
   // 🗺️ 좌표 상태 확인 (정확한 파싱)
   const coordinatesAnalysis = (() => {
     if (!guideCoordinates) {
-      return { hasGuideCoordinates: false, coordinatesCount: 0, validCoordinatesCount: 0 };
+      // guideCoordinates가 없을 때 allChapters에서 좌표 데이터 확인
+      const chaptersWithCoordinates = allChapters.filter(chapter => {
+        // 다양한 좌표 필드 형태 확인
+        const hasDirectCoords = (chapter.lat && chapter.lng);
+        const hasCoordinatesObj = (chapter.coordinates?.lat && chapter.coordinates?.lng);
+        const hasLocationCoords = (chapter.location && typeof chapter.location === 'object' && 
+                                   chapter.location.lat && chapter.location.lng);
+        
+        return hasDirectCoords || hasCoordinatesObj || hasLocationCoords;
+      });
+      
+      // 유효한 좌표만 카운팅
+      const validChapterCoordinates = chaptersWithCoordinates.filter(chapter => {
+        const lat = chapter.lat || chapter.coordinates?.lat || chapter.location?.lat;
+        const lng = chapter.lng || chapter.coordinates?.lng || chapter.location?.lng;
+        return lat && lng && !isNaN(lat) && !isNaN(lng) &&
+               lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+      });
+      
+      return {
+        hasGuideCoordinates: validChapterCoordinates.length > 0,
+        coordinatesCount: chaptersWithCoordinates.length,
+        validCoordinatesCount: validChapterCoordinates.length
+      };
     }
     
     if (Array.isArray(guideCoordinates)) {
@@ -179,7 +202,17 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
     isArray: Array.isArray(guideCoordinates),
     firstCoordinate: Array.isArray(guideCoordinates) && guideCoordinates.length > 0 ? 
       `(${guideCoordinates[0]?.lat || guideCoordinates[0]?.latitude}, ${guideCoordinates[0]?.lng || guideCoordinates[0]?.longitude})` : 
-      'none'
+      'none',
+    // 챕터별 좌표 정보 추가
+    chaptersCoordinateInfo: allChapters.map(chapter => ({
+      id: chapter.id,
+      title: chapter.title,
+      hasLat: !!chapter.lat,
+      hasLng: !!chapter.lng,
+      hasCoordinatesObj: !!(chapter.coordinates?.lat && chapter.coordinates?.lng),
+      hasLocationObj: !!(chapter.location?.lat && chapter.location?.lng),
+      actualCoordinates: chapter.lat && chapter.lng ? `${chapter.lat}, ${chapter.lng}` : null
+    }))
   });
 
   // refs 안전한 초기화
@@ -637,7 +670,7 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                     let coords;
                     
                     if (guideCoordinates && Array.isArray(guideCoordinates) && guideCoordinates[index]) {
-                      // DB guides.coordinates 컬럼에서 인덱스 기반으로 정확한 좌표 사용
+                      // 1순위: DB guides.coordinates 컬럼에서 인덱스 기반으로 정확한 좌표 사용
                       const coord = guideCoordinates[index];
                       coords = {
                         lat: coord.lat ?? coord.latitude,
@@ -645,8 +678,21 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                       };
                       console.log(`🗺️ [TourContent 좌표 매칭] 챕터 ${index} "${chapter.title}" → (${coords.lat}, ${coords.lng})`);
                     } else {
-                      // 최종 폴백: 동적 좌표 생성
-                      coords = getSmartCoordinates(locationName || '', index, allChapters.length);
+                      // 2순위: 챕터 자체에서 좌표 추출 (다양한 필드 지원)
+                      const chapterLat = chapter.lat || chapter.coordinates?.lat || chapter.location?.lat;
+                      const chapterLng = chapter.lng || chapter.coordinates?.lng || chapter.location?.lng;
+                      
+                      if (chapterLat && chapterLng && !isNaN(chapterLat) && !isNaN(chapterLng)) {
+                        coords = {
+                          lat: parseFloat(chapterLat),
+                          lng: parseFloat(chapterLng)
+                        };
+                        console.log(`🗺️ [TourContent 챕터 좌표] 챕터 ${index} "${chapter.title}" → (${coords.lat}, ${coords.lng})`);
+                      } else {
+                        // 3순위: 동적 좌표 생성 (최종 폴백)
+                        coords = getSmartCoordinates(locationName || '', index, allChapters.length);
+                        console.log(`🗺️ [TourContent 폴백 좌표] 챕터 ${index} "${chapter.title}" → (${coords.lat}, ${coords.lng})`);
+                      }
                     }
                     
                     return {
