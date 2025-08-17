@@ -1001,6 +1001,7 @@ export default function MultiLangGuideClient({
             <MinimalTourContent 
               guide={guideData!}
               language={currentLanguage}
+              isExploreHub={shouldShowExploreHub} // 🔥 페이지 타입 전달
               guideCoordinates={(() => {
                 const coordsToUse = coordinates || (guideData as any)?.coordinates;
                 console.log('🎯 [TourContent 전달] guideCoordinates:', {

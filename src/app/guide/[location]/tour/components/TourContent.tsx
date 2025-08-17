@@ -40,9 +40,10 @@ interface TourContentProps {
   language: string;
   chapterRefs?: MutableRefObject<(HTMLElement | null)[]>;
   guideCoordinates?: any; // Supabase coordinates 컬럼 데이터
+  isExploreHub?: boolean; // 🔥 익스플로어 허브 여부 (모든 챕터 vs 첫 챕터만)
 }
 
-const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourContentProps) => {
+const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExploreHub = false }: TourContentProps) => {
   // 🔍 guideCoordinates 디버깅 로그 (공통 유틸리티 사용)
   const coordinateValidation = validateCoordinates(guideCoordinates);
   console.log('🎯 [TourContent 전달] guideCoordinates:', {
@@ -746,11 +747,25 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                     );
                   }
 
+                  // 🎯 페이지 타입별 챕터 표시 로직
+                  const displayChapters = (() => {
+                    if (isExploreHub) {
+                      // 익스플로어 허브: 모든 챕터 위치 표시
+                      console.log(`🗺️ [익스플로어 허브] 모든 ${chaptersForMap.length}개 챕터 마커 표시`);
+                      return chaptersForMap;
+                    } else {
+                      // 일반 가이드: 첫 번째 챕터(추천 시작지점)만 표시
+                      const firstChapter = chaptersForMap.length > 0 ? [chaptersForMap[0]] : [];
+                      console.log(`🗺️ [일반 가이드] 추천 시작지점 1개 마커 표시: ${firstChapter.length > 0 ? firstChapter[0].title : '없음'}`);
+                      return firstChapter;
+                    }
+                  })();
+
                   return (
                     <StartLocationMap
                       locationName={locationName || ''}
                       startPoint={smartStartPoint} // 🔥 스마트 시작점 사용
-                      chapters={chaptersForMap} // 🔥 실제 챕터 데이터 전달
+                      chapters={displayChapters} // 🔥 페이지 타입별 챕터 데이터 전달
                       pois={[]} // POI는 비워둠 (챕터 우선)
                       className="w-full"
                       guideCoordinates={guideCoordinates}
