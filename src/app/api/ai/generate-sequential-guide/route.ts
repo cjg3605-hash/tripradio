@@ -327,9 +327,13 @@ async function createGuideSequentially(
       }, '병렬 좌표 생성 API 호출');
       
     } else {
-      console.log('❌ OptimizedLocationContext 없음, 좌표 생성 건너뜀');
-      console.warn('⚠️ 세션스토리지에 OptimizedLocationContext가 없어 좌표 생성을 건너뜁니다.');
-      // 좌표 생성 없이 진행
+      console.log('❌ OptimizedLocationContext 없음, 대안 좌표 생성 시도');
+      console.warn('⚠️ 세션스토리지에 OptimizedLocationContext가 없어 기본 정보로 좌표 생성을 시도합니다.');
+      
+      // TODO(human): OptimizedLocationContext가 없을 때도 좌표를 생성하는 대안 로직 구현
+      // Google API로 추출된 정확한 지역 정보(locationData)를 활용해 간단한 OptimizedLocationContext 구조 생성
+      // 필수 필드: placeName, location_region, country_code, language
+      // 기본값: factual_context = {}, local_context = {}
       coordinatesPromise = null;
     }
     
