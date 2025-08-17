@@ -10,6 +10,7 @@ export class MultiLangGuideManager {
   static async getGuideByLanguage(locationName: string, language: string): Promise<{
     success: boolean;
     data?: any;
+    coordinates?: any; // 🔥 좌표 타입 추가
     error?: string;
     source: 'cache' | 'database';
   }> {
@@ -259,6 +260,7 @@ export class MultiLangGuideManager {
   ): Promise<{
     success: boolean;
     data?: any;
+    coordinates?: any; // 🔥 좌표 타입 추가
     error?: string;
     source?: 'cache' | 'generated';
   }> {
@@ -273,6 +275,7 @@ export class MultiLangGuideManager {
         return {
           success: true,
           data: existingGuide.data,
+          coordinates: existingGuide.coordinates, // 🔥 좌표 데이터 포함
           source: 'cache'
         };
       }
@@ -321,7 +324,7 @@ export class MultiLangGuideManager {
     userProfile?: any,
     parentRegion?: string,
     regionalContext?: any
-  ): Promise<{ success: boolean; data?: any; error?: any; source?: string }> {
+  ): Promise<{ success: boolean; data?: any; coordinates?: any; error?: any; source?: string }> {
     
     try {
       console.log(`🤖 ${language} 가이드 생성 시작:`, locationName);
@@ -333,6 +336,7 @@ export class MultiLangGuideManager {
         return {
           success: true,
           data: existingGuide.data,
+          coordinates: existingGuide.coordinates, // 🔥 좌표 데이터 포함
           source: 'cache'
         };
       }
@@ -511,7 +515,16 @@ export class MultiLangGuideManager {
 
       if (saveResult.success) {
         console.log(`✅ ${language} 가이드 생성 및 저장 완료`);
-        return { success: true, data: guideData };
+        
+        // 🔍 생성 후 coordinates 조회 시도
+        const updatedGuide = await this.getGuideByLanguage(locationName, language);
+        const coordinates = updatedGuide.success ? updatedGuide.coordinates : null;
+        
+        return { 
+          success: true, 
+          data: guideData,
+          coordinates: coordinates // 🔥 좌표 데이터 포함
+        };
       } else {
         return { success: false, error: saveResult.error };
       }
@@ -531,7 +544,7 @@ export class MultiLangGuideManager {
     userProfile?: any,
     parentRegion?: string,
     regionalContext?: any
-  ): Promise<{ success: boolean; data?: any; error?: any }> {
+  ): Promise<{ success: boolean; data?: any; coordinates?: any; error?: any }> {
     
     try {
       console.log(`🔄 ${language} 가이드 강제 재생성:`, locationName);
@@ -585,7 +598,16 @@ export class MultiLangGuideManager {
 
       if (saveResult.success) {
         console.log(`✅ ${language} 가이드 강제 재생성 완료`);
-        return { success: true, data: guideData };
+        
+        // 🔍 재생성 후 coordinates 조회 시도
+        const updatedGuide = await this.getGuideByLanguage(locationName, language);
+        const coordinates = updatedGuide.success ? updatedGuide.coordinates : null;
+        
+        return { 
+          success: true, 
+          data: guideData,
+          coordinates: coordinates // 🔥 좌표 데이터 포함
+        };
       } else {
         return { success: false, error: saveResult.error };
       }

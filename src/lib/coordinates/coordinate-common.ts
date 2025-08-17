@@ -500,6 +500,172 @@ export function getOptimalLanguageForLocation(locationName: string): string {
 }
 
 /**
+ * 🗺️ Supabase coordinates 칼럼 파싱 유틸리티
+ * 
+ * Supabase에서 가져온 coordinates 데이터를 표준 배열 형태로 변환
+ * 실제 DB 구조: {0: {lat, lng}, 1: {lat, lng}, ...} → 배열로 변환
+ */
+
+/**
+ * Supabase coordinates 타입 정의
+ */
+export interface SupabaseCoordinate {
+  lat: number;
+  lng: number;
+  name?: string;
+  title?: string;
+  description?: string;
+}
+
+export interface StandardCoordinate {
+  id: number;
+  lat: number;
+  lng: number;
+  name?: string;
+  title?: string;
+  description?: string;
+}
+
+/**
+ * 🔄 Supabase coordinates 객체를 표준 배열로 변환
+ * 입력: {0: {lat, lng}, 1: {lat, lng}, ...} (Supabase DB 형태)
+ * 출력: [{id: 0, lat, lng}, {id: 1, lat, lng}, ...] (표준 배열 형태)
+ */
+export function parseSupabaseCoordinates(coordinates: any): StandardCoordinate[] {
+  if (!coordinates) {
+    return [];
+  }
+
+  // 이미 배열인 경우 (일부 케이스)
+  if (Array.isArray(coordinates)) {
+    return coordinates.map((coord, index) => ({
+      id: index,
+      lat: parseFloat(coord.lat || coord.latitude || '0'),
+      lng: parseFloat(coord.lng || coord.longitude || '0'),
+      name: coord.name || coord.title,
+      title: coord.title || coord.name,
+      description: coord.description
+    })).filter(coord => 
+      !isNaN(coord.lat) && !isNaN(coord.lng) && 
+      coord.lat >= -90 && coord.lat <= 90 && 
+      coord.lng >= -180 && coord.lng <= 180
+    );
+  }
+
+  // 객체인 경우 (Supabase 표준 형태)
+  if (typeof coordinates === 'object') {
+    const result: StandardCoordinate[] = [];
+    
+    // 숫자 키로 정렬하여 순서 보장
+    const sortedKeys = Object.keys(coordinates).sort((a, b) => parseInt(a) - parseInt(b));
+    
+    for (const key of sortedKeys) {
+      const coord = coordinates[key];
+      if (coord && typeof coord === 'object') {
+        const lat = parseFloat(coord.lat || coord.latitude || '0');
+        const lng = parseFloat(coord.lng || coord.longitude || '0');
+        
+        // 유효한 좌표만 포함
+        if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+          result.push({
+            id: parseInt(key),
+            lat,
+            lng,
+            name: coord.name || coord.title,
+            title: coord.title || coord.name,
+            description: coord.description
+          });
+        }
+      }
+    }
+    
+    return result;
+  }
+
+  return [];
+}
+
+/**
+ * 🔍 좌표 데이터 유효성 검증
+ */
+export function validateCoordinates(coordinates: any): {
+  isValid: boolean;
+  type: 'array' | 'object' | 'invalid';
+  count: number;
+  errors: string[];
+} {
+  const errors: string[] = [];
+  
+  if (!coordinates) {
+    return {
+      isValid: false,
+      type: 'invalid',
+      count: 0,
+      errors: ['좌표 데이터가 없습니다']
+    };
+  }
+
+  if (Array.isArray(coordinates)) {
+    const validCount = coordinates.filter(coord => {
+      if (!coord || typeof coord !== 'object') return false;
+      const lat = parseFloat(coord.lat || coord.latitude || '');
+      const lng = parseFloat(coord.lng || coord.longitude || '');
+      return !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+    }).length;
+
+    return {
+      isValid: validCount > 0,
+      type: 'array',
+      count: validCount,
+      errors: validCount === 0 ? ['유효한 좌표가 없습니다'] : []
+    };
+  }
+
+  if (typeof coordinates === 'object') {
+    const keys = Object.keys(coordinates);
+    const validCount = keys.filter(key => {
+      const coord = coordinates[key];
+      if (!coord || typeof coord !== 'object') return false;
+      const lat = parseFloat(coord.lat || coord.latitude || '');
+      const lng = parseFloat(coord.lng || coord.longitude || '');
+      return !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+    }).length;
+
+    return {
+      isValid: validCount > 0,
+      type: 'object',
+      count: validCount,
+      errors: validCount === 0 ? ['유효한 좌표가 없습니다'] : []
+    };
+  }
+
+  return {
+    isValid: false,
+    type: 'invalid',
+    count: 0,
+    errors: ['올바르지 않은 좌표 데이터 형식입니다']
+  };
+}
+
+/**
+ * 🎯 좌표 필드명 정규화 (lat/lng vs latitude/longitude)
+ */
+export function normalizeCoordinateFields(coord: any): { lat: number; lng: number } | null {
+  if (!coord || typeof coord !== 'object') {
+    return null;
+  }
+
+  const lat = parseFloat(coord.lat || coord.latitude || '');
+  const lng = parseFloat(coord.lng || coord.longitude || '');
+
+  if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    return null;
+  }
+
+  return { lat, lng };
+}
+
+/**
  * 🧪 테스트 유틸리티
  */
 export const coordinateTestUtils = {
@@ -532,5 +698,16 @@ export const coordinateTestUtils = {
     return testCases.every(({ input, expected }) => 
       convertCountryCodeToAlpha3(input) === expected
     );
+  },
+
+  /** Supabase 좌표 파싱 테스트 */
+  testSupabaseCoordinateParsing: () => {
+    const testData = {
+      0: { lat: 37.5511, lng: 126.9882 },
+      1: { lat: 37.5500, lng: 126.9900 }
+    };
+    
+    const parsed = parseSupabaseCoordinates(testData);
+    return parsed.length === 2 && parsed[0].lat === 37.5511 && parsed[1].lng === 126.9900;
   }
 };

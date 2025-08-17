@@ -1357,16 +1357,16 @@ function Home() {
                   <span 
                     className="inline-block transition-transform duration-1000 ease-out w-full"
                     style={{
-                      transform: `translateY(-${currentLandmarkIndex * (isMobile ? 42 : 40)}px)`,  // 새 높이에 맞춰 조정
+                      transform: `translateY(-${currentLandmarkIndex * (isMobile ? 50 : 40)}px)`,  // 모바일에서 세로 간격 증가
                       letterSpacing: '0.05em'  // 글자 간격 약간 늘려서 가독성 향상
                     }}
                   >
                     {landmarks.map((landmark, index) => (
                       <span key={index} className="block font-bold whitespace-nowrap w-full" style={{ 
-                        height: isMobile ? '42px' : '40px',  // 높이 증가로 글자 간격 개선
-                        lineHeight: isMobile ? '42px' : '40px',  // 라인 높이 증가
+                        height: isMobile ? '50px' : '40px',  // 모바일에서 높이 증가로 글자 간격 개선
+                        lineHeight: isMobile ? '50px' : '40px',  // 모바일에서 라인 높이 증가
                         textAlign: 'center',
-                        fontSize: isMobile ? '1.3em' : '1.3em', // 30% 증가 (기본 1em → 1.3em)
+                        fontSize: isMobile ? '1.6em' : '1.3em', // 모바일에서 60% 증가 (1.3em → 1.6em)
                         letterSpacing: '0.05em'  // 글자 간격 약간 늘려서 가독성 향상
                       }}>
                         {t(`home.landmarks.${landmark}` as any) || landmark}
@@ -1516,7 +1516,7 @@ function Home() {
                     }
                   }}
                   placeholder={String(t('home.searchPlaceholder'))}
-                  className="w-full px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 lg:py-6 text-base sm:text-lg md:text-xl font-light text-black bg-transparent rounded-3xl focus:outline-none transition-all duration-300 placeholder-gray-400 focus:ring-2 focus:ring-black focus:ring-opacity-20"
+                  className="w-full px-4 sm:px-6 md:px-8 py-4 sm:py-4 md:py-5 lg:py-6 text-base sm:text-lg md:text-xl font-light text-black bg-transparent rounded-3xl focus:outline-none transition-all duration-300 placeholder-gray-400 placeholder:text-lg focus:ring-2 focus:ring-black focus:ring-opacity-20"
                   aria-label={String(t('home.searchPlaceholder'))}
                   aria-describedby="search-help"
                   aria-expanded={isFocused && suggestions.length > 0}
@@ -1796,39 +1796,19 @@ function Home() {
               </div>
             </div>
 
-            {/* 지역 상세 페이지 링크 - 카드 하단 중앙 배치 */}
-            <div className="mt-10 sm:mt-12 px-4 sm:px-6">
-              <div className="bg-[#F8F8F8] rounded-2xl p-4 sm:p-5 lg:p-6 border border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all duration-300 max-w-2xl mx-auto text-center">
-                <div className="space-y-2 sm:space-y-3">
-                  <div className="space-y-1 sm:space-y-2">
-                    <h3 className="text-fluid-lg sm:text-fluid-xl font-semibold text-black leading-tight">
-                      {activeRegion === 'korea' && '한국 여행지 전체보기'}
-                      {activeRegion === 'europe' && '유럽 여행지 전체보기'}
-                      {activeRegion === 'asia' && '아시아 여행지 전체보기'}
-                      {activeRegion === 'americas' && '아메리카 여행지 전체보기'}
-                    </h3>
-                    
-                    <p className="text-fluid-sm text-[#555555] font-light leading-relaxed max-w-md mx-auto">
-                      {activeRegion === 'korea' && '모든 인기 명소와 숨은 보석 같은 장소들을 발견해보세요'}
-                      {activeRegion === 'europe' && '유럽 각국의 역사적 명소와 문화 유산을 탐험해보세요'}
-                      {activeRegion === 'asia' && '아시아의 다채로운 문화와 아름다운 자연을 만나보세요'}
-                      {activeRegion === 'americas' && '남북 아메리카의 웅장한 자연과 도시를 경험해보세요'}
-                    </p>
-                  </div>
-                  
-                  <button
-                    onClick={() => router.push(`/regions/${activeRegion}`)}
-                    className="group inline-flex items-center justify-center bg-black text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-fluid-sm sm:text-fluid-base font-semibold hover:bg-gray-800 focus:bg-gray-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 min-w-[160px] sm:min-w-[200px] shadow-lg hover:shadow-xl"
-                  >
-                    <span className="leading-none">
-                      더 많은 명소 보기
-                    </span>
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
+            {/* 더 많은 명소 보기 버튼 */}
+            <div className="mt-10 sm:mt-12 px-4 sm:px-6 text-center">
+              <button
+                onClick={() => router.push(`/regions/${activeRegion}`)}
+                className="group inline-flex items-center justify-center bg-black text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-fluid-sm sm:text-fluid-base font-semibold hover:bg-gray-800 focus:bg-gray-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 min-w-[160px] sm:min-w-[200px] shadow-lg hover:shadow-xl"
+              >
+                <span className="leading-none">
+                  더 많은 명소 보기
+                </span>
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </button>
             </div>
 
             {/* 전략적 광고 배치 2: 지역별 국가 섹션 하단 */}

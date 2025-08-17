@@ -27,6 +27,7 @@ import GuideLoading from '@/components/ui/GuideLoading';
 import { routeLocationQueryCached } from '@/lib/location/location-router';
 import { supabase } from '@/lib/supabaseClient';
 import { getAutocompleteData } from '@/lib/cache/autocompleteStorage';
+import { parseSupabaseCoordinates, validateCoordinates } from '@/lib/coordinates/coordinate-common';
 
 // RegionExploreHub 동적 로드
 const RegionExploreHub = dynamic(() => import('./RegionExploreHub'), {
@@ -122,6 +123,35 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
     }
   };
 
+  // 🔗 좌표 데이터 보존 (다양한 경로에서 coordinates 찾기)
+  const preserveCoordinates = () => {
+    // 1. 원본 data에서 직접 coordinates 찾기
+    if (data.coordinates && Array.isArray(data.coordinates) && data.coordinates.length > 0) {
+      console.log(`🎯 [좌표 보존] 원본 data에서 ${data.coordinates.length}개 좌표 발견`);
+      return data.coordinates;
+    }
+    
+    // 2. sourceData에서 coordinates 찾기  
+    if (sourceData.coordinates && Array.isArray(sourceData.coordinates) && sourceData.coordinates.length > 0) {
+      console.log(`🎯 [좌표 보존] sourceData에서 ${sourceData.coordinates.length}개 좌표 발견`);
+      return sourceData.coordinates;
+    }
+    
+    // 3. data.content에서 coordinates 찾기
+    if (data.content?.coordinates && Array.isArray(data.content.coordinates) && data.content.coordinates.length > 0) {
+      console.log(`🎯 [좌표 보존] data.content에서 ${data.content.coordinates.length}개 좌표 발견`);
+      return data.content.coordinates;
+    }
+    
+    console.log('🔍 [좌표 보존] coordinates를 찾을 수 없음');
+    return null;
+  };
+
+  const coordinates = preserveCoordinates();
+  if (coordinates) {
+    (normalizedData as any).coordinates = coordinates;
+  }
+
   // 🔧 챕터 ID 정규화 (타입 요구사항 충족)
   if (normalizedData.realTimeGuide?.chapters) {
     normalizedData.realTimeGuide.chapters = normalizedData.realTimeGuide.chapters.map((chapter, index) => {
@@ -195,11 +225,17 @@ export default function MultiLangGuideClient({
         .eq('language', currentLanguage.toLowerCase())
         .maybeSingle();
 
-      if (fullError || !fullData?.coordinates || !Array.isArray(fullData.coordinates) || fullData.coordinates.length === 0) {
+      if (fullError || !fullData?.coordinates) {
         return null;
       }
 
-      console.log(`✅ [DB 조회] coordinates 발견: ${fullData.coordinates.length}개`);
+      // 좌표 검증
+      const validation = validateCoordinates(fullData.coordinates);
+      if (!validation.isValid) {
+        return null;
+      }
+
+      console.log(`✅ [DB 조회] coordinates 발견: ${validation.count}개`);
       return fullData.coordinates;
     } catch (error) {
       console.error('❌ [DB 조회] 예외:', error);
@@ -350,6 +386,17 @@ export default function MultiLangGuideClient({
         // 🔥 핵심: data.data가 실제 가이드 데이터
         const guideResponse = result.data;
         
+        // 🔍 [디버깅] result 전체 구조 확인
+        console.log('🔍 [result 구조 분석]', {
+          hasResult: !!result,
+          resultKeys: Object.keys(result),
+          hasData: !!result.data,
+          hasCoordinates: !!(result as any).coordinates,
+          coordinatesType: typeof (result as any).coordinates,
+          coordinatesLength: Array.isArray((result as any).coordinates) ? (result as any).coordinates.length : 'Not array',
+          resultStructure: result
+        });
+        
         // 정규화 함수에 위임 (coordinates 데이터도 전달)
         const normalizedData = normalizeGuideData(guideResponse, locationName);
         
@@ -368,20 +415,21 @@ export default function MultiLangGuideClient({
         setGuideData(normalizedData);
         
         // 🎯 핵심: guideData 설정과 동시에 coordinates도 즉시 설정 (지도 즉시 표시)
-        if (normalizedData.coordinates && Array.isArray(normalizedData.coordinates) && normalizedData.coordinates.length > 0) {
-          console.log(`🔥 [즉시 설정] guideData 로드와 함께 coordinates 설정: ${normalizedData.coordinates.length}개 - 지도 즉시 표시`);
-          setCoordinates(normalizedData.coordinates);
+        const parsedCoordinates = parseSupabaseCoordinates(normalizedData.coordinates);
+        if (parsedCoordinates.length > 0) {
+          console.log(`🔥 [즉시 설정] guideData 로드와 함께 coordinates 설정: ${parsedCoordinates.length}개 - 지도 즉시 표시`);
+          setCoordinates(normalizedData.coordinates); // 원본 데이터 그대로 전달 (파싱은 컴포넌트에서)
         }
         setSource((result as any).source || 'unknown');
 
         // 히스토리 저장
         await saveToHistory(normalizedData);
 
-        // 🎯 좌표 상태 설정 - AI 생성 시 이미 포함된 좌표 사용
-        const hasCoordinates = normalizedData.coordinates && (normalizedData.coordinates as any)?.length > 0;
+        // 🎯 좌표 상태 설정 - AI 생성 시 이미 포함된 좌표 사용 (공통 유틸리티 검증)
+        const coordinateValidation = validateCoordinates(normalizedData.coordinates);
         
-        if (hasCoordinates) {
-          console.log(`✅ [좌표 존재] "${locationName}" - ${(normalizedData.coordinates as any).length}개 좌표`);
+        if (coordinateValidation.isValid) {
+          console.log(`✅ [좌표 존재] "${locationName}" - ${coordinateValidation.count}개 좌표`);
           setCoordinates(normalizedData.coordinates);
         } else {
           console.log(`📍 [좌표 없음] "${locationName}" - 기본 지도 표시`);
@@ -601,20 +649,39 @@ export default function MultiLangGuideClient({
       });
       
       const existingCoordinates = (guideData as any)?.coordinates;
+      const coordinateValidation = validateCoordinates(existingCoordinates);
       
-      if (existingCoordinates && Array.isArray(existingCoordinates) && existingCoordinates.length > 0) {
-        console.log(`✅ [기존 좌표 발견] ${existingCoordinates.length}개 좌표 - 지도 즉시 표시`);
+      if (coordinateValidation.isValid) {
+        console.log(`✅ [기존 좌표 발견] ${coordinateValidation.count}개 좌표 - 지도 즉시 표시`);
         setCoordinates(existingCoordinates);
       } else {
         console.warn('❌ [좌표 없음] guideData에서 coordinates를 찾을 수 없음');
+        // 데이터베이스에서 좌표 조회 시도
+        (async () => {
+          try {
+            console.log('🔍 [좌표 조회] 데이터베이스에서 좌표 검색 시작...');
+            const dbCoordinates = await checkDatabaseCoordinates();
+            const dbValidation = validateCoordinates(dbCoordinates);
+            
+            if (dbValidation.isValid) {
+              console.log(`✅ [DB 좌표 발견] ${dbValidation.count}개 좌표 로드 성공`);
+              setCoordinates(dbCoordinates);
+            } else {
+              console.warn('❌ [DB 좌표 없음] 데이터베이스에서도 좌표를 찾을 수 없음');
+            }
+          } catch (error) {
+            console.error('❌ [좌표 조회 실패] 데이터베이스 좌표 조회 중 오류:', error);
+          }
+        })();
       }
     }
-  }, [isLoading, guideData, coordinates]); // 의존성 동일
+  }, [isLoading, guideData, coordinates, checkDatabaseCoordinates]); // 의존성 추가
 
-  // 🔍 coordinates 상태 변경 모니터링 - 로깅 간소화
+  // 🔍 coordinates 상태 변경 모니터링 - 로깅 간소화 (공통 유틸리티 사용)
   useEffect(() => {
-    if (coordinates && Array.isArray(coordinates)) {
-      console.log(`🔄 [좌표 업데이트] ${coordinates.length}개 좌표`);
+    const validation = validateCoordinates(coordinates);
+    if (validation.isValid) {
+      console.log(`🔄 [좌표 업데이트] ${validation.count}개 좌표`);
     }
   }, [coordinates]); // 단순화된 로깅
 

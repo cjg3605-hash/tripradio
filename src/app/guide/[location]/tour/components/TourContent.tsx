@@ -33,6 +33,7 @@ import { getLocationCoordinates } from '@/data/locations';
 import { useSession } from 'next-auth/react';
 import { saveFavoriteGuide, isFavoriteGuide } from '@/lib/supabaseGuideHistory';
 import PopupNotification from '@/components/ui/PopupNotification';
+import { parseSupabaseCoordinates, validateCoordinates, normalizeCoordinateFields } from '@/lib/coordinates/coordinate-common';
 
 interface TourContentProps {
   guide: GuideData;
@@ -42,13 +43,13 @@ interface TourContentProps {
 }
 
 const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourContentProps) => {
-  // 🔍 guideCoordinates 디버깅 로그
+  // 🔍 guideCoordinates 디버깅 로그 (공통 유틸리티 사용)
+  const coordinateValidation = validateCoordinates(guideCoordinates);
   console.log('🎯 [TourContent 전달] guideCoordinates:', {
     data: guideCoordinates,
+    validation: coordinateValidation,
     type: typeof guideCoordinates,
-    isArray: Array.isArray(guideCoordinates),
-    length: guideCoordinates?.length,
-    firstItem: guideCoordinates?.[0]
+    isArray: Array.isArray(guideCoordinates)
   });
   
   const { currentLanguage, t } = useLanguage();
@@ -155,52 +156,32 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
   const humanStories = currentChapter?.humanStories || '';
   const nextDirection = currentChapter?.nextDirection || '';
 
-  // 🗺️ 좌표 상태 확인 (정확한 파싱)
+  // 🗺️ 좌표 상태 확인 (공통 유틸리티 사용)
   const coordinatesAnalysis = (() => {
     if (!guideCoordinates) {
       // guideCoordinates가 없을 때 allChapters에서 좌표 데이터 확인
       const chaptersWithCoordinates = allChapters.filter(chapter => {
-        // 다양한 좌표 필드 형태 확인
-        const hasDirectCoords = (chapter.lat && chapter.lng);
-        const hasCoordinatesObj = (chapter.coordinates?.lat && chapter.coordinates?.lng);
-        const hasLocationCoords = (chapter.location && typeof chapter.location === 'object' && 
-                                   chapter.location.lat && chapter.location.lng);
-        
-        return hasDirectCoords || hasCoordinatesObj || hasLocationCoords;
-      });
-      
-      // 유효한 좌표만 카운팅
-      const validChapterCoordinates = chaptersWithCoordinates.filter(chapter => {
-        const lat = chapter.lat || chapter.coordinates?.lat || chapter.location?.lat;
-        const lng = chapter.lng || chapter.coordinates?.lng || chapter.location?.lng;
-        return lat && lng && !isNaN(lat) && !isNaN(lng) &&
-               lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+        const normalized = normalizeCoordinateFields(chapter) || 
+                         normalizeCoordinateFields(chapter.coordinates) || 
+                         normalizeCoordinateFields(chapter.location);
+        return normalized !== null;
       });
       
       return {
-        hasGuideCoordinates: validChapterCoordinates.length > 0,
+        hasGuideCoordinates: chaptersWithCoordinates.length > 0,
         coordinatesCount: chaptersWithCoordinates.length,
-        validCoordinatesCount: validChapterCoordinates.length
+        validCoordinatesCount: chaptersWithCoordinates.length
       };
     }
     
-    if (Array.isArray(guideCoordinates)) {
-      // 배열인 경우: 유효한 좌표만 카운팅
-      const validCoordinates = guideCoordinates.filter(coord => {
-        const lat = coord?.lat || coord?.latitude;
-        const lng = coord?.lng || coord?.longitude;
-        return lat && lng && !isNaN(lat) && !isNaN(lng);
-      });
-      
-      return {
-        hasGuideCoordinates: validCoordinates.length > 0,
-        coordinatesCount: guideCoordinates.length,
-        validCoordinatesCount: validCoordinates.length
-      };
-    }
+    // 공통 유틸리티로 좌표 파싱 및 검증
+    const parsedCoordinates = parseSupabaseCoordinates(guideCoordinates);
     
-    // 배열이 아닌 경우: 빈 객체 또는 다른 형태
-    return { hasGuideCoordinates: false, coordinatesCount: 0, validCoordinatesCount: 0 };
+    return {
+      hasGuideCoordinates: parsedCoordinates.length > 0,
+      coordinatesCount: parsedCoordinates.length,
+      validCoordinatesCount: parsedCoordinates.length
+    };
   })();
   
   console.log('🗺️ 좌표 파싱 상태:', {
@@ -639,33 +620,40 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                   
                   // 🚫 폴백 좌표 시스템 제거 - 실제 데이터만 사용
                   
+                  // 🎯 공통 유틸리티로 좌표 파싱
+                  const parsedCoordinates = parseSupabaseCoordinates(guideCoordinates);
+                  
                   const chaptersForMapRaw = allChapters.map((chapter, index) => {
-                    // 🎯 올바른 좌표 매칭 로직 - coordinates는 POI 목록, 챕터와 1:1 매칭 안됨
-                    if (!guideCoordinates || !Array.isArray(guideCoordinates) || guideCoordinates.length === 0) {
+                    if (parsedCoordinates.length === 0) {
                       console.warn(`❌ [TourContent] 챕터 ${index} "${chapter.title}" - coordinates 칼럼이 비어있음`);
                       return null;
                     }
                     
                     // 🔍 첫 번째 챕터에서 coordinates 구조 로깅
                     if (index === 0) {
-                      console.log('🔍 [좌표 구조 분석] guideCoordinates:', {
-                        totalCount: guideCoordinates.length,
-                        firstCoordinate: guideCoordinates[0],
-                        coordinateKeys: guideCoordinates[0] ? Object.keys(guideCoordinates[0]) : [],
-                        allCoordinateNames: guideCoordinates.map(c => c.name || c.title || '이름없음')
+                      console.log('🔍 [좌표 구조 분석] parsedCoordinates:', {
+                        totalCount: parsedCoordinates.length,
+                        firstCoordinate: parsedCoordinates[0],
+                        allCoordinateNames: parsedCoordinates.map(c => c.name || c.title || '이름없음')
                       });
                     }
                     
                     // 방법 1: 챕터 제목과 POI 이름 매칭 시도
-                    let matchedCoord = guideCoordinates.find(coord => {
+                    let matchedCoord = parsedCoordinates.find(coord => {
                       const poiName = coord.name || coord.title || '';
                       const chapterTitle = chapter.title || '';
                       return poiName.includes(chapterTitle) || chapterTitle.includes(poiName);
                     });
                     
-                    // 방법 2: 매칭 실패시 첫 번째 좌표 사용 (중심 위치)
-                    if (!matchedCoord && guideCoordinates[0]) {
-                      matchedCoord = guideCoordinates[0];
+                    // 방법 2: 인덱스 기반 매칭 (순서대로)
+                    if (!matchedCoord && parsedCoordinates[index]) {
+                      matchedCoord = parsedCoordinates[index];
+                      console.log(`🗺️ [TourContent] 챕터 ${index} "${chapter.title}" - 인덱스 기반 매칭`);
+                    }
+                    
+                    // 방법 3: 매칭 실패시 첫 번째 좌표 사용 (중심 위치)
+                    if (!matchedCoord && parsedCoordinates[0]) {
+                      matchedCoord = parsedCoordinates[0];
                       console.log(`🗺️ [TourContent] 챕터 ${index} "${chapter.title}" - 제목 매칭 실패, 중심 좌표 사용`);
                     }
                     
@@ -674,20 +662,12 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                       return null;
                     }
                     
-                    const lat = matchedCoord.lat ?? matchedCoord.latitude;
-                    const lng = matchedCoord.lng ?? matchedCoord.longitude;
-                    
-                    if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-                      console.warn(`❌ [TourContent] 챕터 ${index} "${chapter.title}" - 유효하지 않은 좌표: (${lat}, ${lng})`);
-                      return null;
-                    }
-                    
-                    console.log(`✅ [TourContent] 챕터 ${index} "${chapter.title}" → (${lat}, ${lng})`);
+                    console.log(`✅ [TourContent] 챕터 ${index} "${chapter.title}" → (${matchedCoord.lat}, ${matchedCoord.lng})`);
                     return {
                       id: chapter.id,
                       title: chapter.title,
-                      lat: lat,
-                      lng: lng,
+                      lat: matchedCoord.lat,
+                      lng: matchedCoord.lng,
                       narrative: chapter.narrative || chapter.sceneDescription || '',
                       originalIndex: index
                     };

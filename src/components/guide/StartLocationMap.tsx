@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MapPin } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { parseSupabaseCoordinates, validateCoordinates, normalizeCoordinateFields } from '@/lib/coordinates/coordinate-common';
 
 // 동적 import로 Leaflet 지도 컴포넌트 로드
 const MapWithRoute = dynamic(() => import('./MapWithRoute'), {
@@ -44,9 +45,10 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
   
   // 부모 컴포넌트에서 guideCoordinates가 업데이트되면 즉시 반영
   useEffect(() => {
+    const validation = validateCoordinates(guideCoordinates);
     console.log('🗺️ [StartLocationMap] guideCoordinates 업데이트:', {
-      hasGuideCoordinates: !!(guideCoordinates && Array.isArray(guideCoordinates) && guideCoordinates.length > 0),
-      coordinatesCount: guideCoordinates?.length || 0
+      validation,
+      coordinatesCount: validation.count
     });
     setCurrentCoordinates(guideCoordinates);
   }, [guideCoordinates]);
@@ -54,44 +56,34 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
   // 🎯 StartLocationMap은 부모 컴포넌트(MultiLangGuideClient)의 좌표 상태에만 의존
   // 별도 폴링 없이 guideCoordinates prop 변경을 실시간 반영
   
-  // 🎯 DB coordinates를 표준 chapters 형태로 변환
+  // 🎯 DB coordinates를 표준 chapters 형태로 변환 (공통 유틸리티 사용)
   const displayChapters = (() => {
-    if (currentCoordinates && Array.isArray(currentCoordinates) && currentCoordinates.length > 0) {
-      // DB coordinates를 표준 chapter 형태로 변환
-      console.log('🗺️ [StartLocationMap] DB coordinates 변환:', currentCoordinates.length);
+    // 공통 유틸리티로 좌표 파싱
+    const parsedCoordinates = parseSupabaseCoordinates(currentCoordinates);
+    
+    if (parsedCoordinates.length > 0) {
+      // 파싱된 좌표를 chapter 형태로 변환
+      console.log('🗺️ [StartLocationMap] DB coordinates 변환:', parsedCoordinates.length);
       
-      const processedChapters = currentCoordinates.map((coord: any, index: number) => {
-        // 좌표 추출 (다양한 필드명 지원)
-        const lat = coord.lat || coord.latitude;
-        const lng = coord.lng || coord.longitude;
-        
-        return {
-          id: coord.id !== undefined ? coord.id : index,
-          title: coord.title || coord.name || `챕터 ${index + 1}`,
-          lat: typeof lat === 'number' ? lat : parseFloat(lat),
-          lng: typeof lng === 'number' ? lng : parseFloat(lng),
-          originalIndex: index,
-          narrative: coord.narrative || coord.description || ''
-        };
-      });
+      const processedChapters = parsedCoordinates.map((coord, index) => ({
+        id: coord.id,
+        title: coord.title || coord.name || `챕터 ${index + 1}`,
+        lat: coord.lat,
+        lng: coord.lng,
+        originalIndex: index,
+        narrative: coord.description || ''
+      }));
       
-      // 유효한 좌표만 필터링
-      const validChapters = processedChapters.filter(chapter => {
-        return chapter.lat && chapter.lng && 
-               !isNaN(chapter.lat) && !isNaN(chapter.lng) &&
-               chapter.lat >= -90 && chapter.lat <= 90 &&
-               chapter.lng >= -180 && chapter.lng <= 180;
-      });
-      
-      console.log('🗺️ [StartLocationMap] 변환된 유효 chapters:', validChapters.length);
-      return validChapters;
+      console.log('🗺️ [StartLocationMap] 변환된 유효 chapters:', processedChapters.length);
+      return processedChapters;
     } else if (chapters && chapters.length > 0) {
       // 폴백: 전달받은 chapters 사용
       console.log('🗺️ [StartLocationMap] 폴백 chapters 사용:', chapters.length);
-      return chapters.filter(chapter => 
-        (chapter.lat && chapter.lng) || 
-        (chapter.coordinates?.lat && chapter.coordinates?.lng)
-      );
+      return chapters.filter(chapter => {
+        const normalized = normalizeCoordinateFields(chapter) || 
+                         normalizeCoordinateFields(chapter.coordinates);
+        return normalized !== null;
+      });
     }
     console.log('🗺️ [StartLocationMap] 표시할 챕터 없음');
     return [];
