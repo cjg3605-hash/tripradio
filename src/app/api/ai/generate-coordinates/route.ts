@@ -327,12 +327,22 @@ export async function POST(request: NextRequest) {
       console.log(`\n🎯 좌표 생성 API 시작 (병렬 방식): ${locationData.name}`);
       processingMode = 'parallel';
       
+      // 📊 locationData 원본 데이터 디버깅
+      console.log('📊 locationData 원본 구조:', {
+        name: locationData.name,
+        region: locationData.region,
+        location_region: locationData.location_region,
+        country: locationData.country,
+        countryCode: locationData.countryCode,
+        country_code: locationData.country_code
+      });
+      
       // locationData를 guideRecord 형태로 변환
       guideRecord = {
         id: 'temp-parallel-processing',
         locationname: locationData.name,
-        location_region: locationData.region || locationData.location_region,
-        country_code: locationData.countryCode || locationData.country_code,
+        location_region: locationData.region || locationData.location_region || '미분류',
+        country_code: locationData.countryCode || locationData.country_code || 'KOR',
         content: locationData.content || null // 챕터 정보가 있다면 사용
       };
     }

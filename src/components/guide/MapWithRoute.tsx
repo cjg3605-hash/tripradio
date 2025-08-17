@@ -67,14 +67,24 @@ function useMapFlyTo(mapRef: React.RefObject<LeafletMap | null>, lat?: number, l
 
 // 좌표 추출 유틸리티 - guides.coordinates 컬럼 전용 (강화된 매칭 로직)
 function getLatLng(chapter: Chapter, guideCoordinates?: any, chapterIndex?: number): [number | undefined, number | undefined] {
+  console.log(`🔍 [getLatLng] 좌표 추출 시작:`, {
+    chapterId: chapter.id,
+    chapterTitle: chapter.title,
+    chapterIndex,
+    hasGuideCoordinates: !!(guideCoordinates?.length > 0),
+    coordinatesCount: guideCoordinates?.length || 0
+  });
+  
   // guides.coordinates 컬럼에서만 좌표 사용 (content 좌표 사용 금지)
   if (guideCoordinates?.length > 0) {
     // 다중 매칭 전략: 인덱스 > ID > step > title 기반 (인덱스 우선)
     let coord;
+    let matchMethod = 'none';
     
     // 1순위: 인덱스 기반 매칭 (가장 정확)
     if (chapterIndex !== undefined && guideCoordinates[chapterIndex]) {
       coord = guideCoordinates[chapterIndex];
+      matchMethod = 'index';
     }
     // 2순위: ID/step/title 기반 매칭 (다양한 패턴 지원)
     else {
@@ -88,6 +98,7 @@ function getLatLng(chapter: Chapter, guideCoordinates?: any, chapterIndex?: numb
         (c.order === chapterIndex) || // order 기반 매칭
         (c.sequence === chapterIndex) // sequence 기반 매칭
       );
+      if (coord) matchMethod = 'id_or_step';
     }
     
     // 3순위: 제목 유사도 기반 매칭 (fallback)
@@ -98,6 +109,7 @@ function getLatLng(chapter: Chapter, guideCoordinates?: any, chapterIndex?: numb
         const coordTitle = c.title.toLowerCase().trim();
         return chapterTitle.includes(coordTitle) || coordTitle.includes(chapterTitle);
       });
+      if (coord) matchMethod = 'title_similarity';
     }
     
     if (coord) {
@@ -105,8 +117,19 @@ function getLatLng(chapter: Chapter, guideCoordinates?: any, chapterIndex?: numb
       const lng = coord.lng ?? coord.longitude;
       
       if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+        console.log(`✅ [getLatLng] 좌표 매칭 성공 (${matchMethod}):`, {
+          chapterId: chapter.id,
+          chapterTitle: chapter.title,
+          coordId: coord.id,
+          coordTitle: coord.title,
+          lat, lng
+        });
         return [lat, lng];
+      } else {
+        console.log(`❌ [getLatLng] 좌표 데이터 무효:`, { lat, lng, coord });
       }
+    } else {
+      console.log(`❌ [getLatLng] 매칭된 좌표 없음`);
     }
   }
 
@@ -212,17 +235,39 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   const activeChapterData = validChapters.find(c => c.originalIndex === activeChapter);
 
 
-  // 지도 중심점 계산 - activeChapter가 있으면 해당 위치를 중심으로
-  const mapCenter: LatLngExpression = center && center.lat && center.lng 
-    ? [center.lat, center.lng]
-    : activeChapterData && activeChapterData.lat && activeChapterData.lng
-      ? [activeChapterData.lat, activeChapterData.lng] // 활성 챕터를 중심으로
-      : validChapters.length > 0 
-        ? [
-            validChapters.reduce((sum, ch) => sum + ch.lat!, 0) / validChapters.length,
-            validChapters.reduce((sum, ch) => sum + ch.lng!, 0) / validChapters.length
-          ]
-        : [37.5665, 126.9780]; // 서울 기본값
+  // 지도 중심점 계산 - id:0 챕터(첫 번째 챕터) 우선 표시
+  const mapCenter: LatLngExpression = (() => {
+    // 1순위: 명시적으로 전달된 center 사용
+    if (center && center.lat && center.lng) {
+      console.log('🎯 지도 중심: 명시적 center 사용', center);
+      return [center.lat, center.lng];
+    }
+    
+    // 2순위: activeChapter가 있으면 해당 위치 중심
+    if (activeChapterData && activeChapterData.lat && activeChapterData.lng) {
+      console.log('🎯 지도 중심: 활성 챕터 사용', activeChapterData);
+      return [activeChapterData.lat, activeChapterData.lng];
+    }
+    
+    // 3순위: id:0 챕터(첫 번째 챕터) 우선 사용
+    if (validChapters.length > 0) {
+      const firstChapter = validChapters.find(ch => ch.id === 0 || ch.originalIndex === 0) || validChapters[0];
+      if (firstChapter && firstChapter.lat && firstChapter.lng) {
+        console.log('🎯 지도 중심: id:0 챕터 우선 사용', firstChapter);
+        return [firstChapter.lat, firstChapter.lng];
+      }
+      
+      // 4순위: 전체 챕터 평균 중심점
+      const avgLat = validChapters.reduce((sum, ch) => sum + ch.lat!, 0) / validChapters.length;
+      const avgLng = validChapters.reduce((sum, ch) => sum + ch.lng!, 0) / validChapters.length;
+      console.log('🎯 지도 중심: 평균 중심점 사용', { lat: avgLat, lng: avgLng });
+      return [avgLat, avgLng];
+    }
+    
+    // 최종 기본값
+    console.log('🎯 지도 중심: 서울 기본값 사용');
+    return [37.5665, 126.9780]; // 서울 기본값
+  })();
 
   // 줌 레벨 계산
   const calculateZoom = (): number => {

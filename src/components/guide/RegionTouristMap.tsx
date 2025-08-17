@@ -88,19 +88,41 @@ const RegionTouristMap: React.FC<RegionTouristMapProps> = ({
   
   console.log('🗺️ RegionTouristMap 최종 유효 POI:', validSpots.length);
 
-  // 관광지 중심점 계산 (regionCenter가 없는 경우)
+  // 관광지 중심점 계산 (id:0 챕터 우선, regionCenter fallback)
   const calculateMapCenter = () => {
     if (regionCenter && regionCenter.lat && regionCenter.lng) {
+      console.log('🎯 RegionTouristMap 중심: regionCenter 사용', regionCenter);
       return { lat: regionCenter.lat, lng: regionCenter.lng, name: regionCenter.name };
+    }
+
+    // id:0 챕터(첫 번째 챕터) 우선 사용
+    if (coordinatesSpots.length > 0) {
+      const firstChapterSpot = coordinatesSpots.find(spot => 
+        spot.id.includes('coord-0') || 
+        spot.id.includes('coord-coord-0') ||
+        spot.name.includes('입구') ||
+        spot.name.includes('시작')
+      ) || coordinatesSpots[0]; // 첫 번째 spots 사용
+      
+      if (firstChapterSpot) {
+        console.log('🎯 RegionTouristMap 중심: id:0 챕터 우선 사용', firstChapterSpot);
+        return { 
+          lat: firstChapterSpot.lat, 
+          lng: firstChapterSpot.lng, 
+          name: firstChapterSpot.name 
+        };
+      }
     }
 
     if (validSpots.length > 0) {
       const centerLat = validSpots.reduce((sum, spot) => sum + spot.lat, 0) / validSpots.length;
       const centerLng = validSpots.reduce((sum, spot) => sum + spot.lng, 0) / validSpots.length;
+      console.log('🎯 RegionTouristMap 중심: 평균 중심점 사용', { lat: centerLat, lng: centerLng });
       return { lat: centerLat, lng: centerLng, name: `${locationName} 중심` };
     }
 
     // 기본값 - 유효한 POI가 없으면 null 반환
+    console.log('🎯 RegionTouristMap 중심: 데이터 없음');
     return null;
   };
 

@@ -58,20 +58,34 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
   const displayChapters = (() => {
     if (currentCoordinates && Array.isArray(currentCoordinates) && currentCoordinates.length > 0) {
       // 백그라운드로 생성된 좌표가 있으면 해당 좌표들을 사용
-      return currentCoordinates.map((coord: any, index: number) => ({
+      console.log('🗺️ [StartLocationMap] coordinates 칼럼 사용:', currentCoordinates);
+      const processedChapters = currentCoordinates.map((coord: any, index: number) => ({
         id: coord.id || index,
         title: coord.title || `챕터 ${index + 1}`,
         lat: coord.lat,
         lng: coord.lng,
         originalIndex: index
       }));
+      
+      // 유효한 좌표만 필터링
+      const validChapters = processedChapters.filter(chapter => 
+        chapter.lat && chapter.lng && 
+        !isNaN(chapter.lat) && !isNaN(chapter.lng) &&
+        chapter.lat >= -90 && chapter.lat <= 90 &&
+        chapter.lng >= -180 && chapter.lng <= 180
+      );
+      
+      console.log('🗺️ [StartLocationMap] 유효한 coordinates 챕터:', validChapters.length);
+      return validChapters;
     } else if (chapters && chapters.length > 0) {
       // 좌표가 없으면 전달받은 chapters 사용 (폴백)
+      console.log('🗺️ [StartLocationMap] 전달받은 chapters 사용:', chapters);
       return chapters.filter(chapter => 
         (chapter.lat && chapter.lng) || 
         (chapter.coordinates?.lat && chapter.coordinates?.lng)
       );
     }
+    console.log('🗺️ [StartLocationMap] 표시할 챕터 없음');
     return [];
   })();
   
