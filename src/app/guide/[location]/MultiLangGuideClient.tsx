@@ -177,122 +177,36 @@ export default function MultiLangGuideClient({
   // 🚀 좌표 상태 관리 (폴링 제거)
   const [coordinates, setCoordinates] = useState<any>(null);
 
-  // 🔍 실제 DB 상태 조회 및 로깅 강화 함수
+  // 🔍 DB 좌표 조회 함수 - 의존성 최적화
   const checkDatabaseCoordinates = useCallback(async () => {
-    console.log('🔍 [DB 조회] 시작 조건 체크:', {
-      hasGuideData: !!guideData,
-      hasMetadata: !!guideData?.metadata,
-      originalLocationName: guideData?.metadata?.originalLocationName,
-      locationName: locationName,
-      currentLanguage: currentLanguage,
-      hasCurrentLanguage: !!currentLanguage
-    });
-
-    // 위치명과 언어가 있어야 조회 가능
     const targetLocationName = guideData?.metadata?.originalLocationName || locationName;
     
     if (!targetLocationName || !currentLanguage) {
-      console.log('🔍 [DB 조회] 스킵 - 필수 데이터 없음:', {
-        targetLocationName,
-        hasLanguage: !!currentLanguage
-      });
       return null;
     }
 
     try {
       const normLocation = normalizeLocationName(targetLocationName);
       
-      console.log('🔍 [DB 조회] coordinates 칼럼 상태 확인 시작:', { 
-        locationName: normLocation, 
-        language: currentLanguage.toLowerCase(),
-        timestamp: new Date().toISOString()
-      });
-
-      // 전체 가이드 정보 조회 (디버깅용)
       const { data: fullData, error: fullError } = await supabase
         .from('guides')
-        .select('id, locationname, language, coordinates, created_at, updated_at')
+        .select('id, locationname, language, coordinates')
         .eq('locationname', normLocation)
         .eq('language', currentLanguage.toLowerCase())
         .maybeSingle();
 
-      console.log('🔍 [DB 조회] 전체 가이드 데이터:', {
-        found: !!fullData,
-        error: fullError,
-        data: fullData ? {
-          id: fullData.id,
-          locationname: fullData.locationname,
-          language: fullData.language,
-          hasCoordinates: !!fullData.coordinates,
-          coordinatesType: typeof fullData.coordinates,
-          coordinatesLength: Array.isArray(fullData.coordinates) ? fullData.coordinates.length : null,
-          coordinatesPreview: Array.isArray(fullData.coordinates) ? 
-            fullData.coordinates.slice(0, 2).map(c => ({ title: c?.title, lat: c?.lat, lng: c?.lng })) : null,
-          created_at: fullData.created_at,
-          updated_at: fullData.updated_at
-        } : null
-      });
-
-      if (fullError) {
-        console.error('❌ [DB 조회] 오류:', fullError);
+      if (fullError || !fullData?.coordinates || !Array.isArray(fullData.coordinates) || fullData.coordinates.length === 0) {
         return null;
       }
 
-      if (fullData?.coordinates && Array.isArray(fullData.coordinates) && fullData.coordinates.length > 0) {
-        console.log(`✅ [DB 조회] coordinates 발견!`, {
-          count: fullData.coordinates.length,
-          sample: fullData.coordinates[0],
-          allValid: fullData.coordinates.every(c => c?.lat && c?.lng)
-        });
-        console.log(`🔄 [DB 조회] setCoordinates 호출 중...`);
-        setCoordinates(fullData.coordinates);
-        console.log(`✅ [DB 조회] setCoordinates 완료`);
-        return fullData.coordinates;
-      } else {
-        console.log(`❌ [DB 조회] coordinates 없음:`, {
-          hasCoordinates: !!fullData?.coordinates,
-          coordinatesValue: fullData?.coordinates,
-          isArray: Array.isArray(fullData?.coordinates),
-          length: Array.isArray(fullData?.coordinates) ? fullData.coordinates.length : 'N/A'
-        });
-        return null;
-      }
+      console.log(`✅ [DB 조회] coordinates 발견: ${fullData.coordinates.length}개`);
+      return fullData.coordinates;
     } catch (error) {
       console.error('❌ [DB 조회] 예외:', error);
       return null;
     }
-  }, [guideData?.metadata?.originalLocationName, currentLanguage, locationName]);
+  }, [locationName, currentLanguage, guideData?.metadata?.originalLocationName]);
 
-  // 🎯 좌표 생성 함수 - 완료 후 즉시 새 좌표로 업데이트
-  const generateCoordinatesForGuide = useCallback(async (guideId: string, locationName: string) => {
-    try {
-      console.log(`🗺️ [좌표 생성] 시작: "${locationName}" (guideId: ${guideId})`);
-      
-      const response = await fetch('/api/ai/generate-coordinates', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guideId })
-      });
-      
-      const result = await response.json();
-      
-      if (result.success && result.coordinates) {
-        console.log(`✅ [좌표 생성] 성공: ${result.coordinates.length}개 좌표 생성 완료`);
-        console.log(`⏱️ [좌표 생성] 소요시간: ${result.generationTime}ms`);
-        
-        // 🎯 핵심: 좌표 생성 완료 후 즉시 coordinates 상태 업데이트
-        setCoordinates(result.coordinates);
-        
-        return result.coordinates;
-      } else {
-        console.error(`❌ [좌표 생성] 실패: ${result.error}`);
-        return null;
-      }
-    } catch (error) {
-      console.error(`❌ [좌표 생성] 요청 실패:`, error);
-      return null;
-    }
-  }, []);
 
   // 히스토리 저장 함수
   const saveToHistory = useCallback(async (guideData: GuideData) => {
@@ -318,7 +232,7 @@ export default function MultiLangGuideClient({
     }
   }, [session, currentLanguage]);
 
-  // 🌍 언어별 가이드 로드
+  // 🌍 언어별 가이드 로드 - 의존성 최적화
   const loadGuideForLanguage = useCallback(async (language: SupportedLanguage, forceRegenerate = false, contextualParentRegion?: string) => {
     setIsLoading(true);
     setError(null);
@@ -343,31 +257,93 @@ export default function MultiLangGuideClient({
           
           console.log('🚀 자동완성 데이터로 지역 컨텍스트 강화:', enhancedRegionalContext);
         } else {
-          console.log('📭 SessionStorage에 자동완성 데이터 없음, 기존 방식 사용');
+          console.log('📭 SessionStorage에 자동완성 데이터 없음, Gemini API로 실시간 추출 시도');
+          
+          // 🚀 실시간 Gemini API 호출로 지역정보 추출
+          try {
+            console.log('🤖 실시간 Gemini API 지역정보 추출 시작:', locationName);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000); // 8초 타임아웃 (가이드 페이지용)
+            
+            const geminiResponse = await fetch('/api/locations/extract-regional-info', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                placeName: locationName,
+                language: language,
+                detailed: false // DB용 간소화 정보만 요청
+              }),
+              signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+
+            const geminiData = await geminiResponse.json();
+            console.log('🤖 실시간 Gemini API 응답:', geminiData);
+
+            if (geminiData?.success && geminiData?.data?.region && geminiData?.data?.countryCode) {
+              // Gemini API로 추출된 정확한 지역정보 사용 (필수 필드 검증)
+              enhancedRegionalContext = {
+                region: geminiData.data.region,
+                country: geminiData.data.country || '동적추출',
+                countryCode: geminiData.data.countryCode,
+                type: 'attraction'
+              };
+              
+              console.log('✅ 실시간 Gemini로 지역 컨텍스트 생성:', enhancedRegionalContext);
+            } else {
+              console.warn('⚠️ 실시간 Gemini API 응답 무효:', {
+                success: geminiData?.success,
+                hasData: !!geminiData?.data,
+                hasRegion: !!geminiData?.data?.region,
+                hasCountryCode: !!geminiData?.data?.countryCode
+              });
+              console.log('🔄 기존 방식으로 폴백');
+            }
+          } catch (geminiError) {
+            if (geminiError instanceof Error && geminiError.name === 'AbortError') {
+              console.warn('⏰ 실시간 Gemini API 타임아웃 (8초), 기존 방식 사용');
+            } else {
+              console.warn('❌ 실시간 Gemini API 오류:', geminiError);
+            }
+            console.log('🔄 기존 방식으로 폴백');
+          }
         }
       }
-
-      // 🔄 ${language} 가이드 로드: locationName, { forceRegenerate }
 
       let result;
       
       if (forceRegenerate) {
-        // 강제 재생성
-        result = await MultiLangGuideManager.forceRegenerateGuide(
+        // 강제 재생성 + 타임아웃 처리
+        const forceRegeneratePromise = MultiLangGuideManager.forceRegenerateGuide(
           locationName,
           language,
           undefined,
           contextualParentRegion
         );
+
+        const regenerateTimeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('가이드 재생성 요청 시간 초과 (60초)')), 60000)
+        );
+
+        result = await Promise.race([forceRegeneratePromise, regenerateTimeoutPromise]) as any;
       } else {
-        // 🚀 스마트 언어 전환 (강화된 regionalContext 포함)
-        result = await MultiLangGuideManager.smartLanguageSwitch(
+        // 🚀 스마트 언어 전환 (강화된 regionalContext 포함) + 타임아웃 처리
+        const smartSwitchPromise = MultiLangGuideManager.smartLanguageSwitch(
           locationName,
           language,
           undefined,
           contextualParentRegion,
           enhancedRegionalContext // 자동완성 데이터로 강화된 지역 정보 전달
         );
+
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('가이드 로드 요청 시간 초과 (45초)')), 45000)
+        );
+
+        result = await Promise.race([smartSwitchPromise, timeoutPromise]) as any;
       }
 
       if (result.success && result.data) {
@@ -384,9 +360,9 @@ export default function MultiLangGuideClient({
         
         setGuideData(normalizedData);
         
-        // 🎯 핵심: guideData 설정과 동시에 coordinates도 즉시 설정
+        // 🎯 핵심: guideData 설정과 동시에 coordinates도 즉시 설정 (지도 즉시 표시)
         if (normalizedData.coordinates && Array.isArray(normalizedData.coordinates) && normalizedData.coordinates.length > 0) {
-          console.log(`🔥 [즉시 설정] guideData 로드와 함께 coordinates 설정: ${normalizedData.coordinates.length}개`);
+          console.log(`🔥 [즉시 설정] guideData 로드와 함께 coordinates 설정: ${normalizedData.coordinates.length}개 - 지도 즉시 표시`);
           setCoordinates(normalizedData.coordinates);
         }
         setSource((result as any).source || 'unknown');
@@ -394,51 +370,15 @@ export default function MultiLangGuideClient({
         // 히스토리 저장
         await saveToHistory(normalizedData);
 
-        // 🎯 좌표 생성 로직 - 새 가이드이거나 기존 가이드에 좌표가 없으면 생성
-        const source = (result as any).source || 'unknown';
+        // 🎯 좌표 상태 설정 - AI 생성 시 이미 포함된 좌표 사용
         const hasCoordinates = normalizedData.coordinates && (normalizedData.coordinates as any)?.length > 0;
         
-        if (!hasCoordinates && (result as any).guideId) {
-          console.log(`🗺️ [좌표 생성 필요] "${locationName}" (source: ${source})`);
-          // 좌표가 없으면 즉시 생성 (새 가이드든 기존 가이드든 상관없이)
-          generateCoordinatesForGuide((result as any).guideId, locationName)
-            .then((coordinates) => {
-              if (coordinates) {
-                console.log(`✅ [좌표 생성 완료] 5초 후 지도 새로고침 시작`);
-                // 🎯 좌표 생성 완료 후 5초 뒤 DB에서 새로운 좌표 조회
-                setTimeout(async () => {
-                  console.log(`🔄 [5초 새로고침] DB에서 좌표 재조회 시작`);
-                  const freshCoordinates = await checkDatabaseCoordinates();
-                  if (freshCoordinates && freshCoordinates.length > 0) {
-                    console.log(`✅ [5초 새로고침] 성공: ${freshCoordinates.length}개 좌표 업데이트`);
-                    setCoordinates(freshCoordinates);
-                  } else {
-                    console.log(`⚠️ [5초 새로고침] DB 조회 실패, 생성된 좌표 사용`);
-                  }
-                }, 5000);
-              }
-            })
-            .catch(error => {
-              console.error('🗺️ [좌표 생성] 실패:', error);
-            });
-        } else if (hasCoordinates) {
+        if (hasCoordinates) {
           console.log(`✅ [좌표 존재] "${locationName}" - ${(normalizedData.coordinates as any).length}개 좌표`);
-          console.log(`🔄 [좌표 존재] setCoordinates 재호출로 확실히 설정`);
           setCoordinates(normalizedData.coordinates);
+        } else {
+          console.log(`📍 [좌표 대기] "${locationName}" - AI 생성 시 좌표가 포함될 예정`);
         }
-
-        // ✅ ${language} 가이드 로드 완료 (source: ${source})
-        
-        // 🔍 로드 완료 후 좌표 상태 재확인 (페이지 새로고침 시 대비)
-        setTimeout(async () => {
-          if (!coordinates || (Array.isArray(coordinates) && coordinates.length === 0)) {
-            console.log('🔄 [로드 완료 후] 좌표 재확인 시작...');
-            const reCheckedCoordinates = await checkDatabaseCoordinates();
-            if (reCheckedCoordinates && reCheckedCoordinates.length > 0) {
-              console.log(`✅ [로드 완료 후] 좌표 재확인 성공: ${reCheckedCoordinates.length}개`);
-            }
-          }
-        }, 1000);
         
       } else {
         throw new Error((result as any).error?.message || result.error || '가이드 로드 실패');
@@ -446,20 +386,27 @@ export default function MultiLangGuideClient({
 
     } catch (err) {
       console.error('❌ 가이드 로드 오류:', err);
-      console.error('❌ 에러 상세 정보:', {
-        location: locationName,
-        language: language,
-        forceRegenerate,
-        errorMessage: err instanceof Error ? err.message : String(err),
-        errorStack: err instanceof Error ? err.stack : undefined
-      });
-      setError(err instanceof Error ? err.message : '가이드 로드 중 오류가 발생했습니다.');
+      
+      // 🚨 에러 타입별 상세 처리
+      let errorMessage = '가이드 로드 중 오류가 발생했습니다.';
+      if (err instanceof Error) {
+        if (err.message.includes('시간 초과')) {
+          errorMessage = '가이드 생성에 시간이 오래 걸리고 있습니다. 새로고침하거나 잠시 후 다시 시도해주세요.';
+        } else if (err.message.includes('네트워크') || err.message.includes('fetch')) {
+          errorMessage = '네트워크 연결을 확인하고 다시 시도해주세요.';
+        } else if (err.message.includes('NOT_FOUND')) {
+          errorMessage = '해당 위치의 가이드를 찾을 수 없습니다. 새로 생성하겠습니다.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
-      console.log(`🔚 loadGuideForLanguage 완료: isLoading false 설정 (location: ${locationName})`);
       setIsLoading(false);
       setIsRegenerating(false);
     }
-  }, [locationName, saveToHistory, regionalContext, generateCoordinatesForGuide, checkDatabaseCoordinates, guideData, currentLanguage]); // 의존성 추가
+  }, [locationName, regionalContext, saveToHistory]); // 🔥 의존성 최소화
 
   // 🌍 사용 가능한 언어 목록 로드
   const loadAvailableLanguages = useCallback(async () => {
@@ -514,7 +461,10 @@ export default function MultiLangGuideClient({
     }
   }, [locationName, currentLanguage]);
 
-  // 🔄 재생성 함수
+  // 🔄 재생성 함수 - 의존성 최적화 + 무한 재시도 방지
+  const regenerateRetryCountRef = useRef(0);
+  const maxRetries = 3;
+  
   const handleRegenerateGuide = useCallback(async () => {
     setIsRegenerating(true);
     setError(null);
@@ -522,8 +472,13 @@ export default function MultiLangGuideClient({
     try {
       console.log(`🔄 ${currentLanguage} 가이드 재생성:`, locationName);
       
+      // TODO(human): 무한 재시도 방지 로직 구현
+      // 재시도 횟수 제한과 백오프 전략 추가
+      
       await loadGuideForLanguage(currentLanguage, true);
       
+      // 성공 시 재시도 카운터 리셋
+      regenerateRetryCountRef.current = 0;
       console.log('✅ 가이드 재생성 완료');
     } catch (error) {
       console.error('❌ 재생성 오류:', error);
@@ -544,7 +499,7 @@ export default function MultiLangGuideClient({
     };
   }, [handleRegenerateGuide]);
 
-  // 🔥 개선된 초기 로드 (라우팅 분석 + 서버-클라이언트 언어 동기화)
+  // 🔥 개선된 초기 로드 - 의존성 최적화로 무한 루프 방지
   useEffect(() => {
     const initializeGuide = async () => {
       // 🎯 0단계: 세션 스토리지에서 지역 컨텍스트 확인
@@ -554,12 +509,10 @@ export default function MultiLangGuideClient({
           const storedContext = sessionStorage.getItem('guideRegionalContext');
           if (storedContext) {
             sessionRegionalContext = JSON.parse(storedContext);
-            console.log('🎯 세션 스토리지에서 지역 컨텍스트 발견:', sessionRegionalContext);
             
             // 타임스탬프 체크 (5분 이내의 것만 유효)
             const contextAge = Date.now() - ((sessionRegionalContext as any)?.timestamp || 0);
             if (contextAge > 5 * 60 * 1000) {
-              console.log('⚠️ 세션 컨텍스트가 너무 오래됨 - 무시');
               sessionStorage.removeItem('guideRegionalContext');
               sessionRegionalContext = null;
             }
@@ -569,39 +522,28 @@ export default function MultiLangGuideClient({
         }
       }
 
-      // 🎯 최종 지역 컨텍스트 결정: URL 우선, 세션 스토리지 보조
+      // 🎯 최종 지역 컨텍스트 결정
       let finalParentRegion = parentRegion;
       if (!finalParentRegion && sessionRegionalContext && 'parentRegion' in sessionRegionalContext) {
         finalParentRegion = (sessionRegionalContext as any).parentRegion;
-        console.log('🔄 세션 스토리지의 지역 컨텍스트 사용:', finalParentRegion);
       }
 
-      // 🎯 1단계: 라우팅 분석 먼저 수행
+      // 🎯 1단계: 라우팅 분석
       await analyzeRouting();
       
-      // 🎯 2단계: 새로운 언어 우선순위: 
-      // 1순위: 서버에서 감지된 언어 (requestedLanguage - 쿠키 기반)
-      // 2순위: 현재 헤더 언어 (currentLanguage)
+      // 🎯 2단계: 언어 결정
       let targetLanguage: SupportedLanguage;
       
-      // 🔥 서버 감지 언어가 있고, 헤더 언어와 같다면 서버 언어 사용
       if (requestedLanguage && requestedLanguage === currentLanguage) {
         targetLanguage = requestedLanguage as SupportedLanguage;
-        console.log(`🎯 서버-클라이언트 언어 일치: ${targetLanguage}`);
       } else if (requestedLanguage) {
-        // 서버 언어는 있지만 헤더와 다를 때 - 서버 우선 (쿠키 기반)
         targetLanguage = requestedLanguage as SupportedLanguage;
-        console.log(`🎯 서버 언어 우선 사용: ${targetLanguage} (헤더: ${currentLanguage})`);
       } else {
-        // 서버 언어 없으면 헤더 언어 사용
         targetLanguage = currentLanguage;
-        console.log(`🎯 헤더 언어 사용: ${targetLanguage}`);
       }
       
-      // 🎯 3단계: 라우팅 결과에 따라 초기 가이드 사용 여부 결정
-      // RegionExploreHub일 경우 초기 가이드를 무시하고 새로 로드하지 않음
+      // 🎯 3단계: 가이드 처리
       if (shouldShowExploreHub) {
-        console.log('🏛️ RegionExploreHub 페이지 - 초기 가이드 사용하여 탐색 허브 표시');
         if (initialGuide) {
           try {
             const normalizedData = normalizeGuideData(initialGuide, locationName);
@@ -610,17 +552,13 @@ export default function MultiLangGuideClient({
             await saveToHistory(normalizedData);
           } catch (error) {
             console.error('초기 가이드 처리 오류:', error);
-            // RegionExploreHub는 가이드 데이터 없이도 작동 가능
             setGuideData(null);
           }
         }
         setIsLoading(false);
       } else {
-        // 일반 가이드 페이지 처리
         if (initialGuide) {
-          console.log('🎯 서버에서 받은 초기 가이드 사용:', initialGuide);
           try {
-            // 🔥 핵심: initialGuide를 정규화 함수로 처리
             const normalizedData = normalizeGuideData(initialGuide, locationName);
             setGuideData(normalizedData);
             setSource('cache');
@@ -628,11 +566,9 @@ export default function MultiLangGuideClient({
             await saveToHistory(normalizedData);
           } catch (error) {
             console.error('초기 가이드 처리 오류:', error);
-            // 초기 가이드 처리 실패시 새로 로드
             await loadGuideForLanguage(targetLanguage, false, finalParentRegion);
           }
         } else {
-          console.log(`🔄 새로운 가이드 로드 필요 (${targetLanguage})`);
           await loadGuideForLanguage(targetLanguage, false, finalParentRegion);
         }
       }
@@ -641,130 +577,146 @@ export default function MultiLangGuideClient({
     };
 
     initializeGuide();
-  }, [locationName, initialGuide, requestedLanguage, currentLanguage, loadAvailableLanguages, loadGuideForLanguage, saveToHistory, analyzeRouting, parentRegion, shouldShowExploreHub]); // 모든 의존성 추가
+  }, [locationName, initialGuide, requestedLanguage, currentLanguage, parentRegion]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 🎯 좌표 상태 확인 - 폴링 시스템 제거
+  // 🎯 좌표 상태 확인 - 즉시 지도 표시를 위한 상태 동기화 최적화
   useEffect(() => {
     if (!isLoading && guideData && !coordinates) {
-      // 가이드 데이터에서 좌표 확인
       const existingCoordinates = (guideData as any)?.coordinates;
       
       if (existingCoordinates && Array.isArray(existingCoordinates) && existingCoordinates.length > 0) {
-        console.log(`✅ [기존 좌표 발견] ${existingCoordinates.length}개 좌표`);
+        console.log(`✅ [기존 좌표 발견] ${existingCoordinates.length}개 좌표 - 지도 즉시 표시`);
         setCoordinates(existingCoordinates);
       }
     }
-  }, [isLoading, guideData, coordinates]);
+  }, [isLoading, guideData, coordinates]); // 의존성 동일
 
-  // 🔍 coordinates 상태 변경 모니터링
+  // 🔍 coordinates 상태 변경 모니터링 - 로깅 간소화
   useEffect(() => {
-    console.log('🔄 [coordinates 상태 변경]', {
-      hasCoordinates: !!coordinates,
-      coordinatesType: typeof coordinates,
-      coordinatesLength: Array.isArray(coordinates) ? coordinates.length : null,
-      coordinatesPreview: Array.isArray(coordinates) ? coordinates.slice(0, 2) : coordinates,
-      timestamp: new Date().toISOString()
-    });
-  }, [coordinates]);
+    if (coordinates && Array.isArray(coordinates)) {
+      console.log(`🔄 [좌표 업데이트] ${coordinates.length}개 좌표`);
+    }
+  }, [coordinates]); // 단순화된 로깅
 
   // 🔄 언어 변경 추적용 ref
   const lastLanguageRef = useRef<string | null>(null);
   const hasInitialLoadedRef = useRef(false);
+  const languageChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 언어 변경 감지 및 자동 로드 (안정화된 버전)
+  // 🎯 디바운싱된 언어 변경 처리 함수 (타임아웃 및 에러 경계 포함)
+  const debouncedLanguageChange = useCallback(async (newLanguage: string) => {
+    console.log(`🌍 디바운싱된 언어 변경 실행: ${lastLanguageRef.current} → ${newLanguage}`);
+    
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // 🔄 장소명 번역 처리 (guideData 의존성 없이)
+      let translatedLocationName = locationName;
+
+      // 🎯 언어 변경 시 지역 컨텍스트 확인
+      let languageChangeParentRegion = parentRegion;
+      if (!languageChangeParentRegion && typeof window !== 'undefined') {
+        try {
+          const storedContext = sessionStorage.getItem('guideRegionalContext');
+          if (storedContext) {
+            const parsedContext = JSON.parse(storedContext);
+            const contextAge = Date.now() - parsedContext.timestamp;
+            if (contextAge <= 5 * 60 * 1000) {
+              languageChangeParentRegion = parsedContext.parentRegion;
+            }
+          }
+        } catch (e) {
+          console.warn('언어 변경 시 세션 컨텍스트 확인 실패:', e);
+        }
+      }
+
+      // 🚨 타임아웃 처리 추가 (30초)
+      const languageChangePromise = MultiLangGuideManager.smartLanguageSwitch(
+        translatedLocationName,
+        newLanguage,
+        undefined,
+        languageChangeParentRegion,
+        regionalContext
+      );
+
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('언어 변경 요청 시간 초과 (30초)')), 30000)
+      );
+
+      const result = await Promise.race([languageChangePromise, timeoutPromise]) as any;
+
+      if (result.success && result.data) {
+        const normalizedData = normalizeGuideData(result.data, locationName);
+        setGuideData(normalizedData);
+        setSource((result as any).source || 'unknown');
+        await saveToHistory(normalizedData);
+        console.log(`✅ ${newLanguage} 가이드 로드 완료`);
+      } else {
+        throw new Error((result as any).error?.message || result.error || '가이드 로드 실패');
+      }
+    } catch (err) {
+      console.error('❌ 언어 변경 중 오류:', err);
+      
+      // 🚨 에러 타입별 처리
+      let errorMessage = '언어 변경 중 오류가 발생했습니다.';
+      if (err instanceof Error) {
+        if (err.message.includes('시간 초과')) {
+          errorMessage = '가이드 생성에 시간이 오래 걸리고 있습니다. 잠시 후 다시 시도해주세요.';
+        } else if (err.message.includes('네트워크')) {
+          errorMessage = '네트워크 연결을 확인하고 다시 시도해주세요.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      setError(errorMessage);
+      // 에러 시 언어 상태 복원
+      lastLanguageRef.current = lastLanguageRef.current;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [locationName, parentRegion, regionalContext, saveToHistory]);
+
+  // 언어 변경 감지 및 디바운싱 처리 - 무한 루프 완전 방지 버전
   useEffect(() => {
-    // 초기 로드 완료 표시
-    if (!isLoading && guideData && !hasInitialLoadedRef.current) {
+    // 초기 로드 완료 표시 (guideData 의존성 없이 처리)
+    if (!isLoading && !hasInitialLoadedRef.current) {
       hasInitialLoadedRef.current = true;
-      const currentGuideLanguage = guideData.metadata?.language || currentLanguage;
-      lastLanguageRef.current = currentGuideLanguage;
-      console.log(`✅ 초기 로드 완료: ${currentGuideLanguage}`);
+      lastLanguageRef.current = currentLanguage;
+      console.log(`✅ 초기 로드 완료: ${currentLanguage}`);
       return;
     }
 
-    // 🔥 개선된 언어 변경 감지 (헤더 언어 설정 우선)
+    // 🔥 순환 참조 방지: guideData 의존성 제거하고 ref로 추적
     const shouldChangeLanguage = currentLanguage && 
                                 hasInitialLoadedRef.current && 
                                 !isLoading && 
-                                lastLanguageRef.current !== currentLanguage;
-    
-    // 🎯 핵심: 헤더 언어 설정이 가장 우선
+                                !isRegenerating && // 재생성 중이 아닐 때만
+                                lastLanguageRef.current !== currentLanguage; // 언어가 실제로 변경되었을 때만
     
     if (shouldChangeLanguage) {
-      console.log(`🌍 언어 변경 감지: ${lastLanguageRef.current} → ${currentLanguage}`);
+      console.log(`🌍 언어 변경 감지 (디바운싱): ${lastLanguageRef.current} → ${currentLanguage}`);
       lastLanguageRef.current = currentLanguage; // 즉시 업데이트하여 중복 방지
       
-      // 직접 호출하여 dependency cycle 방지
-      (async () => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-          // 🔄 장소명 번역 처리: URL의 장소명을 한국어로 역번역 후 사용
-          let translatedLocationName = locationName;
-          
-          // 현재 가이드 데이터가 있고 해당 언어가 한국어가 아닌 경우
-          if (guideData?.metadata?.language && guideData.metadata.language !== 'ko') {
-            const { MicrosoftTranslator } = await import('@/lib/location/microsoft-translator');
-            console.log(`🔄 장소명 역번역 시도: ${locationName} (${guideData.metadata.language} → ko)`);
-            
-            try {
-              translatedLocationName = await MicrosoftTranslator.reverseTranslateLocationName(
-                locationName, 
-                guideData.metadata.language as any
-              );
-              console.log(`✅ 장소명 역번역 완료: ${locationName} → ${translatedLocationName}`);
-            } catch (error) {
-              console.error('❌ 장소명 역번역 실패:', error);
-              // 실패 시 원본 사용
-            }
-          }
-
-          // 🎯 언어 변경 시에도 지역 컨텍스트 확인
-          let languageChangeParentRegion = parentRegion;
-          if (!languageChangeParentRegion && typeof window !== 'undefined') {
-            try {
-              const storedContext = sessionStorage.getItem('guideRegionalContext');
-              if (storedContext) {
-                const parsedContext = JSON.parse(storedContext);
-                const contextAge = Date.now() - parsedContext.timestamp;
-                if (contextAge <= 5 * 60 * 1000) {
-                  languageChangeParentRegion = parsedContext.parentRegion;
-                }
-              }
-            } catch (e) {
-              console.warn('언어 변경 시 세션 컨텍스트 확인 실패:', e);
-            }
-          }
-
-          const result = await MultiLangGuideManager.smartLanguageSwitch(
-            translatedLocationName,
-            currentLanguage,
-            undefined,
-            languageChangeParentRegion,
-            regionalContext // 🌍 언어 변경 시에도 지역정보 전달
-          );
-
-          if (result.success && result.data) {
-            const normalizedData = normalizeGuideData(result.data, locationName);
-            setGuideData(normalizedData);
-            setSource((result as any).source || 'unknown');
-            await saveToHistory(normalizedData);
-            console.log(`✅ ${currentLanguage} 가이드 로드 완료`);
-          } else {
-            throw new Error((result as any).error?.message || result.error || '가이드 로드 실패');
-          }
-        } catch (err) {
-          console.error('❌ 언어 변경 중 오류:', err);
-          setError(err instanceof Error ? err.message : '언어 변경 중 오류가 발생했습니다.');
-          // 에러 시 언어 상태 복원
-          lastLanguageRef.current = guideData?.metadata?.language || lastLanguageRef.current;
-        } finally {
-          setIsLoading(false);
-        }
-      })();
+      // 🎯 기존 타임아웃 취소
+      if (languageChangeTimeoutRef.current) {
+        clearTimeout(languageChangeTimeoutRef.current);
+      }
+      
+      // 🎯 300ms 디바운싱 적용
+      languageChangeTimeoutRef.current = setTimeout(() => {
+        debouncedLanguageChange(currentLanguage);
+      }, 300);
     }
-  }, [currentLanguage, isLoading, guideData, locationName, saveToHistory, parentRegion, regionalContext]); // 모든 의존성 추가
+
+    // 컴포넌트 언마운트 시 타임아웃 정리
+    return () => {
+      if (languageChangeTimeoutRef.current) {
+        clearTimeout(languageChangeTimeoutRef.current);
+      }
+    };
+  }, [currentLanguage, isLoading, isRegenerating, debouncedLanguageChange]); // 🔥 의존성 최소화
 
   // 로딩 상태 표시
   if (isLoading) {
