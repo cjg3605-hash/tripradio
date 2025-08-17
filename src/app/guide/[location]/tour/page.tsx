@@ -186,6 +186,14 @@ export default function TourPage() {
           console.log('🗄️ DB에서 데이터 로드 성공');
           
           // coordinates 칼럼 데이터 검증 및 전달
+          console.log('🔍 [DB 조회 결과] coordinates 칼럼 원본 데이터:', {
+            coordinates: data.coordinates,
+            type: typeof data.coordinates,
+            isArray: Array.isArray(data.coordinates),
+            length: data.coordinates?.length,
+            firstItem: data.coordinates?.[0]
+          });
+          
           if (data.coordinates && Array.isArray(data.coordinates) && data.coordinates.length > 0) {
             console.log(`📍 coordinates 칼럼에서 ${data.coordinates.length}개 좌표 발견`);
             setGuideCoordinates(data.coordinates);

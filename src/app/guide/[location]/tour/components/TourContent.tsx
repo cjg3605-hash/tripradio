@@ -42,6 +42,15 @@ interface TourContentProps {
 }
 
 const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourContentProps) => {
+  // 🔍 guideCoordinates 디버깅 로그
+  console.log('🎯 [TourContent 전달] guideCoordinates:', {
+    data: guideCoordinates,
+    type: typeof guideCoordinates,
+    isArray: Array.isArray(guideCoordinates),
+    length: guideCoordinates?.length,
+    firstItem: guideCoordinates?.[0]
+  });
+  
   const { currentLanguage, t } = useLanguage();
   const router = useRouter();
   const { data: session } = useSession();
@@ -631,22 +640,49 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                   // 🚫 폴백 좌표 시스템 제거 - 실제 데이터만 사용
                   
                   const chaptersForMapRaw = allChapters.map((chapter, index) => {
-                    // 🎯 guides.coordinates 컬럼에서만 좌표 사용 (단순화)
-                    if (!guideCoordinates || !Array.isArray(guideCoordinates) || !guideCoordinates[index]) {
-                      console.warn(`❌ [TourContent] 챕터 ${index} "${chapter.title}" - coordinates 컬럼에 좌표 없음`);
+                    // 🎯 올바른 좌표 매칭 로직 - coordinates는 POI 목록, 챕터와 1:1 매칭 안됨
+                    if (!guideCoordinates || !Array.isArray(guideCoordinates) || guideCoordinates.length === 0) {
+                      console.warn(`❌ [TourContent] 챕터 ${index} "${chapter.title}" - coordinates 칼럼이 비어있음`);
                       return null;
                     }
                     
-                    const coord = guideCoordinates[index];
-                    const lat = coord.lat ?? coord.latitude;
-                    const lng = coord.lng ?? coord.longitude;
+                    // 🔍 첫 번째 챕터에서 coordinates 구조 로깅
+                    if (index === 0) {
+                      console.log('🔍 [좌표 구조 분석] guideCoordinates:', {
+                        totalCount: guideCoordinates.length,
+                        firstCoordinate: guideCoordinates[0],
+                        coordinateKeys: guideCoordinates[0] ? Object.keys(guideCoordinates[0]) : [],
+                        allCoordinateNames: guideCoordinates.map(c => c.name || c.title || '이름없음')
+                      });
+                    }
+                    
+                    // 방법 1: 챕터 제목과 POI 이름 매칭 시도
+                    let matchedCoord = guideCoordinates.find(coord => {
+                      const poiName = coord.name || coord.title || '';
+                      const chapterTitle = chapter.title || '';
+                      return poiName.includes(chapterTitle) || chapterTitle.includes(poiName);
+                    });
+                    
+                    // 방법 2: 매칭 실패시 첫 번째 좌표 사용 (중심 위치)
+                    if (!matchedCoord && guideCoordinates[0]) {
+                      matchedCoord = guideCoordinates[0];
+                      console.log(`🗺️ [TourContent] 챕터 ${index} "${chapter.title}" - 제목 매칭 실패, 중심 좌표 사용`);
+                    }
+                    
+                    if (!matchedCoord) {
+                      console.warn(`❌ [TourContent] 챕터 ${index} "${chapter.title}" - 사용할 수 있는 좌표 없음`);
+                      return null;
+                    }
+                    
+                    const lat = matchedCoord.lat ?? matchedCoord.latitude;
+                    const lng = matchedCoord.lng ?? matchedCoord.longitude;
                     
                     if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
                       console.warn(`❌ [TourContent] 챕터 ${index} "${chapter.title}" - 유효하지 않은 좌표: (${lat}, ${lng})`);
                       return null;
                     }
                     
-                    console.log(`🗺️ [TourContent] 챕터 ${index} "${chapter.title}" → (${lat}, ${lng})`);
+                    console.log(`✅ [TourContent] 챕터 ${index} "${chapter.title}" → (${lat}, ${lng})`);
                     return {
                       id: chapter.id,
                       title: chapter.title,
