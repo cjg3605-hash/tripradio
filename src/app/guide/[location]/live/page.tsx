@@ -61,7 +61,7 @@ const LiveTourPage: React.FC = () => {
   });
   
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null); // POI 로딩 후 설정됨
+  // mapCenter state 제거 - MapWithRoute가 자체적으로 좌표 관리
   const [currentChapter, setCurrentChapter] = useState<number>(0);
   const [showAudioPlayer, setShowAudioPlayer] = useState(true);
   const [showMap, setShowMap] = useState(true);
@@ -310,17 +310,7 @@ const LiveTourPage: React.FC = () => {
     loadGuideDataDirectly();
   }, [locationName, currentLanguage]);
 
-  // POI 데이터 로딩 완료 시 지도 중심점 업데이트
-  useEffect(() => {
-    if (poisWithChapters.length > 0 && poisWithChapters[0]) {
-      const firstPOI = poisWithChapters[0];
-      console.log(`🗺️ 지도 중심점 업데이트: ${firstPOI.name} (${firstPOI.lat}, ${firstPOI.lng})`);
-      setMapCenter({
-        lat: firstPOI.lat,
-        lng: firstPOI.lng
-      });
-    }
-  }, [poisWithChapters]);
+  // 중복된 mapCenter 업데이트 로직 제거 - MapWithRoute가 POI 데이터에서 직접 중심점 계산
 
   const audioChapters: AudioChapter[] = poisWithChapters
     .filter(poi => poi.audioChapter)
@@ -329,7 +319,7 @@ const LiveTourPage: React.FC = () => {
   // Handle location updates from tracker
   const handleLocationUpdate = (location: { lat: number; lng: number }) => {
     setCurrentLocation(location);
-    setMapCenter(location);
+    // setMapCenter 제거 - MapWithRoute가 currentLocation을 사용하여 직접 처리
   };
 
   // Handle POI reached events
@@ -357,13 +347,7 @@ const LiveTourPage: React.FC = () => {
   const handleChapterChange = (chapterIndex: number) => {
     setCurrentChapter(chapterIndex);
     
-    // Center map on the corresponding POI
-    if (poisWithChapters[chapterIndex]) {
-      setMapCenter({
-        lat: poisWithChapters[chapterIndex].lat,
-        lng: poisWithChapters[chapterIndex].lng
-      });
-    }
+    // 지도 중심 이동은 MapWithRoute가 activeChapter 변경에 따라 자동 처리
   };
 
   // Toggle fullscreen mode
@@ -389,12 +373,7 @@ const LiveTourPage: React.FC = () => {
   // Reset tour
   const handleReset = () => {
     setCurrentChapter(0);
-    if (poisWithChapters[0]) {
-      setMapCenter({
-        lat: poisWithChapters[0].lat,
-        lng: poisWithChapters[0].lng
-      });
-    }
+    // 지도 중심 이동은 MapWithRoute가 activeChapter 변경에 따라 자동 처리
   };
 
   // Get current POI info
@@ -751,7 +730,7 @@ const LiveTourPage: React.FC = () => {
             </div>
             
             <div className="h-64 bg-white border border-gray-100 rounded-lg overflow-hidden">
-              {mapCenter && poisWithChapters.length > 0 ? (
+              {poisWithChapters.length > 0 ? (
                 <MapWithRoute
                   pois={poisWithChapters
                     .filter((poi, index) => index === 0) // 🎯 인트로 POI만 표시 (첫 번째만)
@@ -763,7 +742,7 @@ const LiveTourPage: React.FC = () => {
                       description: poi.description || ''
                     }))}
                   currentLocation={currentLocation}
-                  center={mapCenter}
+                  center={undefined} // MapWithRoute가 POI 데이터에서 자체적으로 중심점 계산
                   zoom={16} // 더 확대된 뷰
                   showRoute={false} // 루트 표시 안 함
                   showUserLocation={true}

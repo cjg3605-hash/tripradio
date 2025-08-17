@@ -122,6 +122,7 @@ export default function TourPage() {
   const { currentLanguage } = useLanguage();
   const [isMounted, setIsMounted] = useState(false);
   const [guideContent, setGuideContent] = useState<any>(null);
+  const [guideCoordinates, setGuideCoordinates] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [guideId, setGuideId] = useState<string>('');
@@ -145,46 +146,69 @@ export default function TourPage() {
       setError(null);
 
       try {
-        const response = await fetch('/api/node/ai/generate-guide', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            locationName, 
-            language: 'ko', 
-            userProfile,
-            forceRegenerate: true // mustVisitSpots가 추가된 새 프롬프트로 재생성
-          }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || '가이드 생성에 실패했습니다.');
+        console.log('🔍 tour/page.tsx DB 조회 시작:', locationName);
+        
+        // 🎯 DB에서 직접 조회 (live/page.tsx와 동일한 방식)
+        const { supabase } = await import('@/lib/supabaseClient');
+        
+        // 🌐 다국어 장소명 처리: 현재 언어가 한국어가 아니면 한국어로 역번역
+        let dbLocationName = locationName;
+        if (currentLanguage !== 'ko') {
+          try {
+            const { MicrosoftTranslator } = await import('@/lib/location/microsoft-translator');
+            dbLocationName = await MicrosoftTranslator.reverseTranslateLocationName(
+              locationName, 
+              currentLanguage
+            );
+            console.log(`🔄 DB 조회용 역번역: ${locationName} → ${dbLocationName} (${currentLanguage} → ko)`);
+          } catch (error) {
+            console.warn('⚠️ 역번역 실패, 원본 사용:', error);
+            dbLocationName = locationName;
+          }
         }
-
-        const data = await response.json();
-        const content = data?.content;
         
-        // 🔍 API 응답 데이터 디버깅
-        console.log('🔍 API 전체 응답:', data);
-        console.log('🔍 content 데이터:', content);
-        console.log('🔍 content의 mustVisitSpots:', content?.mustVisitSpots);
+        const normalizedLocation = dbLocationName.trim().toLowerCase().replace(/\s+/g, ' ');
         
-        if (content) {
-          //  핵심: 정규화된 데이터로 설정
-          const normalizedContent = normalizeGuideData(content, locationName);
+        const { data, error: dbError } = await supabase
+          .from('guides')
+          .select('id, content, coordinates')
+          .eq('locationname', normalizedLocation)
+          .eq('language', currentLanguage)
+          .maybeSingle();
+        
+        if (dbError) {
+          console.error('DB 조회 오류:', dbError);
+          setError('가이드 데이터 조회 실패');
+          return;
+        }
+        
+        if (data?.content) {
+          console.log('🗄️ DB에서 데이터 로드 성공');
+          
+          // coordinates 칼럼 데이터 검증 및 전달
+          if (data.coordinates && Array.isArray(data.coordinates) && data.coordinates.length > 0) {
+            console.log(`📍 coordinates 칼럼에서 ${data.coordinates.length}개 좌표 발견`);
+            setGuideCoordinates(data.coordinates);
+          } else {
+            console.warn('⚠️ coordinates 칼럼이 비어있음 또는 유효하지 않음');
+            setGuideCoordinates(null);
+          }
+          
+          // 핵심: 정규화된 데이터로 설정
+          const normalizedContent = normalizeGuideData(data.content, locationName);
           console.log('🔍 정규화된 데이터:', normalizedContent);
           console.log('🔍 정규화된 mustVisitSpots:', normalizedContent.mustVisitSpots);
           setGuideContent(normalizedContent);
           
-          // 품질 피드백을 위한 고유 ID 생성
-          const uniqueId = `${locationName}_${currentLanguage}_${Date.now()}`;
+          // 품질 피드백을 위한 고유 ID 생성 (실제 DB ID 사용)
+          const uniqueId = data.id || `${locationName}_${currentLanguage}_${Date.now()}`;
           setGuideId(uniqueId);
           
           // 강제 리렌더링을 위한 key 업데이트
           setKey(prev => prev + 1);
         } else {
-          console.error('❌ Failed to extract guide content from response:', data);
-          setError(data.error || 'Failed to load guide data.');
+          console.error('❌ DB에 해당 가이드 데이터가 없음');
+          setError('해당 위치의 가이드 데이터가 없습니다. 먼저 가이드를 생성해주세요.');
         }
       } catch (err: any) {
         console.error('❌ 가이드 데이터 요청 오류:', err);
@@ -221,12 +245,20 @@ export default function TourPage() {
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-2">오류 발생</h2>
             <p className="text-gray-600 text-sm mb-6">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-black text-white px-6 py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors"
-            >
-              다시 시도
-            </button>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-black text-white px-6 py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors"
+              >
+                다시 시도
+              </button>
+              <button
+                onClick={() => window.history.back()}
+                className="bg-gray-100 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+              >
+                이전 페이지로 돌아가기
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -265,7 +297,8 @@ export default function TourPage() {
       <MinimalTourContent 
         key={key}
         guide={guideContent} 
-        language={currentLanguage} 
+        language={currentLanguage}
+        guideCoordinates={guideCoordinates}
       />
       
       {/* 🎯 품질 피드백 시스템 통합 */}

@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
+import { getGeminiClient, getDefaultGeminiModel } from '@/lib/ai/gemini-client';
+import { createQuickPrompt } from '@/lib/ai/prompt-utils';
 import { supabase } from '@/lib/supabaseClient';
 import { ServiceValidators } from '@/lib/env-validator';
 import { withSupabaseRetry, withGoogleAPIRetry, withFetchRetry, retryStats } from '@/lib/api-retry';
 import { createErrorResponse, SpecializedErrorHandlers, errorStats } from '@/lib/error-handler';
 import { OptimizedLocationContext } from '@/types/unified-location';
 import { findCoordinatesSimple, extractChaptersFromContent, SimpleLocationContext } from '@/lib/coordinates/coordinate-utils';
+import { 
+  generateCoordinatesForGuideCommon,
+  extractLocationDataFromRequest as extractLocationCommon,
+  extractAccurateLocationInfoCommon
+} from '@/lib/coordinates/coordinate-common';
 
 // 타입 정의
 interface EnhancedLocationData {
@@ -41,36 +46,27 @@ export const runtime = 'nodejs';
  * 4. DB 업데이트 (가이드 컨텐츠 + 좌표 저장)
  */
 
-// Gemini 클라이언트 초기화 함수
-const getGeminiClient = () => {
-  // 🔒 런타임 환경변수 검증
-  const validation = ServiceValidators.gemini();
-  if (!validation.isValid) {
-    console.error('❌ Gemini API 환경변수 검증 실패:', validation.missingKeys);
-    throw new Error(`Server configuration error: Missing required keys: ${validation.missingKeys.join(', ')}`);
-  }
-
-  const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-  
-  if (!apiKey) {
-    console.error('GEMINI_API_KEY is not configured');
-    throw new Error('Server configuration error: Missing API key');
-  }
-  
-  try {
-    const client = new GoogleGenerativeAI(apiKey);
-    console.log('✅ Gemini API 클라이언트 초기화 성공');
-    return client;
-  } catch (error) {
-    console.error('❌ Gemini AI 초기화 실패:', error);
-    throw new Error('Failed to initialize AI service');
-  }
-};
+// 🤖 Gemini 클라이언트는 공통 유틸리티에서 가져옴 (완전한 검증 포함)
 
 /**
- * 🌍 URL 쿼리 파라미터에서 지역 정보 추출
+ * 🌍 URL 쿼리 파라미터에서 지역 정보 추출 (공통 유틸리티 사용)
  */
 function extractLocationDataFromRequest(locationName: string, searchParams: URLSearchParams): EnhancedLocationData {
+  const commonResult = extractLocationCommon(locationName, searchParams);
+  return {
+    name: commonResult.name,
+    location: commonResult.location,
+    region: commonResult.region,
+    country: commonResult.country,
+    countryCode: commonResult.countryCode,
+    type: commonResult.type
+  } as EnhancedLocationData;
+}
+
+/**
+ * 🌍 레거시 지역 정보 추출 함수 (하위 호환성)
+ */
+function extractLocationDataFromRequestLegacy(locationName: string, searchParams: URLSearchParams): EnhancedLocationData {
   const region = searchParams.get('region') || null;
   const country = searchParams.get('country') || null;
   const countryCode = searchParams.get('countryCode') || null;
@@ -87,9 +83,33 @@ function extractLocationDataFromRequest(locationName: string, searchParams: URLS
 }
 
 /**
- * 🗺️ 좌표 생성 함수 (서버사이드 전용)
+ * 🗺️ 좌표 생성 함수 (공통 유틸리티 사용)
  */
 async function generateCoordinatesForGuide(
+  locationData: EnhancedLocationData,
+  guideContent: any
+): Promise<any[]> {
+  // 공통 유틸리티를 사용하여 좌표 생성
+  const standardLocationData = {
+    name: locationData.name,
+    location: locationData.location,
+    region: locationData.region,
+    country: locationData.country,
+    countryCode: locationData.countryCode,
+    type: locationData.type
+  };
+  
+  return await generateCoordinatesForGuideCommon(standardLocationData, guideContent, {
+    maxChapters: 5,
+    delay: 1000,
+    language: 'ko'
+  });
+}
+
+/**
+ * 🗺️ 레거시 좌표 생성 함수 (하위 호환성)
+ */
+async function generateCoordinatesForGuideLegacy(
   locationData: EnhancedLocationData,
   guideContent: any
 ): Promise<any[]> {
@@ -312,9 +332,9 @@ async function createGuideSequentially(
       ? `${locationData.name} (${locationData.region}, ${locationData.country})`
       : locationData.name;
     
-    const prompt = await createAutonomousGuidePrompt(
+    const prompt = await createQuickPrompt(
       contextualLocationName, 
-      language, 
+      language,
       userProfile,
       '', // parentRegion
       {} // regionalContext

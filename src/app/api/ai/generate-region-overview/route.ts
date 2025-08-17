@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getGeminiClient } from '@/lib/ai/gemini-client';
 import { classifyLocation } from '@/lib/location/location-classification';
 import { createClient } from '@supabase/supabase-js';
 
@@ -55,14 +55,7 @@ function getSupabaseClient() {
   return createClient(supabaseUrl, supabaseKey);
 }
 
-// Initialize Gemini AI
-function getGeminiClient() {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error('GEMINI_API_KEY environment variable is not set');
-  }
-  return new GoogleGenerativeAI(apiKey);
-}
+// 🤖 Gemini 클라이언트는 공통 유틸리티에서 가져옴 (완전한 검증 포함)
 
 // 기존 가이드 데이터를 RegionExploreHub 형식으로 변환
 function convertGuideToRegionData(guideContent: any, locationName: string): { regionData: RegionData; recommendedSpots: RecommendedSpot[] } | null {

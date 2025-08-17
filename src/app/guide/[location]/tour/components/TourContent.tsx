@@ -631,40 +631,27 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                   // 🚫 폴백 좌표 시스템 제거 - 실제 데이터만 사용
                   
                   const chaptersForMapRaw = allChapters.map((chapter, index) => {
-                    // 🗺️ guides.coordinates 컬럼에서만 좌표 사용 (content 좌표 사용 금지)
-                    let coords;
-                    
-                    if (guideCoordinates && Array.isArray(guideCoordinates) && guideCoordinates[index]) {
-                      // 1순위: DB guides.coordinates 컬럼에서 인덱스 기반으로 정확한 좌표 사용
-                      const coord = guideCoordinates[index];
-                      coords = {
-                        lat: coord.lat ?? coord.latitude,
-                        lng: coord.lng ?? coord.longitude
-                      };
-                      console.log(`🗺️ [TourContent 좌표 매칭] 챕터 ${index} "${chapter.title}" → (${coords.lat}, ${coords.lng})`);
-                    } else {
-                      // 2순위: 챕터 자체에서 좌표 추출 (다양한 필드 지원)
-                      const chapterLat = chapter.lat || chapter.coordinates?.lat || chapter.location?.lat;
-                      const chapterLng = chapter.lng || chapter.coordinates?.lng || chapter.location?.lng;
-                      
-                      if (chapterLat && chapterLng && !isNaN(chapterLat) && !isNaN(chapterLng)) {
-                        coords = {
-                          lat: parseFloat(chapterLat),
-                          lng: parseFloat(chapterLng)
-                        };
-                        console.log(`🗺️ [TourContent 챕터 좌표] 챕터 ${index} "${chapter.title}" → (${coords.lat}, ${coords.lng})`);
-                      } else {
-                        // ❌ 실제 좌표가 없으면 null 반환 (폴백 금지)
-                        console.warn(`❌ [TourContent] 챕터 ${index} "${chapter.title}" - 좌표 데이터 없음`);
-                        return null;
-                      }
+                    // 🎯 guides.coordinates 컬럼에서만 좌표 사용 (단순화)
+                    if (!guideCoordinates || !Array.isArray(guideCoordinates) || !guideCoordinates[index]) {
+                      console.warn(`❌ [TourContent] 챕터 ${index} "${chapter.title}" - coordinates 컬럼에 좌표 없음`);
+                      return null;
                     }
                     
+                    const coord = guideCoordinates[index];
+                    const lat = coord.lat ?? coord.latitude;
+                    const lng = coord.lng ?? coord.longitude;
+                    
+                    if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+                      console.warn(`❌ [TourContent] 챕터 ${index} "${chapter.title}" - 유효하지 않은 좌표: (${lat}, ${lng})`);
+                      return null;
+                    }
+                    
+                    console.log(`🗺️ [TourContent] 챕터 ${index} "${chapter.title}" → (${lat}, ${lng})`);
                     return {
                       id: chapter.id,
                       title: chapter.title,
-                      lat: coords.lat,
-                      lng: coords.lng,
+                      lat: lat,
+                      lng: lng,
                       narrative: chapter.narrative || chapter.sceneDescription || '',
                       originalIndex: index
                     };

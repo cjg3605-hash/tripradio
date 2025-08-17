@@ -28,12 +28,9 @@ if (typeof window !== 'undefined') {
 interface Chapter {
   id: number;
   title: string;
-  lat?: number;
-  lng?: number;
-  latitude?: number;
-  longitude?: number;
-  coordinates?: { lat?: number; lng?: number; latitude?: number; longitude?: number; };
-  location?: { lat?: number; lng?: number; latitude?: number; longitude?: number; };
+  lat: number;  // 필수 - POI에서 직접 전달받는 좌표
+  lng: number;  // 필수 - POI에서 직접 전달받는 좌표
+  originalIndex?: number;
 }
 
 interface MapWithRouteProps {
@@ -53,59 +50,9 @@ interface MapWithRouteProps {
   guideId?: string;
 }
 
-// 단순한 지도 이동 훅
-function useMapFlyTo(mapRef: React.RefObject<LeafletMap | null>, lat?: number, lng?: number) {
-  useEffect(() => {
-    if (!lat || !lng || !mapRef.current) return;
-    
-    const map = mapRef.current;
-    if (map && typeof map.flyTo === 'function') {
-      map.flyTo([lat, lng], 16, { duration: 0.7 });
-    }
-  }, [mapRef, lat, lng]);
-}
+// useMapFlyTo 훅 제거됨 - whenReady에서 단일 초기화로 통합
 
-// 간단한 좌표 추출 유틸리티 - 이미 변환된 chapters에서 직접 좌표 사용
-function getLatLng(chapter: Chapter, guideCoordinates?: any, chapterIndex?: number): [number | undefined, number | undefined] {
-  // 1순위: chapter 객체에 이미 좌표가 있으면 직접 사용 (StartLocationMap에서 변환된 경우)
-  if (chapter.lat && chapter.lng) {
-    const lat = typeof chapter.lat === 'number' ? chapter.lat : parseFloat(chapter.lat as any);
-    const lng = typeof chapter.lng === 'number' ? chapter.lng : parseFloat(chapter.lng as any);
-    
-    if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-      return [lat, lng];
-    }
-  }
-  
-  // 2순위: latitude/longitude 필드 확인
-  if (chapter.latitude && chapter.longitude) {
-    const lat = typeof chapter.latitude === 'number' ? chapter.latitude : parseFloat(chapter.latitude as any);
-    const lng = typeof chapter.longitude === 'number' ? chapter.longitude : parseFloat(chapter.longitude as any);
-    
-    if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-      return [lat, lng];
-    }
-  }
-  
-  // 3순위: coordinates 객체 내부 확인
-  if (chapter.coordinates) {
-    const coords = chapter.coordinates;
-    const lat = coords.lat ?? coords.latitude;
-    const lng = coords.lng ?? coords.longitude;
-    
-    if (lat && lng) {
-      const numLat = typeof lat === 'number' ? lat : parseFloat(lat as any);
-      const numLng = typeof lng === 'number' ? lng : parseFloat(lng as any);
-      
-      if (!isNaN(numLat) && !isNaN(numLng) && numLat >= -90 && numLat <= 90 && numLng >= -180 && numLng <= 180) {
-        return [numLat, numLng];
-      }
-    }
-  }
-
-  // 좌표를 찾을 수 없음
-  return [undefined, undefined];
-}
+// getLatLng 함수 제거 - POI 데이터에서 직접 lat, lng 사용
 
 // 내 위치 버튼
 const LocationButton = memo(({ onLocationClick }: { onLocationClick: () => void }) => {
@@ -168,19 +115,19 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   const mapRef = useRef<LeafletMap | null>(null);
 
 
-  // 🎯 단순 데이터 정규화 - chapters에 이미 좌표가 포함되어 있음
+  // 🎯 단순 데이터 정규화 - POI에서 이미 lat, lng가 직접 전달됨
   const validChapters = useMemo(() => {
     console.log(`🔄 지도 데이터 계산 시작:`, {
       chaptersCount: chapters?.length || 0,
       poisCount: pois?.length || 0
     });
     
-    // POI를 Chapter 형태로 변환하거나 chapters 사용
+    // POI를 Chapter 형태로 변환하거나 chapters 사용 (이미 올바른 좌표 포함)
     const allData = chapters?.length ? chapters : (pois || []).map((poi, index) => ({
       id: parseInt(poi.id.replace(/\D/g, '')) || index,
       title: poi.name,
-      lat: poi.lat,
-      lng: poi.lng,
+      lat: poi.lat,  // DB coordinates 컬럼에서 추출된 정확한 좌표
+      lng: poi.lng,  // DB coordinates 컬럼에서 추출된 정확한 좌표
       originalIndex: index
     }));
 
@@ -190,19 +137,30 @@ const MapWithRoute = memo<MapWithRouteProps>(({
       usingChapters: !!chapters?.length
     });
 
-    // 유효한 좌표만 필터링 - getLatLng 함수를 통해 좌표 추출
+    // 유효한 좌표만 필터링 - 이미 POI에서 lat, lng가 직접 전달됨
     const filtered = allData
-      .map((item, index) => {
-        const [lat, lng] = getLatLng(item);
-        console.log(`🗂️ 아이템 ${index}: "${item.title}" -> 좌표: ${lat}, ${lng}`);
-        return { ...item, originalIndex: index, lat, lng };
-      })
-      .filter(item => 
-        item.lat !== undefined && item.lng !== undefined &&
-        !isNaN(item.lat) && !isNaN(item.lng) &&
-        item.lat >= -90 && item.lat <= 90 &&
-        item.lng >= -180 && item.lng <= 180
-      );
+      .map((item, index) => ({
+        ...item,
+        originalIndex: index,
+        // POI에서 이미 lat, lng가 number로 전달되므로 직접 사용
+        lat: item.lat,
+        lng: item.lng
+      }))
+      .filter(item => {
+        const isValid = 
+          typeof item.lat === 'number' && typeof item.lng === 'number' &&
+          !isNaN(item.lat) && !isNaN(item.lng) &&
+          item.lat >= -90 && item.lat <= 90 &&
+          item.lng >= -180 && item.lng <= 180;
+        
+        if (isValid) {
+          console.log(`📍 유효한 POI: "${item.title}" (${item.lat}, ${item.lng})`);
+        } else {
+          console.warn(`❌ 잘못된 좌표: "${item.title}" (${item.lat}, ${item.lng})`);
+        }
+        
+        return isValid;
+      });
     
     console.log(`📍 유효한 좌표 ${filtered.length}개 발견:`, 
       filtered.map(item => ({
@@ -219,38 +177,38 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   const activeChapterData = validChapters.find(c => c.originalIndex === activeChapter);
 
 
-  // 지도 중심점 계산 - id:0 챕터(첫 번째 챕터) 우선 표시
+  // 🎯 단일 지도 중심점 계산 로직 - 우선순위 기반
   const mapCenter: LatLngExpression | null = (() => {
-    // 1순위: 명시적으로 전달된 center 사용
-    if (center && center.lat && center.lng) {
+    // 1순위: 명시적 center prop (외부에서 지정된 좌표)
+    if (center?.lat && center?.lng) {
       console.log('🎯 지도 중심: 명시적 center 사용', center);
       return [center.lat, center.lng];
     }
     
-    // 2순위: activeChapter가 있으면 해당 위치 중심
-    if (activeChapterData && activeChapterData.lat && activeChapterData.lng) {
+    // 2순위: 활성 챕터 좌표 (사용자가 선택한 챕터)
+    if (activeChapterData?.lat && activeChapterData?.lng) {
       console.log('🎯 지도 중심: 활성 챕터 사용', activeChapterData);
       return [activeChapterData.lat, activeChapterData.lng];
     }
     
-    // 3순위: id:0 챕터(첫 번째 챕터) 우선 사용
+    // 3순위: 첫 번째 유효한 챕터 (여행 시작점)
     if (validChapters.length > 0) {
       const firstChapter = validChapters.find(ch => ch.id === 0 || ch.originalIndex === 0) || validChapters[0];
-      if (firstChapter && firstChapter.lat && firstChapter.lng) {
-        console.log('🎯 지도 중심: id:0 챕터 우선 사용', firstChapter);
+      if (firstChapter?.lat && firstChapter?.lng) {
+        console.log('🎯 지도 중심: 첫 번째 챕터 사용', firstChapter);
         return [firstChapter.lat, firstChapter.lng];
       }
       
-      // 4순위: 전체 챕터 평균 중심점
+      // 4순위: 전체 지점들의 중심점 (지역 전체 보기)
       const avgLat = validChapters.reduce((sum, ch) => sum + ch.lat!, 0) / validChapters.length;
       const avgLng = validChapters.reduce((sum, ch) => sum + ch.lng!, 0) / validChapters.length;
-      console.log('🎯 지도 중심: 평균 중심점 사용', { lat: avgLat, lng: avgLng });
+      console.log('🎯 지도 중심: 전체 지점 중심 사용', { lat: avgLat, lng: avgLng });
       return [avgLat, avgLng];
     }
     
-    // 🔥 좌표 없음: 지도 표시하지 않음
-    console.log('⚠️ 지도 중심: 유효한 좌표 없음 - 지도 숨김');
-    return null; // 좌표 없으면 지도 숨김
+    // 좌표 없음: 지도 숨김
+    console.log('⚠️ 지도 중심: 유효한 좌표 없음');
+    return null;
   })();
 
   // 줌 레벨 계산
@@ -270,27 +228,7 @@ const MapWithRoute = memo<MapWithRouteProps>(({
     return 10;
   };
 
-  // 활성 챕터로 지도 이동
-  useMapFlyTo(mapRef, activeChapterData?.lat, activeChapterData?.lng);
-
-
-  // 지도가 로드된 후 활성 마커로 중심 이동
-  useEffect(() => {
-    if (activeChapterData && mapRef.current) {
-      const timer = setTimeout(() => {
-        const map = mapRef.current;
-        if (map && typeof map.flyTo === 'function') {
-          map.flyTo([activeChapterData.lat!, activeChapterData.lng!], 16, { 
-            duration: 1,
-            easeLinearity: 0.2 
-          });
-        }
-      }, 300);
-
-      return () => clearTimeout(timer);
-    }
-    return undefined;
-  }, [activeChapterData]);
+  // 중복된 flyTo 호출들 제거됨 - whenReady에서 단일 초기화로 통합
 
   // 내 위치로 지도 이동
   useEffect(() => {
@@ -348,21 +286,7 @@ const MapWithRoute = memo<MapWithRouteProps>(({
         ref={mapRef}
         whenReady={() => {
           console.log(`🗺️ 지도 준비 완료! validChapters: ${validChapters.length}개`);
-          
-          if (mapRef.current && validChapters.length > 0) {
-            const targetChapter = activeChapterData || validChapters[0];
-            console.log(`📍 초기 위치: ${targetChapter.title}`);
-            
-            setTimeout(() => {
-              const map = mapRef.current;
-              if (map && typeof map.flyTo === 'function') {
-                map.flyTo([targetChapter.lat!, targetChapter.lng!], 15, { 
-                  duration: 1.2,
-                  easeLinearity: 0.15
-                });
-              }
-            }, 200);
-          }
+          // 지도 초기화 완료 - center prop으로 이미 올바른 위치에 설정됨
         }}
       >
         {/* 타일 레이어 */}

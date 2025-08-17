@@ -144,7 +144,12 @@ interface GuideGenerationResponse {
 
 **`POST /api/ai/generate-multilang-guide`**
 
-여러 언어로 동시에 가이드를 생성합니다.
+🌍 **여행 계획 및 다국어 가이드 특화 API**  
+- **주 용도**: 여행 계획 도구, 다국어 가이드 관리  
+- **특징**: 좌표 생성, DB 저장, 지역정보 자동 추출  
+- **사용처**: trip-planner, multilang-guide-manager  
+
+> 📋 **역할 분류**: [API_ROLES_CLASSIFICATION.md](./API_ROLES_CLASSIFICATION.md) 참조
 
 #### Request Body
 ```typescript

@@ -1,55 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
+import { getGeminiClient, getDefaultGeminiModel } from '@/lib/ai/gemini-client';
+import { createQuickPrompt } from '@/lib/ai/prompt-utils';
 import { simpleGeocode } from '@/lib/coordinates/simple-geocoding';
-import { extractAccurateLocationInfo } from '@/lib/coordinates/accurate-country-extractor';
+import { 
+  extractAccurateLocationInfoCommon,
+  extractLocationDataFromRequest,
+  extractFromAddressComponents,
+  extractFromFormattedAddress as extractFromFormattedAddressCommon,
+  getOptimalLanguageForLocation as getOptimalLanguageForLocationCommon
+} from '@/lib/coordinates/coordinate-common';
+import { createAutonomousGuidePrompt } from '@/lib/ai/prompts/index';
 
 export const runtime = 'nodejs';
 
 
-// Gemini 클라이언트 초기화 함수
-const getGeminiClient = () => {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-  
-  if (!apiKey) {
-    console.error('GEMINI_API_KEY is not configured');
-    throw new Error('Server configuration error: Missing API key');
-  }
-  
-  try {
-    return new GoogleGenerativeAI(apiKey);
-  } catch (error) {
-    console.error('Failed to initialize Gemini AI:', error);
-    throw new Error('Failed to initialize AI service');
-  }
-};
+// 🤖 Gemini 클라이언트는 공통 유틸리티에서 가져옴
 
 // Plus Code 검증 로직 제거됨 - 더 이상 사용하지 않음
 
 
-/**
- * 🌍 지역별 최적 언어 결정
- */
-function getOptimalLanguageForLocation(locationName: string): string {
-  const name = locationName.toLowerCase();
-  
-  // 한국 관련 키워드 감지
-  const koreanKeywords = [
-    '서울', '부산', '제주', '경주', '인천', '대전', '대구', '광주', '울산',
-    '강릉', '전주', '안동', '여수', '경기', '강원', '충청', '전라', '경상',
-    '궁', '사찰', '절', '한옥', '전통', '문화재', '민속', '국립공원',
-    '구', '동', '시', '도', '군'
-  ];
-  
-  const hasKoreanKeyword = koreanKeywords.some(keyword => name.includes(keyword));
-  const hasKoreanChar = /[가-힣]/.test(locationName);
-  
-  if (hasKoreanKeyword || hasKoreanChar) {
-    return 'ko';  // 한국어
-  }
-  
-  return 'en';  // 영어 (기본값)
-}
+// 🌍 지역별 최적 언어 결정은 공통 유틸리티에서 가져옴
 
 /**
  * 🌍 Google Geocoding API 결과에서 지역 정보 추출
@@ -79,7 +49,7 @@ function extractRegionalInfoFromPlaces(
     
     // address가 문자열인 경우 - formatted_address 파싱
     if (typeof geocodingResult.address === 'string') {
-      return extractFromFormattedAddress(geocodingResult.address, fallback);
+      return extractFromFormattedAddressCommon(geocodingResult.address, fallback);
     }
     
     // address가 객체인 경우 - address_components 확인

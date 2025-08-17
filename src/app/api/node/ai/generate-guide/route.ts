@@ -1,7 +1,7 @@
 // 🚀 Phase 1 완성: 통합 성격 기반 가이드 생성 API
 // src/app/api/node/ai/generate-guide/route.ts
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getGeminiClient, getDefaultGeminiModel } from '@/lib/ai/gemini-client';
 import { NextRequest, NextResponse } from 'next/server';
 import { 
   createAutonomousGuidePrompt, 
@@ -60,13 +60,7 @@ function normalize(str: string): string {
     .replace(/[^\w\s가-힣]/g, '');
 }
 
-function getGeminiClient(): GoogleGenerativeAI {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error('Server configuration error: Missing API key');
-  }
-  return new GoogleGenerativeAI(apiKey);
-}
+// 🤖 Gemini 클라이언트는 공통 유틸리티에서 가져옴 (getGeminiClient 사용)
 
 function normalizeGuideData(raw: any, language?: string) {
   console.log('🔍 원본 데이터 구조 확인:', {
