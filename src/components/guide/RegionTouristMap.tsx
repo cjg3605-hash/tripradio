@@ -47,22 +47,57 @@ const RegionTouristMap: React.FC<RegionTouristMapProps> = ({
   let coordinatesSpots: RecommendedSpot[] = [];
   
   if (guideCoordinates && Array.isArray(guideCoordinates)) {
-    console.log('🗺️ RegionTouristMap: coordinates 칼럼 데이터 처리 시작', guideCoordinates.length);
+    console.log('🗺️ RegionTouristMap: coordinates 칼럼 데이터 처리 시작', {
+      length: guideCoordinates.length,
+      sampleData: guideCoordinates[0],
+      allData: guideCoordinates
+    });
     
-    coordinatesSpots = guideCoordinates.map((coord: any, index: number) => ({
-      id: `coord-${coord.id || coord.chapterId || index}`,
-      name: coord.title || `장소 ${index + 1}`,
-      lat: coord.lat || coord.coordinates?.lat,
-      lng: coord.lng || coord.coordinates?.lng,
-      description: `${locationName}의 주요 관광 포인트`
-    })).filter((spot: any) => 
-      spot.lat && spot.lng && 
-      !isNaN(spot.lat) && !isNaN(spot.lng) &&
-      spot.lat >= -90 && spot.lat <= 90 &&
-      spot.lng >= -180 && spot.lng <= 180
-    );
+    coordinatesSpots = guideCoordinates.map((coord: any, index: number) => {
+      const extractedLat = coord.lat || coord.coordinates?.lat;
+      const extractedLng = coord.lng || coord.coordinates?.lng;
+      
+      console.log(`🔍 좌표 추출 ${index}:`, {
+        original: coord,
+        title: coord.title,
+        directLat: coord.lat,
+        directLng: coord.lng,
+        nestedLat: coord.coordinates?.lat,
+        nestedLng: coord.coordinates?.lng,
+        extractedLat,
+        extractedLng
+      });
+      
+      return {
+        id: `coord-${coord.id || coord.chapterId || index}`,
+        name: coord.title || `장소 ${index + 1}`,
+        lat: extractedLat,
+        lng: extractedLng,
+        description: `${locationName}의 주요 관광 포인트`
+      };
+    }).filter((spot: any) => {
+      const isValid = spot.lat && spot.lng && 
+        !isNaN(spot.lat) && !isNaN(spot.lng) &&
+        spot.lat >= -90 && spot.lat <= 90 &&
+        spot.lng >= -180 && spot.lng <= 180;
+      
+      if (!isValid) {
+        console.log('❌ 유효하지 않은 좌표:', spot);
+      }
+      
+      return isValid;
+    });
     
-    console.log('🗺️ coordinates 칼럼에서 추출한 POI:', coordinatesSpots.length);
+    console.log('🗺️ coordinates 칼럼에서 추출한 POI:', {
+      total: coordinatesSpots.length,
+      spots: coordinatesSpots
+    });
+  } else {
+    console.log('⚠️ guideCoordinates 데이터 없음:', {
+      guideCoordinates,
+      isArray: Array.isArray(guideCoordinates),
+      type: typeof guideCoordinates
+    });
   }
   
   // 🎯 2단계: 기존 recommendedSpots와 coordinates 칼럼 데이터 병합

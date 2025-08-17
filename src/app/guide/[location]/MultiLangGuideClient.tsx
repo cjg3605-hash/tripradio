@@ -883,6 +883,17 @@ export default function MultiLangGuideClient({
         {/* 🎯 라우팅 결과에 따른 컴포넌트 선택 */}
         {shouldShowExploreHub ? (
           <>
+            {(() => {
+              console.log('🔍 RegionExploreHub에 전달되는 데이터:', {
+                guideData,
+                coordinates: guideData?.coordinates,
+                coordinatesType: typeof guideData?.coordinates,
+                coordinatesIsArray: Array.isArray(guideData?.coordinates),
+                coordinatesLength: guideData?.coordinates?.length,
+                coordinatesFirstItem: guideData?.coordinates?.[0]
+              });
+              return null;
+            })()}
             <RegionExploreHub 
               locationName={locationName}
               routingResult={routingResult}

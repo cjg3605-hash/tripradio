@@ -79,6 +79,18 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
         contentType: typeof content
       });
       
+      // 🔍 DEBUG: coordinates 관련 상세 확인
+      if (content) {
+        console.log('🗺️ RegionExploreHub coordinates 상세 분석:', {
+          coordinatesArray: content.coordinatesArray,
+          coordinates: content.coordinates,
+          coordinatesType: typeof content.coordinates,
+          coordinatesIsArray: Array.isArray(content.coordinates),
+          coordinatesLength: content.coordinates?.length,
+          coordinatesFirstItem: content.coordinates?.[0]
+        });
+      }
+      
       // 🔍 DEBUG: overview.keyFacts 구조 상세 확인
       if (content && content.overview && content.overview.keyFacts) {
         console.log('🔑 keyFacts 상세 구조:', {
@@ -442,12 +454,8 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                   lat: regionData.coordinates.lat,
                   lng: regionData.coordinates.lng,
                   name: `${locationName} 중심`
-                } : (content?.coordinatesArray?.[0] || content?.coordinates?.[0] ? {
-                  lat: parseFloat((content.coordinatesArray?.[0] || content.coordinates?.[0]).lat),
-                  lng: parseFloat((content.coordinatesArray?.[0] || content.coordinates?.[0]).lng),
-                  name: `${locationName} 중심`
-                } : undefined)}
-                guideCoordinates={content?.coordinatesArray || content?.coordinates || null} // 🎯 coordinates 칼럼 데이터 전달
+                } : undefined}
+                guideCoordinates={null} // 🚨 중요: content 칼럼에서 좌표 데이터 추출 금지, coordinates 칼럼만 사용
                 className="w-full"
               />
             </div>
