@@ -54,32 +54,40 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
   // 🎯 StartLocationMap은 부모 컴포넌트(MultiLangGuideClient)의 좌표 상태에만 의존
   // 별도 폴링 없이 guideCoordinates prop 변경을 실시간 반영
   
-  // 🎯 실제 좌표가 있는 챕터들 표시 (백그라운드 생성된 좌표 우선)
+  // 🎯 DB coordinates를 표준 chapters 형태로 변환
   const displayChapters = (() => {
     if (currentCoordinates && Array.isArray(currentCoordinates) && currentCoordinates.length > 0) {
-      // 백그라운드로 생성된 좌표가 있으면 해당 좌표들을 사용
-      console.log('🗺️ [StartLocationMap] coordinates 칼럼 사용:', currentCoordinates);
-      const processedChapters = currentCoordinates.map((coord: any, index: number) => ({
-        id: coord.id || index,
-        title: coord.title || `챕터 ${index + 1}`,
-        lat: coord.lat,
-        lng: coord.lng,
-        originalIndex: index
-      }));
+      // DB coordinates를 표준 chapter 형태로 변환
+      console.log('🗺️ [StartLocationMap] DB coordinates 변환:', currentCoordinates.length);
+      
+      const processedChapters = currentCoordinates.map((coord: any, index: number) => {
+        // 좌표 추출 (다양한 필드명 지원)
+        const lat = coord.lat || coord.latitude;
+        const lng = coord.lng || coord.longitude;
+        
+        return {
+          id: coord.id !== undefined ? coord.id : index,
+          title: coord.title || coord.name || `챕터 ${index + 1}`,
+          lat: typeof lat === 'number' ? lat : parseFloat(lat),
+          lng: typeof lng === 'number' ? lng : parseFloat(lng),
+          originalIndex: index,
+          narrative: coord.narrative || coord.description || ''
+        };
+      });
       
       // 유효한 좌표만 필터링
-      const validChapters = processedChapters.filter(chapter => 
-        chapter.lat && chapter.lng && 
-        !isNaN(chapter.lat) && !isNaN(chapter.lng) &&
-        chapter.lat >= -90 && chapter.lat <= 90 &&
-        chapter.lng >= -180 && chapter.lng <= 180
-      );
+      const validChapters = processedChapters.filter(chapter => {
+        return chapter.lat && chapter.lng && 
+               !isNaN(chapter.lat) && !isNaN(chapter.lng) &&
+               chapter.lat >= -90 && chapter.lat <= 90 &&
+               chapter.lng >= -180 && chapter.lng <= 180;
+      });
       
-      console.log('🗺️ [StartLocationMap] 유효한 coordinates 챕터:', validChapters.length);
+      console.log('🗺️ [StartLocationMap] 변환된 유효 chapters:', validChapters.length);
       return validChapters;
     } else if (chapters && chapters.length > 0) {
-      // 좌표가 없으면 전달받은 chapters 사용 (폴백)
-      console.log('🗺️ [StartLocationMap] 전달받은 chapters 사용:', chapters);
+      // 폴백: 전달받은 chapters 사용
+      console.log('🗺️ [StartLocationMap] 폴백 chapters 사용:', chapters.length);
       return chapters.filter(chapter => 
         (chapter.lat && chapter.lng) || 
         (chapter.coordinates?.lat && chapter.coordinates?.lng)
@@ -143,7 +151,6 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
             }}
             className="w-full h-full"
             locationName={locationName}
-            guideCoordinates={guideCoordinates}
           />
       </div>
     </div>

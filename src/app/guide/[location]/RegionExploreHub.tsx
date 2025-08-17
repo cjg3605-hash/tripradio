@@ -442,9 +442,9 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                   lat: regionData.coordinates.lat,
                   lng: regionData.coordinates.lng,
                   name: `${locationName} 중심`
-                } : (content?.realTimeGuide?.chapters?.[0]?.coordinates ? {
-                  lat: parseFloat(content.realTimeGuide.chapters[0].coordinates.lat),
-                  lng: parseFloat(content.realTimeGuide.chapters[0].coordinates.lng),
+                } : (content?.coordinatesArray?.[0] || content?.coordinates?.[0] ? {
+                  lat: parseFloat((content.coordinatesArray?.[0] || content.coordinates?.[0]).lat),
+                  lng: parseFloat((content.coordinatesArray?.[0] || content.coordinates?.[0]).lng),
                   name: `${locationName} 중심`
                 } : undefined)}
                 guideCoordinates={content?.coordinatesArray || content?.coordinates || null} // 🎯 coordinates 칼럼 데이터 전달

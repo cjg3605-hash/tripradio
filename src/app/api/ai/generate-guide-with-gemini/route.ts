@@ -5,7 +5,7 @@ import { aiRateLimiter } from '@/lib/rate-limiter';
 import { compressResponse } from '@/middleware/compression';
 import { trackAIGeneration } from '@/lib/monitoring';
 import { DataIntegrationOrchestrator } from '@/lib/data-sources/orchestrator/data-orchestrator';
-import { enhanceGuideCoordinates, validateTitleCoordinateConsistency } from '@/lib/coordinates/guide-coordinate-enhancer';
+// import { enhanceGuideCoordinates, validateTitleCoordinateConsistency } from '@/lib/coordinates/guide-coordinate-enhancer'; // 비활성화됨
 import { UniversalChapterGenerationAI } from '@/lib/ai/chapter-generation-ai';
 import { 
   enhancedCache, 
@@ -276,6 +276,7 @@ export async function POST(request: NextRequest) {
       processingTimeMs: 0
     };
     
+    /*
     if (false) { // 기존 코드 비활성화
       try {
         const enhancementResult = await enhanceGuideCoordinates(
@@ -338,6 +339,7 @@ export async function POST(request: NextRequest) {
         console.warn('⚠️ 좌표 향상 실패, 원본 가이드 사용:', enhanceError);
       }
     }
+    */
 
     // 🎯 최종 응답 구성 - 사실 검증 정보 포함
     const responseData = {
@@ -906,6 +908,7 @@ async function handleStreamingResponse(
               processingTimeMs: 0
             };
             
+            /*
             if (false) { // 기존 코드 비활성화
               try {
                 const enhancementResult = await enhanceGuideCoordinates(
@@ -917,6 +920,7 @@ async function handleStreamingResponse(
                 console.warn('⚠️ 좌표 향상 실패, 원본 사용:', enhanceError);
               }
             }
+            */
 
             // 최종 결과 전송
             sendProgress('완료', 100, { message: '가이드 생성 완료!' });

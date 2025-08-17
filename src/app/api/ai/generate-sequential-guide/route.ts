@@ -326,27 +326,22 @@ async function createGuideSequentially(
       }, '병렬 좌표 생성 API 호출');
       
     } else {
-      console.log('🔄 OptimizedLocationContext 없음, 기존 방식 좌표 생성 사용');
-      
-      // 기존 방식: guideId 기반 순차 처리
-      coordinatesPromise = withFetchRetry(`${baseUrl}/api/ai/generate-coordinates`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ guideId: dbRecord.id, mode: 'sequential' })
-      }, '순차 좌표 생성 API 호출');
+      console.log('❌ OptimizedLocationContext 없음, 좌표 생성 건너뜀');
+      console.warn('⚠️ 세션스토리지에 OptimizedLocationContext가 없어 좌표 생성을 건너뜁니다.');
+      // 좌표 생성 없이 진행
+      coordinatesPromise = null;
     }
     
     // 좌표 생성 결과 처리 (백그라운드로 비동기 처리)
-    coordinatesPromise?.then(response => response.json())
-      .then(result => {
-        if (result.success) {
-          console.log(`✅ 좌표 생성 완료 (${result.mode}): ${result.coordinatesCount || result.coordinates?.length}개 좌표`);
-          
-          // 병렬 모드에서는 DB 업데이트 수행
-          if (result.mode === 'parallel' && result.coordinates) {
-            console.log('💾 병렬 모드: DB coordinates 칼럼 업데이트');
+    if (coordinatesPromise) {
+      coordinatesPromise.then(response => response.json())
+        .then(result => {
+          if (result.success) {
+            console.log(`✅ 좌표 생성 완료 (${result.mode}): ${result.coordinatesCount || result.coordinates?.length}개 좌표`);
+            
+            // Parallel 모드에서 DB 업데이트 수행
+            if (result.mode === 'parallel' && result.coordinates) {
+              console.log('💾 Parallel 모드: DB coordinates 칼럼 업데이트');
             supabase
               .from('guides')
               .update({
@@ -369,6 +364,9 @@ async function createGuideSequentially(
       .catch(error => {
         console.error('❌ 좌표 API 호출 최종 실패:', error);
       });
+    } else {
+      console.log('📍 OptimizedLocationContext 없어 좌표 생성 생략됨');
+    }
 
     // 💾 4단계: DB 최종 업데이트 (좌표 생성과 병렬 처리)
     console.log(`\n💾 4단계: DB 최종 업데이트`);
