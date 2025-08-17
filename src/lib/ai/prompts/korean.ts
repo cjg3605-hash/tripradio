@@ -7,6 +7,7 @@ import {
   analyzeLocationType,
   getRecommendedSpotCount 
 } from './index';
+import type { OptimizedLocationContext } from '@/types/unified-location';
 
 /**
  * 🎯 위치 유형별 품질 검증 기준 생성
@@ -579,7 +580,8 @@ ${JSON.stringify(AUDIO_GUIDE_EXAMPLE, null, 2)}
 export const createAutonomousGuidePrompt = (
   locationName: string,
   language: string = 'ko',
-  userProfile?: UserProfile
+  userProfile?: UserProfile,
+  optimizedLocationContext?: OptimizedLocationContext  // 🎯 새로운 통합 지역정보 컨텍스트
 ): string => {
   const langConfig = LANGUAGE_CONFIGS[language] || LANGUAGE_CONFIGS.ko;
   const audioStyle = AUDIO_GUIDE_INSTRUCTIONS[language] || AUDIO_GUIDE_INSTRUCTIONS.ko;
@@ -613,6 +615,38 @@ ${specialistContext}
 
 ## 🎯 미션
 "${locationName}"에 대한 **몰입감 넘치는 ${langConfig.name} 오디오 가이드** JSON을 생성하세요.
+
+${optimizedLocationContext ? `
+### 🎯 향상된 지역정보 컨텍스트 (AI 품질 최적화):
+정확한 사실 기반 가이드 작성을 위해 다음 검증된 정보를 적극 활용하세요.
+
+**📍 기본 위치 정보:**
+- 장소명: ${optimizedLocationContext.placeName}
+- 지역: ${optimizedLocationContext.location_region}
+- 국가: ${optimizedLocationContext.country_code}
+- 언어: ${optimizedLocationContext.language}
+
+${optimizedLocationContext.factual_context ? `
+**🏛️ 사실 정확성 정보 (반드시 활용):**
+- 건축/완공 연도: ${optimizedLocationContext.factual_context.construction_date || '정보 없음'}
+- 건축가/설계자: ${optimizedLocationContext.factual_context.architect || '정보 없음'}
+- 높이: ${optimizedLocationContext.factual_context.height_meters ? optimizedLocationContext.factual_context.height_meters + 'm' : '정보 없음'}
+- 문화재 지정: ${optimizedLocationContext.factual_context.cultural_status || '정보 없음'}
+- 현재 상태: ${optimizedLocationContext.factual_context.current_status}
+- 역사적 시대: ${optimizedLocationContext.factual_context.period || '정보 없음'}
+` : ''}
+
+${optimizedLocationContext.cultural_context ? `
+**🎨 문화적 맥락:**
+- 문화적 의미: ${optimizedLocationContext.cultural_context.cultural_significance}
+- 건축 양식: ${optimizedLocationContext.cultural_context.architectural_style || '정보 없음'}
+- 종교적 맥락: ${optimizedLocationContext.cultural_context.religious_context || '정보 없음'}
+- 왕조/시대: ${optimizedLocationContext.cultural_context.dynasty_era || '정보 없음'}
+` : ''}
+
+🚨 **핵심 지침**: 위 정보는 **검증된 사실 데이터**입니다. narrative 작성 시 반드시 이 구체적 정보를 활용하여 정확성을 높이세요.
+
+` : ''}
 
 ${userContext}
 
@@ -808,7 +842,8 @@ ${JSON.stringify(AUDIO_GUIDE_EXAMPLE, null, 2)}
 export const createKoreanFinalPrompt = (
   locationName: string,
   researchData: any,
-  userProfile?: UserProfile
+  userProfile?: UserProfile,
+  optimizedLocationContext?: OptimizedLocationContext  // 🎯 새로운 통합 지역정보 컨텍스트
 ): string => {
   const langConfig = LANGUAGE_CONFIGS.ko;
   const audioStyle = AUDIO_GUIDE_INSTRUCTIONS.ko;
@@ -844,6 +879,59 @@ ${specialistContext}
 
 ### 리서치 데이터:
 ${JSON.stringify(researchData, null, 2)}
+
+${optimizedLocationContext ? `
+### 🎯 향상된 지역정보 컨텍스트 (AI 품질 최적화):
+제공된 최적화된 지역정보 컨텍스트를 활용하여 더욱 정확하고 풍부한 가이드를 작성하세요.
+
+**📍 기본 위치 정보:**
+- 장소명: ${optimizedLocationContext.placeName}
+- 지역: ${optimizedLocationContext.location_region}
+- 국가: ${optimizedLocationContext.country_code}
+- 언어: ${optimizedLocationContext.language}
+
+**🏛️ 사실 정확성 정보 (반드시 활용하세요):**
+${optimizedLocationContext.factual_context ? `
+- 건축/완공 연도: ${optimizedLocationContext.factual_context.construction_date || '정보 없음'}
+- 건축가/설계자: ${optimizedLocationContext.factual_context.architect || '정보 없음'}
+- 높이: ${optimizedLocationContext.factual_context.height_meters ? optimizedLocationContext.factual_context.height_meters + 'm' : '정보 없음'}
+- 문화재 지정: ${optimizedLocationContext.factual_context.cultural_status || '정보 없음'}
+- 현재 상태: ${optimizedLocationContext.factual_context.current_status}
+- 역사적 시대: ${optimizedLocationContext.factual_context.period || '정보 없음'}
+` : '사실 정보 없음'}
+
+**🌐 현지화 정보:**
+${optimizedLocationContext.local_context ? `
+- 현지명: ${optimizedLocationContext.local_context.local_name || '정보 없음'}
+- 발음 가이드: ${optimizedLocationContext.local_context.pronunciation_guide || '정보 없음'}
+- 주요 언어: ${optimizedLocationContext.local_context.primary_language}
+- 통화: ${optimizedLocationContext.local_context.currency}
+- 입장료: ${optimizedLocationContext.local_context.entrance_fee || '정보 없음'}
+- 현지 관습: ${optimizedLocationContext.local_context.local_customs ? optimizedLocationContext.local_context.local_customs.join(', ') : '정보 없음'}
+` : '현지화 정보 없음'}
+
+**🎯 실용 정보:**
+${optimizedLocationContext.practical_info ? `
+- 권장 관람 시간: ${optimizedLocationContext.practical_info.typical_visit_duration}분
+- 접근성: ${optimizedLocationContext.practical_info.accessibility_level}
+- 최적 방문 계절: ${optimizedLocationContext.practical_info.best_visit_seasons ? optimizedLocationContext.practical_info.best_visit_seasons.join(', ') : '정보 없음'}
+- 장소 카테고리: ${optimizedLocationContext.practical_info.category}
+- 운영 시간: ${optimizedLocationContext.practical_info.opening_hours || '정보 없음'}
+- 권장 시간대: ${optimizedLocationContext.practical_info.recommended_time ? optimizedLocationContext.practical_info.recommended_time.join(', ') : '정보 없음'}
+` : '실용 정보 없음'}
+
+**🎨 문화적 맥락:**
+${optimizedLocationContext.cultural_context ? `
+- 역사적 시대: ${optimizedLocationContext.cultural_context.historical_period || '정보 없음'}
+- 종교적 맥락: ${optimizedLocationContext.cultural_context.religious_context || '정보 없음'}
+- 문화적 의미: ${optimizedLocationContext.cultural_context.cultural_significance}
+- 건축 양식: ${optimizedLocationContext.cultural_context.architectural_style || '정보 없음'}
+- 왕조/시대: ${optimizedLocationContext.cultural_context.dynasty_era || '정보 없음'}
+` : '문화적 맥락 없음'}
+
+🚨 **중요 지침**: 위의 모든 정보는 **사실 확인된 정확한 데이터**입니다. 반드시 이 정보를 바탕으로 narrative를 구성하고, 추측이나 일반적인 설명 대신 **구체적인 수치와 사실**을 활용하세요.
+
+` : ''}
 
 ${userContext}
 

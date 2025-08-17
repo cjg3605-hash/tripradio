@@ -377,7 +377,7 @@ export default function MultiLangGuideClient({
           console.log(`✅ [좌표 존재] "${locationName}" - ${(normalizedData.coordinates as any).length}개 좌표`);
           setCoordinates(normalizedData.coordinates);
         } else {
-          console.log(`📍 [좌표 대기] "${locationName}" - AI 생성 시 좌표가 포함될 예정`);
+          console.log(`📍 [좌표 없음] "${locationName}" - 기본 지도 표시`);
         }
         
       } else {

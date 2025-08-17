@@ -105,40 +105,9 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
         </div>
       </div>
 
-      {/* 지도 또는 로딩 상태 */}
+      {/* 지도 표시 */}
       <div className="h-64 relative overflow-hidden">
-        {/* 🎯 좌표 생성 중 로딩 UI */}
-        <div 
-          className={`absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center transition-all duration-700 ease-in-out ${
-            isCoordinatesLoading ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
-          }`}
-        >
-          <div className="text-center">
-            <div className="relative mb-4">
-              {/* 로딩 스피너 */}
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto"></div>
-              {/* 지도 아이콘 */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-blue-600 animate-pulse" />
-              </div>
-            </div>
-            <h4 className="text-lg font-semibold text-gray-800 mb-2">
-              지도를 생성중입니다
-            </h4>
-            <p className="text-sm text-gray-600 max-w-xs">
-              AI가 정확한 위치 정보를 분석하고 있어요.<br />
-              좌표 생성이 완료되는 대로 표시됩니다.
-            </p>
-          </div>
-        </div>
-
-        {/* 🗺️ 실제 지도 표시 */}
-        <div 
-          className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-            !isCoordinatesLoading ? 'opacity-100 z-10' : 'opacity-0 z-0'
-          }`}
-        >
-          <MapWithRoute
+        <MapWithRoute
             chapters={displayChapters.length > 0 ? displayChapters : undefined}
             pois={displayChapters.length === 0 ? pois.map(poi => ({
               id: poi.id,
@@ -160,9 +129,8 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
             }}
             className="w-full h-full"
             locationName={locationName}
-            guideCoordinates={currentCoordinates}
+            guideCoordinates={guideCoordinates}
           />
-        </div>
       </div>
     </div>
   );

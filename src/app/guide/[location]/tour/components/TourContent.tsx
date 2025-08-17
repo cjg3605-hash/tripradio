@@ -146,8 +146,8 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
   const humanStories = currentChapter?.humanStories || '';
   const nextDirection = currentChapter?.nextDirection || '';
 
-  // 🗺️ 백그라운드 좌표 생성 상태 확인
-  console.log('🗺️ 좌표 생성 상태:', {
+  // 🗺️ 좌표 상태 확인 (단순 로깅)
+  console.log('🗺️ 좌표 파싱 상태:', {
     hasGuideCoordinates: !!(guideCoordinates && Array.isArray(guideCoordinates) && guideCoordinates.length > 0),
     coordinatesCount: guideCoordinates?.length || 0,
     chaptersCount: allChapters.length,
@@ -674,7 +674,6 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                     hasGuideCoordinates: !!(guideCoordinates && Array.isArray(guideCoordinates) && guideCoordinates.length > 0),
                     coordinatesCount: guideCoordinates?.length || 0,
                     chaptersCount: chaptersForMap.length,
-                    guideId: String(guide?.metadata?.guideId || guide?.metadata?.id || ''),
                     startPoint: smartStartPoint
                   });
 

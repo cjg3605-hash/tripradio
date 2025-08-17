@@ -436,7 +436,67 @@ export default function NextLevelSearchBox() {
         console.log('🌍 국가코드 변환 시작:', country);
         const countryCode = await getCountryCode(country);
         
-        // 🆕 SessionStorage에 자동완성 데이터 저장 (성공/실패 상관없이)
+        // 🚀 Gemini API로 정확한 지역정보 추출 (5초 타임아웃)
+        console.log('🤖 Gemini API 지역정보 추출 시작:', suggestion.name);
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000); // 5초 타임아웃
+          
+          const geminiResponse = await fetch('/api/locations/extract-regional-info', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              placeName: suggestion.name,
+              language: currentLanguage,
+              detailed: false // DB용 간소화 정보만 요청
+            }),
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+
+          const geminiData = await geminiResponse.json();
+          console.log('🤖 Gemini API 응답:', geminiData);
+
+          if (geminiData?.success && geminiData?.data?.region && geminiData?.data?.countryCode) {
+            // Gemini API로 추출된 정확한 지역정보 사용 (필수 필드 검증)
+            const enhancedParsedInfo = {
+              region: geminiData.data.region,
+              country: geminiData.data.country || country,
+              countryCode: geminiData.data.countryCode
+            };
+            
+            console.log('✅ Gemini 지역정보로 강화:', enhancedParsedInfo);
+            const saved = saveAutocompleteData(suggestion.name, suggestion, enhancedParsedInfo);
+            console.log('💾 Gemini 강화 → SessionStorage 저장 결과:', saved);
+            
+            // Gemini로 추출된 데이터로 네비게이션
+            const urlParams = new URLSearchParams({
+              region: enhancedParsedInfo.region,
+              country: enhancedParsedInfo.country,
+              countryCode: enhancedParsedInfo.countryCode || 'unknown',
+              type: 'attraction'
+            });
+            
+            const targetUrl = `/guide/${encodeURIComponent(suggestion.name)}?${urlParams.toString()}`;
+            console.log('🚀 Gemini → URL 파라미터 변환 성공:', targetUrl);
+            
+            setTimeout(() => {
+              router.push(targetUrl);
+            }, 100);
+            return; // Gemini 성공 시 여기서 종료
+          }
+        } catch (geminiError) {
+          if (geminiError instanceof Error && geminiError.name === 'AbortError') {
+            console.warn('⏰ Gemini API 타임아웃 (5초), 기존 방식 사용');
+          } else {
+            console.warn('⚠️ Gemini API 실패, 기존 방식 사용:', geminiError);
+          }
+        }
+
+        // 🔄 Gemini 실패 시 기존 방식으로 폴백
         const parsedInfo = {
           region: region,
           country: country,
@@ -444,7 +504,7 @@ export default function NextLevelSearchBox() {
         };
         
         const saved = saveAutocompleteData(suggestion.name, suggestion, parsedInfo);
-        console.log('💾 자동완성 클릭 → SessionStorage 저장 결과:', saved);
+        console.log('💾 폴백 자동완성 → SessionStorage 저장 결과:', saved);
         
         if (countryCode) {
           // 성공: 정확한 지역정보로 이동

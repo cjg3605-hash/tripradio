@@ -1,7 +1,11 @@
 // 자동완성 데이터 SessionStorage 관리 유틸리티
 // 엔터키 입력시 자동완성 결과를 가이드 페이지로 완전 전달하기 위한 시스템
 
-interface AutocompleteData {
+import { EnhancedAutocompleteData, OptimizedLocationContext } from '@/types/unified-location';
+import { convertOptimizedToAIPrompt } from '@/lib/location/location-context-converters';
+
+// 🔄 하위 호환성을 위한 레거시 인터페이스
+interface LegacyAutocompleteData {
   name: string;           // 장소명
   location: string;       // "도시, 국가" 형태의 원본 위치 정보
   region: string;         // 파싱된 지역명 (예: "부산")
@@ -11,6 +15,9 @@ interface AutocompleteData {
   confidence: number;     // 신뢰도 점수
   timestamp: number;      // 저장 시각
 }
+
+// 🎯 새로운 통합 자동완성 데이터 타입 (OptimizedLocationContext 기반)
+type AutocompleteData = EnhancedAutocompleteData;
 
 // 클라이언트 환경 확인
 const isClientSide = (): boolean => {
@@ -23,7 +30,50 @@ const getStorageKey = (locationName: string): string => {
 };
 
 /**
- * 자동완성 데이터를 SessionStorage에 저장
+ * 🎯 향상된 자동완성 데이터를 SessionStorage에 저장 (새로운 통합 구조)
+ * @param locationName 장소명
+ * @param optimizedContext OptimizedLocationContext 데이터
+ * @param source 데이터 소스 ('gemini' | 'geocoding' | 'hybrid')
+ */
+export const saveOptimizedAutocompleteData = (
+  locationName: string,
+  optimizedContext: OptimizedLocationContext,
+  source: string = 'gemini'
+): boolean => {
+  if (!isClientSide()) {
+    console.warn('⚠️ SessionStorage를 사용할 수 없는 환경입니다.');
+    return false;
+  }
+
+  try {
+    const enhancedData: AutocompleteData = {
+      ...optimizedContext,
+      // SessionStorage 전용 메타데이터
+      timestamp: Date.now(),
+      confidence: 0.9,
+      source: source,
+      version: '2.0' // 새로운 구조 버전
+    };
+
+    const storageKey = getStorageKey(locationName);
+    sessionStorage.setItem(storageKey, JSON.stringify(enhancedData));
+
+    console.log('✅ 향상된 자동완성 데이터 SessionStorage 저장 완료:', {
+      key: storageKey,
+      placeName: enhancedData.placeName,
+      source: enhancedData.source,
+      version: enhancedData.version
+    });
+
+    return true;
+  } catch (error) {
+    console.error('❌ SessionStorage 저장 실패:', error);
+    return false;
+  }
+};
+
+/**
+ * 🔄 레거시 자동완성 데이터를 SessionStorage에 저장 (하위 호환성)
  * @param locationName 장소명
  * @param data 자동완성 API에서 받은 데이터
  * @param parsedInfo 파싱된 지역/국가 정보
@@ -43,7 +93,7 @@ export const saveAutocompleteData = (
   }
 
   try {
-    const autocompleteData: AutocompleteData = {
+    const legacyData: LegacyAutocompleteData = {
       name: data.name || locationName,
       location: data.location || '',
       region: parsedInfo.region,
@@ -55,11 +105,11 @@ export const saveAutocompleteData = (
     };
 
     const storageKey = getStorageKey(locationName);
-    sessionStorage.setItem(storageKey, JSON.stringify(autocompleteData));
+    sessionStorage.setItem(storageKey, JSON.stringify(legacyData));
 
-    console.log('✅ 자동완성 데이터 SessionStorage 저장 완료:', {
+    console.log('✅ 레거시 자동완성 데이터 SessionStorage 저장 완료:', {
       key: storageKey,
-      data: autocompleteData
+      data: legacyData
     });
 
     return true;
@@ -70,14 +120,14 @@ export const saveAutocompleteData = (
 };
 
 /**
- * SessionStorage에서 자동완성 데이터 읽기
+ * 🎯 향상된 자동완성 데이터 읽기 (통합 구조 우선)
  * @param locationName 장소명
  * @param removeAfterRead 읽은 후 삭제할지 여부 (기본값: true)
  */
-export const getAutocompleteData = (
+export const getOptimizedAutocompleteData = (
   locationName: string,
   removeAfterRead: boolean = true
-): AutocompleteData | null => {
+): OptimizedLocationContext | null => {
   if (!isClientSide()) {
     console.warn('⚠️ SessionStorage를 사용할 수 없는 환경입니다.');
     return null;
@@ -92,7 +142,7 @@ export const getAutocompleteData = (
       return null;
     }
 
-    const data: AutocompleteData = JSON.parse(stored);
+    const data = JSON.parse(stored);
 
     // 5분 이상 된 데이터는 무효 처리
     const MAX_AGE = 5 * 60 * 1000; // 5분
@@ -102,19 +152,113 @@ export const getAutocompleteData = (
       return null;
     }
 
-    // 읽은 후 삭제 (일회성 사용)
-    if (removeAfterRead) {
-      sessionStorage.removeItem(storageKey);
-      console.log('🗑️ 자동완성 데이터 사용 후 삭제:', storageKey);
+    // 새로운 구조 데이터인지 확인
+    if (data.version === '2.0' && data.factual_context) {
+      // 메타데이터 제거하고 OptimizedLocationContext만 반환
+      const { timestamp, confidence, source, version, ...optimizedContext } = data;
+      
+      // 읽은 후 삭제 (일회성 사용)
+      if (removeAfterRead) {
+        sessionStorage.removeItem(storageKey);
+        console.log('🗑️ 향상된 자동완성 데이터 사용 후 삭제:', storageKey);
+      }
+
+      console.log('✅ SessionStorage에서 향상된 자동완성 데이터 로드:', optimizedContext);
+      return optimizedContext as OptimizedLocationContext;
     }
 
-    console.log('✅ SessionStorage에서 자동완성 데이터 로드:', data);
-    return data;
+    // 레거시 데이터인 경우 null 반환 (다른 함수에서 처리)
+    console.log('📄 레거시 자동완성 데이터 감지, getAutocompleteData() 사용 권장');
+    return null;
 
   } catch (error) {
     console.error('❌ SessionStorage 읽기 실패:', error);
     return null;
   }
+};
+
+/**
+ * 🔄 레거시 자동완성 데이터 읽기 (하위 호환성)
+ * @param locationName 장소명
+ * @param removeAfterRead 읽은 후 삭제할지 여부 (기본값: true)
+ */
+export const getAutocompleteData = (
+  locationName: string,
+  removeAfterRead: boolean = true
+): LegacyAutocompleteData | null => {
+  if (!isClientSide()) {
+    console.warn('⚠️ SessionStorage를 사용할 수 없는 환경입니다.');
+    return null;
+  }
+
+  try {
+    const storageKey = getStorageKey(locationName);
+    const stored = sessionStorage.getItem(storageKey);
+
+    if (!stored) {
+      console.log('📭 SessionStorage에 자동완성 데이터 없음:', storageKey);
+      return null;
+    }
+
+    const data = JSON.parse(stored);
+
+    // 5분 이상 된 데이터는 무효 처리
+    const MAX_AGE = 5 * 60 * 1000; // 5분
+    if (Date.now() - data.timestamp > MAX_AGE) {
+      console.warn('⏰ 자동완성 데이터가 만료되었습니다:', data.timestamp);
+      sessionStorage.removeItem(storageKey);
+      return null;
+    }
+
+    // 새로운 구조 데이터인 경우 getOptimizedAutocompleteData() 사용 권장
+    if (data.version === '2.0') {
+      console.log('📄 향상된 자동완성 데이터 감지, getOptimizedAutocompleteData() 사용 권장');
+      return null;
+    }
+
+    // 레거시 데이터 처리
+    const legacyData: LegacyAutocompleteData = data;
+
+    // 읽은 후 삭제 (일회성 사용)
+    if (removeAfterRead) {
+      sessionStorage.removeItem(storageKey);
+      console.log('🗑️ 레거시 자동완성 데이터 사용 후 삭제:', storageKey);
+    }
+
+    console.log('✅ SessionStorage에서 레거시 자동완성 데이터 로드:', legacyData);
+    return legacyData;
+
+  } catch (error) {
+    console.error('❌ SessionStorage 읽기 실패:', error);
+    return null;
+  }
+};
+
+/**
+ * 🔄 통합 자동완성 데이터 읽기 (자동 버전 감지)
+ * @param locationName 장소명
+ * @param removeAfterRead 읽은 후 삭제할지 여부 (기본값: true)
+ */
+export const getAutocompleteDataUnified = (
+  locationName: string,
+  removeAfterRead: boolean = true
+): { data: OptimizedLocationContext | LegacyAutocompleteData | null, type: 'optimized' | 'legacy' | 'none' } => {
+  // 먼저 향상된 데이터 시도
+  const optimized = getOptimizedAutocompleteData(locationName, false);
+  if (optimized) {
+    if (removeAfterRead) {
+      removeAutocompleteData(locationName);
+    }
+    return { data: optimized, type: 'optimized' };
+  }
+
+  // 레거시 데이터 시도
+  const legacy = getAutocompleteData(locationName, removeAfterRead);
+  if (legacy) {
+    return { data: legacy, type: 'legacy' };
+  }
+
+  return { data: null, type: 'none' };
 };
 
 /**

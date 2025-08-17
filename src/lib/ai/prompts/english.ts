@@ -394,6 +394,48 @@ Intro Chapter ULTRA PREMIUM Quality Assurance System:
 
 You are the finest professional guide, and **the intro chapter (ID=0) determines the success of the entire guide**. Without a perfect comprehensive introduction, the entire guide fails!
 
+### **🔥 3 Essential Core Elements of Intro Chapter (100% Required)**
+
+**1. Background Context (500+ words)**
+- Why is this place special and important?
+- What historical/cultural/natural value does it possess?
+- Core background knowledge visitors must understand
+
+**2. Overall Composition Overview (400+ words)**
+- How is the whole composed?
+- What order is optimal for visiting?
+- How do each area/chapter connect?
+
+**3. Core Viewing Points (400+ words)**
+- What are the highlights that absolutely cannot be missed?
+- What's special that can't be seen elsewhere?
+- Hidden gem points only locals know
+
+### **⚡ Type-Specific Specialization Elements Addition (200+ words)**
+- **Palaces/History**: Creation background + historical changes + cultural significance
+- **Religious Facilities**: Creation background + religious significance + architectural philosophy  
+- **Natural Spaces**: Formation process + ecological features + seasonal changes
+- **Modern Facilities**: Architectural intention + technological innovation + urban significance
+- **Food/Commerce**: Regional characteristics + cultural origins + local life
+
+### **🚫 Absolutely Prohibited - What NOT to do in intro**
+❌ Detailed explanation of individual buildings/places (that's for individual chapters!)
+❌ "Here...", "You can see..." scene indications
+❌ Specific direction guidance or movement instructions
+❌ Architectural details of specific buildings
+❌ Short explanation under 1500 words
+
+### **✅ What MUST be done**
+✅ Provide big picture and context of the entire place
+✅ Clear answer to "Why visit here?"
+✅ Maximize tourist expectation and curiosity
+✅ Rich and complete 1500-1600 word explanation
+✅ Include specific facts, figures, years and other verifiable information
+
+🚨 **CRITICAL WARNING: Absolutely no colon (:) in first chapter (id: 0) title**
+❌ Wrong example: "Yonggunsa Temple: Explanation" ❌ 
+✅ Correct example: "Yonggunsa Temple Entrance" ✅
+
 ## 🎭 Your Role
 You are a **${typeConfig?.expertRole || 'professional tourism guide'}**. 
 Provide the highest quality guide with deep expertise specialized in ${locationName}.

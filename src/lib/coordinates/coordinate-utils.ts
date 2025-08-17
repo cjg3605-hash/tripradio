@@ -4,6 +4,7 @@
  */
 
 import { searchLocationDirect, GeocodingResult, LocationContext } from './geocoding-direct';
+import { OptimizedLocationContext } from '@/types/unified-location';
 
 // Re-export LocationContext for external use
 export type { LocationContext } from './geocoding-direct';
@@ -148,9 +149,71 @@ export function generateCoordinatesArray(
 }
 
 /**
+ * 🎯 챕터 정보 인터페이스
+ */
+export interface ChapterInfo {
+  id: number;
+  title: string;
+  location?: string;
+  description?: string;
+  type?: string;
+  narrative?: string;
+}
+
+/**
+ * 🎯 OptimizedLocationContext를 활용한 스마트 기본 챕터 생성
+ */
+export function generateSmartChaptersFromContext(
+  optimizedContext: OptimizedLocationContext
+): ChapterInfo[] {
+  console.log(`🤖 OptimizedContext 기반 스마트 챕터 생성: ${optimizedContext.placeName}`);
+  
+  const smartChapters: ChapterInfo[] = [];
+  
+  // 1. 입구/메인 에리어
+  smartChapters.push({
+    id: 0,
+    title: optimizedContext.local_context?.entrance_location || `${optimizedContext.placeName} 입구`,
+    description: `${optimizedContext.placeName}의 메인 입구`,
+    type: 'entrance'
+  });
+  
+  // 2. 주요 관람 구역
+  smartChapters.push({
+    id: 1,
+    title: optimizedContext.local_context?.main_area || `${optimizedContext.placeName} 주요 구역`,
+    description: `${optimizedContext.placeName}의 기본 관람 코스`,
+    type: 'main_area'
+  });
+  
+  // 3. 특별 관심지점 (있다면)
+  if (optimizedContext.local_context?.nearby_attractions) {
+    smartChapters.push({
+      id: 2,
+      title: `${optimizedContext.placeName} 주변 명소`,
+      description: `${optimizedContext.placeName} 주변의 다른 관심지점`,
+      type: 'nearby_attractions'
+    });
+  }
+  
+  // 4. 출구/기념품점 (필요시)
+  if (optimizedContext.practical_info?.gift_shop) {
+    smartChapters.push({
+      id: smartChapters.length,
+      title: `${optimizedContext.placeName} 기념품점`,
+      description: `방문 기념품 구매 및 출구`,
+      type: 'gift_shop'
+    });
+  }
+  
+  console.log(`🤖 스마트 챕터 ${smartChapters.length}개 생성:`, smartChapters.map(c => c.title).join(', '));
+  return smartChapters;
+}
+
+/**
  * 🔍 content에서 챕터 정보 추출
  */
-export function extractChaptersFromContent(content: any): any[] {
+export function extractChaptersFromContent(content: any): ChapterInfo[] {
   if (!content) {
     console.log(`📊 content 없음`);
     return [];
@@ -180,6 +243,54 @@ export function extractChaptersFromContent(content: any): any[] {
   
   console.log(`📊 챕터 구조 찾을 수 없음`);
   return [];
+}
+
+/**
+ * 🚀 OptimizedLocationContext를 활용한 고속 좌표 생성
+ */
+export async function generateOptimizedCoordinates(
+  optimizedContext: OptimizedLocationContext,
+  guideData?: any
+): Promise<{
+  baseCoordinates: { lat: number; lng: number } | null;
+  coordinatesArray: any[];
+  foundMethod: string;
+}> {
+  console.log(`🚀 OptimizedLocationContext 기반 좌표 생성: ${optimizedContext.placeName}`);
+  
+  // OptimizedLocationContext를 SimpleLocationContext로 변환
+  const context: SimpleLocationContext = {
+    locationName: optimizedContext.placeName,
+    region: optimizedContext.location_region,
+    country: optimizedContext.country_code,
+    language: optimizedContext.language
+  };
+  
+  // 1단계: 고속 좌표 검색 (OptimizedContext의 정확한 지역정보 활용)
+  const baseCoordinates = await findCoordinatesSimple(optimizedContext.placeName, context);
+  
+  if (!baseCoordinates) {
+    console.log(`❌ 기본 좌표 검색 실패: ${optimizedContext.placeName}`);
+    return {
+      baseCoordinates: null,
+      coordinatesArray: [],
+      foundMethod: 'OptimizedContext 검색 실패'
+    };
+  }
+  
+  // 2단계: 챕터 정보 추출
+  const chapters = extractChaptersFromContent(guideData);
+  
+  // 3단계: 챕터별 좌표 배열 생성
+  const coordinatesArray = generateCoordinatesArray(chapters, baseCoordinates);
+  
+  console.log(`✅ OptimizedContext 기반 좌표 생성 완료: ${coordinatesArray.length}개 챕터`);
+  
+  return {
+    baseCoordinates,
+    coordinatesArray,
+    foundMethod: 'OptimizedLocationContext 고속 생성'
+  };
 }
 
 /**
@@ -214,7 +325,7 @@ export async function generateCompleteCoordinates(
   // 3단계: 챕터별 좌표 배열 생성
   const coordinatesArray = generateCoordinatesArray(chapters, baseCoordinates);
   
-  console.log(`✅ 통합 좌표 생성 완료: Geocoding API 직접 검색, ${coordinatesArray.length}개 챕터`);
+  console.log(`✅ 기존 방식 좌표 생성 완료: Geocoding API 직접 검색, ${coordinatesArray.length}개 챕터`);
   
   return {
     baseCoordinates,
