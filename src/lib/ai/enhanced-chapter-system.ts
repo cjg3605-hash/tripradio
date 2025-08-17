@@ -170,7 +170,7 @@ export class EnhancedChapterSelectionSystem {
 
     return {
       name: locationName,
-      coordinates: await this.getLocationCoordinates(locationName),
+      coordinates: (await this.getLocationCoordinates(locationName)) as any, // 🔥 타입 호환성: null 허용
       venueType,
       scale: venueScale,
       averageVisitDuration: this.estimateVisitDuration(venueScale, viewingPoints.length),
@@ -695,8 +695,8 @@ export class EnhancedChapterSelectionSystem {
   }
 
   // 기타 필요한 헬퍼 메서드들은 간략화...
-  private async getLocationCoordinates(locationName: string) {
-    return { lat: 37.5665, lng: 126.9780 }; // 임시 서울 좌표
+  private async getLocationCoordinates(locationName: string): Promise<{ lat: number; lng: number } | null> {
+    return null; // 🔥 하드코딩 좌표 제거: 좌표 없으면 null 반환
   }
 
   private estimateVisitDuration(scale: VenueScale, pointCount: number): number {

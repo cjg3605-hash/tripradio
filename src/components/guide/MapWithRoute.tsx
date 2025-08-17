@@ -220,7 +220,7 @@ const MapWithRoute = memo<MapWithRouteProps>(({
 
 
   // 지도 중심점 계산 - id:0 챕터(첫 번째 챕터) 우선 표시
-  const mapCenter: LatLngExpression = (() => {
+  const mapCenter: LatLngExpression | null = (() => {
     // 1순위: 명시적으로 전달된 center 사용
     if (center && center.lat && center.lng) {
       console.log('🎯 지도 중심: 명시적 center 사용', center);
@@ -248,9 +248,9 @@ const MapWithRoute = memo<MapWithRouteProps>(({
       return [avgLat, avgLng];
     }
     
-    // 최종 기본값
-    console.log('🎯 지도 중심: 서울 기본값 사용');
-    return [37.5665, 126.9780]; // 서울 기본값
+    // 🔥 좌표 없음: 지도 표시하지 않음
+    console.log('⚠️ 지도 중심: 유효한 좌표 없음 - 지도 숨김');
+    return null; // 좌표 없으면 지도 숨김
   })();
 
   // 줌 레벨 계산
@@ -313,8 +313,8 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   };
 
 
-  // 좌표가 정말 없는 경우 (POI도 chapters도 없음)
-  if (validChapters.length === 0) {
+  // 좌표가 정말 없는 경우 (POI도 chapters도 없음 또는 mapCenter가 null)
+  if (validChapters.length === 0 || mapCenter === null) {
     return (
       <div className="w-full h-64 bg-gray-50 flex items-center justify-center rounded-lg border border-gray-200">
         <div className="text-center text-gray-500">

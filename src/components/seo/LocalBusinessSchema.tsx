@@ -62,11 +62,7 @@ export default function LocalBusinessSchema({
       postalCode: address.postalCode,
       addressCountry: address.addressCountry
     } : undefined,
-    geo: address ? {
-      "@type": "GeoCoordinates",
-      latitude: "37.5665",
-      longitude: "126.9780"
-    } : undefined,
+    geo: address ? null : undefined, // 🔥 하드코딩 좌표 제거: SEO 스키마에서 폴백 좌표 없음
     openingHours: "Mo-Su 00:00-23:59", // 24/7 온라인 서비스
     // 개인 서비스는 결제 정보 제거
     serviceArea: {

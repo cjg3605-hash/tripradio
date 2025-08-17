@@ -639,14 +639,14 @@ async function generateFallbackGuide(
           {
             id: 0,
             title: `${location} 관람 시작`,
-            narrative: `${location}에 오신 것을 환영합니다. 이곳의 특별한 이야기들을 함께 알아보겠습니다.`,
-            coordinates: { lat: 37.5665, lng: 126.9780 }
+            narrative: `${location}에 오신 것을 환영합니다. 이곳의 특별한 이야기들을 함께 알아보겠습니다.`
+            // 🔥 좌표 제거: 폴백 시에는 좌표 없음 - "표시할 장소가 없습니다" 메시지 표시
           },
           {
             id: 1,
             title: `${location} 대표 명소`,
-            narrative: `${location}에서 가장 유명한 명소입니다. 많은 방문객들이 이곳을 찾아옵니다.`,
-            coordinates: { lat: 37.5665, lng: 126.9780 }
+            narrative: `${location}에서 가장 유명한 명소입니다. 많은 방문객들이 이곳을 찾아옵니다.`
+            // 🔥 좌표 제거: 폴백 시에는 좌표 없음 - "표시할 장소가 없습니다" 메시지 표시
           }
         ]
       },

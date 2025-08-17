@@ -29,7 +29,7 @@ import { ResponsiveContainer, PageHeader, Card, Stack, Flex } from '@/components
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { getLocationCoordinates, DEFAULT_SEOUL_CENTER } from '@/data/locations';
+import { getLocationCoordinates } from '@/data/locations';
 import { useSession } from 'next-auth/react';
 import { saveFavoriteGuide, isFavoriteGuide } from '@/lib/supabaseGuideHistory';
 import PopupNotification from '@/components/ui/PopupNotification';
@@ -625,47 +625,12 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                 {(() => {
                   // 실제 위치 데이터 가져오기
                   const locationData = getLocationCoordinates(locationName || '');
-                  const startPoint = locationData ? locationData.center : DEFAULT_SEOUL_CENTER;
+                  const startPoint = locationData ? locationData.center : null; // 🔥 폴백 좌표 제거
                   const pois = locationData ? locationData.pois.slice(0, 8) : []; // 최대 8개 POI
                   
-                  // 🎯 실제 투어 챕터 데이터 준비 - 지능형 좌표 생성
-                  const getSmartCoordinates = (locationName: string, index: number, total: number) => {
-                    // 🌍 주요 도시별 기본 좌표 (API 없이)
-                    const cityCoords: Record<string, {lat: number, lng: number}> = {
-                      // 한국 주요 명소
-                      '경복궁': { lat: 37.5796, lng: 126.9770 },
-                      '남산타워': { lat: 37.5512, lng: 126.9882 },
-                      '명동': { lat: 37.5636, lng: 126.9826 },
-                      '서울': { lat: 37.5665, lng: 126.9780 },
-                      '부산': { lat: 35.1796, lng: 129.0756 },
-                      '제주도': { lat: 33.4996, lng: 126.5312 },
-                      // 해외 주요 도시
-                      '에펠탑': { lat: 48.8584, lng: 2.2945 },
-                      '파리': { lat: 48.8566, lng: 2.3522 },
-                      '도쿄': { lat: 35.6762, lng: 139.6503 },
-                      '뉴욕': { lat: 40.7128, lng: -74.0060 },
-                      '런던': { lat: 51.5074, lng: -0.1278 },
-                      '로마': { lat: 41.9028, lng: 12.4964 }
-                    };
-                    
-                    // 폴백 좌표 매칭 (백그라운드 좌표 생성 실패시)
-                    let baseCoord = cityCoords[locationName] || 
-                                  Object.entries(cityCoords).find(([city]) => 
-                                    locationName.includes(city) || city.includes(locationName)
-                                  )?.[1] || 
-                                  cityCoords['서울'];
-                    
-                    // 챕터별 스마트 분산 (원형 배치)
-                    const angle = (index / total) * 2 * Math.PI;
-                    const radius = 0.005 + (index * 0.002); // 거리 증가
-                    
-                    return {
-                      lat: baseCoord.lat + Math.cos(angle) * radius,
-                      lng: baseCoord.lng + Math.sin(angle) * radius
-                    };
-                  };
+                  // 🚫 폴백 좌표 시스템 제거 - 실제 데이터만 사용
                   
-                  const chaptersForMap = allChapters.map((chapter, index) => {
+                  const chaptersForMapRaw = allChapters.map((chapter, index) => {
                     // 🗺️ guides.coordinates 컬럼에서만 좌표 사용 (content 좌표 사용 금지)
                     let coords;
                     
@@ -689,9 +654,9 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                         };
                         console.log(`🗺️ [TourContent 챕터 좌표] 챕터 ${index} "${chapter.title}" → (${coords.lat}, ${coords.lng})`);
                       } else {
-                        // 3순위: 동적 좌표 생성 (최종 폴백)
-                        coords = getSmartCoordinates(locationName || '', index, allChapters.length);
-                        console.log(`🗺️ [TourContent 폴백 좌표] 챕터 ${index} "${chapter.title}" → (${coords.lat}, ${coords.lng})`);
+                        // ❌ 실제 좌표가 없으면 null 반환 (폴백 금지)
+                        console.warn(`❌ [TourContent] 챕터 ${index} "${chapter.title}" - 좌표 데이터 없음`);
+                        return null;
                       }
                     }
                     
@@ -704,6 +669,11 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                       originalIndex: index
                     };
                   });
+                  
+                  // 🎯 실제 좌표가 있는 챕터만 필터링
+                  const chaptersForMap = chaptersForMapRaw.filter(chapter => chapter !== null);
+                  
+                  console.log(`🗺️ [좌표 검증] 전체 ${allChapters.length}개 챕터 중 ${chaptersForMap.length}개 챕터에 좌표 존재`);
                   
                   // 🎯 스마트 시작점 설정 - 실제 챕터 좌표 우선 사용
                   let smartStartPoint;
@@ -739,8 +709,8 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                       }
                     }
                   } else {
-                    // 챕터가 없을 때 기본값
-                    smartStartPoint = { lat: 48.8584, lng: 2.2945, name: '에펠탑' };
+                    // ❌ 좌표가 없을 때 null로 설정
+                    smartStartPoint = null;
                   }
 
                   // 🗺️ StartLocationMap 전달 데이터 로깅
@@ -749,8 +719,29 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
                     coordinatesCount: coordinatesAnalysis.coordinatesCount,
                     validCoordinatesCount: coordinatesAnalysis.validCoordinatesCount,
                     chaptersCount: chaptersForMap.length,
-                    startPoint: smartStartPoint
+                    startPoint: smartStartPoint,
+                    hasValidCoordinates: chaptersForMap.length > 0
                   });
+
+                  // 좌표가 없으면 에러 메시지 표시
+                  if (chaptersForMap.length === 0 || !smartStartPoint) {
+                    return (
+                      <div className="bg-white border border-red-200 rounded-3xl shadow-lg shadow-red-50 overflow-hidden">
+                        <div className="p-6 text-center">
+                          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L3.348 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                          </div>
+                          <h3 className="text-lg font-bold text-red-800 mb-2">표시할 장소가 없습니다</h3>
+                          <p className="text-sm text-red-600">
+                            이 가이드에는 지도에 표시할 좌표 정보가 없습니다.<br/>
+                            좌표 생성 시스템을 확인해주세요.
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  }
 
                   return (
                     <StartLocationMap

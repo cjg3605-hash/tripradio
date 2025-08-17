@@ -233,7 +233,7 @@ function extractCoordinates(chapter: any, locationName: string): { lat: number; 
     '부산': { lat: 35.1796, lng: 129.0756 }
   };
   
-  return defaultCoords[locationName] || { lat: 37.5665, lng: 126.9780 };
+  return defaultCoords[locationName] || null; // 🔥 기본값 제거: 폴백 좌표 없음
 }
 
 function extractSpotName(chapter: any, index: number): string {
@@ -686,10 +686,7 @@ export async function POST(request: NextRequest) {
           quickFacts: {
             bestTime: "연중"
           },
-          coordinates: {
-            lat: 37.5665,
-            lng: 126.9780 // 기본 좌표 (서울)
-          }
+          coordinates: null // 🔥 기본 좌표 제거: 좌표 없음
         }
       };
       

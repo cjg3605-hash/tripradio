@@ -173,7 +173,7 @@ function buildSearchQueries(locationData: EnhancedLocationData): string[] {
  */
 function getLocationBias(countryCode: string): { lat: number; lng: number; radius: number } | undefined {
   const locationBiases: { [key: string]: { lat: number; lng: number; radius: number } } = {
-    'KR': { lat: 37.5665, lng: 126.9780, radius: 100000 }, // 서울 중심, 100km 반경
+    // 🔥 'KR': { lat: 37.5665, lng: 126.9780, radius: 100000 }, // 서울 중심 바이어스 제거
     'CN': { lat: 39.9042, lng: 116.4074, radius: 1000000 }, // 베이징 중심, 1000km 반경
     'JP': { lat: 35.6762, lng: 139.6503, radius: 500000 }, // 도쿄 중심, 500km 반경
     'US': { lat: 39.8283, lng: -98.5795, radius: 2000000 }, // 미국 중심, 2000km 반경
@@ -274,7 +274,7 @@ function getDefaultCoordinatesByCountry(countryCode: string): { lat: number; lng
     'TH': { lat: 13.7563, lng: 100.5018 }, // 방콕, 태국
   };
   
-  return countryDefaults[countryCode] || countryDefaults['KR']; // 기본값: 서울
+  return countryDefaults[countryCode] || null; // 🔥 기본값 제거: 폴백 좌표 없음
 }
 
 /**

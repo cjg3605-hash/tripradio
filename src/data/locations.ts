@@ -221,9 +221,4 @@ export function getLocationCoordinates(locationName: string): TourLocation | nul
   return partialMatch || null;
 }
 
-// 기본 서울 중심 좌표 (매치되는 위치가 없을 때)
-export const DEFAULT_SEOUL_CENTER = {
-  lat: 37.5665,
-  lng: 126.9780,
-  name: '서울 중심가'
-};
+// 🔥 DEFAULT_SEOUL_CENTER 제거: 폴백 좌표 없음

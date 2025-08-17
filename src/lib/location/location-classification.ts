@@ -17,7 +17,7 @@ export interface LocationData {
   parent?: string;
   region?: string;
   aliases: string[];
-  coordinates?: { lat: number; lng: number };
+  coordinates?: { lat: number; lng: number } | null;
   popularity: number; // 1-10 scale
   requiresRegionalContext?: boolean;
   found?: boolean;
@@ -31,7 +31,7 @@ export const COUNTRIES: Record<string, LocationData> = {
     type: "country",
     level: 1,
     aliases: ["대한민국", "Korea", "South Korea", "República de Corea", "韩国", "韓国", "대한민국"],
-    coordinates: { lat: 37.5665, lng: 126.9780 },
+    coordinates: null, // 🔥 하드코딩 좌표 제거: 국가 중심점 없음
     popularity: 9
   },
   "일본": {
@@ -100,7 +100,7 @@ export const PROVINCES: Record<string, LocationData> = {
     level: 2,
     country: "한국",
     aliases: ["서울시", "Seoul Metropolitan City", "Seoul Special City"],
-    coordinates: { lat: 37.5665, lng: 126.9780 },
+    coordinates: null, // 🔥 하드코딩 좌표 제거: 도시 중심점 없음
     popularity: 10
   },
   "경기도": {
@@ -208,7 +208,7 @@ export const CITIES: Record<string, LocationData> = {
     country: "한국",
     parent: "서울특별시",
     aliases: ["Seoul", "ソウル", "首尔", "Seul"],
-    coordinates: { lat: 37.5665, lng: 126.9780 },
+    coordinates: null, // 🔥 하드코딩 좌표 제거: 도시 중심점 없음
     popularity: 10
   },
   "부산": {
