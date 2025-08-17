@@ -5,9 +5,8 @@ import { supabase } from '@/lib/supabaseClient';
 import { ServiceValidators } from '@/lib/env-validator';
 import { withSupabaseRetry, withGoogleAPIRetry, withFetchRetry, retryStats } from '@/lib/api-retry';
 import { createErrorResponse, SpecializedErrorHandlers, errorStats } from '@/lib/error-handler';
-import { getOptimizedAutocompleteData } from '@/lib/cache/autocompleteStorage';
 import { OptimizedLocationContext } from '@/types/unified-location';
-// Plus Code 관련 import 제거 - AI 가이드 생성 우선으로 변경
+import { findCoordinatesSimple, extractChaptersFromContent, SimpleLocationContext } from '@/lib/coordinates/coordinate-utils';
 
 // 타입 정의
 interface EnhancedLocationData {
@@ -33,14 +32,13 @@ interface GuideGenerationResponse {
 export const runtime = 'nodejs';
 
 /**
- * 🎯 순차 가이드 생성 API - AI 가이드 생성 전용
+ * 🎯 순차 가이드 생성 API - 완전한 가이드 생성
  * 
- * 단일 책임 원칙에 따른 플로우:
+ * 통합 처리 플로우:
  * 1. DB 기본 레코드 생성 (지역명, 국가 정보)
  * 2. AI 가이드 생성
- * 3. DB 업데이트 (완성된 가이드 컨텐츠 저장)
- * 
- * Note: 좌표 생성은 별도의 generate-coordinates API에서 처리
+ * 3. 좌표 생성 (병렬 처리)
+ * 4. DB 업데이트 (가이드 컨텐츠 + 좌표 저장)
  */
 
 // Gemini 클라이언트 초기화 함수
@@ -89,7 +87,116 @@ function extractLocationDataFromRequest(locationName: string, searchParams: URLS
 }
 
 /**
- * 🎯 순차 가이드 생성 핵심 함수 - AI 가이드 생성 전용
+ * 🗺️ 좌표 생성 함수 (서버사이드 전용)
+ */
+async function generateCoordinatesForGuide(
+  locationData: EnhancedLocationData,
+  guideContent: any
+): Promise<any[]> {
+  try {
+    console.log('\n🗺️ 좌표 생성 시작:', locationData.name);
+    
+    // 챕터 추출
+    const chapters = extractChaptersFromContent(guideContent);
+    console.log(`📊 ${chapters.length}개 챕터 발견`);
+    
+    if (chapters.length === 0) {
+      console.log('📊 챕터 없음, 기본 좌표 생성');
+      // 기본 좌표 생성
+      const context: SimpleLocationContext = {
+        locationName: locationData.name,
+        region: locationData.region || '',
+        country: locationData.country || '',
+        language: 'ko'
+      };
+      
+      const basicCoordinate = await findCoordinatesSimple(locationData.name, context);
+      if (basicCoordinate) {
+        return [{
+          id: 0,
+          lat: basicCoordinate.lat,
+          lng: basicCoordinate.lng,
+          step: 1,
+          title: locationData.name,
+          chapterId: 0,
+          coordinates: {
+            lat: basicCoordinate.lat,
+            lng: basicCoordinate.lng
+          }
+        }];
+      }
+      return [];
+    }
+    
+    const coordinates: any[] = [];
+    
+    // 각 챕터별 좌표 생성
+    for (let i = 0; i < Math.min(chapters.length, 5); i++) {
+      const chapter = chapters[i];
+      
+      try {
+        console.log(`🔍 챕터 ${i + 1} 좌표 생성: "${chapter.title}"`);
+        
+        const context: SimpleLocationContext = {
+          locationName: chapter.title,
+          region: locationData.region || '',
+          country: locationData.country || '',
+          language: 'ko'
+        };
+        
+        // 먼저 챕터 제목으로 검색
+        let coordinateResult = await findCoordinatesSimple(
+          `${locationData.name} ${chapter.title}`,
+          context
+        );
+        
+        // 실패 시 기본 장소명만으로 검색
+        if (!coordinateResult) {
+          console.log(`  🔄 기본 장소명으로 재시도: "${locationData.name}"`);
+          coordinateResult = await findCoordinatesSimple(locationData.name, context);
+        }
+        
+        if (coordinateResult) {
+          const chapterCoord = {
+            id: i,
+            lat: coordinateResult.lat,
+            lng: coordinateResult.lng,
+            step: i + 1,
+            title: chapter.title,
+            chapterId: i,
+            coordinates: {
+              lat: coordinateResult.lat,
+              lng: coordinateResult.lng
+            }
+          };
+          
+          coordinates.push(chapterCoord);
+          console.log(`✅ 챕터 ${i + 1} 좌표 성공: ${coordinateResult.lat}, ${coordinateResult.lng}`);
+        } else {
+          console.log(`❌ 챕터 ${i + 1} 좌표 실패`);
+        }
+        
+        // API 호출 제한 대기
+        if (i < chapters.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
+      } catch (error) {
+        console.error(`❌ 챕터 ${i + 1} 처리 중 오류:`, error);
+      }
+    }
+    
+    console.log(`✅ 좌표 생성 완료: ${coordinates.length}개`);
+    return coordinates;
+    
+  } catch (error) {
+    console.error('❌ 좌표 생성 실패:', error);
+    return [];
+  }
+}
+
+/**
+ * 🎯 순차 가이드 생성 핵심 함수 - 완전한 가이드 생성
  */
 async function createGuideSequentially(
   locationData: EnhancedLocationData,
@@ -200,19 +307,6 @@ async function createGuideSequentially(
     // 🤖 2단계: AI 가이드 생성
     console.log(`\n🤖 2단계: AI 가이드 생성 시작`);
     
-    // 🎯 향상된 지역정보 컨텍스트 조회 시도
-    let optimizedLocationContext: OptimizedLocationContext | null = null;
-    try {
-      optimizedLocationContext = getOptimizedAutocompleteData(locationData.name, false);
-      if (optimizedLocationContext) {
-        console.log(`✅ 향상된 지역정보 컨텍스트 활용: ${optimizedLocationContext.placeName}`);
-      } else {
-        console.log(`📭 향상된 지역정보 없음, 기본 정보 사용`);
-      }
-    } catch (error) {
-      console.warn('⚠️ 향상된 지역정보 조회 실패:', error);
-    }
-    
     // 컨텍스트 정보 포함 장소명 생성
     const contextualLocationName = locationData.region !== '미분류' 
       ? `${locationData.name} (${locationData.region}, ${locationData.country})`
@@ -223,8 +317,7 @@ async function createGuideSequentially(
       language, 
       userProfile,
       '', // parentRegion
-      {}, // regionalContext 
-      optimizedLocationContext || undefined  // 🎯 새로운 통합 지역정보 컨텍스트 전달
+      {} // regionalContext
     );
     
     // AI 모델 호출
@@ -294,11 +387,17 @@ async function createGuideSequentially(
       country_code: locationData.countryCode
     };
 
-    // 💾 3단계: DB 최종 업데이트 (가이드 컨텐츠만)
-    console.log(`\n💾 3단계: DB 최종 업데이트`);
+    // 🗺️ 3단계: 좌표 생성
+    console.log(`\n🗺️ 3단계: 좌표 생성 시작`);
+    const coordinates = await generateCoordinatesForGuide(locationData, guideData);
+    console.log(`✅ 좌표 생성 완료: ${coordinates.length}개 좌표`);
+
+    // 💾 4단계: DB 최종 업데이트 (가이드 컨텐츠 + 좌표)
+    console.log(`\n💾 4단계: DB 최종 업데이트`);
     
     const finalUpdateData = {
       content: guideData,
+      coordinates: coordinates,
       updated_at: new Date().toISOString()
     };
 
@@ -327,23 +426,18 @@ async function createGuideSequentially(
     }
 
     const totalTime = Date.now() - startTime;
-    console.log(`\n✅ 가이드 생성 완료:`, {
+    console.log(`\n✅ 완전한 가이드 생성 완료:`, {
       guideId: dbRecord.id,
       totalTime: `${totalTime}ms`,
       region: locationData.region,
       country: locationData.country,
-      status: 'AI 가이드 생성 및 DB 저장 완료'
+      coordinatesCount: coordinates.length,
+      status: 'AI 가이드 + 좌표 생성 및 DB 저장 완료'
     });
     
     // 📊 재시도 통계 및 에러 통계 로깅
     retryStats.logStats();
     errorStats.logStats();
-
-    // TODO(human): 좌표 생성 트리거 방식 결정 및 구현
-    // 옵션 1: 프론트엔드에서 가이드 생성 완료 후 좌표 생성 API 별도 호출
-    // 옵션 2: 백그라운드에서 좌표 생성 API 자동 호출 (서버사이드)
-    // 옵션 3: 별도의 webhook이나 이벤트 시스템 구축
-    // 추천: 옵션 1 (단순하고 명확한 분리, 에러 처리 용이)
 
     return { 
       success: true, 

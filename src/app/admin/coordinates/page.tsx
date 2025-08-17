@@ -72,7 +72,7 @@ export default function CoordinateManagementPage() {
     } catch (error) {
       setMessage(`⚠️ 이 기능은 더 이상 사용되지 않습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
-  }, [selectedGuideId, minAccuracy]);
+  }, []);
 
   // 🚨 DEPRECATED: 좌표 재생성 실행 - 더 이상 사용하지 않음
   const regenerateCoordinates = async () => {
@@ -91,7 +91,7 @@ export default function CoordinateManagementPage() {
   useEffect(() => {
     fetchStats();
     fetchCandidates();
-  }, [selectedGuideId, minAccuracy, fetchStats, fetchCandidates]);
+  }, [fetchStats, fetchCandidates]);
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
