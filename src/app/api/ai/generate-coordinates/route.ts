@@ -244,8 +244,10 @@ async function generateCoordinatesFromOptimizedContext(
           
           coordinates.push(chapterCoord);
           console.log(`✅ 챕터 ${i + 1} 좌표 성공: ${coordinateResult.lat}, ${coordinateResult.lng}`);
+          console.log(`📊 현재까지 추출된 좌표 수: ${coordinates.length}개`);
         } else {
           console.log(`❌ 챕터 ${i + 1} 좌표 실패 - 검색 결과 없음`);
+          console.log(`🔍 실패한 검색어: "${chapter.title}" in ${optimizedLocationContext.placeName}, ${optimizedLocationContext.location_region}`);
         }
         
         // API 호출 제한 대기
@@ -259,6 +261,12 @@ async function generateCoordinatesFromOptimizedContext(
     }
     
     console.log(`✅ OptimizedContext 기반 좌표 생성 완료: ${coordinates.length}개 좌표`);
+    console.log(`📋 최종 좌표 데이터 확인:`, coordinates.map(coord => ({
+      title: coord.title,
+      lat: coord.lat,
+      lng: coord.lng,
+      chapterId: coord.chapterId
+    })));
     return coordinates;
     
   } catch (error) {
@@ -370,6 +378,49 @@ export async function POST(request: NextRequest) {
         }
       } : 'empty'
     });
+    
+    // 🔍 DB 저장 전 추가 검증
+    console.log('🔍 DB 저장 전 검증:', {
+      guideIdType: typeof guideId,
+      guideIdValue: guideId,
+      coordinatesIsArray: Array.isArray(coordinates),
+      coordinatesLength: coordinates.length,
+      coordinatesValid: coordinates.length > 0 && coordinates.every(c => c.lat && c.lng),
+      sampleCoordinates: coordinates.slice(0, 2)
+    });
+    
+    // guideId 존재 여부 먼저 확인
+    console.log('🔍 guideId로 기존 레코드 확인 중...');
+    try {
+      const { data: existingGuide, error: checkError } = await supabase
+        .from('guides')
+        .select('id, locationname, language, coordinates')
+        .eq('id', guideId)
+        .single();
+      
+      if (checkError) {
+        console.error('❌ 기존 레코드 확인 실패:', checkError);
+        return NextResponse.json({
+          success: false,
+          error: `가이드 레코드를 찾을 수 없습니다: ${checkError.message}`,
+          guideId: guideId
+        }, { status: 404 });
+      }
+      
+      console.log('✅ 기존 레코드 확인 완료:', {
+        id: existingGuide.id,
+        locationname: existingGuide.locationname,
+        language: existingGuide.language,
+        hasExistingCoordinates: existingGuide.coordinates ? existingGuide.coordinates.length : 0
+      });
+    } catch (error) {
+      console.error('❌ 레코드 확인 중 예외:', error);
+      return NextResponse.json({
+        success: false,
+        error: `데이터베이스 접근 실패: ${error instanceof Error ? error.message : String(error)}`,
+        guideId: guideId
+      }, { status: 500 });
+    }
     
     let dbSaveSuccess = false;
     let dbSaveError: any = null;
