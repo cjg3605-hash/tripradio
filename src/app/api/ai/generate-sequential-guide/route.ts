@@ -33,14 +33,14 @@ interface GuideGenerationResponse {
 export const runtime = 'nodejs';
 
 /**
- * 🎯 간단화된 순차 가이드 생성 API - AI 우선 생성
+ * 🎯 순차 가이드 생성 API - AI 가이드 생성 전용
  * 
- * 새로운 간단 플로우:
- * 1. DB 기본 레코드 생성 (지역명, 국가만)
+ * 단일 책임 원칙에 따른 플로우:
+ * 1. DB 기본 레코드 생성 (지역명, 국가 정보)
  * 2. AI 가이드 생성
- * 3. DB 업데이트 (완성된 가이드 저장)
+ * 3. DB 업데이트 (완성된 가이드 컨텐츠 저장)
  * 
- * Note: coordinates 칼럼은 빈 배열로 유지 (나중에 별도 처리)
+ * Note: 좌표 생성은 별도의 generate-coordinates API에서 처리
  */
 
 // Gemini 클라이언트 초기화 함수
@@ -89,7 +89,7 @@ function extractLocationDataFromRequest(locationName: string, searchParams: URLS
 }
 
 /**
- * 🎯 순차 가이드 생성 핵심 함수 - 경합 조건 방지
+ * 🎯 순차 가이드 생성 핵심 함수 - AI 가이드 생성 전용
  */
 async function createGuideSequentially(
   locationData: EnhancedLocationData,
@@ -294,83 +294,11 @@ async function createGuideSequentially(
       country_code: locationData.countryCode
     };
 
-    // 🚀 3단계: 병렬 좌표 생성 API 시작 (OptimizedLocationContext 활용)
-    console.log(`\n🚀 3단계: 병렬 좌표 생성 API 시작`);
+    // 💾 3단계: DB 최종 업데이트 (가이드 컨텐츠만)
+    console.log(`\n💾 3단계: DB 최종 업데이트`);
     
-    // 🏃‍♂️ 전체 수행 시간 단축을 위한 동시 처리 - 더 빠른 사용자 경험
-    let coordinatesPromise: Promise<Response> | null = null;
-    
-    if (optimizedLocationContext) {
-      console.log('🚀 OptimizedLocationContext 활용 병렬 좌표 생성 시작');
-      
-      // 병렬 방식: locationData와 optimizedLocationContext 직접 전달
-      const coordinatesRequestBody = {
-        locationData: {
-          name: locationData.name,
-          region: locationData.region,
-          countryCode: locationData.countryCode,
-          location_region: locationData.region,
-          country_code: locationData.countryCode,
-          content: guideData // 생성된 가이드 챕터 정보 전달
-        },
-        optimizedLocationContext: optimizedLocationContext,
-        guideId: dbRecord.id, // 🎯 DB 저장을 위한 guideId 전달
-        mode: 'parallel'
-      };
-      
-      coordinatesPromise = withFetchRetry(`${baseUrl}/api/ai/generate-coordinates`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(coordinatesRequestBody)
-      }, '병렬 좌표 생성 API 호출');
-      
-    } else {
-      console.log('❌ OptimizedLocationContext 없음, 대안 좌표 생성 시도');
-      console.warn('⚠️ 세션스토리지에 OptimizedLocationContext가 없어 기본 정보로 좌표 생성을 시도합니다.');
-      
-      // TODO(human): OptimizedLocationContext가 없을 때도 좌표를 생성하는 대안 로직 구현
-      // Google API로 추출된 정확한 지역 정보(locationData)를 활용해 간단한 OptimizedLocationContext 구조 생성
-      // 필수 필드: placeName, location_region, country_code, language
-      // 기본값: factual_context = {}, local_context = {}
-      coordinatesPromise = null;
-    }
-    
-    // 🎯 좌표 생성 결과 처리 (동기식으로 변경)
-    let coordinatesData: any[] = [];
-    if (coordinatesPromise) {
-      try {
-        const coordinatesResponse = await coordinatesPromise;
-        const coordinatesResult = await coordinatesResponse.json();
-        
-        if (coordinatesResult.success) {
-          console.log(`✅ 좌표 생성 완료 (${coordinatesResult.mode}): ${coordinatesResult.coordinatesCount || coordinatesResult.coordinates?.length}개 좌표`);
-          
-          // 🎯 DB 저장은 generate-coordinates API에서 처리됨
-          if (coordinatesResult.dbSaved) {
-            console.log('✅ coordinates 칼럼 DB 저장 성공 (generate-coordinates API에서 처리됨)');
-            coordinatesData = coordinatesResult.coordinates || [];
-          } else {
-            console.error('❌ coordinates 칼럼 DB 저장 실패:', coordinatesResult.dbError || 'Unknown error');
-          }
-        } else {
-          console.error(`❌ 좌표 생성 실패: ${coordinatesResult.error}`);
-        }
-      } catch (error) {
-        console.error('❌ 좌표 API 호출 최종 실패:', error);
-      }
-    } else {
-      console.log('📍 OptimizedLocationContext 없어 좌표 생성 생략됨');
-    }
-
-    // 💾 4단계: DB 최종 업데이트 (좌표 생성과 병렬 처리)
-    console.log(`\n💾 4단계: DB 최종 업데이트`);
-    
-    // 💾 4단계: DB 최종 업데이트 (콘텐츠만)
     const finalUpdateData = {
       content: guideData,
-      // 🎯 coordinates 제거 - generate-coordinates API에서 단독 처리
       updated_at: new Date().toISOString()
     };
 
@@ -402,23 +330,25 @@ async function createGuideSequentially(
     console.log(`\n✅ 가이드 생성 완료:`, {
       guideId: dbRecord.id,
       totalTime: `${totalTime}ms`,
-      coordinatesGenerated: coordinatesData.length,
-      parallelCoordinates: !!optimizedLocationContext,
       region: locationData.region,
       country: locationData.country,
-      coordinatesStatus: optimizedLocationContext ? `병렬 모드: ${coordinatesData.length}개 좌표 생성됨 (generate-coordinates API에서 처리)` : '좌표 생성 생략됨'
+      status: 'AI 가이드 생성 및 DB 저장 완료'
     });
     
     // 📊 재시도 통계 및 에러 통계 로깅
     retryStats.logStats();
     errorStats.logStats();
 
+    // TODO(human): 좌표 생성 트리거 방식 결정 및 구현
+    // 옵션 1: 프론트엔드에서 가이드 생성 완료 후 좌표 생성 API 별도 호출
+    // 옵션 2: 백그라운드에서 좌표 생성 API 자동 호출 (서버사이드)
+    // 옵션 3: 별도의 webhook이나 이벤트 시스템 구축
+    // 추천: 옵션 1 (단순하고 명확한 분리, 에러 처리 용이)
+
     return { 
       success: true, 
       data: guideData,
-      guideId: dbRecord.id,
-      parallelMode: !!optimizedLocationContext,
-      coordinatesMode: optimizedLocationContext ? 'parallel' : 'sequential'
+      guideId: dbRecord.id
     } as GuideGenerationResponse;
 
   } catch (error) {
