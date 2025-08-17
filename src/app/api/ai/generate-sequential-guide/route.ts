@@ -332,38 +332,41 @@ async function createGuideSequentially(
       coordinatesPromise = null;
     }
     
-    // 좌표 생성 결과 처리 (백그라운드로 비동기 처리)
+    // 🎯 좌표 생성 결과 처리 (동기식으로 변경)
+    let coordinatesData: any[] = [];
     if (coordinatesPromise) {
-      coordinatesPromise.then(response => response.json())
-        .then(result => {
-          if (result.success) {
-            console.log(`✅ 좌표 생성 완료 (${result.mode}): ${result.coordinatesCount || result.coordinates?.length}개 좌표`);
+      try {
+        const coordinatesResponse = await coordinatesPromise;
+        const coordinatesResult = await coordinatesResponse.json();
+        
+        if (coordinatesResult.success) {
+          console.log(`✅ 좌표 생성 완료 (${coordinatesResult.mode}): ${coordinatesResult.coordinatesCount || coordinatesResult.coordinates?.length}개 좌표`);
+          
+          // Parallel 모드에서 DB 업데이트 수행
+          if (coordinatesResult.mode === 'parallel' && coordinatesResult.coordinates) {
+            coordinatesData = coordinatesResult.coordinates;
+            console.log('💾 Parallel 모드: DB coordinates 칼럼 동기 업데이트');
             
-            // Parallel 모드에서 DB 업데이트 수행
-            if (result.mode === 'parallel' && result.coordinates) {
-              console.log('💾 Parallel 모드: DB coordinates 칼럼 업데이트');
-            supabase
+            const { error: coordUpdateError } = await supabase
               .from('guides')
               .update({
-                coordinates: result.coordinates,
+                coordinates: coordinatesData,
                 updated_at: new Date().toISOString()
               })
-              .eq('id', dbRecord.id)
-              .then(({ error }) => {
-                if (error) {
-                  console.error('❌ 병렬 모드 DB 업데이트 실패:', error);
-                } else {
-                  console.log('✅ 병렬 모드 DB 업데이트 성공');
-                }
-              });
+              .eq('id', dbRecord.id);
+            
+            if (coordUpdateError) {
+              console.error('❌ 좌표 DB 업데이트 실패:', coordUpdateError);
+            } else {
+              console.log('✅ 좌표 DB 업데이트 성공');
+            }
           }
         } else {
-          console.error(`❌ 좌표 생성 실패: ${result.error}`);
+          console.error(`❌ 좌표 생성 실패: ${coordinatesResult.error}`);
         }
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('❌ 좌표 API 호출 최종 실패:', error);
-      });
+      }
     } else {
       console.log('📍 OptimizedLocationContext 없어 좌표 생성 생략됨');
     }
@@ -371,9 +374,10 @@ async function createGuideSequentially(
     // 💾 4단계: DB 최종 업데이트 (좌표 생성과 병렬 처리)
     console.log(`\n💾 4단계: DB 최종 업데이트`);
     
+    // 🎯 좌표 데이터를 최종 업데이트에 포함
     const finalUpdateData = {
       content: guideData,
-      coordinates: [], // 좌표는 병렬 처리로 별도 업데이트
+      coordinates: coordinatesData, // 동기 처리된 좌표 데이터 포함
       updated_at: new Date().toISOString()
     };
 
@@ -402,13 +406,14 @@ async function createGuideSequentially(
     }
 
     const totalTime = Date.now() - startTime;
-    console.log(`\n✅ 가이드 생성 완료 (병렬 좌표 처리 포함):`, {
+    console.log(`\n✅ 가이드 생성 완료 (동기 좌표 처리 포함):`, {
       guideId: dbRecord.id,
       totalTime: `${totalTime}ms`,
+      coordinatesGenerated: coordinatesData.length,
       parallelCoordinates: !!optimizedLocationContext,
       region: locationData.region,
       country: locationData.country,
-      coordinatesStatus: optimizedLocationContext ? '병렬 모드: 고속 생성 중' : '순차 모드: 생성 중'
+      coordinatesStatus: optimizedLocationContext ? `병렬 모드: ${coordinatesData.length}개 좌표 생성됨` : '좌표 생성 생략됨'
     });
     
     // 📊 재시도 통계 및 에러 통계 로깅

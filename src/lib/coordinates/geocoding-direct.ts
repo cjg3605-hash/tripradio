@@ -25,10 +25,47 @@ export interface LocationContext {
 }
 
 /**
+ * 🔑 Google Places API Key 유효성 검증
+ */
+async function validateGoogleApiKey(apiKey: string): Promise<boolean> {
+  try {
+    console.log('🔑 Google Places API Key 유효성 검증 중...');
+    
+    // 간단한 geocoding 요청으로 API 키 테스트
+    const testResponse = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
+      params: {
+        address: 'Google',
+        key: apiKey
+      },
+      timeout: 5000
+    });
+    
+    if (testResponse.data.status === 'OK' || testResponse.data.status === 'ZERO_RESULTS') {
+      console.log('✅ Google Places API Key 유효성 확인됨');
+      return true;
+    } else if (testResponse.data.status === 'REQUEST_DENIED') {
+      console.error('❌ API 키 거부됨:', testResponse.data.error_message);
+      return false;
+    } else {
+      console.warn('⚠️ API 키 검증 결과 불확실:', testResponse.data.status);
+      return true; // 다른 상태는 일단 허용
+    }
+  } catch (error) {
+    console.error('❌ API 키 검증 중 오류:', error);
+    return false;
+  }
+}
+
+/**
  * 🌍 Google Geocoding API 직접 검색
  * 지역명+장소명으로 정확한 좌표 획득
  */
-export async function searchLocationDirect(
+interface SearchLocationDirectFunction {
+  (locationName: string, context?: LocationContext): Promise<GeocodingResult | null>;
+  _apiKeyValidated?: boolean;
+}
+
+const searchLocationDirect: SearchLocationDirectFunction = async function(
   locationName: string,
   context?: LocationContext
 ): Promise<GeocodingResult | null> {
@@ -36,7 +73,18 @@ export async function searchLocationDirect(
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
     if (!apiKey) {
       console.error('❌ GOOGLE_PLACES_API_KEY 환경변수가 설정되지 않음');
+      console.error('💡 .env.local 파일에 GOOGLE_PLACES_API_KEY 설정이 필요합니다');
       return null;
+    }
+    
+    // API 키 유효성 검증 (첫 번째 호출시에만)
+    if (!searchLocationDirect._apiKeyValidated) {
+      const isValid = await validateGoogleApiKey(apiKey);
+      if (!isValid) {
+        console.error('❌ Google Places API Key가 유효하지 않습니다');
+        return null;
+      }
+      searchLocationDirect._apiKeyValidated = true;
     }
 
     // 지역 컨텍스트를 활용한 검색 쿼리 생성
@@ -104,7 +152,9 @@ export async function searchLocationDirect(
     console.error('Geocoding API 직접 검색 오류:', error);
     return null;
   }
-}
+};
+
+export { searchLocationDirect };
 
 /**
  * 🔍 지역 컨텍스트를 활용한 검색 쿼리 생성

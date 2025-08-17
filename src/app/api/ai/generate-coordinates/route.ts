@@ -13,6 +13,62 @@ export const runtime = 'nodejs';
  * - 검색 실패시 명확한 에러 반환
  */
 
+/**
+ * 🔍 OptimizedLocationContext 데이터 품질 검증
+ */
+function validateOptimizedLocationContext(context: OptimizedLocationContext): { 
+  isValid: boolean; 
+  errors: string[] 
+} {
+  const errors: string[] = [];
+  
+  // 필수 필드 검증
+  if (!context.placeName || context.placeName.trim().length === 0) {
+    errors.push('placeName이 비어있습니다');
+  }
+  
+  if (!context.location_region || context.location_region.trim().length === 0) {
+    errors.push('location_region이 비어있습니다');
+  }
+  
+  if (!context.country_code || context.country_code.trim().length === 0) {
+    errors.push('country_code가 비어있습니다');
+  }
+  
+  if (!context.language || context.language.trim().length === 0) {
+    errors.push('language가 비어있습니다');
+  }
+  
+  // 데이터 형식 검증
+  if (context.placeName && context.placeName.length < 2) {
+    errors.push('placeName이 너무 짧습니다 (최소 2자)');
+  }
+  
+  if (context.country_code && context.country_code.length !== 3) {
+    errors.push('country_code는 3자리 ISO 코드여야 합니다 (예: KOR, USA, FRA)');
+  }
+  
+  // 언어 코드 검증
+  const validLanguages = ['ko', 'en', 'ja', 'zh', 'fr', 'de', 'es', 'it'];
+  if (context.language && !validLanguages.includes(context.language)) {
+    errors.push(`지원하지 않는 언어 코드입니다: ${context.language}`);
+  }
+  
+  // 구조적 무결성 검증
+  if (!context.factual_context || typeof context.factual_context !== 'object') {
+    errors.push('factual_context 구조가 올바르지 않습니다');
+  }
+  
+  if (!context.local_context || typeof context.local_context !== 'object') {
+    errors.push('local_context 구조가 올바르지 않습니다');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
 interface ChapterInfo {
   id: number;
   title: string;
@@ -45,11 +101,16 @@ async function getCoordinateWithGeocoding(
   country: string
 ): Promise<{ lat: number; lng: number } | null> {
   
-  console.log(`🔍 Geocoding API 직접 검색: "${baseLocationName} ${chapterLocation}"`);
+  // 🎯 개선된 검색어 구성: baseLocationName이 비어있으면 chapterLocation만 사용
+  const searchQuery = baseLocationName.trim() 
+    ? `${baseLocationName.trim()} ${chapterLocation.trim()}`.trim()
+    : chapterLocation.trim();
+  
+  console.log(`🔍 Geocoding API 직접 검색: "${searchQuery}"`);
   
   // 지역 컨텍스트 구성
   const context: SimpleLocationContext = {
-    locationName: `${baseLocationName} ${chapterLocation}`,
+    locationName: searchQuery,
     region: region,
     country: country === 'CHN' ? 'China' : 
              country === 'KOR' ? 'South Korea' : 
@@ -70,13 +131,13 @@ async function getCoordinateWithGeocoding(
   };
   
   // 단순화된 좌표 검색 사용
-  const coordinates = await findCoordinatesSimple(`${baseLocationName} ${chapterLocation}`, context);
+  const coordinates = await findCoordinatesSimple(searchQuery, context);
   
   if (coordinates) {
     console.log(`✅ Geocoding 검색 성공: ${coordinates.lat}, ${coordinates.lng}`);
     return coordinates;
   } else {
-    console.log(`❌ Geocoding 검색 실패: ${baseLocationName} ${chapterLocation}`);
+    console.log(`❌ Geocoding 검색 실패: ${searchQuery}`);
     return null;
   }
 }
@@ -145,14 +206,27 @@ async function generateCoordinatesFromOptimizedContext(
         console.log(`\n🔍 챕터 ${i + 1} 좌표 생성: "${chapter.title}"`);
         
         // OptimizedLocationContext의 정확한 지역정보로 검색
-        const coordinateResult = await getCoordinateWithGeocoding(
+        // 🎯 개선된 검색어 조합: 기본 장소명 + 챕터 위치 조합 시도
+        let coordinateResult = await getCoordinateWithGeocoding(
           chapter.title,
           optimizedContext.placeName,
           optimizedContext.location_region,
           optimizedContext.country_code
         );
         
+        // 실패시 기본 장소명만으로 검색 (챕터 내용이 너무 구체적일 경우)
+        if (!coordinateResult) {
+          console.log(`  🔄 기본 장소명으로 재시도: "${optimizedContext.placeName}"`);
+          coordinateResult = await getCoordinateWithGeocoding(
+            optimizedContext.placeName, // 챕터 제목 대신 기본 장소명만 사용
+            '',  // baseLocationName을 빈 문자열로
+            optimizedContext.location_region,
+            optimizedContext.country_code
+          );
+        }
+        
         if (coordinateResult) {
+          // 🎯 단순화된 좌표 구조 (중복 제거)
           const chapterCoord: ChapterCoordinate = {
             id: i,
             lat: coordinateResult.lat,
@@ -211,6 +285,20 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // 🔍 OptimizedLocationContext 데이터 품질 검증
+    const validationResult = validateOptimizedLocationContext(optimizedLocationContext);
+    if (!validationResult.isValid) {
+      console.error('❌ OptimizedLocationContext 검증 실패:', validationResult.errors);
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: `OptimizedLocationContext 데이터 품질 검증 실패: ${validationResult.errors.join(', ')}`,
+          details: validationResult.errors
+        },
+        { status: 400 }
+      );
+    }
+    
     console.log(`\n🎯 좌표 생성 API 시작 (Parallel 모드): ${locationData.name}`);
     
     // 📊 locationData 원본 데이터 디버깅
@@ -227,7 +315,12 @@ export async function POST(request: NextRequest) {
       placeName: optimizedLocationContext.placeName,
       region: optimizedLocationContext.location_region,
       country: optimizedLocationContext.country_code,
-      hasFactualContext: !!optimizedLocationContext.factual_context
+      language: optimizedLocationContext.language,
+      hasFactualContext: !!optimizedLocationContext.factual_context,
+      hasLocalContext: !!optimizedLocationContext.local_context,
+      hasMainArea: !!optimizedLocationContext.local_context?.main_area,
+      hasEntranceLocation: !!optimizedLocationContext.local_context?.entrance_location,
+      hasNearbyAttractions: !!optimizedLocationContext.local_context?.nearby_attractions
     });
     
     // 2단계: OptimizedLocationContext로 고속 좌표 생성
@@ -259,17 +352,29 @@ export async function POST(request: NextRequest) {
       locationName: locationData.name,
       coordinatesCount: coordinates.length,
       generationTime: `${generationTime}ms`,
-      status: 'OptimizedContext 기반 고속 생성 완료'
+      status: 'OptimizedContext 기반 고속 생성 완료',
+      coordinatesSample: coordinates.length > 0 ? {
+        first: { lat: coordinates[0].lat, lng: coordinates[0].lng, title: coordinates[0].title },
+        total: coordinates.length
+      } : 'none'
     });
     
     return NextResponse.json({
       success: true,
       coordinates: coordinates,
+      coordinatesCount: coordinates.length,
       generationTime: generationTime,
       mode: 'parallel',
       method: 'OptimizedContext 고속 생성',
       message: `${coordinates.length}개 좌표가 성공적으로 생성되었습니다.`,
-      optimizedContextUsed: true
+      optimizedContextUsed: true,
+      debug: {
+        placeName: optimizedLocationContext.placeName,
+        region: optimizedLocationContext.location_region,
+        country: optimizedLocationContext.country_code,
+        chaptersGenerated: coordinates.length,
+        validationPassed: true
+      }
     });
     
   } catch (error) {
