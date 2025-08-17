@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { saveAutocompleteData } from '@/lib/cache/autocompleteStorage';
 import { smartResolveLocation } from '@/lib/location/smart-location-resolver';
+import { logger } from '@/lib/utils/logger';
 
 // 새로운 구조화된 위치 데이터 인터페이스
 interface EnhancedLocationSuggestion {
@@ -78,22 +79,20 @@ const koreanCountryMap: Record<string, string> = {
 // 🚀 REST Countries API 기반 국가코드 변환
 async function getCountryCode(countryName: string): Promise<string | null> {
   try {
-    console.log('🔍 국가코드 변환 요청:', countryName);
+    logger.api.start('country-code-conversion', { countryName });
     
     // 캐시 확인
     const cached = countryCodeCache.get(countryName);
     if (cached) {
-      console.log('💾 국가코드 캐시 히트:', countryName, '→', cached);
+      logger.general.debug('국가코드 캐시 히트', { countryName, cached });
       return cached;
     }
     
     // 🌏 한국어 국가명을 영어로 변환
     const englishCountryName = koreanCountryMap[countryName] || countryName;
     if (englishCountryName !== countryName) {
-      console.log('🈯 한국어 국가명 매핑:', countryName, '→', englishCountryName);
+      logger.general.debug('한국어 국가명 매핑', { korean: countryName, english: englishCountryName });
     }
-    
-    console.log('🌍 REST Countries API 국가코드 변환 시작:', englishCountryName);
     
     // 여러 API 엔드포인트 시도
     const endpoints = [
@@ -103,16 +102,14 @@ async function getCountryCode(countryName: string): Promise<string | null> {
     
     for (const endpoint of endpoints) {
       try {
-        console.log('📡 API 호출:', endpoint);
         const response = await fetch(endpoint);
         
         if (!response.ok) {
-          console.warn('⚠️ API 응답 실패:', response.status, endpoint);
+          logger.api.error('country-code-api', { status: response.status, endpoint });
           continue;
         }
         
         const data = await response.json();
-        console.log('📋 API 응답 데이터:', data);
         
         if (data && data.length > 0 && data[0].cca3) {
           const countryCode = data[0].cca3; // ISO 3166-1 alpha-3 코드
@@ -123,20 +120,20 @@ async function getCountryCode(countryName: string): Promise<string | null> {
             countryCodeCache.set(englishCountryName, countryCode);
           }
           
-          console.log('✅ 국가코드 변환 성공:', countryName, '→', countryCode);
+          logger.api.success('country-code-conversion', { countryName, countryCode });
           return countryCode;
         }
       } catch (endpointError) {
-        console.warn('⚠️ API 엔드포인트 오류:', endpoint, endpointError);
+        logger.api.error('country-code-endpoint', { endpoint, error: endpointError });
         continue;
       }
     }
     
-    console.warn('⚠️ 모든 API 엔드포인트 실패, 국가코드 데이터 없음:', countryName, '(영어명:', englishCountryName, ')');
+    logger.general.warn('모든 국가코드 API 엔드포인트 실패', { countryName, englishCountryName });
     return null;
     
   } catch (error) {
-    console.error('❌ 국가코드 변환 전체 오류:', error);
+    logger.general.error('국가코드 변환 전체 오류', error);
     return null;
   }
 }
@@ -194,21 +191,23 @@ export default function NextLevelSearchBox() {
       
       const timer = setTimeout(async () => {
         try {
+          logger.search.query(query);
           const response = await fetch(`/api/locations/search?q=${encodeURIComponent(query)}&lang=${currentLanguage}`);
           const data = await response.json();
+          const suggestionCount = data.success ? data.data.length : 0;
+          
           setSuggestions(data.success ? data.data : []);
           setExplorationSuggestions(data.explorationSuggestions || []);
           setShowExploration(data.hasExploration || false);
-          console.log('🔄 자동완성 결과 받음 - selectedIndex 초기화 (-1)');
           setSelectedIndex(-1);
-          setHasAttemptedSearch(true); // 검색 시도 완료
+          setHasAttemptedSearch(true);
+          
+          logger.search.results(suggestionCount);
         } catch (error) {
-          // 에러 시 이전 결과 유지 (빈 배열로 초기화하지 않음)
-          console.warn('검색 제안 오류:', error);
+          logger.search.error(error);
           setSuggestions([]);
-          setHasAttemptedSearch(true); // 에러도 검색 시도로 간주
+          setHasAttemptedSearch(true);
         } finally {
-          // 로딩 완료 표시
           setIsTyping(false);
         }
       }, 100); // 100ms 디바운스 (더 빠름)
@@ -218,63 +217,44 @@ export default function NextLevelSearchBox() {
       setExplorationSuggestions([]);
       setShowExploration(false);
       setIsTyping(false);
-      console.log('🔄 검색어 무효 - selectedIndex 초기화 (-1)');
       setSelectedIndex(-1);
-      setHasAttemptedSearch(false); // 검색 시도 초기화
+      setHasAttemptedSearch(false);
       return undefined;
     }
   }, [query, currentLanguage]); // currentLanguage 필요 - API 호출에 사용됨
 
   // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    console.log('⌨️ 키보드 이벤트:', {
-      key: e.key,
-      selectedIndex,
-      suggestionsLength: suggestions.length,
-      isFocused,
-      query: query.trim(),
-      isSubmitting
-    });
+    logger.ui.interaction('keyboard', { key: e.key, selectedIndex, suggestionsLength: suggestions.length });
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       const newIndex = selectedIndex < suggestions.length - 1 ? selectedIndex + 1 : selectedIndex;
-      console.log('🔽 ArrowDown:', { from: selectedIndex, to: newIndex });
       setSelectedIndex(newIndex);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       const newIndex = selectedIndex > 0 ? selectedIndex - 1 : -1;
-      console.log('🔼 ArrowUp:', { from: selectedIndex, to: newIndex });
       setSelectedIndex(newIndex);
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      console.log('🎯 Enter 키 감지:', {
-        selectedIndex,
-        hasSuggestion: selectedIndex >= 0 && suggestions[selectedIndex],
-        suggestionName: selectedIndex >= 0 && suggestions[selectedIndex] ? suggestions[selectedIndex].name : null,
-        willCallHandleSearch: !(selectedIndex >= 0 && suggestions[selectedIndex])
-      });
       
       if (selectedIndex >= 0 && suggestions[selectedIndex]) {
-        // 키보드로 선택된 항목을 클릭한 것과 동일하게 처리
-        console.log('🚀 handleSuggestionClick 호출:', suggestions[selectedIndex]);
+        logger.ui.interaction('suggestion-select', { suggestion: suggestions[selectedIndex].name });
         handleSuggestionClick(suggestions[selectedIndex]);
       } else {
-        console.log('🚀 handleSearch 호출 준비 중...');
+        logger.ui.interaction('direct-search', { query: query.trim() });
         handleSearch();
       }
     } else if (e.key === 'Escape') {
-      console.log('🔄 Escape 키 - 포커스 해제');
+      logger.ui.interaction('escape', {});
       setIsFocused(false);
       inputRef.current?.blur();
     }
   };
 
   const handleSearch = async () => {
-    console.log('🚀 handleSearch 함수 호출됨:', { query: query.trim(), isSubmitting });
-    
     if (!query.trim() || isSubmitting) {
-      console.log('⚠️ handleSearch 조기 종료:', { hasQuery: !!query.trim(), isSubmitting });
+      logger.general.warn('검색 조기 종료', { hasQuery: !!query.trim(), isSubmitting });
       return;
     }
     
@@ -282,8 +262,7 @@ export default function NextLevelSearchBox() {
     setIsFocused(false);
     
     try {
-      // 🤖 스마트 위치 해결 시스템 사용
-      console.log('🤖 스마트 위치 해결 시작:', query.trim());
+      logger.search.query(query.trim());
       
       const smartResolution = await smartResolveLocation(
         query.trim(),
@@ -291,7 +270,7 @@ export default function NextLevelSearchBox() {
         '' // userContext는 빈 문자열
       );
       
-      console.log('✅ 스마트 해결 완료:', smartResolution);
+      logger.general.info('스마트 위치 해결 완료', { confidence: smartResolution.confidence });
       
       const selectedLocation = smartResolution.selectedLocation;
       
@@ -307,7 +286,6 @@ export default function NextLevelSearchBox() {
         timestamp: Date.now()
       };
       
-      console.log('💾 SessionStorage 저장:', autocompleteData);
       saveAutocompleteData(
         selectedLocation.displayName,
         autocompleteData,
@@ -321,18 +299,18 @@ export default function NextLevelSearchBox() {
       // 🚀 가이드 페이지로 이동
       const locationPath = encodeURIComponent(selectedLocation.displayName.toLowerCase().trim());
       const targetUrl = `/guide/${locationPath}?lang=${currentLanguage}`;
-      console.log('🎯 네비게이션:', targetUrl);
       
+      logger.ui.interaction('navigation', { target: targetUrl });
       router.push(targetUrl);
       
       return; // 성공적으로 스마트 해결된 경우 여기서 종료
       
     } catch (error) {
-      console.warn('⚠️ 스마트 해결 실패, 기존 방식 사용:', error);
+      logger.general.warn('스마트 해결 실패, 폴백 시도', error);
       
       // Fallback: 기존 자동완성 API 방식
       try {
-        console.log('🔍 Fallback - 자동완성 API 호출:', query.trim());
+        logger.api.start('autocomplete-fallback', { query: query.trim() });
         
         const searchResponse = await fetch(`/api/locations/search?q=${encodeURIComponent(query.trim())}&lang=${currentLanguage}`);
         const searchData = await searchResponse.json();
@@ -340,7 +318,7 @@ export default function NextLevelSearchBox() {
         if (searchData.success && searchData.data && searchData.data.length > 0) {
           // 첫 번째 자동완성 결과 사용
           const firstSuggestion = searchData.data[0];
-          console.log('✅ Fallback 첫 번째 결과:', firstSuggestion);
+          logger.api.success('autocomplete-fallback', { suggestion: firstSuggestion.name });
           
           // Fallback 자동완성 데이터 저장 및 처리
           const fallbackData = {

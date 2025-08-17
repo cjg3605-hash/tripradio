@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePerformanceMonitor } from '@/lib/performance/performance-monitor';
 import { measureWebVitals, generateWebVitalsReport } from '@/lib/performance/web-vitals-reporter';
+import { logger } from '@/lib/utils/logger';
 
 interface PerformanceProviderProps {
   children: React.ReactNode;
@@ -39,12 +40,7 @@ export default function PerformanceProvider({ children }: PerformanceProviderPro
         entries.forEach((entry) => {
           if (entry.entryType === 'navigation') {
             const navEntry = entry as PerformanceNavigationTiming;
-            console.log('🚀 Page navigation completed:', {
-              loadTime: Math.round(entry.duration),
-              domContentLoaded: Math.round(navEntry.domContentLoadedEventEnd),
-              domInteractive: Math.round(navEntry.domInteractive),
-              firstContentfulPaint: Math.round(navEntry.loadEventEnd)
-            });
+            logger.performance.measure('page-navigation', Math.round(entry.duration));
           }
         });
       });
@@ -58,7 +54,7 @@ export default function PerformanceProvider({ children }: PerformanceProviderPro
           observer.disconnect();
         };
       } catch (error) {
-        console.warn('⚠️ Performance observer initialization failed:', error);
+        logger.general.warn('Performance observer 초기화 실패', error);
         endMount(); // 에러 시에도 마운트 완료 처리
       }
     } else {

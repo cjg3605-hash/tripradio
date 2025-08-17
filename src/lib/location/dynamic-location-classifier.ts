@@ -8,6 +8,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { classifyLocation, LocationData, PageType, determinePageType } from './location-classification';
 import { findGlobalLandmark, convertToLocationData, GLOBAL_LANDMARKS } from './global-landmark-classifier';
+import { logger } from '../utils/logger';
 
 interface LocationClassificationCache {
   [key: string]: {
@@ -22,17 +23,32 @@ const cache: LocationClassificationCache = {};
 const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
 /**
- * Google Places API를 사용하여 위치 정보 조회
+ * Google Places API를 사용하여 위치 정보 조회 (서버 프록시 사용)
  */
 async function getLocationInfoFromGoogle(locationName: string): Promise<LocationData | null> {
   try {
+    logger.api.start('google-places-classification', { locationName });
+
+    // 서버 프록시 API 사용하여 CORS 문제 해결
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(locationName)}&key=${process.env.GOOGLE_PLACES_API_KEY}&language=ko`
+      `/api/places/search?query=${encodeURIComponent(locationName)}&language=ko`
     );
     
     const data = await response.json();
     
-    if (data.status !== 'OK' || !data.results.length) {
+    // 폴백 모드 처리 (API 키 없음, 쿼터 초과 등)
+    if (data.fallback) {
+      logger.general.warn('Google Places API 폴백 모드', { 
+        reason: data.message || data.error 
+      });
+      return null;
+    }
+    
+    if (data.status !== 'OK' || !data.results?.length) {
+      logger.api.error('google-places-no-results', { 
+        status: data.status, 
+        locationName 
+      });
       return null;
     }
     
@@ -43,7 +59,7 @@ async function getLocationInfoFromGoogle(locationName: string): Promise<Location
     const locationType = classifyGooglePlaceType(types);
     const level = getLocationLevel(locationType);
     
-    return {
+    const locationData = {
       type: locationType,
       level,
       country: extractCountryFromAddress(place.formatted_address),
@@ -55,9 +71,16 @@ async function getLocationInfoFromGoogle(locationName: string): Promise<Location
       },
       popularity: calculatePopularityFromGoogle(place)
     };
+
+    logger.api.success('google-places-classification', { 
+      type: locationType, 
+      level 
+    });
+
+    return locationData;
     
   } catch (error) {
-    console.warn('Google Places API 조회 실패:', error);
+    logger.api.error('google-places-classification', error);
     return null;
   }
 }

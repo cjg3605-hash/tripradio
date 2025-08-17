@@ -1,6 +1,7 @@
 // src/lib/multilang-guide-manager.ts
 import { supabase } from '@/lib/supabaseClient';
 import { normalizeLocationName } from '@/lib/utils';
+import { logger } from './utils/logger';
 
 export class MultiLangGuideManager {
   /**
@@ -16,35 +17,46 @@ export class MultiLangGuideManager {
       // 🔥 통일된 위치명 정규화 사용 (page.tsx와 동일)
       const normalizedLocation = normalizeLocationName(locationName);
       
-      console.log(`🔍 DB 조회: "${locationName}" → "${normalizedLocation}" (${language})`);
+      logger.api.start('guide-db-query', { 
+        original: locationName, 
+        normalized: normalizedLocation, 
+        language 
+      });
       
+      // .single() 대신 .limit(1)을 사용하여 406 에러 방지
       const { data, error } = await supabase
         .from('guides')
         .select('id, locationname, language, content, coordinates, location_region, country_code, created_at, updated_at')
         .eq('locationname', normalizedLocation)
         .eq('language', language.toLowerCase())
-        .single();
+        .limit(1);
 
       if (error) {
-        if (error.code === 'PGRST116') {
-          console.log(`❌ DB에서 가이드 없음: "${normalizedLocation}" (${language})`);
-          return { success: false, error: 'NOT_FOUND', source: 'database' };
-        }
-        console.error(`❌ DB 조회 오류:`, error);
+        logger.api.error('guide-db-query', { error: error.message, code: error.code });
         return { success: false, error: error.message, source: 'database' };
       }
 
-      console.log(`✅ DB에서 가이드 발견: "${normalizedLocation}" (${language})`, {
-        location_region: data.location_region,
-        country_code: data.country_code
+      // 결과가 없는 경우
+      if (!data || data.length === 0) {
+        logger.api.success('guide-db-query', { result: 'NOT_FOUND' });
+        return { success: false, error: 'NOT_FOUND', source: 'database' };
+      }
+
+      const guide = data[0]; // 첫 번째 결과 사용
+      logger.api.success('guide-db-query', { 
+        found: true,
+        region: guide.location_region,
+        country: guide.country_code 
       });
+
       return { 
         success: true, 
-        data: data.content, 
+        data: guide.content, 
         source: 'cache' 
       } as any;
 
     } catch (error) {
+      logger.general.error('DB 조회 중 예외 발생', error);
       return { 
         success: false, 
         error: error instanceof Error ? error.message : '알 수 없는 오류',

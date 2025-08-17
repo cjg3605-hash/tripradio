@@ -3,6 +3,7 @@
 
 import { EnhancedAutocompleteData, OptimizedLocationContext } from '@/types/unified-location';
 import { convertOptimizedToAIPrompt } from '@/lib/location/location-context-converters';
+import { logger } from '../utils/logger';
 
 // 🔄 하위 호환성을 위한 레거시 인터페이스
 interface LegacyAutocompleteData {
@@ -21,7 +22,11 @@ type AutocompleteData = EnhancedAutocompleteData;
 
 // 클라이언트 환경 확인
 const isClientSide = (): boolean => {
-  return typeof window !== 'undefined' && typeof sessionStorage !== 'undefined';
+  const result = typeof window !== 'undefined' && typeof sessionStorage !== 'undefined';
+  if (!result) {
+    logger.general.warn('SessionStorage 사용 불가 환경');
+  }
+  return result;
 };
 
 // SessionStorage 키 생성
@@ -41,7 +46,6 @@ export const saveOptimizedAutocompleteData = (
   source: string = 'gemini'
 ): boolean => {
   if (!isClientSide()) {
-    console.warn('⚠️ SessionStorage를 사용할 수 없는 환경입니다.');
     return false;
   }
 
@@ -58,16 +62,14 @@ export const saveOptimizedAutocompleteData = (
     const storageKey = getStorageKey(locationName);
     sessionStorage.setItem(storageKey, JSON.stringify(enhancedData));
 
-    console.log('✅ 향상된 자동완성 데이터 SessionStorage 저장 완료:', {
-      key: storageKey,
+    logger.general.info('향상된 자동완성 데이터 저장 완료', {
       placeName: enhancedData.placeName,
-      source: enhancedData.source,
-      version: enhancedData.version
+      source: enhancedData.source
     });
 
     return true;
   } catch (error) {
-    console.error('❌ SessionStorage 저장 실패:', error);
+    logger.general.error('SessionStorage 저장 실패', error);
     return false;
   }
 };
@@ -88,7 +90,6 @@ export const saveAutocompleteData = (
   }
 ): boolean => {
   if (!isClientSide()) {
-    console.warn('⚠️ SessionStorage를 사용할 수 없는 환경입니다.');
     return false;
   }
 
@@ -107,14 +108,14 @@ export const saveAutocompleteData = (
     const storageKey = getStorageKey(locationName);
     sessionStorage.setItem(storageKey, JSON.stringify(legacyData));
 
-    console.log('✅ 레거시 자동완성 데이터 SessionStorage 저장 완료:', {
-      key: storageKey,
-      data: legacyData
+    logger.general.info('레거시 자동완성 데이터 저장 완료', {
+      name: legacyData.name,
+      region: legacyData.region
     });
 
     return true;
   } catch (error) {
-    console.error('❌ SessionStorage 저장 실패:', error);
+    logger.general.error('SessionStorage 저장 실패', error);
     return false;
   }
 };

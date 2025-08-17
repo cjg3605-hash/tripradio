@@ -17,6 +17,7 @@ import {
   IntentAnalysis 
 } from './intent-analysis';
 import { classifyLocationDynamic } from './dynamic-location-classifier';
+import { logger } from '../utils/logger';
 
 export interface LocationRoutingResult {
   pageType: PageType;
@@ -57,15 +58,11 @@ export async function routeLocationQuery(
     };
   }
   
-  console.log('🔍 Location routing started:', { 
-    query: normalizedQuery, 
-    language, 
-    translationContext 
-  });
+  logger.search.query(normalizedQuery);
   
   // 0단계: 번역 컨텍스트가 있는 경우 한국어 베이스로 우선 분류 시도
   if (translationContext?.koreanLocationName && translationContext.isTranslatedRoute) {
-    console.log('🌐 번역 컨텍스트 감지, 한국어 베이스로 분류 시도:', translationContext.koreanLocationName);
+    logger.general.debug('번역 컨텍스트 감지', { korean: translationContext.koreanLocationName });
     
     const koreanLocationData = classifyLocation(translationContext.koreanLocationName);
     if (koreanLocationData) {
@@ -78,7 +75,7 @@ export async function routeLocationQuery(
         reasoning: `번역 컨텍스트 기반 분류: ${translationContext.koreanLocationName} → ${koreanLocationData.type} (레벨 ${koreanLocationData.level})`
       };
       
-      console.log('✅ Translation context match:', result);
+      logger.general.info('번역 컨텍스트 매치 성공', { pageType, confidence: result.confidence });
       return result;
     }
   }
