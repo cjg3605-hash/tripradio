@@ -51,8 +51,9 @@ export class MultiLangGuideManager {
 
       return { 
         success: true, 
-        data: guide.content, 
-        source: 'cache' 
+        data: guide.content,
+        coordinates: guide.coordinates, // 🔥 핵심 수정: coordinates 데이터 포함
+        source: 'database' 
       } as any;
 
     } catch (error) {

@@ -355,7 +355,14 @@ export default function MultiLangGuideClient({
         
         // coordinates 데이터가 있다면 normalizedData에 추가
         if ((result as any).coordinates) {
+          console.log(`🔗 [좌표 연결] MultiLangGuideManager에서 받은 좌표 데이터:`, {
+            coordinatesType: typeof (result as any).coordinates,
+            coordinatesLength: Array.isArray((result as any).coordinates) ? (result as any).coordinates.length : 'Not array',
+            coordinatesPreview: (result as any).coordinates
+          });
           (normalizedData as any).coordinates = (result as any).coordinates;
+        } else {
+          console.warn('⚠️ [좌표 누락] MultiLangGuideManager에서 coordinates가 없음');
         }
         
         setGuideData(normalizedData);
@@ -582,11 +589,24 @@ export default function MultiLangGuideClient({
   // 🎯 좌표 상태 확인 - 즉시 지도 표시를 위한 상태 동기화 최적화
   useEffect(() => {
     if (!isLoading && guideData && !coordinates) {
+      // 🔍 guideData 구조 디버깅
+      console.log('🔍 [guideData 구조 분석]:', {
+        hasGuideData: !!guideData,
+        topLevelKeys: Object.keys(guideData || {}),
+        hasCoordinatesTop: !!(guideData as any)?.coordinates,
+        coordinatesAtTop: (guideData as any)?.coordinates,
+        hasMetadata: !!(guideData as any)?.metadata,
+        hasRealTimeGuide: !!(guideData as any)?.realTimeGuide,
+        fullGuideData: guideData
+      });
+      
       const existingCoordinates = (guideData as any)?.coordinates;
       
       if (existingCoordinates && Array.isArray(existingCoordinates) && existingCoordinates.length > 0) {
         console.log(`✅ [기존 좌표 발견] ${existingCoordinates.length}개 좌표 - 지도 즉시 표시`);
         setCoordinates(existingCoordinates);
+      } else {
+        console.warn('❌ [좌표 없음] guideData에서 coordinates를 찾을 수 없음');
       }
     }
   }, [isLoading, guideData, coordinates]); // 의존성 동일
