@@ -67,6 +67,7 @@ function useMapFlyTo(mapRef: React.RefObject<LeafletMap | null>, lat?: number, l
 
 // 좌표 추출 유틸리티 - guides.coordinates 컬럼 전용 (강화된 매칭 로직)
 function getLatLng(chapter: Chapter, guideCoordinates?: any, chapterIndex?: number): [number | undefined, number | undefined] {
+  // logger.map.interaction 대신 임시로 직접 로깅 (향후 logger 통합 예정)
   console.log(`🔍 [getLatLng] 좌표 추출 시작:`, {
     chapterId: chapter.id,
     chapterTitle: chapter.title,
@@ -77,60 +78,84 @@ function getLatLng(chapter: Chapter, guideCoordinates?: any, chapterIndex?: numb
   
   // guides.coordinates 컬럼에서만 좌표 사용 (content 좌표 사용 금지)
   if (guideCoordinates?.length > 0) {
-    // 다중 매칭 전략: 인덱스 > ID > step > title 기반 (인덱스 우선)
+    // 개선된 좌표 매칭 로직: 단순화 및 효율성 향상
     let coord;
     let matchMethod = 'none';
     
-    // 1순위: 인덱스 기반 매칭 (가장 정확)
-    if (chapterIndex !== undefined && guideCoordinates[chapterIndex]) {
-      coord = guideCoordinates[chapterIndex];
-      matchMethod = 'index';
+    // 디버깅: 실제 데이터 구조 확인
+    console.log(`🔬 [getLatLng] 좌표 데이터 구조 분석:`, {
+      firstCoord: guideCoordinates[0],
+      coordsStructure: guideCoordinates.map((c: any, i: number) => ({
+        index: i,
+        id: c?.id,
+        step: c?.step, 
+        title: c?.title,
+        lat: c?.lat,
+        lng: c?.lng
+      }))
+    });
+    
+    // 1순위: 인덱스 기반 매칭 (가장 신뢰성 높음)
+    if (chapterIndex !== undefined && chapterIndex >= 0 && chapterIndex < guideCoordinates.length) {
+      const indexCoord = guideCoordinates[chapterIndex];
+      if (indexCoord && (indexCoord.lat || indexCoord.latitude) && (indexCoord.lng || indexCoord.longitude)) {
+        coord = indexCoord;
+        matchMethod = 'index';
+      }
     }
-    // 2순위: ID/step/title 기반 매칭 (다양한 패턴 지원)
-    else {
+    
+    // 2순위: 단순 ID 매칭 (복잡한 조건 제거)
+    if (!coord) {
       coord = guideCoordinates.find((c: any) => 
-        c.id === chapter.id || 
-        c.step === chapter.id || 
-        c.chapterId === chapter.id ||
-        c.title === chapter.title ||
-        (c.step - 1) === chapter.id || // 0-based vs 1-based 인덱스 보정
-        (c.step === (chapterIndex ?? -1) + 1) || // step은 1-based
-        (c.order === chapterIndex) || // order 기반 매칭
-        (c.sequence === chapterIndex) // sequence 기반 매칭
+        c.id === chapter.id || c.step === chapter.id
       );
-      if (coord) matchMethod = 'id_or_step';
+      if (coord) matchMethod = 'id_match';
     }
     
-    // 3순위: 제목 유사도 기반 매칭 (fallback)
-    if (!coord && chapter.title) {
-      coord = guideCoordinates.find((c: any) => {
-        if (!c.title) return false;
-        const chapterTitle = chapter.title.toLowerCase().trim();
-        const coordTitle = c.title.toLowerCase().trim();
-        return chapterTitle.includes(coordTitle) || coordTitle.includes(chapterTitle);
-      });
-      if (coord) matchMethod = 'title_similarity';
+    // 3순위: 순차적 매칭 (첫 번째 사용 가능한 좌표)
+    if (!coord) {
+      coord = guideCoordinates.find((c: any) => 
+        c && (c.lat || c.latitude) && (c.lng || c.longitude)
+      );
+      if (coord) matchMethod = 'first_available';
     }
     
+    // 좌표 추출 및 검증
     if (coord) {
       const lat = coord.lat ?? coord.latitude;
       const lng = coord.lng ?? coord.longitude;
       
-      if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+      // 엄격한 좌표 유효성 검사
+      if (typeof lat === 'number' && typeof lng === 'number' && 
+          !isNaN(lat) && !isNaN(lng) &&
+          lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+        
         console.log(`✅ [getLatLng] 좌표 매칭 성공 (${matchMethod}):`, {
           chapterId: chapter.id,
           chapterTitle: chapter.title,
+          chapterIndex,
           coordId: coord.id,
           coordTitle: coord.title,
           lat, lng
         });
         return [lat, lng];
       } else {
-        console.log(`❌ [getLatLng] 좌표 데이터 무효:`, { lat, lng, coord });
+        console.log(`❌ [getLatLng] 좌표 유효성 검사 실패:`, { 
+          lat, lng, 
+          latType: typeof lat, 
+          lngType: typeof lng,
+          coord 
+        });
       }
     } else {
-      console.log(`❌ [getLatLng] 매칭된 좌표 없음`);
+      console.log(`❌ [getLatLng] 매칭된 좌표 없음 - 모든 매칭 전략 실패`);
     }
+  } else {
+    console.log(`❌ [getLatLng] guideCoordinates 없음 또는 비어있음:`, {
+      hasGuideCoordinates: !!guideCoordinates,
+      isArray: Array.isArray(guideCoordinates),
+      length: guideCoordinates?.length
+    });
   }
 
   // guides.coordinates가 없으면 좌표 없음으로 처리 (content 좌표 사용 안 함)
@@ -200,7 +225,12 @@ const MapWithRoute = memo<MapWithRouteProps>(({
 
   // 🎯 단순 데이터 정규화 - 즉시 처리
   const validChapters = useMemo(() => {
-    console.log(`🔄 지도 데이터 계산 시작`);
+    console.log(`🔄 지도 데이터 계산 시작:`, {
+      chaptersCount: chapters?.length || 0,
+      poisCount: pois?.length || 0,
+      hasGuideCoordinates: !!(guideCoordinates?.length > 0),
+      guideCoordinatesCount: guideCoordinates?.length || 0
+    });
     
     // guideCoordinates 사용
     const coordinates = guideCoordinates;
@@ -214,10 +244,18 @@ const MapWithRoute = memo<MapWithRouteProps>(({
       originalIndex: index
     }));
 
+    console.log(`📊 처리할 데이터:`, {
+      totalItems: allData.length,
+      sampleItem: allData[0],
+      usingChapters: !!chapters?.length,
+      coordinatesAvailable: !!(coordinates?.length > 0)
+    });
+
     // 유효한 좌표만 필터링
     const filtered = allData
       .map((item, index) => {
         const [lat, lng] = chapters ? getLatLng(item, coordinates, index) : [item.lat, item.lng];
+        console.log(`🗂️ 아이템 ${index}: "${item.title}" -> 좌표: ${lat}, ${lng}`);
         return { ...item, originalIndex: index, lat, lng };
       })
       .filter(item => 
@@ -227,7 +265,14 @@ const MapWithRoute = memo<MapWithRouteProps>(({
         item.lng >= -180 && item.lng <= 180
       );
     
-    console.log(`📍 유효한 좌표 ${filtered.length}개 발견`);
+    console.log(`📍 유효한 좌표 ${filtered.length}개 발견:`, 
+      filtered.map(item => ({
+        id: item.id,
+        title: item.title,
+        lat: item.lat,
+        lng: item.lng
+      }))
+    );
     return filtered;
   }, [chapters, pois, guideCoordinates]);
 
