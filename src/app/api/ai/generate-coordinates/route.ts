@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findCoordinatesSimple, extractChaptersFromContent, SimpleLocationContext } from '@/lib/coordinates/coordinate-utils';
 import { OptimizedLocationContext } from '@/types/unified-location';
+import { createClient } from '@supabase/supabase-js';
 
 export const runtime = 'nodejs';
 
@@ -272,15 +273,23 @@ async function generateCoordinatesFromOptimizedContext(
 export async function POST(request: NextRequest) {
   let optimizedLocationContext: OptimizedLocationContext | undefined;
   let locationData: any = null;
+  let guideId: string | undefined;
   
   try {
     const requestBody = await request.json();
-    ({ locationData, optimizedLocationContext } = requestBody);
+    ({ locationData, optimizedLocationContext, guideId } = requestBody);
     
-    // 🎯 locationData와 optimizedLocationContext 필수 확인
+    // 🎯 필수 파라미터 확인
     if (!locationData || !optimizedLocationContext) {
       return NextResponse.json(
         { success: false, error: 'locationData와 optimizedLocationContext가 모두 필요합니다.' },
+        { status: 400 }
+      );
+    }
+    
+    if (!guideId) {
+      return NextResponse.json(
+        { success: false, error: 'guideId가 필요합니다. coordinates 칼럼 저장을 위해 필수입니다.' },
         { status: 400 }
       );
     }
@@ -347,12 +356,46 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // 💾 좌표 생성 완료 후 DB에 저장
+    console.log(`\n💾 좌표 DB 저장 시작: guideId=${guideId}`);
+    
+    let dbSaveSuccess = false;
+    let dbSaveError: any = null;
+    
+    try {
+      // Supabase 클라이언트 초기화
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      
+      const { error: updateError } = await supabase
+        .from('guides')
+        .update({
+          coordinates: coordinates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', guideId);
+      
+      if (updateError) {
+        console.error('❌ coordinates 칼럼 DB 저장 실패:', updateError);
+        dbSaveError = updateError;
+      } else {
+        console.log('✅ coordinates 칼럼 DB 저장 성공');
+        dbSaveSuccess = true;
+      }
+    } catch (error) {
+      console.error('❌ DB 저장 중 예외 발생:', error);
+      dbSaveError = error;
+    }
+    
     console.log(`\n✅ 좌표 생성 API 완료:`, {
       mode: 'parallel',
       locationName: locationData.name,
       coordinatesCount: coordinates.length,
       generationTime: `${generationTime}ms`,
       status: 'OptimizedContext 기반 고속 생성 완료',
+      dbSaved: dbSaveSuccess,
       coordinatesSample: coordinates.length > 0 ? {
         first: { lat: coordinates[0].lat, lng: coordinates[0].lng, title: coordinates[0].title },
         total: coordinates.length
@@ -366,14 +409,17 @@ export async function POST(request: NextRequest) {
       generationTime: generationTime,
       mode: 'parallel',
       method: 'OptimizedContext 고속 생성',
-      message: `${coordinates.length}개 좌표가 성공적으로 생성되었습니다.`,
+      message: `${coordinates.length}개 좌표가 성공적으로 생성${dbSaveSuccess ? ' 및 저장' : ''}되었습니다.`,
       optimizedContextUsed: true,
+      dbSaved: dbSaveSuccess,
+      dbError: dbSaveError ? (typeof dbSaveError === 'object' && dbSaveError.message ? dbSaveError.message : String(dbSaveError)) : null,
       debug: {
         placeName: optimizedLocationContext.placeName,
         region: optimizedLocationContext.location_region,
         country: optimizedLocationContext.country_code,
         chaptersGenerated: coordinates.length,
-        validationPassed: true
+        validationPassed: true,
+        guideId: guideId
       }
     });
     

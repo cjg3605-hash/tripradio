@@ -146,12 +146,40 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
   const humanStories = currentChapter?.humanStories || '';
   const nextDirection = currentChapter?.nextDirection || '';
 
-  // 🗺️ 좌표 상태 확인 (단순 로깅)
+  // 🗺️ 좌표 상태 확인 (정확한 파싱)
+  const coordinatesAnalysis = (() => {
+    if (!guideCoordinates) {
+      return { hasGuideCoordinates: false, coordinatesCount: 0, validCoordinatesCount: 0 };
+    }
+    
+    if (Array.isArray(guideCoordinates)) {
+      // 배열인 경우: 유효한 좌표만 카운팅
+      const validCoordinates = guideCoordinates.filter(coord => {
+        const lat = coord?.lat || coord?.latitude;
+        const lng = coord?.lng || coord?.longitude;
+        return lat && lng && !isNaN(lat) && !isNaN(lng);
+      });
+      
+      return {
+        hasGuideCoordinates: validCoordinates.length > 0,
+        coordinatesCount: guideCoordinates.length,
+        validCoordinatesCount: validCoordinates.length
+      };
+    }
+    
+    // 배열이 아닌 경우: 빈 객체 또는 다른 형태
+    return { hasGuideCoordinates: false, coordinatesCount: 0, validCoordinatesCount: 0 };
+  })();
+  
   console.log('🗺️ 좌표 파싱 상태:', {
-    hasGuideCoordinates: !!(guideCoordinates && Array.isArray(guideCoordinates) && guideCoordinates.length > 0),
-    coordinatesCount: guideCoordinates?.length || 0,
+    ...coordinatesAnalysis,
     chaptersCount: allChapters.length,
-    locationName: guide?.metadata?.originalLocationName
+    locationName: guide?.metadata?.originalLocationName,
+    guideCoordinatesType: typeof guideCoordinates,
+    isArray: Array.isArray(guideCoordinates),
+    firstCoordinate: Array.isArray(guideCoordinates) && guideCoordinates.length > 0 ? 
+      `(${guideCoordinates[0]?.lat || guideCoordinates[0]?.latitude}, ${guideCoordinates[0]?.lng || guideCoordinates[0]?.longitude})` : 
+      'none'
   });
 
   // refs 안전한 초기화
@@ -671,8 +699,9 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates }: TourCon
 
                   // 🗺️ StartLocationMap 전달 데이터 로깅
                   console.log('🗺️ [TourContent → StartLocationMap] 데이터 전달:', {
-                    hasGuideCoordinates: !!(guideCoordinates && Array.isArray(guideCoordinates) && guideCoordinates.length > 0),
-                    coordinatesCount: guideCoordinates?.length || 0,
+                    hasGuideCoordinates: coordinatesAnalysis.hasGuideCoordinates,
+                    coordinatesCount: coordinatesAnalysis.coordinatesCount,
+                    validCoordinatesCount: coordinatesAnalysis.validCoordinatesCount,
                     chaptersCount: chaptersForMap.length,
                     startPoint: smartStartPoint
                   });

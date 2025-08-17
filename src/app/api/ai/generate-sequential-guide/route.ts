@@ -314,6 +314,7 @@ async function createGuideSequentially(
           content: guideData // 생성된 가이드 챕터 정보 전달
         },
         optimizedLocationContext: optimizedLocationContext,
+        guideId: dbRecord.id, // 🎯 DB 저장을 위한 guideId 전달
         mode: 'parallel'
       };
       
@@ -342,24 +343,12 @@ async function createGuideSequentially(
         if (coordinatesResult.success) {
           console.log(`✅ 좌표 생성 완료 (${coordinatesResult.mode}): ${coordinatesResult.coordinatesCount || coordinatesResult.coordinates?.length}개 좌표`);
           
-          // Parallel 모드에서 DB 업데이트 수행
-          if (coordinatesResult.mode === 'parallel' && coordinatesResult.coordinates) {
-            coordinatesData = coordinatesResult.coordinates;
-            console.log('💾 Parallel 모드: DB coordinates 칼럼 동기 업데이트');
-            
-            const { error: coordUpdateError } = await supabase
-              .from('guides')
-              .update({
-                coordinates: coordinatesData,
-                updated_at: new Date().toISOString()
-              })
-              .eq('id', dbRecord.id);
-            
-            if (coordUpdateError) {
-              console.error('❌ 좌표 DB 업데이트 실패:', coordUpdateError);
-            } else {
-              console.log('✅ 좌표 DB 업데이트 성공');
-            }
+          // 🎯 DB 저장은 generate-coordinates API에서 처리됨
+          if (coordinatesResult.dbSaved) {
+            console.log('✅ coordinates 칼럼 DB 저장 성공 (generate-coordinates API에서 처리됨)');
+            coordinatesData = coordinatesResult.coordinates || [];
+          } else {
+            console.error('❌ coordinates 칼럼 DB 저장 실패:', coordinatesResult.dbError || 'Unknown error');
           }
         } else {
           console.error(`❌ 좌표 생성 실패: ${coordinatesResult.error}`);
