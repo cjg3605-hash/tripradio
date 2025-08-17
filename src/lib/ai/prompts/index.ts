@@ -3,6 +3,7 @@
 import { UserProfile } from '@/types/guide';
 // LanguageConfig는 타입으로만 import
 import type { LanguageConfig } from '@/contexts/LanguageContext';
+import type { OptimizedLocationContext } from '@/types/unified-location';
 
 // ===============================
 // 🔧 인터페이스 정의
@@ -529,7 +530,8 @@ export async function createAutonomousGuidePrompt(
   language: string = 'ko',
   userProfile?: UserProfile,
   parentRegion?: string,
-  regionalContext?: any
+  regionalContext?: any,
+  optimizedLocationContext?: OptimizedLocationContext  // 🎯 새로운 통합 지역정보 컨텍스트
 ): Promise<string> {
   const langCode = language.slice(0, 2);
   
@@ -537,7 +539,7 @@ export async function createAutonomousGuidePrompt(
     switch (langCode) {
       case 'ko': {
         const koreanModule = await import('./korean');
-        return koreanModule.createKoreanGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
+        return koreanModule.createAutonomousGuidePrompt(locationName, language, userProfile, optimizedLocationContext);
       }
       case 'en': {
         try {
@@ -560,7 +562,7 @@ export async function createAutonomousGuidePrompt(
       case 'zh': {
         try {
           const chineseModule = await import('./chinese');
-          return chineseModule.createChineseGuidePrompt({ name: locationName }, userProfile);
+          return chineseModule.createChineseGuidePrompt(locationName, userProfile);
         } catch {
           const koreanModule = await import('./korean');
           return koreanModule.createKoreanGuidePrompt(locationName, userProfile, parentRegion, regionalContext);
@@ -569,7 +571,7 @@ export async function createAutonomousGuidePrompt(
       case 'es': {
         try {
           const spanishModule = await import('./spanish');
-          return spanishModule.createSpanishGuidePrompt({ name: locationName }, userProfile);
+          return spanishModule.createSpanishGuidePrompt(locationName, userProfile);
         } catch {
           const koreanModule = await import('./korean');
           return koreanModule.createKoreanGuidePrompt(locationName, userProfile, parentRegion, regionalContext);

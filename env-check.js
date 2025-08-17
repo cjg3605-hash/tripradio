@@ -3,9 +3,7 @@
  * npm run dev 명령어에서 자동으로 실행됩니다.
  */
 
-const { validateOnServerStart } = require('./src/lib/env-validator.ts');
-
-// TypeScript 파일을 바로 실행하기 위해 ts-node 대신 간단한 구현
+// 간단한 환경변수 검증 구현
 const fs = require('fs');
 const path = require('path');
 

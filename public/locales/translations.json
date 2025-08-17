@@ -760,7 +760,21 @@
       "telegramChannel": "텔레그램 채널",
       "supportHours": "지원시간: 평일 9시-18시",
       "adsenseNotice": "광고 수익 공지",
-      "adsensePolicy": "AdSense 정책"
+      "adsensePolicy": "AdSense 정책",
+      "services": {
+        "title": "주요 서비스",
+        "audioGuide": "오디오가이드",
+        "docent": "AI 도슨트",
+        "tourRadio": "투어라디오",
+        "travelRadio": "여행라디오"
+      },
+      "tools": {
+        "title": "여행 도구",
+        "tripPlanner": "AI 여행 계획",
+        "nomadCalculator": "노마드 계산기",
+        "filmLocations": "영화 촬영지",
+        "visaChecker": "비자 체커"
+      }
     },
     "legal": {
       "terms": {
@@ -2847,6 +2861,9 @@
         "title": "여행 전 필수",
         "subtitle": "비자 요건 체크",
         "description": "목적지별 비자 요건을 미리 확인하여 안전하고 준비된 여행을 떠나세요."
+      },
+      "alerts": {
+        "enterDestination": "목적지를 입력해주세요."
       }
     }
   },
@@ -3552,7 +3569,21 @@
       "telegramChannel": "Telegram Channel",
       "supportHours": "Support Hours: Weekdays 9AM-6PM",
       "adsenseNotice": "Ad Revenue Notice",
-      "adsensePolicy": "AdSense Policy"
+      "adsensePolicy": "AdSense Policy",
+      "services": {
+        "title": "Key Services",
+        "audioGuide": "Audio Guide",
+        "docent": "AI Docent",
+        "tourRadio": "Tour Radio",
+        "travelRadio": "Travel Radio"
+      },
+      "tools": {
+        "title": "Travel Tools",
+        "tripPlanner": "AI Trip Planner",
+        "nomadCalculator": "Nomad Calculator",
+        "filmLocations": "Film Locations",
+        "visaChecker": "Visa Checker"
+      }
     },
     "legal": {
       "terms": {
@@ -5231,6 +5262,9 @@
         "title": "Essential Before Travel",
         "subtitle": "Visa Requirements Check",
         "description": "Check visa requirements by destination in advance for safe and prepared travel."
+      },
+      "alerts": {
+        "enterDestination": "Please enter your destination."
       }
     }
   },
@@ -5885,7 +5919,21 @@
       "telegramChannel": "テレグラムチャンネル",
       "supportHours": "サポート時間：平日9時-18時",
       "adsenseNotice": "広告収益お知らせ",
-      "adsensePolicy": "AdSenseポリシー"
+      "adsensePolicy": "AdSenseポリシー",
+      "services": {
+        "title": "主要サービス",
+        "audioGuide": "オーディオガイド",
+        "docent": "AIドーセント",
+        "tourRadio": "ツアーラジオ",
+        "travelRadio": "トラベルラジオ"
+      },
+      "tools": {
+        "title": "旅行ツール",
+        "tripPlanner": "AI旅行プランナー",
+        "nomadCalculator": "ノマド計算機",
+        "filmLocations": "映画撮影地",
+        "visaChecker": "ビザチェッカー"
+      }
     },
     "legal": {
       "terms": {
@@ -6932,6 +6980,9 @@
         "title": "旅行前必須",
         "subtitle": "ビザ要件チェック",
         "description": "目的地別ビザ要件を事前に確認して安全で準備された旅行に出発してください。"
+      },
+      "alerts": {
+        "enterDestination": "目的地を入力してください。"
       }
     }
   },
@@ -7586,7 +7637,21 @@
       "telegramChannel": "Telegram频道",
       "supportHours": "支持时间：工作日9点-18点",
       "adsenseNotice": "广告收入通知",
-      "adsensePolicy": "AdSense政策"
+      "adsensePolicy": "AdSense政策",
+      "services": {
+        "title": "主要服务",
+        "audioGuide": "音频指南",
+        "docent": "AI导览员",
+        "tourRadio": "旅游电台",
+        "travelRadio": "旅行电台"
+      },
+      "tools": {
+        "title": "旅行工具",
+        "tripPlanner": "AI行程规划",
+        "nomadCalculator": "数字游民计算器",
+        "filmLocations": "电影拍摄地",
+        "visaChecker": "签证查询"
+      }
     },
     "legal": {
       "terms": {
@@ -8633,6 +8698,9 @@
         "title": "旅行前必备",
         "subtitle": "签证要求检查",
         "description": "提前确认目的地签证要求，进行安全且有准备的旅行。"
+      },
+      "alerts": {
+        "enterDestination": "请输入目的地。"
       }
     }
   },
@@ -9287,7 +9355,21 @@
       "telegramChannel": "Canal de Telegram",
       "supportHours": "Horario de Soporte: Días laborables 9AM-6PM",
       "adsenseNotice": "Aviso de Ingresos por Publicidad",
-      "adsensePolicy": "Política de AdSense"
+      "adsensePolicy": "Política de AdSense",
+      "services": {
+        "title": "Servicios Principales",
+        "audioGuide": "Guía de Audio",
+        "docent": "AI Docente",
+        "tourRadio": "Radio de Tour",
+        "travelRadio": "Radio de Viaje"
+      },
+      "tools": {
+        "title": "Herramientas de Viaje",
+        "tripPlanner": "Planificador de Viaje AI",
+        "nomadCalculator": "Calculadora Nómada",
+        "filmLocations": "Locaciones de Películas",
+        "visaChecker": "Verificador de Visa"
+      }
     },
     "legal": {
       "terms": {
@@ -10259,6 +10341,9 @@
         "title": "Esencial Antes del Viaje",
         "subtitle": "Verificación de Requisitos de Visa",
         "description": "Verifica requisitos de visa por destino con anticipación para viaje seguro y preparado."
+      },
+      "alerts": {
+        "enterDestination": "Por favor ingrese su destino."
       }
     },
     "docent": {

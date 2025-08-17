@@ -726,7 +726,7 @@ export default function VisaCheckerPage() {
   // Visa checking functionality
   const handleVisaCheck = () => {
     if (!destination.trim()) {
-      alert('목적지를 입력해주세요.');
+      alert(visaT('alerts.enterDestination'));
       return;
     }
 

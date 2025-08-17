@@ -1911,14 +1911,14 @@ function Home() {
 
             {/* Services */}
             <div>
-              <h4 className="text-sm font-semibold text-black mb-4">주요 서비스</h4>
+              <h4 className="text-sm font-semibold text-black mb-4">{t('footer.services.title')}</h4>
               <ul className="space-y-2">
                 <li>
                   <a 
                     href="/audio-guide" 
                     className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
-                    오디오가이드
+                    {t('footer.services.audioGuide')}
                   </a>
                 </li>
                 <li>
@@ -1926,7 +1926,7 @@ function Home() {
                     href="/docent" 
                     className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
-                    AI 도슨트
+                    {t('footer.services.docent')}
                   </a>
                 </li>
                 <li>
@@ -1934,7 +1934,7 @@ function Home() {
                     href="/tour-radio" 
                     className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
-                    투어라디오
+                    {t('footer.services.tourRadio')}
                   </a>
                 </li>
                 <li>
@@ -1942,7 +1942,7 @@ function Home() {
                     href="/travel-radio" 
                     className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
-                    여행라디오
+                    {t('footer.services.travelRadio')}
                   </a>
                 </li>
               </ul>
@@ -1950,14 +1950,14 @@ function Home() {
 
             {/* 여행 도구 */}
             <div>
-              <h4 className="text-sm font-semibold text-black mb-4">여행 도구</h4>
+              <h4 className="text-sm font-semibold text-black mb-4">{t('footer.tools.title')}</h4>
               <ul className="space-y-2">
                 <li>
                   <a 
                     href="/trip-planner" 
                     className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
-                    AI 여행 계획
+                    {t('footer.tools.tripPlanner')}
                   </a>
                 </li>
                 <li>
@@ -1965,7 +1965,7 @@ function Home() {
                     href="/nomad-calculator" 
                     className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
-                    노마드 계산기
+                    {t('footer.tools.nomadCalculator')}
                   </a>
                 </li>
                 <li>
@@ -1973,7 +1973,7 @@ function Home() {
                     href="/film-locations" 
                     className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
-                    영화 촬영지
+                    {t('footer.tools.filmLocations')}
                   </a>
                 </li>
                 <li>
@@ -1981,7 +1981,7 @@ function Home() {
                     href="/visa-checker" 
                     className="text-sm text-[#555555] font-light hover:text-black transition-colors"
                   >
-                    비자 체커
+                    {t('footer.tools.visaChecker')}
                   </a>
                 </li>
               </ul>
