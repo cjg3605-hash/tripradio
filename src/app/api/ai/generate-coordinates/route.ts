@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findCoordinatesSimple, extractChaptersFromContent, SimpleLocationContext } from '@/lib/coordinates/coordinate-utils';
 import { OptimizedLocationContext } from '@/types/unified-location';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabaseClient';
+import { withSupabaseRetry, retryStats } from '@/lib/api-retry';
 
 export const runtime = 'nodejs';
 
@@ -358,34 +359,73 @@ export async function POST(request: NextRequest) {
     
     // 💾 좌표 생성 완료 후 DB에 저장
     console.log(`\n💾 좌표 DB 저장 시작: guideId=${guideId}`);
+    console.log('🎯 저장할 좌표 데이터:', {
+      type: Array.isArray(coordinates) ? 'array' : typeof coordinates,
+      length: coordinates.length,
+      sample: coordinates.length > 0 ? {
+        firstCoordinate: {
+          lat: coordinates[0].lat,
+          lng: coordinates[0].lng,
+          title: coordinates[0].title
+        }
+      } : 'empty'
+    });
     
     let dbSaveSuccess = false;
     let dbSaveError: any = null;
     
     try {
-      // Supabase 클라이언트 초기화
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
+      console.log('📡 공유 Supabase 클라이언트 사용');
+      console.log('🎯 DB 업데이트 쿼리 시작:', {
+        table: 'guides',
+        guideId: guideId,
+        dataSize: JSON.stringify(coordinates).length + ' bytes'
+      });
       
-      const { error: updateError } = await supabase
-        .from('guides')
-        .update({
-          coordinates: coordinates,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', guideId);
+      const { data: updateData, error: updateError } = await withSupabaseRetry(async () => {
+        retryStats.recordAttempt('coordinates-db-save');
+        
+        const result = await supabase
+          .from('guides')
+          .update({
+            coordinates: coordinates,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', guideId)
+          .select('id, coordinates');
+        
+        if (result.error) {
+          retryStats.recordFailure('coordinates-db-save');
+          throw result.error;
+        }
+        
+        retryStats.recordSuccess('coordinates-db-save');
+        return result;
+      }, 'coordinates 칼럼 DB 저장');
       
       if (updateError) {
-        console.error('❌ coordinates 칼럼 DB 저장 실패:', updateError);
+        console.error('❌ coordinates 칼럼 DB 저장 실패:', {
+          error: updateError,
+          message: (updateError as any)?.message || String(updateError),
+          details: (updateError as any)?.details,
+          hint: (updateError as any)?.hint,
+          code: (updateError as any)?.code
+        });
         dbSaveError = updateError;
       } else {
         console.log('✅ coordinates 칼럼 DB 저장 성공');
+        console.log('📊 저장 결과 검증:', {
+          updatedRecords: updateData?.length || 0,
+          storedCoordinatesCount: updateData?.[0]?.coordinates?.length || 0
+        });
         dbSaveSuccess = true;
       }
     } catch (error) {
-      console.error('❌ DB 저장 중 예외 발생:', error);
+      console.error('❌ DB 저장 중 예외 발생:', {
+        error: error,
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
       dbSaveError = error;
     }
     
