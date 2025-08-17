@@ -12,9 +12,17 @@ const envPath = path.join(__dirname, '.env.local');
 if (fs.existsSync(envPath)) {
   const envFile = fs.readFileSync(envPath, 'utf8');
   envFile.split('\n').forEach(line => {
-    const [key, value] = line.split('=');
-    if (key && value && !process.env[key]) {
-      process.env[key] = value.trim();
+    const trimmedLine = line.trim();
+    if (trimmedLine && !trimmedLine.startsWith('#')) {
+      const equalsIndex = trimmedLine.indexOf('=');
+      if (equalsIndex > 0) {
+        const key = trimmedLine.substring(0, equalsIndex).trim();
+        const value = trimmedLine.substring(equalsIndex + 1).trim();
+        if (key && value && !process.env[key]) {
+          // 따옴표 제거
+          process.env[key] = value.replace(/^["']|["']$/g, '');
+        }
+      }
     }
   });
 }

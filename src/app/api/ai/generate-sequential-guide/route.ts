@@ -363,10 +363,10 @@ async function createGuideSequentially(
     // 💾 4단계: DB 최종 업데이트 (좌표 생성과 병렬 처리)
     console.log(`\n💾 4단계: DB 최종 업데이트`);
     
-    // 🎯 좌표 데이터를 최종 업데이트에 포함
+    // 💾 4단계: DB 최종 업데이트 (콘텐츠만)
     const finalUpdateData = {
       content: guideData,
-      coordinates: coordinatesData, // 동기 처리된 좌표 데이터 포함
+      // 🎯 coordinates 제거 - generate-coordinates API에서 단독 처리
       updated_at: new Date().toISOString()
     };
 
@@ -395,14 +395,14 @@ async function createGuideSequentially(
     }
 
     const totalTime = Date.now() - startTime;
-    console.log(`\n✅ 가이드 생성 완료 (동기 좌표 처리 포함):`, {
+    console.log(`\n✅ 가이드 생성 완료:`, {
       guideId: dbRecord.id,
       totalTime: `${totalTime}ms`,
       coordinatesGenerated: coordinatesData.length,
       parallelCoordinates: !!optimizedLocationContext,
       region: locationData.region,
       country: locationData.country,
-      coordinatesStatus: optimizedLocationContext ? `병렬 모드: ${coordinatesData.length}개 좌표 생성됨` : '좌표 생성 생략됨'
+      coordinatesStatus: optimizedLocationContext ? `병렬 모드: ${coordinatesData.length}개 좌표 생성됨 (generate-coordinates API에서 처리)` : '좌표 생성 생략됨'
     });
     
     // 📊 재시도 통계 및 에러 통계 로깅

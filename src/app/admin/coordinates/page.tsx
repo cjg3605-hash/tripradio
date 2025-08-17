@@ -47,9 +47,15 @@ export default function CoordinateManagementPage() {
     }
   }, [selectedGuideId]);
 
-  // 재생성 대상 조회
+  // 🚨 DEPRECATED: 재생성 대상 조회 - 더 이상 사용하지 않음
   const fetchCandidates = useCallback(async () => {
     try {
+      setMessage('⚠️ 이 기능은 더 이상 사용되지 않습니다. 새로운 좌표 시스템은 가이드 생성 시 자동으로 처리됩니다.');
+      setCandidates([]);
+      return;
+      
+      // 🚨 DEPRECATED CODE - 주석 처리
+      /*
       const url = selectedGuideId
         ? `/api/coordinates/regenerate?guideId=${selectedGuideId}&minAccuracy=${minAccuracy}`
         : `/api/coordinates/regenerate?minAccuracy=${minAccuracy}`;
@@ -62,36 +68,21 @@ export default function CoordinateManagementPage() {
       } else {
         setMessage(`재생성 대상 조회 실패: ${data.error || '알 수 없는 오류'}`);
       }
+      */
     } catch (error) {
-      setMessage(`재생성 대상 조회 오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+      setMessage(`⚠️ 이 기능은 더 이상 사용되지 않습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
   }, [selectedGuideId, minAccuracy]);
 
-  // 좌표 재생성 실행
+  // 🚨 DEPRECATED: 좌표 재생성 실행 - 더 이상 사용하지 않음
   const regenerateCoordinates = async () => {
     try {
       setRegenerating(true);
-      const response = await fetch('/api/coordinates/regenerate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guideId: selectedGuideId || undefined,
-          minAccuracy,
-          maxAttempts: 3
-        })
-      });
-
-      const data: CoordinateRegenerationResponse = await response.json();
+      setMessage('⚠️ 이 기능은 더 이상 사용되지 않습니다. 새로운 좌표는 가이드 생성 시 자동으로 생성됩니다.');
       
-      if (data.success) {
-        setMessage(`✅ ${data.regeneratedCount}개 챕터의 좌표를 성공적으로 재생성했습니다.`);
-        await fetchStats();
-        await fetchCandidates();
-      } else {
-        setMessage(`❌ 재생성 실패: ${data.message || '알 수 없는 오류'}`);
-      }
+      // 🚨 DEPRECATED CODE - 완전히 제거됨
     } catch (error) {
-      setMessage(`❌ 재생성 오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+      setMessage(`⚠️ 이 기능은 더 이상 사용되지 않습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     } finally {
       setRegenerating(false);
     }

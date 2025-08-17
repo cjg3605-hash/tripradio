@@ -207,7 +207,7 @@ export class MultiLangGuideManager {
         locationname: normalizeLocationName(locationName),
         language: language.toLowerCase(),
         content: guideData,
-        coordinates: guideData.coordinatesArray || null, // 🔥 새로운 coordinates 컬럼에 저장
+        // 🎯 coordinates 저장 제거 - generate-coordinates API에서 단독 처리
         location_region: regionalInfo.location_region || null,
         country_code: regionalInfo.country_code || null,
         updated_at: new Date().toISOString()
@@ -217,8 +217,8 @@ export class MultiLangGuideManager {
         locationname: saveData.locationname,
         language: saveData.language,
         location_region: saveData.location_region,
-        country_code: saveData.country_code,
-        coordinatesCount: Array.isArray(saveData.coordinates) ? saveData.coordinates.length : 0
+        country_code: saveData.country_code
+        // 🎯 coordinates 로깅 제거 - 더 이상 이 함수에서 처리하지 않음
       });
 
       const { data, error } = await supabase

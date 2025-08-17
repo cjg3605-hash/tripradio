@@ -71,9 +71,19 @@ const searchLocationDirect: SearchLocationDirectFunction = async function(
 ): Promise<GeocodingResult | null> {
   try {
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    
+    // 🔍 환경변수 디버깅 - 정확한 로딩 상태 확인
+    console.log('🔍 환경변수 디버깅:', {
+      GOOGLE_PLACES_API_KEY_exists: !!apiKey,
+      GOOGLE_PLACES_API_KEY_length: apiKey?.length || 0,
+      GOOGLE_PLACES_API_KEY_prefix: apiKey?.substring(0, 10) || 'undefined',
+      NODE_ENV: process.env.NODE_ENV,
+      all_env_keys: Object.keys(process.env).filter(key => key.includes('GOOGLE')).join(', ')
+    });
+    
     if (!apiKey) {
       console.error('❌ GOOGLE_PLACES_API_KEY 환경변수가 설정되지 않음');
-      console.error('💡 .env.local 파일에 GOOGLE_PLACES_API_KEY 설정이 필요합니다');
+      console.error('💡 검찰해야 할 환경변수들:', Object.keys(process.env).filter(key => key.includes('GOOGLE')));
       return null;
     }
     

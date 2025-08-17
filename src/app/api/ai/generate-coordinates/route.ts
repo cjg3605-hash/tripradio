@@ -247,7 +247,7 @@ async function generateCoordinatesFromOptimizedContext(
           console.log(`📊 현재까지 추출된 좌표 수: ${coordinates.length}개`);
         } else {
           console.log(`❌ 챕터 ${i + 1} 좌표 실패 - 검색 결과 없음`);
-          console.log(`🔍 실패한 검색어: "${chapter.title}" in ${optimizedLocationContext.placeName}, ${optimizedLocationContext.location_region}`);
+          console.log(`🔍 실패한 검색어: "${chapter.title}" in ${optimizedContext.placeName}, ${optimizedContext.location_region}`);
         }
         
         // API 호출 제한 대기
@@ -296,11 +296,10 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    if (!guideId) {
-      return NextResponse.json(
-        { success: false, error: 'guideId가 필요합니다. coordinates 칼럼 저장을 위해 필수입니다.' },
-        { status: 400 }
-      );
+    // 🎯 guideId는 DB 저장에만 필요 (좌표 생성은 선택적)
+    const shouldSaveToDb = !!guideId;
+    if (!shouldSaveToDb) {
+      console.log('⚠️ guideId 없음: 좌표 생성만 수행하고 DB 저장은 건너뜀');
     }
     
     // 🔍 OptimizedLocationContext 데이터 품질 검증
@@ -365,119 +364,123 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // 💾 좌표 생성 완료 후 DB에 저장
-    console.log(`\n💾 좌표 DB 저장 시작: guideId=${guideId}`);
-    console.log('🎯 저장할 좌표 데이터:', {
-      type: Array.isArray(coordinates) ? 'array' : typeof coordinates,
-      length: coordinates.length,
-      sample: coordinates.length > 0 ? {
-        firstCoordinate: {
-          lat: coordinates[0].lat,
-          lng: coordinates[0].lng,
-          title: coordinates[0].title
-        }
-      } : 'empty'
-    });
-    
-    // 🔍 DB 저장 전 추가 검증
-    console.log('🔍 DB 저장 전 검증:', {
-      guideIdType: typeof guideId,
-      guideIdValue: guideId,
-      coordinatesIsArray: Array.isArray(coordinates),
-      coordinatesLength: coordinates.length,
-      coordinatesValid: coordinates.length > 0 && coordinates.every(c => c.lat && c.lng),
-      sampleCoordinates: coordinates.slice(0, 2)
-    });
-    
-    // guideId 존재 여부 먼저 확인
-    console.log('🔍 guideId로 기존 레코드 확인 중...');
-    try {
-      const { data: existingGuide, error: checkError } = await supabase
-        .from('guides')
-        .select('id, locationname, language, coordinates')
-        .eq('id', guideId)
-        .single();
-      
-      if (checkError) {
-        console.error('❌ 기존 레코드 확인 실패:', checkError);
-        return NextResponse.json({
-          success: false,
-          error: `가이드 레코드를 찾을 수 없습니다: ${checkError.message}`,
-          guideId: guideId
-        }, { status: 404 });
-      }
-      
-      console.log('✅ 기존 레코드 확인 완료:', {
-        id: existingGuide.id,
-        locationname: existingGuide.locationname,
-        language: existingGuide.language,
-        hasExistingCoordinates: existingGuide.coordinates ? existingGuide.coordinates.length : 0
-      });
-    } catch (error) {
-      console.error('❌ 레코드 확인 중 예외:', error);
-      return NextResponse.json({
-        success: false,
-        error: `데이터베이스 접근 실패: ${error instanceof Error ? error.message : String(error)}`,
-        guideId: guideId
-      }, { status: 500 });
-    }
-    
+    // 💾 조건부 DB 저장 (guideId가 있을 때만)
     let dbSaveSuccess = false;
     let dbSaveError: any = null;
     
-    try {
-      console.log('📡 공유 Supabase 클라이언트 사용');
-      console.log('🎯 DB 업데이트 쿼리 시작:', {
-        table: 'guides',
-        guideId: guideId,
-        dataSize: JSON.stringify(coordinates).length + ' bytes'
+    if (shouldSaveToDb) {
+      console.log(`\n💾 좌표 DB 저장 시작: guideId=${guideId}`);
+      console.log('🎯 저장할 좌표 데이터:', {
+        type: Array.isArray(coordinates) ? 'array' : typeof coordinates,
+        length: coordinates.length,
+        sample: coordinates.length > 0 ? {
+          firstCoordinate: {
+            lat: coordinates[0].lat,
+            lng: coordinates[0].lng,
+            title: coordinates[0].title
+          }
+        } : 'empty'
       });
       
-      const { data: updateData, error: updateError } = await withSupabaseRetry(async () => {
-        retryStats.recordAttempt('coordinates-db-save');
-        
-        const result = await supabase
+      // 🔍 DB 저장 전 추가 검증
+      console.log('🔍 DB 저장 전 검증:', {
+        guideIdType: typeof guideId,
+        guideIdValue: guideId,
+        coordinatesIsArray: Array.isArray(coordinates),
+        coordinatesLength: coordinates.length,
+        coordinatesValid: coordinates.length > 0 && coordinates.every(c => c.lat && c.lng),
+        sampleCoordinates: coordinates.slice(0, 2)
+      });
+      
+      // guideId 존재 여부 먼저 확인
+      console.log('🔍 guideId로 기존 레코드 확인 중...');
+      try {
+        const { data: existingGuide, error: checkError } = await supabase
           .from('guides')
-          .update({
-            coordinates: coordinates,
-            updated_at: new Date().toISOString()
-          })
+          .select('id, locationname, language, coordinates')
           .eq('id', guideId)
-          .select('id, coordinates');
+          .single();
         
-        if (result.error) {
-          retryStats.recordFailure('coordinates-db-save');
-          throw result.error;
+        if (checkError) {
+          console.error('❌ 기존 레코드 확인 실패:', checkError);
+          return NextResponse.json({
+            success: false,
+            error: `가이드 레코드를 찾을 수 없습니다: ${checkError.message}`,
+            guideId: guideId
+          }, { status: 404 });
         }
         
-        retryStats.recordSuccess('coordinates-db-save');
-        return result;
-      }, 'coordinates 칼럼 DB 저장');
-      
-      if (updateError) {
-        console.error('❌ coordinates 칼럼 DB 저장 실패:', {
-          error: updateError,
-          message: (updateError as any)?.message || String(updateError),
-          details: (updateError as any)?.details,
-          hint: (updateError as any)?.hint,
-          code: (updateError as any)?.code
+        console.log('✅ 기존 레코드 확인 완료:', {
+          id: existingGuide.id,
+          locationname: existingGuide.locationname,
+          language: existingGuide.language,
+          hasExistingCoordinates: existingGuide.coordinates ? existingGuide.coordinates.length : 0
         });
-        dbSaveError = updateError;
-      } else {
-        console.log('✅ coordinates 칼럼 DB 저장 성공');
-        console.log('📊 저장 결과 검증:', {
-          updatedRecords: updateData?.length || 0,
-          storedCoordinatesCount: updateData?.[0]?.coordinates?.length || 0
-        });
-        dbSaveSuccess = true;
+      } catch (error) {
+        console.error('❌ 레코드 확인 중 예외:', error);
+        return NextResponse.json({
+          success: false,
+          error: `데이터베이스 접근 실패: ${error instanceof Error ? error.message : String(error)}`,
+          guideId: guideId
+        }, { status: 500 });
       }
-    } catch (error) {
-      console.error('❌ DB 저장 중 예외 발생:', {
-        error: error,
-        message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
-      });
-      dbSaveError = error;
+      
+      try {
+        console.log('📡 공유 Supabase 클라이언트 사용');
+        console.log('🎯 DB 업데이트 쿼리 시작:', {
+          table: 'guides',
+          guideId: guideId,
+          dataSize: JSON.stringify(coordinates).length + ' bytes'
+        });
+        
+        const { data: updateData, error: updateError } = await withSupabaseRetry(async () => {
+          retryStats.recordAttempt('coordinates-db-save');
+          
+          const result = await supabase
+            .from('guides')
+            .update({
+              coordinates: coordinates,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', guideId)
+            .select('id, coordinates');
+          
+          if (result.error) {
+            retryStats.recordFailure('coordinates-db-save');
+            throw result.error;
+          }
+          
+          retryStats.recordSuccess('coordinates-db-save');
+          return result;
+        }, 'coordinates 칼럼 DB 저장');
+        
+        if (updateError) {
+          console.error('❌ coordinates 칼럼 DB 저장 실패:', {
+            error: updateError,
+            message: (updateError as any)?.message || String(updateError),
+            details: (updateError as any)?.details,
+            hint: (updateError as any)?.hint,
+            code: (updateError as any)?.code
+          });
+          dbSaveError = updateError;
+        } else {
+          console.log('✅ coordinates 칼럼 DB 저장 성공');
+          console.log('📊 저장 결과 검증:', {
+            updatedRecords: updateData?.length || 0,
+            storedCoordinatesCount: updateData?.[0]?.coordinates?.length || 0
+          });
+          dbSaveSuccess = true;
+        }
+      } catch (error) {
+        console.error('❌ DB 저장 중 예외 발생:', {
+          error: error,
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
+        });
+        dbSaveError = error;
+      }
+    } else {
+      console.log('⏭️ guideId 없음: DB 저장 건너뜀, 좌표 생성 결과만 반환');
     }
     
     console.log(`\n✅ 좌표 생성 API 완료:`, {
