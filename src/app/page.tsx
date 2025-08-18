@@ -7,7 +7,6 @@ import dynamic from 'next/dynamic';
 
 import StructuredData from '@/components/seo/StructuredData';
 import GuideLoading from '@/components/ui/GuideLoading';
-import SkipToMain from '@/components/accessibility/SkipToMain';
 
 // Dynamic imports for performance optimization
 const OptimalAdSense = dynamic(() => import('@/components/ads/OptimalAdSense'), {
@@ -1291,7 +1290,6 @@ function Home() {
 
   return (
     <>
-      <SkipToMain />
       <div className="min-h-screen bg-white font-sans relative" style={{ '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px' } as React.CSSProperties}>
         {/* 배경 - 헤더의 끝선에 맞춰서 시작하고, 검색박스 위까지로 제한 - 모바일 반응형 */}
       <div className="hero-background-container">
