@@ -80,7 +80,7 @@ export const metadata: Metadata = {
   verification: {
     google: process.env.GOOGLE_SITE_VERIFICATION,
     other: {
-      'naver-site-verification': process.env.NAVER_SITE_VERIFICATION || '',
+      'naver-site-verification': 'ac6cd3c71672a4e6271216f7475e406fb50a99bc',
     }
   },
   category: 'travel',
@@ -182,8 +182,7 @@ export default async function RootLayout({
         {/* Google AdSense Account Verification */}
         <meta name="google-adsense-account" content="ca-pub-8225961966676319" />
         
-        {/* Naver Search Advisor Verification */}
-        <meta name="naver-site-verification" content="dc5a0970077fc443190c84178a92820b04abeeef" />
+        
         
         {/* hreflang Tags for Multilingual SEO */}
         <link rel="alternate" hrefLang="ko-KR" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'}?lang=ko`} />
