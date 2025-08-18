@@ -3,10 +3,13 @@
 
 interface KeywordPageSchemaProps {
   keyword: string;
-  pagePath: string;
+  pagePath?: string;
   title: string;
   description: string;
   features?: string[];
+  type?: string;
+  canonicalUrl?: string;
+  breadcrumbs?: { name: string; url: string; }[];
 }
 
 export function KeywordPageSchema({ 
@@ -14,10 +17,14 @@ export function KeywordPageSchema({
   pagePath, 
   title, 
   description,
-  features = []
+  features = [],
+  type = 'service',
+  canonicalUrl,
+  breadcrumbs = []
 }: KeywordPageSchemaProps) {
   
   const baseUrl = 'https://navidocent.com';
+  const finalPagePath = pagePath || canonicalUrl || '';
   
   // 키워드별 맞춤형 스키마 생성
   const schemaData = {
@@ -25,7 +32,7 @@ export function KeywordPageSchema({
     '@type': ['WebPage', 'Service'],
     name: title,
     description,
-    url: `${baseUrl}${pagePath}`,
+    url: `${baseUrl}${finalPagePath}`,
     mainEntity: {
       '@type': 'Service',
       name: `TripRadio.AI ${keyword}`,
@@ -89,7 +96,7 @@ export function KeywordPageSchema({
           '@type': 'ListItem',
           position: 2,
           name: keyword,
-          item: `${baseUrl}${pagePath}`
+          item: `${baseUrl}${finalPagePath}`
         }
       ]
     },
@@ -97,7 +104,7 @@ export function KeywordPageSchema({
       '@type': 'ConsumeAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${baseUrl}${pagePath}`
+        urlTemplate: `${baseUrl}${finalPagePath}`
       },
       object: {
         '@type': 'Service',

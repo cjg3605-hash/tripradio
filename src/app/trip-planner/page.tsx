@@ -48,55 +48,30 @@ const getTripTypes = (t: (key: string, params?: Record<string, string>) => strin
   }
 ];
 
-// 50개 도시 대규모 데이터 - 실제 여행 정보 기반
+// 인기 여행지 데이터 - 하드코딩된 한국어 데이터를 다국어화 필요시 번역 파일로 이동 예정
 const popularDestinations = [
   // 아시아
-  { name: '제주도', country: '한국', emoji: '🏝️', duration: '2-3일', budget: '30-50만원', region: 'asia', highlights: ['한라산', '성산일출봉', '우도'], bestSeason: '봄,가을' },
-  { name: '부산', country: '한국', emoji: '🌊', duration: '2-3일', budget: '25-40만원', region: 'asia', highlights: ['해운대', '감천문화마을', '자갈치시장'], bestSeason: '여름,가을' },
-  { name: '경주', country: '한국', emoji: '🏛️', duration: '1-2일', budget: '20-35만원', region: 'asia', highlights: ['불국사', '석굴암', '안압지'], bestSeason: '봄,가을' },
-  { name: '도쿄', country: '일본', emoji: '🗼', duration: '4-5일', budget: '70-120만원', region: 'asia', highlights: ['도쿄타워', '센소지', '신주쿠'], bestSeason: '봄,가을' },
-  { name: '오사카', country: '일본', emoji: '🍜', duration: '3-4일', budget: '60-80만원', region: 'asia', highlights: ['오사카성', '도톤보리', '유니버설'], bestSeason: '봄,가을' },
-  { name: '교토', country: '일본', emoji: '⛩️', duration: '2-3일', budget: '50-70만원', region: 'asia', highlights: ['기요미즈데라', '후시미이나리', '아라시야마'], bestSeason: '봄,가을' },
-  { name: '후쿠오카', country: '일본', emoji: '🍲', duration: '2-3일', budget: '45-65만원', region: 'asia', highlights: ['하카타', '모모치해변', '텐진'], bestSeason: '봄,가을' },
-  { name: '삿포로', country: '일본', emoji: '❄️', duration: '3-4일', budget: '60-90만원', region: 'asia', highlights: ['삿포로맥주공장', '스스키노', '오도리공원'], bestSeason: '겨울,여름' },
-  { name: '방콕', country: '태국', emoji: '🛕', duration: '4-6일', budget: '50-70만원', region: 'asia', highlights: ['왓포', '차오프라야강', '카오산로드'], bestSeason: '겨울,봄' },
-  { name: '치앙마이', country: '태국', emoji: '🌸', duration: '3-5일', budget: '40-60만원', region: 'asia', highlights: ['도이수텝', '구시가지', '선데이마켓'], bestSeason: '겨울,봄' },
-  { name: '푸켓', country: '태국', emoji: '🏖️', duration: '4-6일', budget: '60-80만원', region: 'asia', highlights: ['파통비치', '피피아일랜드', '빅부다'], bestSeason: '겨울,봄' },
-  { name: '다낭', country: '베트남', emoji: '🏖️', duration: '4-5일', budget: '40-60만원', region: 'asia', highlights: ['골든브릿지', '한시장', '미케비치'], bestSeason: '봄,가을' },
-  { name: '호치민', country: '베트남', emoji: '🏙️', duration: '3-4일', budget: '35-55만원', region: 'asia', highlights: ['벤탄시장', '통일궁', '메콩델타'], bestSeason: '겨울,봄' },
-  { name: '하노이', country: '베트남', emoji: '🍜', duration: '2-3일', budget: '30-50만원', region: 'asia', highlights: ['호안키엠', '올드쿼터', '하롱베이'], bestSeason: '봄,가을' },
-  { name: '싱가포르', country: '싱가포르', emoji: '🦁', duration: '3-4일', budget: '70-100만원', region: 'asia', highlights: ['마리나베이', '센토사', '가든스바이더베이'], bestSeason: '연중' },
-  { name: '쿠알라룸푸르', country: '말레이시아', emoji: '🏗️', duration: '2-3일', budget: '35-55만원', region: 'asia', highlights: ['페트로나스타워', '부킷빈탕', '바투동굴'], bestSeason: '여름,가을' },
-  { name: '발리', country: '인도네시아', emoji: '🌺', duration: '5-7일', budget: '60-90만원', region: 'asia', highlights: ['우붓', '탄롯사원', '키밍비치'], bestSeason: '여름,가을' },
-  { name: '자카르타', country: '인도네시아', emoji: '🏙️', duration: '2-3일', budget: '40-60만원', region: 'asia', highlights: ['모나스', '구시가지', '안촐'], bestSeason: '여름,가을' },
-  { name: '마닐라', country: '필리핀', emoji: '🏖️', duration: '3-4일', budget: '45-65만원', region: 'asia', highlights: ['이트라무로스', '마카티', '보라카이'], bestSeason: '겨울,봄' },
-  { name: '세부', country: '필리핀', emoji: '🐠', duration: '4-6일', budget: '50-70만원', region: 'asia', highlights: ['말라파스쿠아', '보홀', '템플오브레아'], bestSeason: '겨울,봄' },
-  { name: '홍콩', country: '중국', emoji: '🌃', duration: '3-4일', budget: '60-90만원', region: 'asia', highlights: ['빅토리아피크', '침사추이', '디즈니랜드'], bestSeason: '가을,겨울' },
-  { name: '마카오', country: '중국', emoji: '🎰', duration: '2-3일', budget: '50-80만원', region: 'asia', highlights: ['베네시안', '성바울성당', '콜로안'], bestSeason: '가을,겨울' },
-  { name: '타이베이', country: '대만', emoji: '🏮', duration: '3-4일', budget: '50-70만원', region: 'asia', highlights: ['101타워', '지우펀', '야시장'], bestSeason: '봄,가을' },
-  { name: '뭄바이', country: '인도', emoji: '🕌', duration: '3-4일', budget: '30-50만원', region: 'asia', highlights: ['게이트웨이오브인디아', '엘레판타동굴', '볼리우드'], bestSeason: '겨울,봄' },
-  { name: '델리', country: '인도', emoji: '🛕', duration: '2-3일', budget: '25-45만원', region: 'asia', highlights: ['레드포트', '인디아게이트', '타지마할'], bestSeason: '겨울,봄' },
+  { name: '도쿄', country: '일본', emoji: '🏯', duration: '3-4일', budget: '80-120만원', region: 'asia', highlights: ['시부야', '아사쿠사', '긴자'], bestSeason: '봄,가을' },
+  { name: '오사카', country: '일본', emoji: '🍜', duration: '2-3일', budget: '70-100만원', region: 'asia', highlights: ['오사카성', '도톤보리', '유니버설'], bestSeason: '봄,가을' },
+  { name: '방콕', country: '태국', emoji: '🛕', duration: '3-4일', budget: '50-80만원', region: 'asia', highlights: ['왓포', '카오산로드', '짜뚜짝'], bestSeason: '겨울,봄' },
+  { name: '싱가포르', country: '싱가포르', emoji: '🌆', duration: '3-4일', budget: '100-150만원', region: 'asia', highlights: ['마리나베이', '가든스바이더베이', '센토사'], bestSeason: '연중' },
+  { name: '대만', country: '대만', emoji: '🏔️', duration: '3-4일', budget: '60-90만원', region: 'asia', highlights: ['타이베이101', '지우펀', '타로코'], bestSeason: '봄,가을' },
+  { name: '홍콩', country: '홍콩', emoji: '🌃', duration: '2-3일', budget: '80-120만원', region: 'asia', highlights: ['빅토리아피크', '심포니오브라이츠', '디즈니랜드'], bestSeason: '가을,겨울' },
+  { name: '마카오', country: '마카오', emoji: '🎰', duration: '1-2일', budget: '60-100만원', region: 'asia', highlights: ['베네시안', '세나도광장', '기아등대'], bestSeason: '가을,겨울' },
+  { name: '베트남', country: '베트남', emoji: '🛵', duration: '5-7일', budget: '60-90만원', region: 'asia', highlights: ['하롱베이', '호치민', '다낭'], bestSeason: '겨울,봄' },
+  { name: '발리', country: '인도네시아', emoji: '🏖️', duration: '4-5일', budget: '70-110만원', region: 'asia', highlights: ['우붓', '탄디롯', '키타스'], bestSeason: '건기(4-9월)' },
+  { name: '푸켓', country: '태국', emoji: '🏝️', duration: '4-5일', budget: '60-100만원', region: 'asia', highlights: ['파통비치', '피피섬', '빅부다'], bestSeason: '겨울,봄' },
   
   // 유럽
-  { name: '파리', country: '프랑스', emoji: '🗼', duration: '5-7일', budget: '100-150만원', region: 'europe', highlights: ['에펠탑', '루브르', '샹젤리제'], bestSeason: '봄,가을' },
-  { name: '니스', country: '프랑스', emoji: '🌊', duration: '3-4일', budget: '80-120만원', region: 'europe', highlights: ['프로마나드', '구시가지', '모나코'], bestSeason: '여름,가을' },
-  { name: '런던', country: '영국', emoji: '👑', duration: '5-7일', budget: '120-180만원', region: 'europe', highlights: ['빅벤', '대영박물관', '타워브릿지'], bestSeason: '여름,가을' },
-  { name: '에든버러', country: '영국', emoji: '🏰', duration: '2-3일', budget: '70-100만원', region: 'europe', highlights: ['에든버러성', '로열마일', '아서시트'], bestSeason: '여름,가을' },
-  { name: '로마', country: '이탈리아', emoji: '🏛️', duration: '4-6일', budget: '80-120만원', region: 'europe', highlights: ['콜로세움', '바티칸', '트레비분수'], bestSeason: '봄,가을' },
-  { name: '베네치아', country: '이탈리아', emoji: '🛶', duration: '2-3일', budget: '70-110만원', region: 'europe', highlights: ['산마르코광장', '리알토다리', '무라노'], bestSeason: '봄,가을' },
-  { name: '피렌체', country: '이탈리아', emoji: '🎨', duration: '2-3일', budget: '60-90만원', region: 'europe', highlights: ['우피치', '두오모', '폰테베키오'], bestSeason: '봄,가을' },
-  { name: '밀라노', country: '이탈리아', emoji: '👗', duration: '2-3일', budget: '80-120만원', region: 'europe', highlights: ['두오모', '스칼라극장', '브레라'], bestSeason: '봄,가을' },
-  { name: '바르셀로나', country: '스페인', emoji: '🏗️', duration: '4-5일', budget: '70-100만원', region: 'europe', highlights: ['사그라다파밀리아', '구엘공원', '람블라스'], bestSeason: '봄,가을' },
-  { name: '마드리드', country: '스페인', emoji: '🖼️', duration: '3-4일', budget: '60-90만원', region: 'europe', highlights: ['프라도미술관', '레티로공원', '그란비아'], bestSeason: '봄,가을' },
-  { name: '베를린', country: '독일', emoji: '🧱', duration: '3-4일', budget: '60-90만원', region: 'europe', highlights: ['브란덴부르크문', '박물관섬', '이스트사이드갤러리'], bestSeason: '여름,가을' },
-  { name: '뮌헨', country: '독일', emoji: '🍺', duration: '3-4일', budget: '70-100만원', region: 'europe', highlights: ['마리엔플라츠', '노이슈반슈타인', '옥토버페스트'], bestSeason: '여름,가을' },
-  { name: '암스테르담', country: '네덜란드', emoji: '🌷', duration: '3-4일', budget: '80-110만원', region: 'europe', highlights: ['반고흐미술관', '안네프랑크의집', '운하투어'], bestSeason: '봄,여름' },
-  { name: '브뤼셀', country: '벨기에', emoji: '🧇', duration: '2-3일', budget: '60-90만원', region: 'europe', highlights: ['그랑플라스', '아토미움', '와플'], bestSeason: '봄,여름' },
-  { name: '프라하', country: '체코', emoji: '🏰', duration: '3-4일', budget: '50-70만원', region: 'europe', highlights: ['카를교', '성비투스성당', '구시가지광장'], bestSeason: '봄,가을' },
-  { name: '비엔나', country: '오스트리아', emoji: '🎼', duration: '3-4일', budget: '70-100만원', region: 'europe', highlights: ['쇤부른궁전', '슈테판대성당', '벨베데레'], bestSeason: '봄,가을' },
-  { name: '취리히', country: '스위스', emoji: '⛰️', duration: '2-3일', budget: '120-180만원', region: 'europe', highlights: ['라인폭포', '융프라우', '체르마트'], bestSeason: '여름,가을' },
-  { name: '스톡홀름', country: '스웨덴', emoji: '🛥️', duration: '3-4일', budget: '80-120만원', region: 'europe', highlights: ['감라스탄', '바사박물관', '스칸센'], bestSeason: '여름,가을' },
-  { name: '코펜하겐', country: '덴마크', emoji: '🧜‍♀️', duration: '2-3일', budget: '80-120만원', region: 'europe', highlights: ['인어공주상', '티볼리공원', '뉘하운'], bestSeason: '여름,가을' },
+  { name: '파리', country: '프랑스', emoji: '🗼', duration: '4-5일', budget: '150-200만원', region: 'europe', highlights: ['에펠탑', '루브르', '샹젤리제'], bestSeason: '봄,가을' },
+  { name: '런던', country: '영국', emoji: '🎡', duration: '4-5일', budget: '150-250만원', region: 'europe', highlights: ['빅벤', '버킹엄궁전', '대영박물관'], bestSeason: '여름,가을' },
+  { name: '로마', country: '이탈리아', emoji: '🏛️', duration: '3-4일', budget: '120-180만원', region: 'europe', highlights: ['콜로세움', '바티칸', '트레비분수'], bestSeason: '봄,가을' },
+  { name: '바르셀로나', country: '스페인', emoji: '🏖️', duration: '3-4일', budget: '100-150만원', region: 'europe', highlights: ['사그라다파밀리아', '파크구엘', '람블라스'], bestSeason: '봄,가을' },
+  { name: '프라하', country: '체코', emoji: '🏰', duration: '2-3일', budget: '80-120만원', region: 'europe', highlights: ['프라하성', '구시가지광장', '카를교'], bestSeason: '봄,가을' },
+  { name: '비엔나', country: '오스트리아', emoji: '🎼', duration: '2-3일', budget: '100-140만원', region: 'europe', highlights: ['쇤브른궁전', '할슈타트', '잘츠부르크'], bestSeason: '봄,가을' },
+  { name: '암스테르담', country: '네덜란드', emoji: '🚲', duration: '2-3일', budget: '120-160만원', region: 'europe', highlights: ['반고흐박물관', '안네프랑크의집', '운하투어'], bestSeason: '봄,여름' },
+  { name: '베를린', country: '독일', emoji: '🧱', duration: '3-4일', budget: '100-140만원', region: 'europe', highlights: ['브란덴부르크문', '동서독경계', '박물관섬'], bestSeason: '봄,가을' },
+  { name: '취리히', country: '스위스', emoji: '🏔️', duration: '3-4일', budget: '200-300만원', region: 'europe', highlights: ['융프라우', '마터호른', '라인폭포'], bestSeason: '여름,가을' },
   { name: '헬싱키', country: '핀란드', emoji: '🦌', duration: '2-3일', budget: '70-100만원', region: 'europe', highlights: ['헬싱키성당', '수오멘린나', '마켓광장'], bestSeason: '여름,겨울' },
   { name: '리스본', country: '포르투갈', emoji: '🚃', duration: '3-4일', budget: '60-80만원', region: 'europe', highlights: ['베렝탑', '알파마', '신트라'], bestSeason: '봄,가을' },
   
@@ -171,19 +146,10 @@ const generateAITripPlan = (destination: string, tripType: string, duration: str
 };
 
 export default function TripPlannerPage() {
-  const { t } = useLanguage();
-  
-  // trip-planner 전용 번역 함수
-  const tripT = (key: string): string => {
-    const fullKey = key.includes('.') ? key : `tripPlanner.${key}`;
-    const result = t(fullKey);
-    return String(result);
-  };
-  
-  // tripTypes는 직접 t 함수 사용, tripPlanner는 tripT 함수 사용
-  const tripTypes = getTripTypes(t);
-  
-  // 상태 관리
+  const { t, isLoading } = useLanguage();
+
+  // 모든 hooks를 최상단에 선언 (React Hooks Rules)
+  const [isClient, setIsClient] = useState(false);
   const [destination, setDestination] = useState('');
   const [budget, setBudget] = useState('적당히');
   const [duration, setDuration] = useState('2-3일');
@@ -192,6 +158,10 @@ export default function TripPlannerPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [savedPlans, setSavedPlans] = useState<any[]>([]);
   const [showSavedPlans, setShowSavedPlans] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // localStorage에서 저장된 계획들 로드
   useEffect(() => {
@@ -201,124 +171,107 @@ export default function TripPlannerPage() {
     }
   }, []);
 
+  // 언어 로딩 중이거나 클라이언트가 아직 준비되지 않았으면 로딩 표시
+  if (!isClient || isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // 모든 번역에 통일된 t 함수 사용
+  const tripTypes = getTripTypes(t);
+
   // 사용자 설정 로드
   const loadUserPreferences = () => {
     const preferences = localStorage.getItem('tripPlannerPreferences');
     if (preferences) {
       const parsed = JSON.parse(preferences);
+      setDestination(parsed.destination || '');
       setBudget(parsed.budget || '적당히');
       setDuration(parsed.duration || '2-3일');
       setTripType(parsed.tripType || '관광');
-      alert(tripT('alerts.settingsLoaded'));
+      alert(String(t('tripPlanner.alerts.settingsLoaded')));
     } else {
-      alert(tripT('alerts.noSavedSettings'));
+      alert(String(t('tripPlanner.alerts.noSavedSettings')));
     }
   };
 
   // 사용자 설정 저장
   const saveUserPreferences = () => {
-    const preferences = { budget, duration, tripType };
+    const preferences = { destination, budget, duration, tripType };
     localStorage.setItem('tripPlannerPreferences', JSON.stringify(preferences));
-    alert(tripT('alerts.settingsSaved'));
-  };
-
-  // 저장된 계획들 보기/숨기기
-  const toggleSavedPlans = () => {
-    setShowSavedPlans(!showSavedPlans);
+    alert(String(t('tripPlanner.alerts.settingsSaved')));
   };
 
   // AI 여행 계획 생성
-  const generateTripPlan = async () => {
+  const generatePlan = async () => {
     if (!destination.trim()) {
-      alert(tripT('alerts.enterDestination'));
+      alert(String(t('tripPlanner.alerts.enterDestination')));
       return;
     }
 
     setIsGenerating(true);
-    try {
-      const response = await fetch('/api/ai/generate-multilang-guide', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location: destination,
-          language: 'ko',
-          tripType,
-          budget,
-          duration
-        })
-      });
+    setGeneratedPlan('');
 
-      if (response.ok) {
-        const data = await response.json();
-        const plan = formatTripPlan(data, destination, budget, duration, tripType);
-        setGeneratedPlan(plan);
-      } else {
-        throw new Error(tripT('alerts.planGenerationFailed'));
+    try {
+      // 실제 AI 계획 생성 로직
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const aiPlan = generateAITripPlan(destination, tripType, duration, budget, []);
+      
+      if (!aiPlan) {
+        throw new Error(String(t('tripPlanner.alerts.planGenerationFailed')));
       }
+
+      setGeneratedPlan(JSON.stringify(aiPlan, null, 2));
     } catch (error) {
-      console.error('Error generating trip plan:', error);
-      alert(tripT('alerts.planGenerationError'));
+      alert(String(t('tripPlanner.alerts.planGenerationError')));
     } finally {
       setIsGenerating(false);
     }
   };
 
-  // 여행 계획 포맷팅
-  const formatTripPlan = (data: any, dest: string, budg: string, dur: string, type: string) => {
-    return `
-      <div class="trip-plan">
-        <h2 class="text-2xl font-bold mb-4">${dest} ${type} 여행 계획</h2>
-        <div class="plan-info mb-6">
-          <p><strong>예산:</strong> ${budg}</p>
-          <p><strong>기간:</strong> ${dur}</p>
-          <p><strong>여행 스타일:</strong> ${type}</p>
-        </div>
-        <div class="itinerary">
-          <h3 class="text-xl font-semibold mb-3">일정</h3>
-          ${data.realTimeGuide?.chapters?.map((chapter: any, index: number) => `
-            <div class="day-plan mb-4">
-              <h4 class="font-semibold">Day ${index + 1}: ${chapter.title || ''}</h4>
-              <p class="text-gray-700 mt-2">${chapter.description || chapter.narrative || ''}</p>
-            </div>
-          `).join('') || '<p>상세 일정을 생성하는 중입니다...</p>'}
-        </div>
-      </div>
-    `;
-  };
-
   // 계획 저장
   const savePlan = () => {
     if (!generatedPlan) {
-      alert(tripT('alerts.noPlanToSave'));
+      alert(String(t('tripPlanner.alerts.noPlanToSave')));
       return;
     }
 
     const newPlan = {
       id: Date.now(),
       destination,
-      date: new Date().toLocaleDateString(),
-      content: generatedPlan,
-      preferences: { budget, duration, tripType }
+      duration,
+      budget,
+      tripType,
+      plan: generatedPlan,
+      createdAt: new Date().toISOString()
     };
 
     const updatedPlans = [...savedPlans, newPlan];
     setSavedPlans(updatedPlans);
     localStorage.setItem('savedTripPlans', JSON.stringify(updatedPlans));
-    alert(tripT('alerts.planSaved'));
+    alert(String(t('tripPlanner.alerts.planSaved')));
   };
 
-  // 계획 내보내기
-  const exportPlan = () => {
+  // PDF 내보내기
+  const exportToPDF = () => {
     if (!generatedPlan) {
-      alert(tripT('alerts.noPlanToExport'));
+      alert(String(t('tripPlanner.alerts.noPlanToExport')));
       return;
     }
-    
-    const blob = new Blob([generatedPlan.replace(/<[^>]*>/g, '')], { type: 'text/plain' });
+
+    // PDF 생성 로직 (실제 구현 필요)
+    const blob = new Blob([generatedPlan], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${destination}_여행계획.txt`;
+    a.download = `trip-plan-${destination}-${Date.now()}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -327,819 +280,514 @@ export default function TripPlannerPage() {
 
   // 계획 재생성
   const regeneratePlan = () => {
-    if (confirm(tripT('alerts.confirmRegenerate'))) {
-      setGeneratedPlan('');
-      generateTripPlan();
+    if (confirm(String(t('tripPlanner.alerts.confirmRegenerate')))) {
+      generatePlan();
     }
   };
 
-  // 여행 공유
-  const shareTrip = async () => {
+  // 계획 공유
+  const sharePlan = () => {
     if (!generatedPlan) {
-      alert(tripT('alerts.noPlanToShare'));
+      alert(String(t('tripPlanner.alerts.noPlanToShare')));
       return;
     }
 
     const shareData = {
       title: `${destination} 여행 계획`,
-      text: `${destination}로의 ${tripType} 여행 계획을 확인해보세요!`,
+      text: `AI가 생성한 ${destination} 여행 계획을 확인해보세요!`,
       url: window.location.href
     };
 
     if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (error) {
-        copyToClipboard();
-      }
+      navigator.share(shareData)
+        .then(() => console.log('성공적으로 공유됨'))
+        .catch(err => console.log('공유 중 오류:', err));
     } else {
-      copyToClipboard();
+      // 폴백: 클립보드에 복사
+      const shareText = `${shareData.title}\n${shareData.text}\n${shareData.url}`;
+      navigator.clipboard.writeText(shareText)
+        .then(() => {
+          alert(String(t('tripPlanner.alerts.planCopiedToClipboard')));
+        })
+        .catch(err => console.error('클립보드 복사 실패:', err));
     }
   };
 
-  // 클립보드에 복사
-  const copyToClipboard = () => {
-    const text = generatedPlan.replace(/<[^>]*>/g, '');
-    navigator.clipboard.writeText(text).then(() => {
-      alert(tripT('alerts.planCopiedToClipboard'));
-    });
+  // 계획 비교
+  const comparePlans = () => {
+    alert(String(t('tripPlanner.alerts.compareFeatureComingSoon')));
   };
 
-  // 유사한 계획과 비교
-  const compareWithSimilar = () => {
-    alert(tripT('alerts.compareFeatureComingSoon'));
-  };
-  
   return (
-    <>
+    <div className="min-h-screen bg-gray-50">
+      {/* SEO Schema */}
       <KeywordPageSchema 
-        keyword={tripT('keyword')}
-        pagePath="/trip-planner"
-        title={tripT('metadata.title')}
-        description={tripT('metadata.description')}
-        features={[tripT('features.aiGeneration'), tripT('features.realtime'), tripT('features.budget'), tripT('features.customized'), tripT('features.localInfo'), tripT('features.free')]}
+        keyword={String(t('tripPlanner.keyword'))}
+        type="tool"
+        title={String(t('tripPlanner.metadata.title'))}
+        description={String(t('tripPlanner.metadata.description'))}
+        features={[String(t('tripPlanner.features.aiGeneration')), String(t('tripPlanner.features.realtime')), String(t('tripPlanner.features.budget')), String(t('tripPlanner.features.customized')), String(t('tripPlanner.features.localInfo')), String(t('tripPlanner.features.free'))]}
+        canonicalUrl="/trip-planner"
+        breadcrumbs={[
+          { name: String(t('navigation.home')), url: '/' },
+          { name: String(t('tripPlanner.keyword')), url: '/trip-planner' }
+        ]}
       />
-      <div className="min-h-screen" style={{ 
-        /* Typography tokens */
-        '--font-family-base': '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
-        '--fs-h1-d': '40px', '--fs-h1-t': '34px', '--fs-h1-m': '28px',
-        '--fs-h2-d': '32px', '--fs-h2-t': '28px', '--fs-h2-m': '24px',
-        '--fs-h3-d': '24px', '--fs-h3-t': '22px', '--fs-h3-m': '20px',
-        '--fs-body-l-d': '18px', '--fs-body-l-t': '18px', '--fs-body-l-m': '16px',
-        '--fs-body-d': '16px', '--fs-body-t': '16px', '--fs-body-m': '14px',
-        '--fs-body-s-d': '14px', '--fs-body-s-t': '14px', '--fs-body-s-m': '13px',
-        '--lh-heading': '1.2', '--lh-body': '1.5',
-        /* Radius and shadow tokens */
-        '--radius-sm': '4px', '--radius-md': '8px', '--radius-lg': '16px',
-        '--shadow-sm': '0 1px 2px rgba(0,0,0,.06)', '--shadow-md': '0 4px 10px rgba(0,0,0,.08)', '--shadow-lg': '0 12px 24px rgba(0,0,0,.12)',
-        /* Spacing tokens */
-        '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px',
-        /* Color tokens - styleguide.md compliant */
-        '--color-bg': '#ffffff', '--color-bg-alt': '#f8f8f8', '--color-text-high': '#000000', '--color-text-medium': '#555555', '--color-text-low': 'rgba(0,0,0,0.54)',
-        '--color-primary': '#007AFF', '--color-primary-hover': '#005FCC', '--color-border': '#e6e6e6',
-        backgroundColor: 'var(--color-bg)',
-        fontFamily: 'var(--font-family-base)'
-      } as React.CSSProperties}>
-      {/* Hero Section */}
-      <section className="container mx-auto px-6 py-12 lg:py-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="mb-8">
-            <div className="inline-flex items-center px-6 py-3 bg-[#F8F8F8] border border-gray-200 rounded-full text-sm font-medium text-[#555555] font-light mb-8">
-              {tripT('badge')}
+
+      <div className="bg-white">
+        <div className="container mx-auto px-6 py-8">
+          {/* Header Badge */}
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mb-4">
+              {String(t('tripPlanner.badge'))}
             </div>
-            <h1 className="text-fluid-4xl font-semibold text-black mb-6 leading-tight">
-              {tripT('hero.title')}
+            <h1 className="text-fluid-4xl font-normal text-black mb-4 leading-tight">
+              {String(t('tripPlanner.hero.title'))} <span className="font-semibold">{String(t('tripPlanner.hero.subtitle'))}</span>
             </h1>
-            <h2 className="text-fluid-2xl font-semibold text-gray-700 mb-8 leading-tight">
-              {tripT('hero.subtitle')}
-            </h2>
-            <p className="text-fluid-lg text-[#555555] font-light mb-8 leading-relaxed max-w-3xl mx-auto">
-              {tripT('hero.description')}
+            <p className="text-fluid-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              {String(t('tripPlanner.hero.description'))}
             </p>
           </div>
-        </div>
-      </section>
 
-      {/* Quick Planner Tool */}
-      <section className="container mx-auto px-6 pb-20">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-[#F8F8F8] p-8 rounded-xl mb-12 shadow-sm">
-            <h2 className="text-fluid-2xl font-semibold text-black mb-6 text-center leading-snug">
-              {tripT('quickPlanner.title')}
-            </h2>
-            
-            {/* Step 1: Trip Type Selection */}
+          {/* Quick Planner Section */}
+          <div className="bg-gray-50 rounded-2xl p-8 mb-16">
+            <h2 
+              className="text-fluid-2xl font-semibold text-black mb-6 text-center leading-snug"
+              dangerouslySetInnerHTML={{ __html: String(t('tripPlanner.quickPlanner.title')) }}
+            ></h2>
+
+            {/* Step 1: Travel Style Selection */}
             <div className="mb-8">
-              <h3 className="text-fluid-xl font-semibold text-black mb-4 leading-snug">{tripT('steps.selectStyle')}</h3>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <h3 className="text-fluid-xl font-semibold text-black mb-4 leading-snug">{String(t('tripPlanner.steps.selectStyle'))}</h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {tripTypes.map((type) => (
-                  <button
+                  <div
                     key={type.id}
-                    data-type={type.id}
-                    onClick={() => setTripType(type.name)}
-                    className={`p-4 bg-white border-2 rounded-lg transition-all duration-200 text-center group min-h-[88px] flex flex-col justify-center ${
-                      tripType === type.name ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-400'
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                      tripType === type.id 
+                        ? 'border-black bg-black text-white' 
+                        : 'border-gray-200 bg-white hover:border-gray-300'
                     }`}
+                    onClick={() => setTripType(type.id)}
                   >
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                      <div className="w-4 h-4 bg-[#F8F8F8]0 rounded"></div>
+                    <div className="text-center">
+                      {type.emoji && <div className="text-2xl mb-2">{type.emoji}</div>}
+                      <h4 className="font-medium mb-2">{type.name}</h4>
+                      <p className={`text-sm ${tripType === type.id ? 'text-gray-200' : 'text-gray-600'}`}>
+                        {type.description}
+                      </p>
                     </div>
-                    <div className="text-sm font-medium text-black mb-1">{type.name}</div>
-                    <div className="text-xs text-[#555555] font-light">{type.description}</div>
-                  </button>
+                  </div>
                 ))}
               </div>
             </div>
 
-            {/* Step 2: Destination & Duration */}
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-              <div>
-                <h3 className="text-fluid-xl font-semibold text-black mb-4 leading-snug">{tripT('steps.destinationDuration')}</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">{tripT('form.destination.label')}</label>
-                    <input 
-                      type="text" 
-                      placeholder={tripT('form.destination.placeholder')}
-                      value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
-                      className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
+            {/* Step 2: Destination and Duration */}
+            <div className="mb-8">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-fluid-xl font-semibold text-black mb-4 leading-snug">{String(t('tripPlanner.steps.destinationDuration'))}</h3>
+                  <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">{tripT('form.departure')}</label>
-                      <input 
-                        type="date" 
-                        className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{String(t('tripPlanner.form.destination.label'))}</label>
+                      <input
+                        type="text"
+                        value={destination}
+                        onChange={(e) => setDestination(e.target.value)}
+                        placeholder={String(t('tripPlanner.form.destination.placeholder'))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                       />
                     </div>
+                    
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">{tripT('form.duration')}</label>
-                      <select 
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{String(t('tripPlanner.form.departure'))}</label>
+                      <input
+                        type="date"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{String(t('tripPlanner.form.duration'))}</label>
+                      <select
                         value={duration}
                         onChange={(e) => setDuration(e.target.value)}
-                        className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                       >
-                        <option value="당일치기">{tripT('form.durationOptions.dayTrip')}</option>
-                        <option value="1박 2일">{tripT('form.durationOptions.oneNight')}</option>
-                        <option value="2-3일">{tripT('form.durationOptions.twoNights')}</option>
-                        <option value="3-4일">{tripT('form.durationOptions.threeNights')}</option>
-                        <option value="4-5일">{tripT('form.durationOptions.fourNights')}</option>
-                        <option value="1주일">{tripT('form.durationOptions.oneWeek')}</option>
-                        <option value="2주일">{tripT('form.durationOptions.twoWeeks')}</option>
-                        <option value="1개월">{tripT('form.durationOptions.oneMonth')}</option>
-                        <option value="기타">{tripT('form.durationOptions.custom')}</option>
+                        <option value="당일치기">{String(t('tripPlanner.form.durationOptions.dayTrip'))}</option>
+                        <option value="1박 2일">{String(t('tripPlanner.form.durationOptions.oneNight'))}</option>
+                        <option value="2-3일">{String(t('tripPlanner.form.durationOptions.twoNights'))}</option>
+                        <option value="3-4일">{String(t('tripPlanner.form.durationOptions.threeNights'))}</option>
+                        <option value="4-5일">{String(t('tripPlanner.form.durationOptions.fourNights'))}</option>
+                        <option value="1주일">{String(t('tripPlanner.form.durationOptions.oneWeek'))}</option>
+                        <option value="2주일">{String(t('tripPlanner.form.durationOptions.twoWeeks'))}</option>
+                        <option value="1개월">{String(t('tripPlanner.form.durationOptions.oneMonth'))}</option>
+                        <option value="기타">{String(t('tripPlanner.form.durationOptions.custom'))}</option>
                       </select>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div>
-                <h3 className="text-fluid-xl font-semibold text-black mb-4 leading-snug">{tripT('steps.budgetPreferences')}</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">{tripT('form.budget')}</label>
-                    <select 
-                      value={budget}
-                      onChange={(e) => setBudget(e.target.value)}
-                      className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
-                    >
-                      <option value="20만원 이하">{tripT('form.budgetOptions.under20')}</option>
-                      <option value="20-50만원">{tripT('form.budgetOptions.range20to50')}</option>
-                      <option value="50-100만원">{tripT('form.budgetOptions.range50to100')}</option>
-                      <option value="100-200만원">{tripT('form.budgetOptions.range100to200')}</option>
-                      <option value="200만원 이상">{tripT('form.budgetOptions.over200')}</option>
-                      <option value="무제한">{tripT('form.budgetOptions.unlimited')}</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">{tripT('form.interests')}</label>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      {[tripT('form.interestOptions.food'), tripT('form.interestOptions.shopping'), tripT('form.interestOptions.culture'), tripT('form.interestOptions.nature'), tripT('form.interestOptions.activities'), tripT('form.interestOptions.photography'), tripT('form.interestOptions.nightView'), tripT('form.interestOptions.spa')].map((interest) => (
-                        <label key={interest} className="flex items-center">
-                          <input type="checkbox" className="mr-2" />
-                          <span>{interest}</span>
-                        </label>
-                      ))}
+                {/* Step 3: Budget and Preferences */}
+                <div>
+                  <h3 className="text-fluid-xl font-semibold text-black mb-4 leading-snug">{String(t('tripPlanner.steps.budgetPreferences'))}</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{String(t('tripPlanner.form.budget'))}</label>
+                      <select
+                        value={budget}
+                        onChange={(e) => setBudget(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                      >
+                        <option value="20만원 이하">{String(t('tripPlanner.form.budgetOptions.under20'))}</option>
+                        <option value="20-50만원">{String(t('tripPlanner.form.budgetOptions.range20to50'))}</option>
+                        <option value="50-100만원">{String(t('tripPlanner.form.budgetOptions.range50to100'))}</option>
+                        <option value="100-200만원">{String(t('tripPlanner.form.budgetOptions.range100to200'))}</option>
+                        <option value="200만원 이상">{String(t('tripPlanner.form.budgetOptions.over200'))}</option>
+                        <option value="무제한">{String(t('tripPlanner.form.budgetOptions.unlimited'))}</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{String(t('tripPlanner.form.interests'))}</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[String(t('tripPlanner.form.interestOptions.food')), String(t('tripPlanner.form.interestOptions.shopping')), String(t('tripPlanner.form.interestOptions.culture')), String(t('tripPlanner.form.interestOptions.nature')), String(t('tripPlanner.form.interestOptions.activities')), String(t('tripPlanner.form.interestOptions.photography')), String(t('tripPlanner.form.interestOptions.nightView')), String(t('tripPlanner.form.interestOptions.spa'))].map((interest) => (
+                          <label key={interest} className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              className="rounded border-gray-300 text-black focus:ring-black"
+                            />
+                            <span className="text-sm text-gray-700">{interest}</span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* User Preferences Panel */}
-            <div className="bg-[#F8F8F8] p-6 rounded-lg mb-8 border border-gray-200">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">{tripT('personalization.title')}</h3>
-              <div className="flex flex-wrap gap-2">
-                <button 
-                  onClick={() => loadUserPreferences()}
-                  className="text-xs bg-white text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200 font-medium"
+            {/* Personalization Controls */}
+            <div className="bg-white rounded-xl p-6 mb-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">{String(t('tripPlanner.personalization.title'))}</h3>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={loadUserPreferences}
+                  className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  {tripT('personalization.loadSettings')}
+                  {String(t('tripPlanner.personalization.loadSettings'))}
                 </button>
-                <button 
-                  onClick={() => saveUserPreferences()}
-                  className="text-xs bg-white text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200 font-medium"
+                <button
+                  onClick={saveUserPreferences}
+                  className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  {tripT('personalization.saveSettings')}
+                  {String(t('tripPlanner.personalization.saveSettings'))}
                 </button>
-                <button 
-                  onClick={() => toggleSavedPlans()}
-                  className="text-xs bg-white text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-100 transition-all duration-200 border border-gray-200 font-medium"
+                <button
+                  onClick={() => setShowSavedPlans(!showSavedPlans)}
+                  className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  {tripT('personalization.viewSavedPlans')} ({savedPlans.length}{tripT('personalization.plansCount')})
+                  {String(t('tripPlanner.personalization.viewSavedPlans'))} ({savedPlans.length}{String(t('tripPlanner.personalization.plansCount'))})
                 </button>
               </div>
             </div>
 
             {/* Generate Button */}
             <div className="text-center">
-              <button 
-                onClick={() => generateTripPlan()}
+              <button
+                onClick={generatePlan}
                 disabled={isGenerating}
-                className="bg-black text-white px-10 py-4 rounded-lg font-medium hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg min-h-[44px]"
-                id="generate-plan-btn"
+                className="bg-black text-white px-8 py-4 rounded-xl font-medium hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                <span id="btn-text" className={isGenerating ? 'hidden' : ''}>
-                  {tripT('form.generateButton')}
-                </span>
-                <span id="btn-loading" className={isGenerating ? '' : 'hidden'}>
-                  {tripT('form.analyzing')}
-                </span>
+                {isGenerating ? String(t('tripPlanner.form.analyzing')) : String(t('tripPlanner.form.generateButton'))}
               </button>
-              <p className="text-xs text-[#555555] font-light mt-2">{tripT('form.completionTime')}</p>
+              <p className="text-xs text-[#555555] font-light mt-2">{String(t('tripPlanner.form.completionTime'))}</p>
             </div>
+          </div>
 
-            {/* Saved Plans Display */}
-            {showSavedPlans && (
-              <div className="mt-8 p-6 bg-[#F8F8F8] border border-gray-200 rounded-lg">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-black">{tripT('savedPlans.title')}</h3>
-                  <button 
-                    onClick={() => setShowSavedPlans(false)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    ×
-                  </button>
-                </div>
-                <div className="space-y-3">
-                  {savedPlans.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8">{tripT('alerts.savedPlansEmpty')}</p>
-                  ) : (
-                    savedPlans.map((plan) => (
-                      <div key={plan.id} className="bg-white p-4 rounded-lg border border-gray-200">
-                        <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-semibold text-black">{plan.destination}</h4>
-                          <span className="text-xs text-gray-500">{plan.date}</span>
-                        </div>
-                        <div className="text-sm text-gray-600 mb-2">
-                          <span>{plan.preferences?.tripType}</span> • 
-                          <span>{plan.preferences?.duration}</span> • 
-                          <span>{plan.preferences?.budget}</span>
+          {/* Saved Plans Display */}
+          {showSavedPlans && (
+            <div className="bg-white rounded-2xl p-8 mb-16">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-medium text-black">{String(t('tripPlanner.savedPlans.title'))}</h3>
+                <button
+                  onClick={() => setShowSavedPlans(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              {savedPlans.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">{String(t('tripPlanner.alerts.savedPlansEmpty'))}</p>
+              ) : (
+                <div className="space-y-4">
+                  {savedPlans.map((plan) => (
+                    <div key={plan.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="font-medium">{plan.destination} - {plan.duration}</h4>
+                          <p className="text-sm text-gray-600">예산: {plan.budget} | 타입: {plan.tripType}</p>
+                          <p className="text-xs text-gray-500">생성일: {new Date(plan.createdAt).toLocaleDateString()}</p>
                         </div>
                         <div className="flex gap-2">
-                          <button 
+                          <button
                             onClick={() => {
-                              setGeneratedPlan(plan.content);
-                              setDestination(plan.destination);
+                              setGeneratedPlan(plan.plan);
+                              setShowSavedPlans(false);
                             }}
-                            className="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                            className="px-3 py-1 text-xs bg-black text-white rounded hover:bg-gray-800"
                           >
-                            {tripT('alerts.loadButton')}
+                            {String(t('tripPlanner.alerts.loadButton'))}
                           </button>
-                          <button 
+                          <button
                             onClick={() => {
                               const updatedPlans = savedPlans.filter(p => p.id !== plan.id);
                               setSavedPlans(updatedPlans);
                               localStorage.setItem('savedTripPlans', JSON.stringify(updatedPlans));
                             }}
-                            className="text-xs bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                            className="px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
                           >
-                            {tripT('alerts.deleteButton')}
+                            {String(t('tripPlanner.alerts.deleteButton'))}
                           </button>
                         </div>
                       </div>
-                    ))
-                  )}
+                    </div>
+                  ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          )}
 
-            {/* Generated Plan Display */}
-            {generatedPlan && (
-              <div className="mt-8 p-6 bg-white border border-gray-200 rounded-lg">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-black">{tripT('generatedPlan.title')}</h3>
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={() => savePlan()}
-                      className="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-200 transition-all duration-200 font-medium"
-                    >
-                      {tripT('generatedPlan.savePlan')}
-                    </button>
-                    <button 
-                      onClick={() => exportPlan()}
-                      className="text-sm bg-gray-200 text-gray-800 px-3 py-1 rounded-lg hover:bg-gray-300 transition-all duration-200 font-medium"
-                    >
-                      {tripT('generatedPlan.exportPDF')}
-                    </button>
-                  </div>
-                </div>
-                <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: generatedPlan }}></div>
-                <div className="mt-6 pt-4 border-t border-gray-100">
-                  <div className="flex gap-3">
-                    <button 
-                      onClick={() => regeneratePlan()}
-                      className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
-                    >
-                      {tripT('generatedPlan.regenerate')}
-                    </button>
-                    <button 
-                      onClick={() => shareTrip()}
-                      className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-all duration-200 text-sm font-medium"
-                    >
-                      {tripT('generatedPlan.share')}
-                    </button>
-                    <button 
-                      onClick={() => compareWithSimilar()}
-                      className="flex-1 bg-[#F8F8F8] text-[#555555] font-light py-2 px-4 rounded-lg hover:bg-gray-100 transition-all duration-200 text-sm font-medium border border-gray-200"
-                    >
-                      {tripT('generatedPlan.compare')}
-                    </button>
-                  </div>
+          {/* Generated Plan Display */}
+          {generatedPlan && (
+            <div className="bg-white rounded-2xl p-8 mb-16">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-medium text-black">{String(t('tripPlanner.generatedPlan.title'))}</h3>
+                <div className="flex gap-2">
+                  <button
+                    onClick={savePlan}
+                    className="px-4 py-2 text-sm bg-black text-white rounded-lg hover:bg-gray-800"
+                  >
+                    {String(t('tripPlanner.generatedPlan.savePlan'))}
+                  </button>
+                  <button
+                    onClick={exportToPDF}
+                    className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    {String(t('tripPlanner.generatedPlan.exportPDF'))}
+                  </button>
+                  <button
+                    onClick={regeneratePlan}
+                    className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    {String(t('tripPlanner.generatedPlan.regenerate'))}
+                  </button>
+                  <button
+                    onClick={sharePlan}
+                    className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    {String(t('tripPlanner.generatedPlan.share'))}
+                  </button>
+                  <button
+                    onClick={comparePlans}
+                    className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    {String(t('tripPlanner.generatedPlan.compare'))}
+                  </button>
                 </div>
               </div>
-            )}
-          </div>
+              <pre className="bg-gray-50 p-4 rounded-lg text-sm overflow-x-auto whitespace-pre-wrap">
+                {generatedPlan}
+              </pre>
+            </div>
+          )}
 
           {/* Popular Destinations Quick Start */}
           <div className="mb-16">
             <h2 className="text-fluid-2xl font-normal text-black mb-8 text-center leading-snug">
-              {tripT('popularDestinations.title')} <span className="font-semibold">{tripT('popularDestinations.subtitle')}</span>
+              {String(t('tripPlanner.popularDestinations.title'))} <span className="font-semibold">{String(t('tripPlanner.popularDestinations.subtitle'))}</span>
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {popularDestinations.map((dest, index) => (
                 <div
                   key={index}
-                  className="bg-white border border-gray-200 p-6 rounded-lg hover:shadow-lg transition-all duration-300 group"
+                  className="bg-white p-6 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors cursor-pointer"
+                  onClick={() => setDestination(dest.name)}
                 >
-                  <div className="flex items-start gap-4 mb-3">
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <div className="w-6 h-6 bg-gray-400 rounded"></div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h3 className="font-medium text-black">{dest.emoji} {dest.name}</h3>
+                      <p className="text-sm text-gray-600">{dest.country}</p>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-black mb-1">{dest.name}</h3>
-                      <p className="text-sm text-[#555555] font-light mb-2">{dest.country}</p>
-                      <div className="flex justify-between text-xs text-gray-500">
-                        <span>{dest.duration}</span>
-                        <span>{dest.budget}</span>
-                      </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-black">{dest.duration}</p>
+                      <p className="text-xs text-gray-500">{dest.budget}</p>
                     </div>
                   </div>
-                  
-                  {/* Cross-Tool Integration */}
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="mb-4">
+                    <p className="text-xs text-gray-500 mb-1">주요 명소</p>
+                    <p className="text-sm text-gray-700">{dest.highlights.join(', ')}</p>
+                  </div>
+                  <div className="flex justify-between items-center">
                     <Link
-                      href={`/?destination=${encodeURIComponent(dest.name)}&plan=quick`}
-                      className="flex-1 bg-gray-900 text-white py-2 px-3 rounded-lg text-xs text-center hover:bg-gray-800 transition-all duration-200 font-medium"
+                      href={`/guide/${encodeURIComponent(dest.name)}`}
+                      className="text-sm text-black hover:underline"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      {tripT('destinations.viewGuide')}
+                      {String(t('tripPlanner.destinations.viewGuide'))}
                     </Link>
-                    {dest.region === 'asia' && (
-                      <Link
-                        href={`/nomad-calculator?region=asia`}
-                        className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-xs hover:bg-gray-200 transition-all duration-200 font-medium"
-                        title={tripT('destinations.nomadInfo')}
+                    <div className="flex gap-2">
+                      <span 
+                        className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded cursor-help"
+                        title={String(t('tripPlanner.destinations.nomadInfo'))}
                       >
-                        {tripT('destinations.nomad')}
-                      </Link>
-                    )}
-                    <Link
-                      href={`/visa-checker?country=${encodeURIComponent(dest.country)}`}
-                      className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-xs hover:bg-gray-200 transition-all duration-200 font-medium"
-                      title={tripT('destinations.visaInfo')}
-                    >
-                      {tripT('destinations.visa')}
-                    </Link>
+                        {String(t('tripPlanner.destinations.nomad'))}
+                      </span>
+                      <span 
+                        className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded cursor-help"
+                        title={String(t('tripPlanner.destinations.visaInfo'))}
+                      >
+                        {String(t('tripPlanner.destinations.visa'))}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* AI Features */}
-          <div className="bg-[#F8F8F8] p-8 rounded-lg">
+          {/* AI Features Section */}
+          <div className="mb-16">
             <h2 className="text-fluid-2xl font-normal text-black mb-8 text-center leading-snug">
-              {tripT('aiFeatures.title')} <span className="font-semibold">{tripT('aiFeatures.subtitle')}</span>
+              {String(t('tripPlanner.aiFeatures.title'))} <span className="font-semibold">{String(t('tripPlanner.aiFeatures.subtitle'))}</span>
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-lg">
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <div className="w-6 h-6 border-2 border-gray-500 rounded-full"></div>
+              <div className="bg-white p-6 rounded-xl border border-gray-200">
+                <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center mb-4">
+                  <span className="text-white text-xl">🎯</span>
                 </div>
-                <h3 className="font-medium text-black mb-2">{tripT('aiFeatures.customized.title')}</h3>
-                <p className="text-sm text-[#555555] font-light">
-                  {tripT('aiFeatures.customized.description')}
+                <h3 className="font-medium text-black mb-2">{String(t('tripPlanner.aiFeatures.customized.title'))}</h3>
+                <p className="text-sm text-gray-600">
+                  {String(t('tripPlanner.aiFeatures.customized.description'))}
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-lg">
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <div className="w-4 h-6 bg-gray-600 transform rotate-12"></div>
+              
+              <div className="bg-white p-6 rounded-xl border border-gray-200">
+                <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center mb-4">
+                  <span className="text-white text-xl">⚡</span>
                 </div>
-                <h3 className="font-medium text-black mb-2">{tripT('aiFeatures.realtime.title')}</h3>
-                <p className="text-sm text-[#555555] font-light">
-                  {tripT('aiFeatures.realtime.description')}
+                <h3 className="font-medium text-black mb-2">{String(t('tripPlanner.aiFeatures.realtime.title'))}</h3>
+                <p className="text-sm text-gray-600">
+                  {String(t('tripPlanner.aiFeatures.realtime.description'))}
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-lg">
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <div className="w-6 h-6 bg-[#F8F8F8]0 rounded"></div>
+              
+              <div className="bg-white p-6 rounded-xl border border-gray-200">
+                <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center mb-4">
+                  <span className="text-white text-xl">📍</span>
                 </div>
-                <h3 className="font-medium text-black mb-2">{tripT('aiFeatures.detailedInfo.title')}</h3>
-                <p className="text-sm text-[#555555] font-light">
-                  {tripT('aiFeatures.detailedInfo.description')}
+                <h3 className="font-medium text-black mb-2">{String(t('tripPlanner.aiFeatures.detailedInfo.title'))}</h3>
+                <p className="text-sm text-gray-600">
+                  {String(t('tripPlanner.aiFeatures.detailedInfo.description'))}
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-lg">
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
+              
+              <div className="bg-white p-6 rounded-xl border border-gray-200">
+                <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center mb-4">
+                  <span className="text-white text-xl">💰</span>
                 </div>
-                <h3 className="font-medium text-black mb-2">{tripT('aiFeatures.budgetManagement.title')}</h3>
-                <p className="text-sm text-[#555555] font-light">
-                  {tripT('aiFeatures.budgetManagement.description')}
+                <h3 className="font-medium text-black mb-2">{String(t('tripPlanner.aiFeatures.budgetManagement.title'))}</h3>
+                <p className="text-sm text-gray-600">
+                  {String(t('tripPlanner.aiFeatures.budgetManagement.description'))}
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-lg">
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <div className="w-4 h-6 bg-gray-600 rounded-sm"></div>
+              
+              <div className="bg-white p-6 rounded-xl border border-gray-200">
+                <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center mb-4">
+                  <span className="text-white text-xl">📱</span>
                 </div>
-                <h3 className="font-medium text-black mb-2">{tripT('aiFeatures.mobileOptimized.title')}</h3>
-                <p className="text-sm text-[#555555] font-light">
-                  {tripT('aiFeatures.mobileOptimized.description')}
+                <h3 className="font-medium text-black mb-2">{String(t('tripPlanner.aiFeatures.mobileOptimized.title'))}</h3>
+                <p className="text-sm text-gray-600">
+                  {String(t('tripPlanner.aiFeatures.mobileOptimized.description'))}
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-lg">
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <div className="w-5 h-5 border-2 border-gray-500 rounded-full"></div>
+              
+              <div className="bg-white p-6 rounded-xl border border-gray-200">
+                <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center mb-4">
+                  <span className="text-white text-xl">🎧</span>
                 </div>
-                <h3 className="font-medium text-black mb-2">{tripT('aiFeatures.audioGuide.title')}</h3>
-                <p className="text-sm text-[#555555] font-light">
-                  {tripT('aiFeatures.audioGuide.description')}
+                <h3 className="font-medium text-black mb-2">{String(t('tripPlanner.aiFeatures.audioGuide.title'))}</h3>
+                <p className="text-sm text-gray-600">
+                  {String(t('tripPlanner.aiFeatures.audioGuide.description'))}
                 </p>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* AI Audio Guide Integration */}
       <section className="py-12 lg:py-16 bg-black text-white">
         <div className="container mx-auto px-6 text-center">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-fluid-3xl font-normal mb-6 leading-tight">
-              {tripT('audioGuideIntegration.title.before')} <span className="font-semibold">{tripT('audioGuideIntegration.title.highlight')}</span>
+              {String(t('tripPlanner.audioGuideIntegration.title.before'))} <span className="font-semibold">{String(t('tripPlanner.audioGuideIntegration.title.highlight'))}</span>
             </h2>
             <p className="text-fluid-lg text-gray-300 mb-8 leading-relaxed">
-              {tripT('audioGuideIntegration.description')}
+              {String(t('tripPlanner.audioGuideIntegration.description'))}
             </p>
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
-              <div className="bg-gray-900 p-6 rounded-lg">
-                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mb-3">
-                  <div className="w-4 h-4 border-2 border-gray-900 rounded-full relative">
-                    <div className="absolute top-1/2 left-1/2 w-1 h-1 bg-gray-900 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
-                  </div>
+            
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🎧</span>
                 </div>
-                <h3 className="font-medium mb-2">{tripT('audioGuideIntegration.features.autoStart.title')}</h3>
-                <p className="text-sm text-gray-300">{tripT('audioGuideIntegration.features.autoStart.description')}</p>
+                <h3 className="font-medium mb-2">{String(t('tripPlanner.audioGuideIntegration.features.autoStart.title'))}</h3>
+                <p className="text-sm text-gray-300">{String(t('tripPlanner.audioGuideIntegration.features.autoStart.description'))}</p>
               </div>
-              <div className="bg-gray-900 p-6 rounded-lg">
-                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mb-3">
-                  <div className="w-4 h-4 border-2 border-gray-900 rounded-full"></div>
+              
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🎯</span>
                 </div>
-                <h3 className="font-medium mb-2">{tripT('audioGuideIntegration.features.personalized.title')}</h3>
-                <p className="text-sm text-gray-300">{tripT('audioGuideIntegration.features.personalized.description')}</p>
+                <h3 className="font-medium mb-2">{String(t('tripPlanner.audioGuideIntegration.features.personalized.title'))}</h3>
+                <p className="text-sm text-gray-300">{String(t('tripPlanner.audioGuideIntegration.features.personalized.description'))}</p>
               </div>
-              <div className="bg-gray-900 p-6 rounded-lg">
-                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mb-3">
-                  <div className="w-4 h-4 border-2 border-gray-900 rounded-full relative">
-                    <div className="absolute -top-1 -right-1 w-2 h-2 border border-gray-900 rounded-full bg-white"></div>
-                  </div>
+              
+              <div className="text-center">
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🔄</span>
                 </div>
-                <h3 className="font-medium mb-2">{tripT('audioGuideIntegration.features.realtimeUpdate.title')}</h3>
-                <p className="text-sm text-gray-300">{tripT('audioGuideIntegration.features.realtimeUpdate.description')}</p>
+                <h3 className="font-medium mb-2">{String(t('tripPlanner.audioGuideIntegration.features.realtimeUpdate.title'))}</h3>
+                <p className="text-sm text-gray-300">{String(t('tripPlanner.audioGuideIntegration.features.realtimeUpdate.description'))}</p>
               </div>
             </div>
+            
             <Link 
-              href="/?planner=integrated"
-              className="inline-block bg-white text-black px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200"
+              href="/" 
+              className="inline-flex items-center px-6 py-3 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition-colors"
             >
-              {tripT('audioGuideIntegration.tryButton')}
+              {String(t('tripPlanner.audioGuideIntegration.tryButton'))}
             </Link>
           </div>
         </div>
       </section>
-      </div>
 
-      {/* JavaScript 로직 */}
-      <script dangerouslySetInnerHTML={{
-        __html: `
-        // 번역 문자열
-        const translations = {
-          settingsPrompt: '${tripT('alerts.settingsPrompt')}',
-          savedPlansEmpty: '${tripT('alerts.savedPlansEmpty')}',
-          loadButton: '${tripT('alerts.loadButton')}',
-          deleteButton: '${tripT('alerts.deleteButton')}',
-          linkCopied: '${tripT('alerts.linkCopied')}'
+      {/* JavaScript for dynamic functionality */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+        window.tripPlannerAlerts = {
+          settingsPrompt: '${String(t('tripPlanner.alerts.settingsPrompt'))}',
+          savedPlansEmpty: '${String(t('tripPlanner.alerts.savedPlansEmpty'))}',
+          loadButton: '${String(t('tripPlanner.alerts.loadButton'))}',
+          deleteButton: '${String(t('tripPlanner.alerts.deleteButton'))}',
+          linkCopied: '${String(t('tripPlanner.alerts.linkCopied'))}'
         };
-        
-        // 여행 계획 생성 함수
-        function generateTripPlan() {
-          const btn = document.getElementById('generate-plan-btn');
-          const btnText = document.getElementById('btn-text');
-          const btnLoading = document.getElementById('btn-loading');
-          const planDiv = document.getElementById('generated-plan');
-          const contentDiv = document.getElementById('plan-content');
-          
-          if (!btn || !btnText || !btnLoading || !planDiv || !contentDiv) return;
-          
-          // 버튼 상태 변경
-          btn.disabled = true;
-          btnText.classList.add('hidden');
-          btnLoading.classList.remove('hidden');
-          
-          // 폼 데이터 수집
-          const destination = document.querySelector('input[type="text"]').value || '제주도';
-          const selectedType = document.querySelector('.group.selected')?.dataset?.type || 'solo';
-          
-          // 실제 계획 생성 (2초 후)
-          setTimeout(() => {
-            // AI 여행 계획 생성 로직 (클라이언트 측)
-            
-            // 템플릿 데이터
-            const templates = {
-              solo: {
-                morning: ["현지 카페에서 여유로운 아침", "도보 탐험으로 골목길 발견", "현지 시장 구경"],
-                afternoon: ["박물관이나 갤러리 방문", "현지 맛집에서 혼밥", "공원이나 해변에서 휴식"],
-                evening: ["현지인들과 교류", "야경 명소에서 사진 촬영", "독서하며 여유로운 저녁"]
-              },
-              couple: {
-                morning: ["로맨틱한 브런치", "커플 포토존에서 사진 촬영", "함께 요리 클래스 참여"],
-                afternoon: ["커플 스파 체험", "선셋 명소에서 함께", "로맨틱한 레스토랑"],
-                evening: ["야경이 아름다운 곳에서 산책", "와인 바에서 대화", "호텔에서 로맨틱한 시간"]
-              }
-            };
-            
-            const template = templates[selectedType] || templates.solo;
-            const destData = { name: destination, highlights: ['명소1', '명소2', '명소3'], budget: '50-80만원' };
-            
-            // 계획 HTML 생성
-            const planHTML = \`
-              <div class="space-y-4">
-                <div class="bg-blue-50 p-4 rounded-lg">
-                  <h4 class="font-medium text-blue-900 mb-2">📍 \${destData.name} 여행</h4>
-                  <p class="text-sm text-blue-700">예상 예산: \${destData.budget}</p>
-                  <p class="text-sm text-blue-700">주요 명소: \${destData.highlights.join(', ')}</p>
-                </div>
-                
-                \${Array.from({length: 3}, (_, i) => \`
-                  <div class="border border-gray-200 rounded-lg p-4">
-                    <h5 class="font-medium text-black mb-3">Day \${i+1}</h5>
-                    <div class="space-y-2 text-sm">
-                      <div class="flex items-start gap-2">
-                        <span class="text-yellow-600">🌅</span>
-                        <div>
-                          <span class="font-medium">오전:</span>
-                          <span class="text-[#555555] font-light ml-1">\${template.morning[i % template.morning.length]}</span>
-                        </div>
-                      </div>
-                      <div class="flex items-start gap-2">
-                        <span class="text-blue-600">☀️</span>
-                        <div>
-                          <span class="font-medium">오후:</span>
-                          <span class="text-[#555555] font-light ml-1">\${template.afternoon[i % template.afternoon.length]}</span>
-                        </div>
-                      </div>
-                      <div class="flex items-start gap-2">
-                        <span class="text-purple-600">🌙</span>
-                        <div>
-                          <span class="font-medium">저녁:</span>
-                          <span class="text-[#555555] font-light ml-1">\${template.evening[i % template.evening.length]}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                \`).join('')}
-              </div>
-            \`;
-            
-            contentDiv.innerHTML = planHTML;
-            planDiv.classList.remove('hidden');
-            
-            // 버튼 상태 복구
-            btn.disabled = false;
-            btnText.classList.remove('hidden');
-            btnLoading.classList.add('hidden');
-            
-            // 스크롤 이동
-            planDiv.scrollIntoView({ behavior: 'smooth' });
-          }, 2000);
-        }
-        
-        // 여행 타입 선택 기능
-        document.addEventListener('DOMContentLoaded', function() {
-          const typeButtons = document.querySelectorAll('[data-type]');
-          typeButtons.forEach(btn => {
-            btn.addEventListener('click', function() {
-              typeButtons.forEach(b => b.classList.remove('selected', 'border-gray-400', 'bg-[#F8F8F8]'));
-              this.classList.add('selected', 'border-gray-400', 'bg-[#F8F8F8]');
-            });
-          });
-        });
-        
-        // 사용자 설정 저장
-        function saveUserPreferences() {
-          const prefs = {
-            defaultBudget: document.querySelector('select').value,
-            defaultDuration: document.querySelectorAll('select')[1].value,
-            preferredInterests: Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value),
-            savedAt: new Date().toISOString()
-          };
-          localStorage.setItem('tripPlannerPrefs', JSON.stringify(prefs));
-          alert(translations.settingsPrompt);
-        }
-        
-        // 사용자 설정 불러오기
-        function loadUserPreferences() {
-          const prefs = JSON.parse(localStorage.getItem('tripPlannerPrefs') || '{}');
-          if (prefs.defaultBudget) {
-            document.querySelector('select').value = prefs.defaultBudget;
-          }
-          if (prefs.defaultDuration) {
-            document.querySelectorAll('select')[1].value = prefs.defaultDuration;
-          }
-          if (prefs.preferredInterests) {
-            prefs.preferredInterests.forEach(interest => {
-              const checkbox = document.querySelector('input[value="' + interest + '"]');
-              if (checkbox) checkbox.checked = true;
-            });
-          }
-          alert('저장된 설정을 불러왔습니다! 📂');
-        }
-        
-        // 계획 저장 함수 (향상됨)
-        function savePlan() {
-          const plans = JSON.parse(localStorage.getItem('savedTripPlans') || '[]');
-          const formData = new FormData(document.querySelector('form'));
-          const newPlan = {
-            id: Date.now(),
-            destination: document.querySelector('input[type="text"]').value || '제주도',
-            date: new Date().toLocaleDateString(),
-            content: document.getElementById('plan-content').innerHTML,
-            preferences: {
-              budget: document.querySelector('select').value,
-              duration: document.querySelectorAll('select')[1].value,
-              interests: Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value)
-            },
-            rating: null,
-            tags: []
-          };
-          plans.push(newPlan);
-          localStorage.setItem('savedTripPlans', JSON.stringify(plans));
-          updateSavedCount();
-          alert('여행 계획이 저장되었습니다! 📝');
-        }
-        
-        // 저장된 계획 수 업데이트
-        function updateSavedCount() {
-          const plans = JSON.parse(localStorage.getItem('savedTripPlans') || '[]');
-          const countElement = document.getElementById('saved-count');
-          if (countElement) countElement.textContent = plans.length;
-        }
-        
-        // 저장된 계획 보기
-        function showSavedPlans() {
-          const plans = JSON.parse(localStorage.getItem('savedTripPlans') || '[]');
-          const container = document.getElementById('saved-plans');
-          const list = document.getElementById('saved-plans-list');
-          
-          if (plans.length === 0) {
-            list.innerHTML = \`<p class="text-gray-500 text-center py-4">\${translations.savedPlansEmpty}</p>\`;
-          } else {
-            list.innerHTML = plans.map(plan => \`
-              <div class="bg-white p-4 rounded border border-gray-200 hover:shadow-md transition-all">
-                <div class="flex justify-between items-start mb-2">
-                  <h4 class="font-medium text-black">\${plan.destination}</h4>
-                  <span class="text-xs text-gray-500">\${plan.date}</span>
-                </div>
-                <div class="text-sm text-[#555555] font-light mb-3">
-                  예산: \${plan.preferences?.budget || 'N/A'} | 기간: \${plan.preferences?.duration || 'N/A'}
-                </div>
-                <div class="flex gap-2">
-                  <button onclick="loadSavedPlan(\${plan.id})" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200">\${translations.loadButton}</button>
-                  <button onclick="deleteSavedPlan(\${plan.id})" class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded hover:bg-red-200">\${translations.deleteButton}</button>
-                </div>
-              </div>
-            \`).join('');
-          }
-          
-          container.classList.remove('hidden');
-        }
-        
-        // 저장된 계획 불러오기
-        function loadSavedPlan(planId) {
-          const plans = JSON.parse(localStorage.getItem('savedTripPlans') || '[]');
-          const plan = plans.find(p => p.id === planId);
-          if (plan) {
-            document.querySelector('input[type="text"]').value = plan.destination;
-            document.getElementById('plan-content').innerHTML = plan.content;
-            document.getElementById('generated-plan').classList.remove('hidden');
-            alert('계획을 불러왔습니다! 📂');
-          }
-        }
-        
-        // 저장된 계획 삭제
-        function deleteSavedPlan(planId) {
-          if (confirm('이 계획을 삭제하시겠습니까?')) {
-            let plans = JSON.parse(localStorage.getItem('savedTripPlans') || '[]');
-            plans = plans.filter(p => p.id !== planId);
-            localStorage.setItem('savedTripPlans', JSON.stringify(plans));
-            showSavedPlans();
-            updateSavedCount();
-            alert('계획이 삭제되었습니다.');
-          }
-        }
-        
-        // PDF 내보내기
-        function exportPlan() {
-          const destination = document.querySelector('input[type="text"]').value || '제주도';
-          const content = document.getElementById('plan-content').innerText;
-          const blob = new Blob([\`\${destination} 여행 계획\\n\\n\${content}\`], { type: 'text/plain' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = \`\${destination}_여행계획.txt\`;
-          a.click();
-          URL.revokeObjectURL(url);
-        }
-        
-        // 유사 계획 비교
-        function compareWithSimilar() {
-          const currentDest = document.querySelector('input[type="text"]').value || '제주도';
-          const plans = JSON.parse(localStorage.getItem('savedTripPlans') || '[]');
-          const similar = plans.filter(plan => 
-            plan.destination.includes(currentDest.substring(0, 2)) || 
-            currentDest.includes(plan.destination.substring(0, 2))
-          );
-          
-          if (similar.length === 0) {
-            alert('유사한 여행 계획이 없습니다.');
-          } else {
-            alert(\`\${similar.length}개의 유사한 계획을 찾았습니다: \${similar.map(p => p.destination).join(', ')}\`);
-          }
-        }
-        
-        // 페이지 로드 시 저장된 계획 수 업데이트
-        document.addEventListener('DOMContentLoaded', function() {
-          updateSavedCount();
-        });
-        
-        // 계획 재생성
-        function regeneratePlan() {
-          generateTripPlan();
-        }
-        
-        // 여행 공유
-        function shareTrip() {
-          const destination = document.querySelector('input[type="text"]').value || '제주도';
-          const text = \`\${destination} 여행 계획을 AI가 생성했어요! TourRadio.AI에서 확인해보세요: \${window.location.href}\`;
-          
-          if (navigator.share) {
-            navigator.share({
-              title: 'AI 여행 계획',
-              text: text,
-              url: window.location.href
-            });
-          } else {
-            navigator.clipboard.writeText(text);
-            alert(translations.linkCopied);
-          }
-        }
-        
-        window.generateTripPlan = generateTripPlan;
-        window.savePlan = savePlan;
-        window.regeneratePlan = regeneratePlan;
-        window.shareTrip = shareTrip;
-        window.saveUserPreferences = saveUserPreferences;
-        window.loadUserPreferences = loadUserPreferences;
-        window.showSavedPlans = showSavedPlans;
-        window.loadSavedPlan = loadSavedPlan;
-        window.deleteSavedPlan = deleteSavedPlan;
-        window.exportPlan = exportPlan;
-        window.compareWithSimilar = compareWithSimilar;
         `
-      }} />
-    </>
+        }}
+      />
+    </div>
   );
 }

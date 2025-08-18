@@ -30,6 +30,7 @@
       "searchPlaceholder": "어디 앞에 계신가요?",
       "searchButton": "가이드 생성",
       "popularDestinations": "인기 여행지",
+      "viewMoreAttractions": "더 많은 명소 보기",
       "description": "",
       "regionTitles": {
         "popularCountries": "인기 여행 국가",
@@ -748,9 +749,9 @@
       "unknown_error": "알 수 없는 오류가 발생했습니다"
     },
     "footer": {
-      "companyName": "트립라디오.AI",
+      "companyName": "TripRadio.AI",
       "companyDescription": "AI 기반 개인화 여행 가이드 서비스",
-      "copyright": "© 2024 트립라디오.AI. All rights reserved.",
+      "copyright": "© 2024 TripRadio.AI. All rights reserved.",
       "legalInfo": "법적 정보",
       "privacyPolicy": "개인정보 처리방침",
       "termsOfService": "이용약관",
@@ -2898,6 +2899,7 @@
       "searchPlaceholder": "Where are you standing in front of?",
       "searchButton": "Generate Guide",
       "popularDestinations": "Popular Destinations",
+      "viewMoreAttractions": "View More Attractions",
       "description": "The most perfect guide commentary found by AI",
       "regionTitles": {
         "popularCountries": "🌍 Popular Travel Countries",
@@ -3557,9 +3559,9 @@
       "unknown_error": "An unknown error occurred"
     },
     "footer": {
-      "companyName": "트립라디오.AI",
+      "companyName": "TripRadio.AI",
       "companyDescription": "AI-powered personalized travel radio guide service",
-      "copyright": "© 2024 트립라디오.AI. All rights reserved.",
+      "copyright": "© 2024 TripRadio.AI. All rights reserved.",
       "legalInfo": "Legal Information",
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
@@ -5299,6 +5301,7 @@
       "searchPlaceholder": "どちらの前に立っていらっしゃいますか？",
       "searchButton": "ガイド生成",
       "popularDestinations": "人気の目的地",
+      "viewMoreAttractions": "もっと多くの観光地を見る",
       "description": "AIが見つけた最も完璧なガイド解説",
       "regionTitles": {
         "popularCountries": "🌍 人気旅行国",
@@ -5907,9 +5910,9 @@
       "unknown_error": "不明なエラーが発生しました"
     },
     "footer": {
-      "companyName": "트립라디오.AI",
+      "companyName": "TripRadio.AI",
       "companyDescription": "AI基盤個人化旅行ラジオガイドサービス",
-      "copyright": "© 2024 트립라디오.AI. All rights reserved.",
+      "copyright": "© 2024 TripRadio.AI. All rights reserved.",
       "legalInfo": "法的情報",
       "privacyPolicy": "プライバシーポリシー",
       "termsOfService": "利用規約",
@@ -5933,6 +5936,182 @@
         "nomadCalculator": "ノマド計算機",
         "filmLocations": "映画撮影地",
         "visaChecker": "ビザチェッカー"
+      }
+    },
+    "tripPlanner": {
+      "keyword": "AI旅行プランナー",
+      "metadata": {
+        "title": "AI旅行プランナーツール | カスタム旅行日程自動生成 TripRadio.AI",
+        "description": "🗺️ AIがあなたの好みと予算に合わせて完璧な旅行スケジュールを自動生成します。宿泊、交通、観光地まで一度に計画しましょう"
+      },
+      "features": {
+        "aiGeneration": "AI日程生成",
+        "realtime": "リアルタイム推奨",
+        "budget": "予算管理",
+        "customized": "カスタマイズコース",
+        "localInfo": "現地情報",
+        "free": "完全無料"
+      },
+      "badge": "Smart Trip Planner • AI-Powered Planning",
+      "hero": {
+        "title": "AIが作る",
+        "subtitle": "完璧な旅行計画",
+        "description": "あなたの好み、予算、スケジュールに合わせてAIがリアルタイムで最適な旅行計画を生成します。もう複雑な計画に時間を無駄にしないでください"
+      },
+      "quickPlanner": {
+        "title": "<span class=\"font-semibold\">3分</span>で旅行計画完成"
+      },
+      "steps": {
+        "selectStyle": "1. 旅行スタイルを選択してください",
+        "destinationDuration": "2. 目的地と期間",
+        "budgetPreferences": "3. 予算と好み"
+      },
+      "form": {
+        "destination": {
+          "label": "どちらへ行かれますか？",
+          "placeholder": "例：済州島、大阪、パリ..."
+        },
+        "departure": "出発日",
+        "duration": "何日間？",
+        "durationOptions": {
+          "dayTrip": "日帰り",
+          "oneNight": "1泊2日",
+          "twoNights": "2泊3日",
+          "threeNights": "3泊4日",
+          "fourNights": "4泊5日",
+          "oneWeek": "1週間",
+          "twoWeeks": "2週間",
+          "oneMonth": "1ヶ月",
+          "custom": "直接入力"
+        },
+        "budget": "予算（1人基準）",
+        "budgetOptions": {
+          "under20": "20万円以下",
+          "range20to50": "20-50万円",
+          "range50to100": "50-100万円",
+          "range100to200": "100-200万円",
+          "over200": "200万円以上",
+          "unlimited": "予算制限なし"
+        },
+        "interests": "興味（複数選択可能）",
+        "interestOptions": {
+          "food": "グルメ探訪",
+          "shopping": "ショッピング",
+          "culture": "歴史・文化",
+          "nature": "自然・癒し",
+          "activities": "アクティビティ",
+          "photography": "写真撮影",
+          "nightView": "夜景",
+          "spa": "温泉・スパ"
+        },
+        "generateButton": "AI旅行計画生成",
+        "analyzing": "計画分析中...",
+        "completionTime": "平均30秒以内に完成します"
+      },
+      "popularDestinations": {
+        "title": "人気の旅行先で",
+        "subtitle": "クイックスタート"
+      },
+      "personalization": {
+        "title": "個人化設定",
+        "loadSettings": "設定読み込み",
+        "saveSettings": "設定保存",
+        "viewSavedPlans": "保存された計画を見る",
+        "plansCount": "個"
+      },
+      "savedPlans": {
+        "title": "保存された旅行計画"
+      },
+      "generatedPlan": {
+        "title": "生成された旅行計画",
+        "savePlan": "計画保存",
+        "exportPDF": "PDF出力",
+        "regenerate": "再生成",
+        "share": "共有",
+        "compare": "類似計画比較"
+      },
+      "destinations": {
+        "viewGuide": "ガイドを見る",
+        "nomad": "ノマド",
+        "nomadInfo": "ノマド情報",
+        "visa": "ビザ",
+        "visaInfo": "ビザ情報"
+      },
+      "aiFeatures": {
+        "title": "AI基盤",
+        "subtitle": "スマート機能",
+        "customized": {
+          "title": "カスタマイズ推奨",
+          "description": "あなたの旅行スタイルと好みを分析して最適な旅行計画を提案します"
+        },
+        "realtime": {
+          "title": "リアルタイム情報",
+          "description": "リアルタイムで更新される交通、天気、混雑度情報を反映します"
+        },
+        "detailedInfo": {
+          "title": "詳細情報提供",
+          "description": "観光地、グルメ、宿泊まで詳しい情報とコツを提供します"
+        },
+        "budgetManagement": {
+          "title": "予算管理",
+          "description": "設定した予算内で最高の旅行のためのスマートな予算配分を提案します"
+        },
+        "mobileOptimized": {
+          "title": "モバイル最適化",
+          "description": "いつでもどこでもスマートフォンで便利に旅行計画を確認・修正できます"
+        },
+        "audioGuide": {
+          "title": "オーディオガイド連動",
+          "description": "生成された旅行計画と連動したAIオーディオガイドでより豊かな旅行を体験してください"
+        }
+      },
+      "audioGuideIntegration": {
+        "title": {
+          "before": "旅行計画と一緒の",
+          "highlight": "AIオーディオガイド"
+        },
+        "description": "生成された旅行計画に従って各場所で自動的にカスタマイズされたオーディオガイドが提供されます",
+        "features": {
+          "autoStart": {
+            "title": "自動再生",
+            "description": "目的地に到着すると自動的にその場所のガイドが開始されます"
+          },
+          "personalized": {
+            "title": "個人カスタマイズ",
+            "description": "あなたの興味と旅行スタイルに合わせて個人化された説明を提供します"
+          },
+          "realtimeUpdate": {
+            "title": "リアルタイム更新",
+            "description": "旅行中の計画変更時、即座に新しいガイド情報に更新されます"
+          }
+        },
+        "tryButton": "統合サービス体験"
+      },
+      "alerts": {
+        "noSavedSettings": "保存された設定がありません。",
+        "settingsLoaded": "保存された設定を読み込みました。",
+        "settingsSaved": "設定が保存されました。",
+        "enterDestination": "旅行地を入力してください。",
+        "noPlanToSave": "保存する計画がありません。",
+        "planSaved": "計画が保存されました。",
+        "noPlanToExport": "出力する計画がありません。",
+        "noPlanToShare": "共有する計画がありません。",
+        "confirmRegenerate": "新しい計画を生成しますか？現在の計画は消えます。",
+        "compareFeatureComingSoon": "類似の旅行地や計画と比較する機能は近日提供予定です。",
+        "planCopiedToClipboard": "計画がクリップボードにコピーされました。",
+        "planGenerationError": "旅行計画生成中にエラーが発生しました。",
+        "planGenerationFailed": "旅行計画生成に失敗しました。",
+        "noSimilarPlans": "類似の旅行計画がありません。",
+        "foundSimilarPlans": "{count}個の類似計画を見つけました：{destinations}",
+        "deletePlanConfirm": "この計画を削除しますか？",
+        "planDeleted": "計画が削除されました。",
+        "planLoaded": "計画を読み込みました。",
+        "noSavedPlans": "保存された計画がありません。",
+        "savedPlansEmpty": "保存された計画がありません。",
+        "settingsPrompt": "設定が保存されました！🎯",
+        "linkCopied": "旅行計画リンクがコピーされました！📋",
+        "loadButton": "読み込み",
+        "deleteButton": "削除"
       }
     },
     "legal": {
@@ -7017,6 +7196,7 @@
       "searchPlaceholder": "您现在站在哪里面前？",
       "searchButton": "生成指南",
       "popularDestinations": "热门目的地",
+      "viewMoreAttractions": "查看更多景点",
       "description": "AI发现的最完美指南解说",
       "regionTitles": {
         "popularCountries": "🌍 热门旅游国家",
@@ -7625,9 +7805,9 @@
       "unknown_error": "发生未知错误"
     },
     "footer": {
-      "companyName": "트립라디오.AI",
+      "companyName": "TripRadio.AI",
       "companyDescription": "AI驱动的个性化旅游广播指南服务",
-      "copyright": "© 2024 트립라디오.AI. All rights reserved.",
+      "copyright": "© 2024 TripRadio.AI. All rights reserved.",
       "legalInfo": "法律信息",
       "privacyPolicy": "隐私政策",
       "termsOfService": "服务条款",
@@ -7651,6 +7831,182 @@
         "nomadCalculator": "数字游民计算器",
         "filmLocations": "电影拍摄地",
         "visaChecker": "签证查询"
+      }
+    },
+    "tripPlanner": {
+      "keyword": "AI行程规划",
+      "metadata": {
+        "title": "AI行程规划工具 | 定制旅行路线自动生成 TripRadio.AI",
+        "description": "🗺️ AI根据您的喜好和预算自动生成完美的旅行行程。住宿、交通、景点一次性规划"
+      },
+      "features": {
+        "aiGeneration": "AI行程生成",
+        "realtime": "实时推荐",
+        "budget": "预算管理",
+        "customized": "定制路线",
+        "localInfo": "当地信息",
+        "free": "完全免费"
+      },
+      "badge": "Smart Trip Planner • AI-Powered Planning",
+      "hero": {
+        "title": "AI制作",
+        "subtitle": "完美旅行计划",
+        "description": "根据您的喜好、预算、时间安排，AI实时生成最优旅行计划。不再为复杂的规划浪费时间"
+      },
+      "quickPlanner": {
+        "title": "<span class=\"font-semibold\">3分钟</span>完成旅行计划"
+      },
+      "steps": {
+        "selectStyle": "1. 选择旅行风格",
+        "destinationDuration": "2. 目的地和时长",
+        "budgetPreferences": "3. 预算和偏好"
+      },
+      "form": {
+        "destination": {
+          "label": "您要去哪里？",
+          "placeholder": "例：济州岛、大阪、巴黎..."
+        },
+        "departure": "出发日",
+        "duration": "几天？",
+        "durationOptions": {
+          "dayTrip": "当日往返",
+          "oneNight": "1晚2天",
+          "twoNights": "2晚3天",
+          "threeNights": "3晚4天",
+          "fourNights": "4晚5天",
+          "oneWeek": "1周",
+          "twoWeeks": "2周",
+          "oneMonth": "1个月",
+          "custom": "自定义"
+        },
+        "budget": "预算（每人）",
+        "budgetOptions": {
+          "under20": "2万元以下",
+          "range20to50": "2-5万元",
+          "range50to100": "5-10万元",
+          "range100to200": "10-20万元",
+          "over200": "20万元以上",
+          "unlimited": "预算不限"
+        },
+        "interests": "兴趣爱好（可多选）",
+        "interestOptions": {
+          "food": "美食探索",
+          "shopping": "购物",
+          "culture": "历史文化",
+          "nature": "自然休闲",
+          "activities": "户外活动",
+          "photography": "摄影",
+          "nightView": "夜景",
+          "spa": "温泉SPA"
+        },
+        "generateButton": "AI生成旅行计划",
+        "analyzing": "计划分析中...",
+        "completionTime": "平均30秒内完成"
+      },
+      "popularDestinations": {
+        "title": "热门目的地",
+        "subtitle": "快速开始"
+      },
+      "personalization": {
+        "title": "个性化设置",
+        "loadSettings": "加载设置",
+        "saveSettings": "保存设置",
+        "viewSavedPlans": "查看保存的计划",
+        "plansCount": "个"
+      },
+      "savedPlans": {
+        "title": "保存的旅行计划"
+      },
+      "generatedPlan": {
+        "title": "生成的旅行计划",
+        "savePlan": "保存计划",
+        "exportPDF": "导出PDF",
+        "regenerate": "重新生成",
+        "share": "分享",
+        "compare": "对比类似计划"
+      },
+      "destinations": {
+        "viewGuide": "查看指南",
+        "nomad": "数字游民",
+        "nomadInfo": "游民信息",
+        "visa": "签证",
+        "visaInfo": "签证信息"
+      },
+      "aiFeatures": {
+        "title": "AI驱动",
+        "subtitle": "智能功能",
+        "customized": {
+          "title": "个性化推荐",
+          "description": "分析您的旅行风格和偏好，提供最适合的旅行计划"
+        },
+        "realtime": {
+          "title": "实时信息",
+          "description": "实时更新的交通、天气、人流量信息"
+        },
+        "detailedInfo": {
+          "title": "详细信息",
+          "description": "景点、美食、住宿的详细信息和小贴士"
+        },
+        "budgetManagement": {
+          "title": "预算管理",
+          "description": "在设定预算内为您提供最佳旅行的智能预算分配"
+        },
+        "mobileOptimized": {
+          "title": "移动优化",
+          "description": "随时随地用手机方便地查看和修改旅行计划"
+        },
+        "audioGuide": {
+          "title": "音频指南联动",
+          "description": "与生成的旅行计划联动的AI音频指南，体验更丰富的旅行"
+        }
+      },
+      "audioGuideIntegration": {
+        "title": {
+          "before": "与旅行计划配套的",
+          "highlight": "AI音频指南"
+        },
+        "description": "根据生成的旅行计划，每个地点都会自动提供定制化的音频指南",
+        "features": {
+          "autoStart": {
+            "title": "自动播放",
+            "description": "到达目的地时自动开始播放该地点的指南"
+          },
+          "personalized": {
+            "title": "个人定制",
+            "description": "根据您的兴趣和旅行风格提供个性化的讲解"
+          },
+          "realtimeUpdate": {
+            "title": "实时更新",
+            "description": "旅行中计划变更时，立即更新为新的指南信息"
+          }
+        },
+        "tryButton": "体验整合服务"
+      },
+      "alerts": {
+        "noSavedSettings": "没有保存的设置。",
+        "settingsLoaded": "已加载保存的设置。",
+        "settingsSaved": "设置已保存。",
+        "enterDestination": "请输入旅行目的地。",
+        "noPlanToSave": "没有可保存的计划。",
+        "planSaved": "计划已保存。",
+        "noPlanToExport": "没有可导出的计划。",
+        "noPlanToShare": "没有可分享的计划。",
+        "confirmRegenerate": "确定要生成新计划吗？当前计划将消失。",
+        "compareFeatureComingSoon": "对比类似旅行地或计划的功能即将推出。",
+        "planCopiedToClipboard": "计划已复制到剪贴板。",
+        "planGenerationError": "旅行计划生成过程中出现错误。",
+        "planGenerationFailed": "旅行计划生成失败。",
+        "noSimilarPlans": "没有类似的旅行计划。",
+        "foundSimilarPlans": "找到{count}个类似计划：{destinations}",
+        "deletePlanConfirm": "确定要删除这个计划吗？",
+        "planDeleted": "计划已删除。",
+        "planLoaded": "计划已加载。",
+        "noSavedPlans": "没有保存的计划。",
+        "savedPlansEmpty": "没有保存的计划。",
+        "settingsPrompt": "设置已保存！🎯",
+        "linkCopied": "旅行计划链接已复制！📋",
+        "loadButton": "加载",
+        "deleteButton": "删除"
       }
     },
     "legal": {
@@ -8735,6 +9091,7 @@
       "searchPlaceholder": "¿Dónde estás parado en frente?",
       "searchButton": "Generar Guía",
       "popularDestinations": "Destinos Populares",
+      "viewMoreAttractions": "Ver Más Atracciones",
       "description": "El comentario de guía más perfecto encontrado por IA",
       "regionTitles": {
         "popularCountries": "🌍 Países de Viaje Populares",
@@ -9343,9 +9700,9 @@
       "unknown_error": "Ocurrió un error desconocido"
     },
     "footer": {
-      "companyName": "트립라디오.AI",
+      "companyName": "TripRadio.AI",
       "companyDescription": "Servicio de guía de radio de viaje personalizada impulsado por IA",
-      "copyright": "© 2024 트립라디오.AI. All rights reserved.",
+      "copyright": "© 2024 TripRadio.AI. All rights reserved.",
       "legalInfo": "Información Legal",
       "privacyPolicy": "Política de Privacidad",
       "termsOfService": "Términos de Servicio",
@@ -9369,6 +9726,182 @@
         "nomadCalculator": "Calculadora Nómada",
         "filmLocations": "Locaciones de Películas",
         "visaChecker": "Verificador de Visa"
+      }
+    },
+    "tripPlanner": {
+      "keyword": "Planificador de Viaje AI",
+      "metadata": {
+        "title": "Herramienta Planificador de Viaje AI | Itinerario de Viaje Personalizado Automático TripRadio.AI",
+        "description": "🗺️ La IA genera automáticamente el itinerario de viaje perfecto según sus preferencias y presupuesto. Planifique alojamiento, transporte y atracciones de una vez"
+      },
+      "features": {
+        "aiGeneration": "Generación de Itinerario AI",
+        "realtime": "Recomendaciones en Tiempo Real",
+        "budget": "Gestión de Presupuesto",
+        "customized": "Rutas Personalizadas",
+        "localInfo": "Información Local",
+        "free": "Completamente Gratis"
+      },
+      "badge": "Smart Trip Planner • AI-Powered Planning",
+      "hero": {
+        "title": "AI Crea el",
+        "subtitle": "Plan de Viaje Perfecto",
+        "description": "Según sus preferencias, presupuesto y cronograma, la IA genera en tiempo real el plan de viaje óptimo. No más pérdida de tiempo en planificación compleja"
+      },
+      "quickPlanner": {
+        "title": "Complete su plan de viaje en <span class=\"font-semibold\">3 minutos</span>"
+      },
+      "steps": {
+        "selectStyle": "1. Seleccione su estilo de viaje",
+        "destinationDuration": "2. Destino y duración",
+        "budgetPreferences": "3. Presupuesto y preferencias"
+      },
+      "form": {
+        "destination": {
+          "label": "¿A dónde va?",
+          "placeholder": "Ej: Isla Jeju, Osaka, París..."
+        },
+        "departure": "Fecha de Salida",
+        "duration": "¿Cuántos días?",
+        "durationOptions": {
+          "dayTrip": "Viaje de un día",
+          "oneNight": "1 noche 2 días",
+          "twoNights": "2 noches 3 días",
+          "threeNights": "3 noches 4 días",
+          "fourNights": "4 noches 5 días",
+          "oneWeek": "1 semana",
+          "twoWeeks": "2 semanas",
+          "oneMonth": "1 mes",
+          "custom": "Personalizado"
+        },
+        "budget": "Presupuesto (por persona)",
+        "budgetOptions": {
+          "under20": "Menos de $2,000",
+          "range20to50": "$2,000-5,000",
+          "range50to100": "$5,000-10,000",
+          "range100to200": "$10,000-20,000",
+          "over200": "Más de $20,000",
+          "unlimited": "Presupuesto ilimitado"
+        },
+        "interests": "Intereses (selección múltiple)",
+        "interestOptions": {
+          "food": "Exploración Gastronómica",
+          "shopping": "Compras",
+          "culture": "Historia/Cultura",
+          "nature": "Naturaleza/Relajación",
+          "activities": "Actividades al Aire Libre",
+          "photography": "Fotografía",
+          "nightView": "Vistas Nocturnas",
+          "spa": "Termas/Spa"
+        },
+        "generateButton": "Generar Plan de Viaje AI",
+        "analyzing": "Analizando plan...",
+        "completionTime": "Completado en promedio en 30 segundos"
+      },
+      "popularDestinations": {
+        "title": "Destinos Populares",
+        "subtitle": "Inicio Rápido"
+      },
+      "personalization": {
+        "title": "Configuración Personalizada",
+        "loadSettings": "Cargar Configuración",
+        "saveSettings": "Guardar Configuración",
+        "viewSavedPlans": "Ver Planes Guardados",
+        "plansCount": "planes"
+      },
+      "savedPlans": {
+        "title": "Planes de Viaje Guardados"
+      },
+      "generatedPlan": {
+        "title": "Plan de Viaje Generado",
+        "savePlan": "Guardar Plan",
+        "exportPDF": "Exportar PDF",
+        "regenerate": "Regenerar",
+        "share": "Compartir",
+        "compare": "Comparar Planes Similares"
+      },
+      "destinations": {
+        "viewGuide": "Ver Guía",
+        "nomad": "Nómada",
+        "nomadInfo": "Información Nómada",
+        "visa": "Visa",
+        "visaInfo": "Información de Visa"
+      },
+      "aiFeatures": {
+        "title": "Impulsado por AI",
+        "subtitle": "Funciones Inteligentes",
+        "customized": {
+          "title": "Recomendaciones Personalizadas",
+          "description": "Analiza su estilo de viaje y preferencias para sugerir el plan de viaje más adecuado"
+        },
+        "realtime": {
+          "title": "Información en Tiempo Real",
+          "description": "Información actualizada en tiempo real sobre transporte, clima y niveles de multitud"
+        },
+        "detailedInfo": {
+          "title": "Información Detallada",
+          "description": "Información detallada y consejos sobre atracciones, restaurantes y alojamiento"
+        },
+        "budgetManagement": {
+          "title": "Gestión de Presupuesto",
+          "description": "Asignación inteligente de presupuesto para el mejor viaje dentro del presupuesto establecido"
+        },
+        "mobileOptimized": {
+          "title": "Optimizado para Móvil",
+          "description": "Vea y modifique convenientemente sus planes de viaje en su teléfono inteligente en cualquier momento y lugar"
+        },
+        "audioGuide": {
+          "title": "Integración de Guía de Audio",
+          "description": "Experimente un viaje más rico con la guía de audio AI integrada con su plan de viaje generado"
+        }
+      },
+      "audioGuideIntegration": {
+        "title": {
+          "before": "Junto con el plan de viaje",
+          "highlight": "Guía de Audio AI"
+        },
+        "description": "Según el plan de viaje generado, se proporcionará automáticamente una guía de audio personalizada para cada ubicación",
+        "features": {
+          "autoStart": {
+            "title": "Reproducción Automática",
+            "description": "Al llegar al destino, la guía de ese lugar se inicia automáticamente"
+          },
+          "personalized": {
+            "title": "Personalización Individual",
+            "description": "Proporciona explicaciones personalizadas según sus intereses y estilo de viaje"
+          },
+          "realtimeUpdate": {
+            "title": "Actualización en Tiempo Real",
+            "description": "Cuando cambie el plan durante el viaje, se actualiza inmediatamente con nueva información de guía"
+          }
+        },
+        "tryButton": "Probar Servicio Integrado"
+      },
+      "alerts": {
+        "noSavedSettings": "No hay configuraciones guardadas.",
+        "settingsLoaded": "Configuraciones guardadas cargadas.",
+        "settingsSaved": "Configuración guardada.",
+        "enterDestination": "Por favor ingrese el destino de viaje.",
+        "noPlanToSave": "No hay plan para guardar.",
+        "planSaved": "Plan guardado.",
+        "noPlanToExport": "No hay plan para exportar.",
+        "noPlanToShare": "No hay plan para compartir.",
+        "confirmRegenerate": "¿Generar nuevo plan? El plan actual desaparecerá.",
+        "compareFeatureComingSoon": "La función de comparar con destinos o planes similares estará disponible pronto.",
+        "planCopiedToClipboard": "Plan copiado al portapapeles.",
+        "planGenerationError": "Error durante la generación del plan de viaje.",
+        "planGenerationFailed": "Falló la generación del plan de viaje.",
+        "noSimilarPlans": "No hay planes de viaje similares.",
+        "foundSimilarPlans": "Se encontraron {count} planes similares: {destinations}",
+        "deletePlanConfirm": "¿Eliminar este plan?",
+        "planDeleted": "Plan eliminado.",
+        "planLoaded": "Plan cargado.",
+        "noSavedPlans": "No hay planes guardados.",
+        "savedPlansEmpty": "No hay planes guardados.",
+        "settingsPrompt": "¡Configuración guardada! 🎯",
+        "linkCopied": "¡Enlace del plan de viaje copiado! 📋",
+        "loadButton": "Cargar",
+        "deleteButton": "Eliminar"
       }
     },
     "legal": {
@@ -10329,6 +10862,161 @@
         "customized": "맞춤형 코스",
         "localInfo": "현지 정보",
         "free": "완전 무료"
+      },
+      "badge": "Smart Trip Planner • AI 여행 계획",
+      "hero": {
+        "title": "AI가 만드는",
+        "subtitle": "완벽한 여행 계획",
+        "description": "당신의 취향, 예산, 일정에 맞춰 AI가 실시간으로 최적의 여행 계획을 생성합니다. 더 이상 복잡한 계획에 시간 낭비하지 마세요"
+      },
+      "quickPlanner": {
+        "title": "<span class=\"font-semibold\">3분</span>만에 여행 계획 완성"
+      },
+      "steps": {
+        "selectStyle": "1. 여행 스타일을 선택하세요",
+        "destinationDuration": "2. 목적지와 기간",
+        "budgetPreferences": "3. 예산과 선호사항"
+      },
+      "form": {
+        "destination": {
+          "label": "어디로 가실 건가요?",
+          "placeholder": "예: 제주도, 오사카, 파리..."
+        },
+        "departure": "출발일",
+        "duration": "며칠간?",
+        "durationOptions": {
+          "dayTrip": "당일치기",
+          "oneNight": "1박 2일",
+          "twoNights": "2박 3일",
+          "threeNights": "3박 4일",
+          "fourNights": "4박 5일",
+          "oneWeek": "1주일",
+          "twoWeeks": "2주일",
+          "oneMonth": "1개월",
+          "custom": "직접 입력"
+        },
+        "budget": "예산 (1인 기준)",
+        "budgetOptions": {
+          "under20": "20만원 이하",
+          "range20to50": "20-50만원",
+          "range50to100": "50-100만원",
+          "range100to200": "100-200만원",
+          "over200": "200만원 이상",
+          "unlimited": "무제한"
+        },
+        "interests": "관심사",
+        "interestOptions": {
+          "food": "맛집",
+          "shopping": "쇼핑",
+          "culture": "문화",
+          "nature": "자연",
+          "activities": "액티비티",
+          "photography": "사진",
+          "nightView": "야경",
+          "spa": "스파"
+        },
+        "generateButton": "AI 여행 계획 생성하기",
+        "analyzing": "AI가 분석 중입니다...",
+        "completionTime": "완성까지 약 30초~2분 소요됩니다"
+      },
+      "personalization": {
+        "title": "개인화 설정",
+        "loadSettings": "설정 불러오기",
+        "saveSettings": "설정 저장하기",
+        "viewSavedPlans": "저장된 계획 보기",
+        "plansCount": "개"
+      },
+      "savedPlans": {
+        "title": "저장된 여행 계획"
+      },
+      "generatedPlan": {
+        "title": "생성된 여행 계획",
+        "savePlan": "계획 저장",
+        "exportPDF": "PDF로 내보내기",
+        "regenerate": "다시 생성",
+        "share": "공유하기",
+        "compare": "유사한 계획과 비교"
+      },
+      "popularDestinations": {
+        "title": "인기 여행지로",
+        "subtitle": "빠른 시작"
+      },
+      "destinations": {
+        "viewGuide": "가이드 보기",
+        "nomad": "노마드",
+        "visa": "비자",
+        "nomadInfo": "노마드 정보",
+        "visaInfo": "비자 정보"
+      },
+      "aiFeatures": {
+        "title": "AI 여행 계획의",
+        "subtitle": "특별한 기능들",
+        "customized": {
+          "title": "맞춤형 추천",
+          "description": "당신의 여행 스타일과 관심사에 완벽하게 맞춰진 개인화된 여행 계획을 제공합니다"
+        },
+        "realtime": {
+          "title": "실시간 정보",
+          "description": "최신 현지 정보와 실시간 데이터를 반영한 정확하고 유용한 여행 계획을 생성합니다"
+        },
+        "detailedInfo": {
+          "title": "상세한 정보",
+          "description": "교통, 숙박, 맛집, 관광지까지 여행에 필요한 모든 정보를 한 번에 제공합니다"
+        },
+        "budgetManagement": {
+          "title": "예산 관리",
+          "description": "설정한 예산 범위 내에서 최고의 여행 경험을 할 수 있도록 최적화된 계획을 제안합니다"
+        },
+        "mobileOptimized": {
+          "title": "모바일 최적화",
+          "description": "언제 어디서나 스마트폰으로 간편하게 여행 계획을 세우고 확인할 수 있습니다"
+        },
+        "audioGuide": {
+          "title": "오디오 가이드 연동",
+          "description": "생성된 여행 계획과 연결된 AI 오디오 가이드로 더욱 풍부한 여행 경험을 제공합니다"
+        }
+      },
+      "audioGuideIntegration": {
+        "title": {
+          "before": "여행 계획과 함께 제공되는",
+          "highlight": "AI 오디오 가이드"
+        },
+        "description": "계획한 여행지에서 실시간으로 생성되는 맞춤형 오디오 가이드로 더욱 깊이 있는 여행을 경험하세요",
+        "features": {
+          "autoStart": {
+            "title": "자동 연결",
+            "description": "여행 계획에 포함된 장소에서 자동으로 오디오 가이드가 시작됩니다"
+          },
+          "personalized": {
+            "title": "개인화된 해설",
+            "description": "당신의 관심사와 여행 스타일에 맞춘 맞춤형 해설을 제공합니다"
+          },
+          "realtimeUpdate": {
+            "title": "실시간 업데이트",
+            "description": "현재 상황과 날씨, 이벤트 정보를 반영한 실시간 가이드를 제공합니다"
+          }
+        },
+        "tryButton": "지금 체험해보기"
+      },
+      "alerts": {
+        "settingsLoaded": "저장된 설정을 불러왔습니다!",
+        "noSavedSettings": "저장된 설정이 없습니다.",
+        "settingsSaved": "설정이 저장되었습니다!",
+        "enterDestination": "목적지를 입력해주세요.",
+        "planGenerationFailed": "여행 계획 생성에 실패했습니다.",
+        "planGenerationError": "여행 계획 생성 중 오류가 발생했습니다.",
+        "noPlanToSave": "저장할 계획이 없습니다.",
+        "planSaved": "여행 계획이 저장되었습니다!",
+        "noPlanToExport": "내보낼 계획이 없습니다.",
+        "confirmRegenerate": "계획을 다시 생성하시겠습니까?",
+        "noPlanToShare": "공유할 계획이 없습니다.",
+        "planCopiedToClipboard": "여행 계획이 클립보드에 복사되었습니다!",
+        "compareFeatureComingSoon": "비교 기능은 곧 제공될 예정입니다.",
+        "savedPlansEmpty": "저장된 계획이 없습니다.",
+        "loadButton": "불러오기",
+        "deleteButton": "삭제",
+        "settingsPrompt": "설정을 저장하시겠습니까?",
+        "linkCopied": "링크가 복사되었습니다!"
       }
     },
     "visaChecker": {

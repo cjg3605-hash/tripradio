@@ -1803,7 +1803,7 @@ function Home() {
                 className="group inline-flex items-center justify-center bg-black text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-fluid-sm sm:text-fluid-base font-semibold hover:bg-gray-800 focus:bg-gray-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 min-w-[160px] sm:min-w-[200px] shadow-lg hover:shadow-xl"
               >
                 <span className="leading-none">
-                  더 많은 명소 보기
+                  {t('home.viewMoreAttractions')}
                 </span>
                 <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />

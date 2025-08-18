@@ -486,6 +486,53 @@ interface Translations {
       completionTime: string;
     };
   };
+  tripTypes: {
+    solo: {
+      name: string;
+      description: string;
+      features: {
+        safety: string;
+        culture: string;
+        budget: string;
+      };
+    };
+    couple: {
+      name: string;
+      description: string;
+      features: {
+        romantic: string;
+        activities: string;
+        photos: string;
+      };
+    };
+    family: {
+      name: string;
+      description: string;
+      features: {
+        kidFriendly: string;
+        safety: string;
+        educational: string;
+      };
+    };
+    friends: {
+      name: string;
+      description: string;
+      features: {
+        activities: string;
+        instagramSpots: string;
+        nightlife: string;
+      };
+    };
+    nomad: {
+      name: string;
+      description: string;
+      features: {
+        wifi: string;
+        coworking: string;
+        longTerm: string;
+      };
+    };
+  };
 }
 
 // 기본 번역 데이터 (한국어)
@@ -1013,6 +1060,53 @@ const DEFAULT_TRANSLATIONS: Translations = {
       analyzing: '분석 중...',
       completionTime: '완성 시간'
     }
+  },
+  tripTypes: {
+    solo: {
+      name: '자유여행',
+      description: '혼자만의 특별한 시간',
+      features: {
+        safety: '안전 정보 제공',
+        culture: '현지 문화 체험',
+        budget: '합리적 예산 관리'
+      }
+    },
+    couple: {
+      name: '연인여행',
+      description: '로맨틱한 추억 만들기',
+      features: {
+        romantic: '로맨틱 스팟',
+        activities: '커플 액티비티',
+        photos: '인생샷 포토존'
+      }
+    },
+    family: {
+      name: '가족여행',
+      description: '온 가족이 함께',
+      features: {
+        kidFriendly: '아이 친화적',
+        safety: '가족 안전 보장',
+        educational: '교육적 체험'
+      }
+    },
+    friends: {
+      name: '친구여행',
+      description: '친구들과의 즐거운 시간',
+      features: {
+        activities: '그룹 액티비티',
+        instagramSpots: '인스타 스팟',
+        nightlife: '나이트라이프'
+      }
+    },
+    nomad: {
+      name: '워케이션',
+      description: '일과 휴가의 완벽한 조화',
+      features: {
+        wifi: '안정적 와이파이',
+        coworking: '코워킹 스페이스',
+        longTerm: '장기 체류 지원'
+      }
+    }
   }
 };
 
@@ -1048,7 +1142,7 @@ const detectBrowserLanguage = (): SupportedLanguage => {
 async function loadTranslations(language: SupportedLanguage): Promise<Translations> {
   try {
     // 🔥 캐시 무효화를 위한 버전 관리
-    const TRANSLATION_VERSION = '1.0.1'; // 버전 업데이트로 캐시 무효화
+    const TRANSLATION_VERSION = '1.0.3'; // 버전 업데이트로 캐시 무효화 (tripTypes 구조 수정)
     const cacheKey = `translations-${language}-v${TRANSLATION_VERSION}`;
     
     // 🔥 기존 캐시 정리 (버전이 다른 경우)
@@ -1214,6 +1308,11 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
       tripPlanner: {
         ...DEFAULT_TRANSLATIONS.tripPlanner,
         ...(translations?.tripPlanner || {})
+      },
+      // 🔥 tripTypes 필드 추가
+      tripTypes: {
+        ...DEFAULT_TRANSLATIONS.tripTypes,
+        ...(translations?.tripTypes || {})
       }
     };
     

@@ -317,7 +317,7 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
       .map(paragraph => paragraph.trim().replace(/\n/g, ' '));
   
     return paragraphs.map((paragraph, index) => (
-      <p key={index} className="mb-4 text-base leading-relaxed text-muted-foreground">
+      <p key={index} className="mb-4 text-sm leading-relaxed text-black/80">
         {paragraph}
       </p>
     ));
@@ -363,7 +363,7 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                   <MapPin className="w-10 h-10" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-medium mb-2">
+                  <h1 className="text-4xl font-bold mb-4 tracking-tight text-black">
                     {guide?.metadata?.originalLocationName || guide?.overview?.title || String(t('guide.guideTitle'))}
                   </h1>
                 </div>
@@ -382,7 +382,7 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                             <Info className="w-6 h-6 text-white" />
                           </div>
                           <div>
-                            <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.overview')}</h2>
+                            <h2 className="text-2xl font-semibold text-black tracking-tight">{t('guide.overview')}</h2>
                             <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.essentialInfo')}</p>
                           </div>
                         </div>
@@ -404,21 +404,21 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                           {guide.overview.location && (
                             <div className="flex items-center gap-3 p-3 bg-black/2 rounded-2xl border border-black/5">
                               <div className="w-1 h-4 bg-black rounded-full"></div>
-                              <p className="text-sm font-medium text-black">{guide.overview.location}</p>
+                              <p className="text-sm font-medium text-black leading-relaxed">{guide.overview.location}</p>
                             </div>
                           )}
                           
                           {guide.overview.keyFeatures && (
                             <div className="flex items-center gap-3 p-3 bg-black/2 rounded-2xl border border-black/5">
                               <div className="w-1 h-4 bg-black rounded-full"></div>
-                              <p className="text-sm font-medium text-black">{guide.overview.keyFeatures}</p>
+                              <p className="text-sm font-medium text-black leading-relaxed">{guide.overview.keyFeatures}</p>
                             </div>
                           )}
                           
                           {guide.overview.background && (
                             <div className="flex items-center gap-3 p-3 bg-black/2 rounded-2xl border border-black/5">
                               <div className="w-1 h-4 bg-black rounded-full"></div>
-                              <p className="text-sm font-medium text-black">{guide.overview.background}</p>
+                              <p className="text-sm font-medium text-black leading-relaxed">{guide.overview.background}</p>
                             </div>
                           )}
                           
@@ -428,19 +428,19 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                               {guide.overview.visitInfo?.duration && (
                                 <div className="flex items-center gap-2">
                                   <Clock className="w-4 h-4 text-black/60" />
-                                  <span className="text-sm font-medium text-black">{guide.overview.visitInfo.duration}</span>
+                                  <span className="text-sm font-medium text-black leading-relaxed">{guide.overview.visitInfo.duration}</span>
                                 </div>
                               )}
                               {guide.overview.visitInfo?.difficulty && (
                                 <div className="flex items-center gap-2">
                                   <Users className="w-4 h-4 text-black/60" />
-                                  <span className="text-sm font-medium text-black">{guide.overview.visitInfo.difficulty}</span>
+                                  <span className="text-sm font-medium text-black leading-relaxed">{guide.overview.visitInfo.difficulty}</span>
                                 </div>
                               )}
                               {guide.overview.visitInfo?.season && (
                                 <div className="flex items-center gap-2">
                                   <Calendar className="w-4 h-4 text-black/60" />
-                                  <span className="text-sm font-medium text-black">{guide.overview.visitInfo.season}</span>
+                                  <span className="text-sm font-medium text-black leading-relaxed">{guide.overview.visitInfo.season}</span>
                                 </div>
                               )}
                             </div>
@@ -478,7 +478,7 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                             <Sparkles className="w-6 h-6 text-white" />
                           </div>
                           <div>
-                            <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.mustSeePoints')}</h2>
+                            <h2 className="text-2xl font-semibold text-black tracking-tight">{t('guide.mustSeePoints')}</h2>
                           </div>
                         </div>
                         {/* Counter */}
@@ -548,7 +548,7 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                             <AlertTriangle className="w-6 h-6 text-white" />
                           </div>
                           <div>
-                            <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.precautions')}</h2>
+                            <h2 className="text-2xl font-semibold text-black tracking-tight">{t('guide.precautions')}</h2>
                           </div>
                         </div>
                         {/* Priority Indicator */}
@@ -716,7 +716,7 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L3.348 16.5c-.77.833.192 2.5 1.732 2.5z" />
                             </svg>
                           </div>
-                          <h3 className="text-lg font-bold text-red-800 mb-2">표시할 장소가 없습니다</h3>
+                          <h3 className="text-lg font-medium text-red-800 mb-2">표시할 장소가 없습니다</h3>
                           <p className="text-sm text-red-600">
                             이 가이드에는 지도에 표시할 좌표 정보가 없습니다.<br/>
                             좌표 생성 시스템을 확인해주세요.
@@ -765,7 +765,7 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                             <Route className="w-6 h-6 text-white" />
                           </div>
                           <div>
-                            <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.viewingOrder')}</h2>
+                            <h2 className="text-2xl font-semibold text-black tracking-tight">{t('guide.viewingOrder')}</h2>
                           </div>
                         </div>
                         <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
@@ -814,7 +814,7 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                               
                               <div className="flex-1">
                                 <div className="space-y-2">
-                                  <h3 className="font-medium">{chapter.title}</h3>
+                                  <h3 className="text-lg font-medium text-black">{chapter.title}</h3>
                                   {/* 챕터별 오디오 플레이어 */}
                                   {audioChapters[index] && (
                                     <div className="w-full">
@@ -859,8 +859,8 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                                       <Route className="w-3 h-3" />
                                     </div>
                                     <div>
-                                      <h4 className="text-sm font-medium mb-1">{t('guide.nextMoveGuide')}</h4>
-                                      <p className="text-sm text-muted-foreground leading-relaxed">
+                                      <h4 className="text-base font-medium mb-1 text-black">{t('guide.nextMoveGuide')}</h4>
+                                      <p className="text-sm text-black/70 leading-relaxed">
                                         {chapter.nextDirection}
                                       </p>
                                     </div>

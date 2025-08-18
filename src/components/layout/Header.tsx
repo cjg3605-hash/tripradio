@@ -57,24 +57,25 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
   const handleLanguageChange = useCallback(async (langCode: string) => {
     console.log('🔥 Language changing to:', langCode);
     try {
-      // 1. 장소명 번역과 URL 업데이트 시도 (비동기)
-      const wasTranslated = await changeLanguageWithLocationTranslation(
-        langCode as any, 
-        currentLanguage
-      );
+      // 1. 먼저 쿠키와 localStorage 직접 업데이트
+      document.cookie = `language=${langCode}; path=/; max-age=31536000`;
+      localStorage.setItem('preferred-language', langCode);
       
       // 2. 언어 컨텍스트 업데이트
       await setLanguage(langCode as any);
       setIsLanguageMenuOpen(false);
       
-      console.log('✅ Language changed successfully:', { 
-        newLanguage: langCode, 
-        locationTranslated: wasTranslated 
-      });
+      console.log('✅ Language changed successfully, reloading page...');
+      
+      // 3. hydration 문제 방지를 위해 페이지 새로고침
+      window.location.reload();
+      
     } catch (error) {
       console.error('❌ Language change failed:', error);
+      // 에러 발생시에도 페이지 새로고침으로 복구 시도
+      window.location.reload();
     }
-  }, [setLanguage, changeLanguageWithLocationTranslation, currentLanguage]);
+  }, [setLanguage, currentLanguage]);
 
   // 키보드 네비게이션 및 외부 클릭 처리
   useEffect(() => {
@@ -231,7 +232,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
             onClick={() => router.push('/')}
             className="btn-base text-xl font-bold text-gray-900 bg-transparent hover:bg-gray-50 transition-all duration-200 relative px-3 py-2"
           >
-            {currentLanguage === 'ko' ? '트립라디오.AI' : 'TripRadio.AI'}
+            {t('home.brandTitle')}
           </button>
         </div>
 

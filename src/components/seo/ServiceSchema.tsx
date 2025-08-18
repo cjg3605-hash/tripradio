@@ -150,9 +150,9 @@ const ServiceSchema: React.FC<ServiceSchemaProps> = ({ data }) => {
       sameAs: data.sameAs
     }),
     
-    // 생성/수정 일자
+    // 생성/수정 일자 (고정값으로 hydration 오류 방지)
     dateCreated: "2024-01-01",
-    dateModified: new Date().toISOString().split('T')[0],
+    dateModified: "2024-08-18",
     
     // 업계 분류
     category: "Travel Technology",
