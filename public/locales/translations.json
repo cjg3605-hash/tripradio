@@ -2866,6 +2866,53 @@
       "alerts": {
         "enterDestination": "목적지를 입력해주세요."
       }
+    },
+    "tripTypes": {
+      "solo": {
+        "name": "자유여행",
+        "description": "혼자만의 특별한 시간",
+        "features": {
+          "safety": "안전 정보 제공",
+          "culture": "현지 문화 체험",
+          "budget": "합리적 예산 관리"
+        }
+      },
+      "couple": {
+        "name": "연인여행",
+        "description": "로맨틱한 추억 만들기",
+        "features": {
+          "romantic": "로맨틱 스팟",
+          "activities": "커플 액티비티",
+          "photos": "인생샷 포토존"
+        }
+      },
+      "family": {
+        "name": "가족여행",
+        "description": "온 가족이 함께",
+        "features": {
+          "kidFriendly": "아이 친화적",
+          "safety": "가족 안전 보장",
+          "educational": "교육적 체험"
+        }
+      },
+      "friends": {
+        "name": "친구여행",
+        "description": "친구들과의 즐거운 시간",
+        "features": {
+          "activities": "그룹 액티비티",
+          "instagramSpots": "인스타 스팟",
+          "nightlife": "나이트라이프"
+        }
+      },
+      "nomad": {
+        "name": "워케이션",
+        "description": "일과 휴가의 완벽한 조화",
+        "features": {
+          "wifi": "안정적 와이파이",
+          "coworking": "코워킹 스페이스",
+          "longTerm": "장기 체류 지원"
+        }
+      }
     }
   },
   "en": {
@@ -5268,6 +5315,53 @@
       "alerts": {
         "enterDestination": "Please enter your destination."
       }
+    },
+    "tripTypes": {
+      "solo": {
+        "name": "Solo Travel",
+        "description": "Your special time alone",
+        "features": {
+          "safety": "Safety Information",
+          "culture": "Local Culture Experience",
+          "budget": "Budget Management"
+        }
+      },
+      "couple": {
+        "name": "Couple Travel",
+        "description": "Creating romantic memories",
+        "features": {
+          "romantic": "Romantic Spots",
+          "activities": "Couple Activities",
+          "photos": "Perfect Photo Spots"
+        }
+      },
+      "family": {
+        "name": "Family Travel",
+        "description": "Together with the whole family",
+        "features": {
+          "kidFriendly": "Kid-Friendly",
+          "safety": "Family Safety",
+          "educational": "Educational Experience"
+        }
+      },
+      "friends": {
+        "name": "Friends Travel",
+        "description": "Fun times with friends",
+        "features": {
+          "activities": "Group Activities",
+          "instagramSpots": "Instagram Spots",
+          "nightlife": "Nightlife"
+        }
+      },
+      "nomad": {
+        "name": "Workation",
+        "description": "Perfect balance of work and vacation",
+        "features": {
+          "wifi": "Reliable WiFi",
+          "coworking": "Coworking Spaces",
+          "longTerm": "Long-term Stay Support"
+        }
+      }
     }
   },
   "ja": {
@@ -7163,6 +7257,53 @@
       "alerts": {
         "enterDestination": "目的地を入力してください。"
       }
+    },
+    "tripTypes": {
+      "solo": {
+        "name": "一人旅",
+        "description": "一人だけの特別な時間",
+        "features": {
+          "safety": "安全情報提供",
+          "culture": "現地文化体験",
+          "budget": "予算管理"
+        }
+      },
+      "couple": {
+        "name": "カップル旅行",
+        "description": "ロマンチックな思い出作り",
+        "features": {
+          "romantic": "ロマンチックスポット",
+          "activities": "カップル向けアクティビティ",
+          "photos": "写真撮影スポット"
+        }
+      },
+      "family": {
+        "name": "家族旅行",
+        "description": "家族全員で楽しむ",
+        "features": {
+          "kidFriendly": "子供向け",
+          "safety": "家族の安全",
+          "educational": "教育的体験"
+        }
+      },
+      "friends": {
+        "name": "友達旅行",
+        "description": "友達との楽しい時間",
+        "features": {
+          "activities": "グループアクティビティ",
+          "instagramSpots": "インスタ映えスポット",
+          "nightlife": "ナイトライフ"
+        }
+      },
+      "nomad": {
+        "name": "ワーケーション",
+        "description": "仕事と休暇の完璧なバランス",
+        "features": {
+          "wifi": "安定したWiFi",
+          "coworking": "コワーキングスペース",
+          "longTerm": "長期滞在サポート"
+        }
+      }
     }
   },
   "zh": {
@@ -9057,6 +9198,53 @@
       },
       "alerts": {
         "enterDestination": "请输入目的地。"
+      }
+    },
+    "tripTypes": {
+      "solo": {
+        "name": "独自旅行",
+        "description": "属于自己的特别时光",
+        "features": {
+          "safety": "安全信息提供",
+          "culture": "当地文化体验",
+          "budget": "预算管理"
+        }
+      },
+      "couple": {
+        "name": "情侣旅行",
+        "description": "创造浪漫回忆",
+        "features": {
+          "romantic": "浪漫景点",
+          "activities": "情侣活动",
+          "photos": "完美拍照地点"
+        }
+      },
+      "family": {
+        "name": "家庭旅行",
+        "description": "全家一起享受",
+        "features": {
+          "kidFriendly": "儿童友好",
+          "safety": "家庭安全",
+          "educational": "教育体验"
+        }
+      },
+      "friends": {
+        "name": "朋友旅行",
+        "description": "与朋友的欢乐时光",
+        "features": {
+          "activities": "团体活动",
+          "instagramSpots": "拍照胜地",
+          "nightlife": "夜生活"
+        }
+      },
+      "nomad": {
+        "name": "工作度假",
+        "description": "工作与假期的完美平衡",
+        "features": {
+          "wifi": "稳定WiFi",
+          "coworking": "共享办公空间",
+          "longTerm": "长期住宿支持"
+        }
       }
     }
   },
@@ -11160,6 +11348,53 @@
         "continuousLearning": {
           "title": "Aprendizaje Continuo",
           "description": "Sistema de IA que evoluciona continuamente a través de retroalimentación del usuario"
+        }
+      }
+    },
+    "tripTypes": {
+      "solo": {
+        "name": "Viaje Solo",
+        "description": "Tu tiempo especial en solitario",
+        "features": {
+          "safety": "Información de Seguridad",
+          "culture": "Experiencia Cultural Local",
+          "budget": "Gestión de Presupuesto"
+        }
+      },
+      "couple": {
+        "name": "Viaje de Pareja",
+        "description": "Creando recuerdos románticos",
+        "features": {
+          "romantic": "Lugares Románticos",
+          "activities": "Actividades para Parejas",
+          "photos": "Lugares Perfectos para Fotos"
+        }
+      },
+      "family": {
+        "name": "Viaje Familiar",
+        "description": "Juntos con toda la familia",
+        "features": {
+          "kidFriendly": "Apto para Niños",
+          "safety": "Seguridad Familiar",
+          "educational": "Experiencia Educativa"
+        }
+      },
+      "friends": {
+        "name": "Viaje con Amigos",
+        "description": "Momentos divertidos con amigos",
+        "features": {
+          "activities": "Actividades Grupales",
+          "instagramSpots": "Lugares para Instagram",
+          "nightlife": "Vida Nocturna"
+        }
+      },
+      "nomad": {
+        "name": "Workation",
+        "description": "Equilibrio perfecto entre trabajo y vacaciones",
+        "features": {
+          "wifi": "WiFi Confiable",
+          "coworking": "Espacios de Coworking",
+          "longTerm": "Soporte para Estadía Prolongada"
         }
       }
     }
