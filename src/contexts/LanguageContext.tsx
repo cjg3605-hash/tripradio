@@ -485,6 +485,47 @@ interface Translations {
       analyzing: string;
       completionTime: string;
     };
+    audioGuideIntegration: {
+      title: {
+        before: string;
+        highlight: string;
+      };
+      description: string;
+      features: {
+        autoStart: {
+          title: string;
+          description: string;
+        };
+        personalized: {
+          title: string;
+          description: string;
+        };
+        realtimeUpdate: {
+          title: string;
+          description: string;
+        };
+      };
+      tryButton: string;
+    };
+    alerts: {
+      noSavedSettings: string;
+      settingsLoaded: string;
+      settingsSaved: string;
+      enterDestination: string;
+      noPlanToSave: string;
+      planSaved: string;
+      confirmRegenerate: string;
+      planGenerationFailed: string;
+      planGenerationError: string;
+      noPlanToShare: string;
+      planCopiedToClipboard: string;
+      compareFeatureComingSoon: string;
+      savedPlansEmpty: string;
+      loadButton: string;
+      deleteButton: string;
+      settingsPrompt: string;
+      linkCopied: string;
+    };
   };
   tripTypes: {
     solo: {
@@ -1035,12 +1076,12 @@ const DEFAULT_TRANSLATIONS: Translations = {
     keyword: 'AI 여행 계획',
     badge: 'Smart Trip Planner',
     hero: {
-      title: 'AI가 만드는 여행 계획',
+      title: 'AI가 만드는',
       subtitle: '완벽한 여행 계획',
       description: '당신의 취향에 맞춘 완벽한 여행 계획'
     },
     quickPlanner: {
-      title: '빠른 여행 계획'
+      title: '3분만에 여행 계획 완성'
     },
     steps: {
       selectStyle: '여행 스타일 선택',
@@ -1059,6 +1100,47 @@ const DEFAULT_TRANSLATIONS: Translations = {
       generateButton: '계획 생성',
       analyzing: '분석 중...',
       completionTime: '완성 시간'
+    },
+    audioGuideIntegration: {
+      title: {
+        before: '여행 계획과 함께하는',
+        highlight: 'AI 오디오 가이드'
+      },
+      description: '생성된 여행 계획에 따라 각 장소에서 자동으로 맞춤형 오디오 가이드가 제공됩니다',
+      features: {
+        autoStart: {
+          title: '자동 재생',
+          description: '목적지에 도착하면 자동으로 해당 장소의 가이드가 시작됩니다'
+        },
+        personalized: {
+          title: '개인 맞춤형',
+          description: '당신의 관심사와 여행 스타일에 맞춰 개인화된 설명을 제공합니다'
+        },
+        realtimeUpdate: {
+          title: '실시간 업데이트',
+          description: '여행 중 계획 변경 시 즉시 새로운 가이드 정보로 업데이트됩니다'
+        }
+      },
+      tryButton: '통합 서비스 체험하기'
+    },
+    alerts: {
+      noSavedSettings: '저장된 설정이 없습니다',
+      settingsLoaded: '저장된 설정을 불러왔습니다',
+      settingsSaved: '설정이 저장되었습니다',
+      enterDestination: '여행지를 입력해주세요',
+      noPlanToSave: '저장할 계획이 없습니다',
+      planSaved: '계획이 저장되었습니다',
+      confirmRegenerate: '계획을 다시 생성하시겠습니까?',
+      planGenerationFailed: '계획 생성에 실패했습니다',
+      planGenerationError: '계획 생성 중 오류가 발생했습니다',
+      noPlanToShare: '공유할 계획이 없습니다',
+      planCopiedToClipboard: '계획이 클립보드에 복사되었습니다',
+      compareFeatureComingSoon: '계획 비교 기능은 곧 제공됩니다',
+      savedPlansEmpty: '저장된 계획이 없습니다',
+      loadButton: '불러오기',
+      deleteButton: '삭제',
+      settingsPrompt: '설정을 저장하시겠습니까?',
+      linkCopied: '링크가 복사되었습니다'
     }
   },
   tripTypes: {
@@ -1142,7 +1224,7 @@ const detectBrowserLanguage = (): SupportedLanguage => {
 async function loadTranslations(language: SupportedLanguage): Promise<Translations> {
   try {
     // 🔥 캐시 무효화를 위한 버전 관리
-    const TRANSLATION_VERSION = '1.0.3'; // 버전 업데이트로 캐시 무효화 (tripTypes 구조 수정)
+    const TRANSLATION_VERSION = '1.0.6'; // React Hooks Rules 수정 및 캐시 무효화
     const cacheKey = `translations-${language}-v${TRANSLATION_VERSION}`;
     
     // 🔥 기존 캐시 정리 (버전이 다른 경우)
@@ -1187,6 +1269,14 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
     
     const allTranslations = await response.json();
     const translations = allTranslations[language] || allTranslations['ko'];
+    
+    // 🔥 디버그: 실제 로딩된 번역 구조 확인
+    console.log(`🔍 [${language}] tripPlanner exists:`, !!translations?.tripPlanner);
+    console.log(`🔍 [${language}] tripTypes exists:`, !!translations?.tripTypes);
+    if (language === 'ko') {
+      console.log(`🔍 [${language}] tripPlanner.quickPlanner.title:`, translations?.tripPlanner?.quickPlanner?.title);
+      console.log(`🔍 [${language}] tripTypes.solo.name:`, translations?.tripTypes?.solo?.name);
+    }
     
     // 안전성 보장 (모든 새로운 필드들 포함)
     const safeTranslations: Translations = {
@@ -1304,10 +1394,63 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
           ...(translations?.legal?.privacy || {})
         }
       },
-      // 🔥 tripPlanner 필드 추가
+      // 🔥 tripPlanner 필드 추가 (깊은 병합)
       tripPlanner: {
         ...DEFAULT_TRANSLATIONS.tripPlanner,
-        ...(translations?.tripPlanner || {})
+        ...(translations?.tripPlanner || {}),
+        // 중첩 객체들 명시적 병합
+        hero: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.hero,
+          ...(translations?.tripPlanner?.hero || {})
+        },
+        quickPlanner: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.quickPlanner,
+          ...(translations?.tripPlanner?.quickPlanner || {})
+        },
+        steps: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.steps,
+          ...(translations?.tripPlanner?.steps || {})
+        },
+        form: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.form,
+          ...(translations?.tripPlanner?.form || {}),
+          durationOptions: {
+            ...DEFAULT_TRANSLATIONS.tripPlanner.form.durationOptions,
+            ...(translations?.tripPlanner?.form?.durationOptions || {})
+          },
+          budgetOptions: {
+            ...DEFAULT_TRANSLATIONS.tripPlanner.form.budgetOptions,
+            ...(translations?.tripPlanner?.form?.budgetOptions || {})
+          },
+          interestOptions: {
+            ...DEFAULT_TRANSLATIONS.tripPlanner.form.interestOptions,
+            ...(translations?.tripPlanner?.form?.interestOptions || {})
+          }
+        },
+        audioGuideIntegration: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.audioGuideIntegration,
+          ...(translations?.tripPlanner?.audioGuideIntegration || {}),
+          title: {
+            ...DEFAULT_TRANSLATIONS.tripPlanner.audioGuideIntegration.title,
+            ...(translations?.tripPlanner?.audioGuideIntegration?.title || {})
+          },
+          features: {
+            ...DEFAULT_TRANSLATIONS.tripPlanner.audioGuideIntegration.features,
+            ...(translations?.tripPlanner?.audioGuideIntegration?.features || {}),
+            autoStart: {
+              ...DEFAULT_TRANSLATIONS.tripPlanner.audioGuideIntegration.features.autoStart,
+              ...(translations?.tripPlanner?.audioGuideIntegration?.features?.autoStart || {})
+            },
+            personalized: {
+              ...DEFAULT_TRANSLATIONS.tripPlanner.audioGuideIntegration.features.personalized,
+              ...(translations?.tripPlanner?.audioGuideIntegration?.features?.personalized || {})
+            },
+            realtimeUpdate: {
+              ...DEFAULT_TRANSLATIONS.tripPlanner.audioGuideIntegration.features.realtimeUpdate,
+              ...(translations?.tripPlanner?.audioGuideIntegration?.features?.realtimeUpdate || {})
+            }
+          }
+        }
       },
       // 🔥 tripTypes 필드 추가
       tripTypes: {

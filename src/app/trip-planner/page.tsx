@@ -151,9 +151,13 @@ export default function TripPlannerPage() {
   // 모든 hooks를 최상단에 선언 (React Hooks Rules)
   const [isClient, setIsClient] = useState(false);
   const [destination, setDestination] = useState('');
-  const [budget, setBudget] = useState('적당히');
+  
+  // TODO(human): React Hooks Rules 위반 수정 필요
+  // useState 초기값에서 t() 함수 호출하면 번역 로딩 전에 렌더링될 때 hooks 순서가 바뀜
+  // 정적 기본값으로 초기화하고 useEffect에서 번역 로딩 후 업데이트하는 방식으로 수정
+  const [budget, setBudget] = useState('20-50만원');
   const [duration, setDuration] = useState('2-3일');
-  const [tripType, setTripType] = useState('관광');
+  const [tripType, setTripType] = useState('solo');
   const [generatedPlan, setGeneratedPlan] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [savedPlans, setSavedPlans] = useState<any[]>([]);
@@ -162,6 +166,15 @@ export default function TripPlannerPage() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // 번역 로딩 완료 후 기본값 업데이트 (React Hooks Rules 준수)
+  useEffect(() => {
+    if (!isLoading && isClient) {
+      setBudget(String(t('tripPlanner.defaults.budget')));
+      setDuration(String(t('tripPlanner.defaults.duration')));
+      setTripType(String(t('tripPlanner.defaults.tripType')));
+    }
+  }, [isLoading, isClient, t]);
 
   // localStorage에서 저장된 계획들 로드
   useEffect(() => {
@@ -351,10 +364,9 @@ export default function TripPlannerPage() {
 
           {/* Quick Planner Section */}
           <div className="bg-gray-50 rounded-2xl p-8 mb-16">
-            <h2 
-              className="text-fluid-2xl font-semibold text-black mb-6 text-center leading-snug"
-              dangerouslySetInnerHTML={{ __html: String(t('tripPlanner.quickPlanner.title')) }}
-            ></h2>
+            <h2 className="text-fluid-2xl font-semibold text-black mb-6 text-center leading-snug">
+              <span dangerouslySetInnerHTML={{ __html: String(t('tripPlanner.quickPlanner.title')) }} />
+            </h2>
 
             {/* Step 1: Travel Style Selection */}
             <div className="mb-8">
@@ -527,8 +539,8 @@ export default function TripPlannerPage() {
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <h4 className="font-medium">{plan.destination} - {plan.duration}</h4>
-                          <p className="text-sm text-gray-600">예산: {plan.budget} | 타입: {plan.tripType}</p>
-                          <p className="text-xs text-gray-500">생성일: {new Date(plan.createdAt).toLocaleDateString()}</p>
+                          <p className="text-sm text-gray-600">{String(t('tripPlanner.labels.budget'))} {plan.budget} | {String(t('tripPlanner.labels.tripType'))} {plan.tripType}</p>
+                          <p className="text-xs text-gray-500">{String(t('tripPlanner.labels.createdAt'))} {new Date(plan.createdAt).toLocaleDateString()}</p>
                         </div>
                         <div className="flex gap-2">
                           <button
@@ -626,7 +638,7 @@ export default function TripPlannerPage() {
                     </div>
                   </div>
                   <div className="mb-4">
-                    <p className="text-xs text-gray-500 mb-1">주요 명소</p>
+                    <p className="text-xs text-gray-500 mb-1">{String(t('tripPlanner.labels.mainAttractions'))}</p>
                     <p className="text-sm text-gray-700">{dest.highlights.join(', ')}</p>
                   </div>
                   <div className="flex justify-between items-center">
