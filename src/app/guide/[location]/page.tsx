@@ -7,6 +7,7 @@ import { Metadata } from 'next';
 import StructuredData from '@/components/seo/StructuredData';
 import TouristAttractionSchema from '@/components/seo/TouristAttractionSchema';
 import PlaceSchema from '@/components/seo/PlaceSchema';
+import AudioObjectSchema from '@/components/seo/AudioObjectSchema';
 
 export const revalidate = 0;
 
@@ -121,6 +122,54 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
   
   // 구조화된 데이터를 위한 정보 준비
   const guideContent = initialGuide?.content;
+
+  // AudioObject 데이터 추출
+  const extractAudioObject = (raw: any) => {
+    if (!raw) return null;
+    let c = raw;
+    try { if (typeof c === 'string') c = JSON.parse(c); } catch {}
+    const pick = (...paths: Array<(o: any) => any>) => {
+      for (const fn of paths) {
+        try {
+          const v = fn(c);
+          if (v) return v;
+        } catch {}
+      }
+      return undefined;
+    };
+    const url =
+      pick(o => o.audioUrl, o => o.audio?.url) ||
+      pick(
+        o => Array.isArray(o.chapters) && o.chapters.find((x: any) => x?.audioUrl)?.audioUrl,
+        o => Array.isArray(o.sections) && o.sections.find((x: any) => x?.audioUrl)?.audioUrl,
+      );
+    if (!url) return null;
+
+    const title =
+      pick(o => o.title, o => o.name) ||
+      pick(
+        o => Array.isArray(o.chapters) && o.chapters.find((x: any) => x?.title)?.title,
+        o => Array.isArray(o.sections) && o.sections.find((x: any) => x?.title)?.title,
+      ) || `${locationName} 오디오 가이드`;
+
+    const duration =
+      pick(o => o.duration, o => o.audio?.duration) ||
+      pick(
+        o => Array.isArray(o.chapters) && o.chapters.find((x: any) => x?.duration)?.duration,
+        o => Array.isArray(o.sections) && o.sections.find((x: any) => x?.duration)?.duration,
+      );
+
+    return {
+      name: title,
+      contentUrl: url,
+      description: guideContent?.description,
+      encodingFormat: url.includes('.mp3') ? 'audio/mpeg' : undefined,
+      duration,
+      inLanguage: serverDetectedLanguage,
+    };
+  };
+
+  const audioData = extractAudioObject(guideContent);
   
   // TouristAttraction 스키마 데이터
   const touristAttractionData = {
@@ -182,6 +231,7 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
     <>
       <TouristAttractionSchema data={touristAttractionData} />
       <PlaceSchema data={placeData} />
+      {audioData && <AudioObjectSchema data={audioData} />}
       <MultiLangGuideClient 
         locationName={locationName} 
         initialGuide={initialGuide}

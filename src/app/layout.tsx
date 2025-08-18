@@ -7,6 +7,7 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import SessionProvider from '@/components/providers/SessionProvider';
 import ClientLayout from '@/components/layout/ClientLayout';
 import LocalBusinessSchema from '@/components/seo/LocalBusinessSchema';
+import OrganizationSchema from '@/components/seo/OrganizationSchema';
 import WebsiteSchema from '@/components/seo/WebsiteSchema';
 import SoftwareApplicationSchema from '@/components/seo/SoftwareApplicationSchema';
 import ServiceSchema from '@/components/seo/ServiceSchema';
@@ -275,8 +276,10 @@ export default async function RootLayout({
           `}
         </Script>
         
-        {/* Local Business Schema */}
+        {/* Local Business Schema (네이버용) */}
         <LocalBusinessSchema />
+        {/* Organization Schema (네이버용) */}
+        <OrganizationSchema />
         
         {/* Website Schema for SEO */}
         <WebsiteSchema />
