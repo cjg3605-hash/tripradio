@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo, useCallback, Component, ReactNode
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 
 import StructuredData from '@/components/seo/StructuredData';
 import GuideLoading from '@/components/ui/GuideLoading';
@@ -1572,20 +1573,13 @@ function Home() {
                     </div>
                   ) : suggestions.length > 0 ? (
                     suggestions.map((suggestion, index) => (
-                      <button
+                      <a
                         key={index}
                         id={`suggestion-${index}`}
-                        onClick={() => {
-                          const selectedLocation = suggestion.name;
-                          setQuery(selectedLocation);
-                          setIsFocused(false);
-                          setShowSuggestions(false);
-                          setSelectedSuggestionIndex(-1);
-                          router.push(`/guide/${encodeURIComponent(selectedLocation)}?lang=${currentLanguage}`);
-                        }}
+                        href={`/guide/${encodeURIComponent(suggestion.name)}?lang=${currentLanguage}`}
                         onMouseEnter={() => setSelectedSuggestionIndex(index)}
                         onMouseLeave={() => setSelectedSuggestionIndex(-1)}
-                        className={`w-full px-6 py-4 text-left transition-all duration-200 group suggestion-item focus:outline-none focus:ring-2 focus:ring-inset focus:ring-black ${
+                        className={`w-full block px-6 py-4 text-left transition-all duration-200 group suggestion-item focus:outline-none focus:ring-2 focus:ring-inset focus:ring-black ${
                           selectedSuggestionIndex === index 
                             ? 'bg-blue-50 ring-2 ring-blue-200' 
                             : 'hover:bg-[#F8F8F8]'
@@ -1611,7 +1605,7 @@ function Home() {
                             </svg>
                           </div>
                         </div>
-                      </button>
+                      </a>
                     ))
                   ) : (
                     <div className="px-6 py-4 text-center text-sm text-gray-500">
@@ -1796,8 +1790,8 @@ function Home() {
 
             {/* 더 많은 명소 보기 버튼 */}
             <div className="mt-10 sm:mt-12 px-4 sm:px-6 text-center">
-              <button
-                onClick={() => router.push(`/regions/${activeRegion}`)}
+              <Link
+                href={`/regions/${activeRegion}`}
                 className="group inline-flex items-center justify-center bg-black text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-fluid-sm sm:text-fluid-base font-semibold hover:bg-gray-800 focus:bg-gray-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 min-w-[160px] sm:min-w-[200px] shadow-lg hover:shadow-xl"
               >
                 <span className="leading-none">
@@ -1806,7 +1800,7 @@ function Home() {
                 <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
-              </button>
+              </Link>
             </div>
 
             {/* 전략적 광고 배치 2: 지역별 국가 섹션 하단 */}
