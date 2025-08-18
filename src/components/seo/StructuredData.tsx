@@ -1,8 +1,8 @@
-// src/components/seo/StructuredData.tsx
+// src/components/seo/StructuredData.tsx (네이버 SEO 최적화)
 import React from 'react';
 
 interface StructuredDataProps {
-  type?: 'WebSite' | 'TravelAgency' | 'TouristAttraction' | 'SoftwareApplication';
+  type?: 'WebSite' | 'TravelAgency' | 'TouristAttraction' | 'SoftwareApplication' | 'TravelGuide' | 'LocalBusiness';
   data?: Record<string, any>;
 }
 
@@ -102,6 +102,86 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
           geo: data.geo,
           touristType: ['Leisure', 'Business', 'Cultural', 'Educational'],
           availableLanguage: ['Korean', 'English', 'Japanese', 'Chinese', 'Spanish'],
+          ...data
+        };
+
+      case 'TravelGuide':
+        return {
+          ...baseData,
+          name: data.name || `${data.location} 여행 가이드`,
+          description: data.description || `${data.location}의 상세한 여행 가이드`,
+          mainEntity: {
+            '@type': 'Place',
+            name: data.location,
+            description: data.description,
+            ...(data.coordinates && {
+              geo: {
+                '@type': 'GeoCoordinates',
+                latitude: data.coordinates.latitude,
+                longitude: data.coordinates.longitude
+              }
+            }),
+            ...(data.address && { address: data.address })
+          },
+          author: {
+            '@type': 'Organization',
+            name: 'NaviDocent.AI',
+            url: 'https://navidocent.com'
+          },
+          publisher: {
+            '@type': 'Organization',
+            name: 'NaviDocent.AI',
+            url: 'https://navidocent.com',
+            logo: {
+              '@type': 'ImageObject',
+              url: 'https://navidocent.com/logo.png'
+            }
+          },
+          inLanguage: data.language || 'ko',
+          datePublished: data.datePublished,
+          dateModified: data.dateModified || new Date().toISOString(),
+          ...(data.rating && {
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: data.rating,
+              bestRating: '100',
+              worstRating: '0',
+              ratingCount: data.reviewCount || 1
+            }
+          }),
+          keywords: data.keywords?.join(', '),
+          image: data.images || [`https://navidocent.com/guide-images/${encodeURIComponent(data.location)}.jpg`],
+          ...data
+        };
+
+      case 'LocalBusiness':
+        return {
+          ...baseData,
+          name: 'NaviDocent.AI',
+          description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스',
+          url: 'https://navidocent.com',
+          telephone: data.telephone,
+          address: {
+            '@type': 'PostalAddress',
+            addressCountry: 'KR',
+            addressRegion: 'Seoul',
+            ...data.address
+          },
+          geo: data.geo,
+          openingHours: data.openingHours || ['Mo-Su 00:00-23:59'],
+          serviceArea: {
+            '@type': 'Country',
+            name: 'South Korea'
+          },
+          makesOffer: {
+            '@type': 'Offer',
+            itemOffered: {
+              '@type': 'Service',
+              name: 'AI 여행 가이드 서비스',
+              description: '실시간 음성 가이드와 다국어 지원'
+            }
+          },
+          aggregateRating: data.aggregateRating,
           ...data
         };
 

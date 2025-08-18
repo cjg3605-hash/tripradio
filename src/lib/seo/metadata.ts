@@ -14,13 +14,13 @@ interface SEOConfig {
 
 const SEO_CONFIGS: Record<SupportedLanguage, SEOConfig> = {
   ko: {
-    title: 'TripRadio.AI - 트립라디오AI 오디오가이드',
-    description: 'AI가 만드는 개인 맞춤형 여행 오디오가이드. 전문 도슨트 음성해설과 다국어 지원으로 특별한 여행 경험을 제공합니다.',
+    title: 'NaviDocent.AI - 나비도슨트 AI 여행 가이드',
+    description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 5개 언어 지원으로 완벽한 여행 경험을 제공합니다. 경복궁, 제주도, 부산 등 한국 전국 여행지 가이드 제공.',
     keywords: [
-      'TripRadio.AI', '트립라디오AI', '여행라디오', '트립라디오', '오디오가이드', '도슨트', 'AI여행', 'AI가이드', '관광', '투어', '음성가이드', '다국어', '한국여행', 'Korea tour', 'audio guide', 'docent tour'
+      'NaviDocent', '나비도슨트', 'AI여행가이드', '여행도슨트', '음성가이드', '오디오가이드', 'AI가이드', '개인맞춤여행', '한국여행', '관광가이드', '여행앱', '도슨트서비스', '실시간가이드', '다국어가이드', '스마트관광', 'TTS음성', 'PWA앱', '오프라인가이드', '위치기반가이드', '문화해설'
     ],
-    ogTitle: 'TripRadio.AI - 트립라디오AI 오디오가이드',
-    ogDescription: 'AI가 만드는 개인 맞춤형 여행 오디오가이드. 전문 도슨트 음성해설과 다국어 지원으로 특별한 여행 경험을 제공합니다.'
+    ogTitle: 'NaviDocent.AI - 나비도슨트 AI 여행 가이드',
+    ogDescription: 'AI가 만드는 개인 맞춤형 여행 도슨트. 한국 전국 여행지의 상세한 음성 가이드를 실시간으로 제공합니다.'
   },
   en: {
     title: 'TripRadio.AI - Travel Audio Guide AI',
@@ -483,4 +483,105 @@ export function generateJsonLd(
     default:
       return baseStructure;
   }
+}
+
+/**
+ * 네이버 SEO 최적화 메타데이터 생성
+ */
+export function generateNaverOptimizedMetadata(
+  pagePath: string,
+  guideData: {
+    location: string;
+    description: string;
+    keywords?: string[];
+    coordinates?: { latitude: number; longitude: number };
+    rating?: number;
+    lastModified?: Date;
+  },
+  language: SupportedLanguage = 'ko'
+): Metadata {
+  const config = SEO_CONFIGS[language];
+  const domain = BASE_DOMAIN;
+  const { location, description, keywords = [], coordinates, rating, lastModified } = guideData;
+  
+  // 네이버 검색 최적화 키워드 조합
+  const naverKeywords = [
+    ...config.keywords,
+    location,
+    `${location} 가이드`,
+    `${location} 여행`,
+    `${location} 관광`,
+    `${location} 도슨트`,
+    `${location} 투어`,
+    ...keywords
+  ];
+
+  const title = `${location} 가이드 - 나비도슨트 AI 여행 가이드`;
+  const ogTitle = `${location} AI 여행 가이드 | NaviDocent`;
+  const metaDescription = `${location}의 상세한 AI 음성 가이드. ${description} 실시간 위치 기반 해설과 다국어 지원으로 완벽한 여행 경험을 제공합니다.`;
+
+  return {
+    title,
+    description: metaDescription,
+    keywords: naverKeywords,
+    authors: [{ name: 'NaviDocent AI Team' }],
+    creator: 'NaviDocent.AI',
+    publisher: 'NaviDocent.AI',
+    metadataBase: new URL(domain),
+    alternates: {
+      canonical: `${domain}${pagePath}`,
+      languages: {
+        'ko': `${domain}${pagePath}`,
+        'en': `${domain}${pagePath}?lang=en`,
+        'ja': `${domain}${pagePath}?lang=ja`,
+        'zh': `${domain}${pagePath}?lang=zh`,
+        'es': `${domain}${pagePath}?lang=es`,
+        'x-default': `${domain}${pagePath}`,
+      },
+    },
+    openGraph: {
+      type: 'article',
+      locale: 'ko_KR',
+      url: `${domain}${pagePath}`,
+      title: ogTitle,
+      description: metaDescription,
+      siteName: 'NaviDocent.AI',
+      images: [
+        {
+          url: `/api/og?title=${encodeURIComponent(location)}&type=guide`,
+          width: 1200,
+          height: 630,
+          alt: `${location} 가이드`,
+        }
+      ],
+      ...(lastModified && { modifiedTime: lastModified.toISOString() }),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: ogTitle,
+      description: metaDescription,
+      images: [`/api/og?title=${encodeURIComponent(location)}&type=guide`],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+    other: {
+      // 네이버 특화 메타 태그
+      'naver-site-verification': process.env.NAVER_VERIFICATION_ID || '',
+      // 추가 지역 정보
+      ...(coordinates && {
+        'geo.position': `${coordinates.latitude};${coordinates.longitude}`,
+        'geo.placename': location,
+        'geo.region': 'KR',
+      }),
+      // 콘텐츠 분류
+      'content-type': 'travel-guide',
+      'content-language': language,
+      ...(rating && { 'rating': rating.toString() }),
+    },
+  };
 }
