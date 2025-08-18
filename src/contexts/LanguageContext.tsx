@@ -479,8 +479,37 @@ interface Translations {
       };
       departure: string;
       duration: string;
+      durationOptions: {
+        dayTrip: string;
+        oneNight: string;
+        twoNights: string;
+        threeNights: string;
+        fourNights: string;
+        oneWeek: string;
+        twoWeeks: string;
+        oneMonth: string;
+        custom: string;
+      };
       budget: string;
+      budgetOptions: {
+        under20: string;
+        range20to50: string;
+        range50to100: string;
+        range100to200: string;
+        over200: string;
+        unlimited: string;
+      };
       interests: string;
+      interestOptions: {
+        food: string;
+        shopping: string;
+        culture: string;
+        nature: string;
+        activities: string;
+        photography: string;
+        nightView: string;
+        spa: string;
+      };
       generateButton: string;
       analyzing: string;
       completionTime: string;
@@ -1095,8 +1124,37 @@ const DEFAULT_TRANSLATIONS: Translations = {
       },
       departure: '출발일',
       duration: '기간',
+      durationOptions: {
+        dayTrip: '당일치기',
+        oneNight: '1박 2일',
+        twoNights: '2박 3일',
+        threeNights: '3박 4일',
+        fourNights: '4박 5일',
+        oneWeek: '1주일',
+        twoWeeks: '2주일',
+        oneMonth: '1개월',
+        custom: '직접 입력'
+      },
       budget: '예산',
+      budgetOptions: {
+        under20: '20만원 이하',
+        range20to50: '20-50만원',
+        range50to100: '50-100만원',
+        range100to200: '100-200만원',
+        over200: '200만원 이상',
+        unlimited: '예산 상관없음'
+      },
       interests: '관심사',
+      interestOptions: {
+        food: '맛집 탐방',
+        shopping: '쇼핑',
+        culture: '역사/문화',
+        nature: '자연/힐링',
+        activities: '액티비티',
+        photography: '사진촬영',
+        nightView: '야경',
+        spa: '온천/스파'
+      },
       generateButton: '계획 생성',
       analyzing: '분석 중...',
       completionTime: '완성 시간'
