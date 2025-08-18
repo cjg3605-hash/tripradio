@@ -399,25 +399,32 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                     <div className="px-4 pb-4">
                       <div className="grid grid-cols-1 gap-2">
                         
-                        {/* Tier 1: Immediate Recognition - 3초 정보 */}
-                        <div className="p-4 bg-black/3 rounded-2xl border border-black/5">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
-                              <MapPin className="w-4 h-4 text-white" />
+                        {/* 간소화된 정보 - 제목 없이 내용만 한 줄로 */}
+                        <div className="space-y-3">
+                          {guide.overview.location && (
+                            <div className="flex items-center gap-3 p-3 bg-black/2 rounded-2xl border border-black/5">
+                              <div className="w-1 h-4 bg-black rounded-full"></div>
+                              <p className="text-sm font-medium text-black">{guide.overview.location}</p>
                             </div>
-                            <span className="text-xs font-bold text-black/60 uppercase tracking-wider">{t('guide.locationAccess')}</span>
-                          </div>
+                          )}
                           
-                          <div className="space-y-2">
-                            {guide.overview.location && (
-                              <div className="flex items-center gap-3">
-                                <div className="w-1 h-4 bg-black rounded-full"></div>
-                                <p className="text-sm font-semibold text-black">{guide.overview.location}</p>
-                              </div>
-                            )}
-                            
-                            {/* Practical Info Row */}
-                            <div className="flex flex-wrap gap-4 mt-3">
+                          {guide.overview.keyFeatures && (
+                            <div className="flex items-center gap-3 p-3 bg-black/2 rounded-2xl border border-black/5">
+                              <div className="w-1 h-4 bg-black rounded-full"></div>
+                              <p className="text-sm font-medium text-black">{guide.overview.keyFeatures}</p>
+                            </div>
+                          )}
+                          
+                          {guide.overview.background && (
+                            <div className="flex items-center gap-3 p-3 bg-black/2 rounded-2xl border border-black/5">
+                              <div className="w-1 h-4 bg-black rounded-full"></div>
+                              <p className="text-sm font-medium text-black">{guide.overview.background}</p>
+                            </div>
+                          )}
+                          
+                          {/* Practical Info Row */}
+                          {(guide.overview.visitInfo?.duration || guide.overview.visitInfo?.difficulty || guide.overview.visitInfo?.season) && (
+                            <div className="flex flex-wrap gap-4 p-3 bg-black/2 rounded-2xl border border-black/5">
                               {guide.overview.visitInfo?.duration && (
                                 <div className="flex items-center gap-2">
                                   <Clock className="w-4 h-4 text-black/60" />
@@ -437,34 +444,8 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                                 </div>
                               )}
                             </div>
-                          </div>
+                          )}
                         </div>
-
-                        {/* Tier 2: Key Features - 7초 정보 */}
-                        {guide.overview.keyFeatures && (
-                          <div className="p-4 bg-black/2 rounded-2xl border border-black/5">
-                            <div className="flex items-center gap-3 mb-3">
-                              <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
-                                <Eye className="w-4 h-4 text-white" />
-                              </div>
-                              <span className="text-xs font-bold text-black/60 uppercase tracking-wider">{t('guide.keyFeatures')}</span>
-                            </div>
-                            <p className="text-sm font-medium text-black leading-relaxed">{guide.overview.keyFeatures}</p>
-                          </div>
-                        )}
-
-                        {/* Tier 3: Historical Context - 선택적 확장 */}
-                        {guide.overview.background && (
-                          <div className="p-4 bg-black/1 rounded-2xl border border-black/5">
-                            <div className="flex items-center gap-3 mb-3">
-                              <div className="w-6 h-6 bg-black rounded-lg flex items-center justify-center">
-                                <BookOpen className="w-4 h-4 text-white" />
-                              </div>
-                              <span className="text-xs font-bold text-black/60 uppercase tracking-wider">{t('guide.historicalContext')}</span>
-                            </div>
-                            <p className="text-sm font-medium text-black/80 leading-relaxed">{guide.overview.background}</p>
-                          </div>
-                        )}
 
                         {/* Legacy Support - 기존 summary */}
                         {guide.overview.summary && !guide.overview.location && !guide.overview.keyFeatures && !guide.overview.background && (
@@ -498,7 +479,6 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                           </div>
                           <div>
                             <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.mustSeePoints')}</h2>
-                            <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.mustSeeHighlights')}</p>
                           </div>
                         </div>
                         {/* Counter */}
@@ -569,7 +549,6 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                           </div>
                           <div>
                             <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.precautions')}</h2>
-                            <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.safetyGuidelines')}</p>
                           </div>
                         </div>
                         {/* Priority Indicator */}
@@ -777,13 +756,23 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
 
               {/* 챕터 리스트 */}
               <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 border-2 border-foreground rounded-full flex items-center justify-center">
-                    <Route className="w-5 h-5" />
-                  </div>
-                  <h2 className="text-xl font-medium">{t('guide.viewingOrder')}</h2>
-                  <div className="px-3 py-1 bg-muted rounded-full text-sm text-muted-foreground">
-                    총 {totalChapters}개 챕터
+                <div className="relative mb-2">
+                  <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3">
+                    <div className="px-2 pt-2 pb-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
+                            <Route className="w-6 h-6 text-white" />
+                          </div>
+                          <div>
+                            <h2 className="text-2xl font-bold text-black tracking-tight">{t('guide.viewingOrder')}</h2>
+                          </div>
+                        </div>
+                        <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                          <span className="text-xs font-bold text-white">{totalChapters}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 

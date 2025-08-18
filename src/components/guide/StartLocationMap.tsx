@@ -110,11 +110,8 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
           </div>
           <div>
             <h3 className="text-xl font-bold text-black tracking-tight">
-              {t('guide.recommendedStartPoint') || '추천 시작지점'}
+              {t('guide.recommendedStartPoint') || '관람지도'}
             </h3>
-            <p className="text-sm text-black/60 font-medium mt-0.5">
-              {t('guide.accurateIntroLocation') || '정확한 인트로 위치'}
-            </p>
           </div>
         </div>
       </div>
