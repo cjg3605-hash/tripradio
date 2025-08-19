@@ -12,12 +12,6 @@ interface AdSenseAdProps {
 }
 
 // AdSense가 로드되었는지 확인하는 타입 가드
-declare global {
-  interface Window {
-    adsbygoogle: any[];
-    adsensePageLevelEnabled?: boolean; // 페이지 레벨 광고 활성화 여부 확인
-  }
-}
 
 export default function AdSenseAd({
   className = '',

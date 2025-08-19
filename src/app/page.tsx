@@ -1311,7 +1311,7 @@ function Home() {
       {/* Main Content */}
       <main id="main-content" className="relative overflow-hidden" tabIndex={-1}>
         {/* Hero Section - 예시와 동일한 구조 */}
-        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden" aria-labelledby="hero-heading">
+        <section className="relative min-h-[90vh] md:min-h-[80vh] sm:min-h-[70vh] flex items-center justify-center overflow-hidden" aria-labelledby="hero-heading">
           {/* Background Image - 예시와 동일하게 섹션 내부에 */}
           <div className="absolute inset-0">
             {landmarks.map((landmark, index) => (
@@ -1323,7 +1323,7 @@ function Home() {
                 style={{
                   backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('${landmarkImages[landmark]}')`,
                   backgroundSize: 'cover',
-                  backgroundPosition: 'top center',
+                  backgroundPosition: isMobile ? 'center center' : 'top center',
                   backgroundRepeat: 'no-repeat'
                 }}
               />
@@ -1334,13 +1334,13 @@ function Home() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           </div>
 
-          <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center" style={{ transform: 'translateY(-4px)' }}>
+          <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-6 lg:px-8 text-center" style={{ transform: 'translateY(-4px)' }}>
             
             {/* Badge */}
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur border border-white/20 mb-16 mt-16">
-              <span className="text-sm font-medium text-white/90">AI 오디오가이드</span>
+            <div className="inline-flex items-center px-4 md:px-3 sm:px-3 py-2 md:py-2 sm:py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 mb-16 md:mb-12 sm:mb-8 mt-16 md:mt-12 sm:mt-8">
+              <span className="text-sm md:text-sm sm:text-xs font-medium text-white/90">AI 오디오가이드</span>
               <span className="mx-2 text-white/50">•</span>
-              <span className="text-sm font-medium text-white/90">무료 체험</span>
+              <span className="text-sm md:text-sm sm:text-xs font-medium text-white/90">무료 체험</span>
             </div>
 
             {/* 중앙 명소 텍스트 - 2줄 레이아웃 (명소 부분만 회전) */}
@@ -1387,10 +1387,10 @@ function Home() {
             </div>
 
           {/* Search Bar - 예시 디자인과 동일 */}
-          <div className="relative max-w-2xl mx-auto mb-12" style={{ transform: 'translateY(4px)' }}>
-            <div className="flex items-center bg-white/95 backdrop-blur shadow-2xl border border-white/30 p-2" style={{ borderRadius: '20px' }}>
-              <div className="flex items-center flex-1 px-4">
-                <svg className="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="relative max-w-2xl md:max-w-xl sm:max-w-full mx-auto mb-12 sm:mb-8 px-0 sm:px-4" style={{ transform: 'translateY(4px)' }}>
+            <div className="flex items-center bg-white/95 backdrop-blur shadow-2xl md:shadow-xl sm:shadow-lg border border-white/30 p-2 sm:p-3" style={{ borderRadius: isMobile ? '16px' : '20px' }}>
+              <div className="flex items-center flex-1 px-4 sm:px-3">
+                <svg className="w-5 h-5 sm:w-4 sm:h-4 text-gray-400 mr-3 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
@@ -1415,7 +1415,7 @@ function Home() {
                     }
                   }}
                   placeholder={String(t('home.searchPlaceholder'))}
-                  className="border-0 bg-transparent text-lg placeholder:text-gray-500 focus-visible:ring-0 w-full focus:outline-none focus:ring-0 outline-none"
+                  className="border-0 bg-transparent text-lg md:text-base sm:text-base placeholder:text-gray-500 focus-visible:ring-0 w-full focus:outline-none focus:ring-0 outline-none"
                   aria-label={String(t('home.searchPlaceholder'))}
                   aria-describedby="search-help"
                   aria-expanded={isFocused && suggestions.length > 0}
@@ -1428,7 +1428,7 @@ function Home() {
               <button
                 onClick={handleSearch}
                 disabled={!query.trim() || loadingStates.search}
-                className="px-4 sm:px-8 py-2.5 sm:py-3 bg-black hover:bg-black/90 text-white font-medium flex items-center gap-1.5 sm:gap-2 transition-colors text-sm sm:text-base"
+                className="px-8 md:px-6 sm:px-4 py-3 md:py-2.5 sm:py-2.5 bg-black md:hover:bg-black/90 lg:hover:bg-black/90 text-white font-medium flex items-center gap-2 sm:gap-1.5 transition-colors text-base md:text-sm sm:text-sm min-h-[44px] active:bg-black/80"
                 style={{ borderRadius: isMobile ? '12px' : '16px' }}
                 aria-label={loadingStates.search ? '검색 중...' : String(t('home.searchButton'))}
                 type="submit"
@@ -1451,7 +1451,7 @@ function Home() {
             {/* Suggestions Dropdown */}
             {(isFocused || showSuggestions) && query.length > 0 && (
               <div 
-                className="absolute top-full left-0 right-0 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-[9999] autocomplete-dropdown suggestions-container"
+                className="absolute top-full left-0 right-0 sm:fixed sm:inset-x-0 sm:bottom-0 sm:top-auto sm:rounded-t-lg sm:rounded-b-none sm:max-h-[50vh] bg-white rounded-2xl md:rounded-xl sm:rounded-lg shadow-2xl md:shadow-xl sm:shadow-lg shadow-black/15 border border-gray-100 overflow-hidden z-[9999] autocomplete-dropdown suggestions-container"
                 role="listbox"
                 id="suggestions-listbox"
                 aria-label="검색 제안 목록"
@@ -1474,7 +1474,7 @@ function Home() {
                       className={`w-full block px-6 py-4 text-left transition-all duration-200 group suggestion-item focus:outline-none focus:ring-2 focus:ring-inset focus:ring-black ${
                         selectedSuggestionIndex === index 
                           ? 'bg-blue-50 ring-2 ring-blue-200' 
-                          : 'hover:bg-[#F8F8F8]'
+                          : 'md:hover:bg-[#F8F8F8] lg:hover:bg-[#F8F8F8] active:bg-[#F0F0F0]'
                       }`}
                       role="option"
                       aria-selected={selectedSuggestionIndex === index}
@@ -1577,23 +1577,23 @@ function Home() {
         </section>
 
         {/* Regional Countries Section */}
-        <section className="relative z-10 py-12 lg:py-16 bg-gradient-to-b from-gray-50 to-white" aria-labelledby="popular-destinations-heading">
-          <div className="max-w-6xl mx-auto px-6">
+        <section className="relative z-10 py-12 md:py-14 lg:py-16 bg-gradient-to-b from-gray-50 to-white" aria-labelledby="popular-destinations-heading">
+          <div className="max-w-6xl mx-auto px-6 md:px-8 sm:px-4">
             
             {/* 섹션 제목 */}
-            <div className="text-center mb-8">
-              <h2 id="popular-destinations-heading" className="text-2xl md:text-3xl font-bold text-black mb-3">
+            <div className="text-center mb-8 sm:mb-6">
+              <h2 id="popular-destinations-heading" className="text-2xl md:text-3xl sm:text-xl font-bold text-black mb-3 sm:mb-2">
                 {t('home.regionTitles.popularCountries')}
               </h2>
-              <p className="text-[#555555] font-light max-w-2xl mx-auto">
+              <p className="text-[#555555] font-light max-w-2xl mx-auto text-base sm:text-sm">
                 {t('home.regionDescription')}
               </p>
             </div>
             
             {/* 지역별 탭 */}
-            <div className="flex justify-center mb-6">
-              <div className="bg-white rounded-2xl p-1 shadow-sm border border-gray-200" role="tablist" aria-label="지역 선택">
-                <div className="flex space-x-1">
+            <div className="flex justify-center mb-6 sm:mb-4">
+              <div className="bg-white rounded-2xl md:rounded-xl sm:rounded-lg p-1 shadow-sm border border-gray-200 sm:w-full sm:max-w-md" role="tablist" aria-label="지역 선택">
+                <div className="flex space-x-1 sm:space-x-0 sm:grid sm:grid-cols-2 sm:gap-1">
                   {[
                     { id: 'korea', label: t('home.regionTitles.korea') },
                     { id: 'europe', label: t('home.regionTitles.europe') },
@@ -1604,10 +1604,10 @@ function Home() {
                       key={region.id}
                       onClick={() => setActiveRegion(region.id)}
                       className={`
-                        px-6 py-2 rounded-xl text-fluid-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black
+                        px-6 md:px-5 sm:px-4 py-2 sm:py-2.5 rounded-xl md:rounded-lg sm:rounded-md text-fluid-sm sm:text-xs font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black min-h-[44px] sm:text-center
                         ${activeRegion === region.id
                           ? 'bg-black text-white shadow-sm'
-                          : 'text-gray-600 hover:text-black hover:bg-gray-50'
+                          : 'text-gray-600 md:hover:text-black lg:hover:text-black md:hover:bg-gray-50 lg:hover:bg-gray-50 active:text-black/80 active:bg-gray-100'
                         }
                       `}
                       role="tab"
@@ -1626,43 +1626,43 @@ function Home() {
 
             {/* 국가 카드 슬라이드 - 인기여행지 스타일 */}
             <div 
-              className="overflow-x-auto pb-4"
+              className="overflow-x-auto pb-4 px-8 md:px-6 sm:px-4"
               role="tabpanel"
               id={`${activeRegion}-panel`}
               aria-labelledby={`${activeRegion}-tab`}
             >
-              <div className="flex space-x-6 min-w-max px-2">
+              <div className="flex gap-6 md:gap-4 sm:gap-3 min-w-max scroll-smooth">
                 {regionCountries[activeRegion as keyof typeof regionCountries].map((country, index) => (
                   <div
                     key={country.id}
-                    className="flex-shrink-0 w-64 group"
+                    className="flex-shrink-0 w-64 md:w-56 sm:w-48 group"
                   >
                     {/* 메인 카드 - 모던 모노크롬 스타일 */}
-                    <div className="relative bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group">
+                    <div className="relative bg-white rounded-2xl md:rounded-xl sm:rounded-lg border border-gray-200 overflow-hidden md:hover:shadow-lg lg:hover:shadow-lg transition-all duration-300 group shadow-sm">
                       
                       {/* 상단 모노크롬 헤더 */}
-                      <div className="relative h-24 bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center">
-                        <h3 className="text-white text-xl font-bold">{country.name}</h3>
+                      <div className="relative h-24 md:h-20 sm:h-16 bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center">
+                        <h3 className="text-white text-xl md:text-lg sm:text-base font-bold px-2 text-center">{country.name}</h3>
 
                       </div>
 
                       {/* 카드 콘텐츠 - 모노크롬 스타일 */}
-                      <div className="p-6">
+                      <div className="p-6 md:p-5 sm:p-4">
                         {/* 설명 */}
-                        <p className="text-gray-600 mb-6">
+                        <p className="text-gray-600 text-sm md:text-sm sm:text-xs mb-6 md:mb-5 sm:mb-4 leading-relaxed">
                           {country.description}
                         </p>
 
                         {/* Attractions */}
-                        <div className="space-y-3 mb-6">
-                          <h4 className="text-sm font-semibold text-black uppercase tracking-wide">
+                        <div className="space-y-3 md:space-y-2.5 sm:space-y-2 mb-6 md:mb-5 sm:mb-4">
+                          <h4 className="text-sm md:text-xs sm:text-xs font-semibold text-black uppercase tracking-wide">
                             Top Attractions
                           </h4>
-                          <div className="space-y-2">
+                          <div className="space-y-2 md:space-y-1.5 sm:space-y-1">
                             {country.attractions.slice(0, 3).map((attraction, idx) => (
                               <div 
                                 key={idx} 
-                                className="flex items-center space-x-3 group/item cursor-pointer"
+                                className="flex items-center space-x-3 md:space-x-2.5 sm:space-x-2 group/item cursor-pointer min-h-[44px] sm:min-h-[40px] -my-1 py-1"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setLoadingState('country', true);
@@ -1675,8 +1675,8 @@ function Home() {
                                   router.push(url);
                                 }}
                               >
-                                <div className="w-1.5 h-1.5 bg-black rounded-full group-hover/item:scale-125 transition-transform" />
-                                <span className="text-sm text-gray-700 group-hover/item:text-black transition-colors">
+                                <div className="w-1.5 h-1.5 md:w-1 md:h-1 bg-black rounded-full group-hover/item:scale-125 transition-transform flex-shrink-0" />
+                                <span className="text-sm md:text-xs sm:text-xs text-gray-700 group-hover/item:text-black transition-colors leading-tight">
                                   {attraction}
                                 </span>
                               </div>
@@ -1685,14 +1685,14 @@ function Home() {
                         </div>
 
                         {/* Action */}
-                        <div className="border-t border-gray-100 pt-4">
+                        <div className="border-t border-gray-100 pt-4 md:pt-3 sm:pt-2">
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2 text-gray-500">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="flex items-center space-x-2 md:space-x-1.5 sm:space-x-1 text-gray-500">
+                              <svg className="w-4 h-4 md:w-3.5 md:h-3.5 sm:w-3 sm:h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                               </svg>
-                              <span className="text-sm">명소를 클릭하세요</span>
+                              <span className="text-sm md:text-xs sm:text-xs">명소를 클릭하세요</span>
                             </div>
                           </div>
                         </div>
@@ -1714,22 +1714,22 @@ function Home() {
             </div>
 
             {/* 더 많은 명소 보기 버튼 */}
-            <div className="mt-10 sm:mt-12 px-4 sm:px-6 text-center">
+            <div className="mt-10 md:mt-8 sm:mt-6 px-8 md:px-6 sm:px-4 text-center">
               <Link
                 href={`/regions/${activeRegion}`}
-                className="group inline-flex items-center justify-center bg-black text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-fluid-sm sm:text-fluid-base font-semibold hover:bg-gray-800 focus:bg-gray-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 min-w-[160px] sm:min-w-[200px] shadow-lg hover:shadow-xl"
+                className="group inline-flex items-center justify-center bg-black text-white px-8 md:px-6 sm:px-4 py-3 md:py-2.5 sm:py-2.5 rounded-2xl md:rounded-xl sm:rounded-lg text-base md:text-sm sm:text-sm font-semibold md:hover:bg-gray-800 lg:hover:bg-gray-800 focus:bg-gray-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 min-h-[48px] shadow-lg md:hover:shadow-xl lg:hover:shadow-xl active:bg-gray-700"
               >
                 <span className="leading-none">
                   {t('home.viewMoreAttractions')}
                 </span>
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 md:w-4 md:h-4 sm:w-4 sm:h-4 ml-2 transition-transform duration-300 md:group-hover:translate-x-1 lg:group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </Link>
             </div>
 
             {/* 전략적 광고 배치 2: 지역별 국가 섹션 하단 */}
-            <div className="max-w-4xl mx-auto px-6 py-2 mb-4">
+            <div className="max-w-4xl mx-auto px-8 md:px-6 sm:px-4 py-2 mb-4">
               <OptimalAdSense 
                 placement="homepage-countries" 
                 className="text-center"
@@ -1754,27 +1754,27 @@ function Home() {
 
       {/* Footer with Legal Links */}
       <footer className="relative z-10 bg-[#F8F8F8] border-t border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="max-w-6xl mx-auto px-8 md:px-6 sm:px-4 py-8 md:py-6 sm:py-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-6 sm:gap-4">
             {/* Service Info */}
             <div className="md:col-span-2">
-              <h3 className="text-lg font-semibold text-black mb-4">{t('footer.companyName')}</h3>
-              <p className="text-sm text-[#555555] font-light mb-4">
+              <h3 className="text-lg md:text-base sm:text-base font-semibold text-black mb-4 md:mb-3 sm:mb-2">{t('footer.companyName')}</h3>
+              <p className="text-sm md:text-sm sm:text-xs text-[#555555] font-light mb-4 md:mb-3 sm:mb-2 leading-relaxed">
                 {t('footer.companyDescription')}
               </p>
-              <div className="flex items-center space-x-4">
-                <span className="text-xs text-gray-500">{t('footer.copyright')}</span>
+              <div className="flex items-center space-x-4 md:space-x-3 sm:space-x-2">
+                <span className="text-xs md:text-xs sm:text-xs text-gray-500">{t('footer.copyright')}</span>
               </div>
             </div>
 
             {/* Legal Pages */}
             <div>
-              <h4 className="text-sm font-semibold text-black mb-4">{t('footer.legalInfo')}</h4>
-              <ul className="space-y-2">
+              <h4 className="text-sm md:text-sm sm:text-xs font-semibold text-black mb-4 md:mb-3 sm:mb-2">{t('footer.legalInfo')}</h4>
+              <ul className="space-y-2 md:space-y-1.5 sm:space-y-1">
                 <li>
                   <a 
                     href="/legal/privacy" 
-                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
+                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.privacyPolicy')}
                   </a>
@@ -1782,7 +1782,7 @@ function Home() {
                 <li>
                   <a 
                     href="/legal/terms" 
-                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
+                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.termsOfService')}
                   </a>
@@ -1790,7 +1790,7 @@ function Home() {
                 <li>
                   <a 
                     href="/legal/about" 
-                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
+                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.aboutUs')}
                   </a>
@@ -1798,7 +1798,7 @@ function Home() {
                 <li>
                   <a 
                     href="/legal/contact" 
-                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
+                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.contact')}
                   </a>
@@ -1808,12 +1808,12 @@ function Home() {
 
             {/* Services */}
             <div>
-              <h4 className="text-sm font-semibold text-black mb-4">{t('footer.services.title')}</h4>
-              <ul className="space-y-2">
+              <h4 className="text-sm md:text-sm sm:text-xs font-semibold text-black mb-4 md:mb-3 sm:mb-2">{t('footer.services.title')}</h4>
+              <ul className="space-y-2 md:space-y-1.5 sm:space-y-1">
                 <li>
                   <a 
                     href="/audio-guide" 
-                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
+                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.services.audioGuide')}
                   </a>
@@ -1821,7 +1821,7 @@ function Home() {
                 <li>
                   <a 
                     href="/docent" 
-                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
+                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.services.docent')}
                   </a>
@@ -1829,7 +1829,7 @@ function Home() {
                 <li>
                   <a 
                     href="/tour-radio" 
-                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
+                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.services.tourRadio')}
                   </a>
@@ -1837,7 +1837,7 @@ function Home() {
                 <li>
                   <a 
                     href="/travel-radio" 
-                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
+                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.services.travelRadio')}
                   </a>
@@ -1847,12 +1847,12 @@ function Home() {
 
             {/* 여행 도구 */}
             <div>
-              <h4 className="text-sm font-semibold text-black mb-4">{t('footer.tools.title')}</h4>
-              <ul className="space-y-2">
+              <h4 className="text-sm md:text-sm sm:text-xs font-semibold text-black mb-4 md:mb-3 sm:mb-2">{t('footer.tools.title')}</h4>
+              <ul className="space-y-2 md:space-y-1.5 sm:space-y-1">
                 <li>
                   <a 
                     href="/trip-planner" 
-                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
+                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.tools.tripPlanner')}
                   </a>
@@ -1860,7 +1860,7 @@ function Home() {
                 <li>
                   <a 
                     href="/nomad-calculator" 
-                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
+                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.tools.nomadCalculator')}
                   </a>
@@ -1868,7 +1868,7 @@ function Home() {
                 <li>
                   <a 
                     href="/film-locations" 
-                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
+                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.tools.filmLocations')}
                   </a>
@@ -1876,7 +1876,7 @@ function Home() {
                 <li>
                   <a 
                     href="/visa-checker" 
-                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
+                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.tools.visaChecker')}
                   </a>
@@ -1886,14 +1886,14 @@ function Home() {
 
             {/* Support */}
             <div>
-              <h4 className="text-sm font-semibold text-black mb-4">{t('footer.support')}</h4>
-              <ul className="space-y-2">
+              <h4 className="text-sm md:text-sm sm:text-xs font-semibold text-black mb-4 md:mb-3 sm:mb-2">{t('footer.support')}</h4>
+              <ul className="space-y-2 md:space-y-1.5 sm:space-y-1">
                 <li>
                   <a 
                     href="https://t.me/docenttour" 
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-[#555555] font-light hover:text-black transition-colors"
+                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.telegramChannel')}
                   </a>

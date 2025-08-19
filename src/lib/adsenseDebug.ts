@@ -71,7 +71,7 @@ export class AdSenseDebugger {
       if (typeof window !== 'undefined') {
         if (window.autoAdSenseInitialized && window.adsensePageLevelEnabled) {
           // 정상
-        } else if (window.adsbygoogle?.length > 0) {
+        } else if (window.adsbygoogle && window.adsbygoogle.length > 0) {
           errors.push('adsbygoogle 배열에 요소가 있지만 초기화 플래그가 설정되지 않음');
         }
       }

@@ -5,14 +5,7 @@
 
 import { useEffect } from 'react';
 
-declare global {
-  interface Window {
-    adsbygoogle: any[];
-    autoAdSenseInitialized?: boolean;
-    adsensePageLevelEnabled?: boolean;
-    adsenseAutoAdsInitialized?: boolean;
-  }
-}
+// 타입 선언은 OptimalAdSense.tsx에서 통합 관리
 
 const AutoAdSense = () => {
   useEffect(() => {

@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     description: '🎧 혼자 여행이 심심하다면? AI가 실시간으로 만들어주는 나만의 여행 오디오가이드! 무료 다운로드하고 특별한 여행 경험을 시작하세요 ✈️',
     images: [
       {
-        url: '/og-image.jpg',
+        url: '/og-image.svg',
         width: 1200,
         height: 630,
         alt: 'TripRadio.AI - AI 여행 오디오가이드 가이드'
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     site: '@tripradio_ai',
     title: 'TripRadio.AI | Travel Radio AI | Free Travel Audio Guide',
     description: 'AI-powered personalized audio guide. Providing special travel experiences with professional voice guide and multilingual support. Free trial available!',
-    images: ['/og-image.jpg']
+    images: ['/og-image.svg']
   },
   robots: {
     index: true,
@@ -103,8 +103,9 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.svg', sizes: '16x16', type: 'image/svg+xml' },
+      { url: '/favicon-32x32.svg', sizes: '32x32', type: 'image/svg+xml' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
     ],
     apple: [
       { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },

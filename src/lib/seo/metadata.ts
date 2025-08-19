@@ -134,7 +134,7 @@ export function generateKeywordPageMetadata(
           alt: `${title} - TripRadio.AI`,
         },
         {
-          url: '/og-image-square.jpg',
+          url: '/og-image-square.svg',
           width: 600,
           height: 600,
           alt: 'TripRadio.AI Guide',
@@ -145,7 +145,7 @@ export function generateKeywordPageMetadata(
       card: 'summary_large_image',
       title: config.ogTitle || title,
       description: config.ogDescription || description,
-      images: ['/og-image.jpg'],
+      images: ['/og-image.svg'],
       creator: '@tripradio_ai',
       site: '@tripradio_ai',
     },
@@ -222,13 +222,13 @@ export function generateBaseMetadata(
       siteName: 'TripRadio.AI',
       images: [
         {
-          url: '/og-image.jpg',
+          url: '/og-image.svg',
           width: 1200,
           height: 630,
           alt: 'TripRadio.AI Guide',
         },
         {
-          url: '/og-image-square.jpg',
+          url: '/og-image-square.svg',
           width: 600,
           height: 600,
           alt: 'TripRadio.AI Guide',
@@ -239,7 +239,7 @@ export function generateBaseMetadata(
       card: 'summary_large_image',
       title: config.ogTitle || title,
       description: config.ogDescription || description,
-      images: ['/og-image.jpg'],
+      images: ['/og-image.svg'],
       creator: '@tripradio_ai',
       site: '@tripradio_ai',
     },
@@ -472,7 +472,7 @@ export function generateJsonLd(
           name: 'TripRadio.AI',
           logo: {
             '@type': 'ImageObject',
-            url: `${domain}/logo.png`
+            url: `${domain}/logo.svg`
           }
         },
         datePublished: data.publishedAt,

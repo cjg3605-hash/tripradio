@@ -1,8 +1,20 @@
 
-      <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
-        <rect width="100%" height="100%" fill="#ffffff"/>
-        <circle cx="50%" cy="40%" r="94.5" fill="#000000"/>
-        <text x="50%" y="65%" text-anchor="middle" font-family="Arial, sans-serif" font-size="50.4" fill="#000000" font-weight="bold">NaviDocent</text>
-        <text x="50%" y="80%" text-anchor="middle" font-family="Arial, sans-serif" font-size="25.2" fill="#666666">AI Travel Guide</text>
-      </svg>
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <!-- 배경 -->
+  <rect width="1200" height="630" fill="#ffffff"/>
+  
+  <!-- 로고 영역 -->
+  <g transform="translate(100, 165)">
+    <!-- 검은 네모 배경 -->
+    <rect width="300" height="300" rx="36" ry="36" fill="#000000"/>
+    
+    <!-- T 글자 -->
+    <text x="150" y="210" text-anchor="middle" font-family="Arial, sans-serif" font-size="200" fill="#ffffff" font-weight="bold">T</text>
+  </g>
+  
+  <!-- 텍스트 -->
+  <text x="500" y="250" font-family="Arial, sans-serif" font-size="48" fill="#000000" font-weight="bold">TripRadio.AI</text>
+  <text x="500" y="320" font-family="Arial, sans-serif" font-size="32" fill="#666666">AI 오디오 가이드 • 무료 체험</text>
+  <text x="500" y="380" font-family="Arial, sans-serif" font-size="28" fill="#999999">전 세계 모든 여행지의 맞춤형 가이드</text>
+</svg>
     
