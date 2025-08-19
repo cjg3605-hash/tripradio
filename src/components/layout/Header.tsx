@@ -58,23 +58,28 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
 
   const handleLanguageChange = useCallback(async (langCode: string) => {
     console.log('🔥 Language changing to:', langCode);
+    
+    if (langCode === currentLanguage) {
+      console.log('✅ Same language selected, closing menu');
+      setIsLanguageMenuOpen(false);
+      return;
+    }
+    
     try {
       // 1. 먼저 쿠키와 localStorage 직접 업데이트
       document.cookie = `language=${langCode}; path=/; max-age=31536000`;
       localStorage.setItem('preferred-language', langCode);
       
-      // 2. 언어 컨텍스트 업데이트
+      // 2. 언어 컨텍스트 업데이트 (새로고침 없이)
       await setLanguage(langCode as any);
       setIsLanguageMenuOpen(false);
       
-      console.log('✅ Language changed successfully, reloading page...');
-      
-      // 3. hydration 문제 방지를 위해 페이지 새로고침
-      window.location.reload();
+      console.log('✅ Language changed successfully without reload');
       
     } catch (error) {
       console.error('❌ Language change failed:', error);
-      // 에러 발생시에도 페이지 새로고침으로 복구 시도
+      // 에러 발생시에만 새로고침으로 복구
+      console.warn('🔄 Falling back to page reload');
       window.location.reload();
     }
   }, [setLanguage, currentLanguage]);
@@ -259,7 +264,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
               aria-haspopup="listbox"
             >
               <Globe size={14} className="sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-sm">{currentConfig?.code?.toUpperCase() || 'KO'}</span>
+              <span className="text-xs sm:text-sm">{currentConfig?.name || t('languages.ko')}</span>
             </button>
 
 
@@ -300,9 +305,9 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                     `}
                     role="option"
                     aria-selected={lang.code === currentLanguage}
-                    aria-label={`${lang.name}로 변경`}
+                    aria-label={String(t('header.changeToLanguage', { language: lang.name }))}
                   >
-                    <span role="img" aria-label={`${lang.name} 국기`}>
+                    <span role="img" aria-label={String(t('header.flagAltText', { language: lang.name }))}>
                       {lang.flag}
                     </span>
                     <span>{lang.name}</span>
@@ -418,7 +423,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
               onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
             >
               <Globe size={16} />
-              {t('header.language')} ({currentConfig?.code?.toUpperCase() || 'KO'})
+              {t('header.language')}: {currentConfig?.name || t('languages.ko')}
             </button>
             
             <button 
@@ -491,7 +496,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                         : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
-                    <span role="img" aria-label={`${lang.name} 국기`}>
+                    <span role="img" aria-label={String(t('header.flagAltText', { language: lang.name }))}>
                       {lang.flag}
                     </span>
                     <span>{lang.name}</span>

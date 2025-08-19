@@ -1,6 +1,7 @@
 import MultiLangGuideClient from './MultiLangGuideClient';
 import { supabase } from '@/lib/supabaseClient';
 import { safeLanguageCode, detectPreferredLanguage, LANGUAGE_COOKIE_NAME, normalizeLocationName } from '@/lib/utils';
+import { mapLocationToKorean, generateMultilingualUrls, suggestSimilarLocations } from '@/lib/location-mapping';
 import { cookies } from 'next/headers';
 import { generateMetadataFromGuide } from '@/lib/seo/dynamicMetadata';
 import { Metadata } from 'next';
@@ -8,6 +9,8 @@ import StructuredData from '@/components/seo/StructuredData';
 import TouristAttractionSchema from '@/components/seo/TouristAttractionSchema';
 import PlaceSchema from '@/components/seo/PlaceSchema';
 import AudioObjectSchema from '@/components/seo/AudioObjectSchema';
+import MultilingualHreflang from '@/components/seo/MultilingualHreflang';
+import { redirect, notFound } from 'next/navigation';
 
 export const revalidate = 0;
 
@@ -52,12 +55,27 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
 export default async function GuidePage({ params, searchParams }: PageProps) {
   const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
-  const locationName = decodeURIComponent(resolvedParams.location || '');
+  const rawLocationName = decodeURIComponent(resolvedParams.location || '');
   const requestedLang = safeLanguageCode(
     Array.isArray(resolvedSearchParams?.lang) 
       ? resolvedSearchParams.lang[0] 
       : resolvedSearchParams?.lang
   );
+  
+  // 🗺️ 다국어 지명 매핑 시도
+  const mappedKoreanLocation = mapLocationToKorean(rawLocationName);
+  if (mappedKoreanLocation && mappedKoreanLocation !== rawLocationName) {
+    // 영어/다국어 지명이 한국어로 매핑된 경우 리다이렉트
+    const newUrl = `/guide/${encodeURIComponent(mappedKoreanLocation)}`;
+    const params = new URLSearchParams();
+    if (requestedLang) params.set('lang', requestedLang);
+    
+    const redirectUrl = params.toString() ? `${newUrl}?${params.toString()}` : newUrl;
+    console.log(`🗺️ 지명 매핑 리다이렉트: ${rawLocationName} → ${mappedKoreanLocation}`);
+    redirect(redirectUrl);
+  }
+  
+  const locationName = mappedKoreanLocation || rawLocationName;
   // 🎯 새로운 구조화된 지역 컨텍스트 정보 추출
   const parentRegion = resolvedSearchParams?.parent 
     ? decodeURIComponent(resolvedSearchParams.parent)
@@ -102,6 +120,8 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
   
   // 🔥 서버에서 감지된 언어로 가이드 조회 (쿠키 우선)
   let initialGuide: { content: any } | null = null;
+  let guideNotFoundInAnyLanguage = false;
+  
   try {
     const { data, error } = await supabase
       .from('guides')
@@ -114,10 +134,29 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
       initialGuide = { content: data.content };
       console.log(`✅ 서버에서 ${serverDetectedLanguage} 가이드 발견`);
     } else {
-      console.log(`⚠️ 서버에서 ${serverDetectedLanguage} 가이드 없음, 클라이언트에서 생성`);
+      console.log(`⚠️ 서버에서 ${serverDetectedLanguage} 가이드 없음, 다른 언어 확인`);
+      
+      // 다른 언어로도 가이드가 존재하는지 확인
+      const { data: anyLanguageData, error: anyLanguageError } = await supabase
+        .from('guides')
+        .select('content')
+        .eq('locationname', normLocation)
+        .limit(1);
+      
+      if (anyLanguageError || !anyLanguageData || anyLanguageData.length === 0) {
+        console.log(`❌ "${locationName}" 가이드가 어떤 언어로도 존재하지 않음`);
+        guideNotFoundInAnyLanguage = true;
+      } else {
+        console.log(`✅ 다른 언어로 가이드 존재, 클라이언트에서 생성 예정`);
+      }
     }
   } catch (e) {
     console.error('서버 사이드 가이드 조회 오류:', e);
+  }
+  
+  // 가이드가 전혀 존재하지 않으면 404 페이지로 리다이렉트
+  if (guideNotFoundInAnyLanguage) {
+    notFound();
   }
   
   // 구조화된 데이터를 위한 정보 준비
@@ -227,8 +266,17 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
     wheelchairAccessible: guideContent?.accessibility?.includes('wheelchair') || true
   };
 
+  // 현재 페이지 URL 생성
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+  const currentUrl = `${baseUrl}/guide/${encodeURIComponent(locationName)}${serverDetectedLanguage !== 'ko' ? `?lang=${serverDetectedLanguage}` : ''}`;
+
   return (
     <>
+      <MultilingualHreflang 
+        locationName={locationName}
+        currentLanguage={serverDetectedLanguage}
+        currentUrl={currentUrl}
+      />
       <TouristAttractionSchema data={touristAttractionData} />
       <PlaceSchema data={placeData} />
       {audioData && <AudioObjectSchema data={audioData} />}

@@ -1310,7 +1310,7 @@ const detectBrowserLanguage = (): SupportedLanguage => {
 async function loadTranslations(language: SupportedLanguage): Promise<Translations> {
   try {
     // 🔥 캐시 무효화를 위한 버전 관리
-    const TRANSLATION_VERSION = '1.0.6'; // React Hooks Rules 수정 및 캐시 무효화
+    const TRANSLATION_VERSION = '1.0.7'; // 헤더 언어 설정 문제 해결 및 캐시 최적화
     const cacheKey = `translations-${language}-v${TRANSLATION_VERSION}`;
     
     // 🔥 기존 캐시 정리 (버전이 다른 경우)
@@ -1339,12 +1339,11 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
       }
     }
 
-    // 🔥 번역 파일 강제 새로고침 (no-cache)
+    // 🔥 번역 파일 로딩 (캐시 전략 개선)
     const response = await fetch(`/locales/translations.json?v=${TRANSLATION_VERSION}`, {
-      cache: 'no-cache',
+      cache: 'default', // 브라우저 캐시 활용하되 버전으로 무효화
       headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
+        'Accept': 'application/json'
       }
     });
     
@@ -1588,19 +1587,28 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     
     setIsLoading(true);
     try {
-      const newTranslations = await loadTranslations(language);
-      setTranslations(newTranslations);
+      // 🔥 번역 파일 로딩 전에 언어 상태 먼저 업데이트 (즉시 UI 반영)
       setCurrentLanguage(language);
       
-      // 🔥 쿠키와 localStorage 동시 업데이트 (서버-클라이언트 동기화)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('preferred-language', language);
-        setLanguageCookie(language); // 쿠키도 설정
-      }
+      // 병렬로 번역 파일 로딩과 쿠키/스토리지 업데이트
+      const [newTranslations] = await Promise.all([
+        loadTranslations(language),
+        // 🔥 쿠키와 localStorage 동시 업데이트 (서버-클라이언트 동기화)
+        (async () => {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('preferred-language', language);
+            setLanguageCookie(language);
+          }
+        })()
+      ]);
       
-      console.log(`✅ 언어 변경됨: ${language} (쿠키 + localStorage 동기화)`);
+      setTranslations(newTranslations);
+      
+      console.log(`✅ 언어 변경 완료: ${language} (즉시 UI 반영 + 백그라운드 로딩)`);
     } catch (error) {
       console.error('언어 변경 오류:', error);
+      // 에러 발생시 이전 언어로 롤백
+      setCurrentLanguage(currentLanguage);
     } finally {
       setIsLoading(false);
     }
@@ -1627,12 +1635,18 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       
       // 🔧 서버와 일치하는 언어로 설정
       setCurrentLanguage(initialLanguage);
-      const initialTranslations = await loadTranslations(initialLanguage);
-      setTranslations(initialTranslations);
       
-      // 🔥 쿠키와 localStorage 동기화 (초기화 시에도)
-      localStorage.setItem('preferred-language', initialLanguage);
-      setLanguageCookie(initialLanguage);
+      // 🔥 초기 번역 파일 로딩과 동기화를 병렬 처리
+      const [initialTranslations] = await Promise.all([
+        loadTranslations(initialLanguage),
+        // 쿠키와 localStorage 동기화 (초기화 시에도)
+        (async () => {
+          localStorage.setItem('preferred-language', initialLanguage);
+          setLanguageCookie(initialLanguage);
+        })()
+      ]);
+      
+      setTranslations(initialTranslations);
       
       console.log(`✅ 언어 초기화 완료: ${initialLanguage} (서버-클라이언트 동기화)`);
     };

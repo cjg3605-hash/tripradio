@@ -151,8 +151,8 @@ const ServiceSchema: React.FC<ServiceSchemaProps> = ({ data }) => {
     }),
     
     // 생성/수정 일자 (고정값으로 hydration 오류 방지)
-    dateCreated: "2024-01-01",
-    dateModified: "2024-08-18",
+    dateCreated: "2024-01-01T00:00:00Z",
+    dateModified: "2024-08-18T00:00:00Z",
     
     // 업계 분류
     category: "Travel Technology",
@@ -193,6 +193,7 @@ const ServiceSchema: React.FC<ServiceSchemaProps> = ({ data }) => {
   return (
     <script
       type="application/ld+json"
+      suppressHydrationWarning
       dangerouslySetInnerHTML={{
         __html: JSON.stringify(schemaData, null, 0)
       }}

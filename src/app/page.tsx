@@ -39,7 +39,11 @@ const ImagePreloader = dynamic(() => import('@/components/optimization/ImagePrel
 
 // 에러 바운더리 클래스 컴포넌트
 class ErrorBoundary extends Component<
-  { children: ReactNode; fallback?: (error: Error, reset: () => void) => ReactNode },
+  { 
+    children: ReactNode; 
+    fallback?: (error: Error, reset: () => void) => ReactNode;
+    t: (key: string, params?: Record<string, string>) => string | string[];
+  },
   { hasError: boolean; error: Error | null }
 > {
   constructor(props: any) {
@@ -72,8 +76,8 @@ class ErrorBoundary extends Component<
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-black mb-2">오류가 발생했습니다</h2>
-              <p className="text-[#555555] font-light mb-6">죄송합니다. 예상치 못한 오류가 발생했습니다. 다시 시도해 주세요.</p>
+              <h2 className="text-2xl font-bold text-black mb-2">{String(this.props.t('errors.generalError'))}</h2>
+              <p className="text-[#555555] font-light mb-6">{String(this.props.t('home.alerts.unexpectedError') || this.props.t('errors.generalError'))}</p>
               <div className="bg-[#F8F8F8] rounded-lg p-4 mb-6 text-left">
                 <p className="text-sm text-gray-500 font-mono">{this.state.error.message}</p>
               </div>
@@ -85,7 +89,7 @@ class ErrorBoundary extends Component<
               }}
               className="w-full bg-black text-white py-3 px-6 rounded-2xl font-medium hover:bg-gray-800 transition-colors"
             >
-다시 시도
+              {String(this.props.t('common.tryAgain'))}
             </button>
           </div>
         </div>
@@ -1928,8 +1932,10 @@ function Home() {
 
 // ErrorBoundary로 감싸진 메인 컴포넌트
 export default function HomePage() {
+  const { t } = useLanguage();
+  
   return (
-    <ErrorBoundary>
+    <ErrorBoundary t={t}>
       <Home />
     </ErrorBoundary>
   );

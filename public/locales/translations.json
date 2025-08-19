@@ -40,6 +40,7 @@
         "americas": "미주"
       },
       "regionDescription": "세계 각국의 대표 관광명소와 함께하는 특별한 오디오 가이드 여행을 시작하세요",
+      "attractionDetails": "명소 상세보기",
       "countryAttraction": "TOP ATTRACTIONS",
       "startGuide": "Start Guide",
       "destinations": "destinations",
@@ -3137,6 +3138,7 @@
         "americas": "Americas"
       },
       "regionDescription": "Start a special audio guide journey with representative tourist attractions from around the world",
+      "attractionDetails": "View Attraction Details",
       "countryAttraction": "TOP ATTRACTIONS",
       "startGuide": "Start Guide",
       "destinations": "destinations",

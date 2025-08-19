@@ -10,7 +10,7 @@ import { loginRateLimiter, emailVerificationRateLimiter } from './src/lib/rate-l
 const intlMiddleware = createIntlMiddleware({
   locales: ['ko', 'en', 'ja', 'zh', 'es'],
   defaultLocale: 'ko',
-  localeDetection: false
+  localeDetection: true
 });
 
 /**
@@ -153,12 +153,36 @@ async function securityMiddleware(request: NextRequest): Promise<NextResponse | 
 
 export default withAuth(
   async function middleware(req) {
-    // 1. next-intl 미들웨어 실행 (정적 경로 제외)
+    // 1. 언어 감지 및 쿼리 파라미터 리다이렉션 처리
     const pathname = req.nextUrl.pathname;
     const isApiRoute = pathname.startsWith('/api/');
     const isStaticFile = pathname.includes('.');
     
     if (!isApiRoute && !isStaticFile) {
+      // 해외 사용자 언어 감지 및 리다이렉션
+      const acceptLanguage = req.headers.get('Accept-Language') || '';
+      const currentLang = req.nextUrl.searchParams.get('lang');
+      
+      // Accept-Language에서 지원 언어 추출
+      const supportedLocales = ['ko', 'en', 'ja', 'zh', 'es'];
+      const detectedLang = acceptLanguage
+        .split(',')[0]
+        ?.split('-')[0]
+        ?.toLowerCase();
+      
+      // 언어 파라미터가 없고, 해외 언어가 감지되면 리다이렉션
+      if (!currentLang && detectedLang && 
+          supportedLocales.includes(detectedLang) && 
+          detectedLang !== 'ko') {
+        
+        const url = req.nextUrl.clone();
+        url.searchParams.set('lang', detectedLang);
+        
+        console.log(`🌍 해외 사용자 언어 감지: ${detectedLang} → ${url.toString()}`);
+        return NextResponse.redirect(url);
+      }
+      
+      // next-intl 미들웨어 실행 (기존 로직 유지)
       const intlResponse = intlMiddleware(req);
       if (intlResponse instanceof Response) {
         return intlResponse;

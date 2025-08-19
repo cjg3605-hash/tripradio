@@ -114,9 +114,9 @@ const ReviewSchema: React.FC<ReviewSchemaProps> = ({ itemReviewed, reviews = [],
         reviewBody: review.reviewBody,
         headline: review.headline || `${itemReviewed.name} 이용 후기`,
         
-        // 발행일
-        datePublished: review.datePublished,
-        dateCreated: review.datePublished,
+        // 발행일 (ISO 형식으로 정규화)
+        datePublished: review.datePublished.includes('T') ? review.datePublished : `${review.datePublished}T00:00:00Z`,
+        dateCreated: review.datePublished.includes('T') ? review.datePublished : `${review.datePublished}T00:00:00Z`,
         
         // 장단점
         ...(review.pros && review.pros.length > 0 && {
@@ -203,6 +203,7 @@ const ReviewSchema: React.FC<ReviewSchemaProps> = ({ itemReviewed, reviews = [],
     return (
       <script
         type="application/ld+json"
+        suppressHydrationWarning
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(ratingOnlySchema, null, 0)
         }}
@@ -213,6 +214,7 @@ const ReviewSchema: React.FC<ReviewSchemaProps> = ({ itemReviewed, reviews = [],
   return (
     <script
       type="application/ld+json"
+      suppressHydrationWarning
       dangerouslySetInnerHTML={{
         __html: JSON.stringify(schemaData, null, 0)
       }}

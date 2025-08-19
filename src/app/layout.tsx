@@ -194,13 +194,18 @@ export default async function RootLayout({
         
         
         
-        {/* hreflang Tags for Multilingual SEO */}
+        {/* hreflang Tags for Multilingual SEO - Enhanced for Guide Pages */}
         <link rel="alternate" hrefLang="ko-KR" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'}?lang=ko`} />
         <link rel="alternate" hrefLang="en-US" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'}?lang=en`} />
         <link rel="alternate" hrefLang="ja-JP" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'}?lang=ja`} />
         <link rel="alternate" hrefLang="zh-CN" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'}?lang=zh`} />
         <link rel="alternate" hrefLang="es-ES" href={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'}?lang=es`} />
         <link rel="alternate" hrefLang="x-default" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'} />
+        
+        {/* Enhanced Language Discovery for Search Engines */}
+        <meta name="google" content="notranslate" />
+        <meta name="robots" content="index,follow" />
+        <meta httpEquiv="Content-Language" content={serverLanguage} />
         
 
         {/* ✅ Google AdSense - 안전한 Auto Ads 전용 초기화 */}
