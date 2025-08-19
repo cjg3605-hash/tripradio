@@ -53,6 +53,7 @@
     "node_modules",
     "temp_disabled_components",
     "scripts",
-    "src/lib/coordinates"
+    "src/lib/coordinates",
+    "public/example"
   ]
 }

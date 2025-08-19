@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef, useCallback, memo, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
 import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
 import { useLocationTranslation } from '@/hooks/useLocationTranslation';
-import { Volume2, Globe, User, ChevronDown, LogIn, LogOut } from 'lucide-react';
+import { Volume2, Globe, User, ChevronDown, LogIn, LogOut, Menu, X } from 'lucide-react';
 
 interface HeaderProps {
   onHistoryOpen?: () => void;
@@ -38,6 +39,7 @@ const NavigationButton = ({ onClick, className = '', children, isMobile = false 
 const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedLanguageIndex, setSelectedLanguageIndex] = useState(0);
   
   const { data: session, status } = useSession();
@@ -152,6 +154,10 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
         console.log('🔒 Closing profile menu due to outside click');
         setIsProfileMenuOpen(false);
       }
+      if (isMobileMenuOpen) {
+        console.log('🔒 Closing mobile menu due to outside click');
+        setIsMobileMenuOpen(false);
+      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
@@ -160,7 +166,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [isLanguageMenuOpen, selectedLanguageIndex, handleLanguageChange, isProfileMenuOpen]);
+  }, [isLanguageMenuOpen, selectedLanguageIndex, handleLanguageChange, isProfileMenuOpen, isMobileMenuOpen]);
 
   const handleSignOut = async () => {
     console.log('🚀 로그아웃 시작...');
@@ -213,31 +219,26 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 relative z-20">
-      <div className="max-w-6xl mx-auto flex items-center justify-between"
-           style={{
-             padding: 'var(--space-3) var(--space-4)'
-           }}>
-        {/* 로고 */}
-        <div className="flex items-center" style={{ gap: 'var(--space-1-5)' }}>
-          {/* 스피커 아이콘을 원형 테두리로 감싸기 */}
-          <div className="border-2 border-gray-300 rounded-full flex items-center justify-center touch-target"
-               style={{
-                 width: 'var(--touch-target-min)',
-                 height: 'var(--touch-target-min)'
-               }}>
-            <Volume2 className="w-5 h-5 text-black" />
+    <header className="sticky top-0 z-50 w-full glass-effect">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14 sm:h-16">
+          {/* 로고 */}
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="flex items-center space-x-1.5 sm:space-x-2">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-black flex items-center justify-center" style={{ borderRadius: '10px' }}>
+                <span className="text-white text-xs sm:text-sm font-bold">T</span>
+              </div>
+              <Link 
+                href="/"
+                className="text-lg sm:text-xl font-bold text-black hover:text-gray-700 transition-colors duration-200"
+              >
+                {t('home.brandTitle')}
+              </Link>
+            </div>
           </div>
-          <button 
-            onClick={() => router.push('/')}
-            className="btn-base text-xl font-bold text-gray-900 bg-transparent hover:bg-gray-50 transition-all duration-200 relative px-3 py-2"
-          >
-            {t('home.brandTitle')}
-          </button>
-        </div>
 
-        {/* 데스크톱 네비게이션 */}
-        <div className="hidden md:flex items-center" style={{ gap: 'var(--space-1)' }}>
+          {/* Right Actions */}
+          <div className="flex items-center space-x-1 sm:space-x-2">
           {/* 언어 선택 */}
           <div 
             className="relative" 
@@ -252,25 +253,13 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                   setIsLanguageMenuOpen(!isLanguageMenuOpen);
                 }
               }}
-              className={`
-                btn-base flex items-center gap-2 text-sm transition-all duration-200 ease-out px-3 py-2 rounded-lg
-                ${isLanguageMenuOpen 
-                  ? 'bg-gray-50 text-gray-900' 
-                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 bg-transparent'
-                }
-              `}
+              className={`hidden sm:flex items-center space-x-1 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-lg hover:bg-gray-50 transition-colors ${isLanguageMenuOpen ? 'bg-gray-50' : ''}`}
               aria-label={`${String(t('header.language'))}: ${currentConfig?.name}. ${String(t('search.pressEnterToSearch'))}`}
               aria-expanded={isLanguageMenuOpen}
               aria-haspopup="listbox"
             >
-              <Globe className="w-4 h-4" />
-              <span role="img" aria-label={`${currentConfig?.name || '한국어'} 국기`}>
-                {currentConfig?.flag}
-              </span>
-              <span>{currentConfig?.name}</span>
-              <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${
-                isLanguageMenuOpen ? 'rotate-180' : ''
-              }`} />
+              <Globe size={14} className="sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-sm">{currentConfig?.code?.toUpperCase() || 'KO'}</span>
             </button>
 
 
@@ -288,8 +277,9 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                 aria-label={String(t('header.selectLanguage'))}
               >
                 {SUPPORTED_LANGUAGES.map((lang, index) => (
-                  <button
+                  <a
                     key={lang.code}
+                    href={`?lang=${lang.code}`}
                     onClick={(e) => {
                       console.log('🖱️ Desktop dropdown option clicked:', lang.code);
                       e.preventDefault();
@@ -321,26 +311,26 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                         ✓
                       </span>
                     )}
-                  </button>
+                  </a>
                 ))}
               </div>
             )}
           </div>
 
-          {/* 히스토리 버튼 */}
-          <NavigationButton
-            onClick={(e) => {
-              console.log('🖱️ Desktop history button clicked');
-              e.preventDefault();
-              e.stopPropagation();
-              if (onHistoryOpen) onHistoryOpen();
-            }}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>{t('header.history')}</span>
-          </NavigationButton>
+            {/* History */}
+            <button 
+              onClick={(e) => {
+                console.log('🖱️ Desktop history button clicked');
+                e.preventDefault();
+                e.stopPropagation();
+                if (onHistoryOpen) onHistoryOpen();
+              }}
+              className="hidden sm:flex items-center space-x-1 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
 
           {/* 로그인 상태 */}
           {status === 'loading' ? (
@@ -354,26 +344,25 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                   e.stopPropagation();
                   setIsProfileMenuOpen(!isProfileMenuOpen);
                 }}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-150"
+                className="hidden sm:flex items-center space-x-1 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm hover:bg-gray-50 rounded-lg transition-colors"
               >
                 {session.user.image ? (
                   <Image 
                     src={session.user.image} 
                     alt={String(t('header.profileAlt'))} 
-                    width={20}
-                    height={20}
-                    className="w-5 h-5 rounded-full"
+                    width={16}
+                    height={16}
+                    className="w-4 h-4 sm:w-5 sm:h-5 rounded-full"
                   />
                 ) : (
-                  <User className="w-5 h-5" />
+                  <User className="w-4 h-4 sm:w-5 sm:h-5" />
                 )}
-                <span>{session.user.name || session.user.email}</span>
-                <ChevronDown className="w-4 h-4" />
+                <span className="truncate max-w-16 sm:max-w-24 text-xs sm:text-sm">{session.user.name || session.user.email}</span>
               </button>
 
               {isProfileMenuOpen && (
                 <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-dropdown border border-gray-200 py-1 min-w-40 z-50">
-                  <button
+                  <a
                     onClick={(e) => {
                       console.log('🖱️ Desktop mypage option clicked');
                       e.preventDefault();
@@ -381,10 +370,11 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                       router.push('/mypage');
                       setIsProfileMenuOpen(false);
                     }}
+                    href="/mypage"
                     className="dropdown-item w-full text-left px-3 py-2 text-sm text-gray-700 transition-colors duration-150"
                   >
                     {t('profile.mypage')}
-                  </button>
+                  </a>
                   <button
                     onClick={(e) => {
                       console.log('🖱️ Desktop logout option clicked');
@@ -400,188 +390,121 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
               )}
             </div>
           ) : (
-            <NavigationButton
-              onClick={(e) => {
-                console.log('🖱️ Desktop login button clicked');
-                e.preventDefault();
-                e.stopPropagation();
-                router.push('/auth/signin');
-              }}
+            <a 
+              href="/auth/signin"
+              className="hidden sm:flex items-center space-x-1 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <LogIn className="w-4 h-4" />
+              <User size={14} className="sm:w-4 sm:h-4" />
               <span>{t('auth.signin')}</span>
-            </NavigationButton>
+            </a>
           )}
+
+            {/* Mobile menu button */}
+            <button
+              className="md:hidden flex items-center px-2 py-1 text-sm rounded-lg hover:bg-gray-50 transition-colors"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          </div>
         </div>
 
-        {/* 모바일 네비게이션 */}
-        <div className="md:hidden flex items-center gap-1">
-          {/* 언어 선택 */}
-          <div className="relative" ref={languageMenuRef}>
-            <button
-              onClick={(e) => {
-                console.log('🖱️ Mobile language button clicked, current state:', isLanguageMenuOpen);
-                e.preventDefault();
-                e.stopPropagation();
-                setIsLanguageMenuOpen(!isLanguageMenuOpen);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setIsLanguageMenuOpen(!isLanguageMenuOpen);
-                }
-              }}
-              className={`
-                flex items-center gap-1 px-2 py-1.5 rounded-lg text-sm transition-all duration-200
-                focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1
-                ${isLanguageMenuOpen 
-                  ? 'bg-gray-50 text-gray-900' 
-                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                }
-              `}
-              aria-label={`${String(t('header.language'))}: ${currentConfig?.name}`}
-              aria-expanded={isLanguageMenuOpen}
-              aria-haspopup="listbox"
+        {/* Mobile menu */}
+        {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-gray-200 bg-white">
+          <div className="px-4 py-4 space-y-2">
+            <button 
+              className="w-full justify-start flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+              onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
             >
-              <Globe className="w-4 h-4" />
-              <span role="img" aria-label={`${currentConfig?.name || '한국어'} 국기`}>
-                {currentConfig?.flag}
-              </span>
-              <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${
-                isLanguageMenuOpen ? 'rotate-180' : ''
-              }`} />
+              <Globe size={16} />
+              {t('header.language')} ({currentConfig?.code?.toUpperCase() || 'KO'})
             </button>
-
-            {isLanguageMenuOpen && (
-              <div 
-                className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-dropdown border border-gray-200 py-1 min-w-28 z-50"
-                role="listbox"
-                aria-label={String(t('header.selectLanguage'))}
+            
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                if (onHistoryOpen) onHistoryOpen();
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full justify-start flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {t('header.history')}
+            </button>
+            
+            {session?.user ? (
+              <>
+                <a
+                  href="/mypage"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    router.push('/mypage');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full justify-start flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  <User size={16} />
+                  {t('profile.mypage')}
+                </a>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSignOut();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full justify-start flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  <LogOut size={16} />
+                  {t('auth.signout')}
+                </button>
+              </>
+            ) : (
+              <a 
+                href="/auth/signin"
+                className="w-full justify-start flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
               >
-                {SUPPORTED_LANGUAGES.map((lang, index) => (
+                <User size={16} />
+                {t('auth.signin')}
+              </a>
+            )}
+          </div>
+          
+          {/* Mobile Language Menu */}
+          {isLanguageMenuOpen && (
+            <div className="border-t border-gray-200 px-4 py-2">
+              <div className="space-y-1">
+                {SUPPORTED_LANGUAGES.map((lang) => (
                   <button
                     key={lang.code}
                     onClick={(e) => {
-                      console.log('🖱️ Mobile dropdown item clicked:', lang.code);
                       e.preventDefault();
                       e.stopPropagation();
                       handleLanguageChange(lang.code);
+                      setIsMobileMenuOpen(false);
                     }}
-                    className={`
-                      dropdown-item w-full text-left px-3 py-2 flex items-center gap-2 text-sm transition-colors duration-150
-                      focus:outline-none focus:ring-2 focus:ring-black focus:ring-inset
-                      ${index === selectedLanguageIndex 
-                        ? 'bg-gray-50 text-gray-900' 
-                        : 'hover:bg-gray-50 hover:text-gray-900 text-gray-700'
-                      }
-                      ${lang.code === currentLanguage 
-                        ? 'font-medium bg-gray-50' 
-                        : ''
-                      }
-                    `}
-                    role="option"
-                    aria-selected={lang.code === currentLanguage}
-                    aria-label={`${lang.name}로 변경`}
+                    className={`w-full text-left px-3 py-2 flex items-center gap-2 text-sm rounded-lg transition-colors ${
+                      lang.code === currentLanguage 
+                        ? 'bg-gray-50 text-gray-900 font-medium' 
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
                   >
                     <span role="img" aria-label={`${lang.name} 국기`}>
                       {lang.flag}
                     </span>
                     <span>{lang.name}</span>
                     {lang.code === currentLanguage && (
-                      <span className="ml-auto text-sm text-gray-500" aria-label={String(t('header.currentSelectedLanguage'))}>
-                        ✓
-                      </span>
+                      <span className="ml-auto text-sm text-gray-500">✓</span>
                     )}
                   </button>
                 ))}
               </div>
-            )}
-          </div>
-
-          {/* 로그인 상태 */}
-          {session?.user ? (
-            <div className="relative" ref={profileMenuRef}>
-              <button
-                onClick={(e) => {
-                  console.log('🖱️ Mobile profile button clicked, current state:', isProfileMenuOpen);
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsProfileMenuOpen(!isProfileMenuOpen);
-                }}
-                className="flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-gray-50 text-sm text-gray-700 transition-colors duration-150"
-              >
-                {session.user.image ? (
-                  <Image 
-                    src={session.user.image} 
-                    alt={String(t('header.profileAlt'))} 
-                    width={20}
-                    height={20}
-                    className="w-5 h-5 rounded-full"
-                  />
-                ) : (
-                  <User className="w-4 h-4" />
-                )}
-                <ChevronDown className="w-3 h-3" />
-              </button>
-
-              {isProfileMenuOpen && (
-                <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-dropdown border border-gray-200 py-1 min-w-36 z-50">
-                  <button
-                    onClick={(e) => {
-                      console.log('🖱️ Mobile history option clicked');
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (onHistoryOpen) onHistoryOpen();
-                      setIsProfileMenuOpen(false);
-                    }}
-                    className="dropdown-item w-full text-left px-3 py-2 text-sm text-gray-700 transition-colors duration-150 flex items-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {t('header.history')}
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      console.log('🖱️ Mobile mypage option clicked');
-                      e.preventDefault();
-                      e.stopPropagation();
-                      router.push('/mypage');
-                      setIsProfileMenuOpen(false);
-                    }}
-                    className="dropdown-item w-full text-left px-3 py-2 text-sm text-gray-700 transition-colors duration-150"
-                  >
-                    {t('profile.mypage')}
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      console.log('🖱️ Mobile logout option clicked');
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleSignOut();
-                    }}
-                    className="dropdown-item w-full text-left px-3 py-2 text-sm text-gray-700 transition-colors duration-150"
-                  >
-                    {t('auth.signout')}
-                  </button>
-                </div>
-              )}
             </div>
-          ) : (
-            <NavigationButton
-              onClick={(e) => {
-                console.log('🖱️ Mobile login button clicked');
-                e.preventDefault();
-                e.stopPropagation();
-                router.push('/auth/signin');
-              }}
-              isMobile={true}
-            >
-              <LogIn className="w-4 h-4" />
-              <span>{t('auth.signin')}</span>
-            </NavigationButton>
           )}
         </div>
+        )}
       </div>
     </header>
   );

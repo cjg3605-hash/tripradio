@@ -1,6 +1,6 @@
 // src/app/layout.tsx (최종 수정 버전)
 import type { Metadata, Viewport } from 'next';
-import { Roboto } from 'next/font/google';
+import { Roboto, Inter } from 'next/font/google';
 import './globals.css';
 import '@/styles/custom.css';
 import { LanguageProvider } from '@/contexts/LanguageContext';
@@ -16,7 +16,15 @@ import Script from 'next/script';
 import { cookies } from 'next/headers';
 import { detectPreferredLanguage, LANGUAGE_COOKIE_NAME } from '@/lib/utils';
 
-// Roboto for English text
+// Inter for modern design (primary font)
+const inter = Inter({
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter'
+});
+
+// Roboto for fallback
 const roboto = Roboto({
   weight: ['100', '300', '400', '500', '700', '900'],
   subsets: ['latin'],
@@ -393,7 +401,7 @@ export default async function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body className={`${roboto.variable} font-sans antialiased`} suppressHydrationWarning>
+      <body className={`${inter.variable} ${roboto.variable} font-sans antialiased`} suppressHydrationWarning>
         {/* AMP 자동 광고는 일반 React 앱에서는 사용하지 않고, 대신 AutoAdSense 컴포넌트 사용 */}
         
         <SessionProvider>

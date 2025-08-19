@@ -17,7 +17,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     <PerformanceProvider>
       <Header onHistoryOpen={() => setIsHistoryOpen(true)} />
       <HistorySidebar isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
-      {children}
+      <main>
+        {children}
+      </main>
     </PerformanceProvider>
   );
 }

@@ -1292,28 +1292,6 @@ function Home() {
   return (
     <>
       <div className="min-h-screen bg-white font-sans relative" style={{ '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px' } as React.CSSProperties}>
-        {/* 배경 - 헤더의 끝선에 맞춰서 시작하고, 검색박스 위까지로 제한 - 모바일 반응형 */}
-      <div className="hero-background-container">
-        {/* 회전하는 배경 이미지들 */}
-        {landmarks.map((landmark, index) => (
-          <div
-            key={landmark}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              index === currentLandmarkIndex ? 'opacity-100' : 'opacity-0'
-            }`}
-            style={{
-              // 이미지가 전체를 채우지 못할 경우를 대비한 기본 그라데이션
-              background: `linear-gradient(135deg, rgba(20, 20, 40, 0.9) 0%, rgba(40, 40, 60, 0.9) 100%)`,
-              backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('${landmarkImages[landmark]}')`,
-              backgroundSize: 'cover', // cover로 변경하여 전체 영역을 채움
-              backgroundPosition: 'top center', // 이미지 상단부터 표시하여 전체 이미지 보여줌
-              backgroundRepeat: 'no-repeat',
-              zIndex: -2,
-              borderRadius: 'inherit'
-            }}
-          />
-        ))}
-      </div>
 
       {/* SEO Structured Data */}
       <StructuredData type="WebSite" />
@@ -1331,42 +1309,71 @@ function Home() {
       />
 
       {/* Main Content */}
-      <main id="main-content" className="relative z-10 overflow-hidden" tabIndex={-1}>
-        {/* Hero Section - 모바일 반응형 패딩 */}
-        <section className="relative flex flex-col items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-32 pb-6 sm:pb-8 md:pb-12 min-h-screen" aria-labelledby="hero-heading">
+      <main id="main-content" className="relative overflow-hidden" tabIndex={-1}>
+        {/* Hero Section - 예시와 동일한 구조 */}
+        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden" aria-labelledby="hero-heading">
+          {/* Background Image - 예시와 동일하게 섹션 내부에 */}
+          <div className="absolute inset-0">
+            {landmarks.map((landmark, index) => (
+              <div
+                key={landmark}
+                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                  index === currentLandmarkIndex ? 'opacity-100' : 'opacity-0'
+                }`}
+                style={{
+                  backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('${landmarkImages[landmark]}')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'top center',
+                  backgroundRepeat: 'no-repeat'
+                }}
+              />
+            ))}
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-black/40" />
+            {/* Gradient overlay for better text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          </div>
+
+          <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center" style={{ transform: 'translateY(-4px)' }}>
             
+            {/* Badge */}
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur border border-white/20 mb-16 mt-16">
+              <span className="text-sm font-medium text-white/90">AI 오디오가이드</span>
+              <span className="mx-2 text-white/50">•</span>
+              <span className="text-sm font-medium text-white/90">무료 체험</span>
+            </div>
+
             {/* 중앙 명소 텍스트 - 2줄 레이아웃 (명소 부분만 회전) */}
-            <div className="text-center text-white mb-4 sm:mb-6 w-full flex flex-col items-center justify-center">
+            <div className="text-center text-white mb-18 w-full flex flex-col items-center justify-center">
               <h1 id="hero-heading" className="sr-only">
                 {t('home.pageTitle') || 'TripRadio.AI - AI 오디오가이드 여행 서비스'}
               </h1>
-              {/* 첫 번째 줄: [명소] - PC에서 40% 작게, 모바일 그대로 */}
+              {/* 명소 제목 - 1.5배 크기, 예시 스타일 (그림자 제거) */}
               <div className="font-bold mb-2 flex items-center justify-center w-full" style={{ 
-                textShadow: '2px 2px 8px rgba(0,0,0,0.8)', 
                 fontSize: isMobile 
-                  ? 'clamp(1.125rem, 4vw, 1.5rem)'  // 모바일: 18px ~ 24px (4px 증가)
-                  : 'clamp(1.875rem, 2.6vw, 1.875rem)',   // PC: 30px 고정 (4px 증가)
-                height: isMobile ? '42px' : '40px'  // 높이 증가로 글자 간격 개선
+                  ? 'clamp(1.4625rem, 5.2vw, 1.95rem)'  // 1.3배 크기: 모바일 23.4px ~ 31.2px
+                  : 'clamp(2.4375rem, 3.4vw, 2.4375rem)',   // 1.3배 크기: PC 39px
+                height: isMobile ? '86px' : '72px'  // 10% 증가한 높이로 조정
               }}>
                 <span className="inline-block overflow-hidden whitespace-nowrap w-full max-w-none" style={{ 
-                  height: isMobile ? '42px' : '40px',  // 높이 증가로 글자 간격 개선
-                  lineHeight: isMobile ? '42px' : '40px',  // 라인 높이 증가
+                  height: isMobile ? '86px' : '72px',  // 컨테이너 높이와 일치
+                  lineHeight: isMobile ? '86px' : '72px',  // 라인 높이도 일치
                   textAlign: 'center'
                 }}>
                   <span 
                     className="inline-block transition-transform duration-1000 ease-out w-full"
                     style={{
-                      transform: `translateY(-${currentLandmarkIndex * (isMobile ? 50 : 40)}px)`,  // 모바일에서 세로 간격 증가
-                      letterSpacing: '0.05em'  // 글자 간격 약간 늘려서 가독성 향상
+                      transform: `translateY(-${currentLandmarkIndex * (isMobile ? 86 : 72)}px)`,  // Transform도 높이와 일치
+                      letterSpacing: '0.04em'  // 1.3배 크기에 맞춰 자간 약간 줄임
                     }}
                   >
                     {landmarks.map((landmark, index) => (
                       <span key={index} className="block font-bold whitespace-nowrap w-full" style={{ 
-                        height: isMobile ? '50px' : '40px',  // 모바일에서 높이 증가로 글자 간격 개선
-                        lineHeight: isMobile ? '50px' : '40px',  // 모바일에서 라인 높이 증가
+                        height: isMobile ? '86px' : '72px',  // 각 항목 높이도 일치
+                        lineHeight: isMobile ? '86px' : '72px',  // 라인 높이도 일치
                         textAlign: 'center',
-                        fontSize: isMobile ? '1.6em' : '1.3em', // 모바일에서 60% 증가 (1.3em → 1.6em)
-                        letterSpacing: '0.05em'  // 글자 간격 약간 늘려서 가독성 향상
+                        fontSize: isMobile ? '2.08em' : '1.69em', // 1.3배 크기 (1.6em × 1.3, 1.3em × 1.3)
+                        letterSpacing: '0.04em'  // 크기에 맞춰 자간 조정
                       }}>
                         {t(`home.landmarks.${landmark}` as any) || landmark}
                       </span>
@@ -1374,123 +1381,19 @@ function Home() {
                   </span>
                 </span>
               </div>
-              {/* 두 번째 줄: 앞에서 만드는 오디오 가이드 */}
-              <div className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
-                {t('home.audioGuidePrefix')}
-              </div>
-              <div className="text-xs sm:text-sm md:text-base lg:text-lg font-light mb-1 text-gray-300" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
-                {t('home.subtitle')}
-              </div>
               <div className="text-xs sm:text-sm md:text-base lg:text-lg font-light text-gray-300" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
-                {t('home.subtitle2')}
+                {t('home.subtitle')} {t('home.subtitle2')}
               </div>
             </div>
 
-            {/* How to Use - 3 Steps - 모바일 반응형 */}
-            <div className="relative z-10 py-4 sm:py-6 md:py-8 w-full max-w-4xl">
-            <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6">
-              {/* 모든 화면에서 가로 배열 - 50% 압축하여 중앙 집중 */}
-              <div className="flex flex-row justify-center items-start gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6">
-                
-                {/* 장소 입력 - 모바일 최적화 */}
-                <div className="text-center relative z-10 flex-1 max-w-24 sm:max-w-28 md:max-w-32 lg:max-w-xs">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mx-auto rounded-full flex items-center justify-center bg-white text-black mb-2 sm:mb-3 md:mb-4 shadow-lg border-2 border-gray-200">
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                  <div className="min-h-10 sm:min-h-12 md:min-h-16 lg:min-h-20 flex flex-col justify-start pt-1 sm:pt-2">
-                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-gray-200 mb-0 sm:mb-1 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.inputLocation')}</div>
-                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-gray-300 opacity-80 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.inputLocationSub')}</div>
-                  </div>
-                </div>
-
-                {/* 화살표 1 - 모바일 최적화 */}
-                <div className="flex items-center justify-center pt-3 sm:pt-4 md:pt-6 lg:pt-8">
-                  <svg className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-6 lg:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-
-                {/* AI 생성 - 모바일 최적화 */}
-                <div className="text-center relative z-10 flex-1 max-w-24 sm:max-w-28 md:max-w-32 lg:max-w-xs">
-                  <button 
-                    onClick={handleAIGeneration}
-                    disabled={!query.trim() || loadingStates.search}
-                    className={`w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-2 sm:mb-3 md:mb-4 bg-white text-black border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black ${
-                      loadingStates.search ? 'animate-pulse' : ''
-                    } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
-                    aria-label={loadingStates.guide ? 'AI 가이드 생성 중...' : String(t('home.stepTitles.aiGenerate'))}
-                    aria-disabled={!query.trim() || loadingStates.search}
-                  >
-                    {loadingStates.guide ? (
-                      <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                    )}
-                  </button>
-                  <div className="min-h-10 sm:min-h-12 md:min-h-16 lg:min-h-20 flex flex-col justify-start pt-1 sm:pt-2">
-                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-gray-200 mb-0 sm:mb-1 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.aiGenerate')}</div>
-                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-gray-300 opacity-80 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.aiGenerateSub')}</div>
-                  </div>
-                </div>
-
-                {/* 화살표 2 - 모바일 최적화 */}
-                <div className="flex items-center justify-center pt-3 sm:pt-4 md:pt-6 lg:pt-8">
-                  <svg className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-6 lg:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-
-                {/* 오디오 재생 - 모바일 최적화 */}
-                <div className="text-center relative z-10 flex-1 max-w-24 sm:max-w-28 md:max-w-32 lg:max-w-xs">
-                  <button 
-                    onClick={handleAudioPlayback}
-                    disabled={!query.trim()}
-                    className={`w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mx-auto rounded-full flex items-center justify-center hover:scale-105 transition-all duration-300 shadow-lg mb-2 sm:mb-3 md:mb-4 bg-white text-black border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black ${
-                      audioPlaying ? 'animate-pulse' : ''
-                    } ${!query.trim() ? 'opacity-100 cursor-not-allowed' : ''}`}
-                    aria-label={audioPlaying ? '오디오 일시정지' : String(t('home.stepTitles.audioPlay'))}
-                    aria-pressed={audioPlaying}
-                  >
-                    {audioPlaying ? (
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                      </svg>
-                    ) : (
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z"/>
-                      </svg>
-                    )}
-                  </button>
-                  <div className="min-h-10 sm:min-h-12 md:min-h-16 lg:min-h-20 flex flex-col justify-start pt-1 sm:pt-2">
-                    <div className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-gray-200 mb-0 sm:mb-1 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.audioPlay')}</div>
-                    <div className="text-xs sm:text-xs md:text-sm lg:text-base font-light text-gray-300 opacity-80 whitespace-nowrap overflow-hidden text-ellipsis" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>{t('home.stepTitles.audioPlaySub')}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Search Box - 모바일 반응형 */}
-          <div className="relative z-[9998] w-full max-w-2xl mx-auto px-3 sm:px-4 md:px-6 lg:px-0">
-            <div className={`
-              relative transition-all duration-700 ease-out
-              ${isFocused 
-                ? 'scale-105 translate-y-[-8px]' 
-                : 'scale-100 translate-y-0'
-              }
-            `}>
-              <div className={`
-                relative bg-white rounded-3xl transition-all duration-500
-                ${isFocused 
-                  ? 'shadow-2xl shadow-black/15 ring-1 ring-black/5' 
-                  : 'shadow-xl shadow-black/10'
-                }
-              `}>
+          {/* Search Bar - 예시 디자인과 동일 */}
+          <div className="relative max-w-2xl mx-auto mb-12" style={{ transform: 'translateY(4px)' }}>
+            <div className="flex items-center bg-white/95 backdrop-blur shadow-2xl border border-white/30 p-2" style={{ borderRadius: '20px' }}>
+              <div className="flex items-center flex-1 px-4">
+                <svg className="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
                 <input
                   type="text"
                   value={query}
@@ -1498,16 +1401,13 @@ function Home() {
                   onKeyDown={handleKeyDown}
                   onFocus={() => {
                     setIsFocused(true);
-                    // 기존에 검색 결과가 있으면 다시 표시
                     if (suggestions.length > 0) {
                       setShowSuggestions(true);
                     }
                   }}
                   onBlur={(e) => {
-                    // 클릭이 제안 목록 내부에서 일어나는지 확인
                     const relatedTarget = e.relatedTarget as HTMLElement;
                     if (!relatedTarget || !relatedTarget.closest('.suggestions-container')) {
-                      // 자동완성 API 응답 대기 시간 확보 (300ms 지연)
                       setTimeout(() => {
                         setIsFocused(false);
                         setShowSuggestions(false);
@@ -1515,7 +1415,7 @@ function Home() {
                     }
                   }}
                   placeholder={String(t('home.searchPlaceholder'))}
-                  className="w-full px-4 sm:px-6 md:px-8 py-4 sm:py-4 md:py-5 lg:py-6 text-base sm:text-lg md:text-xl font-light text-black bg-transparent rounded-3xl focus:outline-none transition-all duration-300 placeholder-gray-400 placeholder:text-lg focus:ring-2 focus:ring-black focus:ring-opacity-20"
+                  className="border-0 bg-transparent text-lg placeholder:text-gray-500 focus-visible:ring-0 w-full focus:outline-none focus:ring-0 outline-none"
                   aria-label={String(t('home.searchPlaceholder'))}
                   aria-describedby="search-help"
                   aria-expanded={isFocused && suggestions.length > 0}
@@ -1524,89 +1424,81 @@ function Home() {
                   aria-controls={isFocused && suggestions.length > 0 ? "suggestions-listbox" : undefined}
                   role="combobox"
                 />
-                
-                <button
-                  onClick={handleSearch}
-                  disabled={!query.trim() || loadingStates.search}
-                  className={`
-                    absolute right-2 sm:right-3 md:right-4 top-1/2 transform -translate-y-1/2
-                    w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-2xl transition-all duration-300
-                    flex items-center justify-center group
-                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black
-                    ${query.trim() && !loadingStates.search
-                      ? 'bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95' 
-                      : 'bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 opacity-50 cursor-not-allowed'
-                    }
-                  `}
-                  aria-label={loadingStates.search ? '검색 중...' : String(t('home.searchButton'))}
-                  type="submit"
-                >
-                  {loadingStates.search ? (
-                    <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  )}
-                </button>
               </div>
+              <button
+                onClick={handleSearch}
+                disabled={!query.trim() || loadingStates.search}
+                className="px-4 sm:px-8 py-2.5 sm:py-3 bg-black hover:bg-black/90 text-white font-medium flex items-center gap-1.5 sm:gap-2 transition-colors text-sm sm:text-base"
+                style={{ borderRadius: isMobile ? '12px' : '16px' }}
+                aria-label={loadingStates.search ? '검색 중...' : String(t('home.searchButton'))}
+                type="submit"
+              >
+                {loadingStates.search ? (
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                )}
+                <span className="hidden sm:inline">검색</span>
+              </button>
+            
+            {/* 검색 도움말 (화면 판독기용) */}
+            <div id="search-help" className="sr-only">
+              검색어를 입력하고 Enter키를 누르거나 제안 목록에서 선택하세요. 화살표 키로 제안을 탐색할 수 있습니다.
+            </div>
 
-              {/* 검색 도움말 (화면 판독기용) */}
-              <div id="search-help" className="sr-only">
-                검색어를 입력하고 Enter키를 누르거나 제안 목록에서 선택하세요. 화살표 키로 제안을 탐색할 수 있습니다.
-              </div>
-
-              {/* Suggestions Dropdown */}
-              {(isFocused || showSuggestions) && query.length > 0 && (
-                <div 
-                  className="absolute top-full left-0 right-0 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-[9999] autocomplete-dropdown suggestions-container"
-                  role="listbox"
-                  id="suggestions-listbox"
-                  aria-label="검색 제안 목록"
-                >
-                  {isLoadingSuggestions ? (
-                    <div className="px-6 py-4 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="w-4 h-4 border-2 border-gray-300 border-t-black rounded-full animate-spin"></div>
-                        <span className="text-sm text-gray-500">검색 중...</span>
-                      </div>
+            {/* Suggestions Dropdown */}
+            {(isFocused || showSuggestions) && query.length > 0 && (
+              <div 
+                className="absolute top-full left-0 right-0 bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 overflow-hidden z-[9999] autocomplete-dropdown suggestions-container"
+                role="listbox"
+                id="suggestions-listbox"
+                aria-label="검색 제안 목록"
+              >
+                {isLoadingSuggestions ? (
+                  <div className="px-6 py-4 text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-gray-300 border-t-black rounded-full animate-spin"></div>
+                      <span className="text-sm text-gray-500">검색 중...</span>
                     </div>
-                  ) : suggestions.length > 0 ? (
-                    suggestions.map((suggestion, index) => (
-                      <a
-                        key={index}
-                        id={`suggestion-${index}`}
-                        href={`/guide/${encodeURIComponent(suggestion.name)}?lang=${currentLanguage}`}
-                        onMouseEnter={() => setSelectedSuggestionIndex(index)}
-                        onMouseLeave={() => setSelectedSuggestionIndex(-1)}
-                        className={`w-full block px-6 py-4 text-left transition-all duration-200 group suggestion-item focus:outline-none focus:ring-2 focus:ring-inset focus:ring-black ${
-                          selectedSuggestionIndex === index 
-                            ? 'bg-blue-50 ring-2 ring-blue-200' 
-                            : 'hover:bg-[#F8F8F8]'
-                        }`}
-                        role="option"
-                        aria-selected={selectedSuggestionIndex === index}
-                        aria-label={`${suggestion.name}, ${suggestion.location}로 이동`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="font-medium text-black group-hover:text-black">
-                              {suggestion.name}
+                  </div>
+                ) : suggestions.length > 0 ? (
+                  suggestions.map((suggestion, index) => (
+                    <a
+                      key={index}
+                      id={`suggestion-${index}`}
+                      href={`/guide/${encodeURIComponent(suggestion.name)}?lang=${currentLanguage}`}
+                      onMouseEnter={() => setSelectedSuggestionIndex(index)}
+                      onMouseLeave={() => setSelectedSuggestionIndex(-1)}
+                      className={`w-full block px-6 py-4 text-left transition-all duration-200 group suggestion-item focus:outline-none focus:ring-2 focus:ring-inset focus:ring-black ${
+                        selectedSuggestionIndex === index 
+                          ? 'bg-blue-50 ring-2 ring-blue-200' 
+                          : 'hover:bg-[#F8F8F8]'
+                      }`}
+                      role="option"
+                      aria-selected={selectedSuggestionIndex === index}
+                      aria-label={`${suggestion.name}, ${suggestion.location}로 이동`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-black group-hover:text-black">
+                            {suggestion.name}
+                          </div>
+                          {suggestion.location && (
+                            <div className="text-sm text-gray-500 mt-1">
+                              {suggestion.location}
                             </div>
-                            {suggestion.location && (
-                              <div className="text-sm text-gray-500 mt-1">
-                                {suggestion.location}
-                              </div>
-                            )}
-                          </div>
-                          <div className="opacity-0 translate-x-2 group-hover:opacity-60 group-hover:translate-x-0 transition-all duration-200">
-                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </div>
+                          )}
                         </div>
-                      </a>
-                    ))
+                        <div className="opacity-0 translate-x-2 group-hover:opacity-60 group-hover:translate-x-0 transition-all duration-200">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </a>
+                  ))
                   ) : (
                     <div className="px-6 py-4 text-center text-sm text-gray-500">
                       {t('search.noResults')}
@@ -1615,19 +1507,77 @@ function Home() {
                 </div>
               )}
             </div>
+            
+            {/* Popular searches */}
+            <div className="flex flex-wrap justify-center gap-2 mt-4">
+              <span className="text-white/60 text-sm">인기 검색:</span>
+              {['경복궁', '제주도', '부산 감천문화마을', '경주 불국사'].map((place) => (
+                <button
+                  key={place}
+                  onClick={() => {
+                    setQuery(place);
+                    router.push(`/guide/${encodeURIComponent(place)}?lang=${currentLanguage}`);
+                  }}
+                  className="px-3 py-1 bg-white/10 backdrop-blur text-white/80 text-sm rounded-full border border-white/20 hover:bg-white/20 transition-colors"
+                >
+                  {place}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Feature Steps - 예시와 동일한 위치 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <div className="flex items-center justify-center space-x-4">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <h3 className="font-semibold text-white">장소 입력</h3>
+                <p className="text-sm text-white/70">특정 장소 검색</p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center space-x-4">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <h3 className="font-semibold text-white">AI 생성</h3>
+                <p className="text-sm text-white/70">가이드 자동 생성</p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center space-x-4">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30">
+                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </div>
+              <div className="text-left">
+                <h3 className="font-semibold text-white">오디오 재생</h3>
+                <p className="text-sm text-white/70">투어 시작</p>
+              </div>
+            </div>
           </div>
 
           {/* 전략적 광고 배치 1: 검색박스 하단 */}
-          <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="max-w-4xl mx-auto px-6 py-8">
             <OptimalAdSense 
               placement="homepage-hero" 
               className="text-center"
             />
           </div>
+          </div>
         </section>
 
         {/* Regional Countries Section */}
-        <section className="relative z-10 py-20 lg:py-32 bg-gradient-to-b from-gray-50 to-white" aria-labelledby="popular-destinations-heading">
+        <section className="relative z-10 py-12 lg:py-16 bg-gradient-to-b from-gray-50 to-white" aria-labelledby="popular-destinations-heading">
           <div className="max-w-6xl mx-auto px-6">
             
             {/* 섹션 제목 */}
@@ -1642,7 +1592,7 @@ function Home() {
             
             {/* 지역별 탭 */}
             <div className="flex justify-center mb-6">
-              <div className="bg-white rounded-xl p-1 shadow-sm border border-gray-100" role="tablist" aria-label="지역 선택">
+              <div className="bg-white rounded-2xl p-1 shadow-sm border border-gray-200" role="tablist" aria-label="지역 선택">
                 <div className="flex space-x-1">
                   {[
                     { id: 'korea', label: t('home.regionTitles.korea') },
@@ -1654,10 +1604,10 @@ function Home() {
                       key={region.id}
                       onClick={() => setActiveRegion(region.id)}
                       className={`
-                        px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-fluid-sm font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black
+                        px-6 py-2 rounded-xl text-fluid-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black
                         ${activeRegion === region.id
-                          ? 'bg-black text-white shadow-md'
-                          : 'text-[#555555] font-light hover:text-black hover:bg-[#F8F8F8]'
+                          ? 'bg-black text-white shadow-sm'
+                          : 'text-gray-600 hover:text-black hover:bg-gray-50'
                         }
                       `}
                       role="tab"
@@ -1688,50 +1638,35 @@ function Home() {
                     className="flex-shrink-0 w-64 group"
                   >
                     {/* 메인 카드 - 모던 모노크롬 스타일 */}
-                    <div className="relative bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-500 overflow-hidden group-hover:scale-[1.02]">
+                    <div className="relative bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group">
                       
                       {/* 상단 모노크롬 헤더 */}
-                      <div className="relative h-24 bg-gradient-to-br from-gray-900 to-black overflow-hidden">
-                        {/* 미니멀 패턴 */}
-                        <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/3 rounded-full transform translate-x-6 -translate-y-6"></div>
-                        <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/3 rounded-full transform -translate-x-3 translate-y-3"></div>
-                        
-                        {/* 국가명 */}
-                        <div className="absolute inset-0 flex items-center justify-center text-white">
-                          <h3 className="text-fluid-lg font-semibold tracking-wider leading-tight">
-                            {country.name}
-                          </h3>
-                        </div>
+                      <div className="relative h-24 bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center">
+                        <h3 className="text-white text-xl font-bold">{country.name}</h3>
 
-                        {/* 인기 배지 - 모노크롬 */}
-                        <div className="absolute top-3 right-3 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
-                          <span className="text-fluid-xs text-white font-normal tracking-wide leading-tight">{t('home.popularBadge')}</span>
-                        </div>
                       </div>
 
                       {/* 카드 콘텐츠 - 모노크롬 스타일 */}
                       <div className="p-6">
                         {/* 설명 */}
-                        <p className="text-fluid-sm text-[#555555] font-light mb-5 leading-relaxed">
+                        <p className="text-gray-600 mb-6">
                           {country.description}
                         </p>
 
-                        {/* 인기 관광지 - 클릭 가능한 버튼들 */}
-                        <div className="space-y-3 mb-5">
-                          <h4 className="text-fluid-xs font-semibold text-black uppercase tracking-wide leading-tight">
-                            {t('home.countryAttraction')}
+                        {/* Attractions */}
+                        <div className="space-y-3 mb-6">
+                          <h4 className="text-sm font-semibold text-black uppercase tracking-wide">
+                            Top Attractions
                           </h4>
-                          {country.attractions.slice(0, 3).map((attraction, idx) => {
-                            const description = attractionDetails[attraction] || '';
-                            return (
-                              <button
-                                key={idx}
+                          <div className="space-y-2">
+                            {country.attractions.slice(0, 3).map((attraction, idx) => (
+                              <div 
+                                key={idx} 
+                                className="flex items-center space-x-3 group/item cursor-pointer"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setLoadingState('country', true);
                                   
-                                  // 특정 명소에 대해 지역 컨텍스트 추가
                                   let url = `/guide/${encodeURIComponent(attraction)}?lang=${currentLanguage}`;
                                   if (country.id === 'thailand' && attraction === '방콕 대왕궁') {
                                     url += '&parent=' + encodeURIComponent('방콕');
@@ -1739,35 +1674,25 @@ function Home() {
                                   
                                   router.push(url);
                                 }}
-                                className="w-full text-left py-3 px-3 -mx-3 rounded-lg hover:bg-[#F8F8F8] focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-20 transition-all duration-200"
-                                aria-label={`${attraction} 가이드 생성하기`}
                               >
-                                <div className="flex items-start space-x-3">
-                                  <div className="w-1.5 h-1.5 bg-black rounded-full mt-2 flex-shrink-0"></div>
-                                  <div className="flex-1 min-w-0">
-                                    <h5 className="font-medium text-black mb-1 underline-offset-2 hover:underline">
-                                      {attraction}
-                                    </h5>
-                                    {description && (
-                                      <p className="text-xs text-[#555555] font-light leading-relaxed line-clamp-3">
-                                        {description}
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
-                              </button>
-                            );
-                          })}
+                                <div className="w-1.5 h-1.5 bg-black rounded-full group-hover/item:scale-125 transition-transform" />
+                                <span className="text-sm text-gray-700 group-hover/item:text-black transition-colors">
+                                  {attraction}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
 
-                        {/* 정보 표시 영역 */}
-                        <div className="pt-4 border-t border-gray-100">
-                          <div className="flex items-center justify-end">
-                            <div className="flex items-center text-sm font-light text-[#555555]">
-                              <span className="tracking-wide">{t('home.clickAttraction')}</span>
-                              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672L13.684 21.017l-.073-.046a.5.5 0 01-.179-.704l5.93-8.395-5.93-8.395a.5.5 0 01.179-.704l.073-.046 1.358-.655a.5.5 0 01.721.273l6.5 11.5a.5.5 0 010 .454l-6.5 11.5a.5.5 0 01-.721.273z" />
+                        {/* Action */}
+                        <div className="border-t border-gray-100 pt-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2 text-gray-500">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                               </svg>
+                              <span className="text-sm">명소를 클릭하세요</span>
                             </div>
                           </div>
                         </div>
@@ -1804,7 +1729,7 @@ function Home() {
             </div>
 
             {/* 전략적 광고 배치 2: 지역별 국가 섹션 하단 */}
-            <div className="max-w-4xl mx-auto px-6 py-4">
+            <div className="max-w-4xl mx-auto px-6 py-2 mb-4">
               <OptimalAdSense 
                 placement="homepage-countries" 
                 className="text-center"
@@ -1982,14 +1907,17 @@ function Home() {
             </div>
           </div>
 
-          {/* AdSense Compliance Notice */}
+          {/* AdSense Compliance Notice - 예시와 동일한 구조 */}
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-xs text-gray-500 text-center">
-              {t('footer.adsenseNotice')} 
-              <a href="/legal/privacy" className="underline hover:text-gray-700 ml-1">
-                {t('footer.privacyPolicy')}
-              </a>{t('footer.adsensePolicy')}
-            </p>
+            <div className="flex items-center space-x-6 text-sm text-gray-500">
+              <a href="/legal/ads-revenue" className="hover:text-black transition-colors">
+                광고 수익 공지
+              </a>
+              <a href="/legal/privacy" className="hover:text-black transition-colors underline">
+                개인정보 처리방침
+              </a>
+              <span>AdSense 정책</span>
+            </div>
           </div>
         </div>
       </footer>

@@ -421,6 +421,20 @@ interface Translations {
     supportHours: string;
     adsenseNotice: string;
     adsensePolicy: string;
+    services: string;
+    travelTools: string;
+    legal: string;
+    audioGuide: string;
+    aiDocent: string;
+    tourRadio: string;
+    travelRadio: string;
+    aiTravelPlan: string;
+    nomadCalculator: string;
+    filmingLocations: string;
+    visaChecker: string;
+    serviceIntro: string;
+    description: string;
+    adRevenue: string;
   };
   aiTravel: {
     title: string;
@@ -1065,7 +1079,21 @@ const DEFAULT_TRANSLATIONS: Translations = {
     telegramChannel: '텔레그램 채널',
     supportHours: '지원시간: 평일 9시-18시',
     adsenseNotice: '광고 수익 공지',
-    adsensePolicy: 'AdSense 정책'
+    adsensePolicy: 'AdSense 정책',
+    services: '주요 서비스',
+    travelTools: '여행 도구',
+    legal: '법적 정보',
+    audioGuide: '오디오가이드',
+    aiDocent: 'AI 도슨트',
+    tourRadio: '투어라디오',
+    travelRadio: '여행라디오',
+    aiTravelPlan: 'AI 여행 계획',
+    nomadCalculator: '노마드 계산기',
+    filmingLocations: '영화 촬영지',
+    visaChecker: '비자 체커',
+    serviceIntro: '서비스 소개',
+    description: 'AI 기반 개인화 여행 가이드 서비스',
+    adRevenue: '광고 수익 공지'
   },
   aiTravel: {
     title: 'AI 여행',
