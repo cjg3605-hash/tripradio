@@ -1446,7 +1446,7 @@ function Home() {
           {/* Feature Steps - 히어로 섹션 내부 */}
           <div className="relative max-w-4xl mx-auto px-4 xs:px-6 mb-6 xs:mb-8">
             <div className="grid grid-cols-1 xs:grid-cols-1 sm:grid-cols-3 md:grid-cols-3 gap-3 xs:gap-4 sm:gap-4 md:gap-6">
-              <div className="flex items-center justify-center xs:justify-center sm:justify-center space-x-2 xs:space-x-3 py-2">
+              <div className="flex items-center justify-start xs:justify-start sm:justify-center space-x-2 xs:space-x-3 py-2">
                 <div className="w-8 h-8 xs:w-8 xs:h-8 sm:w-10 sm:h-10 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30 flex-shrink-0">
                   <svg className="w-4 h-4 xs:w-4 xs:h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -1459,7 +1459,7 @@ function Home() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-center xs:justify-center sm:justify-center space-x-2 xs:space-x-3 py-2">
+              <div className="flex items-center justify-start xs:justify-start sm:justify-center space-x-2 xs:space-x-3 py-2">
                 <div className="w-8 h-8 xs:w-8 xs:h-8 sm:w-10 sm:h-10 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30 flex-shrink-0">
                   <svg className="w-4 h-4 xs:w-4 xs:h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -1471,7 +1471,7 @@ function Home() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-center xs:justify-center sm:justify-center space-x-2 xs:space-x-3 py-2">
+              <div className="flex items-center justify-start xs:justify-start sm:justify-center space-x-2 xs:space-x-3 py-2">
                 <div className="w-8 h-8 xs:w-8 xs:h-8 sm:w-10 sm:h-10 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30 flex-shrink-0">
                   <svg className="w-4 h-4 xs:w-4 xs:h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z"/>
