@@ -1493,7 +1493,7 @@ function Home() {
           <div className="max-w-6xl mx-auto px-4 xs:px-6 sm:px-6 md:px-8">
             
             {/* 섹션 제목 */}
-            <div className="text-center mb-6 xs:mb-8 sm:mb-6">
+            <div className="text-center mb-0.5 xs:mb-0.5 sm:mb-0.5">
               <h2 id="popular-destinations-heading" className="text-xl xs:text-2xl sm:text-2xl md:text-3xl font-bold text-black mb-2 xs:mb-3 sm:mb-2">
                 {t('home.regionTitles.popularCountries')}
               </h2>
