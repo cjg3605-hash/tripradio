@@ -6,7 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import GuideLoading from '@/components/ui/GuideLoading';
 
 // MinimalTourContent를 동적 import (서버 fetch 방지)
-const MinimalTourContent = dynamic(() => import("../../guide/[location]/tour/components/TourContent"), { 
+const MinimalTourContent = dynamic(() => import("../../guide/[language]/[location]/tour/components/TourContent"), { 
   ssr: false,
   loading: () => (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">

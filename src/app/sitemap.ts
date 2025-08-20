@@ -49,37 +49,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   
   const now = new Date();
   
-  // 다국어 메인 페이지들
+  // 🚀 직접 메인 페이지들 (언어 파라미터 제거로 캐싱 최적화)
   const multilangPages: MetadataRoute.Sitemap = [
     {
-      url: 'https://navidocent.com?lang=ko',
+      url: 'https://navidocent.com',
       lastModified: now,
       changeFrequency: 'daily',
       priority: 1.0,
-    },
-    {
-      url: 'https://navidocent.com?lang=en',
-      lastModified: now,
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: 'https://navidocent.com?lang=ja',
-      lastModified: now,
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: 'https://navidocent.com?lang=zh',
-      lastModified: now,
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: 'https://navidocent.com?lang=es',
-      lastModified: now,
-      changeFrequency: 'daily',
-      priority: 0.9,
     },
   ];
   
@@ -205,19 +181,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
   
-  // 가이드 페이지들의 다국어 버전들 (실제 업데이트 시간 반영)
+  // 🚀 새 URL 구조 가이드 페이지들 (generateSitemapUrls에서 이미 처리되므로 중복 제거)
   const guideMultilangPages: MetadataRoute.Sitemap = [];
-  guides.forEach(guide => {
-    const languages = ['ko', 'en', 'ja', 'zh', 'es'];
-    languages.forEach(lang => {
-      guideMultilangPages.push({
-        url: `https://navidocent.com/guide/${guide.slug}?lang=${lang}`,
-        lastModified: guide.lastModified || now, // 실제 가이드 업데이트 시간 사용
-        changeFrequency: 'weekly',
-        priority: lang === 'ko' ? 0.8 : 0.7,
-      });
-    });
-  });
 
   return [...basicUrls, ...multilangPages, ...keywordPages, ...guideMultilangPages];
 }

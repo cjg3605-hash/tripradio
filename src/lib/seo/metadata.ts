@@ -111,10 +111,10 @@ export function generateKeywordPageMetadata(
       canonical: `${domain}${pagePath}`,
       languages: {
         'ko': `${BASE_DOMAIN}${pagePath}`,
-        'en': `${BASE_DOMAIN}${pagePath}?lang=en`,
-        'ja': `${BASE_DOMAIN}${pagePath}?lang=ja`,
-        'zh': `${BASE_DOMAIN}${pagePath}?lang=zh`,
-        'es': `${BASE_DOMAIN}${pagePath}?lang=es`,
+        'en': `${BASE_DOMAIN}${pagePath}`, // 🚀 다이렉트 라우팅: 쿼리 파라미터 제거
+        'ja': `${BASE_DOMAIN}${pagePath}`,
+        'zh': `${BASE_DOMAIN}${pagePath}`,
+        'es': `${BASE_DOMAIN}${pagePath}`,
         'x-default': `${BASE_DOMAIN}${pagePath}`,
       },
     },
@@ -205,10 +205,10 @@ export function generateBaseMetadata(
       canonical: domain,
       languages: {
         'ko': BASE_DOMAIN,
-        'en': `${BASE_DOMAIN}?lang=en`,
-        'ja': `${BASE_DOMAIN}?lang=ja`,
-        'zh': `${BASE_DOMAIN}?lang=zh`,
-        'es': `${BASE_DOMAIN}?lang=es`,
+        'en': BASE_DOMAIN, // 🚀 다이렉트 라우팅: 쿼리 파라미터 제거
+        'ja': BASE_DOMAIN,
+        'zh': BASE_DOMAIN,
+        'es': BASE_DOMAIN,
         'x-default': BASE_DOMAIN,
       },
     },
@@ -315,9 +315,7 @@ export function generateGuideMetadata(
     openGraph: {
       title,
       description,
-      url: language === 'ko' 
-        ? `${domain}/guide/${encodeURIComponent(guideName)}`
-        : `${domain}/guide/${encodeURIComponent(guideName)}?lang=${language}`,
+      url: `${domain}/guide/${language}/${encodeURIComponent(guideName)}`, // 🚀 새 URL 구조
       images: guideData?.imageUrl ? [
         {
           url: guideData.imageUrl,
@@ -376,30 +374,23 @@ export function generateSitemapUrls(guides: Array<{ name: string; slug?: string 
     }
   ];
 
-  // 각 가이드에 대한 URL 생성 (쿼리 파라미터 방식)
+  // 🚀 각 가이드에 대한 URL 생성 (새로운 구조: /guide/[language]/[location])
   guides.forEach(guide => {
     const guidePath = guide.slug || encodeURIComponent(guide.name);
     
     languages.forEach(lang => {
-      // 실제 URL 구조: /guide/[location]?lang=[언어코드]
-      const guideUrl = lang === 'ko' 
-        ? `${baseUrl}/guide/${guidePath}` // 한국어는 lang 파라미터 생략
-        : `${baseUrl}/guide/${guidePath}?lang=${lang}`;
+      // 🚀 새로운 URL 구조: /guide/[language]/[location]
+      const guideUrl = `${baseUrl}/guide/${lang}/${guidePath}`;
         
       urls.push({
         url: guideUrl,
         lastModified: now,
         changeFrequency: 'weekly',
         priority: 0.7,
-        // 다국어 alternate 링크
+        // 🚀 다국어 alternate 링크 (새 구조로 업데이트)
         alternates: {
           languages: Object.fromEntries(
-            languages.map(l => [
-              l, 
-              l === 'ko' 
-                ? `${baseUrl}/guide/${guidePath}`
-                : `${baseUrl}/guide/${guidePath}?lang=${l}`
-            ])
+            languages.map(l => [l, `${baseUrl}/guide/${l}/${guidePath}`])
           )
         }
       });
@@ -532,10 +523,10 @@ export function generateNaverOptimizedMetadata(
       canonical: `${domain}${pagePath}`,
       languages: {
         'ko': `${domain}${pagePath}`,
-        'en': `${domain}${pagePath}?lang=en`,
-        'ja': `${domain}${pagePath}?lang=ja`,
-        'zh': `${domain}${pagePath}?lang=zh`,
-        'es': `${domain}${pagePath}?lang=es`,
+        'en': `${domain}${pagePath}`, // 🚀 다이렉트 라우팅: 쿼리 파라미터 제거
+        'ja': `${domain}${pagePath}`,
+        'zh': `${domain}${pagePath}`,
+        'es': `${domain}${pagePath}`,
         'x-default': `${domain}${pagePath}`,
       },
     },

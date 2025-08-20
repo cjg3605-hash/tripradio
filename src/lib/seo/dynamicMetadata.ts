@@ -119,7 +119,7 @@ export async function generateGuideMetadata({
       description,
       type: 'article',
       locale: getOpenGraphLocale(language),
-      url: `${baseUrl}/guide/${encodeURIComponent(locationName)}`,
+      url: `${baseUrl}/guide/${language}/${encodeURIComponent(locationName)}`,
       siteName: 'TripRadio.AI',
       images: extractedImage ? [
         {
@@ -144,13 +144,13 @@ export async function generateGuideMetadata({
       images: extractedImage ? [extractedImage] : [`/og-image.jpg`]
     },
     alternates: {
-      canonical: `${baseUrl}/guide/${encodeURIComponent(locationName)}`,
+      canonical: `${baseUrl}/guide/${language}/${encodeURIComponent(locationName)}`,
       languages: {
-        'ko': `${baseUrl}/guide/${encodeURIComponent(locationName)}?lang=ko`,
-        'en': `${baseUrl}/guide/${encodeURIComponent(locationName)}?lang=en`,
-        'ja': `${baseUrl}/guide/${encodeURIComponent(locationName)}?lang=ja`,
-        'zh': `${baseUrl}/guide/${encodeURIComponent(locationName)}?lang=zh`,
-        'es': `${baseUrl}/guide/${encodeURIComponent(locationName)}?lang=es`,
+        'ko': `${baseUrl}/guide/ko/${encodeURIComponent(locationName)}`,
+        'en': `${baseUrl}/guide/en/${encodeURIComponent(locationName)}`,
+        'ja': `${baseUrl}/guide/ja/${encodeURIComponent(locationName)}`,
+        'zh': `${baseUrl}/guide/zh/${encodeURIComponent(locationName)}`,
+        'es': `${baseUrl}/guide/es/${encodeURIComponent(locationName)}`,
       }
     },
     other: {

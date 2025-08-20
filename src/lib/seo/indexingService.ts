@@ -79,14 +79,9 @@ export class IndexingService {
       // 올바른 URL 패턴 생성
       const urls: string[] = [];
       
-      // 기본 한국어 URL (lang 파라미터 없음)
-      urls.push(`${baseUrl}/guide/${encodeURIComponent(locationName)}`);
-      
-      // 각 언어별 URL (lang 파라미터 포함)
+      // 🚀 새로운 URL 구조: /guide/[language]/[location]
       languages.forEach(lang => {
-        if (lang !== 'ko') { // 한국어는 이미 추가했으므로 제외
-          urls.push(`${baseUrl}/guide/${encodeURIComponent(locationName)}?lang=${lang}`);
-        }
+        urls.push(`${baseUrl}/guide/${lang}/${encodeURIComponent(locationName)}`);
       });
       
       return urls;

@@ -88,7 +88,8 @@ export default function KoreaRegionPage() {
 
   const handleAttractionClick = (attractionName: string) => {
     setLoadingState(attractionName);
-    router.push(`/guide/${encodeURIComponent(attractionName)}?lang=${currentLanguage}`);
+    // 🚀 새 URL 구조: /guide/[language]/[location]
+    router.push(`/guide/${currentLanguage}/${encodeURIComponent(attractionName)}`);
   };
 
   return (

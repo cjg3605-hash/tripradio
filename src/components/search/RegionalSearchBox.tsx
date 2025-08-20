@@ -87,8 +87,8 @@ export default function RegionalSearchBox({
     if (onLocationSelect) {
       onLocationSelect(suggestion);
     } else {
-      // 기본 동작: 가이드 페이지로 이동
-      router.push(`/guide/${encodeURIComponent(suggestion.name)}`);
+      // 🚀 새 URL 구조: /guide/[language]/[location]
+      router.push(`/guide/${currentLanguage}/${encodeURIComponent(suggestion.name)}`);
     }
   };
 
@@ -97,7 +97,8 @@ export default function RegionalSearchBox({
     if (!query.trim()) return;
     
     setSuggestions([]);
-    router.push(`/guide/${encodeURIComponent(query.trim())}`);
+    // 🚀 새 URL 구조: /guide/[language]/[location]
+    router.push(`/guide/${currentLanguage}/${encodeURIComponent(query.trim())}`);
   };
 
   // 필터 업데이트

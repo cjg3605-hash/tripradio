@@ -5,7 +5,7 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 
 // Test if the TourContent dynamic import is the problem
-const TourContentTest = dynamic(() => import('../guide/[location]/tour/components/TourContent'), {
+const TourContentTest = dynamic(() => import('../guide/[language]/[location]/tour/components/TourContent'), {
   loading: () => <div>Loading TourContent...</div>,
   ssr: false
 });

@@ -1,0 +1,1315 @@
+src/app\page.tsx:const OptimalAdSense = dynamic(() => import('@/components/ads/OptimalAdSense'), {
+src/app\page.tsx:const FAQSchema = dynamic(() => import('@/components/seo/FAQSchema'), {
+src/app\page.tsx:const BreadcrumbSchema = dynamic(() => import('@/components/seo/BreadcrumbSchema'), {
+src/app\page.tsx:const ErrorModal = dynamic(() => import('@/components/errors/ErrorModal'), {
+src/app\page.tsx:const ImagePreloader = dynamic(() => import('@/components/optimization/ImagePreloader'), {
+src/app\page.tsx:              <h2 className="text-2xl font-bold text-black mb-2">{String(this.props.t('errors.generalError'))}</h2>
+src/app\page.tsx:              <p className="text-[#555555] font-light mb-6">{String(this.props.t('home.alerts.unexpectedError') || this.props.t('errors.generalError'))}</p>
+src/app\page.tsx:              {String(this.props.t('common.tryAgain'))}
+src/app\page.tsx:      const details = t('attractionDetails');
+src/app\page.tsx:    const countries = t('home.countries') as any;
+src/app\page.tsx:      const translated = t('home.defaultSuggestions');
+src/app\page.tsx:          const defaultSuggestions = t('home.defaultSuggestions');
+src/app\page.tsx:      const destination = params.get('destination');
+src/app\page.tsx:      const purpose = params.get('purpose');
+src/app\page.tsx:      const film = params.get('film');
+src/app\page.tsx:      const nomad = params.get('nomad');
+src/app\page.tsx:      const visa = params.get('visa');
+src/app\page.tsx:        const parts = firstSuggestion.location.split(',').map((part: string) => part.trim());
+src/app\page.tsx:      const errorMessage = t('home.alerts.enterLocation');
+src/app\page.tsx:      const titleMessage = t('errors.inputValidation.title');
+src/app\page.tsx:            String(t('errors.configError.message')),
+src/app\page.tsx:              title: String(t('errors.configError.title')),
+src/app\page.tsx:        contentType: response.headers.get('content-type'),
+src/app\page.tsx:        contentLength: response.headers.get('content-length')
+src/app\page.tsx:            String(t('errors.serverResponse')),
+src/app\page.tsx:              title: String(t('errors.serverResponse.title')),
+src/app\page.tsx:          retryAfter: response.headers.get('retry-after'),
+src/app\page.tsx:          const retryAfter = response.headers.get('retry-after') || '60';
+src/app\page.tsx:            String(t('errors.rateLimitExceeded', { seconds: retryAfter })),
+src/app\page.tsx:              title: String(t('errors.rateLimit.title')),
+src/app\page.tsx:            String(t('errors.aiServiceTemporary')),
+src/app\page.tsx:          const defaultMessage = errorData.error || `${t('home.alerts.generationFailed')} (${response.status})`;
+src/app\page.tsx:            String(t('errors.requestTimeout')),
+src/app\page.tsx:            String(t('errors.networkError')),
+src/app\page.tsx:          const errorMessage = t('home.alerts.networkError');
+src/app\page.tsx:        const errorMessage = t('home.alerts.networkError');
+src/app\page.tsx:      const errorMessage = t('home.alerts.enterLocation');
+src/app\page.tsx:        title: String(t('errors.inputValidation.title'))
+src/app\page.tsx:          message={String(t('guide.generatingWithLocation', { location: currentLoadingQuery || query || '' }))}
+src/app\page.tsx:          subMessage={String(t('guide.generatingSubMessage'))}
+src/app\page.tsx:              <span className="text-sm md:text-sm sm:text-xs font-medium text-white/90">{t('home.audioGuidePrefix').split(' | ')[0] || 'AI 오디오가이드'}</span>
+src/app\page.tsx:              <span className="text-sm md:text-sm sm:text-xs font-medium text-white/90">{t('home.audioGuidePrefix').split(' | ')[1] || '무료 체험'}</span>
+src/app\page.tsx:                {t('home.pageTitle') || 'TripRadio.AI - AI 오디오가이드 여행 서비스'}
+src/app\page.tsx:                {t('home.subtitle')} {t('home.subtitle2')}
+src/app\page.tsx:                    if (!relatedTarget || !relatedTarget.closest('.suggestions-container')) {
+src/app\page.tsx:                  placeholder={String(t('home.searchPlaceholder'))}
+src/app\page.tsx:                  aria-label={String(t('home.searchPlaceholder'))}
+src/app\page.tsx:                aria-label={loadingStates.search ? '검색 중...' : String(t('home.searchButton'))}
+src/app\page.tsx:                      {t('search.noResults')}
+src/app\page.tsx:                <h3 className="font-semibold text-white">{t('home.stepTitles.inputLocation') || '장소 입력'}</h3>
+src/app\page.tsx:                <p className="text-sm text-white/70">{t('home.stepDescriptions.inputLocation') || '궁금한 곳의 이름을 입력하세요'}</p>
+src/app\page.tsx:                <h3 className="font-semibold text-white">{t('home.stepTitles.aiGenerate') || 'AI 생성'}</h3>
+src/app\page.tsx:                <p className="text-sm text-white/70">{t('home.stepDescriptions.aiGenerate') || 'AI가 맞춤형 가이드를 생성합니다'}</p>
+src/app\page.tsx:                <h3 className="font-semibold text-white">{t('home.stepTitles.audioPlay') || '오디오 재생'}</h3>
+src/app\page.tsx:                <p className="text-sm text-white/70">{t('home.stepDescriptions.audioPlay') || '생성된 가이드를 음성으로 들어보세요'}</p>
+src/app\page.tsx:                {t('home.regionTitles.popularCountries')}
+src/app\page.tsx:                {t('home.regionDescription')}
+src/app\page.tsx:                    { id: 'korea', label: t('home.regionTitles.korea') },
+src/app\page.tsx:                    { id: 'europe', label: t('home.regionTitles.europe') },
+src/app\page.tsx:                    { id: 'asia', label: t('home.regionTitles.asia') },
+src/app\page.tsx:                    { id: 'americas', label: t('home.regionTitles.americas') }
+src/app\page.tsx:                                    url += '&parent=' + encodeURIComponent('방콕');
+src/app\page.tsx:                <span className="font-medium">{t('home.scrollHint')}</span>
+src/app\page.tsx:                  {t('home.viewMoreAttractions')}
+src/app\page.tsx:              <h3 className="text-lg md:text-base sm:text-base font-semibold text-black mb-4 md:mb-3 sm:mb-2">{t('footer.companyName')}</h3>
+src/app\page.tsx:                {t('footer.companyDescription')}
+src/app\page.tsx:                <span className="text-xs md:text-xs sm:text-xs text-gray-500">{t('footer.copyright')}</span>
+src/app\page.tsx:              <h4 className="text-sm md:text-sm sm:text-xs font-semibold text-black mb-4 md:mb-3 sm:mb-2">{t('footer.legalInfo')}</h4>
+src/app\page.tsx:                    {t('footer.privacyPolicy')}
+src/app\page.tsx:                    {t('footer.termsOfService')}
+src/app\page.tsx:                    {t('footer.aboutUs')}
+src/app\page.tsx:                    {t('footer.contact')}
+src/app\page.tsx:              <h4 className="text-sm md:text-sm sm:text-xs font-semibold text-black mb-4 md:mb-3 sm:mb-2">{t('footer.services.title')}</h4>
+src/app\page.tsx:                    {t('footer.services.audioGuide')}
+src/app\page.tsx:                    {t('footer.services.docent')}
+src/app\page.tsx:                    {t('footer.services.tourRadio')}
+src/app\page.tsx:                    {t('footer.services.travelRadio')}
+src/app\page.tsx:              <h4 className="text-sm md:text-sm sm:text-xs font-semibold text-black mb-4 md:mb-3 sm:mb-2">{t('footer.tools.title')}</h4>
+src/app\page.tsx:                    {t('footer.tools.tripPlanner')}
+src/app\page.tsx:                    {t('footer.tools.nomadCalculator')}
+src/app\page.tsx:                    {t('footer.tools.filmLocations')}
+src/app\page.tsx:                    {t('footer.tools.visaChecker')}
+src/app\page.tsx:              <h4 className="text-sm md:text-sm sm:text-xs font-semibold text-black mb-4 md:mb-3 sm:mb-2">{t('footer.support')}</h4>
+src/app\page.tsx:                    {t('footer.telegramChannel')}
+src/app\page.tsx:                    {t('footer.supportHours')}
+src/app\page.tsx:                {t('legal.adsenseNotice') || '광고 수익 공지'}
+src/app\page.tsx:                {t('legal.privacyPolicy') || '개인정보 처리방침'}
+src/app\page.tsx:              <span>{t('legal.adsensePolicy') || 'AdSense 정책'}</span>
+src/middleware\compression.ts:  const acceptEncoding = request.headers.get('accept-encoding') || '';
+src/middleware\compression.ts:  const contentType = response.headers.get('content-type');
+src/app\film-locations\page.tsx:    title: t('films.parasite.title'),
+src/app\film-locations\page.tsx:      { name: t('films.parasite.locations.jahamun.name'), area: t('films.parasite.locations.jahamun.area'), description: t('films.parasite.locations.jahamun.description') },
+src/app\film-locations\page.tsx:      { name: t('films.parasite.locations.snu.name'), area: t('films.parasite.locations.snu.area'), description: t('films.parasite.locations.snu.description') },
+src/app\film-locations\page.tsx:      { name: t('films.parasite.locations.seongbuk.name'), area: t('films.parasite.locations.seongbuk.area'), description: t('films.parasite.locations.seongbuk.description') }
+src/app\film-locations\page.tsx:    awards: t('films.parasite.awards')
+src/app\film-locations\page.tsx:    title: t('films.squidGame.title'),
+src/app\film-locations\page.tsx:      { name: t('films.squidGame.locations.tribowl.name'), area: t('films.squidGame.locations.tribowl.area'), description: t('films.squidGame.locations.tribowl.description') },
+src/app\film-locations\page.tsx:      { name: t('films.squidGame.locations.yongyu.name'), area: t('films.squidGame.locations.yongyu.area'), description: t('films.squidGame.locations.yongyu.description') },
+src/app\film-locations\page.tsx:      { name: t('films.squidGame.locations.cheongnyangni.name'), area: t('films.squidGame.locations.cheongnyangni.area'), description: t('films.squidGame.locations.cheongnyangni.description') }
+src/app\film-locations\page.tsx:    awards: t('films.squidGame.awards')
+src/app\film-locations\page.tsx:    title: t('films.cloy.title'),
+src/app\film-locations\page.tsx:      { name: t('films.cloy.locations.sigriswil.name'), area: t('films.cloy.locations.sigriswil.area'), description: t('films.cloy.locations.sigriswil.description') },
+src/app\film-locations\page.tsx:      { name: t('films.cloy.locations.beolgok.name'), area: t('films.cloy.locations.beolgok.area'), description: t('films.cloy.locations.beolgok.description') },
+src/app\film-locations\page.tsx:      { name: t('films.cloy.locations.bukhan.name'), area: t('films.cloy.locations.bukhan.area'), description: t('films.cloy.locations.bukhan.description') }
+src/app\film-locations\page.tsx:    awards: t('films.cloy.awards')
+src/app\film-locations\page.tsx:    title: t('films.goblin.title'),
+src/app\film-locations\page.tsx:      { name: t('films.goblin.locations.deoksugung.name'), area: t('films.goblin.locations.deoksugung.area'), description: t('films.goblin.locations.deoksugung.description') },
+src/app\film-locations\page.tsx:      { name: t('films.goblin.locations.jumunjin.name'), area: t('films.goblin.locations.jumunjin.area'), description: t('films.goblin.locations.jumunjin.description') },
+src/app\film-locations\page.tsx:      { name: t('films.goblin.locations.chinatown.name'), area: t('films.goblin.locations.chinatown.area'), description: t('films.goblin.locations.chinatown.description') }
+src/app\film-locations\page.tsx:    awards: t('films.goblin.awards')
+src/app\film-locations\page.tsx:    title: t('films.taegeukgi.title'),
+src/app\film-locations\page.tsx:      { name: t('films.taegeukgi.locations.taebaek.name'), area: t('films.taegeukgi.locations.taebaek.area'), description: t('films.taegeukgi.locations.taebaek.description') },
+src/app\film-locations\page.tsx:      { name: t('films.taegeukgi.locations.auraji.name'), area: t('films.taegeukgi.locations.auraji.area'), description: t('films.taegeukgi.locations.auraji.description') },
+src/app\film-locations\page.tsx:      { name: t('films.taegeukgi.locations.seoul.name'), area: t('films.taegeukgi.locations.seoul.area'), description: t('films.taegeukgi.locations.seoul.description') }
+src/app\film-locations\page.tsx:    awards: t('films.taegeukgi.awards')
+src/contexts\LanguageContext.tsx:  const langCode = browserLang.split('-')[0];
+src/contexts\LanguageContext.tsx:      const urlLang = urlParams.get('lang');
+src/contexts\LanguageContext.tsx:    const keys = key.split('.');
+src/contexts\LanguageContext.tsx:          const fallbackKeys = key.split('.');
+src/app\monitoring\page.tsx:      alert('메트릭이 초기화되었습니다.');
+src/services\legal-pages\legal-pages-service.ts:    const [major, minor, patch] = currentVersion.split('.').map(Number);
+src/services\content-management\content-seo-service.ts:    const titleWords = title.split(' ').filter(word => word.length > 1);
+src/app\nomad-calculator\page.tsx:    highlights: [t('cities.lisbon.highlights.timezone'), t('cities.lisbon.highlights.community'), t('cities.lisbon.highlights.weather')],
+src/app\nomad-calculator\page.tsx:    highlights: [t('cities.berlin.highlights.startup'), t('cities.berlin.highlights.culture'), t('cities.berlin.highlights.beer')],
+src/app\nomad-calculator\page.tsx:    highlights: [t('cities.canggu.highlights.lowCost'), t('cities.canggu.highlights.beach'), t('cities.canggu.highlights.surfing')],
+src/app\nomad-calculator\page.tsx:    highlights: [t('cities.chiangmai.highlights.ultraLowCost'), t('cities.chiangmai.highlights.food'), t('cities.chiangmai.highlights.people')],
+src/app\nomad-calculator\page.tsx:    highlights: [t('cities.hcmc.highlights.affordable'), t('cities.hcmc.highlights.vibrant'), t('cities.hcmc.highlights.food')],
+src/app\nomad-calculator\page.tsx:    highlights: [t('cities.mexicocity.highlights.culture'), t('cities.mexicocity.highlights.food'), t('cities.mexicocity.highlights.art')],
+src/app\mypage\page.tsx:    const confirmMessage = typeof t('common.confirmDelete') === 'string' ? String(t('common.confirmDelete')) : '이 가이드를 삭제하시겠습니까?';
+src/app\mypage\page.tsx:    if (diffDays === 1) return t('date.today') || '오늘';
+src/app\mypage\page.tsx:    if (diffDays === 2) return t('date.yesterday') || '어제';
+src/app\mypage\page.tsx:    if (diffDays <= 7) return `${diffDays}${t('common.daysAgo') || '일 전'}`;
+src/app\mypage\page.tsx:    if (diffDays <= 30) return `${Math.ceil(diffDays / 7)}${t('common.weeksAgo') || '주 전'}`;
+src/app\mypage\page.tsx:      return `${hours}${t('common.hours') || '시간'} ${mins}${t('common.minutes') || '분'}`;
+src/app\mypage\page.tsx:    return `${mins}${t('common.minutes') || '분'}`;
+src/app\mypage\page.tsx:                <h2 className="text-xl font-semibold text-black">{t('mypage.historyTitle') || '나의 가이드'}</h2>
+src/app\mypage\page.tsx:                <p className="text-gray-500 text-sm">{t('mypage.historyDescription') || '조회했던 가이드들의 히스토리입니다'}</p>
+src/app\mypage\page.tsx:                {t('mypage.totalCount', { count: filteredGuides.length.toString() }) || `총 ${filteredGuides.length}개`} {t('mypage.guides') || '가이드'}
+src/app\mypage\page.tsx:                  placeholder={String(t('mypage.searchPlaceholder') || '가이드 검색...')}
+src/app\mypage\page.tsx:                <option value="all">{t('mypage.allLanguages') || '모든 언어'}</option>
+src/app\mypage\page.tsx:                <option value="ko">{t('languages.korean') || '한국어'}</option>
+src/app\mypage\page.tsx:                <option value="en">{t('languages.english') || 'English'}</option>
+src/app\mypage\page.tsx:                <option value="ja">{t('languages.japanese') || '日本語'}</option>
+src/app\mypage\page.tsx:                <option value="zh">{t('languages.chinese') || '中文'}</option>
+src/app\mypage\page.tsx:                <option value="es">{t('languages.spanish') || 'Español'}</option>
+src/app\mypage\page.tsx:                        <span>📚 {guide.chapters}{t('mypage.chapters') || '개 챕터'}</span>
+src/app\mypage\page.tsx:                <h3 className="text-lg font-medium text-black mb-2">{t('mypage.noHistoryTitle') || '가이드 히스토리가 없습니다'}</h3>
+src/app\mypage\page.tsx:                <p className="text-gray-500 mb-4">{t('mypage.noHistoryDescription') || '새로운 장소를 검색하여 가이드를 생성해보세요!'}</p>
+src/app\mypage\page.tsx:                  {t('mypage.createGuideButton') || '가이드 생성하기'}
+src/app\mypage\page.tsx:                <h2 className="text-xl font-semibold text-black">{t('mypage.favoritesTitle') || '즐겨찾기 가이드'}</h2>
+src/app\mypage\page.tsx:                <p className="text-gray-500 text-sm">{t('mypage.favoritesDescription') || '실시간 가이드에서 즐겨찾기한 가이드들입니다'}</p>
+src/app\mypage\page.tsx:                {t('mypage.favoritesCount', { count: favoriteGuides.length.toString() }) || `${favoriteGuides.length}개`} {t('mypage.favoritesShort') || '즐겨찾기'}
+src/app\mypage\page.tsx:                <h3 className="text-lg font-medium text-black mb-2">{t('mypage.noFavoritesTitle') || '즐겨찾기한 가이드가 없습니다'}</h3>
+src/app\mypage\page.tsx:                <p className="text-gray-500 mb-4">{t('mypage.noFavoritesDescription') || '실시간 가이드를 보며 별표 버튼을 클릭하여 즐겨찾기를 추가해보세요!'}</p>
+src/app\mypage\page.tsx:                  {t('mypage.createGuideButton') || '가이드 생성하기'}
+src/app\mypage\page.tsx:                <h2 className="text-xl font-semibold text-black">{t('mypage.offlineTitle') || '오프라인 다운로드'}</h2>
+src/app\mypage\page.tsx:                <p className="text-gray-500 text-sm">{t('mypage.offlineDescription') || '오프라인에서도 이용할 수 있도록 다운로드한 가이드들입니다'}</p>
+src/app\mypage\page.tsx:                {t('mypage.downloadsCount', { count: offlineGuides.length.toString() }) || `${offlineGuides.length}개`} {t('common.downloads') || '다운로드'}
+src/app\mypage\page.tsx:                          {t('mypage.offlineAvailable') || '오프라인 사용 가능'}
+src/app\mypage\page.tsx:                        <span>📚 {guide.chapters}{t('mypage.chapters') || '개 챕터'}</span>
+src/app\mypage\page.tsx:                        <span>💾 {t('mypage.downloaded') || '다운로드됨'}</span>
+src/app\mypage\page.tsx:                        title={String(t('mypage.offlinePlay') || '오프라인 재생')}
+src/app\mypage\page.tsx:                        title={String(t('mypage.deleteOffline') || '오프라인 파일 삭제')}
+src/app\mypage\page.tsx:                <h3 className="text-lg font-medium text-black mb-2">{t('mypage.noOfflineTitle') || '오프라인 다운로드된 가이드가 없습니다'}</h3>
+src/app\mypage\page.tsx:                  {t('mypage.noOfflineDescription') || '실시간 가이드를 보며 다운로드 버튼을 클릭하여 오프라인에서도 이용할 수 있도록 저장해보세요!'}
+src/app\mypage\page.tsx:                      <h4 className="font-medium text-blue-900 mb-1">{t('mypage.offlineInfoTitle') || '오프라인 기능 안내'}</h4>
+src/app\mypage\page.tsx:                        • {t('mypage.offlineFeature1') || '인터넷 연결 없이도 가이드 이용 가능'}<br />
+src/app\mypage\page.tsx:                        • {t('mypage.offlineFeature2') || '오디오 파일까지 함께 저장'}<br />
+src/app\mypage\page.tsx:                        • {t('mypage.offlineFeature3') || '모바일 저장 공간에 안전하게 보관'}
+src/app\mypage\page.tsx:              <h3 className="text-lg font-semibold text-black mb-4">{t('mypage.accountSettings') || '계정 설정'}</h3>
+src/app\mypage\page.tsx:                  <label className="block text-sm font-medium text-black mb-2">{t('mypage.nameLabel') || '이름'}</label>
+src/app\mypage\page.tsx:                    placeholder={String(t('mypage.namePlaceholder') || '이름을 입력하세요')}
+src/app\mypage\page.tsx:                  <label className="block text-sm font-medium text-black mb-2">{t('mypage.emailLabel') || '이메일'}</label>
+src/app\mypage\page.tsx:                  <p className="text-xs text-gray-400 mt-1">{t('mypage.emailNotEditableNote') || '이메일은 변경할 수 없습니다'}</p>
+src/app\mypage\page.tsx:                  <label className="block text-sm font-medium text-black mb-2">{t('mypage.defaultLanguage') || '기본 언어'}</label>
+src/app\mypage\page.tsx:                    <option value="ko">{t('languages.korean') || '한국어'}</option>
+src/app\mypage\page.tsx:                    <option value="en">{t('languages.english') || 'English'}</option>
+src/app\mypage\page.tsx:                    <option value="ja">{t('languages.japanese') || '日本語'}</option>
+src/app\mypage\page.tsx:                    <option value="zh">{t('languages.chinese') || '中文'}</option>
+src/app\mypage\page.tsx:                    <option value="es">{t('languages.spanish') || 'Español'}</option>
+src/app\mypage\page.tsx:              <h3 className="text-lg font-semibold text-black mb-4">{t('mypage.notificationSettings') || '알림 설정'}</h3>
+src/app\mypage\page.tsx:                  <span className="ml-3 text-sm text-gray-700">{t('mypage.newFeatureNotifications') || '새로운 기능 알림'}</span>
+src/app\mypage\page.tsx:                  <span className="ml-3 text-sm text-gray-700">{t('mypage.guideCompleteNotifications') || '가이드 생성 완료 알림'}</span>
+src/app\mypage\page.tsx:                  <span className="ml-3 text-sm text-gray-700">{t('mypage.marketingEmails') || '마케팅 이메일 수신'}</span>
+src/app\mypage\page.tsx:              <h3 className="text-lg font-semibold text-black mb-4">{t('mypage.dataManagement') || '데이터 관리'}</h3>
+src/app\mypage\page.tsx:                      <div className="font-medium text-black mb-1">{t('mypage.exportData') || '데이터 내보내기'}</div>
+src/app\mypage\page.tsx:                      <div className="text-sm text-gray-500">{t('mypage.exportDescription') || '모든 가이드 데이터를 JSON 형태로 다운로드'}</div>
+src/app\mypage\page.tsx:                      <div className="font-medium mb-1">{t('mypage.deleteAllData') || '모든 데이터 삭제'}</div>
+src/app\mypage\page.tsx:                      <div className="text-sm text-red-400">{t('mypage.deleteAllDescription') || '저장된 모든 가이드와 설정을 삭제합니다'}</div>
+src/app\mypage\page.tsx:                {t('auth.logout') || '로그아웃'}
+src/app\mypage\page.tsx:                <h3 className="text-lg font-medium text-black">{t('profile.account') || '계정 관리'}</h3>
+src/app\mypage\page.tsx:                      const { performCompleteLogout, simpleCacheInvalidation } = await import('@/lib/auth-utils');
+src/app\mypage\page.tsx:                  {t('auth.logout') || '로그아웃'}
+src/app\mypage\page.tsx:                ← {t('buttons.goBack') || '홈으로'}
+src/app\mypage\page.tsx:              <h1 className="text-lg md:text-xl font-semibold text-black whitespace-nowrap">{t('mypage.title') || '마이페이지'}</h1>
+src/app\mypage\page.tsx:                  {session?.user?.name || t('profile.user') || '사용자'}
+src/app\mypage\page.tsx:                  label: t('mypage.history') || '나의 가이드', 
+src/app\mypage\page.tsx:                  shortLabel: t('mypage.historyShort') || '가이드',
+src/app\mypage\page.tsx:                  label: t('mypage.favoriteGuides') || '즐겨찾기 가이드', 
+src/app\mypage\page.tsx:                  shortLabel: t('mypage.favoritesShort') || '즐겨찾기',
+src/app\mypage\page.tsx:                  label: t('mypage.offline') || '오프라인 다운로드', 
+src/app\mypage\page.tsx:                  shortLabel: t('mypage.offlineShort') || '오프라인',
+src/app\mypage\page.tsx:                  label: t('mypage.settings') || '세팅', 
+src/app\mypage\page.tsx:                  shortLabel: t('mypage.settingsShort') || '세팅',
+src/app\mypage\page.tsx:            <span className="ml-2 text-gray-500">{t('common.loading') || '로딩 중...'}</span>
+src/app\sitemap.ts:      .select('location_name, updated_at')
+src/app\my-guide\[id]\page.tsx:const MinimalTourContent = dynamic(() => import("../../guide/[location]/tour/components/TourContent"), { 
+src/app\my-guide\[id]\page.tsx:          message={String(t('common.loading'))}
+src/app\my-guide\[id]\page.tsx:                {t('profile.guides')}
+src/app\rss.xml\route.ts:      .select('locationname, content, updated_at')
+src/app\trip-planner\page.tsx:    name: String(t('tripTypes.solo.name')),
+src/app\trip-planner\page.tsx:    description: String(t('tripTypes.solo.description')),
+src/app\trip-planner\page.tsx:    features: [String(t('tripTypes.solo.features.safety')), String(t('tripTypes.solo.features.culture')), String(t('tripTypes.solo.features.budget'))],
+src/app\trip-planner\page.tsx:    name: String(t('tripTypes.couple.name')),
+src/app\trip-planner\page.tsx:    description: String(t('tripTypes.couple.description')),
+src/app\trip-planner\page.tsx:    features: [String(t('tripTypes.couple.features.romantic')), String(t('tripTypes.couple.features.activities')), String(t('tripTypes.couple.features.photos'))],
+src/app\trip-planner\page.tsx:    name: String(t('tripTypes.family.name')),
+src/app\trip-planner\page.tsx:    description: String(t('tripTypes.family.description')),
+src/app\trip-planner\page.tsx:    features: [String(t('tripTypes.family.features.kidFriendly')), String(t('tripTypes.family.features.safety')), String(t('tripTypes.family.features.educational'))],
+src/app\trip-planner\page.tsx:    name: String(t('tripTypes.friends.name')),
+src/app\trip-planner\page.tsx:    description: String(t('tripTypes.friends.description')),
+src/app\trip-planner\page.tsx:    features: [String(t('tripTypes.friends.features.activities')), String(t('tripTypes.friends.features.instagramSpots')), String(t('tripTypes.friends.features.nightlife'))],
+src/app\trip-planner\page.tsx:    name: String(t('tripTypes.nomad.name')),
+src/app\trip-planner\page.tsx:    description: String(t('tripTypes.nomad.description')),
+src/app\trip-planner\page.tsx:    features: [String(t('tripTypes.nomad.features.wifi')), String(t('tripTypes.nomad.features.coworking')), String(t('tripTypes.nomad.features.longTerm'))],
+src/app\trip-planner\page.tsx:      setBudget(String(t('tripPlanner.defaults.budget')));
+src/app\trip-planner\page.tsx:      setDuration(String(t('tripPlanner.defaults.duration')));
+src/app\trip-planner\page.tsx:      setTripType(String(t('tripPlanner.defaults.tripType')));
+src/app\trip-planner\page.tsx:      alert(String(t('tripPlanner.alerts.settingsLoaded')));
+src/app\trip-planner\page.tsx:      alert(String(t('tripPlanner.alerts.noSavedSettings')));
+src/app\trip-planner\page.tsx:    alert(String(t('tripPlanner.alerts.settingsSaved')));
+src/app\trip-planner\page.tsx:      alert(String(t('tripPlanner.alerts.enterDestination')));
+src/app\trip-planner\page.tsx:        throw new Error(String(t('tripPlanner.alerts.planGenerationFailed')));
+src/app\trip-planner\page.tsx:      alert(String(t('tripPlanner.alerts.planGenerationError')));
+src/app\trip-planner\page.tsx:      alert(String(t('tripPlanner.alerts.noPlanToSave')));
+src/app\trip-planner\page.tsx:    alert(String(t('tripPlanner.alerts.planSaved')));
+src/app\trip-planner\page.tsx:      alert(String(t('tripPlanner.alerts.noPlanToExport')));
+src/app\trip-planner\page.tsx:    const a = document.createElement('a');
+src/app\trip-planner\page.tsx:    if (confirm(String(t('tripPlanner.alerts.confirmRegenerate')))) {
+src/app\trip-planner\page.tsx:      alert(String(t('tripPlanner.alerts.noPlanToShare')));
+src/app\trip-planner\page.tsx:          alert(String(t('tripPlanner.alerts.planCopiedToClipboard')));
+src/app\trip-planner\page.tsx:    alert(String(t('tripPlanner.alerts.compareFeatureComingSoon')));
+src/app\trip-planner\page.tsx:        keyword={String(t('tripPlanner.keyword'))}
+src/app\trip-planner\page.tsx:        title={String(t('tripPlanner.metadata.title'))}
+src/app\trip-planner\page.tsx:        description={String(t('tripPlanner.metadata.description'))}
+src/app\trip-planner\page.tsx:        features={[String(t('tripPlanner.features.aiGeneration')), String(t('tripPlanner.features.realtime')), String(t('tripPlanner.features.budget')), String(t('tripPlanner.features.customized')), String(t('tripPlanner.features.localInfo')), String(t('tripPlanner.features.free'))]}
+src/app\trip-planner\page.tsx:          { name: String(t('navigation.home')), url: '/' },
+src/app\trip-planner\page.tsx:          { name: String(t('tripPlanner.keyword')), url: '/trip-planner' }
+src/app\trip-planner\page.tsx:              {String(t('tripPlanner.badge'))}
+src/app\trip-planner\page.tsx:              {String(t('tripPlanner.hero.title'))} <span className="font-semibold">{String(t('tripPlanner.hero.subtitle'))}</span>
+src/app\trip-planner\page.tsx:              {String(t('tripPlanner.hero.description'))}
+src/app\trip-planner\page.tsx:              <span dangerouslySetInnerHTML={{ __html: String(t('tripPlanner.quickPlanner.title')) }} />
+src/app\trip-planner\page.tsx:              <h3 className="text-fluid-xl font-semibold text-black mb-4 leading-snug">{String(t('tripPlanner.steps.selectStyle'))}</h3>
+src/app\trip-planner\page.tsx:                  <h3 className="text-fluid-xl font-semibold text-black mb-4 leading-snug">{String(t('tripPlanner.steps.destinationDuration'))}</h3>
+src/app\trip-planner\page.tsx:                      <label className="block text-sm font-medium text-gray-700 mb-2">{String(t('tripPlanner.form.destination.label'))}</label>
+src/app\trip-planner\page.tsx:                        placeholder={String(t('tripPlanner.form.destination.placeholder'))}
+src/app\trip-planner\page.tsx:                      <label className="block text-sm font-medium text-gray-700 mb-2">{String(t('tripPlanner.form.departure'))}</label>
+src/app\trip-planner\page.tsx:                      <label className="block text-sm font-medium text-gray-700 mb-2">{String(t('tripPlanner.form.duration'))}</label>
+src/app\trip-planner\page.tsx:                        <option value="당일치기">{String(t('tripPlanner.form.durationOptions.dayTrip'))}</option>
+src/app\trip-planner\page.tsx:                        <option value="1박 2일">{String(t('tripPlanner.form.durationOptions.oneNight'))}</option>
+src/app\trip-planner\page.tsx:                        <option value="2-3일">{String(t('tripPlanner.form.durationOptions.twoNights'))}</option>
+src/app\trip-planner\page.tsx:                        <option value="3-4일">{String(t('tripPlanner.form.durationOptions.threeNights'))}</option>
+src/app\trip-planner\page.tsx:                        <option value="4-5일">{String(t('tripPlanner.form.durationOptions.fourNights'))}</option>
+src/app\trip-planner\page.tsx:                        <option value="1주일">{String(t('tripPlanner.form.durationOptions.oneWeek'))}</option>
+src/app\trip-planner\page.tsx:                        <option value="2주일">{String(t('tripPlanner.form.durationOptions.twoWeeks'))}</option>
+src/app\trip-planner\page.tsx:                        <option value="1개월">{String(t('tripPlanner.form.durationOptions.oneMonth'))}</option>
+src/app\trip-planner\page.tsx:                        <option value="기타">{String(t('tripPlanner.form.durationOptions.custom'))}</option>
+src/app\trip-planner\page.tsx:                  <h3 className="text-fluid-xl font-semibold text-black mb-4 leading-snug">{String(t('tripPlanner.steps.budgetPreferences'))}</h3>
+src/app\trip-planner\page.tsx:                      <label className="block text-sm font-medium text-gray-700 mb-2">{String(t('tripPlanner.form.budget'))}</label>
+src/app\trip-planner\page.tsx:                        <option value="20만원 이하">{String(t('tripPlanner.form.budgetOptions.under20'))}</option>
+src/app\trip-planner\page.tsx:                        <option value="20-50만원">{String(t('tripPlanner.form.budgetOptions.range20to50'))}</option>
+src/app\trip-planner\page.tsx:                        <option value="50-100만원">{String(t('tripPlanner.form.budgetOptions.range50to100'))}</option>
+src/app\trip-planner\page.tsx:                        <option value="100-200만원">{String(t('tripPlanner.form.budgetOptions.range100to200'))}</option>
+src/app\trip-planner\page.tsx:                        <option value="200만원 이상">{String(t('tripPlanner.form.budgetOptions.over200'))}</option>
+src/app\trip-planner\page.tsx:                        <option value="무제한">{String(t('tripPlanner.form.budgetOptions.unlimited'))}</option>
+src/app\trip-planner\page.tsx:                      <label className="block text-sm font-medium text-gray-700 mb-2">{String(t('tripPlanner.form.interests'))}</label>
+src/app\trip-planner\page.tsx:                        {[String(t('tripPlanner.form.interestOptions.food')), String(t('tripPlanner.form.interestOptions.shopping')), String(t('tripPlanner.form.interestOptions.culture')), String(t('tripPlanner.form.interestOptions.nature')), String(t('tripPlanner.form.interestOptions.activities')), String(t('tripPlanner.form.interestOptions.photography')), String(t('tripPlanner.form.interestOptions.nightView')), String(t('tripPlanner.form.interestOptions.spa'))].map((interest) => (
+src/app\trip-planner\page.tsx:              <h3 className="text-sm font-medium text-gray-700 mb-3">{String(t('tripPlanner.personalization.title'))}</h3>
+src/app\trip-planner\page.tsx:                  {String(t('tripPlanner.personalization.loadSettings'))}
+src/app\trip-planner\page.tsx:                  {String(t('tripPlanner.personalization.saveSettings'))}
+src/app\trip-planner\page.tsx:                  {String(t('tripPlanner.personalization.viewSavedPlans'))} ({savedPlans.length}{String(t('tripPlanner.personalization.plansCount'))})
+src/app\trip-planner\page.tsx:                {isGenerating ? String(t('tripPlanner.form.analyzing')) : String(t('tripPlanner.form.generateButton'))}
+src/app\trip-planner\page.tsx:              <p className="text-xs text-[#555555] font-light mt-2">{String(t('tripPlanner.form.completionTime'))}</p>
+src/app\trip-planner\page.tsx:                <h3 className="text-lg font-medium text-black">{String(t('tripPlanner.savedPlans.title'))}</h3>
+src/app\trip-planner\page.tsx:                <p className="text-gray-500 text-center py-8">{String(t('tripPlanner.alerts.savedPlansEmpty'))}</p>
+src/app\trip-planner\page.tsx:                          <p className="text-sm text-gray-600">{String(t('tripPlanner.labels.budget'))} {plan.budget} | {String(t('tripPlanner.labels.tripType'))} {plan.tripType}</p>
+src/app\trip-planner\page.tsx:                          <p className="text-xs text-gray-500">{String(t('tripPlanner.labels.createdAt'))} {new Date(plan.createdAt).toLocaleDateString()}</p>
+src/app\trip-planner\page.tsx:                            {String(t('tripPlanner.alerts.loadButton'))}
+src/app\trip-planner\page.tsx:                            {String(t('tripPlanner.alerts.deleteButton'))}
+src/app\trip-planner\page.tsx:                <h3 className="text-lg font-medium text-black">{String(t('tripPlanner.generatedPlan.title'))}</h3>
+src/app\trip-planner\page.tsx:                    {String(t('tripPlanner.generatedPlan.savePlan'))}
+src/app\trip-planner\page.tsx:                    {String(t('tripPlanner.generatedPlan.exportPDF'))}
+src/app\trip-planner\page.tsx:                    {String(t('tripPlanner.generatedPlan.regenerate'))}
+src/app\trip-planner\page.tsx:                    {String(t('tripPlanner.generatedPlan.share'))}
+src/app\trip-planner\page.tsx:                    {String(t('tripPlanner.generatedPlan.compare'))}
+src/app\trip-planner\page.tsx:              {String(t('tripPlanner.popularDestinations.title'))} <span className="font-semibold">{String(t('tripPlanner.popularDestinations.subtitle'))}</span>
+src/app\trip-planner\page.tsx:                    <p className="text-xs text-gray-500 mb-1">{String(t('tripPlanner.labels.mainAttractions'))}</p>
+src/app\trip-planner\page.tsx:                      {String(t('tripPlanner.destinations.viewGuide'))}
+src/app\trip-planner\page.tsx:                        title={String(t('tripPlanner.destinations.nomadInfo'))}
+src/app\trip-planner\page.tsx:                        {String(t('tripPlanner.destinations.nomad'))}
+src/app\trip-planner\page.tsx:                        title={String(t('tripPlanner.destinations.visaInfo'))}
+src/app\trip-planner\page.tsx:                        {String(t('tripPlanner.destinations.visa'))}
+src/app\trip-planner\page.tsx:              {String(t('tripPlanner.aiFeatures.title'))} <span className="font-semibold">{String(t('tripPlanner.aiFeatures.subtitle'))}</span>
+src/app\trip-planner\page.tsx:                <h3 className="font-medium text-black mb-2">{String(t('tripPlanner.aiFeatures.customized.title'))}</h3>
+src/app\trip-planner\page.tsx:                  {String(t('tripPlanner.aiFeatures.customized.description'))}
+src/app\trip-planner\page.tsx:                <h3 className="font-medium text-black mb-2">{String(t('tripPlanner.aiFeatures.realtime.title'))}</h3>
+src/app\trip-planner\page.tsx:                  {String(t('tripPlanner.aiFeatures.realtime.description'))}
+src/app\trip-planner\page.tsx:                <h3 className="font-medium text-black mb-2">{String(t('tripPlanner.aiFeatures.detailedInfo.title'))}</h3>
+src/app\trip-planner\page.tsx:                  {String(t('tripPlanner.aiFeatures.detailedInfo.description'))}
+src/app\trip-planner\page.tsx:                <h3 className="font-medium text-black mb-2">{String(t('tripPlanner.aiFeatures.budgetManagement.title'))}</h3>
+src/app\trip-planner\page.tsx:                  {String(t('tripPlanner.aiFeatures.budgetManagement.description'))}
+src/app\trip-planner\page.tsx:                <h3 className="font-medium text-black mb-2">{String(t('tripPlanner.aiFeatures.mobileOptimized.title'))}</h3>
+src/app\trip-planner\page.tsx:                  {String(t('tripPlanner.aiFeatures.mobileOptimized.description'))}
+src/app\trip-planner\page.tsx:                <h3 className="font-medium text-black mb-2">{String(t('tripPlanner.aiFeatures.audioGuide.title'))}</h3>
+src/app\trip-planner\page.tsx:                  {String(t('tripPlanner.aiFeatures.audioGuide.description'))}
+src/app\trip-planner\page.tsx:              {String(t('tripPlanner.audioGuideIntegration.title.before'))} <span className="font-semibold">{String(t('tripPlanner.audioGuideIntegration.title.highlight'))}</span>
+src/app\trip-planner\page.tsx:              {String(t('tripPlanner.audioGuideIntegration.description'))}
+src/app\trip-planner\page.tsx:                <h3 className="font-medium mb-2">{String(t('tripPlanner.audioGuideIntegration.features.autoStart.title'))}</h3>
+src/app\trip-planner\page.tsx:                <p className="text-sm text-gray-300">{String(t('tripPlanner.audioGuideIntegration.features.autoStart.description'))}</p>
+src/app\trip-planner\page.tsx:                <h3 className="font-medium mb-2">{String(t('tripPlanner.audioGuideIntegration.features.personalized.title'))}</h3>
+src/app\trip-planner\page.tsx:                <p className="text-sm text-gray-300">{String(t('tripPlanner.audioGuideIntegration.features.personalized.description'))}</p>
+src/app\trip-planner\page.tsx:                <h3 className="font-medium mb-2">{String(t('tripPlanner.audioGuideIntegration.features.realtimeUpdate.title'))}</h3>
+src/app\trip-planner\page.tsx:                <p className="text-sm text-gray-300">{String(t('tripPlanner.audioGuideIntegration.features.realtimeUpdate.description'))}</p>
+src/app\trip-planner\page.tsx:              {String(t('tripPlanner.audioGuideIntegration.tryButton'))}
+src/app\trip-planner\page.tsx:          settingsPrompt: '${String(t('tripPlanner.alerts.settingsPrompt'))}',
+src/app\trip-planner\page.tsx:          savedPlansEmpty: '${String(t('tripPlanner.alerts.savedPlansEmpty'))}',
+src/app\trip-planner\page.tsx:          loadButton: '${String(t('tripPlanner.alerts.loadButton'))}',
+src/app\trip-planner\page.tsx:          deleteButton: '${String(t('tripPlanner.alerts.deleteButton'))}',
+src/app\trip-planner\page.tsx:          linkCopied: '${String(t('tripPlanner.alerts.linkCopied'))}'
+src/components\ui\GuideLoading.tsx:              {t('common.pleaseWait') || 'Please wait...'}
+src/app\test-supabase\page.tsx:      .select('locationname, language')
+src/app\guide\[location]\tour\page.tsx:const MinimalTourContent = dynamic(() => import('./components/TourContent'), {
+src/app\guide\[location]\tour\page.tsx:        const { supabase } = await import('@/lib/supabaseClient');
+src/app\guide\[location]\tour\page.tsx:            const { MicrosoftTranslator } = await import('@/lib/location/microsoft-translator');
+src/app\guide\[location]\tour\page.tsx:          .select('id, content, coordinates')
+src/app\terms\page.tsx:            {t('legal.terms.title')}
+src/app\terms\page.tsx:            {t('legal.terms.description')}
+src/app\terms\page.tsx:              {t('legal.terms.content')}
+src/app\terms\page.tsx:                {t('legal.terms.lastUpdated')}: 2024-07-23
+src/components\ui\EnhancedGuideLoading.tsx:  const encouragingMessages = t('loading.encouragement') as string[];
+src/components\ui\EnhancedGuideLoading.tsx:              {message || steps[currentStepIndex]?.title || t('loading.messages.generating')}
+src/components\ui\EnhancedGuideLoading.tsx:              {steps[currentStepIndex]?.description || t('loading.descriptions.preparing')}
+src/components\ui\EnhancedGuideLoading.tsx:            <span>{t('loading.statusText.elapsedTime')}: {formatTime(elapsedTime)}</span>
+src/components\ui\EnhancedGuideLoading.tsx:            <span>{t('loading.statusText.estimatedTime')}: {formatTime(estimatedTime)}</span>
+src/components\ui\EnhancedGuideLoading.tsx:              <h4 className="text-sm font-medium text-gray-700 text-center">{t('loading.statusText.progressTitle')}</h4>
+src/components\ui\EnhancedGuideLoading.tsx:                <strong>{t('loading.notifications.noticeTitle')}:</strong> {t('loading.notifications.firstVisitNotice')}
+src/app\test-multilang\page.tsx:const TourContentTest = dynamic(() => import('../guide/[location]/tour/components/TourContent'), {
+src/app\travel\page.tsx:        keyword={t('keyword')}
+src/app\travel\page.tsx:        title={t('metadata.title')}
+src/app\travel\page.tsx:        description={t('metadata.description')}
+src/app\travel\page.tsx:        features={[t('features.worldwide'), t('features.realtime'), t('features.personalized'), t('features.hidden'), t('features.culture'), t('features.free')]}
+src/app\travel\page.tsx:              {t('badge')}
+src/app\travel\page.tsx:                {t('hero.title')}
+src/app\travel\page.tsx:                <span className="block mt-3 font-light">{t('hero.subtitle')}</span>
+src/app\travel\page.tsx:                {t('hero.description')}
+src/app\travel\page.tsx:                {t('cta.primary')}
+src/app\travel\page.tsx:                {t('cta.secondary')}
+src/app\travel\page.tsx:              {t('problems.title')}
+src/app\travel\page.tsx:              {t('problems.subtitle')}
+src/app\travel\page.tsx:              <h3 className="text-lg font-semibold text-black mb-4">{t('problems.items.0.title')}</h3>
+src/app\travel\page.tsx:                {t('problems.items.0.description')}
+src/app\travel\page.tsx:              <h3 className="text-lg font-semibold text-black mb-4">{t('problems.items.1.title')}</h3>
+src/app\travel\page.tsx:                {t('problems.items.1.description')}
+src/app\travel\page.tsx:              <h3 className="text-lg font-semibold text-black mb-4">{t('problems.items.2.title')}</h3>
+src/app\travel\page.tsx:                {t('problems.items.2.description')}
+src/app\travel\page.tsx:              {t('solution.title')}
+src/app\travel\page.tsx:              {t('solution.subtitle')}
+src/app\travel\page.tsx:              <h3 className="text-lg font-semibold text-black mb-4">{t('solution.features.0.title')}</h3>
+src/app\travel\page.tsx:                {t('solution.features.0.description')}
+src/app\travel\page.tsx:              <h3 className="text-lg font-semibold text-black mb-4">{t('solution.features.1.title')}</h3>
+src/app\travel\page.tsx:                {t('solution.features.1.description')}
+src/app\travel\page.tsx:              <h3 className="text-lg font-semibold text-black mb-4">{t('solution.features.2.title')}</h3>
+src/app\travel\page.tsx:                {t('solution.features.2.description')}
+src/app\travel\page.tsx:              <h3 className="text-lg font-semibold text-black mb-4">{t('solution.features.3.title')}</h3>
+src/app\travel\page.tsx:                {t('solution.features.3.description')}
+src/app\travel\page.tsx:              <h3 className="text-lg font-semibold text-black mb-4">{t('solution.features.4.title')}</h3>
+src/app\travel\page.tsx:                {t('solution.features.4.description')}
+src/app\travel\page.tsx:              <h3 className="text-lg font-semibold text-black mb-4">{t('solution.features.5.title')}</h3>
+src/app\travel\page.tsx:                {t('solution.features.5.description')}
+src/app\travel\page.tsx:              {t('destinations.title')}
+src/app\travel\page.tsx:              {t('destinations.subtitle')}
+src/app\travel\page.tsx:                <h3 className="text-lg font-medium text-gray-900">{t('destinations.items.0.name')}</h3>
+src/app\travel\page.tsx:                <p className="text-sm text-gray-600 mt-2">{t('destinations.items.0.description')}</p>
+src/app\travel\page.tsx:                <h3 className="text-lg font-medium text-gray-900">{t('destinations.items.1.name')}</h3>
+src/app\travel\page.tsx:                <p className="text-sm text-gray-600 mt-2">{t('destinations.items.1.description')}</p>
+src/app\travel\page.tsx:                <h3 className="text-lg font-semibold text-black mb-2">{t('destinations.items.2.name')}</h3>
+src/app\travel\page.tsx:                <p className="text-sm text-[#555555] font-light">{t('destinations.items.2.description')}</p>
+src/app\travel\page.tsx:                <h3 className="text-lg font-medium text-gray-900">{t('destinations.items.3.name')}</h3>
+src/app\travel\page.tsx:                <p className="text-sm text-gray-600 mt-2">{t('destinations.items.3.description')}</p>
+src/app\travel\page.tsx:              {t('destinations.viewMore')}
+src/app\travel\page.tsx:              {t('howItWorks.title')}
+src/app\travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('howItWorks.steps.0.title')}</h3>
+src/app\travel\page.tsx:                {t('howItWorks.steps.0.description')}
+src/app\travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('howItWorks.steps.1.title')}</h3>
+src/app\travel\page.tsx:                {t('howItWorks.steps.1.description')}
+src/app\travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('howItWorks.steps.2.title')}</h3>
+src/app\travel\page.tsx:                {t('howItWorks.steps.2.description')}
+src/app\travel\page.tsx:              {t('finalCta.title')}
+src/app\travel\page.tsx:              {t('finalCta.description')}
+src/app\travel\page.tsx:              {t('finalCta.button')}
+src/app\test-guide\page.tsx:      .select('content')
+src/app\guide\[location]\tour\components\TourContent.tsx:    const locationName = guide?.metadata?.originalLocationName || guide?.overview?.title || String(t('guide.thisPlace'));
+src/app\guide\[location]\tour\components\TourContent.tsx:      title: `${locationName} ${t('guide.tourStart')}`,
+src/app\guide\[location]\tour\components\TourContent.tsx:          message={String(t('guide.loadingGuide'))}
+src/app\guide\[location]\tour\components\TourContent.tsx:          subMessage={String(t('guide.fetchingGuideData'))}
+src/app\guide\[location]\tour\components\TourContent.tsx:                    {guide?.metadata?.originalLocationName || guide?.overview?.title || String(t('guide.guideTitle'))}
+src/app\guide\[location]\tour\components\TourContent.tsx:                            <h2 className="text-2xl font-semibold text-black tracking-tight">{t('guide.overview')}</h2>
+src/app\guide\[location]\tour\components\TourContent.tsx:                            <p className="text-sm text-black/60 font-medium mt-0.5">{t('guide.essentialInfo')}</p>
+src/app\guide\[location]\tour\components\TourContent.tsx:                            <h2 className="text-2xl font-semibold text-black tracking-tight">{t('guide.mustSeePoints')}</h2>
+src/app\guide\[location]\tour\components\TourContent.tsx:                            <h2 className="text-2xl font-semibold text-black tracking-tight">{t('guide.precautions')}</h2>
+src/app\guide\[location]\tour\components\TourContent.tsx:                          return safetyContent.split('\n').filter(w => w.trim()).map((warning, index) => {
+src/app\guide\[location]\tour\components\TourContent.tsx:                            <h2 className="text-2xl font-semibold text-black tracking-tight">{t('guide.viewingOrder')}</h2>
+src/app\guide\[location]\tour\components\TourContent.tsx:                                {index === 0 ? t('guide.intro') : String(index).padStart(2, '0')}
+src/app\guide\[location]\tour\components\TourContent.tsx:                                      <h4 className="text-base font-medium mb-1 text-black">{t('guide.nextMoveGuide')}</h4>
+src/app\guide\[location]\tour\components\TourContent.tsx:                                  <p>Narrative: {chapter.narrative ? t('common.exists') : t('common.notExists')}</p>
+src/app\guide\[location]\tour\components\TourContent.tsx:                                  <p>Scene: {chapter.sceneDescription ? t('common.exists') : t('common.notExists')}</p>
+src/app\guide\[location]\tour\components\TourContent.tsx:                                  <p>Core: {chapter.coreNarrative ? t('common.exists') : t('common.notExists')}</p>
+src/app\guide\[location]\tour\components\TourContent.tsx:                                  <p>Stories: {chapter.humanStories ? t('common.exists') : t('common.notExists')}</p>
+src/app\guide\[location]\tour\components\TourContent.tsx:                                  <p>Next Direction: {chapter.nextDirection ? t('common.exists') : t('common.notExists')}</p>
+src/app\guide\[location]\tour\components\TourContent.tsx:                                  {index === 0 && <p className="text-slate-600 font-medium">🎯 {t('guide.autoGeneratedIntro')}</p>}
+src/app\guide\[location]\tour\components\TourContent.tsx:                       String(t('guide.bookmarkGuide'))}
+src/app\guide\[location]\tour\components\TourContent.tsx:                      {isRegenerating ? '생성중...' : String(t('guide.regenerateGuide'))}
+src/app\guide\[location]\tour\components\TourContent.tsx:        title={String(t('guide.bookmarkGuide'))}
+src/app\guide\[location]\tour\components\TourContent.tsx:        message={String(t('guide.bookmarkSuccess'))}
+src/app\guide\[location]\tour\components\TourContent.tsx:        title={String(t('guide.regenerateGuide'))}
+src/app\guide\[location]\tour\components\TourContent.tsx:        message={String(t('guide.regenerateConfirm'))}
+src/app\guide\[location]\tour\components\TourContent.tsx:        confirmText={String(t('guide.yes'))}
+src/app\guide\[location]\tour\components\TourContent.tsx:        cancelText={String(t('guide.no'))}
+src/lib\adaptation\personality-adapter.ts:    const originalWords = original.split(' ').length;
+src/lib\adaptation\personality-adapter.ts:    const adaptedWords = adapted.split(' ').length;
+src/lib\adaptation\personality-adapter.ts:    const originalParagraphs = original.split('\n').filter(p => p.trim()).length;
+src/lib\adaptation\personality-adapter.ts:    const adaptedParagraphs = adapted.split('\n').filter(p => p.trim()).length;
+src/app\guide\[location]\RegionExploreHub.tsx:const RegionTouristMap = dynamic(() => import('@/components/guide/RegionTouristMap'), {
+src/app\guide\[location]\RegionExploreHub.tsx:              const titleDescription = step.title.split(':')[1]?.trim();
+src/app\guide\[location]\RegionExploreHub.tsx:              seasonality: t('common.yearRound'),
+src/app\guide\[location]\RegionExploreHub.tsx:          setError(result.error || t('guide.cannotLoadInfo'));
+src/app\guide\[location]\RegionExploreHub.tsx:      setError(t('guide.loadRegionError') as string);
+src/app\guide\[location]\RegionExploreHub.tsx:      case 'easy': return t('common.easy');
+src/app\guide\[location]\RegionExploreHub.tsx:      case 'moderate': return t('common.moderate');
+src/app\guide\[location]\RegionExploreHub.tsx:      case 'challenging': return t('common.challenging');
+src/app\guide\[location]\RegionExploreHub.tsx:      default: return t('common.moderate');
+src/app\guide\[location]\RegionExploreHub.tsx:        <GuideLoading message={t('guide.loadingRegionInfo') as string} />
+src/app\guide\[location]\RegionExploreHub.tsx:          <h2 className="text-xl font-medium text-gray-900 mb-2">{t('guide.cannotLoadInfo')}</h2>
+src/app\guide\[location]\RegionExploreHub.tsx:            aria-label={t('guide.loadMapAriaLabel') as string}
+src/app\guide\[location]\RegionExploreHub.tsx:            {t('common.tryAgain')}
+src/app\guide\[location]\RegionExploreHub.tsx:              aria-label={t('common.goBack') as string}
+src/app\guide\[location]\RegionExploreHub.tsx:                <h2 className="text-xl font-semibold text-black">{t('guide.regionIntroduction')}</h2>
+src/app\guide\[location]\RegionExploreHub.tsx:                <h2 className="text-xl font-semibold text-black">{t('guide.keyFeatures')}</h2>
+src/app\guide\[location]\RegionExploreHub.tsx:                {t('guide.recommendedSpots')} ({recommendedSpots.length})
+src/app\guide\[location]\RegionExploreHub.tsx:                <p className="text-black/60 text-lg">{t('guide.noRecommendedSpots')}</p>
+src/lib\auth.ts:        const { getUserByEmail } = await import('./user');
+src/app\guide\[location]\page.tsx:    if (requestedLang) params.set('lang', requestedLang);
+src/app\guide\[location]\page.tsx:      .select('content')
+src/app\guide\[location]\page.tsx:        .select('content')
+src/lib\auth-utils.ts:  const allCookies = document.cookie.split(';');
+src/lib\auth-utils.ts:    const cookieName = cookie.trim().split('=')[0];
+src/app\guide\[location]\not-found.tsx:  const langParam = searchParams?.get('lang');
+src/app\guide\[location]\not-found.tsx:          {t('errors.notFound')}
+src/lib\utils.ts:    const safeBrowserLang = safeLanguageCode(browserLang.split('-')[0]);
+src/app\destinations\page.tsx:  const continents = [t('continents.europe'), t('continents.asia'), t('continents.americas'), t('continents.africa'), t('continents.oceania')];
+src/app\destinations\page.tsx:      case '유럽': return t('continents.europe');
+src/app\destinations\page.tsx:      case '아시아': return t('continents.asia');
+src/app\destinations\page.tsx:      case '아메리카': return t('continents.americas');
+src/app\destinations\page.tsx:      case '아프리카': return t('continents.africa');
+src/app\destinations\page.tsx:      case '오세아니아': return t('continents.oceania');
+src/app\destinations\page.tsx:        keyword={t('meta.keyword')}
+src/app\destinations\page.tsx:        title={t('meta.title')}
+src/app\destinations\page.tsx:        description={t('meta.description')}
+src/app\destinations\page.tsx:        features={[t('meta.features.top100'), t('meta.features.aiGuide'), t('meta.features.hiddenStories'), t('meta.features.historyCulture'), t('meta.features.localInfo'), t('meta.features.personalizedRecs')]}
+src/app\destinations\page.tsx:              {t('hero.badge')}
+src/app\destinations\page.tsx:              {t('hero.title')} 
+src/app\destinations\page.tsx:              <span className="font-semibold block mt-2">{t('hero.subtitle')}</span>
+src/app\destinations\page.tsx:              {t('hero.description')}
+src/app\destinations\page.tsx:              {t('hero.startFreeGuide')}
+src/app\destinations\page.tsx:              {t('hero.viewTop100')}
+src/app\destinations\page.tsx:              {t('whyTop100.title')} 
+src/app\destinations\page.tsx:              <span className="font-semibold block mt-2">{t('whyTop100.subtitle')}</span>
+src/app\destinations\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('whyTop100.historical.title')}</h3>
+src/app\destinations\page.tsx:                {t('whyTop100.historical.description')}
+src/app\destinations\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('whyTop100.artistic.title')}</h3>
+src/app\destinations\page.tsx:                {t('whyTop100.artistic.description')}
+src/app\destinations\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('whyTop100.natural.title')}</h3>
+src/app\destinations\page.tsx:                {t('whyTop100.natural.description')}
+src/app\destinations\page.tsx:              {t('aiBenefits.title')} 
+src/app\destinations\page.tsx:              <span className="font-semibold block mt-2">{t('aiBenefits.subtitle')}</span>
+src/app\destinations\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('aiBenefits.expertKnowledge.title')}</h3>
+src/app\destinations\page.tsx:                {t('aiBenefits.expertKnowledge.description')}
+src/app\destinations\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('aiBenefits.alwaysAvailable.title')}</h3>
+src/app\destinations\page.tsx:                {t('aiBenefits.alwaysAvailable.description')}
+src/app\destinations\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('aiBenefits.customInterests.title')}</h3>
+src/app\destinations\page.tsx:                {t('aiBenefits.customInterests.description')}
+src/app\destinations\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('aiBenefits.multiLanguage.title')}</h3>
+src/app\destinations\page.tsx:                {t('aiBenefits.multiLanguage.description')}
+src/app\destinations\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('aiBenefits.smartphone.title')}</h3>
+src/app\destinations\page.tsx:                {t('aiBenefits.smartphone.description')}
+src/app\destinations\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('aiBenefits.completelyFree.title')}</h3>
+src/app\destinations\page.tsx:                {t('aiBenefits.completelyFree.description')}
+src/app\destinations\page.tsx:              {t('topDestinations.title')} 
+src/app\destinations\page.tsx:              <span className="font-semibold block mt-2">{t('topDestinations.subtitle')}</span>
+src/app\destinations\page.tsx:                    {continent === t('continents.europe') && '🇪🇺'} 
+src/app\destinations\page.tsx:                    {continent === t('continents.asia') && '🌏'} 
+src/app\destinations\page.tsx:                    {continent === t('continents.americas') && '🌎'} 
+src/app\destinations\page.tsx:                    {continent === t('continents.africa') && '🌍'} 
+src/app\destinations\page.tsx:                    {continent === t('continents.oceania') && '🇦🇺'} 
+src/app\destinations\page.tsx:                          {t('listenToGuide')}
+src/app\destinations\page.tsx:              {t('moreDestinations')}
+src/app\destinations\page.tsx:              {t('searchAllDestinations')}
+src/app\destinations\page.tsx:              {t('specialFeatures.title')} 
+src/app\destinations\page.tsx:              <span className="font-semibold block mt-2">{t('specialFeatures.subtitle')}</span>
+src/app\destinations\page.tsx:                <h3 className="text-xl font-medium text-gray-900">{t('specialFeatures.hiddenHistory.title')}</h3>
+src/app\destinations\page.tsx:                {t('specialFeatures.hiddenHistory.description')}
+src/app\destinations\page.tsx:                  <span>{t('specialFeatures.hiddenHistory.example1')}</span>
+src/app\destinations\page.tsx:                  <span>{t('specialFeatures.hiddenHistory.example2')}</span>
+src/app\destinations\page.tsx:                  <span>{t('specialFeatures.hiddenHistory.example3')}</span>
+src/app\destinations\page.tsx:                <h3 className="text-xl font-medium text-gray-900">{t('specialFeatures.culturalSignificance.title')}</h3>
+src/app\destinations\page.tsx:                {t('specialFeatures.culturalSignificance.description')}
+src/app\destinations\page.tsx:                  <span>{t('specialFeatures.culturalSignificance.example1')}</span>
+src/app\destinations\page.tsx:                  <span>{t('specialFeatures.culturalSignificance.example2')}</span>
+src/app\destinations\page.tsx:                  <span>{t('specialFeatures.culturalSignificance.example3')}</span>
+src/app\destinations\page.tsx:              {t('cta.title')}
+src/app\destinations\page.tsx:              {t('cta.description')}
+src/app\destinations\page.tsx:              {t('cta.startFree')}
+src/app\guide\[location]\MultiLangGuideClient.tsx:const MinimalTourContent = dynamic(() => import('./tour/components/TourContent'), {
+src/app\guide\[location]\MultiLangGuideClient.tsx:const OptimalAdSense = dynamic(() => import('@/components/ads/OptimalAdSense'), {
+src/app\guide\[location]\MultiLangGuideClient.tsx:const RegionExploreHub = dynamic(() => import('./RegionExploreHub'), {
+src/app\guide\[location]\MultiLangGuideClient.tsx:        .select('id, locationname, language, coordinates')
+src/hooks\useAudioPlayer.ts:              .split('')
+src/app\admin\dashboard\page.tsx:      // alert('대시보드 데이터를 불러올 수 없습니다. 일부 데이터는 임시 데이터로 표시됩니다.');
+src/app\admin\dashboard\page.tsx:    return new Intl.NumberFormat('ko-KR').format(num);
+src/app\guide\[location]\live\page.tsx:const LiveLocationTracker = dynamic(() => import('@/components/location/LiveLocationTracker'), {
+src/app\guide\[location]\live\page.tsx:const SimpleAudioPlayer = dynamic(() => import('@/components/audio/SimpleAudioPlayer'), {
+src/app\guide\[location]\live\page.tsx:const ChapterAudioPlayer = dynamic(() => import('@/components/audio/ChapterAudioPlayer'), {
+src/app\guide\[location]\live\page.tsx:const MapWithRoute = dynamic(() => import('@/components/guide/MapWithRoute'), {
+src/app\guide\[location]\live\page.tsx:          const { supabase } = await import('@/lib/supabaseClient');
+src/app\guide\[location]\live\page.tsx:            .select('id, coordinates')
+src/app\guide\[location]\live\page.tsx:        const { supabase } = await import('@/lib/supabaseClient');
+src/app\guide\[location]\live\page.tsx:          .select('id, content, coordinates')
+src/app\guide\[location]\live\page.tsx:          title: String(t('live.shareTitle')),
+src/app\guide\[location]\live\page.tsx:          text: String(t('live.shareText')),
+src/app\guide\[location]\live\page.tsx:            {params.location} {t('guide.realTimeGuideTitle')}
+src/app\guide\[location]\live\page.tsx:          <h2 className="text-lg font-medium text-gray-900 mb-3">{t('guide.overview')}</h2>
+src/app\guide\[location]\live\page.tsx:          <h2 className="text-lg font-medium text-gray-900 mb-4">{t('guide.mustSeePoints')}</h2>
+src/app\guide\[location]\live\page.tsx:                          {t('guide.startLocation') || '시작지점'}
+src/app\guide\[location]\live\page.tsx:                            alert('좌표가 클립보드에 복사되었습니다!');
+src/app\guide\[location]\live\page.tsx:                              {t('guide.directionGuidance') || '방향 안내'}
+src/app\guide\[location]\live\page.tsx:                      <span className="text-sm font-medium text-gray-700">{t('guide.audioGuide')}</span>
+src/app\guide\[location]\live\page.tsx:                        alert('좌표가 클립보드에 복사되었습니다!');
+src/app\guide\[location]\live\page.tsx:                  alert('모든 좌표가 클립보드에 복사되었습니다!');
+src/app\guide\[location]\live\page.tsx:          <h2 className="text-lg font-medium text-gray-900 mb-4">{t('guide.precautions')}</h2>
+src/app\guide\[location]\live\page.tsx:            <p>• {t('guide.precaution1')}</p>
+src/app\guide\[location]\live\page.tsx:            <p>• {t('guide.precaution2')}</p>
+src/app\guide\[location]\live\page.tsx:            <p>• {t('guide.precaution3')}</p>
+src/app\guide\[location]\live\page.tsx:            <p>• {t('guide.precaution4')}</p>
+src/app\guide\[location]\live\page.tsx:          <h2 className="text-lg font-medium text-gray-900 mb-4">{t('guide.viewingOrder')}</h2>
+src/app\guide\[location]\live\page.tsx:                <p className="text-gray-700">{t('guide.step1')}</p>
+src/app\guide\[location]\live\page.tsx:                <p className="text-gray-700">{t('guide.step2')}</p>
+src/app\guide\[location]\live\page.tsx:                <p className="text-gray-700">{t('guide.step3')}</p>
+src/app\guide\[location]\live\page.tsx:                <p className="text-gray-700">{t('guide.step4')}</p>
+src/app\guide\[location]\live\page.tsx:{t('guide.startRealtimeGuide')}
+src/app\guide\[location]\live\page.tsx:                <h2 className="text-lg font-medium">{t('guide.recommendedStartPoint') || '추천 시작지점'}</h2>
+src/app\guide\[location]\live\page.tsx:                <p className="text-sm text-gray-600">{t('guide.accurateIntroLocation') || '정확한 인트로 위치'}</p>
+src/app\privacy\page.tsx:            {t('legal.privacy.title')}
+src/app\privacy\page.tsx:            {t('legal.privacy.description')}
+src/app\privacy\page.tsx:              {t('legal.privacy.content')}
+src/app\privacy\page.tsx:                {t('legal.privacy.lastUpdated')}: 2024-07-23
+src/lib\ai\intro-chapter-generator.ts:      const { SpecificStartingPointGenerator } = await import('@/lib/location/specific-starting-point-generator');
+src/lib\ai\intro-chapter-generator.ts:      const { WikipediaLocationSearcher } = await import('@/lib/location/wikipedia-location-searcher');
+src/lib\ai\intro-chapter-generator.ts:      const { SpatialReasoningAI } = await import('@/lib/location/spatial-reasoning-ai');
+src/lib\ai\enhanced-chapter-system.ts:      const { SpecificStartingPointGenerator } = await import('@/lib/location/specific-starting-point-generator');
+src/lib\ai\enhanced-chapter-system.ts:      const { WikipediaLocationSearcher } = await import('@/lib/location/wikipedia-location-searcher');
+src/lib\ai\enhanced-chapter-system.ts:      const { SpatialReasoningAI } = await import('@/lib/location/spatial-reasoning-ai');
+src/lib\user.ts:      .select('*')
+src/lib\user.ts:      .select('*')
+src/app\guide\[location]\GuideClient.tsx:            const errorMessage = t('guide.noGuideData');
+src/app\guide\[location]\GuideClient.tsx:            const errorMessage = t('guide.invalidGuideStructure');
+src/app\guide\[location]\GuideClient.tsx:                    title: chapter.title || t('guide.chapterTitle') + ` ${index + 1}`,
+src/app\guide\[location]\GuideClient.tsx:                const errorMessage = t('guide.noLocationName');
+src/app\guide\[location]\GuideClient.tsx:                    throw new Error(errorData.error || t('guide.generationFailed'));
+src/app\guide\[location]\GuideClient.tsx:                    throw new Error(data.error || t('guide.generationFailed'));
+src/app\guide\[location]\GuideClient.tsx:                const errorMessage = t('errors.unknownError');
+src/app\guide\[location]\GuideClient.tsx:                    message={`"${locationName}" ${t('guide.preparing')}`}
+src/app\guide\[location]\GuideClient.tsx:                    subMessage={Array.isArray(t('guide.generating')) ? String(t('guide.generating')[0]) : String(t('guide.generating'))}
+src/app\guide\[location]\GuideClient.tsx:                        <h2 className="text-xl font-medium text-gray-900 mb-2">{Array.isArray(t('common.error')) ? t('common.error')[0] : t('common.error')}</h2>
+src/app\guide\[location]\GuideClient.tsx:                            {Array.isArray(t('buttons.goHome')) ? t('buttons.goHome')[0] : t('buttons.goHome')}
+src/app\guide\[location]\GuideClient.tsx:                        <h2 className="text-xl font-medium text-gray-900 mb-2">{Array.isArray(t('guide.notFound')) ? t('guide.notFound')[0] : t('guide.notFound')}</h2>
+src/app\guide\[location]\GuideClient.tsx:                        <p className="text-gray-600 text-sm mb-4">{Array.isArray(t('guide.cannotLoad')) ? t('guide.cannotLoad')[0] : t('guide.cannotLoad')}</p>
+src/app\guide\[location]\GuideClient.tsx:                            {Array.isArray(t('buttons.goHome')) ? t('buttons.goHome')[0] : t('buttons.goHome')}
+src/lib\ai\chapter-generation-ai.ts:    const lines = analysisContent.split('\n').filter(line => line.trim());
+src/lib\ai\chapter-generation-ai.ts:    const lines = responseText.split('\n');
+src/lib\ai\chapter-generation-ai.ts:  ): Promise<Array<import('./hallucination-prevention').RealityVerificationResult>> {
+src/lib\ai\chapter-generation-ai.ts:    realityVerifications: Array<import('./hallucination-prevention').RealityVerificationResult>
+src/lib\coordinates\simple-geocoding.ts:    const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
+src/lib\tts-simple.ts:      const langCode = targetLang.split('-')[0];
+src/app\auth\signin\page.tsx:  const callbackUrl = searchParams.get('callbackUrl') || '/';
+src/app\auth\signin\page.tsx:          setErrors({ general: data.error || t('auth.signupFailed') || '회원가입에 실패했습니다.' });
+src/app\auth\signin\page.tsx:          setErrors({ success: String(t('auth.signupSuccess')) || '🎉 회원가입이 완료되었습니다!' });
+src/app\auth\signin\page.tsx:        safeSetState(() => setErrors({ general: String(t('auth.requestTimeout')) || '요청 시간이 초과되었습니다.' }));
+src/app\auth\signin\page.tsx:        safeSetState(() => setErrors({ general: String(t('auth.networkError')) || '네트워크 오류가 발생했습니다.' }));
+src/app\auth\signin\page.tsx:      safeSetState(() => setErrors({ verificationCode: String(t('auth.enter6DigitCode')) || '6자리 인증 코드를 입력해주세요.' }));
+src/app\auth\signin\page.tsx:          setErrors({ verificationCode: data.error || String(t('auth.verificationFailed')) || '인증에 실패했습니다.' });
+src/app\auth\signin\page.tsx:          setErrors({ success: String(t('auth.emailVerificationComplete')) || '이메일 인증이 완료되었습니다!' });
+src/app\auth\signin\page.tsx:        safeSetState(() => setErrors({ verificationCode: String(t('auth.requestTimeout')) || '요청 시간이 초과되었습니다.' }));
+src/app\auth\signin\page.tsx:        safeSetState(() => setErrors({ verificationCode: String(t('auth.networkError')) || '네트워크 오류가 발생했습니다.' }));
+src/app\auth\signin\page.tsx:      safeSetState(() => setErrors({ email: String(t('auth.emailRequired')) || '이메일을 입력해주세요.' }));
+src/app\auth\signin\page.tsx:      safeSetState(() => setErrors({ email: String(t('auth.invalidEmailFormat')) || '올바른 이메일 형식을 입력해주세요.' }));
+src/app\auth\signin\page.tsx:        safeSetState(() => setErrors({ email: data.error || String(t('auth.emailSendFailed')) || '이메일 전송에 실패했습니다.' }));
+src/app\auth\signin\page.tsx:          setErrors({ success: String(t('auth.verificationCodeSent')) || '인증 코드가 이메일로 전송되었습니다.' });
+src/app\auth\signin\page.tsx:        safeSetState(() => setErrors({ email: String(t('auth.requestTimeout')) || '요청 시간이 초과되었습니다.' }));
+src/app\auth\signin\page.tsx:        safeSetState(() => setErrors({ email: String(t('auth.networkError')) || '네트워크 오류가 발생했습니다.' }));
+src/app\auth\signin\page.tsx:        throw new Error(String(t('auth.browserNotSupported')) || '브라우저가 최신 보안 기능을 지원하지 않습니다.');
+src/app\auth\signin\page.tsx:            setErrors({ general: String(t('auth.loginTimeout')) || '로그인 요청이 시간 초과되었습니다.' });
+src/app\auth\signin\page.tsx:            'OAuthSignin': String(t('auth.oauthSigninError')) || 'Google 인증 서버 통신 실패',
+src/app\auth\signin\page.tsx:            'OAuthCallback': String(t('auth.oauthCallbackError')) || 'Google 콜백 처리 실패',
+src/app\auth\signin\page.tsx:            'OAuthCreateAccount': String(t('auth.accountCreateError')) || '계정 생성 실패',
+src/app\auth\signin\page.tsx:            'OAuthAccountNotLinked': String(t('auth.accountNotLinked')) || '이미 다른 방법으로 가입된 이메일',
+src/app\auth\signin\page.tsx:            'SessionRequired': String(t('auth.sessionRequired')) || '세션 필요'
+src/app\auth\signin\page.tsx:          return errorMessages[error] || String(t('auth.googleSigninFailed')) || 'Google 로그인 실패';
+src/app\auth\signin\page.tsx:        general: error instanceof Error ? error.message : String(t('auth.networkError')) || '네트워크 오류'
+src/app\auth\signin\page.tsx:        safeSetState(() => setErrors({ general: result.error || String(t('auth.loginFailed')) || '로그인 실패' }));
+src/app\auth\signin\page.tsx:      safeSetState(() => setErrors({ general: String(t('auth.loginError')) || '로그인 중 오류가 발생했습니다.' }));
+src/app\auth\signin\page.tsx:      validationErrors.name = String(t('auth.nameRequired')) || '이름을 입력해주세요.';
+src/app\auth\signin\page.tsx:      validationErrors.email = String(t('auth.emailRequired')) || '이메일을 입력해주세요.';
+src/app\auth\signin\page.tsx:      validationErrors.password = String(t('auth.passwordMinLength')) || '비밀번호는 최소 6자리 이상이어야 합니다.';
+src/app\auth\signin\page.tsx:      validationErrors.confirmPassword = String(t('auth.passwordsNotMatch')) || '비밀번호가 일치하지 않습니다.';
+src/app\auth\signin\page.tsx:          {t('buttons.goBack')}
+src/app\auth\signin\page.tsx:                ? t('auth.signupComplete')
+src/app\auth\signin\page.tsx:                  ? t('auth.emailVerification')
+src/app\auth\signin\page.tsx:                  : t('auth.joinTitle')
+src/app\auth\signin\page.tsx:              : t('auth.welcomeTitle')
+src/app\auth\signin\page.tsx:                ? t('auth.enterCode')
+src/app\auth\signin\page.tsx:                  ? t('auth.startYourJourney')
+src/app\auth\signin\page.tsx:                  : t('auth.exploreWithAI')
+src/app\auth\signin\page.tsx:                    {t('auth.email')}
+src/app\auth\signin\page.tsx:                      placeholder={t('auth.enterYourEmail') as string}
+src/app\auth\signin\page.tsx:                    {t('auth.password')}
+src/app\auth\signin\page.tsx:                      placeholder={t('auth.enterYourPassword') as string}
+src/app\auth\signin\page.tsx:                      <span>{t('auth.signin')}</span>
+src/app\auth\signin\page.tsx:                  <span className="px-4 bg-white text-gray-500">{t('auth.orContinueWith')}</span>
+src/app\auth\signin\page.tsx:                {t('auth.loginWithGoogle')}
+src/app\auth\signin\page.tsx:                  {t('auth.noAccount')}{' '}
+src/app\auth\signin\page.tsx:                    {t('auth.signup')}
+src/app\auth\signin\page.tsx:                    {t('auth.name')}
+src/app\auth\signin\page.tsx:                      placeholder={t('auth.enterYourName') as string}
+src/app\auth\signin\page.tsx:                    {t('auth.email')}
+src/app\auth\signin\page.tsx:                      placeholder={t('auth.enterYourEmail') as string}
+src/app\auth\signin\page.tsx:                    {t('auth.password')}
+src/app\auth\signin\page.tsx:                      placeholder={t('auth.passwordMinLength') as string}
+src/app\auth\signin\page.tsx:                    {t('auth.confirmPassword')}
+src/app\auth\signin\page.tsx:                      placeholder={t('auth.confirmYourPassword') as string}
+src/app\auth\signin\page.tsx:                      <span>{t('auth.verifyEmail')}</span>
+src/app\auth\signin\page.tsx:                  <span className="px-4 bg-white text-gray-500">{t('auth.orContinueWith')}</span>
+src/app\auth\signin\page.tsx:                {t('auth.registerWithGoogle')}
+src/app\auth\signin\page.tsx:                  {t('auth.alreadyHaveAccount')}{' '}
+src/app\auth\signin\page.tsx:                    {t('auth.signin')}
+src/app\auth\signin\page.tsx:                    {t('auth.termsAndConditions') as string}
+src/app\auth\signin\page.tsx:                    {t('auth.privacyPolicy') as string}
+src/app\auth\signin\page.tsx:          <span>{t('auth.secureConnection')}</span>
+src/lib\ai\validation\intro-chapter-title-test.ts:  const hasDescription = hasColon && title.split(':')[1]?.trim().length > 0;
+src/lib\ai\officialData.ts:      .select('*')
+src/lib\coordinates\plus-code-search.ts:    const { smartPlacesSearch } = await import('@/lib/coordinates/google-places-integration');
+src/lib\coordinates\plus-code-search.ts:  const { extractChaptersFromContent } = await import('@/lib/coordinates/coordinate-utils');
+src/lib\coordinates\coordinate-common.ts:  const region = searchParams.get('region') || null;
+src/lib\coordinates\coordinate-common.ts:  const country = searchParams.get('country') || null;
+src/lib\coordinates\coordinate-common.ts:  const countryCode = searchParams.get('countryCode') || null;
+src/lib\coordinates\coordinate-common.ts:  const type = (searchParams.get('type') as 'location' | 'attraction') || 'attraction';
+src/app\free-travel\page.tsx:        keyword={t('keyword')}
+src/app\free-travel\page.tsx:        title={t('metadata.title')}
+src/app\free-travel\page.tsx:        description={t('metadata.description')}
+src/app\free-travel\page.tsx:        features={[t('features.planning'), t('features.guide'), t('features.safety'), t('features.budget'), t('features.language'), t('features.support')]}
+src/app\free-travel\page.tsx:              {t('badge')}
+src/app\free-travel\page.tsx:                {t('hero.title')}
+src/app\free-travel\page.tsx:                <span className="block mt-3 font-light">{t('hero.subtitle')}</span>
+src/app\free-travel\page.tsx:                {t('hero.description')}
+src/app\free-travel\page.tsx:                {t('cta.primary')}
+src/app\free-travel\page.tsx:                {t('cta.secondary')}
+src/app\free-travel\page.tsx:              {t('challenges.title')} 
+src/app\free-travel\page.tsx:              <span className="font-semibold block mt-2">{t('challenges.subtitle')}</span>
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('challenges.items.0.title')}</h3>
+src/app\free-travel\page.tsx:                {t('challenges.items.0.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('challenges.items.1.title')}</h3>
+src/app\free-travel\page.tsx:                {t('challenges.items.1.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('challenges.items.2.title')}</h3>
+src/app\free-travel\page.tsx:                {t('challenges.items.2.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('challenges.items.3.title')}</h3>
+src/app\free-travel\page.tsx:                {t('challenges.items.3.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('challenges.items.4.title')}</h3>
+src/app\free-travel\page.tsx:                {t('challenges.items.4.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('challenges.items.5.title')}</h3>
+src/app\free-travel\page.tsx:                {t('challenges.items.5.description')}
+src/app\free-travel\page.tsx:              {t('solutions.title')} 
+src/app\free-travel\page.tsx:              <span className="font-semibold block mt-2">{t('solutions.subtitle')}</span>
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('solutions.features.0.title')}</h3>
+src/app\free-travel\page.tsx:                {t('solutions.features.0.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('solutions.features.1.title')}</h3>
+src/app\free-travel\page.tsx:                {t('solutions.features.1.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('solutions.features.2.title')}</h3>
+src/app\free-travel\page.tsx:                {t('solutions.features.2.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('solutions.features.3.title')}</h3>
+src/app\free-travel\page.tsx:                {t('solutions.features.3.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('solutions.features.4.title')}</h3>
+src/app\free-travel\page.tsx:                {t('solutions.features.4.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('solutions.features.5.title')}</h3>
+src/app\free-travel\page.tsx:                {t('solutions.features.5.description')}
+src/app\free-travel\page.tsx:              {t('howItWorks.title')}
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('howItWorks.steps.0.title')}</h3>
+src/app\free-travel\page.tsx:                {t('howItWorks.steps.0.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('howItWorks.steps.1.title')}</h3>
+src/app\free-travel\page.tsx:                {t('howItWorks.steps.1.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('howItWorks.steps.2.title')}</h3>
+src/app\free-travel\page.tsx:                {t('howItWorks.steps.2.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-xl font-medium text-gray-900 mb-4">{t('howItWorks.steps.3.title')}</h3>
+src/app\free-travel\page.tsx:                {t('howItWorks.steps.3.description')}
+src/app\free-travel\page.tsx:              {t('tips.title')} 
+src/app\free-travel\page.tsx:              <span className="font-semibold block mt-2">{t('tips.subtitle')}</span>
+src/app\free-travel\page.tsx:              <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.0.title')}</h3>
+src/app\free-travel\page.tsx:                {t('tips.items.0.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.1.title')}</h3>
+src/app\free-travel\page.tsx:                {t('tips.items.1.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.2.title')}</h3>
+src/app\free-travel\page.tsx:                {t('tips.items.2.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.3.title')}</h3>
+src/app\free-travel\page.tsx:                {t('tips.items.3.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.4.title')}</h3>
+src/app\free-travel\page.tsx:                {t('tips.items.4.description')}
+src/app\free-travel\page.tsx:              <h3 className="text-lg font-medium text-gray-900 mb-3">{t('tips.items.5.title')}</h3>
+src/app\free-travel\page.tsx:                {t('tips.items.5.description')}
+src/app\free-travel\page.tsx:              {t('finalCta.title')}
+src/app\free-travel\page.tsx:              {t('finalCta.description')}
+src/app\free-travel\page.tsx:              {t('finalCta.button')}
+src/lib\coordinates\guide-coordinate-enhancer.ts:    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+src/lib\coordinates\accurate-country-extractor.ts:      const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
+src/lib\coordinates\accurate-country-extractor.ts:  const parts = formattedAddress.split(',').map(part => part.trim());
+src/lib\ai\prompt-utils.ts:    interests = interests.split(',').map((s: string) => s.trim());
+src/components\seo\TouristAttractionSchema.tsx:    dateCreated: new Date().toISOString().split('T')[0],
+src/components\seo\TouristAttractionSchema.tsx:    dateModified: new Date().toISOString().split('T')[0],
+src/lib\coordinates\enhanced-location-service.ts:      const { PrecisionLocationService } = await import('@/lib/location/precision-location-service');
+src/lib\coordinates\geocoding-direct.ts:    const testResponse = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
+src/lib\coordinates\geocoding-direct.ts:      const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
+src/lib\ai\prompts\index.ts:        const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const englishModule = await import('./english');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const japaneseModule = await import('./japanese');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const chineseModule = await import('./chinese');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const spanishModule = await import('./spanish');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:        const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:    const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:        const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const englishModule = await import('./english');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const japaneseModule = await import('./japanese');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const chineseModule = await import('./chinese');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const spanishModule = await import('./spanish');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:        const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:    const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:        const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const englishModule = await import('./english');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const japaneseModule = await import('./japanese');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const chineseModule = await import('./chinese');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const spanishModule = await import('./spanish');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:        const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:    const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:        const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const englishModule = await import('./english');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const japaneseModule = await import('./japanese');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const chineseModule = await import('./chinese');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const spanishModule = await import('./spanish');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:        const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:    const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:        const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const englishModule = await import('./english');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const japaneseModule = await import('./japanese');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const chineseModule = await import('./chinese');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:          const spanishModule = await import('./spanish');
+src/lib\ai\prompts\index.ts:          const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:        const koreanModule = await import('./korean');
+src/lib\ai\prompts\index.ts:    const koreanModule = await import('./korean');
+src/app\api\test\location-ambiguity\route.ts:    const query = searchParams.get('q') || '용궁사';
+src/app\api\test\location-ambiguity\route.ts:    const language = searchParams.get('lang') || 'ko';
+src/app\api\test\location-ambiguity\route.ts:    const testType = searchParams.get('type') || 'full';
+src/lib\supabaseGuideHistory.ts:      .select('*')
+src/lib\supabaseGuideHistory.ts:      .select('id')
+src/lib\supabaseGuideHistory.ts:      .select('*')
+src/lib\supabaseGuideHistory.ts:      .select('*')
+src/lib\supabaseGuideHistory.ts:      .select('narrative, scene_description, core_narrative, human_stories')
+src/lib\supabaseGuideHistory.ts:      .select('id')
+src/lib\supabaseGuideHistory.ts:      .select('*')
+src/lib\multilang-guide-manager.ts:      logger.api.start('guide-db-query', { 
+src/lib\multilang-guide-manager.ts:        .select('id, locationname, language, content, coordinates, location_region, country_code, created_at, updated_at')
+src/lib\multilang-guide-manager.ts:        .select('id, locationname, language, created_at, updated_at')
+src/lib\multilang-guide-manager.ts:          .select('*')
+src/lib\multilang-guide-manager.ts:        .select('language, updated_at')
+src/lib\multilang-guide-manager.ts:          queryParams.set('region', regionalContext.region);
+src/lib\multilang-guide-manager.ts:          queryParams.set('country', regionalContext.country);
+src/lib\multilang-guide-manager.ts:          queryParams.set('countryCode', regionalContext.countryCode);
+src/lib\multilang-guide-manager.ts:          queryParams.set('type', regionalContext.type || 'attraction');
+src/lib\multilang-guide-manager.ts:          const { classifyLocationDynamic } = await import('@/lib/location/dynamic-location-classifier');
+src/lib\multilang-guide-manager.ts:            if (region) queryParams.set('region', region);
+src/lib\multilang-guide-manager.ts:            if (country) queryParams.set('country', country);
+src/lib\multilang-guide-manager.ts:            if (countryCode) queryParams.set('countryCode', countryCode);
+src/lib\multilang-guide-manager.ts:            queryParams.set('type', locationData.type || 'landmark');
+src/lib\multilang-guide-manager.ts:            const { extractAccurateLocationInfo } = await import('@/lib/coordinates/accurate-country-extractor');
+src/lib\multilang-guide-manager.ts:              queryParams.set('region', accurateInfo.region);
+src/lib\multilang-guide-manager.ts:              queryParams.set('country', accurateInfo.country);
+src/lib\multilang-guide-manager.ts:              queryParams.set('countryCode', accurateInfo.countryCode);
+src/lib\multilang-guide-manager.ts:              queryParams.set('type', 'attraction'); // 기본값
+src/lib\multilang-guide-manager.ts:                if (regionalContext.region) queryParams.set('region', regionalContext.region);
+src/lib\multilang-guide-manager.ts:                if (regionalContext.country) queryParams.set('country', regionalContext.country);
+src/lib\multilang-guide-manager.ts:                if (regionalContext.countryCode) queryParams.set('countryCode', regionalContext.countryCode);
+src/lib\multilang-guide-manager.ts:                queryParams.set('type', regionalContext.type || 'attraction');
+src/lib\multilang-guide-manager.ts:                queryParams.set('region', parentRegion);
+src/lib\multilang-guide-manager.ts:                queryParams.set('type', 'attraction');
+src/lib\multilang-guide-manager.ts:                queryParams.set('type', 'attraction');
+src/lib\multilang-guide-manager.ts:          if (regionalContext.region) queryParams.set('region', regionalContext.region);
+src/lib\multilang-guide-manager.ts:          if (regionalContext.country) queryParams.set('country', regionalContext.country);
+src/lib\multilang-guide-manager.ts:          if (regionalContext.countryCode) queryParams.set('countryCode', regionalContext.countryCode);
+src/lib\multilang-guide-manager.ts:          queryParams.set('type', regionalContext.type || 'attraction');
+src/lib\multilang-guide-manager.ts:          queryParams.set('region', parentRegion);
+src/lib\multilang-guide-manager.ts:          queryParams.set('type', 'attraction');
+src/lib\multilang-guide-manager.ts:          queryParams.set('type', 'attraction');
+src/lib\multilang-guide-manager.ts:        .select('language, updated_at')
+src/lib\tts\ultra-natural-tts-engine.ts:      const words = sentence.trim().split(' ');
+src/lib\tts\ultra-natural-tts-engine.ts:    const words = sentence.split(' ');
+src/lib\tts\ultra-natural-tts-engine.ts:    const speakingRatePrecision = params.speakingRate.toString().split('.')[1]?.length || 0;
+src/lib\tts\ultra-natural-tts-engine.ts:    const pitchPrecision = params.pitch.toString().split('.')[1]?.length || 0;
+src/lib\tts\ultra-natural-tts-engine.ts:          const { directGoogleCloudTTS } = await import('./google-cloud-tts-direct');
+src/lib\tts\language-optimized-tts.ts:    const baseLanguage = languageCode.split('-')[0];
+src/lib\monitoring.ts:        const { aiCircuitBreaker } = await import('./circuit-breaker');
+src/app\api\legal\[type]\route.ts:    const language = searchParams.get('lang') || 'ko';
+src/lib\location-mapping.ts:  const keywords = normalized.split(' ');
+src/lib\location-mapping.ts:      const translationKeywords = normalizeForMapping(translation).split(' ');
+src/app\api\test\gemini-extractor\route.ts:    const placeName = searchParams.get('place') || 'test-location';
+src/lib\tts\seoul-standard-simulation.ts:    this.naturalnessBenchmark.set('optimal_speaking_rate', 0.92);
+src/lib\tts\seoul-standard-simulation.ts:    this.naturalnessBenchmark.set('optimal_pitch_range', 2.5);
+src/lib\tts\seoul-standard-simulation.ts:    this.naturalnessBenchmark.set('optimal_pause_frequency', 0.75);
+src/lib\tts\seoul-standard-simulation.ts:    this.naturalnessBenchmark.set('optimal_formality_level', 0.6);
+src/lib\tts\seoul-standard-simulation.ts:    const words = sentence.split(' ');
+src/lib\tts\seoul-standard-simulation.ts:    const optimalRate = this.naturalnessBenchmark.get('optimal_speaking_rate') || 0.92;
+src/lib\tts\google-cloud-tts-direct.ts:      const { GoogleAuth } = await import('google-auth-library');
+src/lib\rate-limiter-auth.ts:    const forwarded = req.headers.get('x-forwarded-for');
+src/lib\rate-limiter-auth.ts:    const ip = forwarded ? forwarded.split(',')[0] : 
+src/lib\rate-limiter-auth.ts:               req.headers.get('x-real-ip') || 
+src/lib\rate-limiter-auth.ts:    const forwarded = req.headers.get('x-forwarded-for');
+src/lib\rate-limiter-auth.ts:    const ip = forwarded ? forwarded.split(',')[0] : 
+src/lib\rate-limiter-auth.ts:               req.headers.get('x-real-ip') || 
+src/lib\rate-limiter-auth.ts:    const forwarded = req.headers.get('x-forwarded-for');
+src/lib\rate-limiter-auth.ts:    const ip = forwarded ? forwarded.split(',')[0] : 
+src/lib\rate-limiter-auth.ts:               req.headers.get('x-real-ip') || 
+src/lib\rate-limiter-auth.ts:    const forwarded = req.headers.get('x-forwarded-for');
+src/lib\rate-limiter-auth.ts:    const ip = forwarded ? forwarded.split(',')[0] : 
+src/lib\rate-limiter-auth.ts:               req.headers.get('x-real-ip') || 
+src/app\api\health\route.ts:          supabase.from('guides').select('locationname').limit(1),
+src/app\api\health\route.ts:          model.generateContent("Hi"),
+src/lib\translations.ts:        const fs = await import('fs');
+src/lib\translations.ts:        const path = await import('path');
+src/lib\translations.ts:  const keys = key.split('.');
+src/lib\performance\performance-monitor.ts:      this.checkBudget('LCP', lcpEntry.startTime);
+src/lib\performance\performance-monitor.ts:        this.checkBudget('FID', this.metrics.FID);
+src/lib\performance\performance-monitor.ts:      this.checkBudget('CLS', clsValue);
+src/lib\performance\performance-monitor.ts:        this.checkBudget('FCP', fcpEntry.startTime);
+src/lib\performance\performance-monitor.ts:      this.checkBudget('TTFB', this.metrics.TTFB);
+src/lib\search\enhanced-search-system.ts:  const { supabase } = await import('@/lib/supabaseClient');
+src/lib\search\enhanced-search-system.ts:    .select('id, locationname, location_region, country_code, language, coordinates')
+src/components\seo\InternalLinkOptimizer.tsx:        {t('home.popularDestinations') || '인기 여행지'}
+src/lib\quality\quality-scoring.ts:      .select('*')
+src/lib\quality\quality-scoring.ts:      .select('overall_quality, created_at')
+src/components\providers\PerformanceProvider.tsx:    const endMount = measureComponentMount('PerformanceProvider');
+src/lib\security\behavior-tracker.ts:      window.dispatchEvent(new Event('urlchange'));
+src/lib\security\behavior-tracker.ts:      window.dispatchEvent(new Event('urlchange'));
+src/lib\security\behavior-tracker.ts:      window.dispatchEvent(new Event('urlchange'));
+src/lib\security\behavior-tracker.ts:      const canvas = document.createElement('canvas');
+src/lib\security\behavior-tracker.ts:      const ctx = canvas.getContext('2d');
+src/lib\security\behavior-tracker.ts:        ctx.fillText('BotDetection', 2, 2);
+src/lib\security\behavior-tracker.ts:      const gl = canvas.getContext('webgl');
+src/lib\security\behavior-tracker.ts:      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+src/lib\quality\quality-integration.ts:      .select('version')
+src/lib\quality\quality-integration.ts:      .select('id')
+src/lib\security\captcha-system.ts:    const chars = text.split('');
+src/lib\security\captcha-system.ts:      const script = document.createElement('script');
+src/lib\seo\seoUtils.ts:  const sentences = description.split('. ');
+src/lib\seo\seoUtils.ts:    const words = description.split(' ');
+src/lib\security\adaptive-security.ts:    const fieldPath = field.split('.');
+src/lib\quality\guide-validation.ts:      .select('locationname, language, created_at')
+src/lib\security\bot-detection-engine.ts:    const userAgent = req.headers.get('user-agent') || '';
+src/lib\security\bot-detection-engine.ts:    const fingerprint = req.headers.get('x-fingerprint') || undefined;
+src/lib\security\bot-detection-engine.ts:    const forwarded = req.headers.get('x-forwarded-for');
+src/lib\security\bot-detection-engine.ts:      return forwarded.split(',')[0].trim();
+src/lib\security\bot-detection-engine.ts:    return req.headers.get('x-real-ip') || 
+src/lib\seo\indexingService.ts:    const pathParts = urlObj.pathname.split('/');
+src/components\layout\HistorySidebar.tsx:          preview: entry.guideData?.overview?.summary || entry.guideData?.overview?.title || String(t('history.preview'))
+src/components\layout\HistorySidebar.tsx:      console.error(t('history.loadFailed'), error);
+src/components\layout\HistorySidebar.tsx:        preview: entry.guideData?.overview?.summary || entry.guideData?.overview?.title || String(t('history.preview'))
+src/components\layout\HistorySidebar.tsx:      console.error(t('history.deleteFailed'), error);
+src/components\layout\HistorySidebar.tsx:    if (!dateString) return t('history.invalidDate');
+src/components\layout\HistorySidebar.tsx:    if (isNaN(date.getTime())) return t('history.invalidDate');
+src/components\layout\HistorySidebar.tsx:    if (diffDays === 0) return t('history.today');
+src/components\layout\HistorySidebar.tsx:    if (diffDays === 1) return t('history.yesterday');
+src/components\layout\HistorySidebar.tsx:              <h2 className="text-lg font-semibold text-gray-900">{t('header.history')}</h2>
+src/components\layout\HistorySidebar.tsx:                placeholder={String(t('history.searchInHistory'))}
+src/components\layout\HistorySidebar.tsx:                <p className="text-gray-500">{t('common.loading')}</p>
+src/components\layout\HistorySidebar.tsx:                  {searchQuery ? t('history.noResults') : t('history.noHistory')}
+src/components\layout\HistorySidebar.tsx:                  {t('history.searchPlaces')}
+src/components\layout\HistorySidebar.tsx:                          title={String(t('history.view'))}
+src/components\layout\HistorySidebar.tsx:                          title={String(t('history.delete'))}
+src/app\api\guides\[id]\coordinates\route.ts:      .select('id, coordinates, locationname, language')
+src/lib\seo\dynamicMetadata.ts:      .select('content')
+src/components\optimization\ImagePreloader.tsx:          const link = document.createElement('link');
+src/components\optimization\ImagePreloader.tsx:        const link = document.createElement('link');
+src/components\audio\SimpleAudioPlayer.tsx:          {currentChapter?.title || t('audio.audioGuide') || '오디오 가이드'}
+src/components\audio\SimpleAudioPlayer.tsx:            aria-label={String(t('audio.previousChapter') || '이전 챕터')}
+src/components\audio\SimpleAudioPlayer.tsx:            aria-label={isPlaying ? String(t('audio.pause') || '일시정지') : String(t('audio.play') || '재생')}
+src/components\audio\SimpleAudioPlayer.tsx:            aria-label={String(t('audio.nextChapter') || '다음 챕터')}
+src/components\audio\SimpleAudioPlayer.tsx:            aria-label={isMuted ? String(t('audio.unmute') || '음소거 해제') : String(t('audio.mute') || '음소거')}
+src/components\layout\Header.tsx:      if (clickedElement.closest('.dropdown-item')) {
+src/components\layout\Header.tsx:      if (clickedElement.closest('input[type="text"]') || 
+src/components\layout\Header.tsx:          clickedElement.closest('[class*="suggestion"]') ||
+src/components\layout\Header.tsx:          clickedElement.closest('[class*="autocomplete"]')) {
+src/components\layout\Header.tsx:      const { performCompleteLogout, simpleCacheInvalidation } = await import('@/lib/auth-utils');
+src/components\layout\Header.tsx:                {t('home.brandTitle')}
+src/components\layout\Header.tsx:              aria-label={`${String(t('header.language'))}: ${currentConfig?.name}. ${String(t('search.pressEnterToSearch'))}`}
+src/components\layout\Header.tsx:              <span className="text-xs sm:text-sm">{currentConfig?.name || t('languages.ko')}</span>
+src/components\layout\Header.tsx:                aria-label={String(t('header.selectLanguage'))}
+src/components\layout\Header.tsx:                    aria-label={String(t('header.changeToLanguage', { language: lang.name }))}
+src/components\layout\Header.tsx:                    <span role="img" aria-label={String(t('header.flagAltText', { language: lang.name }))}>
+src/components\layout\Header.tsx:                      <span className="ml-auto text-sm text-gray-500" aria-label={String(t('header.currentSelectedLanguage'))}>
+src/components\layout\Header.tsx:                    alt={String(t('header.profileAlt'))} 
+src/components\layout\Header.tsx:                    {t('profile.mypage')}
+src/components\layout\Header.tsx:                    {t('auth.signout')}
+src/components\layout\Header.tsx:              <span>{t('auth.signin')}</span>
+src/components\layout\Header.tsx:              {t('header.language')}: {currentConfig?.name || t('languages.ko')}
+src/components\layout\Header.tsx:              {t('header.history')}
+src/components\layout\Header.tsx:                  {t('profile.mypage')}
+src/components\layout\Header.tsx:                  {t('auth.signout')}
+src/components\layout\Header.tsx:                {t('auth.signin')}
+src/components\layout\Header.tsx:                    <span role="img" aria-label={String(t('header.flagAltText', { language: lang.name }))}>
+src/app\api\seo\batch-indexing\route.ts:      .select('locationname')
+src/app\api\seo\batch-indexing\route.ts:    .select('locationname')
+src/components\search\RegionalSearchBox.tsx:          placeholder={placeholder || String(t('search.placeholder'))}
+src/components\search\RegionalSearchBox.tsx:              <option value="">{t('search.allCountries')}</option>
+src/components\search\RegionalSearchBox.tsx:              placeholder={String(t('search.regionFilter'))}
+src/components\search\RegionalSearchBox.tsx:              <option value="">{t('search.allCategories')}</option>
+src/components\search\RegionalSearchBox.tsx:              <option value="historic">{t('search.historic')}</option>
+src/components\search\RegionalSearchBox.tsx:              <option value="nature">{t('search.nature')}</option>
+src/components\search\RegionalSearchBox.tsx:              <option value="museum">{t('search.museum')}</option>
+src/components\search\RegionalSearchBox.tsx:              <option value="shopping">{t('search.shopping')}</option>
+src/components\search\RegionalSearchBox.tsx:              <option value="food">{t('search.food')}</option>
+src/components\search\RegionalSearchBox.tsx:                    📍 {suggestion.region || t('search.unknownRegion')}, {getCountryFlag(suggestion.country_code)} {suggestion.country_code}
+src/components\search\RegionalSearchBox.tsx:                    {t('search.language')}: {getLanguageLabel(suggestion.language)} • 
+src/components\search\RegionalSearchBox.tsx:                    {t('search.similarity')}: {Math.round(suggestion.similarity_score * 100)}%
+src/components\home\NextLevelSearchBox.tsx:    logger.api.start('country-code-conversion', { countryName });
+src/components\home\NextLevelSearchBox.tsx:  const placeholders = t('home.searchPlaceholders') || [];
+src/components\home\NextLevelSearchBox.tsx:          logger.api.start('background-autocomplete-fallback', { query: query.trim() });
+src/components\home\NextLevelSearchBox.tsx:        const parts = suggestion.location.split(',').map(part => part.trim());
+src/components\home\NextLevelSearchBox.tsx:              aria-label={String(t('search.searchLocation'))}
+src/components\home\NextLevelSearchBox.tsx:                  <span className="text-sm text-gray-600">{t('search.searching')}</span>
+src/components\home\NextLevelSearchBox.tsx:                <div role="listbox" aria-label={String(t('search.suggestions'))}>
+src/components\home\NextLevelSearchBox.tsx:                                {suggestion.isMainLocation ? '📍 위치' : t('search.official')}
+src/components\home\NextLevelSearchBox.tsx:                            {t('search.clickToComplete')}
+src/components\home\NextLevelSearchBox.tsx:                    &ldquo;{query}&rdquo;에 대한 {t('search.noResults')}
+src/components\guide\FeatureNavigation.tsx:      title: t('features.liveTour'),
+src/components\guide\FeatureNavigation.tsx:      description: t('features.liveTourDesc'),
+src/components\guide\FeatureNavigation.tsx:      badge: t('features.recommended'),
+src/components\guide\FeatureNavigation.tsx:        t('features.realTimeTracking'),
+src/components\guide\FeatureNavigation.tsx:        t('features.audioGuide'),
+src/components\guide\FeatureNavigation.tsx:        t('features.smartAlerts')
+src/components\guide\FeatureNavigation.tsx:      title: t('features.audioGuide'),
+src/components\guide\FeatureNavigation.tsx:      description: t('features.audioGuideDesc'),
+src/components\guide\FeatureNavigation.tsx:      badge: hasAudioContent ? t('features.available') : t('features.generating'),
+src/components\guide\FeatureNavigation.tsx:        t('features.personalizedVoice'),
+src/components\guide\FeatureNavigation.tsx:        t('features.offlineMode'),
+src/components\guide\FeatureNavigation.tsx:        t('features.bookmarks')
+src/components\guide\FeatureNavigation.tsx:      title: t('features.routePlanner'),
+src/components\guide\FeatureNavigation.tsx:      description: t('features.routePlannerDesc'),
+src/components\guide\FeatureNavigation.tsx:      badge: hasRoute ? `${estimatedDuration}${t('common.minutes')}` : t('features.planning'),
+src/components\guide\FeatureNavigation.tsx:        t('features.optimizedPath'),
+src/components\guide\FeatureNavigation.tsx:        t('features.timeEstimates'),
+src/components\guide\FeatureNavigation.tsx:        t('features.mustVisitSpots')
+src/components\guide\FeatureNavigation.tsx:          {t('features.chooseYourExperience')}
+src/components\guide\FeatureNavigation.tsx:          {t('features.experienceDescription')}
+src/components\guide\FeatureNavigation.tsx:                      : feature.badge === t('features.available')
+src/components\guide\FeatureNavigation.tsx:                    {t('features.startExperience')}
+src/components\guide\FeatureNavigation.tsx:              {estimatedDuration}{t('common.minutes')}
+src/components\guide\FeatureNavigation.tsx:          <p className="text-xs text-gray-500">{t('features.avgDuration')}</p>
+src/components\guide\FeatureNavigation.tsx:              5-8 {t('features.pois')}
+src/components\guide\FeatureNavigation.tsx:          <p className="text-xs text-gray-500">{t('features.keyLocations')}</p>
+src/components\guide\FeatureNavigation.tsx:              {t('features.aiPowered')}
+src/components\guide\FeatureNavigation.tsx:          <p className="text-xs text-gray-500">{t('features.personalizedExp')}</p>
+src/components\guide\FeatureNavigation.tsx:              💡 {t('features.proTip')}
+src/components\guide\FeatureNavigation.tsx:              {t('features.proTipDesc')}
+src/components\audio\ChapterAudioPlayer.tsx:          aria-label={isGeneratingTTS ? String(t('audio.generating') || 'TTS 생성 중') : isPlaying ? String(t('audio.pause') || '일시정지') : String(t('audio.play') || '재생')}
+src/app\api\guides\related\route.ts:    const currentLocation = searchParams.get('location');
+src/app\api\guides\related\route.ts:    const language = searchParams.get('language') || 'ko';
+src/app\api\guides\related\route.ts:    const limit = parseInt(searchParams.get('limit') || '6');
+src/app\api\guides\related\route.ts:      .select('id, location_name, quality_score')
+src/app\api\guides\related\route.ts:      .select('location_name, language, quality_score, updated_at')
+src/components\audio\AdvancedAudioPlayer.tsx:              {currentChapter?.title || t('audio.selectChapter')}
+src/components\audio\AdvancedAudioPlayer.tsx:              {t('audio.chapter')} {currentChapterIndex + 1} / {chapters.length}
+src/components\audio\AdvancedAudioPlayer.tsx:              aria-label={String(t('audio.togglePlaylist'))}
+src/components\audio\AdvancedAudioPlayer.tsx:              aria-label={String(t('audio.toggleBookmarks'))}
+src/components\audio\AdvancedAudioPlayer.tsx:              aria-label={String(t('audio.settings'))}
+src/components\audio\AdvancedAudioPlayer.tsx:              aria-label={String(t('audio.repeatMode'))}
+src/components\audio\AdvancedAudioPlayer.tsx:              aria-label={String(t('audio.shuffle'))}
+src/components\audio\AdvancedAudioPlayer.tsx:              aria-label={String(t('audio.previous'))}
+src/components\audio\AdvancedAudioPlayer.tsx:              aria-label={String(t('audio.rewind10'))}
+src/components\audio\AdvancedAudioPlayer.tsx:              aria-label={status === 'playing' ? String(t('audio.pause')) : String(t('audio.play'))}
+src/components\audio\AdvancedAudioPlayer.tsx:              aria-label={String(t('audio.forward10'))}
+src/components\audio\AdvancedAudioPlayer.tsx:              aria-label={String(t('audio.next'))}
+src/components\audio\AdvancedAudioPlayer.tsx:              aria-label={isMuted ? String(t('audio.unmute')) : String(t('audio.mute'))}
+src/components\audio\AdvancedAudioPlayer.tsx:            {t('audio.playlist')}
+src/components\audio\AdvancedAudioPlayer.tsx:            {t('audio.bookmarks')} ({chapterBookmarks.length})
+src/components\audio\AdvancedAudioPlayer.tsx:              placeholder={String(t('audio.bookmarkTitle'))}
+src/components\audio\AdvancedAudioPlayer.tsx:              {t('audio.addBookmark')}
+src/components\audio\AdvancedAudioPlayer.tsx:                  aria-label={String(t('audio.removeBookmark'))}
+src/components\audio\AdvancedAudioPlayer.tsx:                {t('audio.noBookmarks')}
+src/components\audio\AdvancedAudioPlayer.tsx:            {t('audio.settings')}
+src/components\audio\AdvancedAudioPlayer.tsx:                {t('audio.playbackSpeed')}
+src/components\audio\AdvancedAudioPlayer.tsx:                {t('audio.volume')}: {Math.round(volume * 100)}%
+src/components\audio\AdvancedAudioPlayer.tsx:              {t('audio.playbackError')}
+src/components\layout\ClientLayout.tsx:const PerformanceProvider = dynamic(() => import('@/components/providers/PerformanceProvider'), {
+src/components\guide\MapWithRoute.tsx:      alert('위치 권한이 거부되었습니다. 브라우저 설정에서 위치 권한을 허용해주세요.');
+src/lib\location\wikipedia-location-searcher.ts:        const [lng, lat] = coordMatch[1].split(' ').map(Number);
+src/lib\location\wikipedia-location-searcher.ts:          wikidataId: binding.item.value.split('/').pop(),
+src/lib\location\wikipedia-location-searcher.ts:          const [lng, lat] = coordMatch[1].split(' ').map(Number);
+src/components\QualityFeedback.tsx:        alert(t('feedback.submitSuccess') || '🎉 소중한 피드백 감사합니다! 더 나은 가이드로 발전시키겠습니다.');
+src/components\QualityFeedback.tsx:      alert(t('feedback.submitFailed') || '피드백 제출에 실패했습니다. 다시 시도해주세요.');
+src/components\QualityFeedback.tsx:    1: t('feedback.ratings.1') || '매우 불만족',
+src/components\QualityFeedback.tsx:    2: t('feedback.ratings.2') || '불만족', 
+src/components\QualityFeedback.tsx:    3: t('feedback.ratings.3') || '보통',
+src/components\QualityFeedback.tsx:    4: t('feedback.ratings.4') || '만족',
+src/components\QualityFeedback.tsx:    5: t('feedback.ratings.5') || '매우 만족'
+src/components\QualityFeedback.tsx:    (t('feedback.improvements.moreHistoricalFacts') as string) || '더 구체적인 역사적 사실 필요',
+src/components\QualityFeedback.tsx:    (t('feedback.improvements.moreStories') as string) || '재미있는 스토리 부족',
+src/components\QualityFeedback.tsx:    (t('feedback.improvements.explainTerms') as string) || '전문 용어 설명 필요',
+src/components\QualityFeedback.tsx:    (t('feedback.improvements.culturalBackground') as string) || '문화적 배경 설명 부족', 
+src/components\QualityFeedback.tsx:    (t('feedback.improvements.personalInterests') as string) || '개인적 관심사 반영 부족',
+src/components\QualityFeedback.tsx:    (t('feedback.improvements.practicalInfo') as string) || '실용적 정보 부족',
+src/components\QualityFeedback.tsx:    (t('feedback.improvements.tooLong') as string) || '내용이 너무 길어서 지루함',
+src/components\QualityFeedback.tsx:    (t('feedback.improvements.tooShort') as string) || '내용이 너무 짧아서 아쉬움'
+src/components\QualityFeedback.tsx:          aria-label={(t('feedback.openButtonAria') as string) || "가이드 품질 평가 상자 열기"}
+src/components\QualityFeedback.tsx:          <span aria-hidden="true">⭐</span> {(t('feedback.rateGuide') as string) || '가이드 평가하기'}
+src/components\QualityFeedback.tsx:              <span aria-hidden="true">🎯</span> {(t('feedback.modalTitle') as string) || `"${locationName}" 가이드 평가`}
+src/components\QualityFeedback.tsx:              aria-label={(t('feedback.closeButtonAria') as string) || "평가 상자 닫기"}
+src/components\QualityFeedback.tsx:              <h3 className="text-lg font-semibold text-gray-700">📊 {(t('feedback.detailedEvaluation') as string) || '상세 평가 (96% 만족도 목표)'}</h3>
+src/components\QualityFeedback.tsx:                  <span aria-hidden="true">🔍</span> {(t('feedback.categories.accuracy') as string) || '사실 정확성 (역사, 수치, 인명 등)'}
+src/components\QualityFeedback.tsx:                      aria-label={`${(t('feedback.categories.accuracy') as string) || '사실 정확성'} ${rating}${(t('feedback.points') as string) || '점'}`}
+src/components\QualityFeedback.tsx:                  <span aria-hidden="true">🎓</span> {(t('feedback.categories.expertise') as string) || '전문성 깊이 (전문가 수준의 설명)'}
+src/components\QualityFeedback.tsx:                      aria-label={`${(t('feedback.categories.expertise') as string) || '전문성'} ${rating}${(t('feedback.points') as string) || '점'}`}
+src/components\QualityFeedback.tsx:                  <span aria-hidden="true">📖</span> {(t('feedback.categories.storytelling') as string) || '스토리텔링 (흥미롭고 몰입감 있는 설명)'}
+src/components\QualityFeedback.tsx:                      aria-label={`${(t('feedback.categories.storytelling') as string) || '스토리텔링'} ${rating}${(t('feedback.points') as string) || '점'}`}
+src/components\QualityFeedback.tsx:                  <span aria-hidden="true">🙏</span> {(t('feedback.categories.culturalRespect') as string) || '문화적 존중 (현지 문화에 대한 적절한 표현)'}
+src/components\QualityFeedback.tsx:                      aria-label={`${(t('feedback.categories.culturalRespect') as string) || '문화적 존중'} ${rating}${(t('feedback.points') as string) || '점'}`}
+src/components\QualityFeedback.tsx:                  <span aria-hidden="true">🎯</span> {(t('feedback.categories.overallSatisfaction') as string) || '전체 만족도 (종합적 평가)'}
+src/components\QualityFeedback.tsx:                      aria-label={`${(t('feedback.categories.overallSatisfaction') as string) || '전체 만족도'} ${rating}${(t('feedback.points') as string) || '점'}`}
+src/components\QualityFeedback.tsx:              <h3 className="text-lg font-semibold text-gray-700 mb-3">🔧 {(t('feedback.improvementNeeded') as string) || '개선이 필요한 부분'}</h3>
+src/components\QualityFeedback.tsx:                <span aria-hidden="true">💬</span> {(t('feedback.additionalComments') as string) || '추가 의견이나 제안사항'}
+src/components\QualityFeedback.tsx:                placeholder={(t('feedback.commentsPlaceholder') as string) || '더 좋은 가이드를 위한 의견을 자유롭게 작성해주세요...'}
+src/components\QualityFeedback.tsx:                {(t('feedback.commentsHelp') as string) || '가이드 개선을 위한 자유로운 의견을 작성해주세요'}
+src/components\QualityFeedback.tsx:                aria-label={(t('feedback.cancelButtonAria') as string) || '평가 취소하기'}
+src/components\QualityFeedback.tsx:                {(t('feedback.cancelButton') as string) || '취소'}
+src/components\QualityFeedback.tsx:                aria-label={isSubmitting ? ((t('feedback.submittingAria') as string) || '피드백 제출 중') : ((t('feedback.submitButtonAria') as string) || '피드백 제출하기')}
+src/components\QualityFeedback.tsx:                {isSubmitting ? ((t('feedback.submitting') as string) || '제출 중...') : (<><span aria-hidden="true">🎯</span> {(t('feedback.submitButton') as string) || '피드백 제출하기'}</>)}
+src/components\guide\RegionTouristMap.tsx:const MapWithRoute = dynamic(() => import('./MapWithRoute'), {
+src/components\guide\RegionTouristMap.tsx:              {t('guide.regionTouristMap') || '지역 관광지 지도'}
+src/components\guide\RegionTouristMap.tsx:                ? `${validSpots.length}개 ${t('guide.recommendedSpots') || '추천 장소'}`
+src/components\guide\RegionTouristMap.tsx:                : `${locationName} ${t('guide.regionOverview') || '지역 개요'}`
+src/components\guide\RegionTouristMap.tsx:                {t('guide.noTouristSpotsAvailable') || '관광지 정보를 불러오는 중입니다'}
+src/components\guide\RelatedGuides.tsx:        throw new Error(t('relatedGuides.errors.loadFailed') || '관련 가이드를 불러올 수 없습니다');
+src/components\guide\RelatedGuides.tsx:      setError(err instanceof Error ? err.message : t('relatedGuides.errors.unknown') || '알 수 없는 오류');
+src/components\guide\RelatedGuides.tsx:      case 'regional': return t('relatedGuides.types.regional') || '주변 지역';
+src/components\guide\RelatedGuides.tsx:      case 'category': return t('relatedGuides.types.category') || '비슷한 유형';
+src/components\guide\RelatedGuides.tsx:      case 'popular': return t('relatedGuides.types.popular') || '인기 여행지';
+src/components\guide\RelatedGuides.tsx:      default: return t('relatedGuides.types.default') || '추천';
+src/components\guide\RelatedGuides.tsx:    <section className={`${className}`} aria-label={t('relatedGuides.aria.section') || '관련 여행지 추천'}>
+src/components\guide\RelatedGuides.tsx:          {t('relatedGuides.title') || '관련 여행지 둘러보기'}
+src/components\guide\RelatedGuides.tsx:          {relatedGuides.length}{t('relatedGuides.count') || '개 추천'}
+src/components\guide\RelatedGuides.tsx:            aria-label={`${guide.location_name} ${t('relatedGuides.aria.linkTo') || '가이드로 이동'}`}
+src/components\guide\StartLocationMap.tsx:const MapWithRoute = dynamic(() => import('./MapWithRoute'), {
+src/components\guide\StartLocationMap.tsx:              {t('guide.recommendedStartPoint') || '관람지도'}
+src/components\location\LiveLocationTracker.tsx:      addNotification('location-denied', String(t('location.permissionDenied')), 'warning');
+src/components\location\LiveLocationTracker.tsx:          String(t('location.leftArea')),
+src/components\location\LiveLocationTracker.tsx:          String(t('location.stayingAt')),
+src/components\location\LiveLocationTracker.tsx:    addNotification('tracking-started', String(t('location.trackingStarted')), 'success');
+src/components\location\LiveLocationTracker.tsx:    addNotification('tracking-stopped', String(t('location.trackingStopped')), 'info');
+src/components\location\LiveLocationTracker.tsx:                {t('location.liveTracking')}
+src/components\location\LiveLocationTracker.tsx:                {isTracking ? t('location.active') : t('location.inactive')}
+src/components\location\LiveLocationTracker.tsx:              aria-label={String(t('location.settings'))}
+src/components\location\LiveLocationTracker.tsx:                {t('location.permissionRequired')}
+src/components\location\LiveLocationTracker.tsx:              {t('location.permissionDescription')}
+src/components\location\LiveLocationTracker.tsx:              {t('location.allowLocation')}
+src/components\location\LiveLocationTracker.tsx:                  {t('location.error')}
+src/components\location\LiveLocationTracker.tsx:              {t('location.startTracking')}
+src/components\location\LiveLocationTracker.tsx:              {t('location.stopTracking')}
+src/components\location\LiveLocationTracker.tsx:                  {t('location.currentLocation')}
+src/components\location\LiveLocationTracker.tsx:                    {t('location.nearestPOI')}
+src/components\location\LiveLocationTracker.tsx:                {t('location.routeProgress')}
+src/components\location\LiveLocationTracker.tsx:                  {routeProgress.visitedPOIs} / {routeProgress.totalPOIs} {t('location.completed')}
+src/components\location\LiveLocationTracker.tsx:                <strong>{t('location.currentPOI')}:</strong> {routeProgress.currentPOI}
+src/components\location\LiveLocationTracker.tsx:                  <strong>{t('location.nextPOI')}:</strong> {routeProgress.nextPOI}
+src/components\location\LiveLocationTracker.tsx:                  {t('location.totalDistance')}
+src/components\location\LiveLocationTracker.tsx:                  {t('location.totalTime')}
+src/components\location\LiveLocationTracker.tsx:                  {t('location.averageSpeed')}
+src/components\location\LiveLocationTracker.tsx:                  {t('location.visitedPOIs')}
+src/components\location\LiveLocationTracker.tsx:              {t('location.settings')}
+src/components\location\LiveLocationTracker.tsx:                  {t('location.highAccuracy')}
+src/components\location\LiveLocationTracker.tsx:                    {trackingState.batterySaver ? t('location.batterySaver') : t('location.normal')}
+src/components\location\LiveLocationTracker.tsx:                  {t('location.accuracy')}
+src/components\location\LiveLocationTracker.tsx:                  {t('location.lastUpdate')}
+src/components\location\LiveLocationTracker.tsx:                    t('location.never')
+src/app\api\security\stats\route.ts:  const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim());
+src/app\api\auth\email-verification\route.ts:          .select('email')
+src/app\api\auth\email-verification\route.ts:          .select('*')
+src/app\api\adsense\sellers-json\route.ts:    const action = searchParams.get('action') || 'info';
+src/app\api\cache\stats\route.ts:    const detail = searchParams.get('detail') === 'true';
+src/app\api\cache\stats\route.ts:    const strategy = searchParams.get('strategy') as CacheKeyStrategy;
+src/app\api\cache\stats\route.ts:    const key = searchParams.get('key');
+src/app\api\security\captcha\route.ts:    const riskScore = parseInt(searchParams.get('riskScore') || '50');
+src/app\api\security\captcha\route.ts:    const type = searchParams.get('type') as 'math' | 'text' | 'image' | 'auto';
+src/app\api\auth\force-logout\route.ts:    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+src/app\api\auth\force-logout\route.ts:    response.headers.set('Pragma', 'no-cache');
+src/app\api\auth\force-logout\route.ts:    response.headers.set('Expires', '0');
+src/app\api\auth\force-logout\route.ts:    response.headers.set('X-Auth-Cache-Invalidate', timestamp.toString());
+src/app\api\coordinates\validate\route.ts:    const guideId = searchParams.get('guideId');
+src/app\api\coordinates\validate\route.ts:    const minAccuracy = parseFloat(searchParams.get('minAccuracy') || '0.9'); // 실용적 정확도 기준 상향
+src/app\api\coordinates\validate\route.ts:    const batchSize = parseInt(searchParams.get('batchSize') || '20');
+src/app\api\coordinates\validate\route.ts:      .select('id, guide_id, chapter_index, title, latitude, longitude, coordinate_accuracy, validation_status, last_validated_at')
+src/app\api\coordinates\validate\route.ts:      .not('latitude', 'is', null)
+src/app\api\coordinates\validate\route.ts:      .not('longitude', 'is', null)
+src/app\api\ai\generate-multilang-guide\route.ts:    const urlRegion = searchParams.get('region');
+src/app\api\ai\generate-multilang-guide\route.ts:    const urlCountryCode = searchParams.get('countryCode');
+src/app\api\auth\register\route.ts:          .select('*')
+src/app\api\auth\register\route.ts:          .select('email')
+src/app\api\auth\register\route.ts:      .select('id, email, name, email_verified, created_at')
+src/app\api\admin\stats\users\route.ts:      .select('*', { count: 'exact', head: true });
+src/app\api\admin\stats\users\route.ts:      .select('*', { count: 'exact', head: true })
+src/app\api\admin\stats\users\route.ts:      .select('user_id', { count: 'exact', head: true })
+src/app\api\admin\stats\users\route.ts:      .not('user_id', 'is', null);
+src/app\api\admin\stats\users\route.ts:      .select('user_id', { count: 'exact', head: true })
+src/app\api\admin\stats\users\route.ts:      .not('user_id', 'is', null);
+src/app\api\admin\stats\users\route.ts:      .select('user_id', { count: 'exact', head: true })
+src/app\api\admin\stats\users\route.ts:      .not('user_id', 'is', null);
+src/app\api\admin\stats\users\route.ts:        .select('*', { count: 'exact', head: true })
+src/app\api\admin\stats\users\route.ts:        .select('*', { count: 'exact', head: true })
+src/app\api\admin\stats\users\route.ts:        .select('*', { count: 'exact', head: true })
+src/app\api\admin\stats\users\route.ts:      .select('*', { count: 'exact', head: true })
+src/app\api\admin\stats\users\route.ts:      .lt('created_at', thirtyDaysAgo.toISOString());
+src/app\api\admin\stats\users\route.ts:        .select('*', { count: 'exact', head: true })
+src/app\api\admin\stats\users\route.ts:        .lt('created_at', endOfDay.toISOString());
+src/app\api\admin\stats\users\route.ts:        date: date.toISOString().split('T')[0],
+src/app\api\debug\env\route.ts:        const testPromise = model.generateContent("Test");
+src/app\api\debug\env\route.ts:          .select('locationname')
+src/app\api\debug\guide-search\route.ts:    const location = searchParams.get('location') || '경복궁';
+src/app\api\debug\guide-search\route.ts:    const language = searchParams.get('language') || 'ko';
+src/app\api\debug\guide-search\route.ts:      .select('locationname, language, content')
+src/app\api\debug\guide-search\route.ts:      .select('locationname, language')
+src/app\api\debug\guide-search\route.ts:      .select('locationname, language')
+src/app\api\security\behavior-data\route.ts:    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+src/app\api\security\behavior-data\route.ts:               request.headers.get('x-real-ip') ||
+src/app\api\coordinates\migrate\route.ts:      .select('id, locationname, language, content, coordinates, location_region, country_code')
+src/app\api\coordinates\migrate\route.ts:    const locationFilter = searchParams.get('location');
+src/app\api\coordinates\migrate\route.ts:      .select('id', { count: 'exact', head: true });
+src/app\api\coordinates\migrate\route.ts:      .select('id', { count: 'exact', head: true })
+src/app\api\coordinates\migrate\route.ts:      .not('coordinates', 'is', null)
+src/app\api\coordinates\migrate\route.ts:      .not('coordinates', 'eq', '{}');
+src/lib\location\google-places-multi-search.ts:  const parts = address.split(',').map(part => part.trim());
+src/app\api\ai\upload-audio\route.ts:  const file = formData.get('file') as File;
+src/app\api\ai\upload-audio\route.ts:  const guideId = formData.get('guide_id') as string;
+src/app\api\coordinates\stats\route.ts:    const guideId = searchParams.get('guideId');
+src/app\api\coordinates\stats\route.ts:    const locationName = searchParams.get('locationName');
+src/app\api\coordinates\stats\route.ts:    const includeDetails = searchParams.get('includeDetails') === 'true';
+src/app\api\coordinates\stats\route.ts:      .select('id, guide_id, chapter_index, title, latitude, longitude, coordinate_accuracy, regeneration_attempts, validation_status, last_validated_at');
+src/app\api\ai\generate-guide-with-gemini\route.ts:    const ip = request.headers.get('x-forwarded-for') || 'anonymous';
+src/app\api\ai\generate-guide-with-gemini\route.ts:        userAgent: request.headers.get('user-agent'),
+src/app\api\ai\generate-guide-with-gemini\route.ts:        referer: request.headers.get('referer'),
+src/app\api\ai\generate-guide-with-gemini\route.ts:        origin: request.headers.get('origin')
+src/app\api\ai\generate-guide-with-gemini\route.ts:            sendResult('final', finalResult);
+src/app\api\ai\generate-guide-with-gemini\route.ts:            sendResult('final', {
+src/app\api\ai\generate-guide-with-gemini\route.ts:          sendResult('final', {
+src/app\api\coordinates\regenerate\route.ts:      .select('*');
+src/app\api\coordinates\regenerate\route.ts:        .lt('regeneration_attempts', maxAttempts);
+src/app\api\coordinates\regenerate\route.ts:        .select('locationname')
+src/app\api\coordinates\regenerate\route.ts:    const guideId = searchParams.get('guideId');
+src/app\api\coordinates\regenerate\route.ts:    const minAccuracy = parseFloat(searchParams.get('minAccuracy') || '0.8');
+src/app\api\coordinates\regenerate\route.ts:    const maxAttempts = parseInt(searchParams.get('maxAttempts') || '3');
+src/app\api\coordinates\regenerate\route.ts:      .select('id, guide_id, chapter_index, title, latitude, longitude, coordinate_accuracy, regeneration_attempts, validation_status')
+src/app\api\coordinates\regenerate\route.ts:      .lt('regeneration_attempts', maxAttempts);
+src/app\api\compliance\monitor\route.ts:    const action = searchParams.get('action') || 'report';
+src/app\api\admin\stats\system\route.ts:      .select('endpoint, response_time, status_code, created_at')
+src/app\api\admin\stats\system\route.ts:        date: date.toISOString().split('T')[0],
+src/app\api\node\ai\generate-guide\route.ts:        .select('content')
+src/app\api\node\ai\generate-guide\route.ts:        .select('id')
+src/app\api\node\ai\generate-guide\route.ts:        .select('content')
+src/app\api\node\ai\generate-guide\route.ts:    const urlRegion = searchParams.get('region');
+src/app\api\node\ai\generate-guide\route.ts:    const urlCountryCode = searchParams.get('countryCode');
+src/app\api\quality-feedback\route.ts:        user_agent: request.headers.get('user-agent') || 'Unknown'
+src/app\api\quality-feedback\route.ts:            user_agent: request.headers.get('user-agent') || 'Unknown'
+src/app\api\quality-feedback\route.ts:    const locationName = url.searchParams.get('location');
+src/app\api\quality-feedback\route.ts:    const period = url.searchParams.get('period') || '30'; // 기본 30일
+src/app\api\quality-feedback\route.ts:      .select('*');
+src/app\api\quality-feedback\route.ts:      .select('*')
+src/app\api\ai\generate-tts\route.ts:    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+src/app\api\ai\generate-tts\route.ts:    const base64Audio = result.audioUrl.split(',')[1] || result.audioUrl;
+src/app\api\places\search\route.ts:  const query = searchParams.get('query');
+src/app\api\places\search\route.ts:  const language = searchParams.get('language') || 'ko';
+src/app\api\places\search\route.ts:    logger.api.start('google-places-proxy', { query, language });
+src/app\api\places\search\route.ts:    placesUrl.searchParams.set('query', query);
+src/app\api\places\search\route.ts:    placesUrl.searchParams.set('key', apiKey);
+src/app\api\places\search\route.ts:    placesUrl.searchParams.set('language', language);
+src/app\api\og\route.tsx:  const title = searchParams.get('title') || 'TripRadio.AI';
+src/app\api\og\route.tsx:  const location = searchParams.get('location') || '';
+src/app\api\og\route.tsx:  const type = searchParams.get('type') || 'guide';
+src/app\api\og\route.tsx:  const lang = searchParams.get('lang') || 'ko';
+src/lib\geolocation.ts:  const cfCountry = request.headers.get('cf-ipcountry');
+src/lib\geolocation.ts:  const browserLanguage = navigator.language.split('-')[0];
+src/lib\geolocation.ts:    request.headers.get('x-vercel-forwarded-for') ||  // Vercel 우선
+src/lib\geolocation.ts:    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+src/lib\geolocation.ts:    request.headers.get('x-real-ip') ||
+src/lib\geolocation.ts:    request.headers.get('cf-connecting-ip') ||  // CloudFlare
+src/lib\geolocation.ts:    request.headers.get('x-client-ip') ||
+src/lib\geolocation.ts:  const vercelRegion = request.headers.get('x-vercel-ip-country');
+src/lib\geolocation.ts:  const acceptLanguage = request.headers.get('accept-language');
+src/lib\geolocation.ts:    const languages = acceptLanguage.split(',')
+src/lib\geolocation.ts:      .map(lang => lang.trim().split(';')[0].split('-')[0])
+src/app\api\admin\stats\locations\route.ts:      .select('location_name, region, category')
+src/app\api\admin\stats\locations\route.ts:      .not('location_name', 'is', null);
+src/app\api\admin\stats\locations\route.ts:        .select('location_name')
+src/app\api\admin\stats\locations\route.ts:        .lt('created_at', endOfDay.toISOString())
+src/app\api\admin\stats\locations\route.ts:        .not('location_name', 'is', null);
+src/app\api\admin\stats\locations\route.ts:        date: date.toISOString().split('T')[0],
+src/lib\location\dynamic-location-classifier.ts:    logger.api.start('google-places-classification', { locationName });
+src/lib\location\dynamic-location-classifier.ts:  const parts = address.split(', ');
+src/lib\location\dynamic-location-classifier.ts:      .select('id')
+src/app\api\ai\generate-region-overview\route.ts:    const spots = mustVisitSpots.split('#').filter(spot => spot.trim()).slice(0, 3);
+src/app\api\ai\generate-region-overview\route.ts:    const title = chapter?.title?.split(':')[0]?.trim();
+src/app\api\ai\generate-region-overview\route.ts:    chapter?.title?.split(':')[0]?.trim(),
+src/app\api\ai\generate-region-overview\route.ts:          .select('content, location')
+src/app\api\ai\generate-region-overview\route.ts:          .select('location, language')
+src/app\api\monitoring\metrics\route.ts:    const format = searchParams.get('format') || 'json';
+src/app\api\monitoring\metrics\route.ts:    const detailed = searchParams.get('detailed') === 'true';
+src/app\api\locations\search\route.ts:    const query = searchParams.get('q');
+src/app\api\locations\search\route.ts:    const language = (searchParams.get('lang') || 'ko') as Language;
+src/app\api\ai\generate-sequential-guide\route.ts:  const region = searchParams.get('region') || null;
+src/app\api\ai\generate-sequential-guide\route.ts:  const country = searchParams.get('country') || null;
+src/app\api\ai\generate-sequential-guide\route.ts:  const countryCode = searchParams.get('countryCode') || null;
+src/app\api\ai\generate-sequential-guide\route.ts:  const type = (searchParams.get('type') as 'location' | 'attraction') || 'attraction';
+src/app\api\ai\generate-sequential-guide\route.ts:        const { extractAccurateLocationInfo } = await import('@/lib/coordinates/accurate-country-extractor');
+src/app\api\ai\generate-sequential-guide\route.ts:      retryStats.recordAttempt('supabase-upsert-initial');
+src/app\api\ai\generate-sequential-guide\route.ts:      retryStats.recordAttempt('gemini-generate-content');
+src/app\api\ai\generate-sequential-guide\route.ts:      retryStats.recordAttempt('supabase-update-final');
+src/app\api\ai\generate-sequential-guide\route.ts:    const host = request.headers.get('host') || 'localhost:3000';
+src/app\api\ai\generate-sequential-guide\route.ts:    const protocol = request.headers.get('x-forwarded-proto') || 'https';
+src/app\api\quality\regenerate\route.ts:    const batchSize = parseInt(url.searchParams.get('batchSize') || '5');
+src/app\api\quality\regenerate\route.ts:    const strategy = url.searchParams.get('strategy') || 'standard';
+src/app\api\quality\regenerate\route.ts:        .select('*')
+src/app\api\quality\regenerate\route.ts:      .select('id')
+src/app\api\quality\regenerate\route.ts:      .select('*')
+src/app\api\quality\regenerate\route.ts:      .lt('retry_count', 'max_retries')
+src/app\api\admin\stats\guides\route.ts:      .select('*', { count: 'exact', head: true });
+src/app\api\admin\stats\guides\route.ts:      .select('*', { count: 'exact', head: true })
+src/app\api\admin\stats\guides\route.ts:      .select('*', { count: 'exact', head: true })
+src/app\api\admin\stats\guides\route.ts:      .select('*', { count: 'exact', head: true })
+src/app\api\admin\stats\guides\route.ts:      .select('guide_content')
+src/app\api\admin\stats\guides\route.ts:      .not('guide_content', 'is', null)
+src/app\api\admin\stats\guides\route.ts:      .select('language')
+src/app\api\admin\stats\guides\route.ts:      .not('language', 'is', null);
+src/app\api\admin\stats\guides\route.ts:        .select('*', { count: 'exact', head: true })
+src/app\api\admin\stats\guides\route.ts:        .lt('created_at', endOfDay.toISOString());
+src/app\api\admin\stats\guides\route.ts:        date: date.toISOString().split('T')[0],
+src/app\api\admin\stats\guides\route.ts:        .select('*', { count: 'exact', head: true })
+src/app\api\location\cache\route.ts:    const action = searchParams.get('action');
+src/app\api\location\cache\route.ts:    const action = searchParams.get('action') || 'expired';
+src/app\api\locations\search\coordinates\route.ts:    const locationName = searchParams.get('locationName');
+src/app\api\locations\search\coordinates\route.ts:    const language = searchParams.get('language');
+src/app\api\admin\grant-admin\route.ts:      .select('*')
+src/app\api\admin\grant-admin\route.ts:      .select('id, email, name, is_admin')
+src/app\api\admin\grant-admin\route.ts:      .select('id, email, name, is_admin, created_at, updated_at')
+src/app\api\admin\debug\route.ts:      .select('count(*)', { count: 'exact', head: true });
+src/app\api\admin\debug\route.ts:      .select('*')
+src/app\api\admin\debug\route.ts:      .select('id, email, name, is_admin')
+src/app\api\admin\debug\route.ts:      .select('*')
+src/app\api\admin\setup\route.ts:    const { getUserByEmail } = await import('@/lib/user');
+src/lib\data-sources\performance\connection-pool.ts:    this.emit('connectionReleased', connection);
+src/lib\data-sources\government\government-service.ts:    const contentType = response.headers.get('content-type') || '';
+src/lib\data-sources\verification\fact-verification.ts:    return path.split('.').reduce((current, key) => current?.[key], obj);
+src/lib\data-sources\orchestrator\data-orchestrator.ts:    this.services.set('unesco', UNESCOService.getInstance());
+src/lib\data-sources\orchestrator\data-orchestrator.ts:    this.services.set('wikidata', WikidataService.getInstance());
+src/lib\data-sources\orchestrator\data-orchestrator.ts:    this.services.set('government', GovernmentDataService.getInstance());
+src/lib\data-sources\orchestrator\data-orchestrator.ts:    this.services.set('google_places', GooglePlacesService.getInstance());
+src/lib\data-sources\orchestrator\data-orchestrator.ts:        this.services.get('google_places').searchNearbyPlaces(lat, lng, radius)
+src/lib\data-sources\orchestrator\data-orchestrator.ts:          this.services.get('unesco').searchByCoordinates(lat, lng, radius / 1000) // km 단위
+src/lib\data-sources\orchestrator\data-orchestrator.ts:        this.services.get('wikidata').searchByCoordinates(lat, lng, radius / 1000) // km 단위
+src/lib\data-sources\orchestrator\data-orchestrator.ts:          this.services.get('government').searchTourismByLocation(lat, lng, radius)
+src/lib\data-sources\orchestrator\data-orchestrator.ts:          this.services.get('unesco').searchSites(query),
+src/lib\data-sources\orchestrator\data-orchestrator.ts:          this.services.get('wikidata').searchEntities(query),
+src/lib\data-sources\orchestrator\data-orchestrator.ts:          this.services.get('government').searchGovernmentData(query),
+src/lib\data-sources\orchestrator\data-orchestrator.ts:          this.services.get('google_places').searchPlaces(query, coordinates),
+src/lib\data-sources\verification\performance-fact-verification.ts:                dates[i].date.toISOString().split('T')[0],
+src/lib\data-sources\verification\performance-fact-verification.ts:                dates[j].date.toISOString().split('T')[0]

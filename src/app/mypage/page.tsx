@@ -254,7 +254,7 @@ export default function MyPage() {
   // 가이드 보기 핸들러
   const handleViewGuide = (guide: LocalGuideEntry) => {
     updateLastAccessed(guide.id);
-    router.push(`/guide/${encodeURIComponent(guide.location)}`);
+    router.push(`/guide/${currentLanguage}/${encodeURIComponent(guide.location)}`);
   };
 
   // 즐겨찾기 토글 핸들러
@@ -342,7 +342,7 @@ export default function MyPage() {
                   className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => {
                     updateLastAccessed(guide.id);
-                    router.push(`/guide/${encodeURIComponent(guide.location)}`);
+                    router.push(`/guide/${currentLanguage}/${encodeURIComponent(guide.location)}`);
                   }}
                 >
                   <div className="flex items-start justify-between">
@@ -420,7 +420,7 @@ export default function MyPage() {
                   className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => {
                     updateLastAccessed(guide.id);
-                    router.push(`/guide/${encodeURIComponent(guide.location)}`);
+                    router.push(`/guide/${currentLanguage}/${encodeURIComponent(guide.location)}`);
                   }}
                 >
                   <div className="flex items-start justify-between mb-3">

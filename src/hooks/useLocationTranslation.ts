@@ -3,21 +3,24 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { useCallback } from 'react';
-import { SupportedLanguage } from '@/contexts/LanguageContext';
+import { SupportedLanguage, useLanguage } from '@/contexts/LanguageContext';
 import { MicrosoftTranslator } from '@/lib/location/microsoft-translator';
 
 export function useLocationTranslation() {
   const router = useRouter();
   const pathname = usePathname();
+  const { setLanguage, currentLanguage } = useLanguage();
   
   /**
    * 언어 변경 시 현재 위치의 장소명을 번역하여 URL 업데이트
+   * 이제 LanguageContext와 통합되어 번역 로딩도 함께 처리
    */
   const changeLanguageWithLocationTranslation = useCallback(async (
     newLanguage: SupportedLanguage,
-    currentLanguage: SupportedLanguage
+    currentLangOverride?: SupportedLanguage // 옵셔널로 변경
   ) => {
-    console.log('🌐 언어 변경 시작:', { currentLanguage, newLanguage, pathname });
+    const currentLang = currentLangOverride || currentLanguage;
+    console.log('🌐 Location 번역 시작:', { currentLang, newLanguage, pathname });
     
     // 가이드 페이지 패턴 확인: /guide/[location], /guide/[location]/live, /guide/[location]/tour
     const guidePageMatch = pathname.match(/^\/guide\/([^\/]+)(?:\/(live|tour))?$/);
@@ -35,10 +38,10 @@ export function useLocationTranslation() {
       try {
         // 1. 현재 언어가 한국어가 아니라면, 한국어로 역번역
         let koreanLocationName = currentLocationName;
-        if (currentLanguage !== 'ko') {
+        if (currentLang !== 'ko') {
           koreanLocationName = await MicrosoftTranslator.reverseTranslateLocationName(
             currentLocationName, 
-            currentLanguage
+            currentLang
           );
           console.log(`🔄 역번역: ${currentLocationName} → ${koreanLocationName}`);
         }
@@ -60,7 +63,7 @@ export function useLocationTranslation() {
             ? `/guide/${newEncodedName}/${pageType}${langParam}`
             : `/guide/${newEncodedName}${langParam}`;
           
-          console.log('🔄 URL 업데이트 (언어 매개변수 포함):', {
+          console.log('🔄 URL 업데이트 (Location 번역):', {
             from: pathname,
             to: newPath,
             translation: `${currentLocationName} → ${translatedLocationName}`,
@@ -93,12 +96,12 @@ export function useLocationTranslation() {
         
       } catch (error) {
         console.error('❌ 장소명 번역 실패:', error);
-        return false; // 번역 실패
+        throw error; // 에러를 상위로 전파하여 Header에서 처리
       }
     }
     
     return false; // 가이드 페이지가 아니거나 번역 불필요
-  }, [router, pathname]);
+  }, [router, pathname, currentLanguage]);
   
   /**
    * 현재 페이지가 가이드 페이지인지 확인

@@ -5,7 +5,7 @@
 
 export interface LegalPageContent {
   id: string;
-  type: 'privacy' | 'terms' | 'about' | 'contact' | 'disclaimer';
+  type: 'privacy' | 'terms' | 'about' | 'contact' | 'disclaimer' | 'ads-revenue';
   title: string;
   content: string;
   lastUpdated: Date;
@@ -179,6 +179,34 @@ export class LegalPagesService {
   }
 
   /**
+   * 광고 수익 공지 페이지 생성 (AdSense 투명성 요구사항)
+   */
+  generateAdsRevenuePage(language: string = 'ko'): LegalPageContent {
+    const adsRevenueContent = this.buildAdsRevenuePageContent(language);
+    
+    const page: LegalPageContent = {
+      id: `ads-revenue-${language}`,
+      type: 'ads-revenue',
+      title: language === 'ko' ? '광고 수익 공지' : 'Ad Revenue Notice',
+      content: adsRevenueContent,
+      lastUpdated: new Date(),
+      version: '1.0.0',
+      language,
+      isPublished: true,
+      seoMetadata: {
+        description: language === 'ko'
+          ? '트립라디오AI 광고 수익 정책 - AdSense 및 광고 파트너십 투명성 공지'
+          : 'TripRadio AI Ad Revenue Policy - AdSense and advertising partnership transparency notice',
+        keywords: ['ad revenue', 'adsense', 'advertising policy', '광고수익', '애드센스', '광고정책'],
+        canonicalUrl: `/legal/ads-revenue`
+      }
+    };
+
+    this.pages.set(page.id, page);
+    return page;
+  }
+
+  /**
    * AdSense 정책 준수 상태 평가
    */
   assessAdSenseCompliance(): AdSenseComplianceMetrics {
@@ -233,6 +261,7 @@ export class LegalPagesService {
       pages.push(this.generateTermsOfService(lang));
       pages.push(this.generateAboutPage(lang));
       pages.push(this.generateContactPage(lang));
+      pages.push(this.generateAdsRevenuePage(lang));
     });
 
     return pages;
@@ -792,6 +821,215 @@ Please send us your valuable opinions for service improvement:
 
     this.pages.set(id, updatedPage);
     return true;
+  }
+
+  /**
+   * 광고 수익 공지 페이지 내용 구축
+   */
+  private buildAdsRevenuePageContent(language: string): string {
+    if (language === 'ko') {
+      return `
+# 광고 수익 공지
+
+**최종 업데이트: ${new Date().toLocaleDateString('ko-KR')}**
+
+## 광고 정책 투명성 공지
+
+트립라디오AI는 사용자들에게 투명한 서비스 운영 정보를 제공하기 위해 광고 수익 정책을 공개합니다.
+
+## 1. 광고 서비스 현황
+
+### Google AdSense
+- **파트너**: Google AdSense
+- **광고 유형**: 디스플레이 광고, 자동 광고
+- **게재 위치**: 웹사이트 내 지정된 광고 영역
+- **수익 모델**: CPC (클릭당 과금), CPM (노출당 과금)
+
+### 광고 품질 관리
+- Google의 광고 정책 및 품질 기준 준수
+- 부적절한 광고 콘텐츠 자동 필터링
+- 사용자 경험을 해치지 않는 광고 배치
+
+## 2. 수익 활용 방침
+
+광고를 통해 창출된 수익은 다음 목적으로 사용됩니다:
+
+### 📱 서비스 운영 및 개선
+- 서버 인프라 유지 및 확장
+- AI 모델 학습 데이터 구매 및 처리
+- 서비스 품질 향상을 위한 기술 개발
+
+### 🌍 콘텐츠 확장
+- 새로운 여행지 가이드 개발
+- 다국어 지원 확대
+- 사용자 맞춤형 기능 개발
+
+### 💡 연구 개발
+- AI 기술 연구 및 개발
+- 사용자 경험 개선 연구
+- 새로운 여행 기술 혁신
+
+## 3. 사용자 권리 및 선택
+
+### 광고 개인화 설정
+사용자는 다음과 같은 권리를 가집니다:
+- **광고 개인화 해제**: [Google 광고 설정](https://adssettings.google.com)에서 맞춤형 광고 비활성화
+- **관심사 기반 광고 제어**: 광고 선호도 설정 및 관리
+- **데이터 사용 거부**: 광고 목적 데이터 수집 거부 권리
+
+### 광고 차단 소프트웨어
+- 광고 차단 소프트웨어 사용은 사용자의 선택입니다
+- 광고 수익은 무료 서비스 제공의 기반이 됩니다
+- 광고 차단 시에도 서비스 이용에 제한은 없습니다
+
+## 4. 제3자 광고 네트워크
+
+### Google AdSense 파트너십
+- **데이터 수집**: Google의 개인정보 처리방침 적용
+- **쿠키 사용**: 광고 개인화 및 성과 측정 목적
+- **옵트아웃**: [Google 광고 설정](https://adssettings.google.com)에서 언제든 해제 가능
+
+### 기타 광고 파트너
+현재는 Google AdSense만을 사용하고 있으며, 향후 새로운 광고 파트너 추가 시 본 페이지를 통해 공지하겠습니다.
+
+## 5. 수익 투명성
+
+### 월간 수익 활용 보고서
+- 분기별로 광고 수익 활용 현황을 공개합니다
+- 주요 투자 분야 및 서비스 개선 내역을 투명하게 공유합니다
+- 사용자 피드백을 바탕으로 수익 활용 방향을 조정합니다
+
+### 재정 건전성
+- 광고 수익은 서비스 지속가능성을 위한 건전한 수익 모델입니다
+- 과도한 광고 게재나 사용자 경험 저해는 지양합니다
+- 장기적인 서비스 발전을 위한 책임감 있는 운영을 약속합니다
+
+## 6. 광고 정책 업데이트
+
+본 광고 수익 정책은 다음의 경우 업데이트될 수 있습니다:
+- 새로운 광고 파트너십 체결
+- 광고 기술 또는 형태의 변경
+- 관련 법규 변경에 따른 정책 조정
+- 사용자 요구사항 반영
+
+## 7. 문의 및 의견
+
+광고 정책에 대한 문의나 의견이 있으시면 언제든지 연락해 주세요:
+
+**연락처**
+- 이메일: ${this.contactInfo?.email || 'contact@navidocent.com'}
+- 텔레그램: [네비:가이드AI](https://t.me/+z2Z5yfFKu30xN2Vl)
+
+## 8. 정책 적용일
+
+본 광고 수익 정책은 ${new Date().toLocaleDateString('ko-KR')}부터 적용됩니다.
+
+---
+
+**트립라디오AI는 투명하고 책임감 있는 광고 정책을 통해 지속 가능한 서비스를 제공하겠습니다.**
+      `;
+    } else {
+      return `
+# Ad Revenue Notice
+
+**Last Updated: ${new Date().toLocaleDateString('en-US')}**
+
+## Advertising Policy Transparency Notice
+
+TripRadio AI discloses our advertising revenue policy to provide users with transparent service operation information.
+
+## 1. Current Advertising Services
+
+### Google AdSense
+- **Partner**: Google AdSense
+- **Ad Types**: Display ads, Auto ads
+- **Placement**: Designated advertising areas within the website
+- **Revenue Model**: CPC (Cost Per Click), CPM (Cost Per Mille)
+
+### Ad Quality Management
+- Compliance with Google's advertising policies and quality standards
+- Automatic filtering of inappropriate ad content
+- Ad placement that doesn't compromise user experience
+
+## 2. Revenue Utilization Policy
+
+Revenue generated through advertising is used for the following purposes:
+
+### 📱 Service Operation & Improvement
+- Server infrastructure maintenance and expansion
+- AI model training data purchase and processing
+- Technology development for service quality improvement
+
+### 🌍 Content Expansion
+- Development of new travel destination guides
+- Multi-language support expansion
+- User-personalized feature development
+
+### 💡 Research & Development
+- AI technology research and development
+- User experience improvement research
+- Innovation in new travel technologies
+
+## 3. User Rights and Choices
+
+### Ad Personalization Settings
+Users have the following rights:
+- **Disable Ad Personalization**: Deactivate personalized ads in [Google Ad Settings](https://adssettings.google.com)
+- **Interest-based Ad Control**: Set and manage advertising preferences
+- **Data Usage Opt-out**: Right to refuse data collection for advertising purposes
+
+### Ad Blocking Software
+- Using ad blocking software is the user's choice
+- Ad revenue is the foundation for providing free services
+- There are no service restrictions when ads are blocked
+
+## 4. Third-party Advertising Networks
+
+### Google AdSense Partnership
+- **Data Collection**: Google's Privacy Policy applies
+- **Cookie Usage**: For ad personalization and performance measurement
+- **Opt-out**: Can be disabled anytime in [Google Ad Settings](https://adssettings.google.com)
+
+### Other Advertising Partners
+Currently, we only use Google AdSense. Future additions of new advertising partners will be announced through this page.
+
+## 5. Revenue Transparency
+
+### Monthly Revenue Utilization Reports
+- Quarterly disclosure of advertising revenue utilization status
+- Transparent sharing of major investment areas and service improvements
+- Adjustment of revenue utilization direction based on user feedback
+
+### Financial Health
+- Ad revenue is a healthy revenue model for service sustainability
+- We avoid excessive ad placement or user experience degradation
+- We promise responsible operation for long-term service development
+
+## 6. Advertising Policy Updates
+
+This advertising revenue policy may be updated in the following cases:
+- New advertising partnerships
+- Changes in advertising technology or formats
+- Policy adjustments due to regulatory changes
+- Reflection of user requirements
+
+## 7. Inquiries and Feedback
+
+If you have any questions or feedback about our advertising policy, please contact us anytime:
+
+**Contact Information**
+- Email: ${this.contactInfo?.email || 'contact@navidocent.com'}
+- Telegram: [Navi:GuideAI](https://t.me/+z2Z5yfFKu30xN2Vl)
+
+## 8. Policy Effective Date
+
+This advertising revenue policy is effective from ${new Date().toLocaleDateString('en-US')}.
+
+---
+
+**TripRadio AI is committed to providing sustainable services through transparent and responsible advertising policies.**
+      `;
+    }
   }
 
   /**

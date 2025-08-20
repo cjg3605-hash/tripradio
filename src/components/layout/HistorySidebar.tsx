@@ -29,7 +29,7 @@ interface HistorySidebarProps {
 }
 
 export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
-  const { t } = useLanguage();
+  const { t, currentLanguage } = useLanguage();
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -86,7 +86,8 @@ export function HistorySidebar({ isOpen, onClose }: HistorySidebarProps) {
   // 가이드로 이동
   const goToGuide = (locationName: string) => {
     const encodedName = encodeURIComponent(locationName);
-    router.push(`/guide/${encodedName}`);
+    // 🚀 새 URL 구조: /guide/[language]/[location]
+    router.push(`/guide/${currentLanguage}/${encodedName}`);
     onClose();
   };
 

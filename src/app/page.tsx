@@ -37,6 +37,9 @@ const ImagePreloader = dynamic(() => import('@/components/optimization/ImagePrel
   ssr: false
 });
 
+// NextLevelSearchBox - SSR 지원을 위해 직접 import
+import NextLevelSearchBox from '@/components/home/NextLevelSearchBox';
+
 // 에러 바운더리 클래스 컴포넌트
 class ErrorBoundary extends Component<
   { 
@@ -100,17 +103,13 @@ class ErrorBoundary extends Component<
   }
 }
 
-// 검색 제안 인터페이스
-interface Suggestion {
-  id?: string;
-  name: string;
-  location: string;
-}
 
-// 번역된 제안 타입 가드
+// 타입 정의 추가
 interface TranslatedSuggestion {
   name: string;
   location: string;
+  id?: string;
+  score?: number;
 }
 
 // 타입 가드 함수들
@@ -263,6 +262,42 @@ function Home() {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
   
+  // 언어 변경 시 강제 리렌더링을 위한 key 추가
+  const [renderKey, setRenderKey] = useState(0);
+  
+  // 🔥 전역 언어 변경 이벤트 수신
+  useEffect(() => {
+    const handleLanguageChanged = (event: CustomEvent) => {
+      console.log('🔄 홈페이지: 언어 변경 이벤트 수신:', event.detail);
+      setRenderKey(prev => prev + 1);
+      
+      // 명소 상세 설명도 다시 로드
+      if (event.detail?.translations) {
+        try {
+          const newDetails = event.detail.translations.home?.attractionDetails || {};
+          // attractionDetails 상태가 있다면 업데이트 (현재는 useMemo로 처리됨)
+        } catch (error) {
+          console.warn('명소 상세 설명 업데이트 실패:', error);
+        }
+      }
+    };
+
+    // 기존 언어 변경 감지
+    setRenderKey(prev => prev + 1);
+    
+    // 전역 이벤트 리스너 등록
+    if (typeof window !== 'undefined') {
+      window.addEventListener('languageChanged', handleLanguageChanged as EventListener);
+      
+      return () => {
+        window.removeEventListener('languageChanged', handleLanguageChanged as EventListener);
+      };
+    }
+    
+    // cleanup 함수가 없는 경우를 위한 빈 함수 반환
+    return () => {};
+  }, [currentLanguage]);
+  
   // 명소 상세 설명 번역 로드
   const attractionDetails = useMemo(() => {
     try {
@@ -282,22 +317,7 @@ function Home() {
   // 상태 관리
   const [isLoaded, setIsLoaded] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [query, setQuery] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [suggestions, setSuggestions] = useState<TranslatedSuggestion[]>([]);
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
-  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
-  const [currentLoadingQuery, setCurrentLoadingQuery] = useState('');
   
-  // 🧠 메모리 캐시 (LRU 방식) - useRef로 변경하여 리렌더링 방지
-  const suggestionCacheRef = useRef<Map<string, { 
-    data: TranslatedSuggestion[], 
-    timestamp: number 
-  }>>(new Map());
-  
-  // fetchSuggestions 함수 안정성을 위한 ref
-  const fetchSuggestionsRef = useRef<((query: string) => Promise<void>) | null>(null);
   
   // 기능 상태 (분리된 로딩 상태)
   const [loadingStates, setLoadingStates] = useState({
@@ -673,6 +693,19 @@ function Home() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  // 필수 State 변수들 추가
+  const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<TranslatedSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const [currentLoadingQuery, setCurrentLoadingQuery] = useState('');
+
+  // 캐시 참조
+  const suggestionCacheRef = useRef(new Map());
+  const fetchSuggestionsRef = useRef<((query: string) => Promise<void>) | null>(null);
+
   // 자동완성 API 호출 (메모리 안전, API 중복 방지, 캐시 적용)
   const fetchSuggestions = useCallback(async (searchQuery: string) => {
     console.log('🚀 fetchSuggestions 함수 실행 시작:', searchQuery);
@@ -797,7 +830,9 @@ function Home() {
   }, [currentLanguage, t]);
 
   // fetchSuggestions를 ref에 할당하여 안정적인 참조 유지
-  fetchSuggestionsRef.current = fetchSuggestions;
+  useEffect(() => {
+    fetchSuggestionsRef.current = fetchSuggestions;
+  }, [fetchSuggestions]);
 
 
   // 디바운스된 검색 함수 (메모리 안전)
@@ -938,13 +973,15 @@ function Home() {
       
       // 자동완성 결과가 없거나 파싱 실패 시 기본 처리
       console.warn('⚠️ 자동완성 결과 없음 또는 파싱 실패 - 기본 URL로 이동 (page.tsx)');
-      router.push(`/guide/${encodeURIComponent(query.trim())}?lang=${currentLanguage}`);
+      // 🚀 새 URL 구조: /guide/[language]/[location]
+      router.push(`/guide/${currentLanguage}/${encodeURIComponent(query.trim())}`);
       
     } catch (error) {
       console.error('❌ 엔터 입력 처리 오류 (page.tsx):', error);
       
       // 오류 발생 시 기본 처리
-      router.push(`/guide/${encodeURIComponent(query.trim())}?lang=${currentLanguage}`);
+      // 🚀 새 URL 구조: /guide/[language]/[location]
+      router.push(`/guide/${currentLanguage}/${encodeURIComponent(query.trim())}`);
     } finally {
       if (isMountedRef.current) {
         setLoadingState('search', false);
@@ -980,7 +1017,8 @@ function Home() {
           setIsFocused(false);
           setShowSuggestions(false);
           setSelectedSuggestionIndex(-1);
-          router.push(`/guide/${encodeURIComponent(selectedSuggestion.name)}?lang=${currentLanguage}`);
+          // 🚀 새 URL 구조: /guide/[language]/[location]
+          router.push(`/guide/${currentLanguage}/${encodeURIComponent(selectedSuggestion.name)}`);
         } else {
           handleSearch();
         }
@@ -1102,7 +1140,8 @@ function Home() {
           
           // 3단계: 성공적인 페이지 이동
           console.log('🔄 가이드 페이지로 이동 중...');
-          router.push(`/guide/${encodeURIComponent(location)}/tour?lang=${currentLanguage}`);
+          // 🚀 새 URL 구조: /guide/[language]/[location]/tour
+          router.push(`/guide/${currentLanguage}/${encodeURIComponent(location)}/tour`);
           
         } catch (jsonError) {
           console.error('❌ JSON 파싱 오류:', jsonError);
@@ -1274,7 +1313,8 @@ function Home() {
     setCurrentLoadingQuery(query.trim());
     if (isMountedRef.current) setAudioPlaying(!audioPlaying);
     setLoadingState('tour', true);
-    router.push(`/guide/${encodeURIComponent(query.trim())}/tour?lang=${currentLanguage}`);
+    // 🚀 새 URL 구조: /guide/[language]/[location]/tour
+    router.push(`/guide/${currentLanguage}/${encodeURIComponent(query.trim())}/tour`);
   }, [query, audioPlaying, router, t, setLoadingState, currentLanguage, showError]);
 
 
@@ -1338,13 +1378,13 @@ function Home() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           </div>
 
-          <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-6 lg:px-8 text-center" style={{ transform: 'translateY(-4px)' }}>
+          <div className="relative max-w-4xl mx-auto px-4 md:px-6 lg:px-8 text-center" style={{ transform: 'translateY(-4px)' }}>
             
             {/* Badge */}
             <div className="inline-flex items-center px-4 md:px-3 sm:px-3 py-2 md:py-2 sm:py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 mb-16 md:mb-12 sm:mb-8 mt-16 md:mt-12 sm:mt-8">
-              <span className="text-sm md:text-sm sm:text-xs font-medium text-white/90">AI 오디오가이드</span>
+              <span className="text-sm md:text-sm sm:text-xs font-medium text-white/90">{String(t('home.audioGuidePrefix')).split(' | ')[0] || 'AI 오디오가이드'}</span>
               <span className="mx-2 text-white/50">•</span>
-              <span className="text-sm md:text-sm sm:text-xs font-medium text-white/90">무료 체험</span>
+              <span className="text-sm md:text-sm sm:text-xs font-medium text-white/90">{String(t('home.audioGuidePrefix')).split(' | ')[1] || '무료 체험'}</span>
             </div>
 
             {/* 중앙 명소 텍스트 - 2줄 레이아웃 (명소 부분만 회전) */}
@@ -1390,185 +1430,53 @@ function Home() {
               </div>
             </div>
 
-          {/* Search Bar - 예시 디자인과 동일 */}
-          <div className="relative max-w-2xl md:max-w-xl sm:max-w-full mx-auto mb-12 sm:mb-8 px-0 sm:px-4" style={{ transform: 'translateY(4px)' }}>
-            <div className="flex items-center bg-white/95 backdrop-blur shadow-2xl md:shadow-xl sm:shadow-lg border border-white/30 p-2 sm:p-3" style={{ borderRadius: isMobile ? '16px' : '20px' }}>
-              <div className="flex items-center flex-1 px-4 sm:px-3">
-                <svg className="w-5 h-5 sm:w-4 sm:h-4 text-gray-400 mr-3 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <input
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  onFocus={() => {
-                    setIsFocused(true);
-                    if (suggestions.length > 0) {
-                      setShowSuggestions(true);
-                    }
-                  }}
-                  onBlur={(e) => {
-                    const relatedTarget = e.relatedTarget as HTMLElement;
-                    if (!relatedTarget || !relatedTarget.closest('.suggestions-container')) {
-                      setTimeout(() => {
-                        setIsFocused(false);
-                        setShowSuggestions(false);
-                      }, 300);
-                    }
-                  }}
-                  placeholder={String(t('home.searchPlaceholder'))}
-                  className="border-0 bg-transparent text-lg md:text-base sm:text-base placeholder:text-gray-500 focus-visible:ring-0 w-full focus:outline-none focus:ring-0 outline-none"
-                  aria-label={String(t('home.searchPlaceholder'))}
-                  aria-describedby="search-help"
-                  aria-expanded={isFocused && suggestions.length > 0}
-                  aria-autocomplete="list"
-                  aria-activedescendant={selectedSuggestionIndex >= 0 ? `suggestion-${selectedSuggestionIndex}` : undefined}
-                  aria-controls={isFocused && suggestions.length > 0 ? "suggestions-listbox" : undefined}
-                  role="combobox"
-                />
-              </div>
-              <button
-                onClick={handleSearch}
-                disabled={!query.trim() || loadingStates.search}
-                className="px-8 md:px-6 sm:px-4 py-3 md:py-2.5 sm:py-2.5 bg-black md:hover:bg-black/90 lg:hover:bg-black/90 text-white font-medium flex items-center gap-2 sm:gap-1.5 transition-colors text-base md:text-sm sm:text-sm min-h-[44px] active:bg-black/80"
-                style={{ borderRadius: isMobile ? '12px' : '16px' }}
-                aria-label={loadingStates.search ? '검색 중...' : String(t('home.searchButton'))}
-                type="submit"
-              >
-                {loadingStates.search ? (
-                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          {/* Feature Steps - 히어로 섹션 내부 */}
+          <div className="relative max-w-4xl mx-auto px-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              <div className="flex items-center justify-center space-x-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30 flex-shrink-0">
+                  <svg className="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                )}
-                <span className="hidden sm:inline">검색</span>
-              </button>
-            
-            {/* 검색 도움말 (화면 판독기용) */}
-            <div id="search-help" className="sr-only">
-              검색어를 입력하고 Enter키를 누르거나 제안 목록에서 선택하세요. 화살표 키로 제안을 탐색할 수 있습니다.
-            </div>
-
-            {/* Suggestions Dropdown */}
-            {(isFocused || showSuggestions) && query.length > 0 && (
-              <div 
-                className="absolute top-full left-0 right-0 sm:fixed sm:inset-x-0 sm:bottom-0 sm:top-auto sm:rounded-t-lg sm:rounded-b-none sm:max-h-[50vh] bg-white rounded-2xl md:rounded-xl sm:rounded-lg shadow-2xl md:shadow-xl sm:shadow-lg shadow-black/15 border border-gray-100 overflow-hidden z-[9999] autocomplete-dropdown suggestions-container"
-                role="listbox"
-                id="suggestions-listbox"
-                aria-label="검색 제안 목록"
-              >
-                {isLoadingSuggestions ? (
-                  <div className="px-6 py-4 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 border-2 border-gray-300 border-t-black rounded-full animate-spin"></div>
-                      <span className="text-sm text-gray-500">검색 중...</span>
-                    </div>
-                  </div>
-                ) : suggestions.length > 0 ? (
-                  suggestions.map((suggestion, index) => (
-                    <a
-                      key={index}
-                      id={`suggestion-${index}`}
-                      href={`/guide/${encodeURIComponent(suggestion.name)}?lang=${currentLanguage}`}
-                      onMouseEnter={() => setSelectedSuggestionIndex(index)}
-                      onMouseLeave={() => setSelectedSuggestionIndex(-1)}
-                      className={`w-full block px-6 py-4 text-left transition-all duration-200 group suggestion-item focus:outline-none focus:ring-2 focus:ring-inset focus:ring-black ${
-                        selectedSuggestionIndex === index 
-                          ? 'bg-blue-50 ring-2 ring-blue-200' 
-                          : 'md:hover:bg-[#F8F8F8] lg:hover:bg-[#F8F8F8] active:bg-[#F0F0F0]'
-                      }`}
-                      role="option"
-                      aria-selected={selectedSuggestionIndex === index}
-                      aria-label={`${suggestion.name}, ${suggestion.location}로 이동`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-black group-hover:text-black">
-                            {suggestion.name}
-                          </div>
-                          {suggestion.location && (
-                            <div className="text-sm text-gray-500 mt-1">
-                              {suggestion.location}
-                            </div>
-                          )}
-                        </div>
-                        <div className="opacity-0 translate-x-2 group-hover:opacity-60 group-hover:translate-x-0 transition-all duration-200">
-                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      </div>
-                    </a>
-                  ))
-                  ) : (
-                    <div className="px-6 py-4 text-center text-sm text-gray-500">
-                      {t('search.noResults')}
-                    </div>
-                  )}
                 </div>
-              )}
-            </div>
-            
-            {/* Popular searches */}
-            <div className="flex flex-wrap justify-center gap-2 mt-4">
-              <span className="text-white/60 text-sm">인기 검색:</span>
-              {['경복궁', '제주도', '부산 감천문화마을', '경주 불국사'].map((place) => (
-                <button
-                  key={place}
-                  onClick={() => {
-                    setQuery(place);
-                    router.push(`/guide/${encodeURIComponent(place)}?lang=${currentLanguage}`);
-                  }}
-                  className="px-3 py-1 bg-white/10 backdrop-blur text-white/80 text-sm rounded-full border border-white/20 hover:bg-white/20 transition-colors"
-                >
-                  {place}
-                </button>
-              ))}
+                <div className="text-left">
+                  <h3 className="font-medium text-white text-sm">{t('home.stepTitles.inputLocation') || '장소 입력'}</h3>
+                  <p className="text-xs text-white/70">{t('home.stepDescriptions.inputLocation') || '특정한 장소'}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-center space-x-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30 flex-shrink-0">
+                  <svg className="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <div className="text-left">
+                  <h3 className="font-medium text-white text-sm">{t('home.stepTitles.aiGenerate') || 'AI 생성'}</h3>
+                  <p className="text-xs text-white/70">{t('home.stepDescriptions.aiGenerate') || 'AI가 맞춤형가이드를 생성'}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-center space-x-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30 flex-shrink-0">
+                  <svg className="w-4 h-4 md:w-5 md:h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </div>
+                <div className="text-left">
+                  <h3 className="font-medium text-white text-sm">{t('home.stepTitles.audioPlay') || '오디오 재생'}</h3>
+                  <p className="text-xs text-white/70">{t('home.stepDescriptions.audioPlay') || '투어 시작!'}</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Feature Steps - 예시와 동일한 위치 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <div className="flex items-center justify-center space-x-4">
-              <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <div className="text-left">
-                <h3 className="font-semibold text-white">장소 입력</h3>
-                <p className="text-sm text-white/70">특정 장소 검색</p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-center space-x-4">
-              <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <div className="text-left">
-                <h3 className="font-semibold text-white">AI 생성</h3>
-                <p className="text-sm text-white/70">가이드 자동 생성</p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-center space-x-4">
-              <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30">
-                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
-              </div>
-              <div className="text-left">
-                <h3 className="font-semibold text-white">오디오 재생</h3>
-                <p className="text-sm text-white/70">투어 시작</p>
-              </div>
-            </div>
+          {/* Enhanced Search Box with all advanced features */}
+          <div className="relative max-w-2xl md:max-w-xl sm:max-w-full mx-auto mb-8 sm:mb-6 px-0 sm:px-4" style={{ transform: 'translateY(4px)' }}>
+            <NextLevelSearchBox />
           </div>
+
 
           {/* 전략적 광고 배치 1: 검색박스 하단 */}
           <div className="max-w-4xl mx-auto px-6 py-8">
@@ -1581,7 +1489,7 @@ function Home() {
         </section>
 
         {/* Regional Countries Section */}
-        <section className="relative z-10 py-12 md:py-14 lg:py-16 bg-gradient-to-b from-gray-50 to-white" aria-labelledby="popular-destinations-heading">
+        <section className="relative z-[1] py-2 md:py-3 lg:py-3 bg-gradient-to-b from-gray-50 to-white" aria-labelledby="popular-destinations-heading">
           <div className="max-w-6xl mx-auto px-6 md:px-8 sm:px-4">
             
             {/* 섹션 제목 */}
@@ -1671,9 +1579,10 @@ function Home() {
                                   e.stopPropagation();
                                   setLoadingState('country', true);
                                   
-                                  let url = `/guide/${encodeURIComponent(attraction)}?lang=${currentLanguage}`;
+                                  // 🚀 새로운 URL 구조: /guide/[language]/[location]
+                                  let url = `/guide/${currentLanguage}/${encodeURIComponent(attraction)}`;
                                   if (country.id === 'thailand' && attraction === '방콕 대왕궁') {
-                                    url += '&parent=' + encodeURIComponent('방콕');
+                                    url += '?parent=' + encodeURIComponent('방콕');
                                   }
                                   
                                   router.push(url);
@@ -1718,9 +1627,9 @@ function Home() {
             </div>
 
             {/* 더 많은 명소 보기 버튼 */}
-            <div className="mt-10 md:mt-8 sm:mt-6 px-8 md:px-6 sm:px-4 text-center">
+            <div className="mt-0.5 px-8 md:px-6 sm:px-4 text-center">
               <Link
-                href={`/regions/${activeRegion}`}
+                href="/destinations"
                 className="group inline-flex items-center justify-center bg-black text-white px-8 md:px-6 sm:px-4 py-3 md:py-2.5 sm:py-2.5 rounded-2xl md:rounded-xl sm:rounded-lg text-base md:text-sm sm:text-sm font-semibold md:hover:bg-gray-800 lg:hover:bg-gray-800 focus:bg-gray-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 min-h-[48px] shadow-lg md:hover:shadow-xl lg:hover:shadow-xl active:bg-gray-700"
               >
                 <span className="leading-none">
@@ -1733,7 +1642,7 @@ function Home() {
             </div>
 
             {/* 전략적 광고 배치 2: 지역별 국가 섹션 하단 */}
-            <div className="max-w-4xl mx-auto px-8 md:px-6 sm:px-4 py-2 mb-4">
+            <div className="max-w-4xl mx-auto px-8 md:px-6 sm:px-4 py-2 mb-0.5">
               <OptimalAdSense 
                 placement="homepage-countries" 
                 className="text-center"
@@ -1915,12 +1824,12 @@ function Home() {
           <div className="mt-6 pt-6 border-t border-gray-200">
             <div className="flex items-center space-x-6 text-sm text-gray-500">
               <a href="/legal/ads-revenue" className="hover:text-black transition-colors">
-                광고 수익 공지
+                {t('legal.adsenseNotice') || '광고 수익 공지'}
               </a>
               <a href="/legal/privacy" className="hover:text-black transition-colors underline">
-                개인정보 처리방침
+                {t('legal.privacyPolicy') || '개인정보 처리방침'}
               </a>
-              <span>AdSense 정책</span>
+              <span>{t('legal.adsensePolicy') || 'AdSense 정책'}</span>
             </div>
           </div>
         </div>

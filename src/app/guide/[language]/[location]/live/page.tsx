@@ -28,10 +28,8 @@ const ChapterAudioPlayer = dynamic(() => import('@/components/audio/ChapterAudio
   loading: () => <div className="h-32 bg-gray-100 rounded-lg animate-pulse"></div>
 });
 
-const MapWithRoute = dynamic(() => import('@/components/guide/MapWithRoute'), {
-  loading: () => <div className="h-64 bg-gray-100 rounded-lg animate-pulse flex items-center justify-center"><span className="text-gray-500">지도 로딩 중...</span></div>,
-  ssr: false // 지도는 클라이언트에서만 렌더링
-});
+// 직접 import로 변경하여 중복 초기화 방지
+import MapWithRoute from '@/components/guide/MapWithRoute';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AudioChapter } from '@/types/audio';
 import { enhanceGuideCoordinates } from '@/lib/coordinates/guide-coordinate-enhancer';

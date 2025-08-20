@@ -10,13 +10,15 @@ interface DestinationCardProps {
   description: string;
   isPopular?: boolean;
   attractions: Attraction[];
+  onAttractionClick: (attraction: string) => void;
 }
 
 export function DestinationCard({ 
   name, 
   description, 
   isPopular = false, 
-  attractions 
+  attractions,
+  onAttractionClick
 }: DestinationCardProps) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group">
@@ -43,12 +45,16 @@ export function DestinationCard({
           </h4>
           <div className="space-y-2">
             {attractions.map((attraction, index) => (
-              <div key={index} className="flex items-center space-x-3 group/item">
+              <button
+                key={index}
+                className="flex items-center space-x-3 group/item w-full text-left hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                onClick={() => onAttractionClick(attraction.name)}
+              >
                 <div className="w-1.5 h-1.5 bg-black rounded-full group-hover/item:scale-125 transition-transform" />
                 <span className="text-sm text-gray-700 group-hover/item:text-black transition-colors">
                   {attraction.name}
                 </span>
-              </div>
+              </button>
             ))}
           </div>
         </div>

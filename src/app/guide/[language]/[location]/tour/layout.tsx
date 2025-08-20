@@ -7,19 +7,21 @@ import BreadcrumbSchema, { generateTourBreadcrumb } from '@/components/seo/Bread
 
 interface TourLayoutProps {
   children: React.ReactNode;
-  params: Promise<{ location: string }>;
+  params: Promise<{ language: string; location: string }>; // 🚀 새 URL 구조 파라미터
 }
 
 // 동적 메타데이터 생성
-export async function generateMetadata({ params }: { params: Promise<{ location: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ language: string; location: string }> }): Promise<Metadata> {
   const resolvedParams = await params;
   const locationName = decodeURIComponent(resolvedParams.location || '');
+  const requestedLang = resolvedParams.language; // 🚀 URL에서 언어 추출
   const cookieStore = await cookies();
   const cookieLanguage = cookieStore.get(LANGUAGE_COOKIE_NAME)?.value;
   
   const serverDetectedLanguage = detectPreferredLanguage({
     cookieValue: cookieLanguage,
-    prioritizeUrl: false
+    urlLang: requestedLang, // 🚀 URL 언어 우선 사용
+    prioritizeUrl: true
   });
   
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
@@ -82,13 +84,14 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
       images: [`/og-image.jpg`]
     },
     alternates: {
-      canonical: `${baseUrl}/guide/${encodeURIComponent(locationName)}/tour`,
+      canonical: `${baseUrl}/guide/${serverDetectedLanguage}/${encodeURIComponent(locationName)}/tour`,
       languages: {
-        'ko': `${baseUrl}/guide/${encodeURIComponent(locationName)}/tour?lang=ko`,
-        'en': `${baseUrl}/guide/${encodeURIComponent(locationName)}/tour?lang=en`,
-        'ja': `${baseUrl}/guide/${encodeURIComponent(locationName)}/tour?lang=ja`,
-        'zh': `${baseUrl}/guide/${encodeURIComponent(locationName)}/tour?lang=zh`,
-        'es': `${baseUrl}/guide/${encodeURIComponent(locationName)}/tour?lang=es`,
+        // 🚀 새 URL 구조: /guide/[language]/[location]/tour
+        'ko': `${baseUrl}/guide/ko/${encodeURIComponent(locationName)}/tour`,
+        'en': `${baseUrl}/guide/en/${encodeURIComponent(locationName)}/tour`,
+        'ja': `${baseUrl}/guide/ja/${encodeURIComponent(locationName)}/tour`,
+        'zh': `${baseUrl}/guide/zh/${encodeURIComponent(locationName)}/tour`,
+        'es': `${baseUrl}/guide/es/${encodeURIComponent(locationName)}/tour`,
       }
     },
     other: {
@@ -120,6 +123,7 @@ function getOpenGraphLocale(language: string): string {
 export default async function TourLayout({ children, params }: TourLayoutProps) {
   const resolvedParams = await params;
   const locationName = decodeURIComponent(resolvedParams.location || '');
+  const requestedLang = resolvedParams.language; // 🚀 URL에서 언어 추출
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
   
   return (
@@ -128,7 +132,7 @@ export default async function TourLayout({ children, params }: TourLayoutProps) 
       <ArticleSchema
         title={`${locationName} 실시간 투어 가이드`}
         description={`${locationName}의 AI 기반 실시간 투어 가이드입니다. 개인 맞춤형 음성 해설과 경로 안내를 제공합니다.`}
-        url={`/guide/${encodeURIComponent(locationName)}/tour`}
+        url={`/guide/${requestedLang}/${encodeURIComponent(locationName)}/tour`} // 🚀 새 URL 구조
         locationName={locationName}
         category="Real-time Tour Guide"
         readingTime={15}

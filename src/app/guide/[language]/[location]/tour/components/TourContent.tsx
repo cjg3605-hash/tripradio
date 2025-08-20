@@ -29,7 +29,6 @@ import { ResponsiveContainer, PageHeader, Card, Stack, Flex } from '@/components
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { getLocationCoordinates } from '@/data/locations';
 import { useSession } from 'next-auth/react';
 import { saveFavoriteGuide, isFavoriteGuide } from '@/lib/supabaseGuideHistory';
 import PopupNotification from '@/components/ui/PopupNotification';
@@ -590,18 +589,29 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                 </div>
               )}
 
-              {/* 시작점 지도 */}
+              {/* 시작점 지도 - Supabase coordinates만 사용 */}
               <div className="mb-3">
                 {(() => {
-                  // 실제 위치 데이터 가져오기
-                  const locationData = getLocationCoordinates(locationName || '');
-                  const startPoint = locationData ? locationData.center : null; // 🔥 폴백 좌표 제거
-                  const pois = locationData ? locationData.pois.slice(0, 8) : []; // 최대 8개 POI
-                  
-                  // 🚫 폴백 좌표 시스템 제거 - 실제 데이터만 사용
-                  
-                  // 🎯 공통 유틸리티로 좌표 파싱
+                  // 🎯 오직 Supabase DB coordinates만 사용
                   const parsedCoordinates = parseSupabaseCoordinates(guideCoordinates);
+                  
+                  // DB 좌표가 없으면 지도 표시하지 않음
+                  if (parsedCoordinates.length === 0) {
+                    console.log('🗺️ [TourContent] DB coordinates 없음 - 지도 숨김');
+                    return null;
+                  }
+                  
+                  // 첫 번째 좌표를 중심점으로 사용
+                  const startPoint = parsedCoordinates[0] ? {
+                    lat: parsedCoordinates[0].lat,
+                    lng: parsedCoordinates[0].lng,
+                    name: parsedCoordinates[0].title || parsedCoordinates[0].name || locationName
+                  } : null;
+                  
+                  if (!startPoint) {
+                    console.log('🗺️ [TourContent] 유효한 시작점 없음');
+                    return null;
+                  }
                   
                   const chaptersForMapRaw = allChapters.map((chapter, index) => {
                     if (parsedCoordinates.length === 0) {
@@ -743,11 +753,8 @@ const TourContent = ({ guide, language, chapterRefs, guideCoordinates, isExplore
                   return (
                     <StartLocationMap
                       locationName={locationName || ''}
-                      startPoint={smartStartPoint} // 🔥 스마트 시작점 사용
-                      chapters={displayChapters} // 🔥 페이지 타입별 챕터 데이터 전달
-                      pois={[]} // POI는 비워둠 (챕터 우선)
-                      className="w-full"
                       guideCoordinates={guideCoordinates}
+                      className="w-full"
                       guideId={String(guide?.metadata?.guideId || guide?.metadata?.id || '')}
                     />
                   );

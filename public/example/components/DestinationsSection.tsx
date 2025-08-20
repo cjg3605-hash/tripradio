@@ -2,7 +2,11 @@ import { DestinationCard } from "./DestinationCard";
 import { Button } from "./ui/button";
 import { ArrowRight } from "lucide-react";
 
-export function DestinationsSection() {
+interface DestinationsSectionProps {
+  onDestinationClick: (destination: string) => void;
+}
+
+export function DestinationsSection({ onDestinationClick }: DestinationsSectionProps) {
   const destinations = [
     {
       name: "서울",
@@ -95,6 +99,7 @@ export function DestinationsSection() {
               description={destination.description}
               isPopular={destination.isPopular}
               attractions={destination.attractions}
+              onAttractionClick={onDestinationClick}
             />
           ))}
         </div>

@@ -1,79 +1,68 @@
-// 데이터베이스 좌표 데이터 확인 스크립트
-const axios = require('axios');
+const { createClient } = require('@supabase/supabase-js');
 
-const SUPABASE_URL = 'https://fajiwgztfwoiisgnnams.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhaml3Z3p0ZndvaWlzZ25uYW1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1Nzk0MDIsImV4cCI6MjA2NjE1NTQwMn0.-vTUkg7AP9NiGpoUa8XgHSJWltrKp5AseSrgCZhgY6Y';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-async function checkCoordinatesInDB() {
+if (!supabaseUrl || !supabaseKey) {
+  console.log('❌ Supabase 환경변수가 설정되지 않았습니다');
+  process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+async function checkCoordinatesStructure() {
   try {
-    console.log('🔍 데이터베이스 좌표 데이터 확인 중...');
+    // 에펠탑 가이드 데이터 조회
+    const { data, error } = await supabase
+      .from('guides')
+      .select('id, locationname, language, coordinates')
+      .eq('locationname', '에펠탑')
+      .eq('language', 'ko')
+      .limit(1);
 
-    // guides 테이블에서 몇 개 샘플 데이터 조회
-    const response = await axios.get(`${SUPABASE_URL}/rest/v1/guides`, {
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      params: {
-        'select': 'locationname,language,content',
-        'limit': '10'
-      }
-    });
-
-    const guides = response.data;
-    console.log(`📊 총 ${guides.length}개 가이드 샘플 분석:`);
-
-    let hasCoordinatesCount = 0;
-    let noCoordinatesCount = 0;
-
-    guides.forEach((guide, index) => {
-      console.log(`\n🏛️ 가이드 ${index + 1}: ${guide.locationname} (${guide.language})`);
-      
-      const content = guide.content;
-      
-      // 좌표 데이터 확인
-      let hasCoordinates = false;
-      
-      // realTimeGuide.chapters에서 좌표 확인
-      if (content?.realTimeGuide?.chapters) {
-        const chapters = content.realTimeGuide.chapters;
-        console.log(`  📚 총 ${chapters.length}개 챕터:`);
-        
-        chapters.forEach((chapter, chIndex) => {
-          if (chapter.coordinates || chapter.lat || chapter.lng) {
-            console.log(`    ✅ 챕터 ${chIndex + 1}: 좌표 있음 - ${JSON.stringify(chapter.coordinates || { lat: chapter.lat, lng: chapter.lng })}`);
-            hasCoordinates = true;
-          } else {
-            console.log(`    ❌ 챕터 ${chIndex + 1}: 좌표 없음`);
-          }
-        });
-      } else {
-        console.log('  ❌ realTimeGuide.chapters 구조 없음');
-      }
-      
-      if (hasCoordinates) {
-        hasCoordinatesCount++;
-        console.log(`  🎯 결과: 좌표 있음`);
-      } else {
-        noCoordinatesCount++;
-        console.log(`  🚫 결과: 좌표 없음`);
-      }
-    });
-
-    console.log(`\n📊 좌표 데이터 분석 결과:`);
-    console.log(`✅ 좌표 있는 가이드: ${hasCoordinatesCount}개`);
-    console.log(`❌ 좌표 없는 가이드: ${noCoordinatesCount}개`);
-    console.log(`📈 좌표 보유율: ${Math.round((hasCoordinatesCount / guides.length) * 100)}%`);
-
-    if (noCoordinatesCount > 0) {
-      console.log(`\n⚠️  ${noCoordinatesCount}개 가이드에서 좌표가 누락되어 있습니다.`);
-      console.log(`🔧 해결 방법: API 라우트에서 좌표 생성 로직을 확인해야 합니다.`);
+    if (error) {
+      console.log('❌ DB 조회 오류:', error);
+      return;
     }
 
-  } catch (error) {
-    console.error('❌ 데이터베이스 확인 실패:', error.response?.data || error.message);
+    if (!data || data.length === 0) {
+      console.log('❌ 에펠탑 가이드 데이터를 찾을 수 없습니다');
+      return;
+    }
+
+    const guide = data[0];
+    console.log('✅ 가이드 기본 정보:');
+    console.log('- ID:', guide.id);
+    console.log('- 위치명:', guide.locationname);
+    console.log('- 언어:', guide.language);
+    console.log('');
+    
+    console.log('📍 Coordinates 데이터 구조:');
+    console.log('- Type:', typeof guide.coordinates);
+    console.log('- Is Array:', Array.isArray(guide.coordinates));
+    console.log('- Length:', guide.coordinates?.length || 'N/A');
+    console.log('');
+    
+    if (guide.coordinates && Array.isArray(guide.coordinates)) {
+      console.log('📍 첫 번째 좌표 객체 구조:');
+      console.log(JSON.stringify(guide.coordinates[0], null, 2));
+      console.log('');
+      
+      console.log('📍 모든 좌표 요약:');
+      guide.coordinates.forEach((coord, index) => {
+        const title = coord.title || coord.name || 'Unknown';
+        const lat = coord.lat || coord.latitude;
+        const lng = coord.lng || coord.longitude;
+        console.log(`[${index}] ${title}: (${lat}, ${lng})`);
+      });
+    } else {
+      console.log('📍 Coordinates 전체 데이터:');
+      console.log(JSON.stringify(guide.coordinates, null, 2));
+    }
+    
+  } catch (err) {
+    console.log('❌ 오류:', err.message);
   }
 }
 
-checkCoordinatesInDB();
+checkCoordinatesStructure();

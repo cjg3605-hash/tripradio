@@ -188,6 +188,35 @@ export function suggestSimilarLocations(location: string): string[] {
 }
 
 /**
+ * 한국어 지명을 다국어로 번역
+ * 언어 전환 시 URL 업데이트에 사용
+ */
+export function translateLocationFromKorean(koreanLocation: string, targetLang: string): string | null {
+  // 한국어 지명 정규화
+  const normalizedKorean = normalizeForMapping(koreanLocation);
+  
+  // LOCATION_MAPPINGS를 순회하며 한국어 지명 찾기
+  for (const [key, translations] of Object.entries(LOCATION_MAPPINGS)) {
+    const koreanName = translations.ko || key;
+    
+    if (normalizeForMapping(koreanName) === normalizedKorean) {
+      // 한국어 지명을 찾았으면 대상 언어로 번역
+      const translatedName = translations[targetLang];
+      if (translatedName) {
+        console.log(`🌐 지명 번역: ${koreanLocation} (ko) → ${translatedName} (${targetLang})`);
+        return translatedName;
+      } else {
+        console.log(`⚠️ ${targetLang} 번역 없음: ${koreanLocation}`);
+        return null;
+      }
+    }
+  }
+  
+  console.log(`⚠️ 매핑 테이블에 없는 지명: ${koreanLocation}`);
+  return null;
+}
+
+/**
  * 문자열 유사도 계산 (Levenshtein distance 기반)
  */
 function calculateSimilarity(str1: string, str2: string): number {

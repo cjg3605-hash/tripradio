@@ -125,6 +125,18 @@
 
 /* Ultra Modern CSS Variables */
 :root {
+  /* Example Design System Tokens */
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --primary: #0a0a0a;
+  --primary-foreground: #ffffff;
+  --muted-foreground: #6b7280;
+  --border: #e5e7eb;
+  --input: #f9fafb;
+  --input-background: #f9fafb;
+  --ring: #374151;
+  --destructive: #ef4444;
+  
   /* Monochrome Design System */
   --color-black: #000000;
   --color-white: #ffffff;
@@ -517,7 +529,7 @@ button, a, input, textarea, select {
 
 /* Search Dropdown Specific Styles */
 .autocomplete-dropdown {
-  z-index: 9999 !important;
+  z-index: var(--z-autocomplete) !important;
   position: relative;
 }
 
@@ -639,10 +651,33 @@ button, a, input, textarea, select {
   }
 }
 
-/* Glass effect for modern header design */
+/* Glass effect for modern header design - Example 폴더와 동일 */
 .glass-effect {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(229, 231, 235, 0.2);
 }
+
+.dark .glass-effect {
+  background: rgba(17, 24, 39, 0.8);
+  border: 1px solid rgba(55, 65, 81, 0.2);
+}
+
+/* Z-Index Layer Utilities */
+.z-behind { z-index: var(--z-behind); }
+.z-base { z-index: var(--z-base); }
+.z-content { z-index: var(--z-content); }
+.z-steps { z-index: var(--z-steps); }
+.z-raised { z-index: var(--z-raised); }
+.z-searchbox { z-index: var(--z-searchbox); }
+.z-autocomplete { z-index: var(--z-autocomplete); }
+.z-overlay { z-index: var(--z-overlay); }
+.z-dropdown { z-index: var(--z-dropdown); }
+.z-sticky { z-index: var(--z-sticky); }
+.z-modal { z-index: var(--z-modal); }
+.z-popover { z-index: var(--z-popover); }
+.z-tooltip { z-index: var(--z-tooltip); }
+.z-toast { z-index: var(--z-toast); }
+.z-splash { z-index: var(--z-splash); }
+.z-max { z-index: var(--z-max); }

@@ -550,11 +550,23 @@ function parseAIResponse<T>(text: string): T | null {
 
 // 🗑️ 사용하지 않는 함수 제거됨 (AI 자동완성만 사용)
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ language: string }> }
+) {
   try {
     const { searchParams } = new URL(request.nextUrl);
     const query = searchParams.get('q');
-    const language = (searchParams.get('lang') || 'ko') as Language;
+    const { language: languageParam } = await params;
+    const language = languageParam as Language;
+
+    // 언어 유효성 검사
+    if (!VALID_LANGUAGES.includes(language)) {
+      return NextResponse.json({
+        success: false,
+        error: '지원하지 않는 언어입니다'
+      }, { status: 400 });
+    }
 
     if (!query || query.length < 1) {
       return NextResponse.json({
@@ -564,12 +576,11 @@ export async function GET(request: NextRequest) {
     }
 
     const sanitizedQuery = sanitizeInput(query);
-    const lang = VALID_LANGUAGES.includes(language) ? language : 'ko';
 
-    console.log('🔍 AI 자동완성 시작:', { query: sanitizedQuery, language: lang });
+    console.log('🔍 AI 자동완성 시작:', { query: sanitizedQuery, language });
 
     // 캐시 확인
-    const cacheKey = `${sanitizedQuery}-${lang}`;
+    const cacheKey = `${sanitizedQuery}-${language}`;
     const cached = cache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
       console.log('💾 캐시에서 반환:', cached.data.length, '개');
@@ -597,7 +608,7 @@ export async function GET(request: NextRequest) {
 
     // 🚀 AI 자동완성 1회 호출 (빠른 응답)
     console.log('🚀 AI 자동완성 생성 시작');
-    const autocompletePrompt = createAutocompletePrompt(sanitizedQuery, lang);
+    const autocompletePrompt = createAutocompletePrompt(sanitizedQuery, language);
     
     try {
       // 5초 타임아웃 설정 (최적화된 응답 시간)

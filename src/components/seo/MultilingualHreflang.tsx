@@ -8,28 +8,20 @@ import { generateMultilingualUrls } from '@/lib/location-mapping';
 interface MultilingualHreflangProps {
   locationName: string;
   currentLanguage: string;
-  currentUrl: string;
+  urls: Record<string, string>; // 🚀 새 구조: 언어별 URL 맵핑
 }
 
 export default function MultilingualHreflang({ 
   locationName, 
   currentLanguage, 
-  currentUrl 
+  urls 
 }: MultilingualHreflangProps) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
-  
-  // 현재 페이지의 다국어 URL 생성
-  const multilingualUrls = generateMultilingualUrls(locationName, baseUrl);
-  
-  // 현재 URL을 한국어 기본 URL로 추가
-  const allUrls = {
-    ko: `${baseUrl}/guide/${encodeURIComponent(locationName)}?lang=ko`,
-    ...multilingualUrls
-  };
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.ai';
 
   return (
     <>
-      {Object.entries(allUrls).map(([lang, url]) => {
+      {/* 🚀 새 URL 구조: /guide/[language]/[location] */}
+      {Object.entries(urls).map(([lang, url]) => {
         const hrefLangCode = {
           ko: 'ko-KR',
           en: 'en-US', 
@@ -43,7 +35,7 @@ export default function MultilingualHreflang({
             key={lang}
             rel="alternate"
             hrefLang={hrefLangCode}
-            href={url}
+            href={`${baseUrl}${url}`}
           />
         );
       })}
@@ -52,13 +44,13 @@ export default function MultilingualHreflang({
       <link 
         rel="alternate" 
         hrefLang="x-default" 
-        href={`${baseUrl}/guide/${encodeURIComponent(locationName)}`} 
+        href={`${baseUrl}/guide/ko/${encodeURIComponent(locationName)}`} 
       />
       
       {/* 현재 페이지의 canonical URL */}
       <link 
         rel="canonical" 
-        href={currentUrl} 
+        href={`${baseUrl}/guide/${currentLanguage}/${encodeURIComponent(locationName)}`} 
       />
     </>
   );

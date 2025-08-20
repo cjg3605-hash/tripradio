@@ -5,18 +5,8 @@ import { MapPin, Compass } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-// 동적 import로 Leaflet 지도 컴포넌트 로드
-const MapWithRoute = dynamic(() => import('./MapWithRoute'), {
-  ssr: false,
-  loading: () => (
-    <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-        <p className="text-sm text-gray-600">지도 로딩 중...</p>
-      </div>
-    </div>
-  )
-});
+// 직접 import로 변경하여 중복 초기화 방지
+import MapWithRoute from './MapWithRoute';
 
 interface RecommendedSpot {
   id: string;

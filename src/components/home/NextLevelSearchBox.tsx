@@ -3,6 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { MapPin, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { saveAutocompleteData } from '@/lib/cache/autocompleteStorage';
 import { smartResolveLocation } from '@/lib/location/smart-location-resolver';
 import { logger } from '@/lib/utils/logger';
@@ -17,6 +20,7 @@ interface EnhancedLocationSuggestion {
   countryCode: string;   // 국가 코드 (KR, US, FR 등)
   type: 'location' | 'attraction'; // 위치 타입
   isMainLocation?: boolean;
+  confidence?: number;   // 정확도 점수
   metadata?: {
     isOfficial?: boolean;
     category?: string;
@@ -167,6 +171,33 @@ export default function NextLevelSearchBox() {
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
+  
+  // 🔥 언어 변경 시 강제 리렌더링
+  const [renderKey, setRenderKey] = useState(0);
+  
+  useEffect(() => {
+    const handleLanguageChanged = (event: CustomEvent) => {
+      console.log('🔄 검색박스: 언어 변경 이벤트 수신:', event.detail);
+      setRenderKey(prev => prev + 1);
+      
+      // 검색 상태 초기화 (새 언어에 맞는 플레이스홀더 등)
+      setQuery('');
+      setSuggestions([]);
+      setSelectedIndex(-1);
+      setPlaceholderIndex(0);
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('languageChanged', handleLanguageChanged as EventListener);
+      
+      return () => {
+        window.removeEventListener('languageChanged', handleLanguageChanged as EventListener);
+      };
+    }
+    
+    // cleanup 함수가 없는 경우를 위한 빈 함수 반환
+    return () => {};
+  }, []);
 
   // Rotating placeholder examples
   const placeholders = t('home.searchPlaceholders') || [];
@@ -206,7 +237,7 @@ export default function NextLevelSearchBox() {
       const timer = setTimeout(async () => {
         try {
           logger.search.query(query);
-          const response = await fetch(`/api/locations/search?q=${encodeURIComponent(query)}&lang=${currentLanguage}`);
+          const response = await fetch(`/api/locations/${currentLanguage}/search?q=${encodeURIComponent(query)}`);
           const data = await response.json();
           const suggestionCount = data.success ? data.data.length : 0;
           
@@ -275,9 +306,9 @@ export default function NextLevelSearchBox() {
     setIsSubmitting(true);
     setIsFocused(false);
     
-    // 🚀 즉시 네비게이션을 위한 기본 URL 생성
-    const basicLocationPath = encodeURIComponent(query.trim().toLowerCase().trim());
-    const immediateUrl = `/guide/${basicLocationPath}?lang=${currentLanguage}`;
+    // 🚀 새로운 URL 구조: /guide/[language]/[location]
+    const basicLocationPath = encodeURIComponent(query.trim());
+    const immediateUrl = `/guide/${currentLanguage}/${basicLocationPath}`;
     
     // 기본 세션 데이터 즉시 저장
     const basicData = {
@@ -359,7 +390,7 @@ export default function NextLevelSearchBox() {
         try {
           logger.api.start('background-autocomplete-fallback', { query: query.trim() });
           
-          const searchResponse = await fetch(`/api/locations/search?q=${encodeURIComponent(query.trim())}&lang=${currentLanguage}`);
+          const searchResponse = await fetch(`/api/locations/${currentLanguage}/search?q=${encodeURIComponent(query.trim())}`);
           const searchData = await searchResponse.json();
           
           if (searchData.success && searchData.data && searchData.data.length > 0) {
@@ -410,8 +441,8 @@ export default function NextLevelSearchBox() {
     setSelectedIndex(-1);
     setIsSubmitting(true);
     
-    // 🚀 즉시 네비게이션을 위한 기본 처리
-    const basicUrl = `/guide/${encodeURIComponent(suggestion.name)}`;
+    // 🚀 새로운 URL 구조: /guide/[language]/[location] 
+    const basicUrl = `/guide/${currentLanguage}/${encodeURIComponent(suggestion.name)}`;
     
     // 기본 자동완성 데이터로 즉시 저장
     const basicData = {
@@ -553,8 +584,8 @@ export default function NextLevelSearchBox() {
       countryCode: suggestion.countryCode || 'unknown'
     });
     
-    // 🚀 즉시 페이지 이동
-    const targetUrl = `/guide/${encodeURIComponent(suggestion.name)}`;
+    // 🚀 새로운 URL 구조: /guide/[language]/[location]
+    const targetUrl = `/guide/${currentLanguage}/${encodeURIComponent(suggestion.name)}`;
     console.log('🚀 탐색 추천 즉시 네비게이션:', targetUrl);
     router.push(targetUrl);
     setIsSubmitting(false);
@@ -578,293 +609,108 @@ export default function NextLevelSearchBox() {
 
 
   return (
-    <>
-      {/* Background Overlay on Focus */}
-      {isFocused && (
-        <div className="fixed inset-0 bg-black/5 backdrop-blur-sm z-40 transition-all duration-500" />
-      )}
-      
-      {/* Main Search Container */}
-      <div className="relative z-50">
-        
-        {/* Search Card */}
-        <div className={`
-          relative transition-all duration-700 ease-out
-          ${isFocused 
-            ? 'scale-105 translate-y-[-8px]' 
-            : 'scale-100 translate-y-0'
-          }
-        `}>
-          
-          {/* Input Container */}
-          <div className={`
-            relative bg-white transition-all duration-500
-            ${isFocused 
-              ? 'shadow-ultra ring-1 ring-black/5' 
-              : 'shadow-premium'
-            }
-          `}
-          style={{
-            borderRadius: 'var(--radius-2xl)'
-          }}>
-            
-            {/* Main Input */}
-            <input
-              ref={inputRef}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              placeholder={placeholders[placeholderIndex]}
-              disabled={isSubmitting}
-              // 접근성 속성
-              aria-label={String(t('search.searchLocation'))}
-              aria-describedby="search-suggestions"
-              aria-expanded={suggestions.length > 0 && isFocused}
-              aria-controls="search-suggestions"
-              aria-autocomplete="list"
-              role="combobox"
-              aria-activedescendant={selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined}
-              className={`
-                input-base w-full bg-transparent
-                px-8 py-6 text-fluid-xl font-light text-black
-                placeholder-gray-500 touch-target-comfortable
-                transition-all duration-300 ease-out
-                ${isSubmitting ? 'cursor-not-allowed opacity-50' : ''}
-              `}
-              style={{
-                borderRadius: 'var(--radius-2xl)',
-                fontSize: 'var(--text-xl)'
-              }}
-            />
-            
-            {/* Search Button */}
-            <button
-              onClick={handleSearch}
-              disabled={!query.trim() || isSubmitting}
-              // 접근성 속성
-              aria-label={query.trim() ? `'${query}' 검색하기` : '검색어를 입력하세요'}
-              type="submit"
-              className={`
-                absolute right-4 top-1/2 transform -translate-y-1/2
-                btn-base touch-target flex items-center justify-center group
-                transition-all duration-300 ease-out
-                ${query.trim() && !isSubmitting
-                  ? 'bg-black text-white shadow-button-hover hover:shadow-lg hover:scale-105 hover:-translate-y-0.5 active:scale-95 active:translate-y-0' 
-                  : 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none'
-                }
-              `}
-              style={{
-                width: 'var(--touch-target-comfortable)',
-                height: 'var(--touch-target-comfortable)',
-                borderRadius: 'var(--radius-lg)'
-              }}
-            >
-              {isSubmitting ? (
-                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              ) : isTyping ? (
-                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <svg 
-                  className="w-6 h-6 transition-transform group-hover:scale-110" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              )}
-            </button>
-            
-            {/* Progress Indicator */}
-            {query.length > 0 && !isSubmitting && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-100 rounded-b-3xl overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-black to-gray-600 transition-all duration-300 ease-out"
-                  style={{ width: `${Math.min((query.length / 15) * 100, 100)}%` }}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Enhanced Suggestions Dropdown */}
-          {isFocused && !isSubmitting && isValidQuery(query) && (
-            <div 
-              className="absolute top-full left-0 right-0 mt-3 bg-white border border-gray-100 overflow-hidden z-10 shadow-dropdown"
-              style={{
-                borderRadius: 'var(--radius-xl)'
-              }}
-            >
-              {isTyping ? (
-                /* 로딩 상태 */
-                <div className="px-6 py-4 flex items-center gap-3">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
-                  <span className="text-sm text-gray-600">{t('search.searching')}</span>
-                </div>
-              ) : suggestions.length > 0 ? (
-                /* 검색 결과가 있을 때 */
-                <div role="listbox" aria-label={String(t('search.suggestions'))}>
-                  {suggestions.map((suggestion, index) => (
-                    <button
-                      key={`${suggestion.id || suggestion.name}-${index}`}
-                      id={`suggestion-${index}`}
-                      onClick={() => handleSuggestionClick(suggestion)}
-                      role="option"
-                      aria-selected={selectedIndex === index}
-                      aria-label={`${suggestion.name}, ${suggestion.location}`}
-                      className={`
-                        w-full text-left transition-all duration-200 ease-out
-                        group focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset
-                        touch-target-comfortable
-                        ${suggestion.isMainLocation 
-                          ? selectedIndex === index
-                            ? 'bg-gradient-to-r from-indigo-50 to-blue-50 border-l-4 border-l-indigo-500 text-indigo-900'
-                            : 'bg-gradient-to-r from-indigo-50/30 to-blue-50/30 border-l-2 border-l-indigo-300 hover:from-indigo-50 hover:to-blue-50'
-                          : selectedIndex === index 
-                            ? 'bg-blue-50 border-l-4 border-l-blue-500 text-blue-900' 
-                            : 'hover:bg-gray-50'
-                        }
-                      `}
-                      style={{
-                        padding: 'var(--space-4) var(--space-6)'
-                      }}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            {suggestion.isMainLocation && (
-                              <svg className="w-4 h-4 text-indigo-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                            <div className={`
-                              font-medium transition-colors
-                              ${suggestion.isMainLocation
-                                ? selectedIndex === index 
-                                  ? 'text-indigo-900 font-semibold' 
-                                  : 'text-indigo-800 font-semibold group-hover:text-indigo-900'
-                                : selectedIndex === index 
-                                  ? 'text-blue-900' 
-                                  : 'text-gray-900 group-hover:text-black'
-                              }
-                            `}>
-                              {suggestion.name}
-                            </div>
-                            {suggestion.metadata?.isOfficial && (
-                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                                suggestion.isMainLocation 
-                                  ? 'bg-indigo-100 text-indigo-800' 
-                                  : 'bg-green-100 text-green-800'
-                              }`}>
-                                {suggestion.isMainLocation ? '📍 위치' : t('search.official')}
-                              </span>
-                            )}
-                            {suggestion.metadata?.category && !suggestion.isMainLocation && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
-                                {suggestion.metadata.category}
-                              </span>
-                            )}
-                          </div>
-                          <div className={`text-sm mt-1 ${
-                            suggestion.isMainLocation
-                              ? selectedIndex === index 
-                                ? 'text-indigo-700 font-medium' 
-                                : 'text-indigo-600 font-medium'
-                              : selectedIndex === index 
-                                ? 'text-blue-700' 
-                                : 'text-gray-500'
-                          }`}>
-                            {suggestion.location}
-                          </div>
-                        </div>
-                        <div className={`
-                          flex items-center gap-2 transition-all duration-200
-                          ${selectedIndex === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 group-hover:opacity-60 group-hover:translate-x-0'}
-                        `}>
-                          <span className={`text-xs px-2 py-1 rounded-full ${
-                            selectedIndex === index ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
-                          }`}>
-                            {t('search.clickToComplete')}
-                          </span>
-                          <svg 
-                            className={`w-4 h-4 ${
-                              selectedIndex === index ? 'text-blue-600' : 'text-gray-400'
-                            }`} 
-                            fill="none" 
-                            stroke="currentColor" 
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                  
-                  {/* Exploration Suggestions */}
-                  {showExploration && explorationSuggestions.length > 0 && (
-                    <div className="border-t border-gray-100 pt-4 pb-2">
-                      <div className="px-6 pb-3">
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">
-                          🌟 더 탐색해보세요
-                        </h4>
-                      </div>
-                      {explorationSuggestions.map((category, categoryIndex) => (
-                        <div key={categoryIndex} className="mb-4 last:mb-0">
-                          <div className="px-6 pb-2">
-                            <h5 className="text-xs font-medium text-gray-600">
-                              {category.title}
-                            </h5>
-                          </div>
-                          <div className="space-y-1">
-                            {category.items.map((item, itemIndex) => (
-                              <button
-                                key={`${categoryIndex}-${itemIndex}`}
-                                onClick={() => handleExplorationClick(item)}
-                                className="w-full text-left px-6 py-2 hover:bg-blue-50 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset group"
-                              >
-                                <div className="flex items-center justify-between">
-                                  <div className="flex-1">
-                                    <div className="text-sm text-gray-800 group-hover:text-blue-800 font-medium">
-                                      {item.name}
-                                    </div>
-                                    <div className="text-xs text-gray-500 group-hover:text-blue-600">
-                                      {item.location}
-                                    </div>
-                                  </div>
-                                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                    </svg>
-                                  </div>
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : hasAttemptedSearch ? (
-                /* 검색 시도 후 결과가 없을 때만 표시 */
-                <div className="px-6 py-4">
-                  <div className="text-sm text-gray-500 text-center">
-                    <svg className="mx-auto h-6 w-6 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    &ldquo;{query}&rdquo;에 대한 {t('search.noResults')}
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          )}
-
+    <div className="relative w-full max-w-2xl mx-auto" style={{ zIndex: 'var(--z-searchbox)' }}>
+      {/* 🎯 메인 검색창 - HeroSection 스타일 */}
+      <div className="flex items-center bg-white/95 backdrop-blur rounded-md shadow-2xl border border-white/30 p-2">
+        <div className="flex items-center flex-1 px-4">
+          <MapPin className="w-5 h-5 text-gray-400 mr-3" />
+          <Input
+            ref={inputRef}
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            placeholder={placeholders[placeholderIndex]}
+            disabled={isSubmitting}
+            // 접근성 속성
+            aria-label={String(t('search.searchLocation'))}
+            aria-describedby="search-suggestions"
+            aria-expanded={suggestions.length > 0 && isFocused}
+            aria-controls="search-suggestions"
+            aria-autocomplete="list"
+            role="combobox"
+            aria-activedescendant={selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined}
+            className="border-0 bg-transparent text-lg placeholder:text-gray-500 focus-visible:ring-0"
+          />
         </div>
+        
+        {/* 🔄 로딩 인디케이터 */}
+        {isTyping && (
+          <div className="px-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-500"></div>
+          </div>
+        )}
+
+        {/* 🔍 검색 버튼 - Example HeroSection 스타일 */}
+        {!isTyping && (
+          <Button 
+            size="lg" 
+            onClick={handleSearch}
+            disabled={!query.trim() || isSubmitting}
+            aria-label={query.trim() ? `'${query}' 검색하기` : '검색어를 입력하세요'}
+            type="submit"
+            className="rounded-sm px-8 bg-black hover:bg-black/90"
+          >
+            {isSubmitting ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>
+            ) : (
+              <>
+                <Search className="w-5 h-5 mr-2" />
+                검색
+              </>
+            )}
+          </Button>
+        )}
       </div>
-    </>
+
+      {/* 📋 검색 제안 목록 - 검색창 바로 아래에 위치 */}
+      {isFocused && !isSubmitting && isValidQuery(query) && (
+        <div className="absolute top-full left-0 w-full mt-2" style={{ zIndex: 'var(--z-autocomplete)' }}>
+          <div className="bg-white border border-gray-200 rounded-md shadow-2xl max-h-80 overflow-y-auto backdrop-filter backdrop-blur-sm relative">
+            {isTyping ? (
+              /* 로딩 상태 */
+              <div className="px-4 py-3 flex items-center gap-3">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent"></div>
+                <span className="text-sm font-normal text-gray-600 leading-6">{t('search.searching')}</span>
+              </div>
+            ) : suggestions.length > 0 ? (
+              /* 검색 결과 */
+              <div role="listbox" aria-label={String(t('search.suggestions'))}>
+                {suggestions.map((suggestion, index) => (
+                  <div
+                    key={`${suggestion.id || suggestion.name}-${index}`}
+                    role="option"
+                    aria-selected={index === selectedIndex}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className={`px-4 py-3 cursor-pointer transition-colors duration-150 ease border-b border-gray-100 last:border-b-0 text-left ${
+                      index === selectedIndex 
+                        ? 'bg-gray-50' 
+                        : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    {/* 한 줄 표시: 장소명 + 위치 */}
+                    <div className="text-gray-900 font-medium text-base leading-5 truncate">
+                      {suggestion.name}
+                      <span className="text-sm font-normal text-gray-500 ml-2">
+                        · {suggestion.location}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : hasAttemptedSearch ? (
+              /* 검색 시도 후 결과가 없을 때 */
+              <div className="px-4 py-6 text-center">
+                <div className="text-sm font-normal text-gray-500 leading-6">
+                  &ldquo;{query}&rdquo;에 대한 검색 결과가 없습니다
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

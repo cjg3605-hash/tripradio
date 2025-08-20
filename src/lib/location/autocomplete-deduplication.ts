@@ -8,6 +8,8 @@ export interface Suggestion {
   name: string;
   location: string;
   score?: number;
+  confidence?: number;
+  isMainLocation?: boolean;
   metadata?: {
     isOfficial?: boolean;
     category?: string;

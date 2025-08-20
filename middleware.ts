@@ -153,7 +153,7 @@ async function securityMiddleware(request: NextRequest): Promise<NextResponse | 
 
 export default withAuth(
   async function middleware(req) {
-    // 1. 언어 감지 및 쿼리 파라미터 리다이렉션 처리
+    // 1. 기본 변수 설정 (리다이렉트 로직 제거로 성능 최적화)
     const pathname = req.nextUrl.pathname;
     const isApiRoute = pathname.startsWith('/api/');
     const isStaticFile = pathname.includes('.');

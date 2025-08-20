@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { MapPin, Star, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -40,11 +40,7 @@ export default function RelatedGuides({ currentLocation, className = '' }: Relat
   const [error, setError] = useState<string | null>(null);
   const { currentLanguage, t } = useLanguage();
 
-  useEffect(() => {
-    fetchRelatedGuides();
-  }, [currentLocation, currentLanguage]);
-
-  const fetchRelatedGuides = async () => {
+  const fetchRelatedGuides = useCallback(async () => {
     if (!currentLocation) return;
     
     setLoading(true);
@@ -56,7 +52,7 @@ export default function RelatedGuides({ currentLocation, className = '' }: Relat
       );
       
       if (!response.ok) {
-        throw new Error('관련 가이드를 불러올 수 없습니다');
+        throw new Error(String(t('relatedGuides.errors.loadFailed')) || '관련 가이드를 불러올 수 없습니다');
       }
 
       const data: RelatedGuidesResponse = await response.json();
@@ -64,18 +60,22 @@ export default function RelatedGuides({ currentLocation, className = '' }: Relat
       
     } catch (err) {
       console.error('관련 가이드 로드 실패:', err);
-      setError(err instanceof Error ? err.message : '알 수 없는 오류');
+      setError(err instanceof Error ? err.message : String(t('relatedGuides.errors.unknown')) || '알 수 없는 오류');
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentLocation, currentLanguage, t]);
+
+  useEffect(() => {
+    fetchRelatedGuides();
+  }, [currentLocation, currentLanguage, fetchRelatedGuides]);
 
   const getRelationTypeLabel = (type: string) => {
     switch (type) {
-      case 'regional': return '주변 지역';
-      case 'category': return '비슷한 유형';
-      case 'popular': return '인기 여행지';
-      default: return '추천';
+      case 'regional': return t('relatedGuides.types.regional') || '주변 지역';
+      case 'category': return t('relatedGuides.types.category') || '비슷한 유형';
+      case 'popular': return t('relatedGuides.types.popular') || '인기 여행지';
+      default: return t('relatedGuides.types.default') || '추천';
     }
   };
 
@@ -118,15 +118,15 @@ export default function RelatedGuides({ currentLocation, className = '' }: Relat
   // - 접근성을 위한 적절한 aria-label 추가
 
   return (
-    <section className={`${className}`} aria-label="관련 여행지 추천">
+    <section className={`${className}`} aria-label={String(t('relatedGuides.aria.section')) || '관련 여행지 추천'}>
       {/* 섹션 제목 */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <MapPin className="w-6 h-6 text-blue-600" />
-          관련 여행지 둘러보기
+          {t('relatedGuides.title') || '관련 여행지 둘러보기'}
         </h2>
         <div className="text-sm text-gray-500">
-          {relatedGuides.length}개 추천
+          {relatedGuides.length}{t('relatedGuides.count') || '개 추천'}
         </div>
       </div>
 
@@ -137,7 +137,7 @@ export default function RelatedGuides({ currentLocation, className = '' }: Relat
             key={`${guide.location_name}-${index}`}
             href={`/guide/${guide.slug}?lang=${currentLanguage}`}
             className="group block bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 p-4"
-            aria-label={`${guide.location_name} 가이드로 이동`}
+            aria-label={`${guide.location_name} ${t('relatedGuides.aria.linkTo') || '가이드로 이동'}`}
           >
             {/* 카드 헤더 */}
             <div className="flex items-start justify-between mb-3">

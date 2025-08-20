@@ -46,6 +46,9 @@ export async function generateMetadata({ params, searchParams }: LegalPageProps)
       case 'contact':
         page = legalPagesService.generateContactPage(lang);
         break;
+      case 'ads-revenue':
+        page = legalPagesService.generateAdsRevenuePage(lang);
+        break;
       default:
         notFound();
     }
@@ -88,7 +91,7 @@ export async function generateMetadata({ params, searchParams }: LegalPageProps)
 }
 
 // 유효한 법적 페이지 타입들
-const validPageTypes = ['privacy', 'terms', 'about', 'contact'];
+const validPageTypes = ['privacy', 'terms', 'about', 'contact', 'ads-revenue'];
 
 export default async function LegalPage({ params, searchParams }: LegalPageProps) {
   const resolvedParams = await params;
@@ -127,6 +130,9 @@ export default async function LegalPage({ params, searchParams }: LegalPageProps
         break;
       case 'contact':
         page = legalPagesService.generateContactPage(lang);
+        break;
+      case 'ads-revenue':
+        page = legalPagesService.generateAdsRevenuePage(lang);
         break;
       default:
         notFound();
@@ -233,6 +239,7 @@ export default async function LegalPage({ params, searchParams }: LegalPageProps
                     {pageType === 'terms' && (lang === 'ko' ? '이용약관' : 'Terms of Service')}
                     {pageType === 'about' && (lang === 'ko' ? '회사 소개' : 'About Us')}
                     {pageType === 'contact' && (lang === 'ko' ? '연락처' : 'Contact')}
+                    {pageType === 'ads-revenue' && (lang === 'ko' ? '광고 수익 공지' : 'Ad Revenue Notice')}
                   </a>
                 ))}
               </div>

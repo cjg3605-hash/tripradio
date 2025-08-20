@@ -169,19 +169,25 @@
 
   /* ======================
      Z-Index 스케일 (Z-Index Scale)
+     계층 구조: behind < base < content < ui-elements < navigation < overlay < modal < system
      ====================== */
 
-  --z-behind: -1;
-  --z-base: 0;
-  --z-raised: 10;
-  --z-overlay: 20;
-  --z-dropdown: 30;
-  --z-sticky: 40;
-  --z-modal: 50;
-  --z-popover: 60;
-  --z-tooltip: 70;
-  --z-toast: 80;
-  --z-max: 9999;
+  --z-behind: -1;         /* 배경 요소 */
+  --z-base: 0;            /* 기본 요소 */
+  --z-content: 1;         /* 일반 콘텐츠 */
+  --z-steps: 5;           /* 3단계 사용방법 섹션 */
+  --z-raised: 10;         /* 약간 올라온 요소 */
+  --z-searchbox: 30;      /* 검색박스 */
+  --z-autocomplete: 40;   /* 자동완성 드롭다운 */
+  --z-overlay: 20;        /* 일반 오버레이 */
+  --z-dropdown: 50;       /* 일반 드롭다운 */
+  --z-sticky: 50;         /* 고정 헤더/네비게이션 */
+  --z-modal: 100;         /* 모달 */
+  --z-popover: 110;       /* 팝오버 */
+  --z-tooltip: 120;       /* 툴팁 */
+  --z-toast: 130;         /* 토스트 알림 */
+  --z-splash: 9999;       /* 스플래시 스크린 */
+  --z-max: 10000;         /* 최상위 시스템 UI */
 
   /* ======================
      접근성 (Accessibility)

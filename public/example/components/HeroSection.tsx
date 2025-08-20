@@ -2,9 +2,33 @@ import { Search, Play, MapPin, Zap } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { useState } from "react";
 
-export function HeroSection() {
+interface HeroSectionProps {
+  onDestinationClick: (destination: string) => void;
+}
+
+export function HeroSection({ onDestinationClick }: HeroSectionProps) {
+  const [searchQuery, setSearchQuery] = useState("");
   const backgroundImage = "https://images.unsplash.com/photo-1591366152219-48d643eb3aac?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHNzZW91bCUyMGNpdHlzY2FwZSUyMG1vZGVybiUyMHNreWxpbmV8ZW58MXx8fHwxNzU1NTMxODUzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
+
+  const popularSearches = ["경복궁", "제주도", "부산 감천문화마을", "경주 불국사"];
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      onDestinationClick(searchQuery.trim());
+    }
+  };
+
+  const handlePopularSearchClick = (place: string) => {
+    onDestinationClick(place);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
@@ -42,9 +66,12 @@ export function HeroSection() {
               <Input
                 placeholder="경복궁, 남산타워, 부산 해운대..."
                 className="border-0 bg-transparent text-lg placeholder:text-gray-500 focus-visible:ring-0"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
               />
             </div>
-            <Button size="lg" className="rounded-xl px-8 bg-black hover:bg-black/90">
+            <Button size="lg" className="rounded-xl px-8 bg-black hover:bg-black/90" onClick={handleSearch}>
               <Search className="w-5 h-5 mr-2" />
               검색
             </Button>
@@ -53,10 +80,11 @@ export function HeroSection() {
           {/* Popular searches */}
           <div className="flex flex-wrap justify-center gap-2 mt-4">
             <span className="text-white/60 text-sm">인기 검색:</span>
-            {["경복궁", "제주도", "부산 감천문화마을", "경주 불국사"].map((place) => (
+            {popularSearches.map((place) => (
               <button
                 key={place}
                 className="px-3 py-1 bg-white/10 backdrop-blur text-white/80 text-sm rounded-full border border-white/20 hover:bg-white/20 transition-colors"
+                onClick={() => handlePopularSearchClick(place)}
               >
                 {place}
               </button>

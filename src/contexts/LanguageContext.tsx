@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { detectPreferredLanguage, setLanguageCookie, getLanguageCookie } from '@/lib/utils';
+import { mapLocationToKorean, translateLocationFromKorean } from '@/lib/location-mapping';
 
 // 지원 언어 타입
 export type SupportedLanguage = 'ko' | 'en' | 'ja' | 'zh' | 'es';
@@ -669,9 +670,9 @@ const DEFAULT_TRANSLATIONS: Translations = {
       audioPlaySub: '(투어시작!)'
     },
     stepDescriptions: {
-      inputLocation: '궁금한 곳의 이름을 입력하세요',
-      aiGenerate: 'AI가 맞춤형 가이드를 생성합니다',
-      audioPlay: '생성된 가이드를 음성으로 들어보세요'
+      inputLocation: '특정한 장소',
+      aiGenerate: 'AI가 맞춤형가이드를 생성',
+      audioPlay: '투어 시작!'
     },
     regionTitles: {
       popularCountries: '인기 여행 국가',
@@ -1309,33 +1310,40 @@ const detectBrowserLanguage = (): SupportedLanguage => {
 // 번역 데이터 로드 함수
 async function loadTranslations(language: SupportedLanguage): Promise<Translations> {
   try {
-    // 🔥 캐시 무효화를 위한 버전 관리
-    const TRANSLATION_VERSION = '1.0.7'; // 헤더 언어 설정 문제 해결 및 캐시 최적화
+    // 🔥 캐시 무효화를 위한 버전 관리 (강화된 캐시 우회)
+    const TRANSLATION_VERSION = '1.0.8'; // 번역 연동 문제 해결
     const cacheKey = `translations-${language}-v${TRANSLATION_VERSION}`;
     
-    // 🔥 기존 캐시 정리 (버전이 다른 경우)
+    // 🔥 강제 로딩 모드 확인 (언어 변경 시)
+    const forceReload = (globalThis as any)?.__forceTranslationReload || false;
+    
+    // 🔥 기존 캐시 정리 (버전이 다른 경우 또는 강제 로딩)
     if (typeof window !== 'undefined') {
       // 이전 버전 캐시들 정리
       const keysToRemove: string[] = [];
       for (let i = 0; i < sessionStorage.length; i++) {
         const key = sessionStorage.key(i);
-        if (key && key.startsWith(`translations-${language}-`) && key !== cacheKey) {
+        if (key && key.startsWith(`translations-${language}-`) && (key !== cacheKey || forceReload)) {
           keysToRemove.push(key);
         }
       }
       keysToRemove.forEach(key => sessionStorage.removeItem(key));
       
-      // 새 버전 캐시 확인
-      const cached = sessionStorage.getItem(cacheKey);
-      if (cached) {
-        try {
-          const parsedCache = JSON.parse(cached);
-          console.log(`✅ 캐시에서 ${language} 번역 로드 (v${TRANSLATION_VERSION})`);
-          return parsedCache;
-        } catch (parseError) {
-          console.warn('캐시 파싱 오류, 새로 로드:', parseError);
-          sessionStorage.removeItem(cacheKey);
+      // 새 버전 캐시 확인 (강제 로딩이 아닌 경우만)
+      if (!forceReload) {
+        const cached = sessionStorage.getItem(cacheKey);
+        if (cached) {
+          try {
+            const parsedCache = JSON.parse(cached);
+            console.log(`✅ 캐시에서 ${language} 번역 로드 (v${TRANSLATION_VERSION})`);
+            return parsedCache;
+          } catch (parseError) {
+            console.warn('캐시 파싱 오류, 새로 로드:', parseError);
+            sessionStorage.removeItem(cacheKey);
+          }
         }
+      } else {
+        console.log(`🔄 강제 로딩 모드: ${language} 번역 새로 로드`);
       }
     }
 
@@ -1581,34 +1589,122 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
   const isRTL = currentConfig?.dir === 'rtl';
 
-  // 🔥 개선된 언어 변경 함수 (쿠키 + localStorage 동기화)
+  // 🔥 개선된 언어 변경 함수 (번역 로딩 완료 후 UI 업데이트)
   const setLanguage = useCallback(async (language: SupportedLanguage) => {
     if (language === currentLanguage) return;
     
     setIsLoading(true);
+    const previousLanguage = currentLanguage;
+    
     try {
-      // 🔥 번역 파일 로딩 전에 언어 상태 먼저 업데이트 (즉시 UI 반영)
+      console.log(`🔄 언어 변경 시작: ${currentLanguage} → ${language}`);
+      
+      // 🔥 1단계: 캐시 무효화 및 강제 로딩 플래그 설정
+      if (typeof window !== 'undefined') {
+        // 강제 로딩 플래그 설정
+        (globalThis as any).__forceTranslationReload = true;
+        
+        // 기존 캐시 모두 정리
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < sessionStorage.length; i++) {
+          const key = sessionStorage.key(i);
+          if (key && key.startsWith('translations-')) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(key => sessionStorage.removeItem(key));
+        console.log(`🗑️ 캐시 정리 완료: ${keysToRemove.length}개 항목 삭제`);
+      }
+      
+      // 🔥 2단계: 새 번역 파일 강제 로딩 (캐시 우회)
+      const newTranslations = await loadTranslations(language);
+      
+      // 강제 로딩 플래그 해제
+      if (typeof window !== 'undefined') {
+        (globalThis as any).__forceTranslationReload = false;
+      }
+      
+      // 🔥 3단계: URL 처리 (번역 로딩 완료 후)
+      if (typeof window !== 'undefined') {
+        const currentPath = window.location.pathname;
+        const newGuideUrlMatch = currentPath.match(/^\/guide\/([a-z]{2})\/(.+)$/);
+        const oldGuideUrlMatch = currentPath.match(/^\/guide\/(.+)$/);
+        
+        if (newGuideUrlMatch) {
+          // 이미 새로운 구조: /guide/[language]/[location]
+          const [, currentLang, location] = newGuideUrlMatch;
+          if (currentLang !== language) {
+            let targetLocation = location;
+            
+            // 🌐 location 이름 번역 처리
+            if (currentLang === 'ko') {
+              // 한국어 → 다른 언어: 번역 시도
+              const translatedLocation = translateLocationFromKorean(decodeURIComponent(location), language);
+              if (translatedLocation) {
+                targetLocation = encodeURIComponent(translatedLocation);
+              }
+            } else if (language === 'ko') {
+              // 다른 언어 → 한국어: 역매핑 시도  
+              const koreanLocation = mapLocationToKorean(decodeURIComponent(location));
+              if (koreanLocation) {
+                targetLocation = encodeURIComponent(koreanLocation);
+              }
+            } else {
+              // 다른 언어 → 다른 언어: 한국어를 거쳐서 번역
+              const koreanLocation = mapLocationToKorean(decodeURIComponent(location));
+              if (koreanLocation) {
+                const translatedLocation = translateLocationFromKorean(koreanLocation, language);
+                if (translatedLocation) {
+                  targetLocation = encodeURIComponent(translatedLocation);
+                }
+              }
+            }
+            
+            const newUrl = `/guide/${language}/${targetLocation}${window.location.search}`;
+            console.log(`🔄 언어 변경 URL 업데이트: ${currentPath} → ${newUrl}`);
+            window.history.pushState(null, '', newUrl);
+          }
+        } else if (oldGuideUrlMatch && !currentPath.includes('/api/')) {
+          // 기존 구조 또는 다른 페이지: 미들웨어에서 처리하도록 새로고침
+          window.location.reload();
+          return;
+        }
+      }
+      
+      // 🔥 4단계: 번역과 언어 상태를 동시에 업데이트 (원자적 업데이트)
+      setTranslations(newTranslations);
       setCurrentLanguage(language);
       
-      // 병렬로 번역 파일 로딩과 쿠키/스토리지 업데이트
-      const [newTranslations] = await Promise.all([
-        loadTranslations(language),
-        // 🔥 쿠키와 localStorage 동시 업데이트 (서버-클라이언트 동기화)
-        (async () => {
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('preferred-language', language);
-            setLanguageCookie(language);
-          }
-        })()
-      ]);
+      // 🔥 5단계: 쿠키와 localStorage 동기화
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('preferred-language', language);
+        setLanguageCookie(language);
+        
+        // 🔥 전역 리렌더링 이벤트 발생 (모든 컴포넌트 강제 업데이트)
+        window.dispatchEvent(new CustomEvent('languageChanged', { 
+          detail: { 
+            previousLanguage, 
+            newLanguage: language,
+            translations: newTranslations
+          } 
+        }));
+      }
       
-      setTranslations(newTranslations);
-      
-      console.log(`✅ 언어 변경 완료: ${language} (즉시 UI 반영 + 백그라운드 로딩)`);
+      console.log(`✅ 언어 변경 완료: ${language} (번역 로딩 완료 후 원자적 업데이트)`);
     } catch (error) {
       console.error('언어 변경 오류:', error);
       // 에러 발생시 이전 언어로 롤백
-      setCurrentLanguage(currentLanguage);
+      setCurrentLanguage(previousLanguage);
+      
+      // 이전 번역도 다시 로딩 시도
+      try {
+        const fallbackTranslations = await loadTranslations(previousLanguage);
+        setTranslations(fallbackTranslations);
+      } catch (rollbackError) {
+        console.error('롤백 중 오류:', rollbackError);
+        // 기본 번역으로 폴백
+        setTranslations(DEFAULT_TRANSLATIONS);
+      }
     } finally {
       setIsLoading(false);
     }

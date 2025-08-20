@@ -1,0 +1,240 @@
+                      {audioT('comparison.existing.title')}
+                      {audioT('comparison.tripRadio.title')}
+                {audioT('comparison.title')} {audioT('comparison.titleBold')}
+                {audioT('cta.description')}
+                {audioT('cta.startFree')}
+                {audioT('cta.title')}
+                {audioT('features.title')} {audioT('features.titleBold')}
+                {audioT('hero.exploreFeatures')}
+                {audioT('hero.startFree')}
+                {docentT('cta.description')}
+                {docentT('cta.startFree')}
+                {docentT('cta.title')}
+                {docentT('hero.serviceIntro')}
+                {docentT('hero.startFree')}
+                {docentT('howToUse.title')}
+                {docentT('problems.subtitle')}
+                {docentT('problems.title')}
+                {docentT('solution.subtitle')}
+                {docentT('solution.title')}
+                {docentT('useCases.subtitle')}
+                {docentT('useCases.title')}
+                {tourRadioT('contentTypes.subtitle')}
+                {tourRadioT('contentTypes.title')}
+                {tourRadioT('cta.primary')}
+                {tourRadioT('cta.secondary')}
+                {tourRadioT('finalCta.button')}
+                {tourRadioT('finalCta.description')}
+                {tourRadioT('finalCta.title')}
+                {tourRadioT('howItWorks.title')}
+                {tourRadioT('problems.subtitle')}
+                {tourRadioT('problems.title')}
+                {tourRadioT('radioFeatures.subtitle')}
+                {tourRadioT('radioFeatures.title')}
+                {tourRadioT('samplePrograms.subtitle')}
+                {tourRadioT('samplePrograms.title')}
+                {travelRadioT('cta.primary')}
+                {travelRadioT('cta.secondary')}
+                {travelRadioT('finalCta.button')}
+                {travelRadioT('finalCta.description')}
+                {travelRadioT('finalCta.title')}
+                {travelRadioT('howToListen.subtitle')}
+                {travelRadioT('howToListen.title')}
+                {travelRadioT('radioTypes.subtitle')}
+                {travelRadioT('radioTypes.title')}
+                {travelRadioT('specialExperience.subtitle')}
+                {travelRadioT('specialExperience.title')}
+                {travelRadioT('testimonials.subtitle')}
+                {travelRadioT('testimonials.title')}
+                {travelRadioT('whyNeeded.subtitle')}
+                {travelRadioT('whyNeeded.title')}
+              {audioT('hero.badge')}
+              {audioT('hero.description')}
+              {audioT('hero.title')}
+              {audioT('hero.titleBold')}
+              {docentT('hero.badge')}
+              {docentT('hero.description')}
+              {docentT('hero.subtitle')}
+              {docentT('hero.title')}
+              {tourRadioT('badge')}
+              {tourRadioT('hero.description')}
+              {tourRadioT('hero.subtitle')}
+              {tourRadioT('hero.title')}
+              {travelRadioT('badge')}
+              {travelRadioT('hero.description')}
+              {travelRadioT('hero.subtitle')}
+              {travelRadioT('hero.title')}
+        description={audioT('meta.description')}
+        description={docentT('meta.description')}
+        description={tourRadioT('metadata.description')}
+        description={travelRadioT('metadata.description')}
+        docentT('useCases.galleries.examples.international') || "해외 미술관",
+        docentT('useCases.galleries.examples.national') || "국립현대미술관",
+        docentT('useCases.galleries.examples.outdoor') || "야외 조각공원"
+        docentT('useCases.galleries.examples.private') || "사립 갤러리",
+        docentT('useCases.museums.examples.history') || "역사박물관",
+        docentT('useCases.museums.examples.international') || "국제 박물관"
+        docentT('useCases.museums.examples.national') || "국립중앙박물관",
+        docentT('useCases.museums.examples.science') || "과학관",
+        keyword={audioT('meta.keyword')}
+        keyword={docentT('meta.keyword')}
+        keyword={tourRadioT('keyword')}
+        keyword={travelRadioT('keyword')}
+        title={audioT('meta.title')}
+        title={docentT('meta.title')}
+        title={tourRadioT('metadata.title')}
+        title={travelRadioT('metadata.title')}
+      author: travelRadioT('testimonials.reviews.0.author') || "김지현, 파리 여행"
+      author: travelRadioT('testimonials.reviews.1.author') || "박민수, 로마 여행"
+      author: travelRadioT('testimonials.reviews.2.author') || "이수진, 도쿄 여행"
+      bgMusic: tourRadioT('samplePrograms.programs.0.bgMusic') || "프렌치 재즈"
+      bgMusic: tourRadioT('samplePrograms.programs.1.bgMusic') || "클래식 오케스트라"
+      bgMusic: tourRadioT('samplePrograms.programs.2.bgMusic') || "일본 전통 음악"
+      bgMusic: tourRadioT('samplePrograms.programs.3.bgMusic') || "클래식 연주"
+      bgMusic: tourRadioT('samplePrograms.programs.4.bgMusic') || "지중해 음악"
+      bgMusic: tourRadioT('samplePrograms.programs.5.bgMusic') || "브로드웨이 뮤지컬"
+      content: travelRadioT('testimonials.reviews.0.content') || "정말 특별한 여행 경험이었어요. 마치 현지 친구가 안내해주는 것 같았습니다.",
+      content: travelRadioT('testimonials.reviews.1.content') || "무료로 이런 퀄리티의 가이드를 들을 수 있다는 게 놀라워요.",
+      content: travelRadioT('testimonials.reviews.2.content') || "라디오 형식이라 정말 편하게 들으며 여행할 수 있었어요.",
+      description: audioT('features.aiRealTime.description') || "인공지능이 실시간으로 생성하는 맞춤형 오디오 가이드"
+      description: audioT('features.free.description') || "모든 기능을 무료로 제공하는 부담 없는 서비스"
+      description: audioT('features.multiLanguage.description') || "20개 이상 언어로 제공되는 음성 해설"
+      description: audioT('features.offline.description') || "다운로드 후 인터넷 없이도 언제든 청취 가능"
+      description: audioT('features.personalized.description') || "개인 취향과 관심사를 반영한 맞춤형 여행 해설"
+      description: audioT('features.worldwide.description') || "180개국 어디서나 사용 가능한 글로벌 서비스"
+      description: docentT('howToUse.steps.interests.description') || "개인 관심사와 선호도를 선택합니다"
+      description: docentT('howToUse.steps.listen.description') || "AI가 생성한 맞춤형 해설을 청취합니다"
+      description: docentT('howToUse.steps.search.description') || "방문할 박물관이나 갤러리를 검색합니다"
+      description: docentT('problems.expensiveCost.description') || "기존 도슨트 서비스는 높은 비용으로 부담이 됩니다"
+      description: docentT('problems.fixedSchedule.description') || "고정된 시간표로 개인 일정에 맞추기 어렵습니다"
+      description: docentT('problems.genericContent.description') || "개인의 관심사를 고려하지 않은 일반적인 설명입니다"
+      description: docentT('solution.features.customized.description') || "개인 관심사에 맞춘 AI 도슨트 해설"
+      description: docentT('solution.features.flexible.description') || "언제든 원할 때 이용 가능한 서비스"
+      description: docentT('solution.features.free.description') || "모든 기능을 무료로 제공하는 서비스"
+      description: docentT('solution.features.realTime.description') || "AI가 실시간으로 생성하는 전문 해설"
+      description: docentT('solution.features.smartphone.description') || "스마트폰으로 언제든 간편하게 이용"
+      description: docentT('solution.features.worldwide.description') || "전세계 박물관과 갤러리 지원"
+      description: tourRadioT('contentTypes.items.0.description') || "흥미진진한 역사적 배경과 이야기"
+      description: tourRadioT('contentTypes.items.1.description') || "현지인만 아는 특별한 장소들"
+      description: tourRadioT('contentTypes.items.2.description') || "현지 음식 문화와 맛집 정보"
+      description: tourRadioT('contentTypes.items.3.description') || "신비롭고 흥미로운 도시 전설"
+      description: tourRadioT('howItWorks.steps.0.description') || "여행하고 싶은 도시나 장소를 선택합니다"
+      description: tourRadioT('howItWorks.steps.1.description') || "관심 있는 주제와 스타일을 선택합니다"
+      description: tourRadioT('howItWorks.steps.2.description') || "AI가 생성한 맞춤형 라디오를 즐깁니다"
+      description: tourRadioT('problems.items.0.description') || "획일적이고 재미없는 기존 가이드"
+      description: tourRadioT('problems.items.1.description') || "교과서 같은 지식 전달 방식"
+      description: tourRadioT('problems.items.2.description') || "가이드 투어의 부담스러운 가격"
+      description: tourRadioT('problems.items.3.description') || "정해진 시간에만 이용 가능"
+      description: tourRadioT('problems.items.4.description') || "개인 취향을 고려하지 않는 단체 투어"
+      description: tourRadioT('problems.items.5.description') || "제한적인 언어 지원"
+      description: tourRadioT('radioFeatures.features.0.description') || "재미있고 몰입감 있는 라디오 방송 형태"
+      description: tourRadioT('radioFeatures.features.1.description') || "흥미진진한 이야기로 전하는 여행 정보"
+      description: tourRadioT('radioFeatures.features.2.description') || "현재 위치에 맞는 맞춤 콘텐츠"
+      description: tourRadioT('radioFeatures.features.3.description') || "분위기를 살리는 음악과 효과음"
+      description: tourRadioT('radioFeatures.features.4.description') || "사용자와 소통하는 양방향 콘텐츠"
+      description: tourRadioT('radioFeatures.features.5.description') || "180개국 어디서나 이용 가능"
+      description: tourRadioT('samplePrograms.programs.0.description') || "에펠탑과 센 강변의 로맨틱한 야경을 배경으로 한 파리의 숨겨진 이야기",
+      description: tourRadioT('samplePrograms.programs.1.description') || "콜로세움과 포로 로마노에서 들려주는 고대 로마 황제들의 이야기",
+      description: tourRadioT('samplePrograms.programs.2.description') || "기온 거리와 청수사에서 만나는 일본 전통 문화와 사계절 이야기",
+      description: tourRadioT('samplePrograms.programs.3.description') || "융프라우와 마터호른에서 들려주는 알프스 산맥의 전설과 자연의 경이",
+      description: tourRadioT('samplePrograms.programs.4.description') || "산토리니와 미코노스 섬에서 펼쳐지는 그리스 신화와 에게해의 이야기",
+      description: tourRadioT('samplePrograms.programs.5.description') || "타임스퀘어와 브로드웨이에서 만나는 뮤지컬과 공연 예술의 세계",
+      description: travelRadioT('howToListen.steps.0.description') || "여행할 도시나 장소를 선택합니다"
+      description: travelRadioT('howToListen.steps.1.description') || "관심 있는 여행 테마를 선택합니다"
+      description: travelRadioT('howToListen.steps.2.description') || "AI가 맞춤형 라디오를 제작합니다"
+      description: travelRadioT('howToListen.steps.3.description') || "편안하게 들으며 여행을 즐깁니다"
+      description: travelRadioT('radioTypes.categories.0.description') || "유적지와 문화유산의 깊은 이야기"
+      description: travelRadioT('radioTypes.categories.1.description') || "아름다운 자연과 풍경 이야기"
+      description: travelRadioT('radioTypes.categories.2.description') || "현지 음식과 요리 문화 탐방"
+      description: travelRadioT('radioTypes.categories.3.description') || "미술관과 문화 예술 체험"
+      description: travelRadioT('radioTypes.categories.4.description') || "현대적인 도시의 매력 발견"
+      description: travelRadioT('radioTypes.categories.5.description') || "밤에 펼쳐지는 특별한 풍경"
+      description: travelRadioT('specialExperience.features.0.description') || "친근한 DJ가 들려주는 여행 이야기"
+      description: travelRadioT('specialExperience.features.1.description') || "개인 취향에 맞는 여행 정보"
+      description: travelRadioT('specialExperience.features.2.description') || "180개국 어디서나 이용 가능"
+      description: travelRadioT('specialExperience.features.3.description') || "실제 라디오 방송 같은 몰입감"
+      description: travelRadioT('specialExperience.features.4.description') || "모든 기능을 무료로 제공"
+      description: travelRadioT('specialExperience.features.5.description') || "편안하게 들으며 즐기는 여행"
+      description: travelRadioT('whyNeeded.problems.0.description') || "단조롭고 재미없는 여행 경험"
+      description: travelRadioT('whyNeeded.problems.1.description') || "화면만 보며 놓치는 소중한 순간들"
+      description: travelRadioT('whyNeeded.problems.2.description') || "비싼 현지 가이드와 투어 비용"
+      location: tourRadioT('samplePrograms.programs.0.location') || "파리, 프랑스",
+      location: tourRadioT('samplePrograms.programs.1.location') || "로마, 이탈리아",
+      location: tourRadioT('samplePrograms.programs.2.location') || "교토, 일본",
+      location: tourRadioT('samplePrograms.programs.3.location') || "스위스",
+      location: tourRadioT('samplePrograms.programs.4.location') || "그리스",
+      location: tourRadioT('samplePrograms.programs.5.location') || "뉴욕, 미국",
+      title: audioT('features.aiRealTime.title') || "AI 실시간 해설",
+      title: audioT('features.free.title') || "완전 무료",
+      title: audioT('features.multiLanguage.title') || "다국어 지원",
+      title: audioT('features.offline.title') || "오프라인 이용",
+      title: audioT('features.personalized.title') || "개인화된 콘텐츠",
+      title: audioT('features.worldwide.title') || "전세계 지원",
+      title: docentT('howToUse.steps.interests.title') || "관심사 선택",
+      title: docentT('howToUse.steps.listen.title') || "해설 청취",
+      title: docentT('howToUse.steps.search.title') || "장소 검색",
+      title: docentT('problems.expensiveCost.title') || "높은 비용",
+      title: docentT('problems.fixedSchedule.title') || "정해진 일정",
+      title: docentT('problems.genericContent.title') || "획일적 내용",
+      title: docentT('solution.features.customized.title') || "맞춤형 해설",
+      title: docentT('solution.features.flexible.title') || "유연한 시간",
+      title: docentT('solution.features.free.title') || "완전 무료",
+      title: docentT('solution.features.realTime.title') || "실시간 생성",
+      title: docentT('solution.features.smartphone.title') || "스마트폰 최적화",
+      title: docentT('solution.features.worldwide.title') || "전세계 지원",
+      title: docentT('useCases.galleries.title') || "미술관",
+      title: docentT('useCases.museums.title') || "박물관",
+      title: tourRadioT('contentTypes.items.0.title') || "역사 이야기",
+      title: tourRadioT('contentTypes.items.1.title') || "숨겨진 명소",
+      title: tourRadioT('contentTypes.items.2.title') || "맛집 탐방",
+      title: tourRadioT('contentTypes.items.3.title') || "미스터리",
+      title: tourRadioT('howItWorks.steps.0.title') || "위치 선택",
+      title: tourRadioT('howItWorks.steps.1.title') || "콘텐츠 선택",
+      title: tourRadioT('howItWorks.steps.2.title') || "라디오 청취",
+      title: tourRadioT('problems.items.0.title') || "지루한 관광",
+      title: tourRadioT('problems.items.1.title') || "딱딱한 설명",
+      title: tourRadioT('problems.items.2.title') || "높은 비용",
+      title: tourRadioT('problems.items.3.title') || "시간 제약",
+      title: tourRadioT('problems.items.4.title') || "단체 행동",
+      title: tourRadioT('problems.items.5.title') || "언어 장벽",
+      title: tourRadioT('radioFeatures.features.0.title') || "라디오 스타일",
+      title: tourRadioT('radioFeatures.features.1.title') || "스토리텔링",
+      title: tourRadioT('radioFeatures.features.2.title') || "위치 기반",
+      title: tourRadioT('radioFeatures.features.3.title') || "배경음악",
+      title: tourRadioT('radioFeatures.features.4.title') || "인터랙티브",
+      title: tourRadioT('radioFeatures.features.5.title') || "전세계 지원",
+      title: tourRadioT('samplePrograms.programs.0.title') || "파리 야경 투어",
+      title: tourRadioT('samplePrograms.programs.1.title') || "로마 제국의 흔적",
+      title: tourRadioT('samplePrograms.programs.2.title') || "교토 사계절",
+      title: tourRadioT('samplePrograms.programs.3.title') || "알프스 트레킹",
+      title: tourRadioT('samplePrograms.programs.4.title') || "지중해 크루즈",
+      title: tourRadioT('samplePrograms.programs.5.title') || "뉴욕 브로드웨이",
+      title: travelRadioT('howToListen.steps.0.title') || "목적지 선택",
+      title: travelRadioT('howToListen.steps.1.title') || "테마 선택",
+      title: travelRadioT('howToListen.steps.2.title') || "라디오 생성",
+      title: travelRadioT('howToListen.steps.3.title') || "여행 청취",
+      title: travelRadioT('radioTypes.categories.0.title') || "역사 탐방",
+      title: travelRadioT('radioTypes.categories.1.title') || "자연 체험",
+      title: travelRadioT('radioTypes.categories.2.title') || "음식 문화",
+      title: travelRadioT('radioTypes.categories.3.title') || "예술 문화",
+      title: travelRadioT('radioTypes.categories.4.title') || "도시 탐방",
+      title: travelRadioT('radioTypes.categories.5.title') || "야경 투어",
+      title: travelRadioT('specialExperience.features.0.title') || "라디오 DJ 스타일",
+      title: travelRadioT('specialExperience.features.1.title') || "맞춤형 콘텐츠",
+      title: travelRadioT('specialExperience.features.2.title') || "전세계 지원",
+      title: travelRadioT('specialExperience.features.3.title') || "진짜 라디오",
+      title: travelRadioT('specialExperience.features.4.title') || "완전 무료",
+      title: travelRadioT('specialExperience.features.5.title') || "편안한 청취",
+      title: travelRadioT('whyNeeded.problems.0.title') || "지루한 여행",
+      title: travelRadioT('whyNeeded.problems.1.title') || "스마트폰 의존",
+      title: travelRadioT('whyNeeded.problems.2.title') || "높은 비용",
+    audioT('comparison.existing.items.0') || "정해진 스크립트로 획일적인 해설",
+    audioT('comparison.existing.items.1') || "개인 취향을 고려하지 않는 일방적 정보", 
+    audioT('comparison.existing.items.2') || "제한적인 언어와 지역 지원",
+    audioT('comparison.existing.items.3') || "높은 이용 비용과 복잡한 절차",
+    audioT('comparison.existing.items.4') || "인터넷 연결 필수로 불편함"
+    audioT('comparison.tripRadio.items.0') || "AI가 실시간으로 생성하는 맞춤형 해설",
+    audioT('comparison.tripRadio.items.1') || "개인 관심사와 여행 스타일 반영",
+    audioT('comparison.tripRadio.items.2') || "전세계 180개국 다국어 지원", 
+    audioT('comparison.tripRadio.items.3') || "완전 무료로 부담 없는 이용",
+    audioT('comparison.tripRadio.items.4') || "오프라인 다운로드로 언제든 청취"

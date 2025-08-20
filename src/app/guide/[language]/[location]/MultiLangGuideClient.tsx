@@ -6,16 +6,13 @@ import { GuideData } from '@/types/guide';
 import { useLanguage, SupportedLanguage } from '@/contexts/LanguageContext';
 import dynamic from 'next/dynamic';
 
-// 동적 import로 큰 컴포넌트 지연 로딩
-const MinimalTourContent = dynamic(() => import('./tour/components/TourContent'), {
-  loading: () => <GuideLoading message="투어 콘텐츠 로딩 중..." />,
-  ssr: false
-});
+// TourContent 직접 import (SSR 지원)
+import TourContent from './tour/components/TourContent';
 
 // AdSense 광고 컴포넌트 동적 로드
 const OptimalAdSense = dynamic(() => import('@/components/ads/OptimalAdSense'), {
   loading: () => <div className="h-24 animate-pulse bg-gray-100 rounded"></div>,
-  ssr: true
+  ssr: false
 });
 import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
@@ -29,16 +26,13 @@ import { supabase } from '@/lib/supabaseClient';
 import { getAutocompleteData } from '@/lib/cache/autocompleteStorage';
 import { parseSupabaseCoordinates, validateCoordinates } from '@/lib/coordinates/coordinate-common';
 
-// RegionExploreHub 동적 로드
-const RegionExploreHub = dynamic(() => import('./RegionExploreHub'), {
-  loading: () => <GuideLoading message="탐색 허브 로딩 중..." />,
-  ssr: false
-});
+// RegionExploreHub 직접 import (SSR 지원)  
+import RegionExploreHub from './RegionExploreHub';
 
 interface Props {
-  locationName: string;
+  initialLocationName: string;
   initialGuide?: any;
-  requestedLanguage?: string;
+  initialLanguage?: string;
   parentRegion?: string;
   regionalContext?: {
     region?: string;
@@ -185,9 +179,9 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
 };
 
 export default function MultiLangGuideClient({ 
-  locationName, 
+  initialLocationName: locationName, 
   initialGuide, 
-  requestedLanguage, 
+  initialLanguage: requestedLanguage, 
   parentRegion, 
   regionalContext 
 }: Props) {
@@ -967,17 +961,15 @@ export default function MultiLangGuideClient({
           </div>
         )}
         
-        {/* 🎯 라우팅 결과에 따른 컴포넌트 선택 */}
+        {/* 🎯 조건부 렌더링: 한 번에 하나의 지도만 렌더링되도록 보장 */}
         {shouldShowExploreHub ? (
-          <>
+          // RegionExploreHub 렌더링 (독립적인 지도 포함)
+          <div key="explore-hub-container">
             {(() => {
-              console.log('🔍 RegionExploreHub에 전달되는 데이터:', {
-                guideData,
-                coordinates: guideData?.coordinates,
-                coordinatesType: typeof guideData?.coordinates,
-                coordinatesIsArray: Array.isArray(guideData?.coordinates),
-                coordinatesLength: guideData?.coordinates?.length,
-                coordinatesFirstItem: guideData?.coordinates?.[0]
+              console.log('🔍 RegionExploreHub 렌더링 - 지도 독립 모드:', {
+                guideData: !!guideData,
+                coordinates: Array.isArray(guideData?.coordinates) ? guideData.coordinates.length : null,
+                shouldShowExploreHub
               });
               return null;
             })()}
@@ -995,26 +987,28 @@ export default function MultiLangGuideClient({
                 className="text-center"
               />
             </div>
-          </>
+          </div>
         ) : (
-          <>
-            <MinimalTourContent 
+          // TourContent 렌더링 (독립적인 지도 포함)
+          <div key="tour-content-container">
+            {(() => {
+              const coordsToUse = coordinates || (guideData as any)?.coordinates;
+              console.log('🔍 TourContent 렌더링 - 지도 독립 모드:', {
+                fromCoordinatesState: !!coordinates,
+                coordinatesLength: Array.isArray(coordinates) ? coordinates.length : null,
+                fromGuideData: !!(guideData as any)?.coordinates,
+                guideDataCoordsLength: Array.isArray((guideData as any)?.coordinates) ? (guideData as any).coordinates.length : null,
+                finalCoords: !!coordsToUse,
+                finalCoordsLength: Array.isArray(coordsToUse) ? coordsToUse.length : null,
+                shouldShowExploreHub
+              });
+              return null;
+            })()}
+            <TourContent 
               guide={guideData!}
               language={currentLanguage}
-              isExploreHub={shouldShowExploreHub} // 🔥 페이지 타입 전달
-              guideCoordinates={(() => {
-                const coordsToUse = coordinates || (guideData as any)?.coordinates;
-                console.log('🎯 [TourContent 전달] guideCoordinates:', {
-                  fromCoordinatesState: !!coordinates,
-                  coordinatesLength: Array.isArray(coordinates) ? coordinates.length : null,
-                  fromGuideData: !!(guideData as any)?.coordinates,
-                  guideDataCoordsLength: Array.isArray((guideData as any)?.coordinates) ? (guideData as any).coordinates.length : null,
-                  finalCoords: !!coordsToUse,
-                  finalCoordsLength: Array.isArray(coordsToUse) ? coordsToUse.length : null,
-                  finalCoordsPreview: Array.isArray(coordsToUse) ? coordsToUse.slice(0, 2) : coordsToUse
-                });
-                return coordsToUse;
-              })()}
+              isExploreHub={false} // 명시적으로 false 설정
+              guideCoordinates={coordinates || (guideData as any)?.coordinates}
             />
             
             {/* 광고 배치: 가이드 콘텐츠 하단 */}
@@ -1024,7 +1018,7 @@ export default function MultiLangGuideClient({
                 className="text-center"
               />
             </div>
-          </>
+          </div>
         )}
       </div>
 

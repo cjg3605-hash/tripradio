@@ -41,9 +41,11 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedLanguageIndex, setSelectedLanguageIndex] = useState(0);
+  const [isLanguageChanging, setIsLanguageChanging] = useState(false);
+  const [languageChangeError, setLanguageChangeError] = useState<string | null>(null);
   
   const { data: session, status } = useSession();
-  const { currentLanguage, currentConfig, setLanguage, t } = useLanguage();
+  const { currentLanguage, currentConfig, setLanguage, t, isLoading } = useLanguage();
   const { changeLanguageWithLocationTranslation } = useLocationTranslation();
   const router = useRouter();
   const languageMenuRef = useRef<HTMLDivElement>(null);
@@ -57,32 +59,54 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
   }, [currentLanguage]);
 
   const handleLanguageChange = useCallback(async (langCode: string) => {
-    console.log('🔥 Language changing to:', langCode);
+    console.log('🔥 언어 변경 시작:', langCode);
     
     if (langCode === currentLanguage) {
-      console.log('✅ Same language selected, closing menu');
+      console.log('✅ 동일한 언어 선택, 메뉴 닫기');
       setIsLanguageMenuOpen(false);
       return;
     }
     
+    // 에러 상태 초기화
+    setLanguageChangeError(null);
+    setIsLanguageChanging(true);
+    
     try {
-      // 1. 먼저 쿠키와 localStorage 직접 업데이트
-      document.cookie = `language=${langCode}; path=/; max-age=31536000`;
-      localStorage.setItem('preferred-language', langCode);
-      
-      // 2. 언어 컨텍스트 업데이트 (새로고침 없이)
+      // 🔥 1. LanguageContext의 setLanguage 함수 사용 (개선된 로직)
       await setLanguage(langCode as any);
+      
+      // 🔥 2. 추가 location 번역 처리 (가이드 페이지인 경우)
+      try {
+        await changeLanguageWithLocationTranslation(langCode as any, currentLanguage);
+      } catch (locationError) {
+        console.warn('⚠️ Location 번역 실패, 계속 진행:', locationError);
+        // location 번역 실패는 치명적이지 않으므로 계속 진행
+      }
+      
+      // 메뉴 닫기
       setIsLanguageMenuOpen(false);
       
-      console.log('✅ Language changed successfully without reload');
+      console.log('✅ 언어 변경 완료:', langCode);
       
     } catch (error) {
-      console.error('❌ Language change failed:', error);
-      // 에러 발생시에만 새로고침으로 복구
-      console.warn('🔄 Falling back to page reload');
-      window.location.reload();
+      console.error('❌ 언어 변경 실패:', error);
+      
+      // 사용자 친화적 에러 메시지 설정
+      const errorMessage = error instanceof Error ? error.message : '언어 변경 중 오류가 발생했습니다';
+      setLanguageChangeError(errorMessage);
+      
+      // 3초 후 에러 메시지 자동 제거
+      setTimeout(() => setLanguageChangeError(null), 3000);
+      
+      // 심각한 에러인 경우에만 새로고침으로 복구
+      if (error instanceof Error && error.message.includes('network')) {
+        console.warn('🔄 네트워크 오류로 인한 페이지 새로고침');
+        setTimeout(() => window.location.reload(), 2000);
+      }
+    } finally {
+      setIsLanguageChanging(false);
     }
-  }, [setLanguage, currentLanguage]);
+  }, [setLanguage, changeLanguageWithLocationTranslation, currentLanguage]);
 
   // 키보드 네비게이션 및 외부 클릭 처리
   useEffect(() => {
@@ -225,6 +249,30 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full glass-effect">
+      {/* 언어 변경 에러 메시지 */}
+      {languageChangeError && (
+        <div className="bg-red-50 border-b border-red-200 px-4 py-2">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 text-red-600">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <span className="text-sm text-red-800">{languageChangeError}</span>
+            </div>
+            <button
+              onClick={() => setLanguageChangeError(null)}
+              className="text-red-600 hover:text-red-800 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* 로고 */}
@@ -251,20 +299,36 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
           >
             <button
               ref={languageButtonRef}
-              onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
+              onClick={() => !isLanguageChanging && !isLoading && setIsLanguageMenuOpen(!isLanguageMenuOpen)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  setIsLanguageMenuOpen(!isLanguageMenuOpen);
+                  if (!isLanguageChanging && !isLoading) {
+                    setIsLanguageMenuOpen(!isLanguageMenuOpen);
+                  }
                 }
               }}
-              className={`hidden sm:flex items-center space-x-1 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-lg hover:bg-gray-50 transition-colors ${isLanguageMenuOpen ? 'bg-gray-50' : ''}`}
+              disabled={isLanguageChanging || isLoading}
+              className={`hidden sm:flex items-center space-x-1 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-lg transition-colors ${
+                isLanguageChanging || isLoading 
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                  : isLanguageMenuOpen 
+                    ? 'bg-gray-50 hover:bg-gray-100' 
+                    : 'hover:bg-gray-50'
+              }`}
               aria-label={`${String(t('header.language'))}: ${currentConfig?.name}. ${String(t('search.pressEnterToSearch'))}`}
               aria-expanded={isLanguageMenuOpen}
               aria-haspopup="listbox"
             >
-              <Globe size={14} className="sm:w-4 sm:h-4" />
+              {(isLanguageChanging || isLoading) ? (
+                <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600"></div>
+              ) : (
+                <Globe size={14} className="sm:w-4 sm:h-4" />
+              )}
               <span className="text-xs sm:text-sm">{currentConfig?.name || t('languages.ko')}</span>
+              {(isLanguageChanging || isLoading) && (
+                <span className="text-xs text-gray-400">...</span>
+              )}
             </button>
 
 
@@ -282,9 +346,9 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                 aria-label={String(t('header.selectLanguage'))}
               >
                 {SUPPORTED_LANGUAGES.map((lang, index) => (
-                  <a
+                  <button
                     key={lang.code}
-                    href={`?lang=${lang.code}`}
+                    type="button"
                     onClick={(e) => {
                       console.log('🖱️ Desktop dropdown option clicked:', lang.code);
                       e.preventDefault();
@@ -316,7 +380,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                         ✓
                       </span>
                     )}
-                  </a>
+                  </button>
                 ))}
               </div>
             )}
@@ -419,11 +483,23 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
         <div className="md:hidden border-t border-gray-200 bg-white">
           <div className="px-4 py-4 space-y-2">
             <button 
-              className="w-full justify-start flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-              onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
+              className={`w-full justify-start flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${
+                isLanguageChanging || isLoading 
+                  ? 'text-gray-400 cursor-not-allowed' 
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+              onClick={() => !isLanguageChanging && !isLoading && setIsLanguageMenuOpen(!isLanguageMenuOpen)}
+              disabled={isLanguageChanging || isLoading}
             >
-              <Globe size={16} />
+              {(isLanguageChanging || isLoading) ? (
+                <div className="w-4 h-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600"></div>
+              ) : (
+                <Globe size={16} />
+              )}
               {t('header.language')}: {currentConfig?.name || t('languages.ko')}
+              {(isLanguageChanging || isLoading) && (
+                <span className="ml-auto text-xs text-gray-400">로딩중...</span>
+              )}
             </button>
             
             <button 
@@ -487,13 +563,18 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      handleLanguageChange(lang.code);
-                      setIsMobileMenuOpen(false);
+                      if (!isLanguageChanging && !isLoading) {
+                        handleLanguageChange(lang.code);
+                        setIsMobileMenuOpen(false);
+                      }
                     }}
+                    disabled={isLanguageChanging || isLoading}
                     className={`w-full text-left px-3 py-2 flex items-center gap-2 text-sm rounded-lg transition-colors ${
-                      lang.code === currentLanguage 
-                        ? 'bg-gray-50 text-gray-900 font-medium' 
-                        : 'text-gray-700 hover:bg-gray-50'
+                      isLanguageChanging || isLoading
+                        ? 'text-gray-400 cursor-not-allowed'
+                        : lang.code === currentLanguage 
+                          ? 'bg-gray-50 text-gray-900 font-medium' 
+                          : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
                     <span role="img" aria-label={String(t('header.flagAltText', { language: lang.name }))}>
