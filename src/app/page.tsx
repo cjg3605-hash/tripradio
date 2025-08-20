@@ -1473,7 +1473,7 @@ function Home() {
 
               <div className="flex items-center justify-center xs:justify-center sm:justify-center space-x-2 xs:space-x-3 py-2">
                 <div className="w-8 h-8 xs:w-8 xs:h-8 sm:w-10 sm:h-10 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30 flex-shrink-0">
-                  <svg className="w-4 h-4 md:w-5 md:h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 xs:w-4 xs:h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z"/>
                   </svg>
                 </div>
