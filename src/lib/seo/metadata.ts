@@ -63,7 +63,7 @@ const SEO_CONFIGS: Record<SupportedLanguage, SEOConfig> = {
   }
 };
 
-// 실제 사이트는 쿼리 파라미터 기반이므로 단일 도메인 사용
+// 정규화된 도메인 사용 (리디렉션 없는 최종 URL)
 const BASE_DOMAIN = 'https://navidocent.com';
 
 const LOCALE_MAP: Record<SupportedLanguage, string> = {
@@ -110,12 +110,12 @@ export function generateKeywordPageMetadata(
     alternates: {
       canonical: `${domain}${pagePath}`,
       languages: {
-        'ko': `${BASE_DOMAIN}${pagePath}`,
-        'en': `${BASE_DOMAIN}${pagePath}`, // 🚀 다이렉트 라우팅: 쿼리 파라미터 제거
-        'ja': `${BASE_DOMAIN}${pagePath}`,
-        'zh': `${BASE_DOMAIN}${pagePath}`,
-        'es': `${BASE_DOMAIN}${pagePath}`,
-        'x-default': `${BASE_DOMAIN}${pagePath}`,
+        'ko': `${BASE_DOMAIN}${pagePath.replace(/\/(en|ja|zh|es)\//, '/ko/')}`,
+        'en': `${BASE_DOMAIN}${pagePath.replace(/\/(ko|ja|zh|es)\//, '/en/')}`,
+        'ja': `${BASE_DOMAIN}${pagePath.replace(/\/(ko|en|zh|es)\//, '/ja/')}`,
+        'zh': `${BASE_DOMAIN}${pagePath.replace(/\/(ko|en|ja|es)\//, '/zh/')}`,
+        'es': `${BASE_DOMAIN}${pagePath.replace(/\/(ko|en|ja|zh)\//, '/es/')}`,
+        'x-default': `${BASE_DOMAIN}${pagePath.includes('/guide/') ? pagePath.replace(/\/(en|ja|zh|es)\//, '/ko/') : pagePath}`,
       },
     },
     openGraph: {
@@ -205,7 +205,7 @@ export function generateBaseMetadata(
       canonical: domain,
       languages: {
         'ko': BASE_DOMAIN,
-        'en': BASE_DOMAIN, // 🚀 다이렉트 라우팅: 쿼리 파라미터 제거
+        'en': BASE_DOMAIN,
         'ja': BASE_DOMAIN,
         'zh': BASE_DOMAIN,
         'es': BASE_DOMAIN,
@@ -409,7 +409,7 @@ export function generateJsonLd(
   language: SupportedLanguage = 'ko'
 ) {
   const config = SEO_CONFIGS[language];
-  const domain = BASE_DOMAIN;
+  const domain = BASE_DOMAIN; // 정규화된 도메인 사용
 
   const baseStructure = {
     '@context': 'https://schema.org',
@@ -430,6 +430,13 @@ export function generateJsonLd(
             urlTemplate: `${domain}/search?q={search_term_string}`
           },
           'query-input': 'required name=search_term_string'
+        },
+        // 다국어 지원 추가
+        inLanguage: Object.keys(SEO_CONFIGS),
+        // 정규화된 도메인 강조
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': domain
         }
       };
 
@@ -440,13 +447,17 @@ export function generateJsonLd(
         description: data.description,
         image: data.imageUrl,
         address: data.address,
+        url: data.url || `${domain}/guide/${language}/${encodeURIComponent(data.name)}`, // 새로운 URL 구조
         geo: data.coordinates ? {
           '@type': 'GeoCoordinates',
           latitude: data.coordinates.lat,
           longitude: data.coordinates.lng
         } : undefined,
         touristType: 'tourist attraction',
-        isAccessibleForFree: data.isFree
+        isAccessibleForFree: data.isFree,
+        // 가이드 정보 추가
+        hasMap: `${domain}/guide/${language}/${encodeURIComponent(data.name)}`,
+        audienceType: 'tourist'
       };
 
     case 'Article':
@@ -454,13 +465,16 @@ export function generateJsonLd(
         ...baseStructure,
         headline: data.title,
         description: data.description,
+        url: data.url || domain,
         author: {
           '@type': 'Organization',
-          name: 'TripRadio.AI'
+          name: 'TripRadio.AI',
+          url: domain
         },
         publisher: {
           '@type': 'Organization',
           name: 'TripRadio.AI',
+          url: domain,
           logo: {
             '@type': 'ImageObject',
             url: `${domain}/logo.svg`
@@ -468,7 +482,11 @@ export function generateJsonLd(
         },
         datePublished: data.publishedAt,
         dateModified: data.updatedAt,
-        image: data.imageUrl
+        image: data.imageUrl,
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': data.url || domain
+        }
       };
 
     default:
@@ -522,12 +540,12 @@ export function generateNaverOptimizedMetadata(
     alternates: {
       canonical: `${domain}${pagePath}`,
       languages: {
-        'ko': `${domain}${pagePath}`,
-        'en': `${domain}${pagePath}`, // 🚀 다이렉트 라우팅: 쿼리 파라미터 제거
-        'ja': `${domain}${pagePath}`,
-        'zh': `${domain}${pagePath}`,
-        'es': `${domain}${pagePath}`,
-        'x-default': `${domain}${pagePath}`,
+        'ko': `${domain}${pagePath.replace(/\/(en|ja|zh|es)\//, '/ko/')}`,
+        'en': `${domain}${pagePath.replace(/\/(ko|ja|zh|es)\//, '/en/')}`,
+        'ja': `${domain}${pagePath.replace(/\/(ko|en|zh|es)\//, '/ja/')}`,
+        'zh': `${domain}${pagePath.replace(/\/(ko|en|ja|es)\//, '/zh/')}`,
+        'es': `${domain}${pagePath.replace(/\/(ko|en|ja|zh)\//, '/es/')}`,
+        'x-default': `${domain}${pagePath.includes('/guide/') ? pagePath.replace(/\/(en|ja|zh|es)\//, '/ko/') : pagePath}`,
       },
     },
     openGraph: {

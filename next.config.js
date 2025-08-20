@@ -251,6 +251,55 @@ const nextConfig = {
       }
     ];
   },
+  // 🔀 URL 리다이렉트 설정 - 기존 URL을 새 구조로 리다이렉트
+  async redirects() {
+    return [
+      // 🌐 도메인 정규화 리디렉션 (www → non-www, HTTP → HTTPS)
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'www.navidocent.com'
+          }
+        ],
+        destination: 'https://navidocent.com/:path*',
+        permanent: true
+      },
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'header',
+            key: 'x-forwarded-proto',
+            value: 'http'
+          }
+        ],
+        destination: 'https://navidocent.com/:path*',
+        permanent: true
+      },
+      // 🔄 기존 URL 구조 리다이렉션
+      {
+        // 기존 URL: /guide/[location]?lang=ko → 새 URL: /guide/ko/[location]
+        source: '/guide/:location',
+        has: [
+          {
+            type: 'query',
+            key: 'lang',
+            value: '(?<lang>ko|en|ja|zh|es)'
+          }
+        ],
+        destination: '/guide/:lang/:location',
+        permanent: true // 301 리다이렉트로 SEO 점수 유지
+      },
+      {
+        // 기존 URL: /guide/[location] (쿼리 없음) → 새 URL: /guide/ko/[location] (기본 한국어)
+        source: '/guide/:location',
+        destination: '/guide/ko/:location',
+        permanent: true
+      }
+    ];
+  },
   // 번들 크기 최적화
   webpack: (config, { isServer, dev }) => {
     // 개발 환경에서만 최적화 비활성화, 프로덕션에서는 최적화 활성화

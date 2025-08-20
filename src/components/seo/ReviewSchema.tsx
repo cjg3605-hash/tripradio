@@ -31,9 +31,11 @@ interface AggregateRatingData {
 interface ReviewSchemaProps {
   itemReviewed: {
     name: string;
-    type: 'SoftwareApplication' | 'LocalBusiness' | 'Organization' | 'Product';
+    type: 'SoftwareApplication' | 'LocalBusiness' | 'Organization' | 'Product' | 'TouristAttraction';
     url: string;
     image?: string;
+    address?: string; // TouristAttraction용
+    coordinates?: { lat: number; lng: number }; // TouristAttraction용
   };
   reviews?: ReviewData[];
   aggregateRating?: AggregateRatingData;
@@ -82,11 +84,43 @@ const ReviewSchema: React.FC<ReviewSchemaProps> = ({ itemReviewed, reviews = [],
         "@type": "Review",
         "@id": `${itemReviewed.url}#review-${index + 1}`,
         
-        // 리뷰 대상
+        // 리뷰 대상 (Google 요구사항에 맞는 완전한 객체)
         itemReviewed: {
           "@type": itemReviewed.type,
+          "@id": `${itemReviewed.url}#${itemReviewed.type.toLowerCase()}`,
           name: itemReviewed.name,
-          url: itemReviewed.url
+          url: itemReviewed.url,
+          ...(itemReviewed.image && {
+            image: {
+              "@type": "ImageObject",
+              url: itemReviewed.image
+            }
+          }),
+          // SoftwareApplication 타입에 필요한 추가 속성
+          ...(itemReviewed.type === 'SoftwareApplication' && {
+            applicationCategory: "TravelApplication",
+            operatingSystem: "Web Browser",
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: "KRW",
+              availability: "https://schema.org/InStock"
+            }
+          }),
+          // TouristAttraction 타입에 필요한 추가 속성
+          ...(itemReviewed.type === 'TouristAttraction' && {
+            touristType: "tourist attraction",
+            ...(itemReviewed.address && { address: itemReviewed.address }),
+            ...(itemReviewed.coordinates && {
+              geo: {
+                "@type": "GeoCoordinates",
+                latitude: itemReviewed.coordinates.lat,
+                longitude: itemReviewed.coordinates.lng
+              }
+            }),
+            isAccessibleForFree: true,
+            publicAccess: true
+          })
         },
         
         // 작성자
@@ -190,8 +224,40 @@ const ReviewSchema: React.FC<ReviewSchemaProps> = ({ itemReviewed, reviews = [],
       "@id": `${itemReviewed.url}#aggregaterating`,
       itemReviewed: {
         "@type": itemReviewed.type,
+        "@id": `${itemReviewed.url}#${itemReviewed.type.toLowerCase()}`,
         name: itemReviewed.name,
-        url: itemReviewed.url
+        url: itemReviewed.url,
+        ...(itemReviewed.image && {
+          image: {
+            "@type": "ImageObject",
+            url: itemReviewed.image
+          }
+        }),
+        // SoftwareApplication 타입에 필요한 추가 속성
+        ...(itemReviewed.type === 'SoftwareApplication' && {
+          applicationCategory: "TravelApplication",
+          operatingSystem: "Web Browser",
+          offers: {
+            "@type": "Offer",
+            price: "0",
+            priceCurrency: "KRW",
+            availability: "https://schema.org/InStock"
+          }
+        }),
+        // TouristAttraction 타입에 필요한 추가 속성
+        ...(itemReviewed.type === 'TouristAttraction' && {
+          touristType: "tourist attraction",
+          ...(itemReviewed.address && { address: itemReviewed.address }),
+          ...(itemReviewed.coordinates && {
+            geo: {
+              "@type": "GeoCoordinates",
+              latitude: itemReviewed.coordinates.lat,
+              longitude: itemReviewed.coordinates.lng
+            }
+          }),
+          isAccessibleForFree: true,
+          publicAccess: true
+        })
       },
       ratingValue: aggregateRating.ratingValue,
       ratingCount: aggregateRating.ratingCount,
