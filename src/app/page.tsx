@@ -1335,7 +1335,20 @@ function Home() {
 
   return (
     <>
-      <div className="min-h-screen bg-white font-sans relative" style={{ '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px' } as React.CSSProperties}>
+      <div 
+        className="min-h-screen bg-white font-sans relative" 
+        style={{ 
+          '--space-2xs': '4px', 
+          '--space-xs': '8px', 
+          '--space-sm': '12px', 
+          '--space-md': '16px', 
+          '--space-lg': '24px', 
+          '--space-xl': '40px', 
+          '--space-2xl': '64px',
+          touchAction: 'manipulation',
+          WebkitTouchCallout: 'none'
+        } as React.CSSProperties}
+      >
 
       {/* SEO Structured Data */}
       <StructuredData type="WebSite" />
@@ -1355,7 +1368,7 @@ function Home() {
       {/* Main Content */}
       <main id="main-content" className="relative overflow-hidden" tabIndex={-1}>
         {/* Hero Section - 예시와 동일한 구조 */}
-        <section className="relative min-h-[90vh] md:min-h-[80vh] sm:min-h-[70vh] flex items-center justify-center overflow-hidden" aria-labelledby="hero-heading">
+        <section className="relative min-h-[100vh] xs:min-h-[90vh] sm:min-h-[85vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden" aria-labelledby="hero-heading">
           {/* Background Image - 예시와 동일하게 섹션 내부에 */}
           <div className="absolute inset-0">
             {landmarks.map((landmark, index) => (
@@ -1381,10 +1394,10 @@ function Home() {
           <div className="relative max-w-4xl mx-auto px-4 md:px-6 lg:px-8 text-center" style={{ transform: 'translateY(-4px)' }}>
             
             {/* Badge */}
-            <div className="inline-flex items-center px-4 md:px-3 sm:px-3 py-2 md:py-2 sm:py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 mb-16 md:mb-12 sm:mb-8 mt-16 md:mt-12 sm:mt-8">
-              <span className="text-sm md:text-sm sm:text-xs font-medium text-white/90">{String(t('home.audioGuidePrefix')).split(' | ')[0] || 'AI 오디오가이드'}</span>
+            <div className="inline-flex items-center px-3 xs:px-4 sm:px-4 md:px-3 py-1.5 xs:py-2 sm:py-2 md:py-2 rounded-full bg-white/10 backdrop-blur border border-white/20 mb-8 xs:mb-12 sm:mb-12 md:mb-12 mt-8 xs:mt-12 sm:mt-12 md:mt-12">
+              <span className="text-xs xs:text-sm sm:text-sm md:text-sm font-medium text-white/90">{String(t('home.audioGuidePrefix')).split(' | ')[0] || 'AI 오디오가이드'}</span>
               <span className="mx-2 text-white/50">•</span>
-              <span className="text-sm md:text-sm sm:text-xs font-medium text-white/90">{String(t('home.audioGuidePrefix')).split(' | ')[1] || '무료 체험'}</span>
+              <span className="text-xs xs:text-sm sm:text-sm md:text-sm font-medium text-white/90">{String(t('home.audioGuidePrefix')).split(' | ')[1] || '무료 체험'}</span>
             </div>
 
             {/* 중앙 명소 텍스트 - 2줄 레이아웃 (명소 부분만 회전) */}
@@ -1425,55 +1438,55 @@ function Home() {
                   </span>
                 </span>
               </div>
-              <div className="text-xs sm:text-sm md:text-base lg:text-lg font-light text-gray-300" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
+              <div className="text-sm xs:text-base sm:text-base md:text-base lg:text-lg font-light text-gray-300 px-4 text-center" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
                 {t('home.subtitle')} {t('home.subtitle2')}
               </div>
             </div>
 
           {/* Feature Steps - 히어로 섹션 내부 */}
-          <div className="relative max-w-4xl mx-auto px-6 mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-              <div className="flex items-center justify-center space-x-3">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30 flex-shrink-0">
-                  <svg className="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="relative max-w-4xl mx-auto px-4 xs:px-6 mb-6 xs:mb-8">
+            <div className="grid grid-cols-1 xs:grid-cols-1 sm:grid-cols-3 md:grid-cols-3 gap-3 xs:gap-4 sm:gap-4 md:gap-6">
+              <div className="flex items-center justify-center xs:justify-center sm:justify-center space-x-2 xs:space-x-3 py-2">
+                <div className="w-8 h-8 xs:w-8 xs:h-8 sm:w-10 sm:h-10 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30 flex-shrink-0">
+                  <svg className="w-4 h-4 xs:w-4 xs:h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-                <div className="text-left">
-                  <h3 className="font-medium text-white text-sm">{t('home.stepTitles.inputLocation') || '장소 입력'}</h3>
-                  <p className="text-xs text-white/70">{t('home.stepDescriptions.inputLocation') || '특정한 장소'}</p>
+                <div className="text-left xs:text-left sm:text-left">
+                  <h3 className="font-medium text-white text-xs xs:text-sm sm:text-sm">{t('home.stepTitles.inputLocation') || '장소 입력'}</h3>
+                  <p className="text-xs xs:text-xs sm:text-xs text-white/70">{t('home.stepDescriptions.inputLocation') || '특정한 장소'}</p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-center space-x-3">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30 flex-shrink-0">
-                  <svg className="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center justify-center xs:justify-center sm:justify-center space-x-2 xs:space-x-3 py-2">
+                <div className="w-8 h-8 xs:w-8 xs:h-8 sm:w-10 sm:h-10 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30 flex-shrink-0">
+                  <svg className="w-4 h-4 xs:w-4 xs:h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <div className="text-left">
-                  <h3 className="font-medium text-white text-sm">{t('home.stepTitles.aiGenerate') || 'AI 생성'}</h3>
-                  <p className="text-xs text-white/70">{t('home.stepDescriptions.aiGenerate') || 'AI가 맞춤형가이드를 생성'}</p>
+                <div className="text-left xs:text-left sm:text-left">
+                  <h3 className="font-medium text-white text-xs xs:text-sm sm:text-sm">{t('home.stepTitles.aiGenerate') || 'AI 생성'}</h3>
+                  <p className="text-xs xs:text-xs sm:text-xs text-white/70">{t('home.stepDescriptions.aiGenerate') || 'AI가 맞춤형가이드를 생성'}</p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-center space-x-3">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30 flex-shrink-0">
+              <div className="flex items-center justify-center xs:justify-center sm:justify-center space-x-2 xs:space-x-3 py-2">
+                <div className="w-8 h-8 xs:w-8 xs:h-8 sm:w-10 sm:h-10 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30 flex-shrink-0">
                   <svg className="w-4 h-4 md:w-5 md:h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z"/>
                   </svg>
                 </div>
-                <div className="text-left">
-                  <h3 className="font-medium text-white text-sm">{t('home.stepTitles.audioPlay') || '오디오 재생'}</h3>
-                  <p className="text-xs text-white/70">{t('home.stepDescriptions.audioPlay') || '투어 시작!'}</p>
+                <div className="text-left xs:text-left sm:text-left">
+                  <h3 className="font-medium text-white text-xs xs:text-sm sm:text-sm">{t('home.stepTitles.audioPlay') || '오디오 재생'}</h3>
+                  <p className="text-xs xs:text-xs sm:text-xs text-white/70">{t('home.stepDescriptions.audioPlay') || '투어 시작!'}</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Enhanced Search Box with all advanced features */}
-          <div className="relative max-w-2xl md:max-w-xl sm:max-w-full mx-auto mb-8 sm:mb-6 px-0 sm:px-4" style={{ transform: 'translateY(4px)' }}>
+          <div className="relative max-w-2xl xs:max-w-2xl sm:max-w-xl md:max-w-xl mx-auto mb-6 xs:mb-8 sm:mb-6 px-4 xs:px-4 sm:px-4" style={{ transform: 'translateY(4px)' }}>
             <NextLevelSearchBox />
           </div>
 
@@ -1489,23 +1502,23 @@ function Home() {
         </section>
 
         {/* Regional Countries Section */}
-        <section className="relative z-[1] py-2 md:py-3 lg:py-3 bg-gradient-to-b from-gray-50 to-white" aria-labelledby="popular-destinations-heading">
-          <div className="max-w-6xl mx-auto px-6 md:px-8 sm:px-4">
+        <section className="relative z-[1] py-4 xs:py-6 sm:py-8 md:py-12 lg:py-16 bg-gradient-to-b from-gray-50 to-white" aria-labelledby="popular-destinations-heading">
+          <div className="max-w-6xl mx-auto px-4 xs:px-6 sm:px-6 md:px-8">
             
             {/* 섹션 제목 */}
-            <div className="text-center mb-8 sm:mb-6">
-              <h2 id="popular-destinations-heading" className="text-2xl md:text-3xl sm:text-xl font-bold text-black mb-3 sm:mb-2">
+            <div className="text-center mb-6 xs:mb-8 sm:mb-6">
+              <h2 id="popular-destinations-heading" className="text-xl xs:text-2xl sm:text-2xl md:text-3xl font-bold text-black mb-2 xs:mb-3 sm:mb-2">
                 {t('home.regionTitles.popularCountries')}
               </h2>
-              <p className="text-[#555555] font-light max-w-2xl mx-auto text-base sm:text-sm">
+              <p className="text-[#555555] font-light max-w-2xl mx-auto text-sm xs:text-base sm:text-sm px-4 xs:px-0">
                 {t('home.regionDescription')}
               </p>
             </div>
             
             {/* 지역별 탭 */}
-            <div className="flex justify-center mb-6 sm:mb-4">
-              <div className="bg-white rounded-2xl md:rounded-xl sm:rounded-lg p-1 shadow-sm border border-gray-200 sm:w-full sm:max-w-md" role="tablist" aria-label="지역 선택">
-                <div className="flex space-x-1 sm:space-x-0 sm:grid sm:grid-cols-2 sm:gap-1">
+            <div className="flex justify-center mb-4 xs:mb-6 sm:mb-4">
+              <div className="bg-white rounded-xl xs:rounded-2xl sm:rounded-lg p-1 shadow-sm border border-gray-200 w-full max-w-xs xs:max-w-sm sm:max-w-md" role="tablist" aria-label="지역 선택">
+                <div className="grid grid-cols-2 gap-1 xs:flex xs:space-x-1 xs:grid-cols-none sm:grid sm:grid-cols-2 sm:gap-1 sm:space-x-0">
                   {[
                     { id: 'korea', label: t('home.regionTitles.korea') },
                     { id: 'europe', label: t('home.regionTitles.europe') },
@@ -1516,7 +1529,7 @@ function Home() {
                       key={region.id}
                       onClick={() => setActiveRegion(region.id)}
                       className={`
-                        px-6 md:px-5 sm:px-4 py-2 sm:py-2.5 rounded-xl md:rounded-lg sm:rounded-md text-fluid-sm sm:text-xs font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black min-h-[44px] sm:text-center
+                        px-3 xs:px-6 sm:px-4 md:px-5 py-2 xs:py-2 sm:py-2.5 rounded-lg xs:rounded-xl sm:rounded-md md:rounded-lg text-xs xs:text-sm sm:text-xs font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black min-h-[44px] text-center
                         ${activeRegion === region.id
                           ? 'bg-black text-white shadow-sm'
                           : 'text-gray-600 md:hover:text-black lg:hover:text-black md:hover:bg-gray-50 lg:hover:bg-gray-50 active:text-black/80 active:bg-gray-100'
@@ -1538,43 +1551,47 @@ function Home() {
 
             {/* 국가 카드 슬라이드 - 인기여행지 스타일 */}
             <div 
-              className="overflow-x-auto pb-4 px-8 md:px-6 sm:px-4"
+              className="overflow-x-auto pb-4 px-4 xs:px-6 sm:px-4 md:px-6 scrollbar-hide"
+              style={{ 
+                WebkitOverflowScrolling: 'touch',
+                scrollBehavior: 'smooth'
+              }}
               role="tabpanel"
               id={`${activeRegion}-panel`}
               aria-labelledby={`${activeRegion}-tab`}
             >
-              <div className="flex gap-6 md:gap-4 sm:gap-3 min-w-max scroll-smooth">
+              <div className="flex gap-4 xs:gap-6 sm:gap-3 md:gap-4 min-w-max scroll-smooth">
                 {regionCountries[activeRegion as keyof typeof regionCountries].map((country, index) => (
                   <div
                     key={country.id}
-                    className="flex-shrink-0 w-64 md:w-56 sm:w-48 group"
+                    className="flex-shrink-0 w-56 xs:w-64 sm:w-48 md:w-56 group"
                   >
                     {/* 메인 카드 - 모던 모노크롬 스타일 */}
-                    <div className="relative bg-white rounded-2xl md:rounded-xl sm:rounded-lg border border-gray-200 overflow-hidden md:hover:shadow-lg lg:hover:shadow-lg transition-all duration-300 group shadow-sm">
+                    <div className="relative bg-white rounded-lg xs:rounded-2xl sm:rounded-lg md:rounded-xl border border-gray-200 overflow-hidden md:hover:shadow-lg lg:hover:shadow-lg transition-all duration-300 group shadow-sm">
                       
                       {/* 상단 모노크롬 헤더 */}
-                      <div className="relative h-24 md:h-20 sm:h-16 bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center">
-                        <h3 className="text-white text-xl md:text-lg sm:text-base font-bold px-2 text-center">{country.name}</h3>
+                      <div className="relative h-20 xs:h-24 sm:h-16 md:h-20 bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center">
+                        <h3 className="text-white text-lg xs:text-xl sm:text-base md:text-lg font-bold px-2 text-center">{country.name}</h3>
 
                       </div>
 
                       {/* 카드 콘텐츠 - 모노크롬 스타일 */}
-                      <div className="p-6 md:p-5 sm:p-4">
+                      <div className="p-4 xs:p-6 sm:p-4 md:p-5">
                         {/* 설명 */}
-                        <p className="text-gray-600 text-sm md:text-sm sm:text-xs mb-6 md:mb-5 sm:mb-4 leading-relaxed">
+                        <p className="text-gray-600 text-xs xs:text-sm sm:text-xs md:text-sm mb-4 xs:mb-6 sm:mb-4 md:mb-5 leading-relaxed">
                           {country.description}
                         </p>
 
                         {/* Attractions */}
-                        <div className="space-y-3 md:space-y-2.5 sm:space-y-2 mb-6 md:mb-5 sm:mb-4">
-                          <h4 className="text-sm md:text-xs sm:text-xs font-semibold text-black uppercase tracking-wide">
+                        <div className="space-y-2 xs:space-y-3 sm:space-y-2 md:space-y-2.5 mb-4 xs:mb-6 sm:mb-4 md:mb-5">
+                          <h4 className="text-xs xs:text-sm sm:text-xs md:text-xs font-semibold text-black uppercase tracking-wide">
                             Top Attractions
                           </h4>
-                          <div className="space-y-2 md:space-y-1.5 sm:space-y-1">
+                          <div className="space-y-1.5 xs:space-y-2 sm:space-y-1 md:space-y-1.5">
                             {country.attractions.slice(0, 3).map((attraction, idx) => (
                               <div 
                                 key={idx} 
-                                className="flex items-center space-x-3 md:space-x-2.5 sm:space-x-2 group/item cursor-pointer min-h-[44px] sm:min-h-[40px] -my-1 py-1"
+                                className="flex items-center space-x-2 xs:space-x-3 sm:space-x-2 md:space-x-2.5 group/item cursor-pointer min-h-[40px] xs:min-h-[44px] sm:min-h-[40px] -my-1 py-1"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setLoadingState('country', true);
@@ -1588,8 +1605,8 @@ function Home() {
                                   router.push(url);
                                 }}
                               >
-                                <div className="w-1.5 h-1.5 md:w-1 md:h-1 bg-black rounded-full group-hover/item:scale-125 transition-transform flex-shrink-0" />
-                                <span className="text-sm md:text-xs sm:text-xs text-gray-700 group-hover/item:text-black transition-colors leading-tight">
+                                <div className="w-1 h-1 xs:w-1.5 xs:h-1.5 sm:w-1 sm:h-1 md:w-1 md:h-1 bg-black rounded-full group-hover/item:scale-125 transition-transform flex-shrink-0" />
+                                <span className="text-xs xs:text-sm sm:text-xs md:text-xs text-gray-700 group-hover/item:text-black transition-colors leading-tight">
                                   {attraction}
                                 </span>
                               </div>
@@ -1598,14 +1615,14 @@ function Home() {
                         </div>
 
                         {/* Action */}
-                        <div className="border-t border-gray-100 pt-4 md:pt-3 sm:pt-2">
+                        <div className="border-t border-gray-100 pt-3 xs:pt-4 sm:pt-2 md:pt-3">
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2 md:space-x-1.5 sm:space-x-1 text-gray-500">
-                              <svg className="w-4 h-4 md:w-3.5 md:h-3.5 sm:w-3 sm:h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="flex items-center space-x-1.5 xs:space-x-2 sm:space-x-1 md:space-x-1.5 text-gray-500">
+                              <svg className="w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-3 sm:h-3 md:w-3.5 md:h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                               </svg>
-                              <span className="text-sm md:text-xs sm:text-xs">명소를 클릭하세요</span>
+                              <span className="text-xs xs:text-sm sm:text-xs md:text-xs">명소를 클릭하세요</span>
                             </div>
                           </div>
                         </div>
@@ -1617,8 +1634,8 @@ function Home() {
             </div>
             
             {/* 모바일 스크롤 힌트 */}
-            <div className="flex justify-center mt-8 md:hidden">
-              <div className="flex items-center text-xs text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
+            <div className="flex justify-center mt-6 xs:mt-8 sm:hidden md:hidden">
+              <div className="flex items-center text-xs text-gray-500 bg-white px-3 xs:px-4 py-2 rounded-full shadow-sm border border-gray-100">
                 <svg className="w-4 h-4 mr-2 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l4-4m0 0l4-4m-4 4v12" />
                 </svg>
@@ -1627,22 +1644,22 @@ function Home() {
             </div>
 
             {/* 더 많은 명소 보기 버튼 */}
-            <div className="mt-0.5 px-8 md:px-6 sm:px-4 text-center">
+            <div className="mt-4 xs:mt-6 sm:mt-6 md:mt-8 px-4 xs:px-8 sm:px-4 md:px-6 text-center">
               <Link
                 href="/destinations"
-                className="group inline-flex items-center justify-center bg-black text-white px-8 md:px-6 sm:px-4 py-3 md:py-2.5 sm:py-2.5 rounded-2xl md:rounded-xl sm:rounded-lg text-base md:text-sm sm:text-sm font-semibold md:hover:bg-gray-800 lg:hover:bg-gray-800 focus:bg-gray-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 min-h-[48px] shadow-lg md:hover:shadow-xl lg:hover:shadow-xl active:bg-gray-700"
+                className="group inline-flex items-center justify-center bg-black text-white px-6 xs:px-8 sm:px-4 md:px-6 py-3 xs:py-3 sm:py-2.5 md:py-2.5 rounded-xl xs:rounded-2xl sm:rounded-lg md:rounded-xl text-sm xs:text-base sm:text-sm md:text-sm font-semibold md:hover:bg-gray-800 lg:hover:bg-gray-800 focus:bg-gray-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 min-h-[48px] shadow-lg md:hover:shadow-xl lg:hover:shadow-xl active:bg-gray-700"
               >
                 <span className="leading-none">
                   {t('home.viewMoreAttractions')}
                 </span>
-                <svg className="w-5 h-5 md:w-4 md:h-4 sm:w-4 sm:h-4 ml-2 transition-transform duration-300 md:group-hover:translate-x-1 lg:group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 xs:w-5 xs:h-5 sm:w-4 sm:h-4 md:w-4 md:h-4 ml-2 transition-transform duration-300 md:group-hover:translate-x-1 lg:group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </Link>
             </div>
 
             {/* 전략적 광고 배치 2: 지역별 국가 섹션 하단 */}
-            <div className="max-w-4xl mx-auto px-8 md:px-6 sm:px-4 py-2 mb-0.5">
+            <div className="max-w-4xl mx-auto px-4 xs:px-8 sm:px-4 md:px-6 py-2 mb-0.5">
               <OptimalAdSense 
                 placement="homepage-countries" 
                 className="text-center"
@@ -1667,27 +1684,27 @@ function Home() {
 
       {/* Footer with Legal Links */}
       <footer className="relative z-10 bg-[#F8F8F8] border-t border-gray-200">
-        <div className="max-w-6xl mx-auto px-8 md:px-6 sm:px-4 py-8 md:py-6 sm:py-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-6 sm:gap-4">
+        <div className="max-w-6xl mx-auto px-4 xs:px-6 sm:px-4 md:px-6 py-6 xs:py-8 sm:py-4 md:py-6">
+          <div className="grid grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-6 xs:gap-8 sm:gap-4 md:gap-6">
             {/* Service Info */}
-            <div className="md:col-span-2">
-              <h3 className="text-lg md:text-base sm:text-base font-semibold text-black mb-4 md:mb-3 sm:mb-2">{t('footer.companyName')}</h3>
-              <p className="text-sm md:text-sm sm:text-xs text-[#555555] font-light mb-4 md:mb-3 sm:mb-2 leading-relaxed">
+            <div className="sm:col-span-2 md:col-span-2">
+              <h3 className="text-base xs:text-lg sm:text-base md:text-base font-semibold text-black mb-3 xs:mb-4 sm:mb-2 md:mb-3">{t('footer.companyName')}</h3>
+              <p className="text-xs xs:text-sm sm:text-xs md:text-sm text-[#555555] font-light mb-3 xs:mb-4 sm:mb-2 md:mb-3 leading-relaxed">
                 {t('footer.companyDescription')}
               </p>
-              <div className="flex items-center space-x-4 md:space-x-3 sm:space-x-2">
-                <span className="text-xs md:text-xs sm:text-xs text-gray-500">{t('footer.copyright')}</span>
+              <div className="flex items-center space-x-2 xs:space-x-4 sm:space-x-2 md:space-x-3">
+                <span className="text-xs xs:text-xs sm:text-xs md:text-xs text-gray-500">{t('footer.copyright')}</span>
               </div>
             </div>
 
             {/* Legal Pages */}
             <div>
-              <h4 className="text-sm md:text-sm sm:text-xs font-semibold text-black mb-4 md:mb-3 sm:mb-2">{t('footer.legalInfo')}</h4>
-              <ul className="space-y-2 md:space-y-1.5 sm:space-y-1">
+              <h4 className="text-xs xs:text-sm sm:text-xs md:text-sm font-semibold text-black mb-3 xs:mb-4 sm:mb-2 md:mb-3">{t('footer.legalInfo')}</h4>
+              <ul className="space-y-1.5 xs:space-y-2 sm:space-y-1 md:space-y-1.5">
                 <li>
                   <a 
                     href="/legal/privacy" 
-                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
+                    className="text-xs xs:text-sm sm:text-xs md:text-sm text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[40px] xs:min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.privacyPolicy')}
                   </a>
@@ -1695,7 +1712,7 @@ function Home() {
                 <li>
                   <a 
                     href="/legal/terms" 
-                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
+                    className="text-xs xs:text-sm sm:text-xs md:text-sm text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[40px] xs:min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.termsOfService')}
                   </a>
@@ -1703,7 +1720,7 @@ function Home() {
                 <li>
                   <a 
                     href="/legal/about" 
-                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
+                    className="text-xs xs:text-sm sm:text-xs md:text-sm text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[40px] xs:min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.aboutUs')}
                   </a>
@@ -1711,7 +1728,7 @@ function Home() {
                 <li>
                   <a 
                     href="/legal/contact" 
-                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
+                    className="text-xs xs:text-sm sm:text-xs md:text-sm text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[40px] xs:min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.contact')}
                   </a>
@@ -1722,11 +1739,11 @@ function Home() {
             {/* Services */}
             <div>
               <h4 className="text-sm md:text-sm sm:text-xs font-semibold text-black mb-4 md:mb-3 sm:mb-2">{t('footer.services.title')}</h4>
-              <ul className="space-y-2 md:space-y-1.5 sm:space-y-1">
+              <ul className="space-y-1.5 xs:space-y-2 sm:space-y-1 md:space-y-1.5">
                 <li>
                   <a 
                     href="/audio-guide" 
-                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
+                    className="text-xs xs:text-sm sm:text-xs md:text-sm text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[40px] xs:min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.services.audioGuide')}
                   </a>
@@ -1734,7 +1751,7 @@ function Home() {
                 <li>
                   <a 
                     href="/docent" 
-                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
+                    className="text-xs xs:text-sm sm:text-xs md:text-sm text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[40px] xs:min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.services.docent')}
                   </a>
@@ -1742,7 +1759,7 @@ function Home() {
                 <li>
                   <a 
                     href="/tour-radio" 
-                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
+                    className="text-xs xs:text-sm sm:text-xs md:text-sm text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[40px] xs:min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.services.tourRadio')}
                   </a>
@@ -1750,7 +1767,7 @@ function Home() {
                 <li>
                   <a 
                     href="/travel-radio" 
-                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
+                    className="text-xs xs:text-sm sm:text-xs md:text-sm text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[40px] xs:min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.services.travelRadio')}
                   </a>
@@ -1761,11 +1778,11 @@ function Home() {
             {/* 여행 도구 */}
             <div>
               <h4 className="text-sm md:text-sm sm:text-xs font-semibold text-black mb-4 md:mb-3 sm:mb-2">{t('footer.tools.title')}</h4>
-              <ul className="space-y-2 md:space-y-1.5 sm:space-y-1">
+              <ul className="space-y-1.5 xs:space-y-2 sm:space-y-1 md:space-y-1.5">
                 <li>
                   <a 
                     href="/trip-planner" 
-                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
+                    className="text-xs xs:text-sm sm:text-xs md:text-sm text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[40px] xs:min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.tools.tripPlanner')}
                   </a>
@@ -1773,7 +1790,7 @@ function Home() {
                 <li>
                   <a 
                     href="/nomad-calculator" 
-                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
+                    className="text-xs xs:text-sm sm:text-xs md:text-sm text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[40px] xs:min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.tools.nomadCalculator')}
                   </a>
@@ -1781,7 +1798,7 @@ function Home() {
                 <li>
                   <a 
                     href="/film-locations" 
-                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
+                    className="text-xs xs:text-sm sm:text-xs md:text-sm text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[40px] xs:min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.tools.filmLocations')}
                   </a>
@@ -1789,7 +1806,7 @@ function Home() {
                 <li>
                   <a 
                     href="/visa-checker" 
-                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
+                    className="text-xs xs:text-sm sm:text-xs md:text-sm text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[40px] xs:min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.tools.visaChecker')}
                   </a>
@@ -1800,13 +1817,13 @@ function Home() {
             {/* Support */}
             <div>
               <h4 className="text-sm md:text-sm sm:text-xs font-semibold text-black mb-4 md:mb-3 sm:mb-2">{t('footer.support')}</h4>
-              <ul className="space-y-2 md:space-y-1.5 sm:space-y-1">
+              <ul className="space-y-1.5 xs:space-y-2 sm:space-y-1 md:space-y-1.5">
                 <li>
                   <a 
                     href="https://t.me/docenttour" 
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm md:text-sm sm:text-xs text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
+                    className="text-xs xs:text-sm sm:text-xs md:text-sm text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[40px] xs:min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.telegramChannel')}
                   </a>

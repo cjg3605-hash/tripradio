@@ -609,11 +609,11 @@ export default function NextLevelSearchBox() {
 
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto" style={{ zIndex: 'var(--z-searchbox)' }}>
+    <div className="relative w-full max-w-2xl mx-auto px-4 xs:px-0" style={{ zIndex: 'var(--z-searchbox)' }}>
       {/* 🎯 메인 검색창 - HeroSection 스타일 */}
-      <div className="flex items-center bg-white/95 backdrop-blur rounded-md shadow-2xl border border-white/30 p-2">
-        <div className="flex items-center flex-1 px-4">
-          <MapPin className="w-5 h-5 text-gray-400 mr-3" />
+      <div className="flex items-center bg-white/95 backdrop-blur rounded-lg xs:rounded-2xl shadow-2xl border border-white/30 p-2 xs:p-3">
+        <div className="flex items-center flex-1 px-2 xs:px-4">
+          <MapPin className="w-4 h-4 xs:w-5 xs:h-5 text-gray-400 mr-2 xs:mr-3" />
           <Input
             ref={inputRef}
             type="text"
@@ -632,7 +632,7 @@ export default function NextLevelSearchBox() {
             aria-autocomplete="list"
             role="combobox"
             aria-activedescendant={selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined}
-            className="border-0 bg-transparent text-lg placeholder:text-gray-500 focus-visible:ring-0"
+            className="border-0 bg-transparent text-base xs:text-lg placeholder:text-gray-500 focus-visible:ring-0"
           />
         </div>
         
@@ -651,7 +651,7 @@ export default function NextLevelSearchBox() {
             disabled={!query.trim() || isSubmitting}
             aria-label={query.trim() ? `'${query}' 검색하기` : '검색어를 입력하세요'}
             type="submit"
-            className="rounded-sm px-8 bg-black hover:bg-black/90"
+            className="rounded-sm px-6 xs:px-8 bg-black hover:bg-black/90"
           >
             {isSubmitting ? (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>
