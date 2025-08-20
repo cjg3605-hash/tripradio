@@ -164,7 +164,6 @@ export default function NextLevelSearchBox() {
   const [isTyping, setIsTyping] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [hasAttemptedSearch, setHasAttemptedSearch] = useState(false);
   const [showExploration, setShowExploration] = useState(false);
   
@@ -180,11 +179,10 @@ export default function NextLevelSearchBox() {
       console.log('🔄 검색박스: 언어 변경 이벤트 수신:', event.detail);
       setRenderKey(prev => prev + 1);
       
-      // 검색 상태 초기화 (새 언어에 맞는 플레이스홀더 등)
+      // 검색 상태 초기화
       setQuery('');
       setSuggestions([]);
       setSelectedIndex(-1);
-      setPlaceholderIndex(0);
     };
 
     if (typeof window !== 'undefined') {
@@ -199,16 +197,10 @@ export default function NextLevelSearchBox() {
     return () => {};
   }, []);
 
-  // Rotating placeholder examples
-  const placeholders = t('home.searchPlaceholders') || [];
-
-  // Rotate placeholders
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [placeholders.length]);
+  // Single placeholder text
+  const placeholderText = Array.isArray(t('home.searchPlaceholders')) 
+    ? t('home.searchPlaceholders')[0] || '어디 가이드가 필요하세요?'
+    : t('home.searchPlaceholders') || '어디 가이드가 필요하세요?';
 
   // 검색어가 유효한지 확인하는 함수
   const isValidQuery = (text: string): boolean => {
@@ -611,7 +603,7 @@ export default function NextLevelSearchBox() {
   return (
     <div className="relative w-full max-w-2xl mx-auto px-4 xs:px-0" style={{ zIndex: 'var(--z-searchbox)' }}>
       {/* 🎯 메인 검색창 - HeroSection 스타일 */}
-      <div className="flex items-center bg-white/95 backdrop-blur rounded-lg xs:rounded-2xl shadow-2xl border border-white/30 p-2 xs:p-3">
+      <div className="flex items-center bg-white/95 backdrop-blur rounded-sm shadow-2xl border border-white/30 p-2 xs:p-3">
         <div className="flex items-center flex-1 px-2 xs:px-4">
           <MapPin className="w-4 h-4 xs:w-5 xs:h-5 text-gray-400 mr-2 xs:mr-3" />
           <Input
@@ -622,7 +614,7 @@ export default function NextLevelSearchBox() {
             onKeyDown={handleKeyDown}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            placeholder={placeholders[placeholderIndex]}
+            placeholder={placeholderText}
             disabled={isSubmitting}
             // 접근성 속성
             aria-label={String(t('search.searchLocation'))}

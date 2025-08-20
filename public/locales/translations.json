@@ -56,11 +56,7 @@
         "networkError": "가이드 생성 중 네트워크 오류가 발생했습니다."
       },
       "searchPlaceholders": [
-        "에펠탑",
-        "타지마할",
-        "마추픽추",
-        "콜로세움",
-        "자유의 여신상"
+        "어디 가이드가 필요하세요?"
       ],
       "defaultSuggestions": [
         {
@@ -2794,11 +2790,7 @@
         "networkError": "A network error occurred during guide generation."
       },
       "searchPlaceholders": [
-        "Eiffel Tower",
-        "Taj Mahal",
-        "Machu Picchu",
-        "Colosseum",
-        "Statue of Liberty"
+        "Where do you need a guide?"
       ],
       "defaultSuggestions": [
         {
@@ -5339,11 +5331,7 @@
         "networkError": "ガイド生成中にネットワークエラーが発生しました。"
       },
       "searchPlaceholders": [
-        "エッフェル塔",
-        "タージマハル",
-        "マチュピチュ",
-        "コロッセオ",
-        "自由の女神"
+        "どちらのガイドが必要ですか？"
       ],
       "defaultSuggestions": [
         {
@@ -7308,11 +7296,7 @@
         "networkError": "指南生成过程中发生网络错误。"
       },
       "searchPlaceholders": [
-        "埃菲尔铁塔",
-        "泰姬陵",
-        "马丘比丘",
-        "斗兽场",
-        "自由女神像"
+        "您需要哪里的导游？"
       ],
       "defaultSuggestions": [
         {
@@ -9277,11 +9261,7 @@
         "networkError": "Ocurrió un error de red durante la generación de la guía."
       },
       "searchPlaceholders": [
-        "Torre Eiffel",
-        "Taj Mahal",
-        "Machu Picchu",
-        "Coliseo",
-        "Estatua de la Libertad"
+        "¿Dónde necesitas una guía?"
       ],
       "defaultSuggestions": [
         {
