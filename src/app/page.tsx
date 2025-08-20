@@ -1363,7 +1363,7 @@ function Home() {
       {/* Main Content */}
       <main id="main-content" className="relative overflow-hidden" tabIndex={-1}>
         {/* Hero Section - 예시와 동일한 구조 */}
-        <section className="relative min-h-[100vh] xs:min-h-[63vh] sm:min-h-[85vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden" aria-labelledby="hero-heading">
+        <section className="relative min-h-[100vh] xs:min-h-[38vh] sm:min-h-[85vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden" aria-labelledby="hero-heading">
           {/* Background Image - 예시와 동일하게 섹션 내부에 */}
           <div className="absolute inset-0">
             {landmarks.map((landmark, index) => (
