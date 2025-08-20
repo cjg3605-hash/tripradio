@@ -10,11 +10,6 @@ import StructuredData from '@/components/seo/StructuredData';
 import GuideLoading from '@/components/ui/GuideLoading';
 
 // Dynamic imports for performance optimization
-const OptimalAdSense = dynamic(() => import('@/components/ads/OptimalAdSense'), {
-  loading: () => <div className="h-20 bg-gray-100 animate-pulse rounded-lg"></div>,
-  ssr: false
-});
-
 const FAQSchema = dynamic(() => import('@/components/seo/FAQSchema'), {
   ssr: true
 });
@@ -1490,14 +1485,6 @@ function Home() {
             <NextLevelSearchBox />
           </div>
 
-
-          {/* 전략적 광고 배치 1: 검색박스 하단 */}
-          <div className="max-w-4xl mx-auto px-6 py-8">
-            <OptimalAdSense 
-              placement="homepage-hero" 
-              className="text-center"
-            />
-          </div>
           </div>
         </section>
 
@@ -1658,13 +1645,6 @@ function Home() {
               </Link>
             </div>
 
-            {/* 전략적 광고 배치 2: 지역별 국가 섹션 하단 */}
-            <div className="max-w-4xl mx-auto px-4 xs:px-8 sm:px-4 md:px-6 py-0 xs:py-0 sm:py-1 md:py-2 mb-0 xs:mb-0 sm:mb-0.5 md:mb-0.5">
-              <OptimalAdSense 
-                placement="homepage-countries" 
-                className="text-center"
-              />
-            </div>
           </div>
         </section>
 
