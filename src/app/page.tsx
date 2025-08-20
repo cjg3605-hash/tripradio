@@ -414,7 +414,7 @@ function Home() {
           name: countries.busan?.name || '부산', 
           flag: '', 
           attractions: countries.busan?.attractions || ['해운대해수욕장', '감천문화마을', '자갈치시장'],
-          description: countries.busan?.description || '아름다운 바다와 항구의 도시'
+          description: countries.busan?.description || '아름다운 항구의 도시'
         },
         { 
           id: 'jeju', 
@@ -1389,7 +1389,7 @@ function Home() {
           <div className="relative max-w-4xl mx-auto px-4 md:px-6 lg:px-8 text-center" style={{ transform: 'translateY(-4px)' }}>
             
             {/* Badge */}
-            <div className="inline-flex items-center px-3 xs:px-4 sm:px-4 md:px-3 py-1.5 xs:py-2 sm:py-2 md:py-2 rounded-full bg-white/10 backdrop-blur border border-white/20 mb-8 xs:mb-12 sm:mb-12 md:mb-12 mt-8 xs:mt-12 sm:mt-12 md:mt-12">
+            <div className="inline-flex items-center px-3 xs:px-4 sm:px-4 md:px-3 py-1.5 xs:py-2 sm:py-2 md:py-2 rounded-full bg-white/10 backdrop-blur border border-white/20 mb-8 xs:mb-12 sm:mb-12 md:mb-12 mt-4 xs:mt-6 sm:mt-6 md:mt-6">
               <span className="text-xs xs:text-sm sm:text-sm md:text-sm font-medium text-white/90">{String(t('home.audioGuidePrefix')).split(' | ')[0] || 'AI 오디오가이드'}</span>
               <span className="mx-2 text-white/50">•</span>
               <span className="text-xs xs:text-sm sm:text-sm md:text-sm font-medium text-white/90">{String(t('home.audioGuidePrefix')).split(' | ')[1] || '무료 체험'}</span>
@@ -1439,7 +1439,7 @@ function Home() {
             </div>
 
           {/* Feature Steps - 히어로 섹션 내부 */}
-          <div className="relative max-w-4xl mx-auto px-4 xs:px-6 mb-6 xs:mb-8">
+          <div className="relative max-w-4xl mx-auto px-8 xs:px-12 sm:px-4 md:px-6 mb-6 xs:mb-8">
             <div className="grid grid-cols-1 xs:grid-cols-1 sm:grid-cols-3 md:grid-cols-3 gap-3 xs:gap-4 sm:gap-4 md:gap-6">
               <div className="flex items-center justify-start xs:justify-start sm:justify-center space-x-2 xs:space-x-3 py-2">
                 <div className="w-8 h-8 xs:w-8 xs:h-8 sm:w-10 sm:h-10 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center border border-white/30 flex-shrink-0">
@@ -1493,7 +1493,7 @@ function Home() {
           <div className="max-w-6xl mx-auto px-4 xs:px-6 sm:px-6 md:px-8">
             
             {/* 섹션 제목 */}
-            <div className="text-center mb-0.5 xs:mb-0.5 sm:mb-0.5">
+            <div className="text-center mb-0 xs:mb-0 sm:mb-0">
               <h2 id="popular-destinations-heading" className="text-xl xs:text-2xl sm:text-2xl md:text-3xl font-bold text-black mb-2 xs:mb-3 sm:mb-2">
                 {t('home.regionTitles.popularCountries')}
               </h2>
@@ -1631,7 +1631,7 @@ function Home() {
             </div>
 
             {/* 더 많은 명소 보기 버튼 */}
-            <div className="mt-2 xs:mt-3 sm:mt-6 md:mt-8 px-4 xs:px-8 sm:px-4 md:px-6 text-center">
+            <div className="mt-0 xs:mt-0 sm:mt-0 md:mt-0 px-4 xs:px-8 sm:px-4 md:px-6 text-center">
               <Link
                 href="/destinations"
                 className="group inline-flex items-center justify-center bg-black text-white px-6 xs:px-8 sm:px-4 md:px-6 py-3 xs:py-3 sm:py-2.5 md:py-2.5 rounded-xl xs:rounded-2xl sm:rounded-lg md:rounded-xl text-sm xs:text-base sm:text-sm md:text-sm font-semibold md:hover:bg-gray-800 lg:hover:bg-gray-800 focus:bg-gray-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 min-h-[48px] shadow-lg md:hover:shadow-xl lg:hover:shadow-xl active:bg-gray-700"
