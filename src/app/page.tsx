@@ -1644,7 +1644,7 @@ function Home() {
             </div>
 
             {/* 더 많은 명소 보기 버튼 */}
-            <div className="mt-4 xs:mt-6 sm:mt-6 md:mt-8 px-4 xs:px-8 sm:px-4 md:px-6 text-center">
+            <div className="mt-2 xs:mt-3 sm:mt-6 md:mt-8 px-4 xs:px-8 sm:px-4 md:px-6 text-center">
               <Link
                 href="/destinations"
                 className="group inline-flex items-center justify-center bg-black text-white px-6 xs:px-8 sm:px-4 md:px-6 py-3 xs:py-3 sm:py-2.5 md:py-2.5 rounded-xl xs:rounded-2xl sm:rounded-lg md:rounded-xl text-sm xs:text-base sm:text-sm md:text-sm font-semibold md:hover:bg-gray-800 lg:hover:bg-gray-800 focus:bg-gray-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 min-h-[48px] shadow-lg md:hover:shadow-xl lg:hover:shadow-xl active:bg-gray-700"
@@ -1659,7 +1659,7 @@ function Home() {
             </div>
 
             {/* 전략적 광고 배치 2: 지역별 국가 섹션 하단 */}
-            <div className="max-w-4xl mx-auto px-4 xs:px-8 sm:px-4 md:px-6 py-2 mb-0.5">
+            <div className="max-w-4xl mx-auto px-4 xs:px-8 sm:px-4 md:px-6 py-0 xs:py-0 sm:py-1 md:py-2 mb-0 xs:mb-0 sm:mb-0.5 md:mb-0.5">
               <OptimalAdSense 
                 placement="homepage-countries" 
                 className="text-center"
