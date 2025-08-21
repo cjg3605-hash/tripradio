@@ -612,6 +612,11 @@ export default function NextLevelSearchBox() {
   const handleFocus = () => {
     console.log('🎯 입력창 포커스 취득');
     setIsFocused(true);
+    
+    // 드롭다운 열릴 때 이벤트 발신 (아코디언 효과용)
+    window.dispatchEvent(new CustomEvent('searchDropdownOpen', { 
+      detail: { isOpen: true } 
+    }));
   };
 
   const handleBlur = (e: React.FocusEvent) => {
@@ -630,6 +635,11 @@ export default function NextLevelSearchBox() {
       console.log('🔄 포커스 해제 완료:', { selectedIndex, isFocused });
       setIsFocused(false);
       setSelectedIndex(-1);
+      
+      // 드롭다운 닫힐 때 이벤트 발신 (아코디언 효과 해제용)
+      window.dispatchEvent(new CustomEvent('searchDropdownClose', { 
+        detail: { isOpen: false } 
+      }));
     }, 300); // 클릭 이벤트가 확실히 처리될 수 있도록 시간 증가
   };
 

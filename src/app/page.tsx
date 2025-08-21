@@ -260,6 +260,9 @@ function Home() {
   // 언어 변경 시 강제 리렌더링을 위한 key 추가
   const [renderKey, setRenderKey] = useState(0);
   
+  // 드롭다운 아코디언 효과를 위한 상태
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
   // 🔥 전역 언어 변경 이벤트 수신
   useEffect(() => {
     const handleLanguageChanged = (event: CustomEvent) => {
@@ -280,12 +283,20 @@ function Home() {
     // 기존 언어 변경 감지
     setRenderKey(prev => prev + 1);
     
+    // 드롭다운 이벤트 리스너 등록
+    const handleDropdownOpen = () => setIsDropdownOpen(true);
+    const handleDropdownClose = () => setIsDropdownOpen(false);
+    
     // 전역 이벤트 리스너 등록
     if (typeof window !== 'undefined') {
       window.addEventListener('languageChanged', handleLanguageChanged as EventListener);
+      window.addEventListener('searchDropdownOpen', handleDropdownOpen);
+      window.addEventListener('searchDropdownClose', handleDropdownClose);
       
       return () => {
         window.removeEventListener('languageChanged', handleLanguageChanged as EventListener);
+        window.removeEventListener('searchDropdownOpen', handleDropdownOpen);
+        window.removeEventListener('searchDropdownClose', handleDropdownClose);
       };
     }
     
@@ -1489,7 +1500,16 @@ function Home() {
         </section>
 
         {/* Regional Countries Section */}
-        <section className="relative z-[1] py-4 xs:py-6 sm:py-8 md:py-12 lg:py-16 bg-gradient-to-b from-gray-50 to-white" aria-labelledby="popular-destinations-heading">
+        <section 
+          id="popular-countries-section"
+          className="relative z-[1] py-4 xs:py-6 sm:py-8 md:py-12 lg:py-16 bg-gradient-to-b from-gray-50 to-white transition-all duration-300 ease-out" 
+          aria-labelledby="popular-destinations-heading"
+          style={{ 
+            marginTop: isDropdownOpen 
+              ? (typeof window !== 'undefined' && window.innerWidth < 640) ? '280px' : '320px' // 모바일에서는 더 작은 마진
+              : '0px' // 드롭다운 열릴 때 아코디언 효과
+          }}
+        >
           <div className="max-w-6xl mx-auto px-4 xs:px-6 sm:px-6 md:px-8">
             
             {/* 섹션 제목 */}
