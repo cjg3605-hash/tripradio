@@ -3,13 +3,21 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { MapPin, Users, Calendar, Clock, Star, ArrowRight, RefreshCw, Info, Compass } from 'lucide-react';
+import { MapPin, Users, Calendar, Clock, Star, ArrowRight, RefreshCw, Compass } from 'lucide-react';
 import GuideLoading from '@/components/ui/GuideLoading';
 import dynamic from 'next/dynamic';
+import { GuideHeader } from '@/components/guide/GuideHeader';
+import { GuideTitle } from '@/components/guide/GuideTitle';
+import { supabase } from '@/lib/supabaseClient';
 
 // 지도 컴포넌트 동적 로드
+// GuideLoading을 위한 컴포넌트
+const LoadingComponent = () => {
+  return <GuideLoading message="지도 로딩 중..." />;
+};
+
 const RegionTouristMap = dynamic(() => import('@/components/guide/RegionTouristMap'), {
-  loading: () => <GuideLoading message="Loading map..." />,
+  loading: () => <LoadingComponent />,
   ssr: false
 });
 
@@ -62,15 +70,52 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
   
   const [regionData, setRegionData] = useState<RegionData | null>(null);
   const [recommendedSpots, setRecommendedSpots] = useState<RecommendedSpot[]>([]);
+  const [coordinatesData, setCoordinatesData] = useState<any>(null); // coordinates 칼럼 데이터
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  // 호버 기능 제거로 불필요한 상태 삭제
+  // const [highlightedSpotId, setHighlightedSpotId] = useState<string | null>(null);
 
+
+  // 🔍 별도 coordinates 칼럼에서 좌표 데이터 가져오기
+  const fetchCoordinatesData = useCallback(async () => {
+    try {
+      const normLocation = locationName.trim();
+      
+      const { data: coordinatesData, error: coordError } = await supabase
+        .from('guides')
+        .select('coordinates')
+        .eq('locationname', normLocation)
+        .eq('language', language.toLowerCase())
+        .maybeSingle();
+
+      if (coordError) {
+        console.log('🗺️ coordinates 조회 실패:', coordError);
+        return null;
+      }
+
+      if (coordinatesData?.coordinates && Array.isArray(coordinatesData.coordinates)) {
+        console.log(`✅ coordinates 칼럼에서 ${coordinatesData.coordinates.length}개 좌표 조회 성공`);
+        setCoordinatesData(coordinatesData.coordinates);
+        return coordinatesData.coordinates;
+      }
+
+      console.log('🔍 coordinates 칼럼에 데이터 없음');
+      return null;
+    } catch (error) {
+      console.error('❌ coordinates 조회 예외:', error);
+      return null;
+    }
+  }, [locationName, language]);
 
   const loadRegionData = useCallback(async () => {
     setIsLoading(true);
     setError('');
 
     try {
+      // 🗺️ 별도 coordinates 칼럼에서 좌표 데이터 가져오기
+      const coordinatesFromDb = await fetchCoordinatesData();
+      
       // 🔍 DEBUG: content 데이터 구조 확인
       console.log('🎯 RegionExploreHub content 확인:', {
         hasContent: !!content,
@@ -79,17 +124,15 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
         contentType: typeof content
       });
       
-      // 🔍 DEBUG: coordinates 관련 상세 확인
-      if (content) {
-        console.log('🗺️ RegionExploreHub coordinates 상세 분석:', {
-          coordinatesArray: content.coordinatesArray,
-          coordinates: content.coordinates,
-          coordinatesType: typeof content.coordinates,
-          coordinatesIsArray: Array.isArray(content.coordinates),
-          coordinatesLength: content.coordinates?.length,
-          coordinatesFirstItem: content.coordinates?.[0]
-        });
-      }
+      // 🔍 DEBUG: highlights 관련 구조 상세 확인
+      console.log('🔍 Highlights 구조 상세 확인:', {
+        exploreHubHighlights: content?.exploreHub?.highlights,
+        overviewHighlights: content?.overview?.highlights,
+        realTimeGuideMustVisitSpots: content?.realTimeGuide?.mustVisitSpots,
+        hasExploreHub: !!content?.exploreHub,
+        hasOverview: !!content?.overview,
+        hasRealTimeGuide: !!content?.realTimeGuide
+      });
       
       // 🔍 DEBUG: overview.keyFacts 구조 상세 확인
       if (content && content.overview && content.overview.keyFacts) {
@@ -103,91 +146,81 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
         });
       }
 
-      // content가 있는 경우 DB 데이터 직접 사용 (서울+ko 정확한 내용)
+      // content가 있으면 DB content에서 정보 추출 (DB 데이터 우선 사용)
       if (content) {
         // 🎯 DB content에서 정확한 지역 정보 추출 (올바른 필드명 사용)
         const overview = content.overview || {};
+        
+        // 🔍 DEBUG: overview 구조 상세 확인
+        console.log('🎯 DB overview 구조 확인:', {
+          hasOverview: !!overview,
+          overviewKeys: Object.keys(overview),
+          highlights: overview.highlights,
+          highlightsType: typeof overview.highlights,
+          highlightsLength: Array.isArray(overview.highlights) ? overview.highlights.length : 'not array',
+          regionOverview: overview.regionOverview,
+          keyFacts: overview.keyFacts,
+          description: overview.description
+        });
+        
+        // 🔍 DEBUG: content 전체 구조도 확인
+        console.log('🎯 전체 content 구조:', {
+          contentKeys: Object.keys(content),
+          content: content
+        });
         const realTimeGuide = content.realTimeGuide || {};
         
-        // 지역 데이터 설정 (DB의 실제 내용만 사용, 하드코딩 제거)
+        // 🎯 DB에서 highlights 추출 (기존 구조 호환)
+        const highlights = content?.highlights || content?.mustVisitSpots || [];
+        console.log('🔍 highlights:', Array.isArray(highlights) ? highlights.length + '개' : 'not array');
+
+        // 지역 데이터 설정 (DB의 실제 내용 사용)
         const actualRegionData = {
           name: locationName,
           country: overview.location || '',
-          description: overview.background || overview.keyFeatures || '',
-          highlights: overview.keyFacts && Array.isArray(overview.keyFacts) 
-            ? overview.keyFacts.map((kf: any) => kf.description || kf.title || kf.toString()) 
-            : [],
+          description: overview.description || overview.background || overview.keyFeatures || '',
+          highlights: highlights,
           quickFacts: {
             area: overview.visitInfo?.area || '',
             population: overview.visitInfo?.population || '',
-            bestTime: overview.visitInfo?.season || overview.visitInfo?.duration || '',
+            bestTime: overview.visitInfo?.season || overview.visitInfo?.duration || content?.bestTimeToVisit || '',
             timeZone: overview.visitInfo?.timeZone || ''
           },
-          coordinates: content?.coordinates?.[0] ? {
-            lat: parseFloat(content.coordinates[0].lat),
-            lng: parseFloat(content.coordinates[0].lng)
-          } : null // content 챕터 좌표 사용 금지, coordinates 컬럼만 사용
+          coordinates: coordinatesFromDb?.[0] ? {
+            lat: parseFloat(coordinatesFromDb[0].lat),
+            lng: parseFloat(coordinatesFromDb[0].lng)
+          } : null
         };
         
         setRegionData(actualRegionData);
         
-        // 🎯 실제 DB 구조에 맞게 추천 장소 추출 
+        // DB에서 추천 장소 추출 (content.route.steps 사용)
         let spotsToAdd: RecommendedSpot[] = [];
         
-        // ✅ 실제 DB 구조: content.route.steps에서 추천 장소 추출
         if (content?.route?.steps && Array.isArray(content.route.steps)) {
-          const stepSpots = content.route.steps.slice(0, 8).map((step: any, index: number) => {
-            // ✅ DB에서 location 필드가 정확히 존재함: "시테 섬", "루브르 박물관" 등
-            const placeName = step?.location;
-            
-            if (!placeName) return null;
-            
-            // 🎯 좌표는 coordinates 칼럼에서만 가져오기 (단순화)
-            let coordinates: { lat: number; lng: number; } | null = null;
-            
-            if (content?.coordinates && Array.isArray(content.coordinates) && content.coordinates[index]) {
-              const coordItem = content.coordinates[index];
-              if (coordItem?.lat && coordItem?.lng) {
-                coordinates = {
-                  lat: parseFloat(coordItem.lat),
-                  lng: parseFloat(coordItem.lng)
-                };
-              }
-            }
-            
-            // ✅ 설명은 step.title에서 콜론 뒤 부분만 사용 (하드코딩 메시지 제거)
-            let description = '';
-            
-            // step.title에서 콜론 뒤 설명 부분 추출: "루브르 박물관: 세계적인 예술 작품의 향연" → "세계적인 예술 작품의 향연"
-            if (step.title && step.title.includes(':')) {
-              const titleDescription = step.title.split(':')[1]?.trim();
-              if (titleDescription && titleDescription.length > 5) {
-                description = titleDescription;
-              }
-            }
-            
-            return {
-              id: `route-step-${index}`,
-              name: placeName, // ✅ DB의 location 필드 직접 사용: "시테 섬", "루브르 박물관" 등
-              location: locationName,
-              category: 'travel',
-              description,
-              highlights: [],
-              estimatedDays: Math.min(Math.ceil((index + 1) / 3), 2),
-              difficulty: 'easy' as const,
-              seasonality: t('common.yearRound'),
-              popularity: Math.max(95 - (index * 3), 70),
-              coordinates
-            };
-          }).filter(Boolean);
-          
-          spotsToAdd = stepSpots;
+          spotsToAdd = content.route.steps.slice(0, 8).map((step: any, index: number) => ({
+            id: `db-spot-${index}`,
+            name: step.location || `장소 ${index + 1}`,
+            location: locationName,
+            category: step.category || 'attraction',
+            description: step.title?.split(':')[1]?.trim() || '',
+            highlights: step.highlights || [],
+            estimatedDays: 1,
+            difficulty: 'easy' as const,
+            seasonality: t('common.yearRound'),
+            popularity: Math.max(95 - (index * 3), 70),
+            coordinates: coordinatesFromDb?.[index] ? {
+              lat: parseFloat(coordinatesFromDb[index].lat),
+              lng: parseFloat(coordinatesFromDb[index].lng)
+            } : null
+          }));
         }
         
         setRecommendedSpots(spotsToAdd);
         
       } else {
-        // content가 없는 경우에만 API 호출
+        // content가 완전히 없는 경우에만 API 호출 - DB 우선 정책
+        console.log('📭 DB에 content 없음, 새로운 가이드 생성 필요');
         const response = await fetch(`/api/ai/generate-region-overview`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -200,9 +233,44 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
 
         const result = await response.json();
 
-        if (result.success) {
-          setRegionData(result.regionData);
-          setRecommendedSpots(result.recommendedSpots || []);
+        if (result.success && result.content) {
+          // API 응답에서 새로운 개요 정보가 있으면 사용
+          const newRegionData = {
+            name: locationName,
+            country: result.content.overview?.keyFacts?.find((kf: any) => kf.title === "국가")?.description || locationName,
+            description: result.content.overview?.description || '',
+            highlights: result.content.overview?.highlights || [],
+            quickFacts: {
+              bestTime: result.content.overview?.keyFacts?.find((kf: any) => kf.title === "최적 방문 시기")?.description || '',
+              timeZone: '현지 시간대'
+            },
+            coordinates: coordinatesFromDb?.[0] ? {
+              lat: parseFloat(coordinatesFromDb[0].lat),
+              lng: parseFloat(coordinatesFromDb[0].lng)
+            } : null
+          };
+          
+          setRegionData(newRegionData);
+          
+          // 추천 장소도 API 응답에서 생성
+          const newRecommendedSpots = result.content.route?.steps?.slice(0, 8).map((step: any, index: number) => ({
+            id: `api-spot-${index}`,
+            name: step.location || `추천지 ${index + 1}`,
+            location: locationName,
+            category: 'attraction',
+            description: step.description || '',
+            highlights: step.highlights || [],
+            estimatedDays: 1,
+            difficulty: 'easy' as const,
+            seasonality: '연중',
+            popularity: 90 - (index * 2),
+            coordinates: coordinatesFromDb?.[index] ? {
+              lat: parseFloat(coordinatesFromDb[index].lat),
+              lng: parseFloat(coordinatesFromDb[index].lng)
+            } : null
+          })) || [];
+          
+          setRecommendedSpots(newRecommendedSpots);
         } else {
           setError(result.error || t('guide.cannotLoadInfo'));
         }
@@ -214,7 +282,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
     } finally {
       setIsLoading(false);
     }
-  }, [locationName, language, routingResult, content, t]);
+  }, [locationName, language, routingResult, content, t, fetchCoordinatesData]);
 
   // 지역 정보 및 추천 장소 로드
   useEffect(() => {
@@ -222,12 +290,9 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
   }, [loadRegionData]);
 
   const handleSpotClick = (spot: RecommendedSpot) => {
-    // 🎯 지역 컨텍스트 포함한 URL 생성 - 동일명 장소 혼동 방지
+    // 🎯 새로운 URL 구조: /guide/[language]/[location]
     const spotName = encodeURIComponent(spot.name);
-    const parentRegion = encodeURIComponent(locationName);
-    
-    // URL에 parent 파라미터로 상위 지역 정보 포함
-    const targetUrl = `/guide/${spotName}?parent=${parentRegion}&lang=${language}`;
+    const targetUrl = `/guide/${language}/${spotName}`;
     
     // 🔄 세션 스토리지에 지역 컨텍스트 저장 (추가 보안)
     if (typeof window !== 'undefined') {
@@ -247,6 +312,16 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
     
     router.push(targetUrl);
   };
+
+  // 🗺️ 마커 클릭 핸들러
+  // 마커 클릭 기능 제거
+  // const handleMarkerClick = (spotId: string, spotName: string) => {
+  //   console.log('🗺️ 마커 클릭됨:', spotId, spotName);
+  //   const spot = recommendedSpots.find(s => s.id === spotId || s.name === spotName);
+  //   if (spot) {
+  //     handleSpotClick(spot);
+  //   }
+  // };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -279,8 +354,8 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-4xl mb-4">😕</div>
-          <h2 className="text-xl font-medium text-gray-900 mb-2">{t('guide.cannotLoadInfo')}</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
+          <h2 className="text-lg font-bold text-black mb-2">{t('guide.cannotLoadInfo')}</h2>
+          <p className="text-sm font-medium text-black leading-relaxed mb-4">{error}</p>
           <button
             onClick={loadRegionData}
             className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
@@ -295,59 +370,36 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* 🎨 모던 미니멀 헤더 */}
-      <div className="border-b border-black/8">
-        <div className="max-w-4xl mx-auto p-6">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.back()}
-              className="p-3 hover:bg-black/5 rounded-2xl transition-colors"
-              aria-label={t('common.goBack') as string}
-            >
-              <svg className="w-5 h-5 text-black/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <div className="text-center">
-              <h1 className="text-3xl font-bold text-black tracking-tight">
-                {regionData?.name || locationName}
-              </h1>
-              {regionData?.country && (
-                <p className="text-black/60 mt-1 font-medium">{regionData.country}</p>
-              )}
-            </div>
-          </div>
-        </div>
+    <div className="flex flex-col min-h-screen">
+      {/* 고정된 상단 영역 - 헤더, 제목 (가이드 페이지와 동일한 구조) */}
+      <div className="sticky top-0 z-50 bg-white">
+        {/* 헤더 */}
+        <GuideHeader 
+          locationName={regionData?.name || locationName}
+          variant="main"
+        />
+        
+        {/* 타이틀 */}
+        <GuideTitle 
+          locationName={regionData?.name || locationName}
+          variant="main"
+        />
       </div>
       
       {/* 🎨 메인 콘텐츠 - 실시간 가이드 스타일 */}
-      <div className="max-w-4xl mx-auto p-6 space-y-8">
+      <div className="flex-1 bg-white">
+        <div className="max-w-4xl mx-auto p-6 space-y-6">
           
-        {/* 🎨 지역 소개 카드 */}
-        {regionData?.description && (
-          <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
-            <div className="p-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                  <Info className="w-4 h-4 text-white" />
-                </div>
-                <h2 className="text-xl font-semibold text-black">{t('guide.regionIntroduction')}</h2>
-              </div>
-              <p className="text-black/70 leading-relaxed text-lg">{regionData.description}</p>
-            </div>
-          </div>
-        )}
 
         {/* 🎨 하이라이트 카드 */}
         {regionData?.highlights && regionData.highlights.length > 0 && (
-          <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
+          <div className="card-base bg-white border border-gray-200 transition-all duration-300 overflow-hidden hover:shadow-card-hover">
             <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-8 h-8 bg-black flex items-center justify-center" style={{ borderRadius: '6px' }}>
                   <Star className="w-4 h-4 text-white" />
                 </div>
-                <h2 className="text-xl font-semibold text-black">{t('guide.keyFeatures')}</h2>
+                <h2 className="text-lg font-bold text-black">{t('guide.keyFeatures')}</h2>
               </div>
               <div className="space-y-3">
                 {regionData.highlights.map((highlight, index) => (
@@ -356,7 +408,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                     className="flex items-start gap-3"
                   >
                     <div className="w-1.5 h-1.5 bg-black rounded-full flex-shrink-0 mt-2"></div>
-                    <span className="text-black/80 font-medium leading-relaxed">{highlight}</span>
+                    <span className="text-sm font-medium text-black leading-relaxed">{highlight}</span>
                   </div>
                 ))}
               </div>
@@ -366,13 +418,13 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
 
 
         {/* 🎨 추천 여행지 카드 */}
-        <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
+        <div className="card-base bg-white border border-gray-200 transition-all duration-300 overflow-hidden hover:shadow-card-hover">
           <div className="p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-8 h-8 bg-black flex items-center justify-center" style={{ borderRadius: '6px' }}>
                 <Compass className="w-4 h-4 text-white" />
               </div>
-              <h2 className="text-xl font-semibold text-black">
+              <h2 className="text-lg font-bold text-black">
                 {t('guide.recommendedSpots')} ({recommendedSpots.length})
               </h2>
             </div>
@@ -384,7 +436,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                   <div 
                     key={spot.id}
                     onClick={() => handleSpotClick(spot)}
-                    className="group flex items-center justify-between p-4 bg-black/2 border border-black/5 rounded-2xl cursor-pointer transition-all duration-300 hover:border-black/20 hover:bg-black/5 active:scale-[0.99] focus:ring-2 focus:ring-black/30 focus:ring-offset-2"
+                    className="group flex items-center justify-between p-4 bg-black/2 border border-black/5 rounded-lg cursor-pointer transition-all duration-300 hover:border-black/20 hover:bg-black/5 active:scale-[0.99] focus:ring-2 focus:ring-black/30 focus:ring-offset-2"
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => {
@@ -396,19 +448,19 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
                     aria-label={`${spot.name}`}
                   >
                     <div className="flex items-center gap-4 flex-1">
-                      <div className="w-8 h-8 bg-black text-white text-sm font-semibold rounded-xl flex items-center justify-center flex-shrink-0">
+                      <div className="w-8 h-8 bg-black text-white text-sm font-semibold flex items-center justify-center flex-shrink-0" style={{ borderRadius: '6px' }}>
                         {index + 1}
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-black group-hover:text-black/80">
+                        <h3 className="text-sm font-semibold text-black group-hover:text-black/80">
                           {spot.name}
                         </h3>
                       </div>
                     </div>
                     
                     <div className="flex items-center gap-3 flex-shrink-0">
-                      <div className="flex items-center gap-1 text-black/60 text-sm">
-                        <Star className="w-4 h-4 fill-black/60 text-black/60" />
+                      <div className="flex items-center gap-1 text-gray-600 text-sm">
+                        <Star className="w-4 h-4 fill-gray-600 text-gray-600" />
                         <span className="font-medium">{Math.floor(spot.popularity/10)}</span>
                       </div>
                       <ArrowRight className="w-5 h-5 text-black/40 group-hover:text-black/60 transition-colors" />
@@ -419,7 +471,7 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
             ) : (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">🗺️</div>
-                <p className="text-black/60 text-lg">{t('guide.noRecommendedSpots')}</p>
+                <p className="text-sm font-medium text-black leading-relaxed">{t('guide.noRecommendedSpots')}</p>
               </div>
             )}
           </div>
@@ -427,30 +479,27 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
 
         {/* 🎨 지역 관광지 지도 카드 */}
         {recommendedSpots.length > 0 && (
-          <div className="relative overflow-hidden rounded-3xl bg-white border border-black/8 shadow-lg shadow-black/3 transition-all duration-500 hover:shadow-xl hover:shadow-black/8 hover:border-black/12">
-            <div className="p-8">
+          <div className="card-base bg-white border border-gray-200 transition-all duration-300 overflow-hidden hover:shadow-card-hover">
+            <div className="p-0">
               <RegionTouristMap
                 locationName={locationName}
-                recommendedSpots={recommendedSpots.filter(spot => spot.coordinates).map(spot => ({
-                  id: spot.id,
-                  name: spot.name,
-                  lat: spot.coordinates!.lat,
-                  lng: spot.coordinates!.lng,
-                  description: spot.description
-                }))}
-                regionCenter={regionData?.coordinates ? {
-                  lat: regionData.coordinates.lat,
-                  lng: regionData.coordinates.lng,
-                  name: `${locationName} 중심`
-                } : undefined}
-                guideCoordinates={null} // 🚨 중요: content 칼럼에서 좌표 데이터 추출 금지, coordinates 칼럼만 사용
-                className="w-full"
+                recommendedSpots={recommendedSpots
+                  .filter(spot => spot.coordinates)
+                  .map((spot) => ({
+                    id: spot.id,
+                    name: spot.name,
+                    lat: spot.coordinates!.lat,
+                    lng: spot.coordinates!.lng,
+                    description: spot.description
+                  }))}
+                guideCoordinates={coordinatesData} // 별도 coordinates 칼럼 데이터 전달
+                className="w-full rounded-md"
               />
             </div>
           </div>
         )}
 
-          
+        </div>
       </div>
     </div>
   );

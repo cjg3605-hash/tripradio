@@ -278,7 +278,7 @@
       "pressEnterToSearch": "Enter키를 눌러 검색하세요",
       "clear": "지우기",
       "enterLocation": "먼저 장소를 입력해주세요",
-      "searchButton": "검색하기",
+      "searchButton": "검색",
       "searchLocation": "여행지 검색",
       "searchPrompt": "{query} 검색하기",
       "searchResults": "검색 결과"
@@ -295,9 +295,16 @@
       "pauseAudio": "오디오 일시정지",
       "mapView": "지도 보기",
       "listView": "목록 보기",
+      "bookmark": "즐겨찾기",
+      "bookmarking": "저장중",
+      "bookmarked": "저장됨",
+      "share": "공유",
+      "save": "저장",
+      "regenerate": "재생성",
+      "regenerating": "생성중",
       "essentialInfo": "필수 정보",
       "locationAccess": "위치 및 접근",
-      "keyFeatures": "주요 특징",
+      "keyFeatures": "필수코스",
       "historicalContext": "역사적 배경",
       "mustSeeHighlights": "필수 관람 포인트",
       "safetyGuidelines": "안전 수칙",
@@ -352,7 +359,20 @@
       "loadMapAriaLabel": "지역 정보 다시 불러오기",
       "mapLoading": "지도 로딩 중...",
       "loadingRegionInfo": "지역 정보를 불러오는 중...",
-      "loadRegionError": "지역 정보를 불러오는 중 오류가 발생했습니다"
+      "loadRegionError": "지역 정보를 불러오는 중 오류가 발생했습니다",
+      "exploreHub": {
+        "defaultHighlights": {
+          "attractions": "다양한 볼거리와 즐길거리",
+          "culture": "풍부한 문화와 역사",
+          "food": "맛있는 현지 음식",
+          "people": "친절한 사람들"
+        },
+        "recommendedSpots": "추천 여행지",
+        "noSpotsAvailable": "추천 장소 정보를 불러올 수 없습니다",
+        "loadingSpots": "추천 장소 로딩 중...",
+        "keyHighlights": "주요 특징",
+        "quickFacts": "기본 정보"
+      }
     },
     "live": {
       "shareTitle": "AI 가이드 공유",
@@ -3029,9 +3049,16 @@
       "pauseAudio": "Pause Audio",
       "mapView": "Map View",
       "listView": "List View",
+      "bookmark": "Bookmark",
+      "bookmarking": "Saving",
+      "bookmarked": "Saved",
+      "share": "Share",
+      "save": "Save",
+      "regenerate": "Regenerate",
+      "regenerating": "Generating",
       "essentialInfo": "Essential Info",
       "locationAccess": "Location & Access",
-      "keyFeatures": "Key Features",
+      "keyFeatures": "Essential Courses",
       "historicalContext": "Historical Context",
       "mustSeeHighlights": "Must-See Highlights",
       "safetyGuidelines": "Safety Guidelines",
@@ -3086,7 +3113,20 @@
       "loadMapAriaLabel": "Reload regional information",
       "mapLoading": "Loading map...",
       "loadingRegionInfo": "Loading regional information...",
-      "loadRegionError": "An error occurred while loading regional information"
+      "loadRegionError": "An error occurred while loading regional information",
+      "exploreHub": {
+        "defaultHighlights": {
+          "attractions": "Diverse attractions and activities",
+          "culture": "Rich culture and history",
+          "food": "Delicious local cuisine",
+          "people": "Friendly locals"
+        },
+        "recommendedSpots": "Recommended Destinations",
+        "noSpotsAvailable": "Cannot load recommended spots information",
+        "loadingSpots": "Loading recommended spots...",
+        "keyHighlights": "Key Highlights",
+        "quickFacts": "Quick Facts"
+      }
     },
     "live": {
       "shareTitle": "Share AI Guide",
@@ -5570,9 +5610,16 @@
       "pauseAudio": "オーディオ一時停止",
       "mapView": "地図表示",
       "listView": "リスト表示",
+      "bookmark": "ブックマーク",
+      "bookmarking": "保存中",
+      "bookmarked": "保存済み",
+      "share": "共有",
+      "save": "保存",
+      "regenerate": "再生成",
+      "regenerating": "生成中",
       "essentialInfo": "必須情報",
       "locationAccess": "位置とアクセス",
-      "keyFeatures": "主な特徴",
+      "keyFeatures": "必須コース",
       "historicalContext": "歴史的背景",
       "mustSeeHighlights": "必見ハイライト",
       "safetyGuidelines": "安全ガイドライン",
@@ -5614,7 +5661,22 @@
       "bookmarkSuccess": "保存されました",
       "regenerateConfirm": "ガイドを削除して再生成しますか？",
       "yes": "はい",
-      "no": "いいえ"
+      "no": "いいえ",
+      "exploreHub": {
+        "defaultHighlights": {
+          "attractions": "様々な見どころとアクティビティ",
+          "culture": "豊かな文化と歴史",
+          "food": "美味しい現地料理",
+          "people": "親切な人々"
+        },
+        "recommendedSpots": "おすすめスポット",
+        "noSpotsAvailable": "おすすめスポット情報を読み込めません",
+        "loadingSpots": "おすすめスポット読み込み中...",
+        "keyHighlights": "主な特徴",
+        "quickFacts": "基本情報",
+        "mapTitle": "地域観光地マップ",
+        "mapLoading": "地図読み込み中..."
+      }
     },
     "live": {
       "shareTitle": "AIガイド共有",
@@ -7535,9 +7597,16 @@
       "pauseAudio": "暂停音频",
       "mapView": "地图视图",
       "listView": "列表视图",
+      "bookmark": "收藏",
+      "bookmarking": "保存中",
+      "bookmarked": "已保存",
+      "share": "分享",
+      "save": "保存",
+      "regenerate": "重新生成",
+      "regenerating": "生成中",
       "essentialInfo": "基本信息",
       "locationAccess": "位置和交通",
-      "keyFeatures": "主要特色",
+      "keyFeatures": "必修路线",
       "historicalContext": "历史背景",
       "mustSeeHighlights": "必看亮点",
       "safetyGuidelines": "安全指南",
@@ -7579,7 +7648,22 @@
       "bookmarkSuccess": "保存成功",
       "regenerateConfirm": "确定要删除并重新生成指南吗？",
       "yes": "是",
-      "no": "否"
+      "no": "否",
+      "exploreHub": {
+        "defaultHighlights": {
+          "attractions": "多样的景点和活动",
+          "culture": "丰富的文化历史",
+          "food": "美味的当地美食",
+          "people": "友好的当地人"
+        },
+        "recommendedSpots": "推荐景点",
+        "noSpotsAvailable": "无法加载推荐景点信息",
+        "loadingSpots": "正在加载推荐景点...",
+        "keyHighlights": "主要特色",
+        "quickFacts": "基本信息",
+        "mapTitle": "地区旅游地图",
+        "mapLoading": "地图加载中..."
+      }
     },
     "live": {
       "shareTitle": "分享AI指南",
@@ -9500,9 +9584,16 @@
       "pauseAudio": "Pausar Audio",
       "mapView": "Vista de Mapa",
       "listView": "Vista de Lista",
+      "bookmark": "Favorito",
+      "bookmarking": "Guardando",
+      "bookmarked": "Guardado",
+      "share": "Compartir",
+      "save": "Guardar",
+      "regenerate": "Regenerar",
+      "regenerating": "Generando",
       "essentialInfo": "Información Esencial",
       "locationAccess": "Ubicación y Acceso",
-      "keyFeatures": "Características Clave",
+      "keyFeatures": "Cursos Esenciales",
       "historicalContext": "Contexto Histórico",
       "mustSeeHighlights": "Destacados Imperdibles",
       "safetyGuidelines": "Pautas de Seguridad",
@@ -9544,7 +9635,22 @@
       "bookmarkSuccess": "Guardado exitosamente",
       "regenerateConfirm": "¿Desea eliminar y regenerar la guía?",
       "yes": "Sí",
-      "no": "No"
+      "no": "No",
+      "exploreHub": {
+        "defaultHighlights": {
+          "attractions": "Diversas atracciones y actividades",
+          "culture": "Rica cultura e historia",
+          "food": "Deliciosa cocina local",
+          "people": "Gente amable"
+        },
+        "recommendedSpots": "Destinos Recomendados",
+        "noSpotsAvailable": "No se puede cargar información de destinos recomendados",
+        "loadingSpots": "Cargando destinos recomendados...",
+        "keyHighlights": "Aspectos Destacados",
+        "quickFacts": "Datos Rápidos",
+        "mapTitle": "Mapa de Atracciones Regionales",
+        "mapLoading": "Cargando mapa..."
+      }
     },
     "live": {
       "shareTitle": "Compartir Guía IA",

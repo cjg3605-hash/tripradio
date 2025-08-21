@@ -1,12 +1,7 @@
 'use client';
 
-import React from 'react';
-import { MapPin, Compass } from 'lucide-react';
-import dynamic from 'next/dynamic';
-import { useLanguage } from '@/contexts/LanguageContext';
-
-// 직접 import로 변경하여 중복 초기화 방지
-import MapWithRoute from './MapWithRoute';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { MapPin } from 'lucide-react';
 
 interface RecommendedSpot {
   id: string;
@@ -19,203 +14,309 @@ interface RecommendedSpot {
 interface RegionTouristMapProps {
   locationName: string;
   recommendedSpots: RecommendedSpot[];
-  regionCenter?: { lat: number; lng: number; name?: string };
+  guideCoordinates?: any; // coordinates 칼럼에서 가져온 좌표 데이터
   className?: string;
-  guideCoordinates?: any; // Supabase coordinates 컬럼 데이터 (좌표 배열)
 }
 
 const RegionTouristMap: React.FC<RegionTouristMapProps> = ({
   locationName,
   recommendedSpots,
-  regionCenter,
-  className = '',
-  guideCoordinates
+  guideCoordinates,
+  className = ''
 }) => {
-  const { t } = useLanguage();
-  
-  // 🎯 1단계: coordinates 칼럼 데이터에서 추가 POI 추출
-  let coordinatesSpots: RecommendedSpot[] = [];
-  
-  if (guideCoordinates && Array.isArray(guideCoordinates)) {
-    console.log('🗺️ RegionTouristMap: coordinates 칼럼 데이터 처리 시작', {
-      length: guideCoordinates.length,
-      sampleData: guideCoordinates[0],
-      allData: guideCoordinates
-    });
-    
-    coordinatesSpots = guideCoordinates.map((coord: any, index: number) => {
-      const extractedLat = coord.lat || coord.coordinates?.lat;
-      const extractedLng = coord.lng || coord.coordinates?.lng;
-      
-      console.log(`🔍 좌표 추출 ${index}:`, {
-        original: coord,
-        title: coord.title,
-        directLat: coord.lat,
-        directLng: coord.lng,
-        nestedLat: coord.coordinates?.lat,
-        nestedLng: coord.coordinates?.lng,
-        extractedLat,
-        extractedLng
-      });
-      
-      return {
-        id: `coord-${coord.id || coord.chapterId || index}`,
-        name: coord.title || `장소 ${index + 1}`,
-        lat: extractedLat,
-        lng: extractedLng,
-        description: `${locationName}의 주요 관광 포인트`
-      };
-    }).filter((spot: any) => {
-      const isValid = spot.lat && spot.lng && 
-        !isNaN(spot.lat) && !isNaN(spot.lng) &&
-        spot.lat >= -90 && spot.lat <= 90 &&
-        spot.lng >= -180 && spot.lng <= 180;
-      
-      if (!isValid) {
-        console.log('❌ 유효하지 않은 좌표:', spot);
-      }
-      
-      return isValid;
-    });
-    
-    console.log('🗺️ coordinates 칼럼에서 추출한 POI:', {
-      total: coordinatesSpots.length,
-      spots: coordinatesSpots
-    });
-  } else {
-    console.log('⚠️ guideCoordinates 데이터 없음:', {
-      guideCoordinates,
-      isArray: Array.isArray(guideCoordinates),
-      type: typeof guideCoordinates
-    });
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const [mapState, setMapState] = useState<'loading' | 'loaded' | 'error'>('loading');
+  const [errorMessage, setErrorMessage] = useState<string>('');
+
+  // 마커 타입 정의
+  interface MapMarker {
+    id: number | string;
+    title: string;
+    lat: number;
+    lng: number;
+    description: string;
+    name?: string;
   }
-  
-  // 🎯 2단계: 기존 recommendedSpots와 coordinates 칼럼 데이터 병합
-  const allSpots = [...recommendedSpots, ...coordinatesSpots];
-  
-  // 🎯 3단계: 유효한 좌표를 가진 관광지만 필터링 (중복 제거 포함)
-  const uniqueSpotNames = new Set<string>();
-  const validSpots = allSpots.filter(spot => {
-    // 좌표 유효성 검사
-    const hasValidCoords = spot.lat && spot.lng && 
-      !isNaN(spot.lat) && !isNaN(spot.lng) &&
-      spot.lat >= -90 && spot.lat <= 90 &&
-      spot.lng >= -180 && spot.lng <= 180;
-    
-    if (!hasValidCoords) return false;
-    
-    // 중복 제거 (같은 이름의 장소는 하나만)
-    if (uniqueSpotNames.has(spot.name)) return false;
-    uniqueSpotNames.add(spot.name);
-    
-    return true;
-  });
-  
-  console.log('🗺️ RegionTouristMap 최종 유효 POI:', validSpots.length);
 
-  // 관광지 중심점 계산 (id:0 챕터 우선, regionCenter fallback)
-  const calculateMapCenter = () => {
-    if (regionCenter && regionCenter.lat && regionCenter.lng) {
-      console.log('🎯 RegionTouristMap 중심: regionCenter 사용', regionCenter);
-      return { lat: regionCenter.lat, lng: regionCenter.lng, name: regionCenter.name };
+  // coordinates 칼럼에서 좌표 추출
+  const extractCoordinatesFromColumn = (guideCoordinates: any): MapMarker[] => {
+    if (!guideCoordinates || !Array.isArray(guideCoordinates)) {
+      return [];
     }
 
-    // id:0 챕터(첫 번째 챕터) 우선 사용
-    if (coordinatesSpots.length > 0) {
-      const firstChapterSpot = coordinatesSpots.find(spot => 
-        spot.id.includes('coord-0') || 
-        spot.id.includes('coord-coord-0') ||
-        spot.name.includes('입구') ||
-        spot.name.includes('시작')
-      ) || coordinatesSpots[0]; // 첫 번째 spots 사용
-      
-      if (firstChapterSpot) {
-        console.log('🎯 RegionTouristMap 중심: id:0 챕터 우선 사용', firstChapterSpot);
-        return { 
-          lat: firstChapterSpot.lat, 
-          lng: firstChapterSpot.lng, 
-          name: firstChapterSpot.name 
-        };
+    return guideCoordinates.map((coord: any, index: number) => {
+      // 좌표 추출 (다양한 형태 지원)
+      const lat = coord.lat || coord.coordinates?.lat;
+      const lng = coord.lng || coord.coordinates?.lng;
+      const title = coord.title || coord.name || `장소 ${index + 1}`;
+
+      if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+        return null;
       }
-    }
 
-    if (validSpots.length > 0) {
-      const centerLat = validSpots.reduce((sum, spot) => sum + spot.lat, 0) / validSpots.length;
-      const centerLng = validSpots.reduce((sum, spot) => sum + spot.lng, 0) / validSpots.length;
-      console.log('🎯 RegionTouristMap 중심: 평균 중심점 사용', { lat: centerLat, lng: centerLng });
-      return { lat: centerLat, lng: centerLng, name: `${locationName} 중심` };
-    }
-
-    // 기본값 - 유효한 POI가 없으면 null 반환
-    console.log('🎯 RegionTouristMap 중심: 데이터 없음');
-    return null;
+      return {
+        id: coord.id || `db-spot-${index}`,
+        title: title,
+        lat: parseFloat(lat),
+        lng: parseFloat(lng),
+        description: coord.description || `${locationName}의 주요 관광지`
+      };
+    }).filter((item): item is MapMarker => item !== null);
   };
 
-  const mapCenter = calculateMapCenter();
+  // coordinates 칼럼에서 추출한 좌표들 (참고용)
+  const coordinateSpots = extractCoordinatesFromColumn(guideCoordinates);
+  
+  // 추천여행지만 사용 (좌표 불일치 문제 해결)
+  const allMarkersToShow: MapMarker[] = recommendedSpots as MapMarker[];
 
-  // POI 데이터를 MapWithRoute에 맞는 형식으로 변환
-  const poisForMap = validSpots.map(spot => ({
-    id: spot.id,
-    name: spot.name,
-    lat: spot.lat,
-    lng: spot.lng,
-    description: spot.description
-  }));
+  console.log('🗺️ [RegionTouristMap] 마커 데이터:', {
+    coordinateSpotsCount: coordinateSpots.length,
+    recommendedSpotsCount: recommendedSpots.length,
+    finalMarkersCount: allMarkersToShow.length,
+    forcingRecommendedSpots: true,
+    recommendedSpotNames: recommendedSpots.map(spot => spot.name),
+    allMarkersToShow: allMarkersToShow.map(spot => ({
+      name: spot.name || spot.title,
+      lat: spot.lat,
+      lng: spot.lng
+    }))
+  });
+
+  // 지도 초기화 함수
+  const initializeMap = useCallback(async () => {
+    try {
+      console.log('🗺️ [RegionTouristMap] 지도 초기화 시작');
+      
+      // Leaflet 동적 import
+      const L = await import('leaflet');
+      
+      // Leaflet CSS 로드
+      if (!document.querySelector('link[href*="leaflet.css"]')) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        document.head.appendChild(link);
+      }
+
+      // 커스텀 툴팁 스타일 추가
+      if (!document.querySelector('#leaflet-custom-tooltip-styles-region')) {
+        const style = document.createElement('style');
+        style.id = 'leaflet-custom-tooltip-styles-region';
+        style.innerHTML = `
+          .custom-tooltip {
+            background: #1f2937 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-family: system-ui, -apple-system, sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            padding: 8px 12px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+          }
+          .custom-tooltip::before {
+            border-top-color: #1f2937 !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      // 기본 아이콘 설정
+      delete (L as any).Icon.Default.prototype._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      });
+
+      // 기존 지도 정리
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+
+      // DOM 요소 확인
+      if (!mapRef.current) {
+        throw new Error('지도 컨테이너 DOM 요소를 찾을 수 없습니다');
+      }
+
+      console.log('🗺️ [RegionTouristMap] Leaflet 지도 생성 중...');
+
+      // 지도 중심점 계산 (표시할 마커들의 평균 좌표)
+      let centerLat = 37.5665;
+      let centerLng = 126.9780;
+      let zoom = 10;
+
+      if (allMarkersToShow.length > 0) {
+        // 유효한 좌표가 있는 마커들만 필터링
+        const validMarkers = allMarkersToShow.filter(spot => 
+          spot.lat && spot.lng && 
+          !isNaN(spot.lat) && !isNaN(spot.lng) &&
+          spot.lat !== 0 && spot.lng !== 0
+        );
+        
+        console.log('🗺️ [RegionTouristMap] 좌표 유효성 검사:', {
+          totalMarkers: allMarkersToShow.length,
+          validMarkers: validMarkers.length,
+          invalidMarkers: allMarkersToShow.filter(spot => !validMarkers.includes(spot))
+        });
+        
+        if (validMarkers.length > 0) {
+          centerLat = validMarkers.reduce((sum, spot) => sum + spot.lat, 0) / validMarkers.length;
+          centerLng = validMarkers.reduce((sum, spot) => sum + spot.lng, 0) / validMarkers.length;
+          
+          // 모든 마커가 보이도록 zoom 조정
+          zoom = validMarkers.length === 1 ? 15 : 12;
+        }
+      }
+      
+      // 지도 생성 (더 안전한 설정)
+      const map = L.map(mapRef.current, {
+        preferCanvas: true,
+        zoomControl: true,
+        scrollWheelZoom: true,
+        fadeAnimation: false,
+        zoomAnimation: false,
+        markerZoomAnimation: false
+      }).setView([centerLat, centerLng], zoom);
+
+      // 지도 인스턴스 참조 저장
+      mapInstanceRef.current = map;
+
+      // CartoDB Voyager 타일 레이어
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap contributors © CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
+      }).addTo(map);
+
+      // 모든 마커 추가 (유효한 좌표만)
+      allMarkersToShow.forEach((spot, index) => {
+        // 좌표 유효성 검사
+        if (!spot.lat || !spot.lng || isNaN(spot.lat) || isNaN(spot.lng) || spot.lat === 0 || spot.lng === 0) {
+          console.warn(`🗺️ [RegionTouristMap] 잘못된 좌표로 마커 스킵:`, spot);
+          return;
+        }
+        
+        // coordinates 칼럼에서 온 데이터와 recommendedSpots에서 온 데이터 구분
+        const spotName = spot.title || spot.name || `장소 ${index + 1}`;
+        // ID 매칭 개선: db-spot-0, db-spot-1 형태로 통일
+        const spotId = `db-spot-${index}`;
+        
+        console.log(`🗺️ [RegionTouristMap] 마커 ${index + 1} 추가:`, {
+          spotName,
+          spotId,
+          lat: spot.lat,
+          lng: spot.lng,
+          originalSpot: spot
+        });
+        
+        const marker = L.marker([spot.lat, spot.lng])
+          .bindTooltip(spotName, {
+            permanent: false, // 항상 표시하지 않음
+            direction: 'top',
+            offset: [0, -10],
+            className: 'custom-tooltip',
+            opacity: 0.9
+          })
+          .addTo(map);
+
+        // 호버 시 툴팁 표시
+        marker.on('mouseover', function(this: L.Marker) {
+          this.openTooltip();
+        });
+        
+        marker.on('mouseout', function(this: L.Marker) {
+          this.closeTooltip();
+        });
+
+        // 마커 클릭 이벤트 제거
+        // marker.on('click', () => {
+        //   console.log('🗺️ [RegionTouristMap] 마커 클릭:', spotName);
+        //   if (onMarkerClick) {
+        //     onMarkerClick(spotId, spotName);
+        //   }
+        // });
+      });
+
+      // 모든 마커가 보이도록 지도 영역 조정
+      if (allMarkersToShow.length > 1) {
+        const group = new L.FeatureGroup(
+          allMarkersToShow.map(spot => L.marker([spot.lat, spot.lng]))
+        );
+        map.fitBounds(group.getBounds().pad(0.1));
+      }
+
+      mapInstanceRef.current = map;
+      
+      // 지도 컨테이너 스타일 설정
+      if (mapRef.current) {
+        const mapContainer = mapRef.current.querySelector('.leaflet-container');
+        if (mapContainer) {
+          (mapContainer as HTMLElement).style.zIndex = '1';
+          (mapContainer as HTMLElement).style.borderRadius = '0.375rem';
+          (mapContainer as HTMLElement).style.overflow = 'hidden';
+        }
+      }
+      
+      setMapState('loaded');
+      console.log(`✅ [RegionTouristMap] 지도 초기화 완료: ${allMarkersToShow.length}개 마커 표시`);
+
+    } catch (error) {
+      console.error('❌ [RegionTouristMap] 지도 초기화 실패:', error);
+      setErrorMessage(`지도 로드 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+      setMapState('error');
+    }
+  }, [allMarkersToShow]);
+
+  // 지도 초기화
+  useEffect(() => {
+    if (allMarkersToShow.length > 0) {
+      initializeMap();
+    } else {
+      setMapState('error');
+      setErrorMessage('표시할 여행지가 없습니다.');
+    }
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [initializeMap, allMarkersToShow.length]);
 
   return (
-    <div className={`bg-white border border-black/8 rounded-3xl shadow-lg shadow-black/3 overflow-hidden ${className}`}>
-      {/* 모던 모노크롬 헤더 */}
-      <div className="p-4 border-b border-black/5">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
-            <Compass className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-black tracking-tight">
-              {t('guide.regionTouristMap') || '지역 관광지 지도'}
-            </h3>
-            <p className="text-sm text-black/60 font-medium mt-0.5">
-              {validSpots.length > 0 
-                ? `${validSpots.length}개 ${t('guide.recommendedSpots') || '추천 장소'}`
-                : `${locationName} ${t('guide.regionOverview') || '지역 개요'}`
-              }
-            </p>
+    <div className={`h-48 relative overflow-hidden ${className}`}>
+      {mapState === 'loading' && (
+        <div className="w-full h-full flex items-center justify-center bg-gray-100">
+          <div className="text-center">
+            <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+            <p className="text-gray-600">지도를 불러오는 중...</p>
           </div>
         </div>
-      </div>
-
-      {/* Enhanced 지도 */}
-      <div className="h-64">
-        {validSpots.length > 0 ? (
-          <MapWithRoute
-            chapters={undefined} // 챕터는 사용하지 않음
-            pois={poisForMap} // 모든 관광지 표시
-            currentLocation={null}
-            center={mapCenter || undefined}
-            zoom={12} // 지역 전체가 보이도록 넓게 설정
-            showRoute={false} // 루트는 표시하지 않음
-            showUserLocation={false}
-            onMarkerClick={undefined}
-            onPoiClick={(poiId) => {
-              console.log('관광지 클릭:', poiId);
-            }}
-            className="w-full h-full"
-            locationName={locationName}
-            guideCoordinates={guideCoordinates} // coordinates 칼럼 데이터 전달
-          />
-        ) : (
-          // 관광지 데이터가 없는 경우 기본 지도 표시
-          <div className="w-full h-full bg-gray-50 flex items-center justify-center">
-            <div className="text-center text-gray-500">
-              <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-              <div className="text-lg font-medium">{locationName}</div>
-              <div className="text-sm mt-1">
-                {t('guide.noTouristSpotsAvailable') || '관광지 정보를 불러오는 중입니다'}
-              </div>
-            </div>
+      )}
+      
+      {mapState === 'error' && (
+        <div className="w-full h-full flex items-center justify-center bg-gray-100">
+          <div className="text-center text-red-600">
+            <MapPin className="w-8 h-8 mx-auto mb-2" />
+            <p className="font-medium">지도 로드 실패</p>
+            <p className="text-sm mt-1">{errorMessage}</p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+      
+      <div 
+        ref={mapRef} 
+        className="w-full h-full"
+        style={{ 
+          display: mapState === 'loaded' ? 'block' : 'none',
+          zIndex: 1
+        }}
+      />
     </div>
   );
 };
