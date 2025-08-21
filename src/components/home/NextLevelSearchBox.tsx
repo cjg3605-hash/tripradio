@@ -693,7 +693,7 @@ export default function NextLevelSearchBox() {
 
       {/* 📋 검색 제안 목록 - 검색창과 동일한 스타일로 통일 */}
       {isFocused && !isSubmitting && isValidQuery(query) && (
-        <div className="absolute top-full left-0 w-full" style={{ zIndex: 9999 }}>
+        <div className="absolute top-full left-0 w-full" style={{ zIndex: 'var(--z-autocomplete)' }}>
           <div className="bg-white/95 backdrop-blur border border-white/30 rounded-sm shadow-2xl max-h-80 overflow-y-auto relative">
             {isTyping ? (
               /* 로딩 상태 */
