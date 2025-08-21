@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Header from './Header';
 import { HistorySidebar } from './HistorySidebar';
+import { LanguageDetectionToast } from '@/components/common/LanguageDetectionToast';
 
 // 성능 모니터링 프로바이더 동적 로드
 const PerformanceProvider = dynamic(() => import('@/components/providers/PerformanceProvider'), {
@@ -22,6 +23,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     <PerformanceProvider>
       {!isGuidePage && <Header onHistoryOpen={() => setIsHistoryOpen(true)} />}
       <HistorySidebar isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
+      
+      {/* 🌍 언어 자동 감지 알림 토스트 */}
+      <LanguageDetectionToast />
+      
       <main>
         {children}
       </main>

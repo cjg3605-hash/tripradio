@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { detectPreferredLanguage, setLanguageCookie, getLanguageCookie } from '@/lib/utils';
 import { mapLocationToKorean, translateLocationFromKorean } from '@/lib/location-mapping';
+import type { LanguageDetectionResult, LanguageDetectionSource, getDetectionSourceMessage } from '@/lib/ip-language-detection';
 
 // 지원 언어 타입
 export type SupportedLanguage = 'ko' | 'en' | 'ja' | 'zh' | 'es';
@@ -1289,6 +1290,9 @@ interface LanguageContextType {
   isLoading: boolean;
   isRTL: boolean;
   detectBrowserLanguage: () => SupportedLanguage;
+  detectionInfo: LanguageDetectionResult | null;
+  showDetectionNotice: boolean;
+  hideDetectionNotice: () => void;
 }
 
 // Context 생성
@@ -1576,6 +1580,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('ko');
   const [translations, setTranslations] = useState<Translations>(DEFAULT_TRANSLATIONS);
   const [isLoading, setIsLoading] = useState(false);
+  const [detectionInfo, setDetectionInfo] = useState<LanguageDetectionResult | null>(null);
+  const [showDetectionNotice, setShowDetectionNotice] = useState(false);
 
   // 현재 언어 설정 가져오기 (안전한 접근)
   const currentConfig = SUPPORTED_LANGUAGES.find(lang => lang?.code === currentLanguage) || SUPPORTED_LANGUAGES[0] || {
@@ -1680,6 +1686,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('preferred-language', language);
         setLanguageCookie(language);
         
+        // 🔧 수동 언어 변경 플래그 설정 (자동 감지 알림 방지)
+        sessionStorage.setItem('manual-language-change', 'true');
+        
+        // 🔄 감지 알림 숨김 처리
+        setShowDetectionNotice(false);
+        setDetectionInfo(null);
+        
         // 🔥 전역 리렌더링 이벤트 발생 (모든 컴포넌트 강제 업데이트)
         window.dispatchEvent(new CustomEvent('languageChanged', { 
           detail: { 
@@ -1749,6 +1762,55 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
     initializeLanguage();
   }, []); // 🔥 의존성 배열: 초기화는 한 번만 실행
+
+  // 🌍 쿠키 기반 언어 감지 정보 캐치
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleLanguageDetection = () => {
+      // 쿠키에서 언어 감지 여부 확인
+      const isFirstVisit = !document.cookie.includes('language-preference-set');
+      const languageCookie = getLanguageCookie();
+      
+      // 첫 방문이고 언어가 자동 설정된 경우
+      if (isFirstVisit && languageCookie && languageCookie !== 'ko') {
+        const detectionResult: LanguageDetectionResult = {
+          language: languageCookie as SupportedLanguage,
+          source: 'ip', // 첫 방문 자동 감지는 IP 기반으로 추정
+          confidence: 0.8,
+          timestamp: Date.now()
+        };
+        
+        setDetectionInfo(detectionResult);
+        setShowDetectionNotice(true);
+        
+        // 감지 확인 쿠키 설정
+        document.cookie = 'language-preference-set=true; max-age=2592000; path=/';
+        
+        console.log('🔔 언어 자동 감지 알림 표시:', detectionResult);
+        
+        // 5초 후 자동으로 알림 숨김
+        setTimeout(() => {
+          setShowDetectionNotice(false);
+        }, 5000);
+      }
+    };
+
+    // 페이지 로드 시 감지 정보 확인
+    handleLanguageDetection();
+    
+    // URL 변경 시 감지 정보 확인
+    window.addEventListener('popstate', handleLanguageDetection);
+    
+    return () => {
+      window.removeEventListener('popstate', handleLanguageDetection);
+    };
+  }, []);
+
+  // 감지 알림 숨김 함수
+  const hideDetectionNotice = useCallback(() => {
+    setShowDetectionNotice(false);
+  }, []);
 
   // 번역 함수
   const t = (key: string, params?: Record<string, string>): string | string[] => {
@@ -1827,7 +1889,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     translations,
     isLoading,
     isRTL,
-    detectBrowserLanguage
+    detectBrowserLanguage,
+    detectionInfo,
+    showDetectionNotice,
+    hideDetectionNotice
   };
 
   return (

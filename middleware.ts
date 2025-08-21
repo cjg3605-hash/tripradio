@@ -5,6 +5,8 @@ import createIntlMiddleware from 'next-intl/middleware';
 import { botDetectionEngine } from './src/lib/security/bot-detection-engine';
 import { captchaSystem } from './src/lib/security/captcha-system';
 import { loginRateLimiter, emailVerificationRateLimiter } from './src/lib/rate-limiter-auth';
+import { detectPreferredLanguageAdvanced } from './src/lib/ip-language-detection';
+import { attachDevGeo } from './src/lib/dev-ip-simulation';
 
 // next-intl 미들웨어 설정
 const intlMiddleware = createIntlMiddleware({
@@ -159,27 +161,89 @@ export default withAuth(
     const isStaticFile = pathname.includes('.');
     
     if (!isApiRoute && !isStaticFile) {
-      // 해외 사용자 언어 감지 및 리다이렉션
-      const acceptLanguage = req.headers.get('Accept-Language') || '';
-      const currentLang = req.nextUrl.searchParams.get('lang');
+      // 🚀 통합 언어 감지 시스템 (쿠키 > IP > Accept-Language)
+      const startDetectionTime = Date.now();
       
-      // Accept-Language에서 지원 언어 추출
-      const supportedLocales = ['ko', 'en', 'ja', 'zh', 'es'];
-      const detectedLang = acceptLanguage
-        .split(',')[0]
-        ?.split('-')[0]
-        ?.toLowerCase();
+      // 언어 자동 감지 실행 (쿠키가 없는 첫 방문자만)
+      const hasLanguageCookie = req.cookies.get('language-preference')?.value || 
+                               req.cookies.get('NEXT_LOCALE')?.value;
       
-      // 언어 파라미터가 없고, 해외 언어가 감지되면 리다이렉션
-      if (!currentLang && detectedLang && 
-          supportedLocales.includes(detectedLang) && 
-          detectedLang !== 'ko') {
-        
-        const url = req.nextUrl.clone();
-        url.searchParams.set('lang', detectedLang);
-        
-        console.log(`🌍 해외 사용자 언어 감지: ${detectedLang} → ${url.toString()}`);
-        return NextResponse.redirect(url);
+      // 쿠키가 없는 경우에만 자동 감지 및 설정
+      if (!hasLanguageCookie) {
+        try {
+          // 개발 환경에서 geo 시뮬레이션 적용
+          const requestWithGeo = attachDevGeo(req);
+          
+          // 디버깅: geo 정보 확인
+          if (process.env.NODE_ENV === 'development') {
+            const geo = (requestWithGeo as any).geo;
+            console.log('🌍 미들웨어 geo 정보:', geo);
+          }
+          
+          // 쿠키에서 기존 언어 설정 확인
+          const cookieLanguage = req.cookies.get('language-preference')?.value ||
+                                req.cookies.get('NEXT_LOCALE')?.value;
+          
+          // 🧠 통합 언어 감지 (우선순위: 쿠키 > IP > Accept-Language > 기본값)
+          const detectionResult = detectPreferredLanguageAdvanced(requestWithGeo, cookieLanguage);
+          
+          const detectionTime = Date.now() - startDetectionTime;
+          
+          // ⚡ 성능 모니터링 (10ms 초과 시 경고)
+          if (detectionTime > 10) {
+            console.warn(`⚠️ 언어 감지 처리 시간 경고: ${detectionTime}ms (목표: <10ms)`);
+          }
+          
+          // 🔄 언어 쿠키 설정 (리다이렉션 없이 쿠키만 설정)
+          if (detectionResult.source !== 'default') {
+            console.log(`🌍 언어 자동 감지 및 쿠키 설정 (${detectionTime}ms):`, {
+              source: detectionResult.source,
+              country: detectionResult.country,
+              language: detectionResult.language,
+              confidence: detectionResult.confidence
+            });
+            
+            // 응답 생성 (리다이렉션 없이)
+            const response = NextResponse.next();
+            
+            // 언어 쿠키 설정 (30일 유지)
+            response.cookies.set('language-preference', detectionResult.language, {
+              maxAge: 60 * 60 * 24 * 30, // 30일
+              httpOnly: false, // 클라이언트에서 읽을 수 있도록
+              sameSite: 'lax',
+              secure: process.env.NODE_ENV === 'production'
+            });
+            
+            // 감지 정보 헤더 추가 (디버깅용)
+            response.headers.set('X-Language-Detection-Source', detectionResult.source);
+            response.headers.set('X-Language-Detection-Country', detectionResult.country || 'unknown');
+            response.headers.set('X-Language-Detection-Confidence', detectionResult.confidence.toString());
+            response.headers.set('X-Language-Detected', detectionResult.language);
+            
+            return response;
+          } else if (detectionResult.source !== 'default') {
+            // 리다이렉션하지 않더라도 감지 결과 로깅
+            console.log(`📍 언어 감지 완료 (리다이렉션 안함, ${detectionTime}ms):`, {
+              source: detectionResult.source,
+              language: detectionResult.language,
+              confidence: detectionResult.confidence,
+              reason: detectionResult.language === 'ko' ? '기본 언어' : '신뢰도 낮음'
+            });
+          }
+          
+        } catch (detectionError) {
+          console.error('❌ 언어 감지 시스템 오류:', detectionError);
+          // 오류 발생 시 기존 Accept-Language 로직으로 폴백
+          const acceptLanguage = req.headers.get('Accept-Language') || '';
+          const detectedLang = acceptLanguage.split(',')[0]?.split('-')[0]?.toLowerCase();
+          
+          if (detectedLang && ['ko', 'en', 'ja', 'zh', 'es'].includes(detectedLang) && detectedLang !== 'ko') {
+            const url = req.nextUrl.clone();
+            url.searchParams.set('lang', detectedLang);
+            console.log(`🔄 폴백 언어 감지: ${detectedLang} → ${url.toString()}`);
+            return NextResponse.redirect(url);
+          }
+        }
       }
       
       // next-intl 미들웨어 실행 (기존 로직 유지)
