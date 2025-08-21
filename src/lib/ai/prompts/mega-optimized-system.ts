@@ -4,7 +4,7 @@
 import { MEGA_SIMULATION_RESULTS, UserProfile } from '@/lib/simulation/mega-simulation-data';
 import { Big5InferenceEngine, Big5InferenceResult, PersonalityTrait } from '@/lib/personality/big5-inference';
 import { PersonalityGuideAdapter, GuideAdaptationOptions } from '@/lib/personality/personality-guide-adapter';
-import { searchLocationDirect } from '@/lib/coordinates/geocoding-direct';
+// import { searchLocationDirect } from '@/lib/coordinates/geocoding-direct'; // 제거됨
 import axios from 'axios';
 
 // 20개국 문화 전문가 (1억명 데이터로 검증된 96%+ 만족도 달성)
@@ -419,19 +419,10 @@ async function getOptimizedCoordinates(locationName: string): Promise<OptimizedC
   try {
     console.log(`🎯 ${locationName} 좌표 최적화 시작`);
     
-    // Geocoding API 직접 검색 (단순화)
-    const result = await searchLocationDirect(locationName);
-    
-    if (result) {
-      console.log(`✅ Geocoding API 좌표 확보: ${result.coordinates.lat}, ${result.coordinates.lng}`);
-      return {
-        lat: result.coordinates.lat,
-        lng: result.coordinates.lng,
-        accuracy: result.confidence > 0.85 ? 'high' : 'medium',
-        source: 'geocoding_api',
-        confidence: result.confidence
-      };
-    }
+    // TODO: 이 함수는 현재 사용되지 않음 (최적화됨)
+    // Gemini AI 기반 좌표 검색으로 대체됨
+    console.log(`⚠️ getOptimizedCoordinates는 현재 비활성화됨: ${locationName}`);
+    return null;
 
     console.log(`❌ 좌표 검색 실패: ${locationName}`);
     return null;

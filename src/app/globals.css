@@ -10,11 +10,10 @@
 @import '../styles/responsive.css';
 @import '../styles/cross-browser.css';
 
-/* 통일된 폰트 시스템 - Inter 우선, Pretendard 보조 */
+/* 최적화된 폰트 시스템 - Inter 우선, Pretendard 보조 */
 :root {
   --font-inter: var(--font-inter);
   --font-pretendard: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-roboto: var(--font-roboto);
   --current-font: var(--font-inter);
 }
 
@@ -24,7 +23,7 @@
   font-display: swap; /* 폰트 로딩 최적화 */
 }
 
-/* 언어별 폰트 최적화 */
+/* 언어별 폰트 최적화 - 실제 로드되는 폰트만 사용 */
 [lang="ko"], [lang="ko"] * {
   font-family: var(--font-inter), 'Inter', Pretendard, system-ui, sans-serif;
 }
@@ -32,12 +31,13 @@
 [lang="en"], [lang="en"] * {
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
 }
+
 [lang="ja"], [lang="ja"] * {
-  font-family: var(--font-inter), 'Inter', Pretendard, "Noto Sans JP", system-ui, sans-serif;
+  font-family: var(--font-inter), 'Inter', Pretendard, system-ui, sans-serif;
 }
 
 [lang="zh"], [lang="zh"] * {
-  font-family: var(--font-inter), 'Inter', Pretendard, "Noto Sans SC", system-ui, sans-serif;
+  font-family: var(--font-inter), 'Inter', Pretendard, system-ui, sans-serif;
 }
 
 [lang="es"], [lang="es"] * {

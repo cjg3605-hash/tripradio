@@ -9,130 +9,8 @@ import { supabase } from '@/lib/supabaseClient';
 import { classifyLocation, LocationData, PageType, determinePageType } from './location-classification';
 import { findGlobalLandmark, convertToLocationData, GLOBAL_LANDMARKS } from './global-landmark-classifier';
 import { logger } from '../utils/logger';
-
-interface LocationClassificationCache {
-  [key: string]: {
-    locationData: LocationData;
-    timestamp: number;
-    ttl: number; // Time to live in milliseconds
-  };
-}
-
-// 메모리 캐시 (30분 TTL)
-const cache: LocationClassificationCache = {};
-const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
-
-/**
- * Google Places API를 사용하여 위치 정보 조회 (서버 프록시 사용)
- */
-async function getLocationInfoFromGoogle(locationName: string): Promise<LocationData | null> {
-  try {
-    logger.api.start('google-places-classification', { locationName });
-
-    // 서버 프록시 API 사용하여 CORS 문제 해결
-    const response = await fetch(
-      `/api/places/search?query=${encodeURIComponent(locationName)}&language=ko`
-    );
-    
-    const data = await response.json();
-    
-    // 폴백 모드 처리 (API 키 없음, 쿼터 초과 등)
-    if (data.fallback) {
-      logger.general.warn('Google Places API 폴백 모드', { 
-        reason: data.message || data.error 
-      });
-      return null;
-    }
-    
-    if (data.status !== 'OK' || !data.results?.length) {
-      logger.api.error('google-places-no-results', { 
-        status: data.status, 
-        locationName 
-      });
-      return null;
-    }
-    
-    const place = data.results[0];
-    const types = place.types || [];
-    
-    // Google Places API 타입을 우리 시스템에 맞게 변환
-    const locationType = classifyGooglePlaceType(types);
-    const level = getLocationLevel(locationType);
-    
-    const locationData = {
-      type: locationType,
-      level,
-      country: extractCountryFromAddress(place.formatted_address),
-      parent: extractParentFromAddress(place.formatted_address),
-      aliases: [place.name, locationName],
-      coordinates: {
-        lat: place.geometry.location.lat,
-        lng: place.geometry.location.lng
-      },
-      popularity: calculatePopularityFromGoogle(place)
-    };
-
-    logger.api.success('google-places-classification', { 
-      type: locationType, 
-      level 
-    });
-
-    return locationData;
-    
-  } catch (error) {
-    logger.api.error('google-places-classification', error);
-    return null;
-  }
-}
-
-/**
- * Google Places API 타입을 우리 시스템에 맞게 분류
- */
-function classifyGooglePlaceType(types: string[]): LocationData['type'] {
-  // 우선순위 순으로 매핑
-  const typeMapping: Record<string, LocationData['type']> = {
-    // 국가/지역
-    'country': 'country',
-    'administrative_area_level_1': 'province',
-    'locality': 'city',
-    'sublocality': 'district',
-    
-    // 관광지/명소
-    'tourist_attraction': 'attraction',
-    'museum': 'landmark',
-    'park': 'landmark',
-    'place_of_worship': 'landmark',
-    'cemetery': 'landmark',
-    'zoo': 'attraction',
-    'amusement_park': 'attraction',
-    'aquarium': 'attraction',
-    'casino': 'attraction',
-    'night_club': 'attraction',
-    'shopping_mall': 'attraction',
-    'stadium': 'landmark',
-    'university': 'landmark',
-    'hospital': 'landmark',
-    'airport': 'landmark',
-    'train_station': 'landmark',
-    'bus_station': 'landmark',
-    'subway_station': 'landmark',
-    
-    // 상업지역/구역
-    'neighborhood': 'district',
-    'sublocality_level_1': 'district',
-    'route': 'district'
-  };
-  
-  // 우선순위 순으로 확인
-  for (const type of types) {
-    if (typeMapping[type]) {
-      return typeMapping[type];
-    }
-  }
-  
-  // 기본값: landmark (구체적인 장소로 간주)
-  return 'landmark';
-}
+import { checkCityDisambiguation } from './city-disambiguation';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 /**
  * 위치 타입에 따른 레벨 결정
@@ -150,62 +28,19 @@ function getLocationLevel(type: LocationData['type']): number {
   return levelMapping[type] || 4;
 }
 
-/**
- * 주소에서 국가 추출
- */
-function extractCountryFromAddress(address: string): string {
-  if (address.includes('대한민국') || address.includes('South Korea') || address.includes('Korea')) {
-    return '한국';
-  }
-  if (address.includes('Japan') || address.includes('日本')) {
-    return '일본';
-  }
-  if (address.includes('China') || address.includes('中国')) {
-    return '중국';
-  }
-  if (address.includes('France')) {
-    return '프랑스';
-  }
-  if (address.includes('United States') || address.includes('USA')) {
-    return '미국';
-  }
-  
-  // 기본값 또는 더 정교한 파싱 로직
-  return '알 수 없음';
+interface LocationClassificationCache {
+  [key: string]: {
+    locationData: LocationData;
+    timestamp: number;
+    ttl: number; // Time to live in milliseconds
+  };
 }
 
-/**
- * 주소에서 부모 지역 추출
- */
-function extractParentFromAddress(address: string): string | undefined {
-  const parts = address.split(', ');
-  if (parts.length >= 2) {
-    return parts[parts.length - 2]; // 마지막에서 두 번째 (국가 제외)
-  }
-  return undefined;
-}
+// 메모리 캐시 (30분 TTL)
+const cache: LocationClassificationCache = {};
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
-/**
- * Google Places 데이터에서 인기도 계산
- */
-function calculatePopularityFromGoogle(place: any): number {
-  let popularity = 5; // 기본값
-  
-  // 평점이 있으면 고려
-  if (place.rating) {
-    popularity = Math.min(Math.max(Math.round(place.rating * 2), 1), 10);
-  }
-  
-  // 리뷰 수가 많으면 인기도 증가
-  if (place.user_ratings_total > 1000) {
-    popularity = Math.min(popularity + 1, 10);
-  }
-  if (place.user_ratings_total > 5000) {
-    popularity = Math.min(popularity + 1, 10);
-  }
-  
-  return popularity;
-}
+
 
 /**
  * DB에서 기존 가이드 존재 여부 확인
@@ -231,175 +66,175 @@ async function checkGuideExistsInDB(locationName: string): Promise<boolean> {
 }
 
 /**
- * AI를 사용한 위치 분류 (최후 수단)
+ * 서버 API를 통한 전세계 범용 지역정보 추출
  */
-async function classifyLocationWithAI(locationName: string): Promise<LocationData | null> {
+async function getLocationFromServerAPI(locationName: string): Promise<LocationData | null> {
   try {
-    const prompt = `다음 장소를 분석하여 분류해주세요: "${locationName}"
+    const response = await fetch('/api/locations/extract-regional-info', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        placeName: locationName,
+        language: 'ko',
+        detailed: false
+      })
+    });
 
-다음 중 하나로 분류하고, JSON 형태로 답변해주세요:
-- country (국가)
-- province (지역/주)  
-- city (도시)
-- district (구역/동네)
-- landmark (명소/건물)
-- attraction (관광지/테마파크)
+    if (!response.ok) {
+      throw new Error(`API 호출 실패: ${response.status}`);
+    }
 
-응답 형식:
-{
-  "type": "landmark",
-  "level": 4,
-  "country": "한국",
-  "reasoning": "분류 이유"
-}`;
-
-    // 실제 구현에서는 OpenAI API 등을 사용
-    // 여기서는 간단한 휴리스틱 사용
-    const result = classifyByHeuristics(locationName);
+    const result = await response.json();
     
-    return result;
+    if (!result.success || !result.data) {
+      throw new Error('API 응답 데이터 없음');
+    }
+
+    const data = result.data;
+    
+    // 기본적으로 landmark로 분류하되, 명시적으로 도시인 경우만 city
+    let detectedType: LocationData['type'] = 'landmark';
+    
+    // 도시 패턴 감지
+    const cityPatterns = [
+      'city', 'ville', 'ciudad', 'città', 'stadt', '시', '구',
+      // 유명 도시들
+      'paris', 'london', 'tokyo', 'new york', 'seoul', 'busan', 
+      'sydney', 'rome', 'berlin', 'madrid', 'barcelona'
+    ];
+    
+    const locationLower = locationName.toLowerCase();
+    const isCity = cityPatterns.some(pattern => 
+      locationLower.includes(pattern) || 
+      locationLower === pattern ||
+      data.city?.toLowerCase().includes(pattern)
+    );
+    
+    if (isCity) {
+      detectedType = 'city';
+    }
+
+    console.log(`🌍 서버 API 분류: "${locationName}" → ${detectedType} (${data.country}, ${data.region})`);
+
+    return {
+      type: detectedType,
+      level: detectedType === 'city' ? 3 : 4,
+      country: data.country || '알 수 없음',
+      parent: data.region || '미분류',
+      aliases: [locationName],
+      coordinates: data.coordinates || { lat: 0, lng: 0 },
+      popularity: 6
+    };
     
   } catch (error) {
-    console.warn('AI 분류 실패:', error);
+    console.warn('서버 API 호출 실패:', error);
     return null;
   }
 }
 
 /**
- * 휴리스틱 기반 분류 (전세계 공통 패턴) - 범용적 지역 인식
+ * AI를 사용한 정확한 도시/명소 분류 (서버에서만 사용)
  */
-function classifyByHeuristics(locationName: string): LocationData {
-  const name = locationName.toLowerCase();
-  
-  // 🌍 전세계 공통 명소 키워드 패턴 매칭
-  const globalPatterns = {
-    // 궁전/성 관련
-    palace: ['palace', 'castle', 'château', 'palacio', 'palazzo', '궁', '궁전', '성'],
+async function classifyLocationWithAI(locationName: string): Promise<LocationData | null> {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
     
-    // 종교 건물
-    religious: ['cathedral', 'church', 'temple', 'mosque', 'abbey', 'basilica', 'sanctuary', 
-               '대성당', '성당', '교회', '사원', '절', '모스크'],
+    if (!apiKey) {
+      console.warn('GEMINI_API_KEY 없음, 서버 API 사용');
+      return await getLocationFromServerAPI(locationName);
+    }
     
-    // 박물관/갤러리
-    museum: ['museum', 'gallery', 'musée', 'museo', 'museu', '박물관', '미술관', '갤러리'],
-    
-    // 타워/높은 건물
-    tower: ['tower', 'spire', 'skyscraper', 'building', 'torre', 'tour', '타워', '탑', '빌딩'],
-    
-    // 다리
-    bridge: ['bridge', 'pont', 'ponte', 'puente', '다리', '대교'],
-    
-    // 광장/공원
-    square: ['square', 'plaza', 'place', 'piazza', 'park', 'garden', '광장', '공원', '정원'],
-    
-    // 산/자연
-    mountain: ['mountain', 'mount', 'peak', 'hill', 'volcano', 'mont', 'monte', '산', '봉우리'],
-    
-    // 섬
-    island: ['island', 'isle', 'isola', 'isla', 'île', '섬', '도'],
-    
-    // 해변/바다
-    beach: ['beach', 'bay', 'coast', 'shore', 'sea', 'ocean', 'playa', 'plage', '해변', '바다'],
-    
-    // 벽/장성
-    wall: ['wall', 'great wall', 'muralla', 'mur', '성벽', '장성', '벽'],
-    
-    // 분수대/기념물
-    monument: ['fountain', 'monument', 'memorial', 'statue', 'obelisk', '분수대', '기념물', '동상'],
-    
-    // 극장/오페라하우스
-    theater: ['theater', 'theatre', 'opera house', 'concert hall', '극장', '오페라하우스']
-  };
-  
-  // 패턴 매칭을 통한 타입 결정
-  let detectedType: LocationData['type'] = 'landmark';
-  let matchedPattern = '';
-  
-  for (const [category, patterns] of Object.entries(globalPatterns)) {
-    for (const pattern of patterns) {
-      if (name.includes(pattern.toLowerCase())) {
-        detectedType = 'landmark';
-        matchedPattern = pattern;
-        break;
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.0-flash-exp',
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 300,
+        topP: 0.9,
+        topK: 20
       }
+    });
+
+    const prompt = `전세계 지리학 전문가로서 다음 지명을 정확히 분류해주세요: "${locationName}"
+
+🏙️ **CITY (도시) 기준 - 매우 엄격**:
+- 전세계적으로 알려진 도시만: Seoul, Paris, London, Tokyo, New York, Sydney, Rio de Janeiro, Bangkok, Cairo, etc.
+- 도시로 확실히 알려진 경우만: Brisbane (호주), Cambridge (영국), Alexandria (이집트) 등
+- 도시면 무조건 RegionExploreHub로 보내야 함
+
+🏛️ **LANDMARK (명소) 기준 - 기본값**:
+- 모든 건물: Palace, Tower, Cathedral, Museum, Bridge, etc.
+- 모든 구체적 장소: Sagrada Familia, Eiffel Tower, Christ the Redeemer, etc.
+- 확실하지 않은 모든 것
+
+⚠️ **절대 규칙**: 
+1. 도시가 확실하면 → city
+2. 조금이라도 의심되면 → landmark
+3. 건물/구조물 이름이면 → landmark
+
+JSON만 응답:
+{
+  "type": "city|landmark|country|province|district|attraction",
+  "level": 3,
+  "country": "국가명",
+  "parent": "상위지역",
+  "coordinates": {"lat": 0, "lng": 0},
+  "popularity": 8,
+  "reasoning": "분류 근거"
+}`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = await response.text();
+    
+    console.log('🤖 AI 위치 분류 응답:', text);
+    
+    // JSON 파싱
+    let jsonString = text.trim();
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      jsonString = jsonMatch[0];
     }
-    if (matchedPattern) break;
-  }
-  
-  // 🌍 전세계 공통 지역 추론 시스템
-  let inferredCountry = '알 수 없음';
-  let inferredRegion = '미분류';
-  
-  // 언어별 추론
-  if (/^[가-힣\s]+$/.test(locationName)) {
-    // 한글만 포함된 경우
-    inferredCountry = '한국';
-    if (name.includes('서울') || name.includes('강남') || name.includes('명동')) {
-      inferredRegion = '서울특별시';
-    } else if (name.includes('부산') || name.includes('해운대')) {
-      inferredRegion = '부산광역시';
-    } else if (name.includes('제주')) {
-      inferredRegion = '제주특별자치도';
-    } else if (name.includes('경기') || name.includes('수원') || name.includes('성남')) {
-      inferredRegion = '경기도';
-    } else if (name.includes('강원') || name.includes('춘천') || name.includes('강릉')) {
-      inferredRegion = '강원도';
+    
+    const parsed = JSON.parse(jsonString);
+    
+    // 유효성 검사 및 변환
+    if (!parsed.type) {
+      throw new Error('type 필드 누락');
     }
-  } else if (/[a-zA-Z]/.test(locationName)) {
-    // 영어 포함된 경우 - 키워드 기반 추론
-    const countryKeywords = {
-      'paris': { country: '프랑스', region: '일드프랑스' },
-      'london': { country: '영국', region: '잉글랜드' },
-      'rome': { country: '이탈리아', region: '라치오' },
-      'barcelona': { country: '스페인', region: '카탈루냐' },
-      'new york': { country: '미국', region: '뉴욕' },
-      'tokyo': { country: '일본', region: '간토' },
-      'beijing': { country: '중국', region: '베이징' },
-      'bangkok': { country: '태국', region: '방콕' },
-      'sydney': { country: '호주', region: '뉴사우스웨일스' },
-      'moscow': { country: '러시아', region: '모스크바' },
-      'berlin': { country: '독일', region: '베를린' },
-      'amsterdam': { country: '네덜란드', region: '북홀란트' },
-      'vienna': { country: '오스트리아', region: '비엔나' },
-      'prague': { country: '체코', region: '프라하' }
+    
+    return {
+      type: parsed.type as LocationData['type'],
+      level: parsed.level || getLocationLevel(parsed.type),
+      country: parsed.country || '알 수 없음',
+      parent: parsed.parent || undefined,
+      aliases: [locationName],
+      coordinates: parsed.coordinates || { lat: 0, lng: 0 },
+      popularity: parsed.popularity || 5
     };
     
-    for (const [keyword, info] of Object.entries(countryKeywords)) {
-      if (name.includes(keyword)) {
-        inferredCountry = info.country;
-        inferredRegion = info.region;
-        break;
-      }
-    }
+  } catch (error) {
+    console.warn('AI 분류 실패, 서버 API 사용:', error);
+    return await getLocationFromServerAPI(locationName);
   }
-  
-  // 도시 패턴 감지
-  const cityPatterns = ['city', 'ville', 'ciudad', 'città', '시', '구'];
-  const isCityPattern = cityPatterns.some(pattern => name.includes(pattern.toLowerCase()));
-  
-  if (isCityPattern) {
-    detectedType = 'city';
-  }
-  
-  // 관광지/테마파크 패턴
-  const attractionPatterns = ['resort', 'park', 'land', 'world', 'theme', 'amusement', 
-                             '리조트', '테마파크', '놀이공원', '관광단지'];
-  const isAttraction = attractionPatterns.some(pattern => name.includes(pattern.toLowerCase()));
-  
-  if (isAttraction) {
-    detectedType = 'attraction';
-  }
-  
-  console.log(`🔍 휴리스틱 분류: "${locationName}" → ${detectedType} (${inferredCountry}, ${inferredRegion})`);
+}
+
+/**
+ * 폴백 분류 - 최소한의 기본 분류만
+ */
+function getBasicFallbackClassification(locationName: string): LocationData {
+  console.log(`⚠️ 폴백 분류 사용: "${locationName}" → landmark (알 수 없음, 미분류)`);
   
   return {
-    type: detectedType,
-    level: detectedType === 'city' ? 3 : 4,
-    country: inferredCountry,
-    parent: inferredRegion,
+    type: 'landmark', // 확실하지 않은 경우 모두 landmark
+    level: 4,
+    country: '알 수 없음',
+    parent: '미분류',
     aliases: [locationName],
     coordinates: { lat: 0, lng: 0 },
-    popularity: matchedPattern ? 6 : 5 // 패턴 매칭된 경우 약간 높은 인기도
+    popularity: 5
   };
 }
 
@@ -439,10 +274,54 @@ function saveToCache(locationName: string, locationData: LocationData, ttl: numb
 export async function classifyLocationDynamic(locationName: string): Promise<{
   locationData: LocationData | null;
   pageType: PageType;
-  source: 'static' | 'cache' | 'google' | 'db' | 'ai' | 'fallback' | 'global_landmarks';
+  source: 'static' | 'cache' | 'google' | 'db' | 'ai' | 'fallback' | 'global_landmarks' | 'disambiguation_needed' | 'auto_selected_city' | 'db_with_ai';
   confidence: number;
+  reasoning: string;
+  disambiguationOptions?: any[];
 }> {
   const normalizedName = locationName.trim();
+  
+  // 🚨 도시 모호성 체크 (우선 단계)
+  const disambiguationResult = checkCityDisambiguation(normalizedName);
+  
+  // 🤖 AI가 자동으로 선택한 경우 바로 처리
+  if (disambiguationResult.autoSelected) {
+    const selectedCity = disambiguationResult.autoSelected;
+    console.log(`🤖 AI 자동 선택된 도시: ${selectedCity.name}, ${selectedCity.country} (인구: ${selectedCity.population?.toLocaleString()})`);
+    
+    // 선택된 도시로 LocationData 생성
+    const locationData: LocationData = {
+      type: 'city',
+      level: 3,
+      country: selectedCity.country,
+      parent: selectedCity.region,
+      aliases: [selectedCity.name, normalizedName],
+      coordinates: selectedCity.coordinates,
+      popularity: Math.min(10, Math.max(1, Math.ceil((selectedCity.population || 0) / 500000)))
+    };
+    
+    return {
+      locationData,
+      pageType: 'RegionExploreHub',
+      source: 'auto_selected_city',
+      confidence: 0.95,
+      reasoning: `AI가 자동 선택한 도시: ${selectedCity.name}, ${selectedCity.country}`
+    };
+  }
+  
+  // 여전히 사용자 선택이 필요한 경우
+  if (disambiguationResult.needsDisambiguation) {
+    console.log(`🤔 도시 모호성 발견: "${normalizedName}" - ${disambiguationResult.options.length}개 옵션`);
+    
+    return {
+      locationData: null,
+      pageType: 'RegionExploreHub', // 도시이므로 허브로 예정
+      source: 'disambiguation_needed',
+      confidence: 0.9,
+      reasoning: `도시 모호성 발견: "${normalizedName}" - ${disambiguationResult.options.length}개 옵션`,
+      disambiguationOptions: disambiguationResult.options
+    };
+  }
   
   // 🌍 0단계: 전세계 명소 데이터베이스에서 우선 확인 (가장 정확)
   const globalLandmark = findGlobalLandmark(normalizedName);
@@ -454,7 +333,8 @@ export async function classifyLocationDynamic(locationName: string): Promise<{
       locationData,
       pageType: determinePageType(locationData),
       source: 'global_landmarks',
-      confidence: 0.98 // 가장 높은 신뢰도
+      confidence: 0.98, // 가장 높은 신뢰도
+      reasoning: `전세계 명소 데이터베이스 매칭: "${normalizedName}" → ${globalLandmark.country} ${globalLandmark.region} (인기도: ${globalLandmark.popularity}/10)`
     };
   }
   
@@ -465,7 +345,8 @@ export async function classifyLocationDynamic(locationName: string): Promise<{
       locationData: staticResult,
       pageType: determinePageType(staticResult),
       source: 'static',
-      confidence: 0.95
+      confidence: 0.95,
+      reasoning: `정적 데이터에서 매칭: "${normalizedName}"`
     };
   }
   
@@ -476,21 +357,26 @@ export async function classifyLocationDynamic(locationName: string): Promise<{
       locationData: cachedResult,
       pageType: determinePageType(cachedResult),
       source: 'cache',
-      confidence: 0.9
+      confidence: 0.9,
+      reasoning: `캐시에서 매칭: "${normalizedName}"`
     };
   }
   
   // 3단계: DB에 가이드가 있는지 확인
   const guideExists = await checkGuideExistsInDB(normalizedName);
   if (guideExists) {
-    console.log(`📚 DB에 가이드 존재: ${normalizedName} - 상세 가이드 페이지로 분류`);
+    console.log(`📚 DB에 가이드 존재: ${normalizedName} - AI로 위치 타입 분류`);
     
-    // Google Places API로 상세 정보 조회
-    let locationData = await getLocationInfoFromGoogle(normalizedName);
+    // AI 분류로 위치 타입 결정
+    let locationData = await classifyLocationWithAI(normalizedName);
     
     if (!locationData) {
-      // Google에서 못 찾으면 휴리스틱 사용
-      locationData = classifyByHeuristics(normalizedName);
+      // AI 분류에 실패하면 서버 API 사용
+      locationData = await getLocationFromServerAPI(normalizedName);
+      if (!locationData) {
+        // 서버 API도 실패하면 기본 폴백 사용
+        locationData = getBasicFallbackClassification(normalizedName);
+      }
     }
     
     // 캐시에 저장
@@ -498,27 +384,14 @@ export async function classifyLocationDynamic(locationName: string): Promise<{
     
     return {
       locationData,
-      pageType: 'DetailedGuidePage', // DB에 가이드가 있으면 무조건 상세 페이지
-      source: 'db',
-      confidence: 0.85
+      pageType: determinePageType(locationData), // 🔥 위치 타입에 따라 동적으로 결정
+      source: 'db_with_ai',
+      confidence: 0.85,
+      reasoning: `DB 검색과 AI 분류 결합: "${normalizedName}"`
     };
   }
   
-  // 4단계: Google Places API로 조회
-  const googleResult = await getLocationInfoFromGoogle(normalizedName);
-  if (googleResult) {
-    // 캐시에 저장
-    saveToCache(normalizedName, googleResult);
-    
-    return {
-      locationData: googleResult,
-      pageType: determinePageType(googleResult),
-      source: 'google',
-      confidence: 0.8
-    };
-  }
-  
-  // 5단계: AI 분류 (최후 수단)
+  // 4단계: AI 분류 (최후 수단)
   const aiResult = await classifyLocationWithAI(normalizedName);
   if (aiResult) {
     // 캐시에 저장 (TTL 짧게)
@@ -528,7 +401,8 @@ export async function classifyLocationDynamic(locationName: string): Promise<{
       locationData: aiResult,
       pageType: determinePageType(aiResult),
       source: 'ai',
-      confidence: 0.6
+      confidence: 0.6,
+      reasoning: `AI 분류 결과: "${normalizedName}"`
     };
   }
   
@@ -539,7 +413,8 @@ export async function classifyLocationDynamic(locationName: string): Promise<{
     locationData: null,
     pageType: 'DetailedGuidePage', // 확실하지 않으면 가이드 페이지로
     source: 'fallback',
-    confidence: 0.5
+    confidence: 0.5,
+    reasoning: `위치 분류 실패: ${normalizedName} - 기본값으로 상세 가이드 페이지 사용`
   };
 }
 

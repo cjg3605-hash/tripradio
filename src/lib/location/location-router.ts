@@ -24,10 +24,13 @@ export interface LocationRoutingResult {
   locationData?: LocationData;
   intentAnalysis?: IntentAnalysis;
   confidence: number;
-  processingMethod: 'exact_match' | 'fuzzy_match' | 'intent_analysis' | 'dynamic' | 'fallback';
+  processingMethod: 'exact_match' | 'fuzzy_match' | 'intent_analysis' | 'dynamic' | 'fallback' | 'disambiguation_needed';
   reasoning: string;
   suggestedQuery?: string; // 검색어 보정 제안
-  source?: 'static' | 'cache' | 'google' | 'db' | 'ai' | 'fallback' | 'global_landmarks'; // 동적 분류 소스
+  source?: 'static' | 'cache' | 'google' | 'db' | 'ai' | 'fallback' | 'global_landmarks' | 'disambiguation_needed' | 'auto_selected_city' | 'db_with_ai'; // 동적 분류 소스
+  // 도시 모호성 해결
+  needsDisambiguation?: boolean;
+  disambiguationOptions?: any[];
 }
 
 /**
@@ -83,6 +86,22 @@ export async function routeLocationQuery(
   // 1단계: 동적 위치 분류 시도 (정적 데이터 포함)
   try {
     const dynamicResult = await classifyLocationDynamic(normalizedQuery);
+    
+    // 도시 모호성 처리
+    if (dynamicResult.source === 'disambiguation_needed' && dynamicResult.disambiguationOptions) {
+      const result: LocationRoutingResult = {
+        pageType: 'RegionExploreHub', // 도시이므로 허브로 설정
+        confidence: dynamicResult.confidence,
+        processingMethod: 'disambiguation_needed',
+        reasoning: `도시 모호성 발견: "${normalizedQuery}" - 사용자 선택 필요`,
+        source: dynamicResult.source,
+        needsDisambiguation: true,
+        disambiguationOptions: dynamicResult.disambiguationOptions
+      };
+      
+      console.log('🤔 City disambiguation needed:', result);
+      return result;
+    }
     
     if (dynamicResult.locationData && dynamicResult.confidence >= 0.7) {
       const result: LocationRoutingResult = {

@@ -1,4 +1,19 @@
 /** @type {import('next').NextConfig} */
+
+// 동적 포트 감지
+function detectCurrentPort() {
+  return process.env.PORT || '3000';
+}
+
+// 동적 환경변수 설정
+const currentPort = detectCurrentPort();
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+if (isDevelopment) {
+  // 개발 환경에서 동적으로 NEXTAUTH_URL 설정
+  process.env.NEXTAUTH_URL = `http://localhost:${currentPort}`;
+  console.log(`🔄 동적 NEXTAUTH_URL 설정: http://localhost:${currentPort}`);
+}
 const withNextIntl = require('next-intl/plugin')(
   // This is the default location for the i18n config
   './src/i18n.ts'
@@ -137,6 +152,11 @@ const withPWA = require('next-pwa')({
 const nextConfig = {
   // output: 'export', // NextAuth와 충돌하므로 제거
   trailingSlash: false,
+  // Jest worker 문제 해결을 위한 설정
+  experimental: {
+    workerThreads: false,
+    cpus: 1
+  },
   images: {
     unoptimized: false, // 이미지 최적화 활성화
     formats: ['image/webp', 'image/avif'],

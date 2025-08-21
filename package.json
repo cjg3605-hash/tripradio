@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node env-check.js && next dev",
+    "dev": "node env-check.js && node scripts/dynamic-env-setup.js && next dev",
+    "dev:auto": "node scripts/dynamic-env-setup.js && npm run dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

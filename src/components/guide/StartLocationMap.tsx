@@ -88,22 +88,8 @@ const StartLocationMap: React.FC<StartLocationMapProps> = ({
   });
   
   return (
-    <div className={`bg-white border border-black/8 rounded-3xl shadow-lg shadow-black/3 overflow-hidden ${className}`}>
-      {/* 모던 모노크롬 헤더 */}
-      <div className="p-4 border-b border-black/5">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
-            <MapPin className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-black tracking-tight">
-              {t('guide.recommendedStartPoint') || '관람지도'}
-            </h3>
-          </div>
-        </div>
-      </div>
-
-      {/* 지도 표시 */}
+    <div className={`relative overflow-hidden ${className}`}>
+      {/* 지도만 표시 - 헤더 제거 */}
       <div className="h-64 relative overflow-hidden">
         {displayChapters.length > 0 ? (
           <SimpleMap

@@ -1,6 +1,6 @@
 // src/app/layout.tsx (최종 수정 버전)
 import type { Metadata, Viewport } from 'next';
-import { Roboto, Inter } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import '@/styles/custom.css';
 import { LanguageProvider } from '@/contexts/LanguageContext';
@@ -16,20 +16,12 @@ import Script from 'next/script';
 import { cookies } from 'next/headers';
 import { detectPreferredLanguage, LANGUAGE_COOKIE_NAME } from '@/lib/utils';
 
-// Inter for modern design (primary font)
+// Inter for modern design (primary font) - 최적화된 weight만 사용
 const inter = Inter({
-  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
-  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  subsets: ['latin', 'latin-ext'], // 다국어 지원 확장
   display: 'swap',
   variable: '--font-inter'
-});
-
-// Roboto for fallback
-const roboto = Roboto({
-  weight: ['100', '300', '400', '500', '700', '900'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-roboto'
 });
 
 
@@ -384,7 +376,7 @@ export default async function RootLayout({
           }}
         />
         
-        {/* Pretendard Font - Local Hosting */}
+        {/* Critical Fonts Only - Local Hosting */}
         <link 
           rel="preload" 
           href="/fonts/pretendard-regular.woff2" 
@@ -392,22 +384,9 @@ export default async function RootLayout({
           type="font/woff2" 
           crossOrigin="anonymous"
         />
-        <link 
-          rel="preload" 
-          href="/fonts/pretendard-medium.woff2" 
-          as="font" 
-          type="font/woff2" 
-          crossOrigin="anonymous"
-        />
-        <link 
-          rel="preload" 
-          href="/fonts/pretendard-bold.woff2" 
-          as="font" 
-          type="font/woff2" 
-          crossOrigin="anonymous"
-        />
+        {/* Medium과 Bold는 필요시 lazy loading */}
       </head>
-      <body className={`${inter.variable} ${roboto.variable} font-sans antialiased`} suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
         {/* AMP 자동 광고는 일반 React 앱에서는 사용하지 않고, 대신 AutoAdSense 컴포넌트 사용 */}
         
         <SessionProvider>

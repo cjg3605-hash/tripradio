@@ -267,20 +267,10 @@ export class MultiLangGuideManager {
     try {
       console.log(`🔄 스마트 언어 전환: ${locationName} → ${targetLanguage}`);
 
-      // 1단계: 기존 가이드 확인
-      const existingGuide = await this.getGuideByLanguage(locationName, targetLanguage);
+      // 🔄 기존 가이드 무시하고 항상 새로 생성 (API 라우팅은 클라이언트에서 처리)
+      console.log(`🔄 기존 가이드 무시하고 새로 생성`);
       
-      if (existingGuide.success) {
-        console.log(`✅ 기존 ${targetLanguage} 가이드 발견 - 반환`);
-        return {
-          success: true,
-          data: existingGuide.data,
-          coordinates: existingGuide.coordinates, // 🔥 좌표 데이터 포함
-          source: 'cache'
-        };
-      }
-
-      // 2단계: 가이드가 없으면 새로 생성
+      // 가이드 새로 생성
       console.log(`🎨 새로운 ${targetLanguage} 가이드 생성 중...`);
       
       const generateResult = await this.generateAndSaveGuide(
@@ -329,23 +319,13 @@ export class MultiLangGuideManager {
     try {
       console.log(`🤖 ${language} 가이드 생성 시작:`, locationName);
 
-      // ⚠️ 중복 체크: 기존 가이드가 있으면 반환 (강제 재생성이 아닌 경우)
-      const existingGuide = await this.getGuideByLanguage(locationName, language);
-      if (existingGuide.success) {
-        console.log(`✅ 기존 ${language} 가이드 발견 - 중복 생성 방지`);
-        return {
-          success: true,
-          data: existingGuide.data,
-          coordinates: existingGuide.coordinates, // 🔥 좌표 데이터 포함
-          source: 'cache'
-        };
-      }
+      // 🔄 기존 가이드 무시하고 항상 새로 생성
+      console.log(`🔄 기존 가이드 무시하고 새로 생성`);
 
-      console.log(`🎨 ${language} 가이드가 없음 - 새로 생성`);
-
-      // 🚀 새로운 순차 API 라우트를 통해 AI 가이드 생성 요청
-      // URL 파라미터로 지역 정보 전달 (Google API 기반 정확한 정보 우선 사용)
+      // 🎯 기본 일반 가이드 API 사용 (pageType 분류는 클라이언트에서 처리)
       let apiUrl = '/api/ai/generate-sequential-guide';
+      
+      console.log(`🎯 API: ${apiUrl}`);
       
       // 🌍 지역 정보 우선순위 최적화: 첫 번째 시도 성공률 향상을 위해 폴백 시스템 우선 사용
       let queryParams = new URLSearchParams();
@@ -491,18 +471,48 @@ export class MultiLangGuideManager {
         throw new Error(result.error || 'AI 가이드 생성 실패');
       }
 
-      const guideData = result.data;
-      console.log(`📥 ${language} AI 가이드 수신: ${JSON.stringify(guideData).length}자`);
+      // 🔧 API 타입에 따른 결과 처리 분기
+      // generateAndSaveGuide는 항상 DetailedGuidePage로 처리
+      const isRegionHub = false;
+      let guideData, coordinates;
       
-      // 🚨 디버깅: 받은 데이터의 좌표 정보 확인
-      console.log(`\n🔍 MultiLangGuideManager 수신 데이터 검증:`);
-      console.log(`  - realTimeGuide 존재: ${!!guideData.realTimeGuide}`);
-      console.log(`  - chapters 개수: ${guideData.realTimeGuide?.chapters?.length || 0}`);
-      
-      if (guideData.realTimeGuide?.chapters) {
-        guideData.realTimeGuide.chapters.slice(0, 2).forEach((chapter: any, index: number) => {
-          console.log(`  - 챕터 ${index}: coordinates=${JSON.stringify(chapter.coordinates)}`);
-        });
+      if (isRegionHub) {
+        // RegionExploreHub: regionData를 guideData 형식으로 변환
+        const regionData = result.regionData;
+        coordinates = result.coordinates;
+        
+        guideData = {
+          title: regionData.name,
+          location: regionData.name,
+          description: regionData.description,
+          highlights: regionData.highlights,
+          realTimeGuide: {
+            chapters: [{
+              id: 0,
+              title: `${regionData.name} 소개`,
+              description: regionData.description,
+              narrative: regionData.description
+            }]
+          }
+        };
+        
+        console.log(`🌍 ${language} 지역 허브 수신: ${regionData.name}`);
+      } else {
+        // DetailedGuidePage: 기존 방식 그대로
+        guideData = result.data;
+        coordinates = result.coordinates;
+        console.log(`📥 ${language} AI 가이드 수신: ${JSON.stringify(guideData).length}자`);
+        
+        // 🚨 디버깅: 받은 데이터의 좌표 정보 확인 (DetailedGuidePage만)
+        console.log(`\n🔍 MultiLangGuideManager 수신 데이터 검증:`);
+        console.log(`  - realTimeGuide 존재: ${!!guideData.realTimeGuide}`);
+        console.log(`  - chapters 개수: ${guideData.realTimeGuide?.chapters?.length || 0}`);
+        
+        if (guideData.realTimeGuide?.chapters) {
+          guideData.realTimeGuide.chapters.slice(0, 2).forEach((chapter: any, index: number) => {
+            console.log(`  - 챕터 ${index}: coordinates=${JSON.stringify(chapter.coordinates)}`);
+          });
+        }
       }
 
       // DB에 저장
@@ -543,14 +553,23 @@ export class MultiLangGuideManager {
     language: string, 
     userProfile?: any,
     parentRegion?: string,
-    regionalContext?: any
+    regionalContext?: any,
+    pageType?: 'RegionExploreHub' | 'DetailedGuidePage'
   ): Promise<{ success: boolean; data?: any; coordinates?: any; error?: any }> {
     
     try {
       console.log(`🔄 ${language} 가이드 강제 재생성:`, locationName);
 
+      // 🎯 페이지 타입에 따라 적절한 API 선택
+      const isRegionHub = pageType === 'RegionExploreHub';
+      let apiUrl = isRegionHub 
+        ? '/api/ai/generate-region-overview'
+        : '/api/ai/generate-multilang-guide';
+      
+      console.log(`🎯 강제 재생성 - 페이지 타입: ${pageType}, API: ${apiUrl}`);
+
       // API 라우트를 통해 AI 가이드 생성 요청
-      const response = await fetch('/api/ai/generate-multilang-guide', {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -560,7 +579,8 @@ export class MultiLangGuideManager {
           language: language,
           userProfile: userProfile,
           parentRegion: parentRegion,
-          regionalContext: regionalContext
+          regionalContext: regionalContext,
+          routingResult: { pageType, processingMethod: 'force-regenerate' }
         })
       });
 
@@ -574,18 +594,48 @@ export class MultiLangGuideManager {
         throw new Error(result.error || 'AI 가이드 생성 실패');
       }
 
-      const guideData = result.data;
-      console.log(`📥 ${language} AI 가이드 재생성 수신: ${JSON.stringify(guideData).length}자`);
+      // 🔧 API 타입에 따른 결과 처리 분기 (generateAndSaveGuide와 동일)
+      let guideData, coordinates;
       
-      // 🚨 디버깅: 재생성된 데이터의 좌표 정보 확인
-      console.log(`\n🔍 MultiLangGuideManager 재생성 데이터 검증:`);
-      console.log(`  - realTimeGuide 존재: ${!!guideData.realTimeGuide}`);
-      console.log(`  - chapters 개수: ${guideData.realTimeGuide?.chapters?.length || 0}`);
+      if (isRegionHub) {
+        // RegionExploreHub: regionData를 guideData 형식으로 변환
+        const regionData = result.regionData;
+        coordinates = result.coordinates;
+        
+        guideData = {
+          title: regionData.name,
+          location: regionData.name,
+          description: regionData.description,
+          highlights: regionData.highlights,
+          realTimeGuide: {
+            chapters: [{
+              id: 0,
+              title: `${regionData.name} 소개`,
+              description: regionData.description,
+              narrative: regionData.description
+            }]
+          }
+        };
+        
+        console.log(`🌍 ${language} 지역 허브 강제 재생성 수신: ${regionData.name}`);
+      } else {
+        // DetailedGuidePage: 기존 방식 그대로
+        guideData = result.data;
+        coordinates = result.coordinates;
+        console.log(`📥 ${language} AI 가이드 재생성 수신: ${JSON.stringify(guideData).length}자`);
+      }
       
-      if (guideData.realTimeGuide?.chapters) {
-        guideData.realTimeGuide.chapters.slice(0, 2).forEach((chapter: any, index: number) => {
-          console.log(`  - 챕터 ${index}: coordinates=${JSON.stringify(chapter.coordinates)}`);
-        });
+      // 🚨 디버깅: 재생성된 데이터의 좌표 정보 확인 (DetailedGuidePage만)
+      if (!isRegionHub) {
+        console.log(`\n🔍 MultiLangGuideManager 재생성 데이터 검증:`);
+        console.log(`  - realTimeGuide 존재: ${!!guideData.realTimeGuide}`);
+        console.log(`  - chapters 개수: ${guideData.realTimeGuide?.chapters?.length || 0}`);
+        
+        if (guideData.realTimeGuide?.chapters) {
+          guideData.realTimeGuide.chapters.slice(0, 2).forEach((chapter: any, index: number) => {
+            console.log(`  - 챕터 ${index}: coordinates=${JSON.stringify(chapter.coordinates)}`);
+          });
+        }
       }
 
       // DB에 저장 (덮어쓰기)

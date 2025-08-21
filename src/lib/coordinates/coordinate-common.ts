@@ -5,9 +5,82 @@
  * 사용처: generate-multilang-guide, generate-sequential-guide 등
  */
 
-import { simpleGeocode } from '@/lib/coordinates/simple-geocoding';
-import { extractAccurateLocationInfo } from '@/lib/coordinates/accurate-country-extractor';
-import { findCoordinatesSimple, extractChaptersFromContent, SimpleLocationContext } from '@/lib/coordinates/coordinate-utils';
+import { extractChaptersFromContent, SimpleLocationContext } from '@/lib/coordinates/coordinate-utils';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+/**
+ * 🤖 Gemini AI를 이용한 좌표 검색 (세션스토리지 정보 활용)
+ */
+async function getCoordinateFromAI(
+  location: string,
+  region: string,
+  country: string
+): Promise<{ lat: number; lng: number; source: string; confidence: number } | null> {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    
+    if (!apiKey) {
+      console.error('❌ GEMINI_API_KEY가 설정되지 않음');
+      return null;
+    }
+    
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+    
+    const coordinatePrompt = `
+위치: ${location}
+지역: ${region}
+국가: ${country}
+
+위 정보를 바탕으로 해당 장소의 정확한 GPS 좌표를 찾아주세요.
+지역과 국가 정보를 활용하여 정확한 위치를 특정해주세요.
+
+응답 형식:
+LAT: [위도]
+LNG: [경도]
+
+예시:
+LAT: 37.5665
+LNG: 126.9780
+`;
+
+    console.log(`🤖 AI 좌표 검색: ${location} (${region}, ${country})`);
+    
+    const result = await model.generateContent(coordinatePrompt);
+    const response = result.response.text();
+    
+    console.log(`🤖 AI 응답: ${response.trim()}`);
+    
+    // 좌표 추출
+    const latMatch = response.match(/LAT:\s*([-+]?\d{1,3}\.?\d*)/i);
+    const lngMatch = response.match(/LNG:\s*([-+]?\d{1,3}\.?\d*)/i);
+    
+    if (latMatch && lngMatch) {
+      const lat = parseFloat(latMatch[1]);
+      const lng = parseFloat(lngMatch[1]);
+      
+      // 좌표 유효성 검증
+      if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+        console.log(`✅ AI 좌표 검색 성공: ${lat}, ${lng}`);
+        return {
+          lat,
+          lng,
+          source: 'ai_gemini',
+          confidence: 0.85
+        };
+      } else {
+        console.log(`❌ AI 좌표 범위 초과: lat=${lat}, lng=${lng}`);
+      }
+    } else {
+      console.log(`❌ AI 좌표 파싱 실패: ${response.trim()}`);
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('❌ AI 좌표 검색 실패:', error);
+    return null;
+  }
+}
 
 /**
  * 🌍 표준화된 지역 정보 인터페이스
@@ -256,21 +329,20 @@ export async function extractAccurateLocationInfoCommon(
       console.log(`🔍 지역 정보 부족, Google API로 정확한 정보 추출 시도: ${locationName}`);
     }
 
-    const accurateInfo = await extractAccurateLocationInfo(locationName, language);
+    const accurateInfo = await extractAccurateLocationInfoCommon(locationName, { language });
     
     if (accurateInfo && accurateInfo.countryCode) {
       if (enableLogging) {
         console.log('✅ Google API 기반 정확한 지역 정보 추출 성공:', {
-          placeName: accurateInfo.placeName,
+          name: accurateInfo.name,
           region: accurateInfo.region,
           country: accurateInfo.country,
-          countryCode: accurateInfo.countryCode,
-          confidence: (accurateInfo.confidence * 100).toFixed(1) + '%'
+          countryCode: accurateInfo.countryCode
         });
       }
 
       return {
-        name: accurateInfo.placeName || locationName,
+        name: accurateInfo.name || locationName,
         location: `${accurateInfo.region}, ${accurateInfo.country}`,
         region: accurateInfo.region,
         country: accurateInfo.country,
@@ -329,15 +401,14 @@ export async function generateCoordinatesForGuideCommon(
     
     if (chapters.length === 0) {
       console.log('📊 챕터 없음, 기본 좌표 생성');
-      // 기본 좌표 생성
-      const context: SimpleLocationContext = {
-        locationName: locationData.name,
-        region: locationData.region || '',
-        country: locationData.country || '',
-        language: language
-      };
       
-      const basicCoordinate = await findCoordinatesSimple(locationData.name, context);
+      // 🤖 Gemini AI를 이용한 기본 좌표 생성
+      const basicCoordinate = await getCoordinateFromAI(
+        locationData.name,
+        locationData.region || '',
+        locationData.country || ''
+      );
+      
       if (basicCoordinate) {
         return [{
           id: 0,
@@ -371,16 +442,21 @@ export async function generateCoordinatesForGuideCommon(
           language: language
         };
         
-        // 먼저 챕터 제목으로 검색
-        let coordinateResult = await findCoordinatesSimple(
-          `${locationData.name} ${chapter.title}`,
-          context
+        // 🤖 Gemini AI를 이용한 좌표 검색 (세션스토리지 정보 활용)
+        let coordinateResult = await getCoordinateFromAI(
+          chapter.title, // 허브: step.location, 일반: chapter.title
+          locationData.region || '',
+          locationData.country || ''
         );
         
-        // 실패 시 기본 장소명만으로 검색
+        // 실패 시 조합 검색으로 재시도
         if (!coordinateResult) {
-          console.log(`  🔄 기본 장소명으로 재시도: "${locationData.name}"`);
-          coordinateResult = await findCoordinatesSimple(locationData.name, context);
+          console.log(`  🔄 조합 검색으로 재시도: "${locationData.name} ${chapter.title}"`);
+          coordinateResult = await getCoordinateFromAI(
+            `${locationData.name} ${chapter.title}`,
+            locationData.region || '',
+            locationData.country || ''
+          );
         }
         
         if (coordinateResult) {

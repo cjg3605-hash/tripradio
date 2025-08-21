@@ -67,23 +67,73 @@ const LOCATION_EXPERT_PERSONA = `당신은 전세계 지리 및 위치 정보 �
 - 지리적 좌표와 행정구역 정보
 - 관광지의 실제 중요도와 접근성`;
 
-// 🚀 단순화된 자동완성 프롬프트 (기본 기능만)
+// 🚀 위치 분류 기반 자동완성 프롬프트
 function createAutocompletePrompt(query: string, language: Language): string {
   const prompts = {
-    ko: `"${query}" 관련 장소 6개 JSON:
-[{"name":"${query}","location":"도시, 국가","isMainLocation":true},{"name":"관련장소1","location":"도시, 국가","isMainLocation":false}...]`,
+    ko: `"${query}" 검색결과 6개를 JSON 배열로 생성하세요.
+첫 번째는 "${query}" 자체이고, 나머지 5개는 관련 장소들입니다.
+isMainLocation은 국가/지역/도시면 true, 구체적 장소면 false로 설정하세요.
 
-    en: `"${query}" related places 6 JSON:
-[{"name":"${query}","location":"City, Country","isMainLocation":true},{"name":"related1","location":"City, Country","isMainLocation":false}...]`,
+[
+{"name":"${query}","location":"상세위치, 국가","isMainLocation":적절한값,"type":"적절한타입"},
+{"name":"관련장소1","location":"상세위치, 국가","isMainLocation":적절한값,"type":"적절한타입"},
+{"name":"관련장소2","location":"상세위치, 국가","isMainLocation":적절한값,"type":"적절한타입"},
+{"name":"관련장소3","location":"상세위치, 국가","isMainLocation":적절한값,"type":"적절한타입"},
+{"name":"관련장소4","location":"상세위치, 국가","isMainLocation":적절한값,"type":"적절한타입"},
+{"name":"관련장소5","location":"상세위치, 국가","isMainLocation":적절한값,"type":"적절한타입"}
+]`,
 
-    ja: `「${query}」関連場所6個JSON:
-[{"name":"${query}","location":"都市、国","isMainLocation":true},{"name":"関連場所1","location":"都市、国","isMainLocation":false}...]`,
+    en: `Generate 6 search results for "${query}" in JSON array format.
+First is "${query}" itself, others are related places.
+Set isMainLocation: true for countries/regions/cities, false for specific places.
 
-    zh: `"${query}"相关地点6个JSON:
-[{"name":"${query}","location":"城市，国家","isMainLocation":true},{"name":"相关地点1","location":"城市，国家","isMainLocation":false}...]`,
+[
+{"name":"${query}","location":"Detailed Location, Country","isMainLocation":"appropriate_value","type":"appropriate_type"},
+{"name":"Related Place 1","location":"Detailed Location, Country","isMainLocation":"appropriate_value","type":"appropriate_type"},
+{"name":"Related Place 2","location":"Detailed Location, Country","isMainLocation":"appropriate_value","type":"appropriate_type"},
+{"name":"Related Place 3","location":"Detailed Location, Country","isMainLocation":"appropriate_value","type":"appropriate_type"},
+{"name":"Related Place 4","location":"Detailed Location, Country","isMainLocation":"appropriate_value","type":"appropriate_type"},
+{"name":"Related Place 5","location":"Detailed Location, Country","isMainLocation":"appropriate_value","type":"appropriate_type"}
+]`,
 
-    es: `"${query}" lugares relacionados 6 JSON:
-[{"name":"${query}","location":"Ciudad, País","isMainLocation":true},{"name":"relacionado1","location":"Ciudad, País","isMainLocation":false}...]`
+    ja: `「${query}」の検索結果6個をJSON配列で生成してください。
+最初は「${query}」自体、他の5個は関連場所です。
+isMainLocationは国/地域/都市ならtrue、具体的な場所ならfalseに設定してください。
+
+[
+{"name":"${query}","location":"詳細位置、国","isMainLocation":"適切な値","type":"適切なタイプ"},
+{"name":"関連場所1","location":"詳細位置、国","isMainLocation":"適切な値","type":"適切なタイプ"},
+{"name":"関連場所2","location":"詳細位置、国","isMainLocation":"適切な値","type":"適切なタイプ"},
+{"name":"関連場所3","location":"詳細位置、国","isMainLocation":"適切な値","type":"適切なタイプ"},
+{"name":"関連場所4","location":"詳細位置、国","isMainLocation":"適切な値","type":"適切なタイプ"},
+{"name":"関連場所5","location":"詳細位置、国","isMainLocation":"適切な値","type":"適切なタイプ"}
+]`,
+
+    zh: `为"${query}"生成6个搜索结果的JSON数组。
+第一个是"${query}"本身，其他5个是相关地点。
+isMainLocation设置：国家/地区/城市为true，具体地点为false。
+
+[
+{"name":"${query}","location":"详细位置，国家","isMainLocation":"适当值","type":"适当类型"},
+{"name":"相关地点1","location":"详细位置，国家","isMainLocation":"适当值","type":"适当类型"},
+{"name":"相关地点2","location":"详细位置，国家","isMainLocation":"适当值","type":"适当类型"},
+{"name":"相关地点3","location":"详细位置，国家","isMainLocation":"适当值","type":"适当类型"},
+{"name":"相关地点4","location":"详细位置，国家","isMainLocation":"适当值","type":"适当类型"},
+{"name":"相关地点5","location":"详细位置，国家","isMainLocation":"适当值","type":"适当类型"}
+]`,
+
+    es: `Genera 6 resultados de búsqueda para "${query}" en formato JSON array.
+El primero es "${query}" mismo, los otros 5 son lugares relacionados.
+Configura isMainLocation: true para países/regiones/ciudades, false para lugares específicos.
+
+[
+{"name":"${query}","location":"Ubicación Detallada, País","isMainLocation":"valor_apropiado","type":"tipo_apropiado"},
+{"name":"Lugar Relacionado 1","location":"Ubicación Detallada, País","isMainLocation":"valor_apropiado","type":"tipo_apropiado"},
+{"name":"Lugar Relacionado 2","location":"Ubicación Detallada, País","isMainLocation":"valor_apropiado","type":"tipo_apropiado"},
+{"name":"Lugar Relacionado 3","location":"Ubicación Detallada, País","isMainLocation":"valor_apropiado","type":"tipo_apropiado"},
+{"name":"Lugar Relacionado 4","location":"Ubicación Detallada, País","isMainLocation":"valor_apropiado","type":"tipo_apropiado"},
+{"name":"Lugar Relacionado 5","location":"Ubicación Detallada, País","isMainLocation":"valor_apropiado","type":"tipo_apropiado"}
+]`
   };
 
   return prompts[language] || prompts.ko;
@@ -632,14 +682,48 @@ export async function GET(
       if (suggestions && suggestions.length > 0) {
         console.log('✅ AI 자동완성 성공:', suggestions.length, '개');
         
-        // 🚀 단순화: 기본 자동완성 결과만 반환 (후처리 제거)
-        const basicSuggestions = suggestions.slice(0, 6).map((suggestion, index) => ({
-          name: suggestion.name,
-          location: suggestion.location,
-          isMainLocation: index === 0 || suggestion.isMainLocation === true,
-          category: 'attraction',
-          confidence: 0.9 - (index * 0.1)
-        }));
+        // 🎯 향상된 위치 분류: AI + 규칙 기반 시스템 결합
+        const basicSuggestions = suggestions.slice(0, 6).map((suggestion, index) => {
+          let isMainLocation = false;
+          
+          // 1. AI가 이미 판단한 값이 있으면 우선 사용
+          if (typeof suggestion.isMainLocation === 'boolean') {
+            isMainLocation = suggestion.isMainLocation;
+            console.log(`🤖 AI 판단: ${suggestion.name} → ${isMainLocation}`);
+          } else {
+            // 2. 규칙 기반 분류 시스템으로 판단
+            try {
+              const locationData = classifyLocation(suggestion.name);
+              if (locationData && locationData.level <= 3) {
+                // Level 1-3 (국가/지역/도시)는 허브 페이지
+                isMainLocation = true;
+                console.log(`📍 규칙 기반: ${suggestion.name} → level ${locationData.level} → true`);
+              } else {
+                console.log(`📍 규칙 기반: ${suggestion.name} → level ${locationData?.level} → false`);
+              }
+            } catch (error) {
+              console.warn(`위치 분류 실패: ${suggestion.name}`, error);
+              
+              // 3. 키워드 기반 폴백 로직 (더 정확한 판단)
+              const name = suggestion.name.toLowerCase();
+              const isCountry = /국$|나라$|country|land$/.test(name);
+              const isRegion = /시$|도$|주$|성$|region|province|state|city/.test(name);
+              const isLargeCity = ['서울', '부산', '도쿄', '오사카', 'tokyo', 'osaka', 'seoul', 'busan', 
+                                 'paris', 'london', 'new york', 'beijing', 'shanghai'].some(city => name.includes(city));
+              
+              isMainLocation = index === 0 || isCountry || isRegion || isLargeCity;
+              console.log(`🔄 폴백 판단: ${suggestion.name} → ${isMainLocation} (첫째:${index === 0}, 국가:${isCountry}, 지역:${isRegion}, 대도시:${isLargeCity})`);
+            }
+          }
+          
+          return {
+            name: suggestion.name,
+            location: suggestion.location,
+            isMainLocation,
+            category: isMainLocation ? 'location' : 'attraction', // 타입도 정확히 설정
+            confidence: 0.9 - (index * 0.1)
+          };
+        });
         
         console.log('🚀 단순 자동완성 완료:', basicSuggestions.map(s => s.name));
 

@@ -21,6 +21,17 @@ interface ChapterAudioPlayerProps {
   guideId?: string;
   // 🌍 언어별 최적화된 TTS를 위한 언어 정보
   contentLanguage?: string;
+  // 🎛️ 오디오 제어 콜백 등록
+  onRegisterControls?: (chapterId: string | number, controls: {
+    setVolume: (volume: number) => void;
+    setPlaybackRate: (rate: number) => void;
+    play: () => Promise<void>;
+    pause: () => void;
+    getCurrentTime: () => number;
+    getDuration: () => number;
+  }) => void;
+  // 🔄 실시간 재생 상태 변경 콜백
+  onPlayStateChange?: (chapterId: string | number, isPlaying: boolean) => void;
 }
 
 const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
@@ -29,7 +40,9 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
   onChapterUpdate,
   locationName = 'guide',
   guideId = 'default',
-  contentLanguage
+  contentLanguage,
+  onRegisterControls,
+  onPlayStateChange
 }) => {
   const { t, currentLanguage, currentConfig } = useLanguage();
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -37,6 +50,15 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
+  
+  // 🔊 볼륨 변경 함수 노출
+  const handleVolumeChange = (newVolume: number) => {
+    const clampedVolume = Math.max(0, Math.min(1, newVolume));
+    setVolume(clampedVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = clampedVolume;
+    }
+  };
   const [isMuted, setIsMuted] = useState(false);
   const [isGeneratingTTS, setIsGeneratingTTS] = useState(false);
   const [ttsError, setTtsError] = useState<string | null>(null);
@@ -56,9 +78,27 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
 
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
     const handleDurationChange = () => setDuration(audio.duration);
-    const handleEnded = () => setIsPlaying(false);
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
+    const handleEnded = () => {
+      setIsPlaying(false);
+      // 상위 컴포넌트에 재생 종료 알림
+      if (onPlayStateChange) {
+        onPlayStateChange(chapter.id, false);
+      }
+    };
+    const handlePlay = () => {
+      setIsPlaying(true);
+      // 상위 컴포넌트에 재생 상태 알림
+      if (onPlayStateChange) {
+        onPlayStateChange(chapter.id, true);
+      }
+    };
+    const handlePause = () => {
+      setIsPlaying(false);
+      // 상위 컴포넌트에 재생 상태 알림
+      if (onPlayStateChange) {
+        onPlayStateChange(chapter.id, false);
+      }
+    };
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('durationchange', handleDurationChange);
@@ -81,7 +121,7 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
 
     // 🎯 TTS 생성 중이면 무시
     if (isGeneratingTTS) {
-      console.log('🔄 TTS 생성 중이므로 버튼 클릭 무시');
+      // console.log('🔄 TTS 생성 중이므로 버튼 클릭 무시');
       return;
     }
 
@@ -258,21 +298,83 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
       audioRef.current.load();
     }
   }, [audioUrl]);
+  
+  // 🎛️ 오디오 제어 콜백 등록
+  useEffect(() => {
+    if (onRegisterControls && audioRef.current) {
+      const controls = {
+        setVolume: (vol: number) => {
+          if (audioRef.current) {
+            audioRef.current.volume = vol;
+            setVolume(vol);
+          }
+        },
+        setPlaybackRate: (rate: number) => {
+          if (audioRef.current) {
+            audioRef.current.playbackRate = rate;
+          }
+        },
+        play: async () => {
+          if (audioRef.current && audioUrl) {
+            await audioRef.current.play();
+          }
+        },
+        pause: () => {
+          if (audioRef.current) {
+            audioRef.current.pause();
+          }
+        },
+        getCurrentTime: () => {
+          return audioRef.current?.currentTime || 0;
+        },
+        getDuration: () => {
+          return audioRef.current?.duration || 0;
+        }
+      };
+      
+      onRegisterControls(chapter.id, controls);
+      console.log(`🎛️ [제어 등록] 챕터 ${chapter.id} 오디오 제어 콜백 등록 완료`);
+      console.log(`🎛️ [제어 등록] 오디오 URL 상태:`, !!audioUrl);
+      console.log(`🎛️ [제어 등록] 오디오 요소 상태:`, !!audioRef.current);
+    }
+  }, [onRegisterControls, chapter.id, audioUrl]);
+
+  // 🎧 상단 LiveAudioPlayer에서 TTS 생성 요청 이벤트 리스너
+  useEffect(() => {
+    const handleTriggerTTS = (event: CustomEvent) => {
+      const { chapterId, fromTopPlayer } = event.detail;
+      
+      if (chapterId === chapter.id && fromTopPlayer) {
+        console.log(`🎵 [Chapter] 상단에서 TTS 생성 요청 받음: ${chapterId}`);
+        
+        // TTS가 없으면 즉시 생성
+        if (!audioUrl) {
+          generateTTS();
+        }
+      }
+    };
+
+    window.addEventListener('triggerChapterTTS', handleTriggerTTS as EventListener);
+    
+    return () => {
+      window.removeEventListener('triggerChapterTTS', handleTriggerTTS as EventListener);
+    };
+  }, [chapter.id, audioUrl]);
 
   return (
-    <div className={`space-y-3 ${className}`}>
+    <div className={`${className}`}>
       <audio ref={audioRef} preload="metadata" />
       
-      {/* 통합 오디오 플레이어 */}
-      <div className="flex items-center gap-3">
-        {/* 재생/일시정지 버튼 */}
+      {/* 간소화된 오디오 플레이어 - 재생 버튼만 우측에 배치 */}
+      <div className="flex items-center justify-end">
+        {/* 재생/일시정지 버튼 - 흰색 동그라미 */}
         <button
           onClick={togglePlayPause}
           disabled={isGeneratingTTS}
-          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors flex-shrink-0 
+          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors flex-shrink-0 border-2
             ${isGeneratingTTS 
-              ? 'bg-gray-400 text-white cursor-not-allowed' 
-              : 'bg-black text-white hover:bg-gray-800 cursor-pointer'
+              ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
+              : 'bg-white text-black border-black hover:border-gray-800 hover:bg-gray-50 cursor-pointer'
             }`}
           aria-label={isGeneratingTTS ? String(t('audio.generating') || 'TTS 생성 중') : isPlaying ? String(t('audio.pause') || '일시정지') : String(t('audio.play') || '재생')}
         >
@@ -284,55 +386,11 @@ const ChapterAudioPlayer: React.FC<ChapterAudioPlayerProps> = ({
             <Play className="w-4 h-4 ml-0.5" />
           )}
         </button>
-
-        {/* 진행률 바 */}
-        <div className="flex-1 min-w-0">
-          <div
-            className="relative h-1.5 bg-gray-200 rounded-full cursor-pointer"
-            onClick={handleProgressClick}
-          >
-            <div
-              className="absolute top-0 left-0 h-full bg-black rounded-full"
-              style={{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
-            />
-          </div>
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>{formatTime(currentTime)}</span>
-            <span>{isGeneratingTTS ? 'TTS 생성 중...' : formatTime(duration)}</span>
-          </div>
-        </div>
-
-        {/* 볼륨 */}
-        <button
-          onClick={toggleMute}
-          disabled={!audioUrl}
-          className="p-1 text-gray-600 hover:text-gray-900 transition-colors flex-shrink-0 disabled:text-gray-300"
-          aria-label={isMuted ? '음소거 해제' : '음소거'}
-        >
-          {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-        </button>
-
-        {/* 재생성 버튼 (오디오가 있을 때만) */}
-        {audioUrl && (
-          <button
-            onClick={generateTTS}
-            disabled={isGeneratingTTS}
-            className="p-1 text-blue-600 hover:text-blue-800 transition-colors flex-shrink-0 disabled:text-gray-400"
-            aria-label="TTS 재생성"
-            title="새로운 음성으로 재생성"
-          >
-            {isGeneratingTTS ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Mic className="w-4 h-4" />
-            )}
-          </button>
-        )}
       </div>
       
       {/* 에러 표시 */}
       {ttsError && (
-        <div className="text-red-600 text-sm bg-red-50 p-2 rounded">
+        <div className="text-red-600 text-sm bg-red-50 p-2 rounded mt-2">
           {ttsError}
         </div>
       )}

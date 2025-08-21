@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getGeminiClient, getDefaultGeminiModel } from '@/lib/ai/gemini-client';
 import { createQuickPrompt } from '@/lib/ai/prompt-utils';
-import { simpleGeocode } from '@/lib/coordinates/simple-geocoding';
+// import { simpleGeocode } from '@/lib/coordinates/simple-geocoding'; // 제거됨
 import { 
   extractAccurateLocationInfoCommon,
   extractLocationDataFromRequest,

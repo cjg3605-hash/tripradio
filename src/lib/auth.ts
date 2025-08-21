@@ -1,15 +1,18 @@
 import { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
-import CredentialsProvider from 'next-auth/providers/credentials'
-import { getUserByEmail, verifyPassword } from './user'
+import { getRuntimeConfig } from '@/lib/config/runtime-config'
+// import CredentialsProvider from 'next-auth/providers/credentials'
+// import { getUserByEmail, verifyPassword } from './user'
 
 export const authOptions: NextAuthOptions = {
-  debug: process.env.NODE_ENV === 'development',
+  debug: false, // 디버그 모드 비활성화
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+    // CredentialsProvider 임시 비활성화 - Supabase 연결 문제 해결까지
+    /*
     CredentialsProvider({
       id: 'credentials',
       name: '이메일로 로그인',
@@ -27,49 +30,29 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('이메일과 비밀번호를 입력해주세요.');
+          return null;
         }
 
         try {
-          // 타이밍 공격 방지를 위한 일정한 시간 지연
-          const startTime = Date.now();
-          const minAuthTime = 500; // 최소 500ms 소요
-
           const user = await getUserByEmail(credentials.email);
-          let isValid = false;
-          let authResult: { id: string; email: string; name: string } | null = null;
-
           if (user && user.hashedPassword) {
-            isValid = await verifyPassword(credentials.password, user.hashedPassword);
+            const isValid = await verifyPassword(credentials.password, user.hashedPassword);
             if (isValid) {
-              authResult = {
+              return {
                 id: user.id,
                 email: user.email,
                 name: user.name,
               };
             }
-          } else {
-            // 사용자가 없어도 비밀번호 해싱 시간을 시뮬레이션
-            await verifyPassword(credentials.password, '$2a$12$dummy.hash.to.prevent.timing.attack.vulnerability');
           }
-
-          // 최소 시간이 지나지 않았다면 대기
-          const elapsedTime = Date.now() - startTime;
-          if (elapsedTime < minAuthTime) {
-            await new Promise(resolve => setTimeout(resolve, minAuthTime - elapsedTime));
-          }
-
-          if (!authResult) {
-            throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');
-          }
-
-          return authResult;
+          return null;
         } catch (error) {
-          console.error('로그인 실패');
-          throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');
+          console.error('로그인 실패:', error);
+          return null;
         }
       }
     })
+    */
   ],
   session: {
     strategy: 'jwt',
@@ -122,11 +105,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
-        
-        // 사용자 정보에서 관리자 권한 확인
-        const { getUserByEmail } = await import('./user');
-        const userWithRole = await getUserByEmail(user.email || '');
-        token.isAdmin = userWithRole?.isAdmin || false;
+        token.isAdmin = false; // 기본값으로 설정
       }
       return token;
     },

@@ -6,6 +6,22 @@
 
 // 주요 관광지 다국어 매핑
 export const LOCATION_MAPPINGS: Record<string, Record<string, string>> = {
+  // 한국 도시
+  '서울': {
+    en: 'seoul',
+    ja: 'ソウル',
+    zh: '首尔',
+    es: 'seúl',
+    ko: '서울'
+  },
+  '부산': {
+    en: 'busan',
+    ja: 'プサン',
+    zh: '釜山',
+    es: 'busán',
+    ko: '부산'
+  },
+  
   // 한국 관광지
   'gyeongbokgung': {
     en: 'gyeongbokgung palace',
@@ -122,18 +138,20 @@ export function mapLocationToKorean(location: string): string | null {
     }
   }
   
-  // 부분 매칭 시도 (키워드 기반)
+  // 부분 매칭 시도 (키워드 기반) - 정확한 단어 매칭만
   const keywords = normalized.split(' ');
   for (const [koreanName, translations] of Object.entries(LOCATION_MAPPINGS)) {
     for (const [lang, translation] of Object.entries(translations)) {
       const translationKeywords = normalizeForMapping(translation).split(' ');
-      const matchCount = keywords.filter(keyword => 
-        translationKeywords.some(tk => tk.includes(keyword) || keyword.includes(tk))
+      
+      // 정확한 단어 매칭만 허용 (부분 문자열 매칭 제거)
+      const exactMatchCount = keywords.filter(keyword => 
+        translationKeywords.includes(keyword)
       ).length;
       
-      // 50% 이상 매칭되면 추천
-      if (matchCount >= Math.max(1, keywords.length * 0.5)) {
-        console.log(`🗺️ 부분 매핑: ${location} (${lang}) → ${koreanName} (매칭률: ${matchCount}/${keywords.length})`);
+      // 모든 키워드가 정확히 매칭되어야 함
+      if (exactMatchCount === keywords.length && keywords.length > 0) {
+        console.log(`🗺️ 부분 매핑: ${location} (${lang}) → ${koreanName} (매칭률: ${exactMatchCount}/${keywords.length})`);
         return koreanName;
       }
     }

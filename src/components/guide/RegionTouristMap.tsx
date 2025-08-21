@@ -115,6 +115,7 @@ const RegionTouristMap: React.FC<RegionTouristMapProps> = ({
             font-weight: 500 !important;
             padding: 8px 12px !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            z-index: 1000 !important;
           }
           .custom-tooltip::before {
             border-top-color: #1f2937 !important;
@@ -200,22 +201,14 @@ const RegionTouristMap: React.FC<RegionTouristMapProps> = ({
           return;
         }
         
-        // coordinates 칼럼에서 온 데이터와 recommendedSpots에서 온 데이터 구분
+        // 기본 마커 정보 설정
         const spotName = spot.title || spot.name || `장소 ${index + 1}`;
-        // ID 매칭 개선: db-spot-0, db-spot-1 형태로 통일
-        const spotId = `db-spot-${index}`;
         
-        console.log(`🗺️ [RegionTouristMap] 마커 ${index + 1} 추가:`, {
-          spotName,
-          spotId,
-          lat: spot.lat,
-          lng: spot.lng,
-          originalSpot: spot
-        });
+        console.log(`🗺️ [RegionTouristMap] 마커 ${index + 1} 추가: ${spotName}`);
         
+        // 기본 마커 생성 (호버/클릭 기능 없음)
         const marker = L.marker([spot.lat, spot.lng])
           .bindTooltip(spotName, {
-            permanent: false, // 항상 표시하지 않음
             direction: 'top',
             offset: [0, -10],
             className: 'custom-tooltip',
@@ -231,14 +224,6 @@ const RegionTouristMap: React.FC<RegionTouristMapProps> = ({
         marker.on('mouseout', function(this: L.Marker) {
           this.closeTooltip();
         });
-
-        // 마커 클릭 이벤트 제거
-        // marker.on('click', () => {
-        //   console.log('🗺️ [RegionTouristMap] 마커 클릭:', spotName);
-        //   if (onMarkerClick) {
-        //     onMarkerClick(spotId, spotName);
-        //   }
-        // });
       });
 
       // 모든 마커가 보이도록 지도 영역 조정

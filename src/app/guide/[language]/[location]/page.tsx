@@ -1,7 +1,8 @@
 import MultiLangGuideClient from './MultiLangGuideClient';
 import { supabase } from '@/lib/supabaseClient';
 import { safeLanguageCode, detectPreferredLanguage, LANGUAGE_COOKIE_NAME, normalizeLocationName } from '@/lib/utils';
-import { mapLocationToKorean, generateMultilingualUrls, suggestSimilarLocations } from '@/lib/location-mapping';
+import { generateMultilingualUrls, suggestSimilarLocations } from '@/lib/location-mapping';
+import { routeLocationQueryCached } from '@/lib/location/location-router';
 import { cookies } from 'next/headers';
 import { generateMetadataFromGuide } from '@/lib/seo/dynamicMetadata';
 import { Metadata } from 'next';
@@ -10,7 +11,7 @@ import TouristAttractionSchema from '@/components/seo/TouristAttractionSchema';
 import PlaceSchema from '@/components/seo/PlaceSchema';
 import AudioObjectSchema from '@/components/seo/AudioObjectSchema';
 import MultilingualHreflang from '@/components/seo/MultilingualHreflang';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 export const revalidate = 0;
 
@@ -26,6 +27,7 @@ interface PageProps {
     country?: string;
     countryCode?: string;
     type?: string;
+    selectedCity?: string;
   }>;
 }
 
@@ -55,22 +57,58 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
   const rawLocationName = decodeURIComponent(resolvedParams.location || '');
   const requestedLang = safeLanguageCode(resolvedParams.language); // 🔥 URL에서 직접 추출
   
-  // 🗺️ 새 URL 구조: 한국어 지명 그대로 사용 (매핑 제거)
-  // 언어가 ko가 아닌 경우에만 매핑 시도
-  let locationName = rawLocationName;
+  // 🚀 동적 라우팅 시스템으로 위치 분석 및 페이지 타입 결정
+  const routingResult = await routeLocationQueryCached(
+    rawLocationName, 
+    requestedLang,
+    requestedLang !== 'ko' ? {
+      isTranslatedRoute: true,
+      originalLocationName: rawLocationName
+    } : undefined
+  );
   
-  if (requestedLang !== 'ko') {
-    const mappedKoreanLocation = mapLocationToKorean(rawLocationName);
-    if (mappedKoreanLocation && mappedKoreanLocation !== rawLocationName) {
-      console.log(`🗺️ 외국어 지명 매핑: ${rawLocationName} (${requestedLang}) → ${mappedKoreanLocation}`);
-      locationName = mappedKoreanLocation;
-    }
+  console.log('📍 라우팅 분석 완료:', {
+    pageType: routingResult.pageType,
+    confidence: routingResult.confidence,
+    showHub: routingResult.pageType === 'RegionExploreHub',
+    hasTranslationContext: requestedLang !== 'ko',
+    needsDisambiguation: routingResult.needsDisambiguation
+  });
+  
+  // 🏙️ 도시 모호성 처리
+  if (routingResult.needsDisambiguation && routingResult.disambiguationOptions) {
+    const params = new URLSearchParams({
+      query: rawLocationName,
+      language: requestedLang,
+      options: JSON.stringify(routingResult.disambiguationOptions)
+    });
+    
+    console.log('🔄 Redirecting to disambiguation page with params:', params.toString());
+    
+    // Next.js 서버 컴포넌트에서 올바른 리다이렉트 방법
+    redirect(`/disambiguate?${params.toString()}`);
+  }
+  
+  // 한국어 지명 결정 (동적 분류 결과 우선)
+  let locationName = rawLocationName;
+  if (routingResult.locationData && requestedLang !== 'ko') {
+    // 동적 분류에서 한국어 지명을 찾았으면 사용
+    locationName = routingResult.locationData.aliases?.find(alias => /^[가-힣\s]+$/.test(alias)) || rawLocationName;
+    console.log(`🗺️ 동적 라우팅 매핑: ${rawLocationName} → ${locationName}`);
   }
   
   // 🎯 구조화된 지역 컨텍스트 정보 추출 (searchParams에서)
   const parentRegion = resolvedSearchParams?.parent 
     ? decodeURIComponent(resolvedSearchParams.parent)
     : undefined;
+    
+  // 🏙️ 선택된 도시 처리
+  const selectedCityId = resolvedSearchParams?.selectedCity;
+  if (selectedCityId) {
+    console.log(`🏙️ 사용자가 선택한 도시: ${selectedCityId}`);
+    // 선택된 도시의 경우 무조건 RegionExploreHub로 처리
+    // TODO: 선택된 도시 정보를 기반으로 컨텍스트 설정
+  }
     
   // 🚀 검색박스에서 전달된 구조화된 지역 정보
   const regionalContext = resolvedSearchParams ? {
@@ -79,6 +117,8 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
     countryCode: resolvedSearchParams.countryCode || undefined,
     type: resolvedSearchParams.type as 'location' | 'attraction' || undefined
   } : undefined;
+  
+  // 🌏 서버사이드 라우팅 분류로 허브/가이드 결정 (URL 파라미터 불필요)
   
   const normLocation = normalizeLocationName(locationName);
   
@@ -176,6 +216,7 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
         {/* 메인 가이드 클라이언트 */}
         <MultiLangGuideClient
           initialLocationName={locationName}
+          initialGuide={existingGuide && existingGuide.length > 0 ? existingGuide[0] : undefined}
           initialLanguage={serverDetectedLanguage}
           parentRegion={parentRegion}
           regionalContext={regionalContext}

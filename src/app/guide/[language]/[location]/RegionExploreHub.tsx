@@ -73,8 +73,6 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
   const [coordinatesData, setCoordinatesData] = useState<any>(null); // coordinates 칼럼 데이터
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>('');
-  // 호버 기능 제거로 불필요한 상태 삭제
-  // const [highlightedSpotId, setHighlightedSpotId] = useState<string | null>(null);
 
 
   // 🔍 별도 coordinates 칼럼에서 좌표 데이터 가져오기
@@ -313,15 +311,6 @@ const RegionExploreHub = ({ locationName, routingResult, language, content }: Re
     router.push(targetUrl);
   };
 
-  // 🗺️ 마커 클릭 핸들러
-  // 마커 클릭 기능 제거
-  // const handleMarkerClick = (spotId: string, spotName: string) => {
-  //   console.log('🗺️ 마커 클릭됨:', spotId, spotName);
-  //   const spot = recommendedSpots.find(s => s.id === spotId || s.name === spotName);
-  //   if (spot) {
-  //     handleSpotClick(spot);
-  //   }
-  // };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {

@@ -751,7 +751,7 @@ function Home() {
     if (isMountedRef.current) setIsLoadingSuggestions(true);
     
     try {
-      const apiUrl = `/api/locations/search?q=${encodeURIComponent(searchQuery)}&lang=${currentLanguage}`;
+      const apiUrl = `/api/locations/${currentLanguage}/search?q=${encodeURIComponent(searchQuery)}`;
       console.log('🌐 API 호출 시작:', apiUrl);
       
       const response = await fetch(apiUrl, { 
@@ -920,7 +920,7 @@ function Home() {
       // 🚀 엔터 입력 시 자동완성 API로 첫 번째 결과 가져오기
       console.log('🔍 엔터 입력 - 자동완성 API 호출:', query.trim());
       
-      const searchResponse = await fetch(`/api/locations/search?q=${encodeURIComponent(query.trim())}&lang=${currentLanguage}`);
+      const searchResponse = await fetch(`/api/locations/${currentLanguage}/search?q=${encodeURIComponent(query.trim())}`);
       const searchData = await searchResponse.json();
       
       if (searchData.success && searchData.data && searchData.data.length > 0) {
@@ -1609,7 +1609,7 @@ function Home() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                               </svg>
-                              <span className="text-xs xs:text-sm sm:text-xs md:text-xs">명소를 클릭하세요</span>
+                              <span className="text-xs xs:text-sm sm:text-xs md:text-xs">{t('home.clickAttraction')}</span>
                             </div>
                           </div>
                         </div>

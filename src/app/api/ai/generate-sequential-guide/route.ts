@@ -6,7 +6,7 @@ import { ServiceValidators } from '@/lib/env-validator';
 import { withSupabaseRetry, withGoogleAPIRetry, withFetchRetry, retryStats } from '@/lib/api-retry';
 import { createErrorResponse, SpecializedErrorHandlers, errorStats } from '@/lib/error-handler';
 import { OptimizedLocationContext } from '@/types/unified-location';
-import { findCoordinatesSimple, extractChaptersFromContent, SimpleLocationContext } from '@/lib/coordinates/coordinate-utils';
+import { extractChaptersFromContent, SimpleLocationContext } from '@/lib/coordinates/coordinate-utils';
 import { 
   generateCoordinatesForGuideCommon,
   extractLocationDataFromRequest as extractLocationCommon,
@@ -130,7 +130,8 @@ async function generateCoordinatesForGuideLegacy(
         language: 'ko'
       };
       
-      const basicCoordinate = await findCoordinatesSimple(locationData.name, context);
+      // TODO: findCoordinatesSimple 함수가 누락됨 - 임시 비활성화
+      const basicCoordinate = null as { lat: number; lng: number } | null; // await findCoordinatesSimple(locationData.name, context);
       if (basicCoordinate) {
         return [{
           id: 0,
@@ -164,16 +165,14 @@ async function generateCoordinatesForGuideLegacy(
           language: 'ko'
         };
         
+        // TODO: findCoordinatesSimple 함수가 누락됨 - 임시 비활성화
         // 먼저 챕터 제목으로 검색
-        let coordinateResult = await findCoordinatesSimple(
-          `${locationData.name} ${chapter.title}`,
-          context
-        );
+        let coordinateResult = null as { lat: number; lng: number } | null; // await findCoordinatesSimple(`${locationData.name} ${chapter.title}`, context);
         
         // 실패 시 기본 장소명만으로 검색
         if (!coordinateResult) {
           console.log(`  🔄 기본 장소명으로 재시도: "${locationData.name}"`);
-          coordinateResult = await findCoordinatesSimple(locationData.name, context);
+          coordinateResult = null as { lat: number; lng: number } | null; // await findCoordinatesSimple(locationData.name, context);
         }
         
         if (coordinateResult) {

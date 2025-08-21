@@ -16,6 +16,7 @@ interface SimpleMapProps {
   zoom?: number;
   className?: string;
   onMarkerClick?: (index: number) => void;
+  showAllMarkers?: boolean; // 모든 마커 표시 여부
 }
 
 const SimpleMap: React.FC<SimpleMapProps> = ({
@@ -44,6 +45,29 @@ const SimpleMap: React.FC<SimpleMapProps> = ({
         link.rel = 'stylesheet';
         link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
         document.head.appendChild(link);
+      }
+
+      // 커스텀 툴팁 스타일 추가
+      if (!document.querySelector('#leaflet-custom-tooltip-styles')) {
+        const style = document.createElement('style');
+        style.id = 'leaflet-custom-tooltip-styles';
+        style.innerHTML = `
+          .custom-tooltip {
+            background: #1f2937 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-family: system-ui, -apple-system, sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            padding: 8px 12px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+          }
+          .custom-tooltip::before {
+            border-top-color: #1f2937 !important;
+          }
+        `;
+        document.head.appendChild(style);
       }
 
       // 기본 아이콘 설정
@@ -86,22 +110,23 @@ const SimpleMap: React.FC<SimpleMapProps> = ({
       if (startChapter) {
         console.log('🗺️ [SimpleMap] 시작지점 마커 추가:', startChapter.title);
         const marker = L.marker([startChapter.lat, startChapter.lng])
-          .bindPopup(`
-            <div style="font-family: system-ui; min-width: 200px;">
-              <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: #1f2937;">
-                🚩 ${startChapter.title}
-              </h3>
-              <p style="margin: 0; font-size: 14px; color: #059669; font-weight: 500;">
-                관광 시작지점
-              </p>
-              ${startChapter.narrative ? `
-                <p style="margin: 8px 0 0 0; font-size: 14px; color: #6b7280; line-height: 1.4;">
-                  ${startChapter.narrative}
-                </p>
-              ` : ''}
-            </div>
-          `)
+          .bindTooltip(startChapter.title, {
+            permanent: false,
+            direction: 'top',
+            offset: [0, -10],
+            className: 'custom-tooltip',
+            opacity: 0.9
+          })
           .addTo(map);
+
+        // 호버 시 툴팁 표시
+        marker.on('mouseover', function(this: L.Marker) {
+          this.openTooltip();
+        });
+        
+        marker.on('mouseout', function(this: L.Marker) {
+          this.closeTooltip();
+        });
 
         marker.on('click', () => {
           console.log('🗺️ [SimpleMap] 시작지점 마커 클릭:', startChapter.title);
@@ -115,6 +140,17 @@ const SimpleMap: React.FC<SimpleMapProps> = ({
       }
 
       mapInstanceRef.current = map;
+      
+      // 지도 컨테이너의 z-index와 테두리 강제 설정
+      if (mapRef.current) {
+        const mapContainer = mapRef.current.querySelector('.leaflet-container');
+        if (mapContainer) {
+          (mapContainer as HTMLElement).style.zIndex = '1';
+          (mapContainer as HTMLElement).style.borderRadius = '0.375rem'; // rounded-md
+          (mapContainer as HTMLElement).style.overflow = 'hidden';
+        }
+      }
+      
       setMapState('loaded');
       console.log('🗺️ [SimpleMap] 지도 초기화 완료');
 
@@ -168,8 +204,8 @@ const SimpleMap: React.FC<SimpleMapProps> = ({
       {/* 실제 지도 컨테이너 - 항상 DOM에 존재 */}
       <div 
         ref={mapRef} 
-        className="w-full h-full"
-        style={{ minHeight: '300px' }}
+        className="w-full h-full rounded-md overflow-hidden"
+        style={{ minHeight: '300px', zIndex: 1 }}
       />
       
       {/* 로딩/에러 오버레이 */}

@@ -4,16 +4,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { GuideData } from '@/types/guide';
 import { useLanguage, SupportedLanguage } from '@/contexts/LanguageContext';
-import dynamic from 'next/dynamic';
 
 // TourContent 직접 import (SSR 지원)
 import TourContent from './tour/components/TourContent';
 
-// AdSense 광고 컴포넌트 동적 로드
-const OptimalAdSense = dynamic(() => import('@/components/ads/OptimalAdSense'), {
-  loading: () => <div className="h-24 animate-pulse bg-gray-100 rounded"></div>,
-  ssr: false
-});
 import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
 import { useSession } from 'next-auth/react';
@@ -56,12 +50,12 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
     sourceData = data.content.content;
     // 📦 content.content 필드에서 데이터 추출 (이중 래핑)
   }
-  // data.content가 있고 overview, route, realTimeGuide 중 하나라도 있으면 사용
+  // data.content가 있고 필요한 필드가 있으면 사용 (허브 API 응답 구조 포함)
   else if (data.content && typeof data.content === 'object' && (data.content.overview || data.content.route || data.content.realTimeGuide)) {
     sourceData = data.content;
-    // 📦 content 필드에서 데이터 추출
+    // 📦 content 필드에서 데이터 추출 (허브 API 응답: content.overview, content.route)
   }
-  // data가 직접 overview, route, realTimeGuide를 가지면 직접 사용
+  // data가 직접 필요한 필드를 가지면 직접 사용
   else if (data.overview || data.route || data.realTimeGuide) {
     sourceData = data;
     // 📦 직접 구조에서 데이터 추출
@@ -178,12 +172,87 @@ const normalizeGuideData = (data: any, locationName: string): GuideData => {
   return normalizedData;
 };
 
+/**
+ * 🏛️ 허브 페이지용 지역 개요 생성
+ */
+async function generateRegionOverview(
+  locationName: string,
+  language: string,
+  regionalContext?: any
+): Promise<{ success: boolean; data?: any; coordinates?: any; error?: string; source: string }> {
+  try {
+    console.log(`🏛️ 허브 API 호출: ${locationName} (${language})`);
+    
+    // 지역 정보 파라미터 구성
+    let queryParams = new URLSearchParams();
+    
+    if (regionalContext && regionalContext.region && regionalContext.country && regionalContext.countryCode) {
+      queryParams.set('region', regionalContext.region);
+      queryParams.set('country', regionalContext.country);
+      queryParams.set('countryCode', regionalContext.countryCode);
+      queryParams.set('type', regionalContext.type || 'city');
+    }
+    
+    // 허브용 API 호출
+    const apiUrl = `/api/ai/generate-region-overview?${queryParams.toString()}`;
+    console.log(`🎯 허브 API URL: ${apiUrl}`);
+    
+    // ✅ 세션스토리지에서 지역 정보 추출
+    let sessionLocationInfo = null;
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = sessionStorage.getItem(`autocomplete_${locationName.toLowerCase()}`);
+        if (stored) {
+          sessionLocationInfo = JSON.parse(stored);
+          console.log('✅ 세션스토리지에서 지역 정보 발견:', sessionLocationInfo);
+        }
+      } catch (e) {
+        console.warn('세션스토리지 읽기 실패:', e);
+      }
+    }
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        locationName,
+        language,
+        regionalContext: regionalContext,
+        sessionLocationInfo: sessionLocationInfo // ✅ 세션스토리지 데이터 전달
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`허브 API 호출 실패: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    return {
+      success: true,
+      data: data,
+      coordinates: data.coordinates,
+      source: 'generated'
+    };
+    
+  } catch (error) {
+    console.error('❌ 허브 가이드 생성 실패:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '허브 가이드 생성 실패',
+      source: 'error'
+    };
+  }
+}
+
 export default function MultiLangGuideClient({ 
   initialLocationName: locationName, 
   initialGuide, 
   initialLanguage: requestedLanguage, 
   parentRegion, 
-  regionalContext 
+  regionalContext
 }: Props) {
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
@@ -263,7 +332,7 @@ export default function MultiLangGuideClient({
   }, [session, currentLanguage]);
 
   // 🌍 언어별 가이드 로드 - 의존성 최적화
-  const loadGuideForLanguage = useCallback(async (language: SupportedLanguage, forceRegenerate = false, contextualParentRegion?: string) => {
+  const loadGuideForLanguage = useCallback(async (language: SupportedLanguage, forceRegenerate = false, contextualParentRegion?: string, directRoutingResult?: any) => {
     setIsLoading(true);
     setError(null);
 
@@ -351,7 +420,9 @@ export default function MultiLangGuideClient({
           locationName,
           language,
           undefined,
-          contextualParentRegion
+          contextualParentRegion,
+          enhancedRegionalContext,
+          routingResult?.pageType // 🎯 RegionExploreHub vs DetailedGuidePage 구분
         );
 
         const regenerateTimeoutPromise = new Promise((_, reject) => 
@@ -360,20 +431,40 @@ export default function MultiLangGuideClient({
 
         result = await Promise.race([forceRegeneratePromise, regenerateTimeoutPromise]) as any;
       } else {
-        // 🚀 스마트 언어 전환 (강화된 regionalContext 포함) + 타임아웃 처리
-        const smartSwitchPromise = MultiLangGuideManager.smartLanguageSwitch(
-          locationName,
-          language,
-          undefined,
-          contextualParentRegion,
-          enhancedRegionalContext // 자동완성 데이터로 강화된 지역 정보 전달
-        );
+        // 🎯 분류된 pageType에 따라 적절한 API 직접 호출 (직접 전달된 결과 우선 사용)
+        const currentRoutingResult = directRoutingResult || routingResult;
+        const isRegionHub = currentRoutingResult?.pageType === 'RegionExploreHub';
+        console.log(`🎯 페이지 타입: ${currentRoutingResult?.pageType}, 허브 모드: ${isRegionHub}`);
+        
+        if (isRegionHub) {
+          // 🏛️ 허브 페이지용 API 호출
+          const hubPromise = generateRegionOverview(
+            locationName,
+            language,
+            enhancedRegionalContext
+          );
+          
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('허브 가이드 로드 요청 시간 초과 (45초)')), 45000)
+          );
 
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('가이드 로드 요청 시간 초과 (45초)')), 45000)
-        );
+          result = await Promise.race([hubPromise, timeoutPromise]) as any;
+        } else {
+          // 📍 일반 가이드용 API 호출
+          const guidePromise = MultiLangGuideManager.smartLanguageSwitch(
+            locationName,
+            language,
+            undefined,
+            contextualParentRegion,
+            enhancedRegionalContext
+          );
 
-        result = await Promise.race([smartSwitchPromise, timeoutPromise]) as any;
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('가이드 로드 요청 시간 초과 (45초)')), 45000)
+          );
+
+          result = await Promise.race([guidePromise, timeoutPromise]) as any;
+        }
       }
 
       if (result.success && result.data) {
@@ -455,7 +546,7 @@ export default function MultiLangGuideClient({
       setIsLoading(false);
       setIsRegenerating(false);
     }
-  }, [locationName, regionalContext, saveToHistory]); // 🔥 의존성 최소화
+  }, [locationName, regionalContext, saveToHistory, routingResult]); // 🔥 routingResult 의존성 추가
 
   // 🌍 사용 가능한 언어 목록 로드
   const loadAvailableLanguages = useCallback(async () => {
@@ -510,6 +601,50 @@ export default function MultiLangGuideClient({
     }
   }, [locationName, currentLanguage]);
 
+  // 🎯 라우팅 분석 결과 반환용 함수
+  const analyzeRoutingAndReturn = useCallback(async () => {
+    try {
+      // 세션 스토리지에서 번역 컨텍스트 확인
+      let translationContext;
+      if (typeof window !== 'undefined') {
+        const storedContext = window.sessionStorage.getItem('translationContext');
+        if (storedContext) {
+          try {
+            translationContext = JSON.parse(storedContext);
+            console.log('🌐 번역 컨텍스트 발견:', translationContext);
+          } catch (e) {
+            console.warn('번역 컨텍스트 파싱 실패:', e);
+          }
+        }
+      }
+      
+      // 🚀 위치 라우팅 분석 시작: locationName (번역 컨텍스트 포함)
+      const result = await routeLocationQueryCached(
+        locationName, 
+        currentLanguage, 
+        translationContext
+      );
+      setRoutingResult(result);
+      
+      // RegionExploreHub 페이지 여부 결정
+      const shouldShowHub = result.pageType === 'RegionExploreHub';
+      setShouldShowExploreHub(shouldShowHub);
+      
+      console.log('📍 라우팅 분석 완료:', { 
+        pageType: result.pageType, 
+        confidence: result.confidence, 
+        showHub: shouldShowHub,
+        hasTranslationContext: !!translationContext 
+      });
+      
+      return result; // 🎯 결과 직접 반환
+    } catch (error) {
+      console.warn('⚠️ 라우팅 분석 실패, 기본 가이드 페이지 사용:', error);
+      setShouldShowExploreHub(false);
+      return null; // 실패 시 null 반환
+    }
+  }, [locationName, currentLanguage]);
+
   // 🔄 재생성 함수 - 의존성 최적화 + 무한 재시도 방지
   const regenerateRetryCountRef = useRef(0);
   const maxRetries = 3;
@@ -548,6 +683,50 @@ export default function MultiLangGuideClient({
     };
   }, [handleRegenerateGuide]);
 
+  // 🌐 언어 변경 감지 및 가이드 전환 처리
+  useEffect(() => {
+    // 초기 로드가 완료되지 않았으면 무시
+    if (!guideData || isLoading) return;
+    
+    // 요청된 언어와 현재 언어가 같으면 무시 (초기 로드 시 언어 변경 방지)
+    if (requestedLanguage?.toLowerCase() === currentLanguage?.toLowerCase()) return;
+    
+    // 이미 현재 언어의 가이드라면 무시 (대소문자 구분하지 않음)
+    if (guideData?.metadata?.language?.toLowerCase() === currentLanguage?.toLowerCase()) return;
+    
+    const handleLanguageSwitch = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        // 1. 현재 위치명을 새로운 언어로 번역
+        const currentLocationName = guideData?.metadata?.originalLocationName || locationName;
+        const { translateLocationFromKorean } = await import('@/lib/location-mapping');
+        
+        // 2. 한국어 → 새 언어로 번역 (URL 변경용)
+        const translatedLocation = translateLocationFromKorean(currentLocationName, currentLanguage);
+        
+        // 3. 새로운 URL로 라우팅 (새 언어의 가이드 페이지로)
+        if (translatedLocation) {
+          const newPath = `/guide/${currentLanguage}/${encodeURIComponent(translatedLocation)}`;
+          console.log(`🌐 [언어 전환] ${guideData?.metadata?.language} → ${currentLanguage}: ${currentLocationName} → ${translatedLocation}`);
+          router.push(newPath);
+        } else {
+          // 번역이 안되면 기본 한국어 지명으로 시도
+          const newPath = `/guide/${currentLanguage}/${encodeURIComponent(currentLocationName)}`;
+          console.log(`🌐 [언어 전환] 번역 실패, 원본 지명으로 시도: ${newPath}`);
+          router.push(newPath);
+        }
+      } catch (error) {
+        console.error('❌ 언어 전환 오류:', error);
+        setError('언어 전환 중 오류가 발생했습니다.');
+        setIsLoading(false);
+      }
+    };
+    
+    handleLanguageSwitch();
+  }, [currentLanguage, guideData, isLoading, locationName, router]);
+
   // 🔥 개선된 초기 로드 - 의존성 최적화로 무한 루프 방지
   useEffect(() => {
     const initializeGuide = async () => {
@@ -577,8 +756,8 @@ export default function MultiLangGuideClient({
         finalParentRegion = (sessionRegionalContext as any).parentRegion;
       }
 
-      // 🎯 1단계: 라우팅 분석
-      await analyzeRouting();
+      // 🎯 1단계: 라우팅 분석 및 결과 받기
+      const currentRoutingResult = await analyzeRoutingAndReturn();
       
       // 🎯 2단계: 언어 결정
       let targetLanguage: SupportedLanguage;
@@ -591,8 +770,9 @@ export default function MultiLangGuideClient({
         targetLanguage = currentLanguage;
       }
       
-      // 🎯 3단계: 가이드 처리
-      if (shouldShowExploreHub) {
+      // 🎯 3단계: 가이드 처리 (라우팅 결과 직접 전달)
+      const shouldShowHub = currentRoutingResult?.pageType === 'RegionExploreHub';
+      if (shouldShowHub) {
         if (initialGuide) {
           try {
             const normalizedData = normalizeGuideData(initialGuide, locationName);
@@ -603,6 +783,9 @@ export default function MultiLangGuideClient({
             console.error('초기 가이드 처리 오류:', error);
             setGuideData(null);
           }
+        } else {
+          // initialGuide가 없어도 가이드 로드 시도 (라우팅 결과 직접 전달)
+          await loadGuideForLanguage(targetLanguage, false, finalParentRegion, currentRoutingResult);
         }
         setIsLoading(false);
       } else {
@@ -615,10 +798,10 @@ export default function MultiLangGuideClient({
             await saveToHistory(normalizedData);
           } catch (error) {
             console.error('초기 가이드 처리 오류:', error);
-            await loadGuideForLanguage(targetLanguage, false, finalParentRegion);
+            await loadGuideForLanguage(targetLanguage, false, finalParentRegion, currentRoutingResult);
           }
         } else {
-          await loadGuideForLanguage(targetLanguage, false, finalParentRegion);
+          await loadGuideForLanguage(targetLanguage, false, finalParentRegion, currentRoutingResult);
         }
       }
       
@@ -980,13 +1163,6 @@ export default function MultiLangGuideClient({
               content={guideData}
             />
             
-            {/* 광고 배치: 탐색 허브 하단 */}
-            <div className="max-w-4xl mx-auto px-6 py-6">
-              <OptimalAdSense 
-                placement="guide-content" 
-                className="text-center"
-              />
-            </div>
           </div>
         ) : (
           // TourContent 렌더링 (독립적인 지도 포함)
@@ -1011,13 +1187,6 @@ export default function MultiLangGuideClient({
               guideCoordinates={coordinates || (guideData as any)?.coordinates}
             />
             
-            {/* 광고 배치: 가이드 콘텐츠 하단 */}
-            <div className="max-w-4xl mx-auto px-6 py-6">
-              <OptimalAdSense 
-                placement="guide-content" 
-                className="text-center"
-              />
-            </div>
           </div>
         )}
       </div>

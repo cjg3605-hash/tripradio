@@ -30,7 +30,7 @@ export const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = {
     flag: '🇰🇷', 
     nativeName: '한국어',
     dir: 'ltr',
-    fontFamily: 'var(--font-noto-sans-kr)',
+    fontFamily: 'var(--font-inter)',
     ttsLang: 'ko-KR'
   },
   en: { 
@@ -48,7 +48,7 @@ export const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = {
     flag: '🇯🇵', 
     nativeName: '日本語',
     dir: 'ltr',
-    fontFamily: 'var(--font-noto-sans-jp)',
+    fontFamily: 'var(--font-inter)',
     ttsLang: 'ja-JP'
   },
   zh: { 
@@ -57,7 +57,7 @@ export const LANGUAGE_CONFIGS: Record<string, LanguageConfig> = {
     flag: '🇨🇳', 
     nativeName: '中文',
     dir: 'ltr',
-    fontFamily: 'var(--font-noto-sans-sc)',
+    fontFamily: 'var(--font-inter)',
     ttsLang: 'cmn-CN'
   },
   es: { 

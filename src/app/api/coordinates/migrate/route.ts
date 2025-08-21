@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
 import { 
-  findCoordinatesSimple, 
   generateCoordinatesArray, 
   extractChaptersFromContent,
   SimpleLocationContext 
@@ -312,8 +311,9 @@ export async function POST(request: NextRequest) {
           language: guide.language
         };
 
+        // TODO: findCoordinatesSimple 함수가 누락됨 - 임시 비활성화
         // 좌표 검색 (1~5순위) - 지역 컨텍스트 포함
-        const foundCoordinates = await findCoordinatesSimple(guide.locationname, locationContext);
+        const foundCoordinates = null as { lat: number; lng: number } | null; // await findCoordinatesSimple(guide.locationname, locationContext);
         
         if (!foundCoordinates) {
           console.log(`❌ 좌표 발견 실패: ${guide.locationname}`);

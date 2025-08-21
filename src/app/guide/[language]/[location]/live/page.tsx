@@ -10,7 +10,10 @@ import {
   RotateCcw,
   Compass,
   Home,
-  ArrowUp
+  ArrowUp,
+  AlertTriangle,
+  Heart,
+  Download
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { MicrosoftTranslator } from '@/lib/location/microsoft-translator';
@@ -33,6 +36,9 @@ import MapWithRoute from '@/components/guide/MapWithRoute';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AudioChapter } from '@/types/audio';
 import { enhanceGuideCoordinates } from '@/lib/coordinates/guide-coordinate-enhancer';
+import { GuideHeader } from '@/components/guide/GuideHeader';
+import { GuideTitle } from '@/components/guide/GuideTitle';
+import { LiveAudioPlayer } from '@/components/guide/LiveAudioPlayer';
 
 interface POI {
   id: string;
@@ -64,14 +70,17 @@ const LiveTourPage: React.FC = () => {
   const [showAudioPlayer, setShowAudioPlayer] = useState(true);
   const [showMap, setShowMap] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showScrollButtons, setShowScrollButtons] = useState(false);
-  const [currentScrollY, setCurrentScrollY] = useState(0);
   
   // POI와 챕터 상태 관리
   const [poisWithChapters, setPoisWithChapters] = useState<POI[]>([]);
   const [isLoadingPOIs, setIsLoadingPOIs] = useState(false);
   const [poisError, setPoisError] = useState<string | null>(null);
   const [actualGuideId, setActualGuideId] = useState<string | null>(null);
+  
+  // 오디오 연동 상태
+  const [chapterControls, setChapterControls] = useState<Map<string | number, any>>(new Map());
+  const [isPlayingFromTop, setIsPlayingFromTop] = useState(false);
+  const [chapterRefs, setChapterRefs] = useState<Map<string | number, any>>(new Map());
 
 
 
@@ -348,6 +357,78 @@ const LiveTourPage: React.FC = () => {
     // 지도 중심 이동은 MapWithRoute가 activeChapter 변경에 따라 자동 처리
   };
 
+  // 챕터 오디오 컨트롤 등록
+  const handleRegisterControls = (chapterId: string | number, controls: any) => {
+    setChapterControls(prev => {
+      const newMap = new Map(prev);
+      newMap.set(chapterId, controls);
+      return newMap;
+    });
+    console.log(`🎛️ [Live] 챕터 ${chapterId} 오디오 컨트롤 등록 완료`);
+  };
+
+  // 상단 LiveAudioPlayer에서 하단 챕터 오디오 요청
+  const handleAudioRequest = async (chapterId: string | number): Promise<string | null> => {
+    console.log(`🎧 [Live] 상단에서 챕터 ${chapterId} 오디오 요청`);
+    
+    // 해당 챕터의 오디오 URL이 있으면 반환
+    const chapter = audioChapters.find(ch => ch.id === chapterId);
+    if (chapter?.audioUrl) {
+      console.log(`✅ [Live] 기존 오디오 URL 반환: ${chapterId}`);
+      return chapter.audioUrl;
+    }
+    
+    // 오디오가 없으면 하단 컴포넌트에서 TTS 생성 대기
+    console.log(`🎵 [Live] 챕터 ${chapterId}의 TTS 생성 대기 중...`);
+    
+    // 하단 컴포넌트에 TTS 생성 신호를 보내기 위해 특수 이벤트 발생
+    const triggerEvent = new CustomEvent('triggerChapterTTS', { 
+      detail: { chapterId, fromTopPlayer: true } 
+    });
+    window.dispatchEvent(triggerEvent);
+    
+    // 잠시 대기 후 다시 확인 (하단에서 TTS가 생성될 때까지)
+    return new Promise((resolve) => {
+      let checkCount = 0;
+      const maxChecks = 100; // 100 * 100ms = 10초
+      
+      const checkAudio = () => {
+        checkCount++;
+        
+        // audioChapters 상태를 실시간으로 다시 가져오기
+        const currentAudioChapters = poisWithChapters
+          .filter(poi => poi.audioChapter)
+          .map(poi => poi.audioChapter!);
+          
+        const updatedChapter = currentAudioChapters.find(ch => ch.id === chapterId);
+        
+        if (updatedChapter?.audioUrl) {
+          console.log(`✅ [Live] 하단에서 생성된 오디오 URL 획득: ${chapterId}`);
+          resolve(updatedChapter.audioUrl);
+          return;
+        }
+        
+        if (checkCount >= maxChecks) {
+          console.log(`⏰ [Live] TTS 생성 타임아웃 (${checkCount}회 체크): ${chapterId}`);
+          resolve(null);
+          return;
+        }
+        
+        // 100ms 후 다시 체크
+        setTimeout(checkAudio, 100);
+      };
+      
+      // 첫 번째 체크
+      checkAudio();
+    });
+  };
+
+  // 상단 재생 상태 변경 처리
+  const handlePlayStateChange = (isPlaying: boolean, currentTime?: number, duration?: number) => {
+    setIsPlayingFromTop(isPlaying);
+    console.log(`🎵 [Live] 상단 재생 상태 변경: ${isPlaying}`);
+  };
+
   // Toggle fullscreen mode
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
@@ -377,38 +458,6 @@ const LiveTourPage: React.FC = () => {
   // Get current POI info
   const currentPOI = poisWithChapters[currentChapter];
 
-  // 스크롤 이벤트 리스너
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrolled = window.scrollY;
-      setCurrentScrollY(scrolled);
-      const shouldShow = scrolled > 300;
-      console.log('스크롤 이벤트:', { scrolled, shouldShow, currentState: showScrollButtons });
-      setShowScrollButtons(shouldShow);
-    };
-
-    console.log('스크롤 리스너 등록');
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // 초기 상태 확인
-    
-    return () => {
-      console.log('스크롤 리스너 해제');
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [showScrollButtons]);
-
-  // 스크롤 투 탑 함수
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  };
-
-  // 홈으로 이동 함수
-  const goToHome = () => {
-    router.push('/');
-  };
 
   // 좌표 정보 추출 함수
   const extractCoordinatesInfo = () => {
@@ -440,33 +489,51 @@ const LiveTourPage: React.FC = () => {
   const coordinatesInfo = extractCoordinatesInfo();
 
   return (
-    <div className="min-h-screen bg-white">{/* 내부 헤더 삭제됨 */}
+    <div className="min-h-screen bg-white">
+      {/* 헤더 */}
+      <GuideHeader 
+        locationName={locationName}
+        onShare={handleShare}
+        variant="live"
+      />
+
+      {/* 제목 섹션 - 헤더와 붙어있게 */}
+      <GuideTitle locationName={locationName} variant="live" />
+
+      {/* 오디오 플레이어 - 제목 섹션과 붙어있게 */}
+      {audioChapters.length > 0 && (
+        <LiveAudioPlayer
+          chapters={audioChapters}
+          locationName={locationName}
+          onChapterChange={handleChapterChange}
+          onAudioRequest={handleAudioRequest}
+          onPlayStateChange={handlePlayStateChange}
+          activeChapterControls={audioChapters[currentChapter] ? chapterControls.get(audioChapters[currentChapter].id) : null}
+        />
+      )}
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto p-6 space-y-8">
-        
-        {/* 제목 */}
-        <div className="text-center">
-          <h1 className="text-2xl font-light text-gray-900 mb-2">
-            {params.location} {t('guide.realTimeGuideTitle')}
-          </h1>
-          <p className="text-gray-500">
-            현재 위치 기반 맞춤 안내
-          </p>
-        </div>
 
         {/* 개요 */}
-        <div className="border-b border-gray-100 pb-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-3">{t('guide.overview')}</h2>
-          <p className="text-gray-600 leading-relaxed">
-            GPS를 기반으로 현재 위치에서 가장 적합한 관람 코스를 실시간으로 안내합니다. 
-            각 지점에 도착하면 자동으로 해당 위치의 상세 정보와 오디오 가이드가 제공됩니다.
-          </p>
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold text-black">{t('guide.overview')}</h2>
+          <div className="bg-white border border-gray-200 rounded-xl p-4">
+            <p className="text-sm text-gray-800 leading-relaxed">
+              GPS를 기반으로 현재 위치에서 가장 적합한 관람 코스를 실시간으로 안내합니다. 
+              각 지점에 도착하면 자동으로 해당 위치의 상세 정보와 오디오 가이드가 제공됩니다.
+            </p>
+          </div>
         </div>
 
         {/* 필수관람포인트 */}
-        <div className="border-b border-gray-100 pb-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">{t('guide.mustSeePoints')}</h2>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-black">{t('guide.mustSeePoints')}</h2>
+            {poisWithChapters.length > 0 && (
+              <span className="text-xs text-gray-500">{poisWithChapters.length}개 지점</span>
+            )}
+          </div>
           
           {/* 로딩 상태 */}
           {isLoadingPOIs && (
@@ -493,20 +560,25 @@ const LiveTourPage: React.FC = () => {
             </div>
           )}
           
-          <div className="space-y-6">
+          <div className="space-y-3">
             {poisWithChapters.map((poi, index) => (
-              <div key={poi.id} className="border border-gray-100 rounded-lg p-4">
+              <div key={poi.id} className="bg-white border border-gray-200 rounded-xl p-4 overflow-hidden">
                 <div className="flex items-start gap-3 mb-3">
-                  <div className={`w-6 h-6 text-white text-xs rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                    index === 0 ? 'bg-blue-600' : 'bg-black'
+                  {/* 트랙 번호 - 디자인 시안 스타일 */}
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    index === 0 ? 'bg-blue-600' : 'bg-gray-100'
                   }`}>
-                    {index === 0 ? '🎯' : index + 1}
+                    {index === 0 ? (
+                      <span className="text-white text-xs font-semibold">🎯</span>
+                    ) : (
+                      <span className="text-xs font-semibold text-gray-700">{index + 1}</span>
+                    )}
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-medium text-gray-900">{poi.name}</h3>
+                      <h3 className="text-sm font-semibold text-black">{poi.name}</h3>
                       {index === 0 && (
-                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
                           {t('guide.startLocation') || '시작지점'}
                         </span>
                       )}
@@ -564,6 +636,7 @@ const LiveTourPage: React.FC = () => {
                       onChapterUpdate={(updatedChapter) => handleChapterUpdate(poi.id, updatedChapter)}
                       locationName={locationName}
                       guideId={`guide_${locationName}`}
+                      onRegisterControls={handleRegisterControls}
                     />
                   </div>
                 )}
@@ -573,29 +646,35 @@ const LiveTourPage: React.FC = () => {
         </div>
 
         {/* 좌표 정보 요약 */}
-        <div className="border-b border-gray-100 pb-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-            <MapPin className="w-5 h-5" />
-            좌표 정보 요약
-          </h2>
-          <div className="bg-gray-50 rounded-lg p-4">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+              <MapPin className="w-4 h-4 text-white" />
+            </div>
+            <h2 className="text-lg font-bold text-black">좌표 정보 요약</h2>
+          </div>
+          <div className="bg-white border border-gray-200 rounded-xl p-4">
             <div className="grid gap-3">
               {coordinatesInfo.map((coord, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-white rounded-lg border">
+                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 ${coord.isStartPoint ? 'bg-blue-600' : 'bg-gray-600'} text-white text-sm rounded-full flex items-center justify-center`}>
-                      {coord.isStartPoint ? '🎯' : coord.index}
+                    <div className={`w-8 h-8 ${coord.isStartPoint ? 'bg-blue-600' : 'bg-gray-100'} text-sm rounded-full flex items-center justify-center`}>
+                      {coord.isStartPoint ? (
+                        <span className="text-white font-semibold">🎯</span>
+                      ) : (
+                        <span className="text-gray-700 font-semibold">{coord.index}</span>
+                      )}
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="text-sm font-semibold text-black">
                         {coord.name}
                         {coord.isStartPoint && (
-                          <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                          <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
                             시작지점
                           </span>
                         )}
                       </h3>
-                      <p className="text-sm font-mono text-gray-600">
+                      <p className="text-xs font-mono text-gray-600">
                         {coord.lat.toFixed(6)}, {coord.lng.toFixed(6)}
                       </p>
                     </div>
@@ -643,44 +722,51 @@ const LiveTourPage: React.FC = () => {
         </div>
 
         {/* 주의사항 */}
-        <div className="border-b border-gray-100 pb-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">{t('guide.precautions')}</h2>
-          <div className="space-y-2 text-gray-600">
-            <p>• {t('guide.precaution1')}</p>
-            <p>• {t('guide.precaution2')}</p>
-            <p>• {t('guide.precaution3')}</p>
-            <p>• {t('guide.precaution4')}</p>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <AlertTriangle className="w-4 h-4 text-white" />
+            </div>
+            <h2 className="text-lg font-bold text-black">{t('guide.precautions')}</h2>
+          </div>
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+            <div className="space-y-2">
+              <p className="text-sm text-blue-800 leading-relaxed">• {t('guide.precaution1')}</p>
+              <p className="text-sm text-blue-800 leading-relaxed">• {t('guide.precaution2')}</p>
+              <p className="text-sm text-blue-800 leading-relaxed">• {t('guide.precaution3')}</p>
+              <p className="text-sm text-blue-800 leading-relaxed">• {t('guide.precaution4')}</p>
+            </div>
           </div>
         </div>
 
         {/* 관람순서 */}
-        <div className="pb-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">{t('guide.viewingOrder')}</h2>
-          <div className="bg-gray-50 rounded-lg p-4">
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold text-black">{t('guide.viewingOrder')}</h2>
+          <div className="bg-white border border-gray-200 rounded-xl p-4">
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
-                  1
+                  <span className="font-semibold">1</span>
                 </div>
-                <p className="text-gray-700">{t('guide.step1')}</p>
+                <p className="text-sm text-gray-800">{t('guide.step1')}</p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
-                  2
+                  <span className="font-semibold">2</span>
                 </div>
-                <p className="text-gray-700">{t('guide.step2')}</p>
+                <p className="text-sm text-gray-800">{t('guide.step2')}</p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
-                  3
+                  <span className="font-semibold">3</span>
                 </div>
-                <p className="text-gray-700">{t('guide.step3')}</p>
+                <p className="text-sm text-gray-800">{t('guide.step3')}</p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-black text-white text-sm rounded-full flex items-center justify-center">
-                  4
+                  <span className="font-semibold">4</span>
                 </div>
-                <p className="text-gray-700">{t('guide.step4')}</p>
+                <p className="text-sm text-gray-800">{t('guide.step4')}</p>
               </div>
             </div>
           </div>
@@ -694,9 +780,9 @@ const LiveTourPage: React.FC = () => {
               setShowMap(true);
               setShowAudioPlayer(true);
             }}
-            className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 transition-colors"
+            className="bg-black text-white px-8 py-3 rounded-xl hover:bg-gray-800 transition-colors text-sm font-semibold"
           >
-{t('guide.startRealtimeGuide')}
+            {t('guide.startRealtimeGuide')}
           </button>
         </div>
 
@@ -716,18 +802,18 @@ const LiveTourPage: React.FC = () => {
 
         {/* 추천 시작지점 지도 (시작 후에만 표시) - 인트로 챕터만 */}
         {showMap && (
-          <div className="mb-6">
-            <div className="flex items-center gap-3 mb-4">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-white" />
+                <MapPin className="w-4 h-4 text-white" />
               </div>
               <div>
-                <h2 className="text-lg font-medium">{t('guide.recommendedStartPoint') || '추천 시작지점'}</h2>
-                <p className="text-sm text-gray-600">{t('guide.accurateIntroLocation') || '정확한 인트로 위치'}</p>
+                <h2 className="text-lg font-bold text-black">{t('guide.recommendedStartPoint') || '추천 시작지점'}</h2>
+                <p className="text-xs text-gray-600">{t('guide.accurateIntroLocation') || '정확한 인트로 위치'}</p>
               </div>
             </div>
             
-            <div className="h-64 bg-white border border-gray-100 rounded-lg overflow-hidden">
+            <div className="h-64 bg-white border border-gray-200 rounded-xl overflow-hidden">
               {poisWithChapters.length > 0 ? (
                 <MapWithRoute
                   pois={poisWithChapters
@@ -768,77 +854,63 @@ const LiveTourPage: React.FC = () => {
           </div>
         )}
 
-        {/* 디버깅용 추가 콘텐츠 - 스크롤 테스트를 위한 높이 확보 */}
-        <div className="mt-8 space-y-4">
-          <h3 className="text-lg font-medium text-gray-900">스크롤 테스트용 콘텐츠</h3>
-          {Array.from({ length: 20 }, (_, i) => (
-            <div key={i} className="p-4 bg-gray-100 rounded-lg">
-              <p className="text-gray-700">
-                스크롤 테스트를 위한 콘텐츠 #{i + 1}. 이 콘텐츠는 페이지의 높이를 늘려서 스크롤이 가능하도록 합니다.
-                300px 이상 스크롤하면 하단에 네비게이션 버튼이 나타나야 합니다.
-              </p>
-            </div>
-          ))}
+      </div>
+
+      {/* 하단 액션 버튼들 - 디자인 시안 스타일 */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3" style={{ zIndex: 'var(--z-sticky)' }}>
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-4 gap-2">
+            <button
+              onClick={() => {
+                // 즐겨찾기 기능
+                console.log('즐겨찾기 추가');
+                alert('즐겨찾기에 추가되었습니다!');
+              }}
+              className="flex flex-col items-center space-y-1 py-3 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
+              <Heart className="w-4 h-4 text-gray-700" />
+              <span className="text-xs text-gray-700">즐겨찾기</span>
+            </button>
+            
+            <button
+              onClick={handleShare}
+              className="flex flex-col items-center space-y-1 py-3 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
+              <Share2 className="w-4 h-4 text-gray-700" />
+              <span className="text-xs text-gray-700">공유</span>
+            </button>
+            
+            <button
+              onClick={() => {
+                // 저장 기능
+                console.log('가이드 저장');
+                alert('가이드가 저장되었습니다!');
+              }}
+              className="flex flex-col items-center space-y-1 py-3 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
+              <Download className="w-4 h-4 text-gray-700" />
+              <span className="text-xs text-gray-700">저장</span>
+            </button>
+            
+            <button
+              onClick={() => {
+                // 재생성 기능
+                console.log('가이드 재생성');
+                if (confirm('가이드를 새로 생성하시겠습니까?')) {
+                  window.location.reload();
+                }
+              }}
+              className="flex flex-col items-center space-y-1 py-3 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
+              <RotateCcw className="w-4 h-4 text-gray-700" />
+              <span className="text-xs text-gray-700">재생성</span>
+            </button>
+          </div>
         </div>
-
       </div>
 
-      {/* 스크롤 네비게이션 버튼들 */}
-      {/* 항상 보이는 테스트 버튼 (임시) */}
-      <div className="fixed bottom-20 left-6 right-6 flex justify-between items-center z-50">
-        <button
-          onClick={goToHome}
-          className="w-12 h-12 bg-blue-500 text-white rounded-full shadow-lg flex items-center justify-center"
-          aria-label="테스트 홈 버튼"
-        >
-          <Home className="w-5 h-5" />
-        </button>
-        <button
-          onClick={scrollToTop}
-          className="w-12 h-12 bg-green-500 text-white rounded-full shadow-lg flex items-center justify-center"
-          aria-label="테스트 스크롤 버튼"
-        >
-          <ArrowUp className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* 조건부 스크롤 버튼들 */}
-      <div className="fixed bottom-6 left-6 right-6 flex justify-between items-center pointer-events-none z-50">
-        {/* 홈 버튼 (왼쪽 하단) */}
-        <button
-          onClick={goToHome}
-          className={`w-14 h-14 bg-black text-white rounded-full shadow-2xl hover:bg-gray-800 hover:scale-110 transition-all duration-300 pointer-events-auto flex items-center justify-center ${
-            showScrollButtons 
-              ? 'opacity-100 translate-y-0' 
-              : 'opacity-0 translate-y-4 pointer-events-none'
-          }`}
-          aria-label="홈으로 이동"
-        >
-          <Home className="w-6 h-6" />
-        </button>
-
-        {/* 스크롤 투 탑 버튼 (오른쪽 하단) */}
-        <button
-          onClick={scrollToTop}
-          className={`w-14 h-14 bg-black text-white rounded-full shadow-2xl hover:bg-gray-800 hover:scale-110 transition-all duration-300 pointer-events-auto flex items-center justify-center ${
-            showScrollButtons 
-              ? 'opacity-100 translate-y-0' 
-              : 'opacity-0 translate-y-4 pointer-events-none'
-          }`}
-          aria-label="맨 위로 스크롤"
-        >
-          <ArrowUp className="w-6 h-6" />
-        </button>
-      </div>
-
-      {/* 강화된 디버깅 정보 */}
-      <div className="fixed top-4 right-4 bg-red-500 text-white p-3 rounded text-xs z-50 max-w-xs">
-        <div>showScrollButtons: {showScrollButtons.toString()}</div>
-        <div>currentScrollY: {currentScrollY}</div>
-        <div>scrollY &gt; 300: {(currentScrollY > 300).toString()}</div>
-        <div>Buttons should show: {showScrollButtons ? 'YES' : 'NO'}</div>
-        <div>Page height: N/A</div>
-      </div>
+      {/* 하단 버튼 여백 확보 */}
+      <div className="h-20"></div>
     </div>
   );
 };

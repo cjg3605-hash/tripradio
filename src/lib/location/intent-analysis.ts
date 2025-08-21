@@ -109,14 +109,20 @@ function createIntentAnalysisPrompt(query: string, language: string = 'ko'): str
 - "타지마할" = "Taj Mahal" = "タージマハル" = "泰姬陵" → 모두 인도 아그라의 동일한 명소
 - 번역/언어가 다르더라도 같은 명소를 가리키는 경우 동일하게 DetailedGuidePage로 분류
 
-JSON으로만 응답:
+필수: 정확한 JSON 형식으로만 응답. 다른 설명 없이 JSON만 반환하세요.
+
+예시:
 {
-  "pageType": "RegionExploreHub|DetailedGuidePage",
+  "pageType": "DetailedGuidePage",
   "confidence": 0.95,
-  "reasoning": "구체적 판단 근거",
-  "suggestedLocationType": "country|province|city|landmark|district", 
-  "contextClues": ["분석 근거"]
-}`,
+  "reasoning": "에펠탑은 파리의 구체적인 명소",
+  "suggestedLocationType": "landmark",
+  "contextClues": ["building_name", "specific_location"]
+}
+
+중요: pageType은 "RegionExploreHub" 또는 "DetailedGuidePage"만 가능합니다.
+confidence는 0.1-1.0 사이 숫자입니다.
+suggestedLocationType은 "country", "province", "city", "landmark", "district" 중 하나입니다.`,
 
     en: `${INTENT_ANALYSIS_PERSONA}
 
@@ -169,14 +175,20 @@ Precisely identify what the search query is:
 - "Taj Mahal" = "タージマハル" = "타지마할" = "泰姬陵" → All refer to the same landmark in Agra, India
 - Even if translation/language differs, classify as DetailedGuidePage if referring to the same landmark
 
-Respond only in JSON:
+REQUIRED: Respond ONLY in valid JSON format. No explanations, only JSON.
+
+Example:
 {
-  "pageType": "RegionExploreHub|DetailedGuidePage",
+  "pageType": "DetailedGuidePage",
   "confidence": 0.95,
-  "reasoning": "specific reasoning",
-  "suggestedLocationType": "country|province|city|landmark|district",
-  "contextClues": ["analysis evidence"]
-}`
+  "reasoning": "Eiffel Tower is a specific landmark in Paris",
+  "suggestedLocationType": "landmark",
+  "contextClues": ["building_name", "specific_location"]
+}
+
+IMPORTANT: pageType must be exactly "RegionExploreHub" or "DetailedGuidePage".
+confidence must be a number between 0.1-1.0.
+suggestedLocationType must be one of: "country", "province", "city", "landmark", "district".`
   };
   
   return prompts[language as keyof typeof prompts] || prompts.ko;
@@ -194,37 +206,57 @@ function getGeminiClient() {
 // JSON 응답 파싱
 function parseIntentAnalysis(text: string): IntentAnalysis | null {
   try {
-    // JSON 추출 패턴
+    // 텍스트 정제
+    let cleanText = text.trim();
+    
+    // JSON 추출 패턴 강화
     const patterns = [
-      /```(?:json)?\\s*({[\\s\\S]*?})\\s*```/s,
-      /({[\\s\\S]*})/s
+      // 코드 블록 안의 JSON
+      /```(?:json)?\s*({[\s\S]*?})\s*```/s,
+      // 첫 번째 완전한 JSON 객체
+      /({[\s\S]*?})/s
     ];
 
-    let jsonString = text.trim();
+    let jsonString = cleanText;
     for (const pattern of patterns) {
-      const match = text.match(pattern);
-      if (match) {
-        jsonString = match[1] ? match[1].trim() : match[0].trim();
+      const match = cleanText.match(pattern);
+      if (match && match[1]) {
+        jsonString = match[1].trim();
         break;
       }
+    }
+    
+    // JSON으로 시작하고 끝나는지 확인
+    if (!jsonString.startsWith('{') || !jsonString.endsWith('}')) {
+      throw new Error('JSON 형식이 아님');
     }
 
     const parsed = JSON.parse(jsonString);
     
-    // 유효성 검사
-    if (!parsed.pageType || !parsed.confidence) {
-      throw new Error('필수 필드가 없습니다');
+    // 필수 필드 유효성 검사
+    if (!parsed.pageType) {
+      throw new Error('pageType 필드 누락');
+    }
+    
+    if (typeof parsed.confidence !== 'number') {
+      throw new Error('confidence 필드가 숫자가 아님');
+    }
+    
+    // pageType 유효성 검사
+    if (!['RegionExploreHub', 'DetailedGuidePage'].includes(parsed.pageType)) {
+      throw new Error('잘못된 pageType: ' + parsed.pageType);
     }
     
     return {
       pageType: parsed.pageType,
-      confidence: Math.max(0, Math.min(1, parsed.confidence)),
-      reasoning: parsed.reasoning || '',
-      suggestedLocationType: parsed.suggestedLocationType || 'city',
+      confidence: Math.max(0.1, Math.min(1.0, parsed.confidence)),
+      reasoning: parsed.reasoning || '분석 근거 없음',
+      suggestedLocationType: parsed.suggestedLocationType || 'landmark',
       contextClues: Array.isArray(parsed.contextClues) ? parsed.contextClues : []
     };
   } catch (error) {
     console.error('Intent analysis parsing failed:', error);
+    console.error('Original text:', text);
     return null;
   }
 }

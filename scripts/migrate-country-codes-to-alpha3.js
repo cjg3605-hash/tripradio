@@ -49,6 +49,62 @@ const countryCodeMapping = {
   'ZA': 'ZAF'   // 남아프리카공화국
 };
 
+// 🌍 가이드 생성 로직과 동일한 지역 정보 추출 함수 (동적)
+async function extractRegionalInfoFromLocationName(locationName) {
+  try {
+    // 1. AI를 이용한 동적 지역정보 추출
+    const { GoogleGenerativeAI } = require('@google/generative-ai');
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+
+    const prompt = `
+Location name: "${locationName}"
+
+Analyze this location name and extract regional information. Return ONLY valid JSON in this exact format:
+{
+  "location_region": "specific region/city name",
+  "country_code": "3-letter ISO country code",
+  "confidence": 0.9
+}
+
+Rules:
+- For Korean locations: Use proper Korean administrative divisions (서울특별시, 부산광역시, etc.)
+- For international locations: Use major city/region names
+- Country codes must be 3-letter ISO 3166-1 alpha-3 (KOR, USA, JPN, CHN, FRA, etc.)
+- If uncertain, set confidence < 0.7
+- Return null for location_region if unable to determine specific region
+`;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response.text();
+    
+    // JSON 추출 및 파싱
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const extracted = JSON.parse(jsonMatch[0]);
+      console.log(`🔍 동적 분석 결과 - ${locationName}:`, extracted);
+      
+      // 신뢰도가 낮으면 기본값 반환
+      if (extracted.confidence < 0.7) {
+        console.log(`⚠️ 신뢰도 낮음 (${extracted.confidence}) - 기본값 사용`);
+        return { location_region: null, country_code: null };
+      }
+      
+      return {
+        location_region: extracted.location_region,
+        country_code: extracted.country_code
+      };
+    }
+    
+    // JSON 파싱 실패시 기본값
+    return { location_region: null, country_code: null };
+    
+  } catch (error) {
+    console.error(`❌ 동적 분석 실패 - ${locationName}:`, error);
+    return { location_region: null, country_code: null };
+  }
+}
+
 /**
  * 🔍 현재 DB 상태 분석
  */
@@ -58,7 +114,7 @@ async function analyzeCurrentState() {
   try {
     const { data, error } = await supabase
       .from('guides')
-      .select('id, locationname, country_code')
+      .select('id, locationname, country_code, location_region')
       .not('country_code', 'is', null);
     
     if (error) {
@@ -95,6 +151,98 @@ async function analyzeCurrentState() {
     console.error('❌ DB 분석 실패:', error);
     throw error;
   }
+}
+
+/**
+ * 🗂️ 지역정보 업데이트 실행 (location_region, country_code 칼럼 채우기)
+ */
+async function updateRegionalInfo(dryRun = true) {
+  console.log(`\n🗂️ 지역정보 업데이트 ${dryRun ? '(DRY RUN)' : '실행'} 시작...`);
+  
+  let updateCount = 0;
+  let errorCount = 0;
+  
+  try {
+    // 1단계: location_region 또는 country_code가 없는 레코드 조회
+    const { data: incompleteRecords, error: selectError } = await supabase
+      .from('guides')
+      .select('id, locationname, location_region, country_code')
+      .or('location_region.is.null,country_code.is.null');
+    
+    if (selectError) {
+      throw selectError;
+    }
+    
+    console.log(`📊 지역정보가 없는 레코드: ${incompleteRecords.length}개`);
+    
+    if (incompleteRecords.length === 0) {
+      console.log('✅ 모든 레코드에 지역정보가 이미 있습니다.');
+      return { updateCount: 0, errorCount: 0 };
+    }
+    
+    // 2단계: 각 레코드에 대해 동적 분석 수행
+    for (const record of incompleteRecords) {
+      try {
+        console.log(`\n📍 분석 중: ${record.locationname} (ID: ${record.id})`);
+        
+        const regionalInfo = await extractRegionalInfoFromLocationName(record.locationname);
+        
+        if (dryRun) {
+          console.log(`🔍 DRY RUN - ${record.locationname}:`);
+          console.log(`  현재: region=${record.location_region}, country=${record.country_code}`);
+          console.log(`  분석: region=${regionalInfo.location_region}, country=${regionalInfo.country_code}`);
+          updateCount++;
+          continue;
+        }
+        
+        // 실제 업데이트 (null인 필드만 업데이트)
+        const updateData = {};
+        if (!record.location_region && regionalInfo.location_region) {
+          updateData.location_region = regionalInfo.location_region;
+        }
+        if (!record.country_code && regionalInfo.country_code) {
+          updateData.country_code = regionalInfo.country_code;
+        }
+        
+        if (Object.keys(updateData).length > 0) {
+          updateData.updated_at = new Date().toISOString();
+          
+          const { error: updateError } = await supabase
+            .from('guides')
+            .update(updateData)
+            .eq('id', record.id);
+          
+          if (updateError) {
+            throw updateError;
+          }
+          
+          console.log(`✅ 업데이트 완료: ${record.locationname}`);
+          console.log(`  → region: ${updateData.location_region || '변경없음'}`);
+          console.log(`  → country: ${updateData.country_code || '변경없음'}`);
+          updateCount++;
+        } else {
+          console.log(`ℹ️ ${record.locationname}: 업데이트할 정보 없음`);
+        }
+        
+        // API 호출 제한 방지 (1초 대기)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+      } catch (error) {
+        console.error(`❌ ${record.locationname} 업데이트 실패:`, error);
+        errorCount++;
+      }
+    }
+    
+  } catch (error) {
+    console.error('❌ 지역정보 업데이트 중 오류:', error);
+    errorCount++;
+  }
+  
+  console.log(`\n📊 지역정보 업데이트 ${dryRun ? 'DRY RUN ' : ''}완료:`);
+  console.log(`  ✅ 업데이트${dryRun ? ' 예정' : '됨'}: ${updateCount}개 레코드`);
+  console.log(`  ❌ 실패: ${errorCount}개`);
+  
+  return { updateCount, errorCount };
 }
 
 /**
@@ -224,9 +372,11 @@ async function verifyMigration() {
 async function main() {
   const args = process.argv.slice(2);
   const dryRun = !args.includes('--execute');
+  const updateRegional = args.includes('--update-regional');
+  const migrateCountries = args.includes('--migrate-countries') || (!updateRegional && !args.includes('--update-regional'));
   
-  console.log('🌍 국가 코드 마이그레이션 도구');
-  console.log('=====================================');
+  console.log('🌍 DB 조직화 및 국가 코드 마이그레이션 도구');
+  console.log('===============================================');
   
   if (dryRun) {
     console.log('ℹ️ DRY RUN 모드 - 실제 변경하지 않고 시뮬레이션만 실행');
@@ -235,30 +385,50 @@ async function main() {
     console.log('⚠️ 실제 DB 업데이트 모드');
   }
   
+  console.log('\n📋 사용 가능한 옵션:');
+  console.log('  --update-regional    : 지역정보 업데이트 (location_region, country_code 채우기)');
+  console.log('  --migrate-countries  : 2글자 → 3글자 국가코드 마이그레이션');
+  console.log('  --execute           : 실제 DB 업데이트 실행');
+  
   try {
-    // 1단계: 현재 상태 분석
-    const analysis = await analyzeCurrentState();
-    
-    if (analysis.needsUpdate === 0) {
-      console.log('\n✅ 업데이트가 필요한 레코드가 없습니다.');
-      return;
-    }
-    
-    // 2단계: 마이그레이션 실행
-    const result = await migrateCountryCodes(dryRun);
-    
-    // 3단계: 실제 실행 후 검증
-    if (!dryRun && result.updateCount > 0) {
-      await verifyMigration();
-    }
-    
-    if (dryRun) {
-      console.log('\n💡 실제 마이그레이션을 실행하려면:');
-      console.log('node scripts/migrate-country-codes-to-alpha3.js --execute');
+    if (updateRegional) {
+      // 지역정보 업데이트 실행
+      console.log('\n🗂️ 지역정보 업데이트 작업 시작...');
+      const result = await updateRegionalInfo(dryRun);
+      
+      if (dryRun) {
+        console.log('\n💡 실제 지역정보 업데이트를 실행하려면:');
+        console.log('node scripts/migrate-country-codes-to-alpha3.js --update-regional --execute');
+      }
+      
+    } else if (migrateCountries) {
+      // 기존 국가코드 마이그레이션 실행
+      console.log('\n🔄 국가 코드 마이그레이션 작업 시작...');
+      
+      // 1단계: 현재 상태 분석
+      const analysis = await analyzeCurrentState();
+      
+      if (analysis.needsUpdate === 0) {
+        console.log('\n✅ 업데이트가 필요한 레코드가 없습니다.');
+        return;
+      }
+      
+      // 2단계: 마이그레이션 실행
+      const result = await migrateCountryCodes(dryRun);
+      
+      // 3단계: 실제 실행 후 검증
+      if (!dryRun && result.updateCount > 0) {
+        await verifyMigration();
+      }
+      
+      if (dryRun) {
+        console.log('\n💡 실제 마이그레이션을 실행하려면:');
+        console.log('node scripts/migrate-country-codes-to-alpha3.js --migrate-countries --execute');
+      }
     }
     
   } catch (error) {
-    console.error('\n❌ 마이그레이션 실패:', error);
+    console.error('\n❌ 작업 실패:', error);
     process.exit(1);
   }
 }
@@ -268,4 +438,10 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { analyzeCurrentState, migrateCountryCodes, verifyMigration };
+module.exports = { 
+  analyzeCurrentState, 
+  migrateCountryCodes, 
+  verifyMigration,
+  updateRegionalInfo,
+  extractRegionalInfoFromLocationName
+};

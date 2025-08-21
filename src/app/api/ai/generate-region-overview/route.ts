@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getGeminiClient } from '@/lib/ai/gemini-client';
 import { classifyLocation } from '@/lib/location/location-classification';
 import { createClient } from '@supabase/supabase-js';
+import { generateCoordinatesForGuideCommon, StandardLocationInfo } from '@/lib/coordinates/coordinate-common';
+import { createQuickPrompt } from '@/lib/ai/prompt-utils';
+import { getAutocompleteData } from '@/lib/cache/autocompleteStorage';
 
 // 동적 렌더링 강제
 export const dynamic = 'force-dynamic';
@@ -10,7 +13,6 @@ export const dynamic = 'force-dynamic';
 interface RegionData {
   name: string;
   country: string;
-  description: string;
   highlights: string[];
   quickFacts: {
     area?: string;
@@ -29,13 +31,14 @@ interface RecommendedSpot {
   id: string;
   name: string;
   location: string;
-  category: string;
-  description: string;
-  highlights: string[];
-  estimatedDays: number;
-  difficulty: 'easy' | 'moderate' | 'challenging';
-  seasonality: string;
-  popularity: number;
+  country: string;
+  category?: string;
+  description?: string;
+  highlights?: string[];
+  estimatedDays?: number;
+  difficulty?: 'easy' | 'moderate' | 'challenging';
+  seasonality?: string;
+  popularity?: number;
   image?: string;
   coordinates?: {
     lat: number;
@@ -98,7 +101,6 @@ function convertGuideToRegionData(guideContent: any, locationName: string): { re
     const regionData: RegionData = {
       name: locationName,
       country: locationName.includes('프랑스') || locationName.includes('France') ? '프랑스' : locationName,
-      description: extractDescription(firstChapter, locationName),
       highlights: extractHighlights(mustVisitSpots, chapters),
       quickFacts: {
         bestTime: extractBestTime(chapters),
@@ -107,8 +109,8 @@ function convertGuideToRegionData(guideContent: any, locationName: string): { re
       coordinates: extractCoordinates(firstChapter, locationName)
     };
 
-    // RecommendedSpots 생성 - 더 스마트한 추출
-    const recommendedSpots: RecommendedSpot[] = chapters.slice(0, 6).map((chapter: any, index: number) => {
+    // RecommendedSpots 생성 - 더 스마트한 추출 (10개 이상 제공)
+    const recommendedSpots: RecommendedSpot[] = chapters.slice(0, 12).map((chapter: any, index: number) => {
       const spotName = extractSpotName(chapter, index);
       const category = extractCategory(chapter, index);
       const description = extractSpotDescription(chapter);
@@ -117,6 +119,7 @@ function convertGuideToRegionData(guideContent: any, locationName: string): { re
         id: `spot-${index}`,
         name: spotName,
         location: locationName,
+        country: locationName, // country 필드 추가
         category,
         description,
         highlights: extractSpotHighlights(chapter),
@@ -278,258 +281,313 @@ function extractSpotHighlights(chapter: any): string[] {
   return ['특색 있는 장소', '방문 가치 있음'];
 }
 
-// 지역 탐색 허브 전문가 페르소나
-const REGION_EXPLORE_PERSONA = `당신은 지역 탐색 및 여행 기획 전문가입니다.
+// 🌍 지역/국가 탐색 전문 페르소나 - 국가 단위 정보 제공
+const REGION_EXPLORE_PERSONA = `당신은 지역/국가 탐색 및 문화 해설 전문가입니다.
+
+🎯 국가/지역 단위 검색 시 핵심 원칙:
+- 국가 전체의 문화, 역사, 지리적 특징 설명 (특정 관광지 X)
+- 국가를 대표하는 여러 지역들과 도시들 소개
+- 국가의 전반적인 매력과 다양성 강조
+- 여행자가 국가 내에서 선택할 수 있는 다양한 옵션 제시
 
 전문 분야:
-- 지역별 문화적 특성 및 역사적 배경 분석
-- 사용자 호기심 유발을 위한 스토리텔링
-- 계층적 여행지 추천 (쉬운 접근 → 깊은 탐험)
-- 실용적 여행 정보 (최적 방문 시기, 소요 시간 등)
+- 국가별 문화적 정체성 및 역사적 배경 분석
+- 지역 간 차이점과 각 지역의 특색 설명
+- 국가 전체를 아우르는 종합적 여행 가이드
+- 계절별, 테마별 국가 탐험 방법 제안
 
-핵심 원칙:
-1. 호기심 자극: "알려진 것 vs 숨겨진 것" 대비로 흥미 유발
-2. 단계적 공개: 기본 정보 → 심화 정보 → 특별한 경험
-3. 개인화 추천: 다양한 관심사와 여행 스타일 고려
-4. 실행 가능성: 실제 방문 계획을 세울 수 있는 구체적 정보 제공
-5. 감정적 연결: 각 장소만의 독특한 매력과 스토리 강조`;
+🚨 중요: 국가명 검색 시 특정 관광지가 아닌 국가 전체 소개에 집중하세요.`;
 
-// 지역 개요 생성 프롬프트
+// 🌍 국가/지역 개요 생성 프롬프트 - 기존 가이드 JSON 구조와 호환
 function createRegionOverviewPrompt(locationName: string, language: string): string {
   const prompts = {
-    ko: `${REGION_EXPLORE_PERSONA}
+    ko: `"${locationName}"에 대한 정확하고 실용적인 여행 정보를 JSON으로 생성하세요.
 
-"${locationName}"에 대한 매력적인 지역 탐색 허브 정보를 생성해주세요.
+🎯 품질 요구사항:
+- 실제 존재하는 정확한 지명과 특징만 사용
+- 구체적이고 검증 가능한 정보 제공
+- 여행자에게 실질적으로 도움이 되는 내용
+- 모호하거나 일반적인 표현 지양
 
-요청사항:
-1. 지역 기본 정보 (설명, 특징, 통계)
-2. 사용자 호기심을 자극하는 스토리텔링
-3. 실용적인 방문 정보
+🔍 highlights 작성 지침:
+- 해당 지역의 독특하고 실제적인 특징 5개
+- "다양한", "풍부한" 등 모호한 표현 대신 구체적 내용
+- 실제 경험할 수 있는 것들로 구성
 
-JSON 형식으로 응답하세요:
+📋 JSON 응답 형식 (정확히 이 구조로):
+- 코드블록이나 추가 설명 없이 순수 JSON만
+- 모든 필드 필수 입력
+
 {
   "regionData": {
     "name": "${locationName}",
-    "country": "소속 국가",
-    "description": "호기심을 자극하는 2-3줄 소개 (150자 내외)",
-    "highlights": ["특징1", "특징2", "특징3", "특징4", "특징5"],
+    "country": "정확한 국가명",
+    "highlights": ["구체적 특징1", "구체적 특징2", "구체적 특징3", "구체적 특징4", "구체적 특징5"],
     "quickFacts": {
-      "area": "면적 정보 (옵션)",
-      "population": "인구 정보 (옵션)", 
-      "bestTime": "최적 방문 시기",
-      "timeZone": "시간대 (옵션)"
-    },
-    "coordinates": {
-      "lat": 위도,
-      "lng": 경도
+      "bestTime": "구체적인 최적 방문 시기 (계절, 월 포함)",
+      "timeZone": "정확한 시간대"
     }
   }
-}
+}`,
 
-주의사항:
-- description은 호기심과 감정적 연결을 유발하는 내용으로
-- highlights는 구체적이고 흥미로운 특징들로
-- 정확한 지리적 좌표 제공`,
+    en: `Generate practical travel information about "${locationName}" as JSON. Focus on specific, useful details that travelers should know rather than generic descriptions.
 
-    en: `${REGION_EXPLORE_PERSONA}
-
-Generate attractive regional exploration hub information for "${locationName}".
-
-Requirements:
-1. Basic regional information (description, features, statistics)
-2. Storytelling that sparks user curiosity
-3. Practical visiting information
-
-Respond in JSON format:
 {
   "regionData": {
     "name": "${locationName}",
-    "country": "country",
-    "description": "curiosity-sparking 2-3 line introduction (around 150 characters)",
+    "country": "country name",
     "highlights": ["feature1", "feature2", "feature3", "feature4", "feature5"],
     "quickFacts": {
-      "area": "area information (optional)",
-      "population": "population info (optional)",
       "bestTime": "best time to visit",
-      "timeZone": "time zone (optional)"
+      "timeZone": "time zone"
     },
     "coordinates": {
       "lat": latitude,
       "lng": longitude
     }
   }
-}
+}`,
 
-Notes:
-- Description should evoke curiosity and emotional connection
-- Highlights should be specific and interesting features
-- Provide accurate geographical coordinates`
+    ja: `"${locationName}"の実用的な旅行情報をJSONで生成してください。一般的な説明ではなく、旅行者が実際に知っていると役立つ具体的な情報を提供してください。
+
+{
+  "regionData": {
+    "name": "${locationName}",
+    "country": "国名",
+    "highlights": ["特徴1", "特徴2", "特徴3", "特徴4", "特徴5"],
+    "quickFacts": {
+      "bestTime": "最適な訪問時期",
+      "timeZone": "時間帯"
+    },
+    "coordinates": {
+      "lat": 緯度,
+      "lng": 経度
+    }
+  }
+}`,
+
+    zh: `生成"${locationName}"的实用旅行信息JSON。请提供具体实用的信息，而非一般性描述，帮助旅行者实际了解有用信息。
+
+{
+  "regionData": {
+    "name": "${locationName}",
+    "country": "国家名",
+    "highlights": ["特色1", "特色2", "特色3", "特色4", "特色5"],
+    "quickFacts": {
+      "bestTime": "最佳访问时间",
+      "timeZone": "时区"
+    },
+    "coordinates": {
+      "lat": 纬度,
+      "lng": 经度
+    }
+  }
+}`,
+
+    es: `Genera información práctica de viaje sobre "${locationName}" como JSON. Enfócate en detalles específicos y útiles que los viajeros deberían saber, en lugar de descripciones genéricas.
+
+{
+  "regionData": {
+    "name": "${locationName}",
+    "country": "nombre del país",
+    "highlights": ["característica1", "característica2", "característica3", "característica4", "característica5"],
+    "quickFacts": {
+      "bestTime": "mejor época para visitar",
+      "timeZone": "zona horaria"
+    },
+    "coordinates": {
+      "lat": latitud,
+      "lng": longitud
+    }
+  }
+}`
   };
 
   return prompts[language as keyof typeof prompts] || prompts.ko;
 }
 
-// 추천 장소 생성 프롬프트
-function createRecommendedSpotsPrompt(locationName: string, language: string): string {
+// 전세계 범용 추천 장소 생성 프롬프트 (위치 레벨에 따라 다른 추천)
+function createRecommendedSpotsPrompt(locationName: string, language: string, isCountry: boolean = false): string {
   const prompts = {
-    ko: `${REGION_EXPLORE_PERSONA}
+    ko: isCountry ? 
+      `🎯 ${locationName}의 실제 인기 도시 8개를 정확히 인기순으로 정렬하여 JSON 배열로만 응답하세요.
 
-"${locationName}" 지역의 매력적인 여행지 6개를 추천해주세요.
+품질 요구사항:
+- 실제 존재하는 정확한 도시명만 사용 (영문명/현지명 정확히)
+- 관광객 방문 통계 기준 인기순 정렬
+- 가상이나 부정확한 도시명 절대 금지
 
-🚨 CRITICAL: name 필드는 반드시 구체적인 고유 장소명 사용
-- ❌ 금지: "박물관", "시장", "공원", "성당", "타워" 등 일반적인 용어
-- ✅ 필수: "전주한옥마을", "남대문시장", "경복궁", "명동성당", "N서울타워" 등 실제 고유명사
-- ✅ 필수: 방문자가 구글 지도에서 검색할 수 있는 정확한 장소명
-- ✅ 필수: "${locationName}" 지역에 실제로 존재하는 유명한 특정 장소들
+[{"name":"실제도시명1"},{"name":"실제도시명2"},{"name":"실제도시명3"},{"name":"실제도시명4"},{"name":"실제도시명5"},{"name":"실제도시명6"},{"name":"실제도시명7"},{"name":"실제도시명8"}]` : 
+      `🎯 ${locationName}의 실제 인기 관광명소 8개를 정확히 인기순으로 정렬하여 JSON 배열로만 응답하세요.
 
-🚨 CRITICAL: location 필드는 동일명 지역 혼동 방지를 위해 명확히 특정
-- ❌ 금지: "뉴욕", "파리", "런던" 등 동일명이 여러 국가에 존재하는 모호한 표기
-- ✅ 필수: "미국 뉴욕주", "프랑스 일드프랑스 파리", "영국 런던" 등 국가+주/지역 포함
-- ✅ 필수: "${locationName}"이 국가인 경우 반드시 "국가명 주/도명" 형태로 작성
-- ✅ 예시: 미국 → "미국 캘리포니아주", "미국 뉴욕주", 일본 → "일본 도쿄도", "일본 오사카부"
+품질 요구사항:
+- 실제 존재하는 정확한 명소명만 사용 (현지명/공식명)
+- 방문객 수 기준 실제 인기순 정렬
+- 박물관, 랜드마크, 역사적 장소 등 실제 관광지만
+- 가상이나 부정확한 명소명 절대 금지
 
-추천 기준:
-1. 다양한 카테고리 (도시, 자연, 문화, 음식, 쇼핑 등)
-2. 접근성과 난이도의 균형
-3. 각기 다른 매력과 특징
-4. 실제 방문 가능한 장소
+📋 JSON 응답 형식 (정확히):
+- 순수 JSON 배열만, 코드블록이나 설명 없이
+- 정확히 8개 항목
+- 각 name은 실제 명소의 정확한 이름
 
-JSON 배열로만 응답하세요:
-[
-  {
-    "id": "unique-id-1",
-    "name": "구체적인 고유 장소명 (예: 전주한옥마을, 남대문시장)",
-    "location": "${locationName} [구체적 주/도/지역명] (예: 미국 캘리포니아주, 일본 도쿄도, 프랑스 일드프랑스)",
-    "category": "city|nature|culture|food|shopping",
-    "description": "매력적인 한 줄 소개 (80자 내외)",
-    "highlights": ["특징1", "특징2", "특징3"],
-    "estimatedDays": 추천일수(1-7),
-    "difficulty": "easy|moderate|challenging",
-    "seasonality": "방문 시기 (예: 연중, 봄-가을 등)",
-    "popularity": 인기도점수(1-10),
-    "coordinates": {
-      "lat": 위도,
-      "lng": 경도
-    }
-  }
-]
+[{"name":"실제명소명1"},{"name":"실제명소명2"},{"name":"실제명소명3"},{"name":"실제명소명4"},{"name":"실제명소명5"},{"name":"실제명소명6"},{"name":"실제명소명7"},{"name":"실제명소명8"}]`,
 
-주의사항:
-- name은 절대로 일반명사가 아닌 구체적 고유명사여야 함
-- 각 장소는 서로 다른 매력을 가져야 함
-- description은 클릭하고 싶게 만드는 내용으로
-- 실제 존재하는 좌표 제공`,
+    en: isCountry ?
+      `${locationName} top 8 cities by popularity. JSON array only with real city names.
+[{"name":"city1"},{"name":"city2"},{"name":"city3"},{"name":"city4"},{"name":"city5"},{"name":"city6"},{"name":"city7"},{"name":"city8"}]` :
+      `${locationName} top 8 attractions by popularity. JSON array only with real attraction names.
+[{"name":"attraction1"},{"name":"attraction2"},{"name":"attraction3"},{"name":"attraction4"},{"name":"attraction5"},{"name":"attraction6"},{"name":"attraction7"},{"name":"attraction8"}]`,
 
-    en: `${REGION_EXPLORE_PERSONA}
+    ja: isCountry ?
+      `${locationName} 人気都市8個を人気順でJSON配列のみ。実際の都市名を使用。
+[{"name":"都市名1"},{"name":"都市名2"},{"name":"都市名3"},{"name":"都市名4"},{"name":"都市名5"},{"name":"都市名6"},{"name":"都市名7"},{"name":"都市名8"}]` :
+      `${locationName} 人気観光地8個を人気順でJSON配列のみ。実際の名所名を使用。
+[{"name":"観光地名1"},{"name":"観光地名2"},{"name":"観光地名3"},{"name":"観光地名4"},{"name":"観光地名5"},{"name":"観光地名6"},{"name":"観光地名7"},{"name":"観光地名8"}]`,
 
-Recommend 6 attractive travel destinations in "${locationName}" region.
+    zh: isCountry ?
+      `${locationName} 热门城市8个按人气排序JSON数组。使用真实城市名。
+[{"name":"城市名1"},{"name":"城市名2"},{"name":"城市名3"},{"name":"城市名4"},{"name":"城市名5"},{"name":"城市名6"},{"name":"城市名7"},{"name":"城市名8"}]` :
+      `${locationName} 热门景点8个按人气排序JSON数组。使用真实景点名。
+[{"name":"景点名1"},{"name":"景点名2"},{"name":"景点名3"},{"name":"景点名4"},{"name":"景点名5"},{"name":"景点名6"},{"name":"景点名7"},{"name":"景点名8"}]`,
 
-🚨 CRITICAL: name field must use specific proper place names
-- ❌ Forbidden: "museum", "market", "park", "cathedral", "tower" etc. generic terms
-- ✅ Required: "Central Park", "Times Square", "Metropolitan Museum of Art", "Brooklyn Bridge" etc. actual proper nouns
-- ✅ Required: Exact place names that visitors can search on Google Maps
-- ✅ Required: Famous specific places that actually exist in "${locationName}" region
-
-🚨 CRITICAL: location field must prevent confusion between same-named places
-- ❌ Forbidden: "New York", "Paris", "London" etc. ambiguous names that exist in multiple countries
-- ✅ Required: "USA New York State", "France Île-de-France Paris", "UK London" etc. with country+state/region
-- ✅ Required: If "${locationName}" is a country, must use "Country State/Province" format
-- ✅ Examples: USA → "USA California", "USA New York State", Japan → "Japan Tokyo", "Japan Osaka"
-
-Recommendation criteria:
-1. Various categories (city, nature, culture, food, shopping, etc.)
-2. Balance of accessibility and difficulty
-3. Each with unique charm and characteristics
-4. Actually visitable places
-
-Respond only as JSON array:
-[
-  {
-    "id": "unique-id-1", 
-    "name": "specific proper place name (e.g. Central Park, Brooklyn Bridge)",
-    "location": "${locationName} [specific state/province/region] (e.g. USA California, Japan Tokyo, France Île-de-France)",
-    "category": "city|nature|culture|food|shopping",
-    "description": "attractive one-line introduction (around 80 characters)",
-    "highlights": ["feature1", "feature2", "feature3"],
-    "estimatedDays": recommended_days(1-7),
-    "difficulty": "easy|moderate|challenging", 
-    "seasonality": "visit timing (e.g. year-round, spring-fall etc)",
-    "popularity": popularity_score(1-10),
-    "coordinates": {
-      "lat": latitude,
-      "lng": longitude
-    }
-  }
-]
-
-Notes:
-- name must be specific proper nouns, never generic terms
-- Each place should have different unique attractions
-- Description should make users want to click
-- Provide actual existing coordinates`
+    es: isCountry ?
+      `${locationName} 8 ciudades populares por popularidad JSON array. Usar nombres reales.
+[{"name":"ciudad1"},{"name":"ciudad2"},{"name":"ciudad3"},{"name":"ciudad4"},{"name":"ciudad5"},{"name":"ciudad6"},{"name":"ciudad7"},{"name":"ciudad8"}]` :
+      `${locationName} 8 atracciones populares por popularidad JSON array. Usar nombres reales.
+[{"name":"atracción1"},{"name":"atracción2"},{"name":"atracción3"},{"name":"atracción4"},{"name":"atracción5"},{"name":"atracción6"},{"name":"atracción7"},{"name":"atracción8"}]`
   };
 
   return prompts[language as keyof typeof prompts] || prompts.ko;
 }
 
-// JSON 응답 파싱 (개선된 버전)
+// JSON 응답 파싱 (개선된 버전) - 불완전한 JSON 자동 복구 기능 추가
 function parseAIResponse<T>(text: string): T | null {
   try {
     console.log('🔍 JSON 파싱 시작, 원본 길이:', text.length);
     
-    // JSON 추출 패턴 (더 포괄적)
-    const patterns = [
-      /```(?:json)?\s*(\{[\s\S]*?\})\s*```/s,
-      /```(?:json)?\s*(\[[\s\S]*?\])\s*```/s,
-      /(\{[\s\S]*\})/s,
-      /(\[[\s\S]*\])/s,
-      // 추가 패턴
-      /\{[^}]*"regionData"[^}]*\{[\s\S]*?\}[\s\S]*?\}/s,
-      /\[[\s\S]*?\{[\s\S]*?"id"[\s\S]*?\}[\s\S]*?\]/s
-    ];
-
+    // 1단계: ```json 코드블록 찾기
     let jsonString = text.trim();
-    let patternUsed = 'none';
+    const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/s);
+    if (codeBlockMatch) {
+      jsonString = codeBlockMatch[1];
+      console.log('✅ 코드블록에서 추출');
+    }
     
-    for (let i = 0; i < patterns.length; i++) {
-      const pattern = patterns[i];
-      const match = text.match(pattern);
-      if (match) {
-        jsonString = match[1] ? match[1].trim() : match[0].trim();
-        patternUsed = `pattern-${i}`;
-        console.log('✅ JSON 패턴 매치:', patternUsed);
-        break;
+    // 2단계: JSON 시작/끝 찾기 - 개선된 로직 (배열 우선)
+    const arrayStart = jsonString.indexOf('[');
+    const objectStart = jsonString.indexOf('{');
+    const startIdx = arrayStart !== -1 && (objectStart === -1 || arrayStart < objectStart) ? arrayStart : objectStart;
+    
+    if (startIdx !== -1) {
+      // 배열인지 객체인지 확인
+      if (jsonString[startIdx] === '[') {
+        // 배열인 경우: 마지막 ]를 찾되, 없으면 자동 추가
+        let endIdx = jsonString.lastIndexOf(']');
+        if (endIdx === -1 || endIdx < startIdx) {
+          console.log('🔧 배열 종료 ] 없음, 자동 추가');
+          jsonString = jsonString.substring(startIdx) + ']';
+        } else {
+          jsonString = jsonString.substring(startIdx, endIdx + 1);
+        }
+      } else {
+        // 객체인 경우: 마지막 }를 찾되, 없으면 자동 추가
+        let endIdx = jsonString.lastIndexOf('}');
+        if (endIdx === -1 || endIdx < startIdx) {
+          console.log('🔧 객체 종료 } 없음, 자동 추가');
+          jsonString = jsonString.substring(startIdx) + '}';
+        } else {
+          jsonString = jsonString.substring(startIdx, endIdx + 1);
+        }
+      }
+      console.log('✅ JSON 경계 자동 감지 및 복구');
+    }
+    
+    // 3단계: 불완전한 JSON 복구 시도 (완전한 JSON인 경우 스킵)
+    if (!jsonString.endsWith('}') && !jsonString.endsWith(']')) {
+      console.log('🔧 불완전한 JSON 감지, 복구 시도...');
+      
+      // 배열인 경우
+      if (jsonString.startsWith('[')) {
+        // 마지막 완전한 객체 찾기 - 개선된 알고리즘
+        const objects: string[] = [];
+        let depth = 0;
+        let currentObj = '';
+        let inString = false;
+        let escapeNext = false;
+        
+        for (let i = 1; i < jsonString.length; i++) {
+          const char = jsonString[i];
+          
+          if (escapeNext) {
+            escapeNext = false;
+            currentObj += char;
+            continue;
+          }
+          
+          if (char === '\\') {
+            escapeNext = true;
+            currentObj += char;
+            continue;
+          }
+          
+          if (char === '"' && !escapeNext) inString = !inString;
+          
+          if (!inString) {
+            if (char === '{') depth++;
+            if (char === '}') depth--;
+            
+            if (depth === 0 && char === '}') {
+              objects.push('{' + currentObj);
+              console.log(`✅ 객체 ${objects.length} 복구: ${objects[objects.length-1].substring(0, 50)}...`);
+              currentObj = '';
+              
+              // 다음 객체 시작까지 스킵 (쉼표와 공백 포함)
+              while (i + 1 < jsonString.length && !['{'].includes(jsonString[i + 1])) {
+                i++;
+                if (jsonString[i] === '{') {
+                  i--; // 다음 루프에서 '{'를 처리하도록
+                  break;
+                }
+              }
+            } else {
+              currentObj += char;
+            }
+          } else {
+            currentObj += char;
+          }
+        }
+        
+        if (objects.length > 0) {
+          jsonString = '[' + objects.join(',') + ']';
+          console.log('✅ 불완전한 배열 복구 완료:', objects.length, '개 객체');
+        }
+      }
+      
+      // 객체인 경우
+      else if (jsonString.startsWith('{')) {
+        const lastCompleteField = jsonString.lastIndexOf(',');
+        if (lastCompleteField !== -1) {
+          jsonString = jsonString.substring(0, lastCompleteField) + '}';
+          console.log('✅ 불완전한 객체 복구');
+        }
       }
     }
-
-    // 추가 정리: 불완전한 JSON 수정 시도
+    
+    // 4단계: 파싱 시도
     jsonString = jsonString
-      .replace(/```/g, '') // 마크다운 제거
       .replace(/,\s*([}\]])/g, '$1') // trailing comma 제거
       .trim();
 
     console.log('🧹 정리된 JSON (첫 200자):', jsonString.substring(0, 200));
 
     const result = JSON.parse(jsonString) as T;
-    console.log('✅ JSON 파싱 성공:', patternUsed);
+    console.log('✅ JSON 파싱 성공');
     return result;
     
   } catch (error) {
     console.error('❌ JSON 파싱 실패:', error);
     console.error('📝 원본 텍스트 (첫 500자):', text.substring(0, 500));
-    
-    // 마지막 시도: 단순 텍스트에서 JSON 객체 찾기
-    try {
-      const simpleMatch = text.match(/\{[\s\S]*\}/);
-      if (simpleMatch) {
-        const simpleJson = simpleMatch[0];
-        console.log('🔄 단순 매치 시도:', simpleJson.substring(0, 100));
-        return JSON.parse(simpleJson) as T;
-      }
-    } catch (e) {
-      console.error('❌ 단순 매치도 실패');
-    }
-    
     return null;
   }
 }
@@ -546,7 +604,7 @@ function sanitizeInput(input: string): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const { locationName, language = 'ko', routingResult } = await request.json();
+    const { locationName, language = 'ko', routingResult, regionalContext, sessionLocationInfo } = await request.json();
 
     if (!locationName) {
       return NextResponse.json({
@@ -557,11 +615,16 @@ export async function POST(request: NextRequest) {
 
     const sanitizedLocation = sanitizeInput(locationName);
     const lang = ['ko', 'en', 'ja', 'zh', 'es'].includes(language) ? language : 'ko';
+    
+    // 📍 세션 위치 정보 변수 (좌표 생성과 DB 저장에서 공통 사용)
+    let cachedLocationInfo: any = sessionLocationInfo;
 
     console.log('🏞️ 지역 탐색 허브 생성 시작:', { 
       location: sanitizedLocation, 
       language: lang,
-      routing: routingResult?.processingMethod 
+      routing: routingResult?.processingMethod,
+      hasSessionData: !!sessionLocationInfo,
+      hasRegionalContext: !!regionalContext
     });
 
     // 1단계: DB에서 기존 가이드 데이터 확인
@@ -603,30 +666,66 @@ export async function POST(request: NextRequest) {
       }
 
       if (existingGuide?.content) {
-        console.log('✅ 기존 가이드 데이터 발견, 변환 시도...');
-        console.log('📊 가이드 데이터 구조:', {
+        console.log('✅ 기존 가이드 데이터 발견 - DB 데이터 우선 사용 정책');
+        console.log('📊 기존 데이터 구조:', {
           hasRealTimeGuide: !!existingGuide.content.realTimeGuide,
           hasChapters: !!existingGuide.content.realTimeGuide?.chapters,
           chaptersLength: existingGuide.content.realTimeGuide?.chapters?.length || 0
         });
         
-        const convertedData = convertGuideToRegionData(existingGuide.content, sanitizedLocation);
+        // 🔄 DB 데이터 우선 정책: 기존 데이터가 있으면 그것을 그대로 반환
+        console.log('📦 기존 DB 데이터 그대로 반환, 새로운 AI 생성 스킵');
         
-        if (convertedData) {
-          console.log('🎯 기존 데이터 변환 성공, 즉시 반환');
-          return NextResponse.json({
-            success: true,
-            regionData: convertedData.regionData,
-            recommendedSpots: convertedData.recommendedSpots,
-            cached: true,
-            source: 'converted_guide_data',
-            matchedLocation
-          });
-        } else {
-          console.log('⚠️ 기존 데이터 변환 실패, AI 생성 진행');
+        // 기존 데이터를 RegionExploreHub 호환 형식으로 바로 반환
+        const existingContent = existingGuide.content;
+        
+        // overview 데이터 추출
+        let highlights: string[] = [];
+        if (existingContent?.exploreHub?.highlights && Array.isArray(existingContent.exploreHub.highlights)) {
+          highlights = existingContent.exploreHub.highlights;
+        } else if (existingContent?.overview?.highlights && Array.isArray(existingContent.overview.highlights)) {
+          highlights = existingContent.overview.highlights;
+        } else if (existingContent?.realTimeGuide?.mustVisitSpots) {
+          highlights = existingContent.realTimeGuide.mustVisitSpots.split('#').filter((s: string) => s.trim()).slice(0, 5);
         }
+        
+        // route.steps 데이터 추출
+        let steps: any[] = [];
+        if (existingContent?.route?.steps && Array.isArray(existingContent.route.steps)) {
+          steps = existingContent.route.steps;
+        } else if (existingContent?.realTimeGuide?.chapters && Array.isArray(existingContent.realTimeGuide.chapters)) {
+          steps = existingContent.realTimeGuide.chapters.slice(0, 8).map((chapter: any, index: number) => ({
+            location: chapter.title?.split(':')[0]?.trim() || `장소 ${index + 1}`,
+            title: chapter.title || `장소 ${index + 1}`,
+            description: chapter.narrative?.substring(0, 100) || '',
+            estimatedTime: "2-3시간",
+            category: 'attraction',
+            highlights: [],
+            popularity: 90 - (index * 2)
+          }));
+        }
+        
+        return NextResponse.json({
+          success: true,
+          content: {
+            overview: {
+              keyFacts: [
+                { title: "지역명", description: sanitizedLocation },
+                { title: "최적 방문 시기", description: "연중" }
+              ],
+              highlights: highlights
+            },
+            route: { steps: steps }
+          },
+          coordinates: null, // 기존 coordinates 사용
+          generated: false, // 기존 데이터 사용
+          dbSaved: true,
+          generatedAt: new Date().toISOString(),
+          processingMethod: 'existing-data-reuse',
+          spotsCount: steps.length
+        });
       } else {
-        console.log('📭 기존 가이드 데이터 없음, AI 생성 진행');
+        console.log('📭 기존 가이드 데이터 없음, 새로운 AI 생성 진행');
         
         // DB에 있는 모든 location 목록 확인 (디버깅용)
         const { data: allLocations } = await supabase
@@ -649,7 +748,7 @@ export async function POST(request: NextRequest) {
       model: 'gemini-2.5-flash',
       generationConfig: {
         temperature: 0.2,
-        maxOutputTokens: 1500,
+        maxOutputTokens: 64000, // AI 응답이 잘리지 않도록 대폭 증가
         topP: 0.9,
         topK: 20
       }
@@ -667,73 +766,267 @@ export async function POST(request: NextRequest) {
     
     if (!overviewData?.regionData) {
       console.error('❌ 지역 개요 파싱 실패');
-      console.error('📝 AI 응답 원문:', overviewText);
+      console.error('📝 AI 응답 원문:', overviewText.substring(0, 500));
       
-      // 폴백: 기본 지역 데이터 생성
-      const fallbackData = {
-        regionData: {
-          name: sanitizedLocation,
-          country: "정보 불명",
-          description: `${sanitizedLocation}에 대한 정보를 준비 중입니다. 잠시 후 다시 시도해주세요.`,
-          highlights: ["아름다운 풍경", "풍부한 역사", "독특한 문화", "맛있는 음식", "친절한 사람들"],
-          quickFacts: {
-            bestTime: "연중"
-          },
-          coordinates: null // 🔥 기본 좌표 제거: 좌표 없음
-        }
-      };
-      
-      console.log('🔄 폴백 데이터 사용:', fallbackData);
       return NextResponse.json({
-        success: true,
-        regionData: fallbackData.regionData,
-        recommendedSpots: [],
-        generated: false,
-        fallback: true,
-        generatedAt: new Date().toISOString(),
-        warning: 'AI 응답 파싱에 실패하여 기본 정보를 제공합니다.'
-      });
+        success: false,
+        error: 'AI가 지역 정보를 올바른 형식으로 생성하지 못했습니다.',
+        details: {
+          stage: 'region_overview_parsing',
+          aiResponse: overviewText.substring(0, 200),
+          location: sanitizedLocation,
+          language: lang,
+          expectedFormat: 'regionData object with name, country, description, highlights, quickFacts, coordinates'
+        }
+      }, { status: 500 });
     }
 
-    // 2단계: 추천 장소 생성
-    console.log('🗺️ 추천 장소 생성 중...');
-    const spotsPrompt = createRecommendedSpotsPrompt(sanitizedLocation, lang);
+    // 2단계: 위치 레벨 판단 및 추천 여행지 생성
+    console.log('🏞️ 추천 여행지 8개 생성 중...');
+    
+    // 국가인지 지역/도시인지 판단
+    const locationClassification = classifyLocation(sanitizedLocation);
+    const isCountryLevel = Boolean(locationClassification && locationClassification.level <= 1); // Level 0-1은 국가
+    
+    console.log(`🎯 위치 분류: ${sanitizedLocation} → Level ${locationClassification?.level} → ${isCountryLevel ? '국가 (도시 추천)' : '지역/도시 (관광지 추천)'}`);
+    
+    const spotsPrompt = createRecommendedSpotsPrompt(sanitizedLocation, lang, isCountryLevel);
+    console.log('📝 추천지 프롬프트:', spotsPrompt.substring(0, 200) + '...');
+    
     const spotsResult = await model.generateContent(spotsPrompt);
     const spotsText = await spotsResult.response.text();
     
-    console.log('🎯 추천 장소 AI 응답:', spotsText);
+    console.log('🧠 추천지 AI 응답 (첫 200자):', spotsText.substring(0, 200));
+    
+    if (!spotsText || spotsText.trim().length === 0) {
+      console.error('❌ AI가 추천지 데이터를 생성하지 않았습니다');
+      return NextResponse.json({
+        success: false,
+        error: 'AI가 추천 여행지를 생성하지 못했습니다. 다시 시도해주세요.',
+        details: {
+          stage: 'spots_generation',
+          location: sanitizedLocation,
+          language: lang
+        }
+      }, { status: 500 });
+    }
     
     const spotsData = parseAIResponse<RecommendedSpot[]>(spotsText);
+    console.log('✅ 추천지 파싱 결과:', spotsData ? `${spotsData.length}개` : '실패');
     
-    if (!Array.isArray(spotsData)) {
-      console.warn('⚠️ 추천 장소 파싱 실패, 빈 배열 사용');
+    if (!spotsData || !Array.isArray(spotsData) || spotsData.length === 0) {
+      console.error('❌ 추천지 JSON 파싱 실패 또는 빈 배열');
+      console.error('📝 AI 응답 원문:', spotsText.substring(0, 500));
+      return NextResponse.json({
+        success: false,
+        error: 'AI 응답을 파싱하지 못했습니다. JSON 형식이 올바르지 않습니다.',
+        details: {
+          stage: 'spots_parsing',
+          aiResponse: spotsText.substring(0, 200),
+          location: sanitizedLocation,
+          language: lang
+        }
+      }, { status: 500 });
+    }
+    
+    // 인기도 순으로 정렬 (높은 점수부터 낮은 점수 순)
+    spotsData.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+    console.log('🏆 인기도 순 정렬 완료:', spotsData.map(spot => `${spot.name} (${spot.popularity}점)`).slice(0, 3));
+
+    // 3단계: 통합 가이드 데이터 구성 (AI 추천지 기반)
+    console.log('🧩 통합 데이터 구성 중...', spotsData ? `${spotsData.length}개 spots 사용` : 'spots 없음');
+    
+    // ✅ 중복 제거된 가이드 데이터 구조 (기존 가이드와 호환)
+    const guideData = {
+      title: overviewData.regionData.name + ' 완전 탐험 가이드',
+      location: overviewData.regionData.name,
+      estimatedTime: '7-14일',
+      difficulty: 'easy',
+      tags: ['문화', '역사', '자연', '음식', '도시'],
+      safetyWarnings: '여행 시 유의사항을 확인하세요',
+      bestTimeToVisit: overviewData.regionData.quickFacts?.bestTime || '연중',
+      // 🔥 수정: 기존 가이드와 동일한 구조로 highlights 저장
+      highlights: overviewData.regionData.highlights, // 루트 레벨에 저장
+      exploreHub: {
+        lastUpdated: new Date().toISOString()
+      },
+      // route.steps만 저장 (realTimeGuide.chapters 중복 제거)
+      route: {
+        totalDuration: '7-14일 권장',
+        steps: spotsData?.slice(0, 8).map((spot, index) => ({
+          id: index,
+          location: spot.name,
+          title: `${spot.name}: ${spot.description || '추천 여행지'}`,
+          description: spot.description || '',
+          estimatedTime: `${spot.estimatedDays || 1}일`,
+          category: spot.category || 'attraction',
+          highlights: spot.highlights || [],
+          popularity: spot.popularity || 50
+        })) || []
+      },
+      // 좌표 생성용으로만 사용 (간소화)
+      realTimeGuide: {
+        chapters: spotsData?.slice(0, 8).map((spot, index) => ({
+          id: index,
+          title: spot.name
+        })) || []
+      }
+    };
+    
+    console.log('📍 좌표 생성용 챕터 제목들:', guideData.realTimeGuide.chapters.map(c => c.title));
+
+    // 4단계: 좌표 생성
+    console.log('📍 좌표 생성 중...');
+    let coordinates: any = null;
+    
+    try {
+      // locationName이 undefined가 되는 문제 해결
+      const validLocationName = guideData?.location || sanitizedLocation || 'Korea';
+      console.log('🔍 좌표 생성용 위치명:', validLocationName);
+      
+      // ✅ 클라이언트에서 전달받은 세션스토리지 데이터 우선 사용
+      // cachedLocationInfo는 이미 함수 상단에서 선언됨
+      if (cachedLocationInfo) {
+        console.log('✅ 클라이언트에서 세션스토리지 정보 전달받음:', {
+          region: cachedLocationInfo.region,
+          country: cachedLocationInfo.country,
+          countryCode: cachedLocationInfo.countryCode
+        });
+      } else {
+        // 백업: 서버사이드에서 세션스토리지 접근 시도 (작동 안함)
+        try {
+          cachedLocationInfo = getAutocompleteData(sanitizedLocation, false);
+          console.log('⚠️ 서버사이드 세션스토리지 접근 시도 (실패 예상)');
+        } catch (error) {
+          console.log('⚠️ 서버사이드 세션스토리지 접근 실패 (예상됨):', error);
+        }
+      }
+      
+      // ✅ StandardLocationInfo 객체 구성 (SessionStorage > AI > 기본값 우선순위)
+      const locationInfo: StandardLocationInfo = {
+        name: validLocationName,
+        location: validLocationName,
+        region: cachedLocationInfo?.region || overviewData.regionData.country || sanitizedLocation,
+        country: cachedLocationInfo?.country || overviewData.regionData.country || sanitizedLocation,
+        countryCode: cachedLocationInfo?.countryCode || getCountryCode(overviewData.regionData.country || sanitizedLocation),
+        type: 'location',
+        coordinates: overviewData.regionData.coordinates ? {
+          lat: overviewData.regionData.coordinates.lat,
+          lng: overviewData.regionData.coordinates.lng
+        } : undefined
+      };
+      
+      console.log('🌍 최종 좌표 검색용 지역 컨텍스트:', {
+        region: locationInfo.region,
+        country: locationInfo.country,
+        countryCode: locationInfo.countryCode,
+        source: cachedLocationInfo ? 'SessionStorage' : 'AI+기본값'
+      });
+      
+      // ✅ 올바른 매개변수 순서로 함수 호출
+      coordinates = await generateCoordinatesForGuideCommon(
+        locationInfo,     // StandardLocationInfo 객체
+        guideData,        // 가이드 컨텐츠
+        {
+          maxChapters: 8, // 추천지 8개에 맞춤
+          delay: 500,     // API 제한 고려
+          language: lang
+        }
+      );
+      
+      if (coordinates && Array.isArray(coordinates)) {
+        console.log('✅ 좌표 생성 완료:', coordinates.length, '개 좌표');
+      }
+    } catch (coordError) {
+      console.warn('⚠️ 좌표 생성 실패:', coordError);
+      coordinates = null;
     }
 
-    // 좌표 보정 (분류된 위치 정보 활용)
-    let finalRegionData = overviewData.regionData;
-    if (locationData?.coordinates) {
-      finalRegionData.coordinates = locationData.coordinates;
-      console.log('📍 좌표 보정 완료:', locationData.coordinates);
+    // 3단계: DB에 저장 (일반 가이드와 동일한 스키마 사용)
+    console.log('💾 DB 저장 중...');
+    let dbSaved = false;
+    
+    try {
+      const supabase = getSupabaseClient();
+      
+      // ✅ 일반 가이드와 동일한 스키마 구조 사용
+      const { data, error } = await supabase
+        .from('guides')
+        .upsert({
+          locationname: sanitizedLocation,
+          language: lang.toLowerCase(),
+          content: guideData, // content에는 좌표 제외
+          coordinates: coordinates, // coordinates 칼럼에 별도 저장
+          location_region: cachedLocationInfo?.region || overviewData.regionData.country || sanitizedLocation,
+          country_code: cachedLocationInfo?.countryCode || getCountryCode(overviewData.regionData.country || sanitizedLocation),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'locationname,language',
+          ignoreDuplicates: false
+        });
+        
+      if (error) {
+        console.error('❌ DB 저장 오류:', error);
+      } else {
+        console.log('✅ DB 저장 완료');
+        dbSaved = true;
+      }
+    } catch (dbError) {
+      console.error('❌ DB 저장 실패:', dbError);
     }
 
+    // 4단계: RegionExploreHub 호환 형식으로 변환 (프론트엔드가 기대하는 구조)
+    console.log('🏗️ RegionExploreHub 형식으로 변환 중...');
+    
     const response = {
       success: true,
-      regionData: finalRegionData,
-      recommendedSpots: Array.isArray(spotsData) ? spotsData.slice(0, 6) : [],
+      // ✅ 프론트엔드가 기대하는 content 구조로 변환
+      content: {
+        overview: {
+          keyFacts: [
+            {
+              title: "지역명",
+              description: overviewData.regionData.name
+            },
+            {
+              title: "국가",
+              description: overviewData.regionData.country
+            },
+            {
+              title: "최적 방문 시기",
+              description: overviewData.regionData.quickFacts.bestTime || "연중"
+            }
+          ],
+          highlights: overviewData.regionData.highlights
+        },
+        route: {
+          steps: spotsData?.slice(0, 8).map((spot, index) => ({
+            location: spot.name, // ✅ RegionExploreHub가 step.location을 읽음
+            title: `${spot.name}: ${spot.name}에서 즐길 수 있는 특별한 경험`,
+            description: `${spot.name}의 매력적인 여행 경험을 만나보세요`,
+            estimatedTime: "2-3시간",
+            category: 'attraction',
+            highlights: ['추천 명소', '인기 관광지'],
+            popularity: 90 - (index * 2) // 90, 88, 86, 84, 82, 80, 78, 76
+          })) || []
+        }
+      },
+      coordinates: coordinates, // ✅ 일반 가이드와 동일하게 별도 필드로 반환
       generated: true,
+      dbSaved,
       generatedAt: new Date().toISOString(),
-      processingMethod: routingResult?.processingMethod,
-      debug: process.env.NODE_ENV === 'development' ? {
-        locationData,
-        overviewText: overviewText.length > 500 ? overviewText.substring(0, 500) + '...' : overviewText,
-        spotsText: spotsText.length > 500 ? spotsText.substring(0, 500) + '...' : spotsText
-      } : undefined
+      processingMethod: 'region-overview-specialized',
+      spotsCount: spotsData?.length || 0
     };
 
+    // highlights는 이미 guideData.exploreHub에 포함되어 저장됨 (중복 제거)
+
     console.log('✅ 지역 탐색 허브 생성 완료:', {
-      regionName: finalRegionData.name,
-      spotsCount: Array.isArray(spotsData) ? spotsData.length : 0,
-      hasCoordinates: !!finalRegionData.coordinates
+      regionName: overviewData.regionData.name,
+      spotsCount: spotsData?.length || 0,
+      hasCoordinates: !!coordinates,
+      dbSaved
     });
 
     return NextResponse.json(response);
@@ -749,4 +1042,30 @@ export async function POST(request: NextRequest) {
       })
     }, { status: 500 });
   }
+}
+
+
+// 🌍 국가 코드 추출 헬퍼 함수
+function getCountryCode(locationName: string): string {
+  const countryCodeMap: { [key: string]: string } = {
+    'Korea': 'KR',
+    '한국': 'KR',
+    '대한민국': 'KR',
+    'France': 'FR',
+    '프랑스': 'FR',
+    'Japan': 'JP',
+    '일본': 'JP',
+    'China': 'CN',
+    '중국': 'CN',
+    'USA': 'US',
+    '미국': 'US',
+    'Germany': 'DE',
+    '독일': 'DE',
+    'Italy': 'IT',
+    '이탈리아': 'IT',
+    'Spain': 'ES',
+    '스페인': 'ES'
+  };
+  
+  return countryCodeMap[locationName] || 'XX';
 }

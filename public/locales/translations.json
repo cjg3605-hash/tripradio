@@ -351,7 +351,6 @@
       "no": "아니요",
       "regionIntroduction": "지역 소개",
       "recommendedSpots": "추천 여행지",
-      "mapTitle": "지역 관광지 지도",
       "noRecommendedSpots": "추천 장소가 없습니다",
       "cannotLoadInfo": "정보를 불러올 수 없습니다",
       "regionSuffix": "지역",
@@ -3105,7 +3104,6 @@
       "no": "No",
       "regionIntroduction": "Regional Introduction",
       "recommendedSpots": "Recommended Spots",
-      "mapTitle": "Regional Tourist Map",
       "noRecommendedSpots": "No recommended spots available",
       "cannotLoadInfo": "Cannot load information",
       "regionSuffix": "Region",
@@ -5674,7 +5672,6 @@
         "loadingSpots": "おすすめスポット読み込み中...",
         "keyHighlights": "主な特徴",
         "quickFacts": "基本情報",
-        "mapTitle": "地域観光地マップ",
         "mapLoading": "地図読み込み中..."
       }
     },
@@ -7661,7 +7658,6 @@
         "loadingSpots": "正在加载推荐景点...",
         "keyHighlights": "主要特色",
         "quickFacts": "基本信息",
-        "mapTitle": "地区旅游地图",
         "mapLoading": "地图加载中..."
       }
     },
@@ -9648,7 +9644,6 @@
         "loadingSpots": "Cargando destinos recomendados...",
         "keyHighlights": "Aspectos Destacados",
         "quickFacts": "Datos Rápidos",
-        "mapTitle": "Mapa de Atracciones Regionales",
         "mapLoading": "Cargando mapa..."
       }
     },

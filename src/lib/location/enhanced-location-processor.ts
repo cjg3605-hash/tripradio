@@ -93,7 +93,7 @@ export async function processLocationForNavigation(
   try {
     console.log('🔍 기존 자동완성 API 시도');
     
-    const response = await fetch(`/api/locations/search?q=${encodeURIComponent(query)}&lang=${language}`);
+    const response = await fetch(`/api/locations/${language}/search?q=${encodeURIComponent(query)}`);
     const data = await response.json();
     
     if (data.success && data.data && data.data.length > 0) {

@@ -26,7 +26,7 @@ export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
     flag: '🇰🇷', 
     nativeName: '한국어',
     dir: 'ltr',
-    fontFamily: 'var(--font-noto-sans-kr)',
+    fontFamily: 'var(--font-inter)',
     ttsLang: 'ko-KR'
   },
   { 
@@ -44,7 +44,7 @@ export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
     flag: '🇯🇵', 
     nativeName: '日本語',
     dir: 'ltr',
-    fontFamily: 'var(--font-noto-sans-jp)',
+    fontFamily: 'var(--font-inter)',
     ttsLang: 'ja-JP'
   },
   { 
@@ -53,7 +53,7 @@ export const SUPPORTED_LANGUAGES: LanguageConfig[] = [
     flag: '🇨🇳', 
     nativeName: '中文',
     dir: 'ltr',
-    fontFamily: 'var(--font-noto-sans-sc)',
+    fontFamily: 'var(--font-inter)',
     ttsLang: 'cmn-CN'
   },
   { 

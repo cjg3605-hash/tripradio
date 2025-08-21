@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Header from './Header';
 import { HistorySidebar } from './HistorySidebar';
@@ -12,10 +13,14 @@ const PerformanceProvider = dynamic(() => import('@/components/providers/Perform
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-
+  const pathname = usePathname();
+  
+  // 가이드 페이지에서는 글로벌 헤더 숨기기
+  const isGuidePage = pathname?.startsWith('/guide/');
+  
   return (
     <PerformanceProvider>
-      <Header onHistoryOpen={() => setIsHistoryOpen(true)} />
+      {!isGuidePage && <Header onHistoryOpen={() => setIsHistoryOpen(true)} />}
       <HistorySidebar isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
       <main>
         {children}
