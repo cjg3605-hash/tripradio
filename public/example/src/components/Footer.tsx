@@ -1,12 +1,14 @@
-import { Globe, MapPin, Users, Star, Calculator, Plane, Camera, Coffee, Heart, Briefcase } from "lucide-react";
+import { Globe, MapPin, Users, Star, Calculator, Plane, Camera, Coffee, Heart, Briefcase, CheckCircle, Film } from "lucide-react";
 import { Button } from "./ui/button";
 
 interface FooterProps {
   onTripPlannerClick?: () => void;
   onNomadCalculatorClick?: () => void;
+  onVisaCheckerClick?: () => void;
+  onFilmLocationsClick?: () => void;
 }
 
-export function Footer({ onTripPlannerClick, onNomadCalculatorClick }: FooterProps) {
+export function Footer({ onTripPlannerClick, onNomadCalculatorClick, onVisaCheckerClick, onFilmLocationsClick }: FooterProps) {
   return (
     <footer className="bg-black text-white py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -78,6 +80,22 @@ export function Footer({ onTripPlannerClick, onNomadCalculatorClick }: FooterPro
                 <Calculator className="w-4 h-4 mr-2" />
                 노마드 생활비 계산기
               </Button>
+              <Button 
+                variant="ghost" 
+                className="justify-start text-gray-400 hover:text-white p-0 h-auto"
+                onClick={onVisaCheckerClick}
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                비자 요건 확인
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="justify-start text-gray-400 hover:text-white p-0 h-auto"
+                onClick={onFilmLocationsClick}
+              >
+                <Film className="w-4 h-4 mr-2" />
+                영화 촬영지 탐방
+              </Button>
               <Button variant="ghost" className="justify-start text-gray-400 hover:text-white p-0 h-auto">
                 <Coffee className="w-4 h-4 mr-2" />
                 현지 추천 맛집
@@ -145,7 +163,7 @@ export function Footer({ onTripPlannerClick, onNomadCalculatorClick }: FooterPro
             <Button variant="ghost" className="text-gray-400 hover:text-white text-sm p-0 h-auto">
               이용약관
             </Button>
-            <Button variant="ghost" className="text-gray-400 hover:text-white text-sm p-0 h-auto">
+            <Button variant="ghost" className="text-gray-400 hover:text-white p-0 h-auto">
               쿠키 정책
             </Button>
           </div>

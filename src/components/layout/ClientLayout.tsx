@@ -16,12 +16,15 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const pathname = usePathname();
   
-  // 가이드 페이지에서는 글로벌 헤더 숨기기
+  // 가이드 페이지, 노마드 계산기, AI여행계획 페이지에서는 글로벌 헤더 숨기기
   const isGuidePage = pathname?.startsWith('/guide/');
+  const isNomadCalculatorPage = pathname === '/nomad-calculator';
+  const isAiTripPlannerPage = pathname === '/ai-trip-planner';
+  const shouldHideHeader = isGuidePage || isNomadCalculatorPage || isAiTripPlannerPage;
   
   return (
     <PerformanceProvider>
-      {!isGuidePage && <Header onHistoryOpen={() => setIsHistoryOpen(true)} />}
+      {!shouldHideHeader && <Header onHistoryOpen={() => setIsHistoryOpen(true)} />}
       <HistorySidebar isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
       
       {/* 🌍 언어 자동 감지 알림 토스트 */}

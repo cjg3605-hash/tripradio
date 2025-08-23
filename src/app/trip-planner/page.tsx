@@ -340,10 +340,10 @@ export default function TripPlannerPage() {
         title={String(t('tripPlanner.metadata.title'))}
         description={String(t('tripPlanner.metadata.description'))}
         features={[String(t('tripPlanner.features.aiGeneration')), String(t('tripPlanner.features.realtime')), String(t('tripPlanner.features.budget')), String(t('tripPlanner.features.customized')), String(t('tripPlanner.features.localInfo')), String(t('tripPlanner.features.free'))]}
-        canonicalUrl="/trip-planner"
+        canonicalUrl="/ai-trip-planner"
         breadcrumbs={[
           { name: String(t('navigation.home')), url: '/' },
-          { name: String(t('tripPlanner.keyword')), url: '/trip-planner' }
+          { name: String(t('tripPlanner.keyword')), url: '/ai-trip-planner' }
         ]}
       />
 
@@ -354,7 +354,7 @@ export default function TripPlannerPage() {
             <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mb-4">
               {String(t('tripPlanner.badge'))}
             </div>
-            <h1 className="text-fluid-4xl font-normal text-black mb-4 leading-tight">
+            <h1 className="text-fluid-3xl font-normal text-black mb-4 leading-tight">
               {String(t('tripPlanner.hero.title'))} <span className="font-semibold">{String(t('tripPlanner.hero.subtitle'))}</span>
             </h1>
             <p className="text-fluid-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">

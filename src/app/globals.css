@@ -181,6 +181,14 @@
 .card-radius { border-radius: var(--card-radius); }
 .input-radius { border-radius: var(--input-radius); }
 
+/* Glass effect for header */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
 @keyframes reverse-spin {
   from {
     transform: rotate(360deg);

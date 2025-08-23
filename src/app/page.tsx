@@ -1781,7 +1781,7 @@ function Home() {
               <ul className="space-y-1.5 xs:space-y-2 sm:space-y-1 md:space-y-1.5">
                 <li>
                   <a 
-                    href="/trip-planner" 
+                    href="/ai-trip-planner" 
                     className="text-xs xs:text-sm sm:text-xs md:text-sm text-[#555555] font-light md:hover:text-black lg:hover:text-black transition-colors min-h-[40px] xs:min-h-[44px] sm:min-h-[40px] flex items-center active:text-black/80"
                   >
                     {t('footer.tools.tripPlanner')}

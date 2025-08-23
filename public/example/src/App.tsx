@@ -9,9 +9,11 @@ import { LoginPage } from "./components/LoginPage";
 import { MyPage } from "./components/MyPage";
 import { TripPlannerPage } from "./components/TripPlannerPage";
 import { NomadCalculatorPage } from "./components/NomadCalculatorPage";
+import { VisaCheckerPage } from "./components/VisaCheckerPage";
+import { FilmLocationPage } from "./components/FilmLocationPage";
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<'home' | 'guide' | 'login' | 'signup' | 'mypage' | 'trip-planner' | 'nomad-calculator'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'guide' | 'login' | 'signup' | 'mypage' | 'trip-planner' | 'nomad-calculator' | 'visa-checker' | 'film-locations'>('home');
   const [selectedDestination, setSelectedDestination] = useState<string>('');
 
   const handleDestinationClick = (destination: string) => {
@@ -46,6 +48,14 @@ export default function App() {
 
   const handleNomadCalculatorClick = () => {
     setCurrentPage('nomad-calculator');
+  };
+
+  const handleVisaCheckerClick = () => {
+    setCurrentPage('visa-checker');
+  };
+
+  const handleFilmLocationsClick = () => {
+    setCurrentPage('film-locations');
   };
 
   return (
@@ -83,6 +93,17 @@ export default function App() {
           <NomadCalculatorPage onBackToHome={handleBackToHome} />
         )}
 
+        {currentPage === 'visa-checker' && (
+          <VisaCheckerPage onBackToHome={handleBackToHome} />
+        )}
+
+        {currentPage === 'film-locations' && (
+          <FilmLocationPage 
+            onBackToHome={handleBackToHome} 
+            onDestinationClick={handleDestinationClick}
+          />
+        )}
+
         {currentPage === 'home' && (
           <>
             <Header 
@@ -96,6 +117,8 @@ export default function App() {
             <Footer 
               onTripPlannerClick={handleTripPlannerClick}
               onNomadCalculatorClick={handleNomadCalculatorClick}
+              onVisaCheckerClick={handleVisaCheckerClick}
+              onFilmLocationsClick={handleFilmLocationsClick}
             />
           </>
         )}

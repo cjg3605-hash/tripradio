@@ -42,7 +42,7 @@ export default function TravelPlanningAppPage() {
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link 
-              href="/trip-planner?lang=en&app=smart"
+              href="/ai-trip-planner?lang=en&app=smart"
               className="bg-black text-white px-8 py-4 rounded-lg font-medium hover:bg-gray-800 transition-all duration-200 min-w-[200px]"
             >
               Start Planning Free
@@ -335,7 +335,7 @@ export default function TravelPlanningAppPage() {
               Join thousands of smart travelers who&apos;ve discovered effortless, personalized trip planning
             </p>
             <Link 
-              href="/trip-planner?lang=en&app=smart"
+              href="/ai-trip-planner?lang=en&app=smart"
               className="inline-block bg-white text-black px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200"
             >
               Start Your Free Travel Plan

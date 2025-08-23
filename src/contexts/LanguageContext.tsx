@@ -480,6 +480,12 @@ interface Translations {
       subtitle: string;
       description: string;
     };
+    tabs: {
+      planner: string;
+      destinations: string;
+      templates: string;
+      tools: string;
+    };
     quickPlanner: {
       title: string;
     };
@@ -570,6 +576,95 @@ interface Translations {
       deleteButton: string;
       settingsPrompt: string;
       linkCopied: string;
+    };
+    destinations: {
+      viewGuide: string;
+      nomad: string;
+      nomadInfo: string;
+      visa: string;
+      visaInfo: string;
+      cities: {
+        [cityKey: string]: string;
+      };
+      countries: {
+        [countryKey: string]: string;
+      };
+      attractions: {
+        [attractionKey: string]: string;
+      };
+    };
+    labels: {
+      budget: string;
+      tripType: string;
+      mainAttractions: string;
+      createdAt: string;
+    };
+    aiFeatures: {
+      title: string;
+      subtitle: string;
+      customized: {
+        title: string;
+        description: string;
+      };
+      realtime: {
+        title: string;
+        description: string;
+      };
+      detailedInfo: {
+        title: string;
+        description: string;
+      };
+      budgetManagement: {
+        title: string;
+        description: string;
+      };
+      mobileOptimized: {
+        title: string;
+        description: string;
+      };
+      audioGuide: {
+        title: string;
+        description: string;
+      };
+    };
+    popularDestinations: {
+      title: string;
+      subtitle: string;
+    };
+    personalization: {
+      title: string;
+      loadSettings: string;
+      saveSettings: string;
+      viewSavedPlans: string;
+      plansCount: string;
+    };
+    savedPlans: {
+      title: string;
+    };
+    generatedPlan: {
+      title: string;
+      savePlan: string;
+      exportPDF: string;
+      regenerate: string;
+      share: string;
+      compare: string;
+    };
+    defaults: {
+      budget: string;
+      duration: string;
+      tripType: string;
+    };
+    metadata: {
+      title: string;
+      description: string;
+    };
+    features: {
+      aiGeneration: string;
+      realtime: string;
+      budget: string;
+      customized: string;
+      localInfo: string;
+      free: string;
     };
   };
   tripTypes: {
@@ -1139,6 +1234,12 @@ const DEFAULT_TRANSLATIONS: Translations = {
       subtitle: '완벽한 여행 계획',
       description: '당신의 취향에 맞춘 완벽한 여행 계획'
     },
+    tabs: {
+      planner: '계획하기',
+      destinations: '여행지',
+      templates: '추천 일정',
+      tools: '여행 도구'
+    },
     quickPlanner: {
       title: '3분만에 여행 계획 완성'
     },
@@ -1229,6 +1330,154 @@ const DEFAULT_TRANSLATIONS: Translations = {
       deleteButton: '삭제',
       settingsPrompt: '설정을 저장하시겠습니까?',
       linkCopied: '링크가 복사되었습니다'
+    },
+    // 누락된 필드들 추가
+    destinations: {
+      viewGuide: '가이드 보기',
+      nomad: '노마드',
+      nomadInfo: '노마드 정보',
+      visa: '비자',
+      visaInfo: '비자 정보',
+      cities: {
+        tokyo: '도쿄',
+        seoul: '서울',
+        osaka: '오사카',
+        kyoto: '교토',
+        paris: '파리',
+        london: '런던',
+        amsterdam: '암스테르담',
+        bangkok: '방콕',
+        chiangmai: '치앙마이',
+        phuket: '푸켓',
+        newyork: '뉴욕',
+        bali: '발리',
+        singapore: '싱가포르',
+        hawaii: '하와이',
+        sydney: '시드니',
+        rome: '로마',
+        barcelona: '바르셀로나',
+        dubai: '두바이',
+        istanbul: '이스탄불',
+        hongkong: '홍콩'
+      },
+      countries: {
+        japan: '일본',
+        korea: '한국',
+        france: '프랑스',
+        uk: '영국',
+        netherlands: '네덜란드',
+        thailand: '태국',
+        usa: '미국',
+        indonesia: '인도네시아',
+        singapore: '싱가포르',
+        australia: '호주',
+        italy: '이탈리아',
+        spain: '스페인',
+        uae: 'UAE',
+        turkey: '터키',
+        china: '중국'
+      },
+      attractions: {
+        shibuya: '시부야',
+        asakusa: '아사쿠사',
+        ginza: '긴자',
+        harajuku: '하라주쿠',
+        sensoji: '센소지 절',
+        tokyoSkytree: '도쿄 스카이트리',
+        meijiShrine: '메이지 신궁',
+        tsukijiMarket: '츠키지 시장',
+        myeongdong: '명동',
+        gangnam: '강남',
+        hongdae: '홍대',
+        insadong: '인사동',
+        eiffelTower: '에펠탑',
+        louvre: '루브르 박물관',
+        champselysees: '샹젤리제',
+        versailles: '베르사유',
+        bigben: '빅벤',
+        towerBridge: '타워 브리지',
+        britishMuseum: '대영박물관',
+        buckinghamPalace: '버킹엄 궁전',
+        vangoghMuseum: '반 고흐 박물관',
+        anneFrankHouse: '안네 프랑크의 집',
+        timeSquare: '타임스퀘어',
+        centralPark: '센트럴 파크',
+        statueOfLiberty: '자유의 여신상',
+        brooklynBridge: '브루클린 다리'
+      }
+    },
+    labels: {
+      budget: '예산:',
+      tripType: '유형:',
+      mainAttractions: '주요 명소',
+      createdAt: '생성일:'
+    },
+    aiFeatures: {
+      title: 'AI 기반',
+      subtitle: '스마트 기능',
+      customized: {
+        title: '맞춤형 추천',
+        description: '여행 스타일과 선호도를 분석하여 최적의 여행 계획을 제안합니다'
+      },
+      realtime: {
+        title: '실시간 정보',
+        description: '실시간 교통, 날씨, 혼잡도 정보 업데이트를 반영합니다'
+      },
+      detailedInfo: {
+        title: '상세 정보 제공',
+        description: '명소, 맛집, 숙박에 대한 상세한 정보와 팁을 제공합니다'
+      },
+      budgetManagement: {
+        title: '예산 관리',
+        description: '설정한 예산 내에서 최고의 여행을 위한 스마트한 예산 배분을 제안합니다'
+      },
+      mobileOptimized: {
+        title: '모바일 최적화',
+        description: '언제 어디서나 스마트폰으로 편리하게 여행 계획을 확인하고 수정할 수 있습니다'
+      },
+      audioGuide: {
+        title: '오디오 가이드 연동',
+        description: '생성된 여행 계획과 연결된 AI 오디오 가이드로 더욱 풍성한 여행을 경험하세요'
+      }
+    },
+    popularDestinations: {
+      title: '빠른 시작',
+      subtitle: '인기 여행지'
+    },
+    personalization: {
+      title: '개인화 설정',
+      loadSettings: '설정 불러오기',
+      saveSettings: '설정 저장',
+      viewSavedPlans: '저장된 계획 보기',
+      plansCount: '개 계획'
+    },
+    savedPlans: {
+      title: '저장된 여행 계획'
+    },
+    generatedPlan: {
+      title: '생성된 여행 계획',
+      savePlan: '계획 저장',
+      exportPDF: 'PDF 내보내기',
+      regenerate: '다시 생성',
+      share: '공유',
+      compare: '유사 계획 비교'
+    },
+    defaults: {
+      budget: '20-50만원',
+      duration: '2-3일',
+      tripType: '자유여행'
+    },
+    metadata: {
+      title: 'AI 여행 계획',
+      description: 'AI로 완벽한 여행을 계획하세요'
+    },
+    features: {
+      aiGeneration: 'AI 생성',
+      realtime: '실시간',
+      budget: '예산 관리',
+      customized: '맞춤형',
+      localInfo: '현지 정보',
+      free: '무료'
     }
   },
   tripTypes: {
@@ -1315,7 +1564,7 @@ const detectBrowserLanguage = (): SupportedLanguage => {
 async function loadTranslations(language: SupportedLanguage): Promise<Translations> {
   try {
     // 🔥 캐시 무효화를 위한 버전 관리 (강화된 캐시 우회)
-    const TRANSLATION_VERSION = '1.0.8'; // 번역 연동 문제 해결
+    const TRANSLATION_VERSION = '1.1.0'; // DEFAULT_TRANSLATIONS 누락 키 추가
     const cacheKey = `translations-${language}-v${TRANSLATION_VERSION}`;
     
     // 🔥 강제 로딩 모드 확인 (언어 변경 시)
@@ -1500,6 +1749,10 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
           ...DEFAULT_TRANSLATIONS.tripPlanner.hero,
           ...(translations?.tripPlanner?.hero || {})
         },
+        tabs: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.tabs,
+          ...(translations?.tripPlanner?.tabs || {})
+        },
         quickPlanner: {
           ...DEFAULT_TRANSLATIONS.tripPlanner.quickPlanner,
           ...(translations?.tripPlanner?.quickPlanner || {})
@@ -1547,12 +1800,136 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
               ...(translations?.tripPlanner?.audioGuideIntegration?.features?.realtimeUpdate || {})
             }
           }
-        }
+        },
+        // 누락된 섹션들 추가
+        destinations: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.destinations,
+          ...(translations?.tripPlanner?.destinations || {}),
+          // 중첩된 객체들도 명시적으로 병합
+          cities: {
+            ...(DEFAULT_TRANSLATIONS.tripPlanner.destinations?.cities || {}),
+            ...(translations?.tripPlanner?.destinations?.cities || {})
+          },
+          countries: {
+            ...(DEFAULT_TRANSLATIONS.tripPlanner.destinations?.countries || {}),
+            ...(translations?.tripPlanner?.destinations?.countries || {})
+          },
+          attractions: {
+            ...(DEFAULT_TRANSLATIONS.tripPlanner.destinations?.attractions || {}),
+            ...(translations?.tripPlanner?.destinations?.attractions || {})
+          }
+        },
+        labels: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.labels,
+          ...(translations?.tripPlanner?.labels || {})
+        },
+        aiFeatures: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.aiFeatures,
+          ...(translations?.tripPlanner?.aiFeatures || {}),
+          customized: {
+            ...DEFAULT_TRANSLATIONS.tripPlanner.aiFeatures.customized,
+            ...(translations?.tripPlanner?.aiFeatures?.customized || {})
+          },
+          realtime: {
+            ...DEFAULT_TRANSLATIONS.tripPlanner.aiFeatures.realtime,
+            ...(translations?.tripPlanner?.aiFeatures?.realtime || {})
+          },
+          detailedInfo: {
+            ...DEFAULT_TRANSLATIONS.tripPlanner.aiFeatures.detailedInfo,
+            ...(translations?.tripPlanner?.aiFeatures?.detailedInfo || {})
+          },
+          budgetManagement: {
+            ...DEFAULT_TRANSLATIONS.tripPlanner.aiFeatures.budgetManagement,
+            ...(translations?.tripPlanner?.aiFeatures?.budgetManagement || {})
+          },
+          mobileOptimized: {
+            ...DEFAULT_TRANSLATIONS.tripPlanner.aiFeatures.mobileOptimized,
+            ...(translations?.tripPlanner?.aiFeatures?.mobileOptimized || {})
+          },
+          audioGuide: {
+            ...DEFAULT_TRANSLATIONS.tripPlanner.aiFeatures.audioGuide,
+            ...(translations?.tripPlanner?.aiFeatures?.audioGuide || {})
+          }
+        },
+        popularDestinations: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.popularDestinations,
+          ...(translations?.tripPlanner?.popularDestinations || {})
+        },
+        personalization: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.personalization,
+          ...(translations?.tripPlanner?.personalization || {})
+        },
+        savedPlans: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.savedPlans,
+          ...(translations?.tripPlanner?.savedPlans || {})
+        },
+        generatedPlan: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.generatedPlan,
+          ...(translations?.tripPlanner?.generatedPlan || {})
+        },
+        alerts: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.alerts,
+          ...(translations?.tripPlanner?.alerts || {})
+        },
+        defaults: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.defaults,
+          ...(translations?.tripPlanner?.defaults || {})
+        },
+        metadata: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.metadata,
+          ...(translations?.tripPlanner?.metadata || {})
+        },
+        features: {
+          ...DEFAULT_TRANSLATIONS.tripPlanner.features,
+          ...(translations?.tripPlanner?.features || {})
+        },
+        keyword: translations?.tripPlanner?.keyword || DEFAULT_TRANSLATIONS.tripPlanner.keyword,
+        badge: translations?.tripPlanner?.badge || DEFAULT_TRANSLATIONS.tripPlanner.badge
       },
       // 🔥 tripTypes 필드 추가
       tripTypes: {
         ...DEFAULT_TRANSLATIONS.tripTypes,
-        ...(translations?.tripTypes || {})
+        ...(translations?.tripTypes || {}),
+        solo: {
+          ...DEFAULT_TRANSLATIONS.tripTypes.solo,
+          ...(translations?.tripTypes?.solo || {}),
+          features: {
+            ...DEFAULT_TRANSLATIONS.tripTypes.solo.features,
+            ...(translations?.tripTypes?.solo?.features || {})
+          }
+        },
+        couple: {
+          ...DEFAULT_TRANSLATIONS.tripTypes.couple,
+          ...(translations?.tripTypes?.couple || {}),
+          features: {
+            ...DEFAULT_TRANSLATIONS.tripTypes.couple.features,
+            ...(translations?.tripTypes?.couple?.features || {})
+          }
+        },
+        family: {
+          ...DEFAULT_TRANSLATIONS.tripTypes.family,
+          ...(translations?.tripTypes?.family || {}),
+          features: {
+            ...DEFAULT_TRANSLATIONS.tripTypes.family.features,
+            ...(translations?.tripTypes?.family?.features || {})
+          }
+        },
+        friends: {
+          ...DEFAULT_TRANSLATIONS.tripTypes.friends,
+          ...(translations?.tripTypes?.friends || {}),
+          features: {
+            ...DEFAULT_TRANSLATIONS.tripTypes.friends.features,
+            ...(translations?.tripTypes?.friends?.features || {})
+          }
+        },
+        nomad: {
+          ...DEFAULT_TRANSLATIONS.tripTypes.nomad,
+          ...(translations?.tripTypes?.nomad || {}),
+          features: {
+            ...DEFAULT_TRANSLATIONS.tripTypes.nomad.features,
+            ...(translations?.tripTypes?.nomad?.features || {})
+          }
+        }
       }
     };
     

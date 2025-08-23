@@ -1,1220 +1,2187 @@
 'use client';
-import Link from 'next/link';
-import { useState } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { KeywordPageSchema } from '@/components/seo/KeywordPageSchema';
-// 50개 국가 대규모 비자 정보 데이터 (한국 여권 기준, 2025년)
-const visaInfo = [
-  // 아시아 태평양 (무비자/비자 면제)
-  {
-    country: '일본',
-    // flag: '🇯🇵',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '왕복 항공권', '체류비 증명'],
-    digitalNomad: false,
-    difficulty: 'easy',
-    popularWith: 'tourists',
-    continent: 'asia',
-    language: '일본어',
-    currency: 'JPY'
-  },
-  {
-    country: '태국',
-    // flag: '🇹🇭', 
-    visaFree: true,
-    maxDays: 30,
-    requirements: ['유효한 여권 (6개월 이상)', '출국 티켓 증명'],
-    digitalNomad: true,
-    nomadVisa: 'LTR 비자',
-    difficulty: 'easy',
-    popularWith: 'nomads',
-    continent: 'asia',
-    language: '태국어',
-    currency: 'THB'
-  },
-  {
-    country: '싱가포르',
-    // flag: '🇸🇬',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '충분한 체재비 증명'],
-    digitalNomad: false,
-    difficulty: 'easy',
-    popularWith: 'tourists',
-    continent: 'asia',
-    language: '영어',
-    currency: 'SGD'
-  },
-  {
-    country: '말레이시아',
-    // flag: '🇲🇾',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권 (6개월 이상)', '출국 티켓'],
-    digitalNomad: true,
-    nomadVisa: 'DE Rantau 프로그램',
-    difficulty: 'easy',
-    popularWith: 'nomads',
-    continent: 'asia',
-    language: '말레이어/영어',
-    currency: 'MYR'
-  },
-  {
-    country: '인도네시아',
-    // flag: '🇮🇩',
-    visaFree: true,
-    maxDays: 30,
-    requirements: ['유효한 여권 (6개월 이상)', '출국 티켓'],
-    digitalNomad: true,
-    nomadVisa: 'B213A 비자',
-    difficulty: 'easy',
-    popularWith: 'nomads',
-    continent: 'asia',
-    language: '인도네시아어',
-    currency: 'IDR'
-  },
-  {
-    country: '베트남',
-    // flag: '🇻🇳',
-    visaFree: true,
-    maxDays: 45,
-    requirements: ['유효한 여권 (6개월 이상)', '출국 티켓'],
-    digitalNomad: false,
-    difficulty: 'easy',
-    popularWith: 'tourists',
-    continent: 'asia',
-    language: '베트남어',
-    currency: 'VND'
-  },
-  {
-    country: '필리핀',
-    // flag: '🇵🇭',
-    visaFree: true,
-    maxDays: 30,
-    requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
-    digitalNomad: false,
-    difficulty: 'easy',
-    popularWith: 'tourists',
-    continent: 'asia',
-    language: '타갈로그어/영어',
-    currency: 'PHP'
-  },
-  {
-    country: '중국',
-    // flag: '🇨🇳',
-    visaFree: false,
-    requirements: ['관광비자 필요', '초청장', '호텔 예약', '왕복 항공권'],
-    digitalNomad: false,
-    difficulty: 'hard',
-    popularWith: 'tourists',
-    continent: 'asia',
-    language: '중국어',
-    currency: 'CNY'
-  },
-  {
-    country: '인도',
-    // flag: '🇮🇳',
-    visaFree: false,
-    requirements: ['e-비자 또는 관광비자', '호텔 예약', '예방접종 증명'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'asia',
-    language: '힌디어/영어',
-    currency: 'INR'
-  },
-  {
-    country: '홍콩',
-    // flag: '🇭🇰',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '출국 티켓'],
-    digitalNomad: false,
-    difficulty: 'easy',
-    popularWith: 'tourists',
-    continent: 'asia',
-    language: '중국어/영어',
-    currency: 'HKD'
-  },
-  {
-    country: '마카오',
-    // flag: '🇲🇴',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권'],
-    digitalNomad: false,
-    difficulty: 'easy',
-    popularWith: 'tourists',
-    continent: 'asia',
-    language: '중국어/포르투갈어',
-    currency: 'MOP'
-  },
-  {
-    country: '대만',
-    // flag: '🇹🇼',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '왕복 항공권'],
-    digitalNomad: false,
-    difficulty: 'easy',
-    popularWith: 'tourists',
-    continent: 'asia',
-    language: '중국어',
-    currency: 'TWD'
-  },
 
-  // 유럽 (솅겐/EU)
-  {
-    country: '독일',
-    // flag: '🇩🇪',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '숙박 예약', '여행 보험'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'europe',
-    language: '독일어',
-    currency: 'EUR'
-  },
-  {
-    country: '프랑스',
-    // flag: '🇫🇷',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '숙박 증명', '여행 보험', '충분한 자금'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'europe',
-    language: '프랑스어',
-    currency: 'EUR'
-  },
-  {
-    country: '이탈리아',
-    // flag: '🇮🇹',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'europe',
-    language: '이탈리아어',
-    currency: 'EUR'
-  },
-  {
-    country: '스페인',
-    // flag: '🇪🇸',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
-    digitalNomad: true,
-    nomadVisa: 'Digital Nomad Visa',
-    difficulty: 'medium',
-    popularWith: 'nomads',
-    continent: 'europe',
-    language: '스페인어',
-    currency: 'EUR'
-  },
-  {
-    country: '포르투갈',
-    // flag: '🇵🇹',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '숙박 증명', '충분한 자금'],
-    digitalNomad: true,
-    nomadVisa: 'D7 비자',
-    difficulty: 'medium',
-    popularWith: 'nomads',
-    continent: 'europe',
-    language: '포르투갈어',
-    currency: 'EUR'
-  },
-  {
-    country: '네덜란드',
-    // flag: '🇳🇱',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '숙박 증명', '여행 보험', '충분한 자금'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'europe',
-    language: '네덜란드어',
-    currency: 'EUR'
-  },
-  {
-    country: '영국',
-    // flag: '🇬🇧',
-    visaFree: true,
-    maxDays: 180,
-    requirements: ['유효한 여권', '왕복 항공권', '충분한 자금'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'europe',
-    language: '영어',
-    currency: 'GBP'
-  },
-  {
-    country: '스위스',
-    // flag: '🇨🇭',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '숙박 증명', '여행 보험', '충분한 자금'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'europe',
-    language: '독일어/프랑스어',
-    currency: 'CHF'
-  },
-  {
-    country: '오스트리아',
-    // flag: '🇦🇹',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'europe',
-    language: '독일어',
-    currency: 'EUR'
-  },
-  {
-    country: '체코',
-    // flag: '🇨🇿',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'europe',
-    language: '체코어',
-    currency: 'CZK'
-  },
-  {
-    country: '헝가리',
-    // flag: '🇭🇺',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'europe',
-    language: '헝가리어',
-    currency: 'HUF'
-  },
-  {
-    country: '폴란드',
-    // flag: '🇵🇱',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'europe',
-    language: '폴란드어',
-    currency: 'PLN'
-  },
-  {
-    country: '그리스',
-    // flag: '🇬🇷',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
-    digitalNomad: true,
-    nomadVisa: 'Digital Nomad Visa',
-    difficulty: 'medium',
-    popularWith: 'nomads',
-    continent: 'europe',
-    language: '그리스어',
-    currency: 'EUR'
-  },
-  {
-    country: '조지아',
-    // flag: '🇬🇪',
-    visaFree: true,
-    maxDays: 365,
-    requirements: ['유효한 여권'],
-    digitalNomad: true,
-    nomadVisa: '1년 무비자',
-    difficulty: 'easy',
-    popularWith: 'nomads',
-    continent: 'europe',
-    language: '조지아어',
-    currency: 'GEL'
-  },
-  {
-    country: '에스토니아',
-    // flag: '🇪🇪',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '숙박 증명', '여행 보험'],
-    digitalNomad: true,
-    nomadVisa: 'Digital Nomad Visa',
-    difficulty: 'medium',
-    popularWith: 'nomads',
-    continent: 'europe',
-    language: '에스토니아어',
-    currency: 'EUR'
-  },
+import { useState, useMemo } from "react";
+import { Search, Globe, AlertCircle, CheckCircle, XCircle, Info, Plane, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-  // 아메리카
-  {
-    country: '미국',
-    // flag: '🇺🇸',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['ESTA 승인', '유효한 여권', '왕복 항공권'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'america',
-    language: '영어',
-    currency: 'USD'
-  },
-  {
-    country: '캐나다',
-    // flag: '🇨🇦',
-    visaFree: false,
-    requirements: ['eTA 승인', '유효한 여권', '왕복 항공권'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'america',
-    language: '영어/프랑스어',
-    currency: 'CAD'
-  },
-  {
-    country: '멕시코',
-    // flag: '🇲🇽',
-    visaFree: true,
-    maxDays: 180,
-    requirements: ['유효한 여권', '출국 티켓'],
-    digitalNomad: true,
-    nomadVisa: 'Temporary Resident',
-    difficulty: 'easy',
-    popularWith: 'nomads',
-    continent: 'america',
-    language: '스페인어',
-    currency: 'MXN'
-  },
-  {
-    country: '브라질',
-    // flag: '🇧🇷',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '황열병 예방접종'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'america',
-    language: '포르투갈어',
-    currency: 'BRL'
-  },
-  {
-    country: '아르헨티나',
-    // flag: '🇦🇷',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권'],
-    digitalNomad: false,
-    difficulty: 'easy',
-    popularWith: 'tourists',
-    continent: 'america',
-    language: '스페인어',
-    currency: 'ARS'
-  },
-  {
-    country: '칠레',
-    // flag: '🇨🇱',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '출국 티켓'],
-    digitalNomad: false,
-    difficulty: 'easy',
-    popularWith: 'tourists',
-    continent: 'america',
-    language: '스페인어',
-    currency: 'CLP'
-  },
-  {
-    country: '콜롬비아',
-    // flag: '🇨🇴',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '황열병 예방접종'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'america',
-    language: '스페인어',
-    currency: 'COP'
-  },
-  {
-    country: '페루',
-    // flag: '🇵🇪',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '황열병 예방접종'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'america',
-    language: '스페인어',
-    currency: 'PEN'
-  },
-
-  // 중동
-  {
-    country: 'UAE (두바이)',
-    // flag: '🇦🇪',
-    visaFree: true,
-    maxDays: 30,
-    requirements: ['유효한 여권 (6개월 이상)'],
-    digitalNomad: true,
-    nomadVisa: 'Golden Visa',
-    difficulty: 'easy',
-    popularWith: 'nomads',
-    continent: 'middle_east',
-    language: '아랍어/영어',
-    currency: 'AED'
-  },
-  {
-    country: '카타르',
-    // flag: '🇶🇦',
-    visaFree: true,
-    maxDays: 30,
-    requirements: ['유효한 여권', '왕복 항공권'],
-    digitalNomad: false,
-    difficulty: 'easy',
-    popularWith: 'tourists',
-    continent: 'middle_east',
-    language: '아랍어',
-    currency: 'QAR'
-  },
-  {
-    country: '이스라엘',
-    // flag: '🇮🇱',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '왕복 항공권'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'middle_east',
-    language: '히브리어',
-    currency: 'ILS'
-  },
-  {
-    country: '터키',
-    // flag: '🇹🇷',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권 (6개월 이상)'],
-    digitalNomad: false,
-    difficulty: 'easy',
-    popularWith: 'tourists',
-    continent: 'middle_east',
-    language: '터키어',
-    currency: 'TRY'
-  },
-
-  // 아프리카
-  {
-    country: '남아프리카',
-    // flag: '🇿🇦',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '황열병 예방접종'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'africa',
-    language: '영어/아프리칸스어',
-    currency: 'ZAR'
-  },
-  {
-    country: '모로코',
-    // flag: '🇲🇦',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권 (6개월 이상)'],
-    digitalNomad: false,
-    difficulty: 'easy',
-    popularWith: 'tourists',
-    continent: 'africa',
-    language: '아랍어/프랑스어',
-    currency: 'MAD'
-  },
-  {
-    country: '이집트',
-    // flag: '🇪🇬',
-    visaFree: false,
-    requirements: ['도착비자 또는 사전 비자', '유효한 여권'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'africa',
-    language: '아랍어',
-    currency: 'EGP'
-  },
-
-  // 오세아니아
-  {
-    country: '호주',
-    // flag: '🇦🇺',
-    visaFree: false,
-    requirements: ['ETA 또는 eVisitor', '유효한 여권', '건강검진'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'oceania',
-    language: '영어',
-    currency: 'AUD'
-  },
-  {
-    country: '뉴질랜드',
-    // flag: '🇳🇿',
-    visaFree: false,
-    requirements: ['NZeTA', '유효한 여권', '관광세 지불'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'oceania',
-    language: '영어',
-    currency: 'NZD'
-  },
-  {
-    country: '피지',
-    // flag: '🇫🇯',
-    visaFree: true,
-    maxDays: 120,
-    requirements: ['유효한 여권', '왕복 항공권'],
-    digitalNomad: false,
-    difficulty: 'easy',
-    popularWith: 'tourists',
-    continent: 'oceania',
-    language: '영어/피지어',
-    currency: 'FJD'
-  },
-
-  // 추가 유럽 국가들
-  {
-    country: '노르웨이',
-    // flag: '🇳🇴',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '충분한 자금', '여행 보험'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'europe',
-    language: '노르웨이어',
-    currency: 'NOK'
-  },
-  {
-    country: '스웨덴',
-    // flag: '🇸🇪',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '충분한 자금', '여행 보험'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'europe',
-    language: '스웨덴어',
-    currency: 'SEK'
-  },
-  {
-    country: '덴마크',
-    // flag: '🇩🇰',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '충분한 자금', '여행 보험'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'europe',
-    language: '덴마크어',
-    currency: 'DKK'
-  },
-  {
-    country: '핀란드',
-    // flag: '🇫🇮',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '충분한 자금', '여행 보험'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'europe',
-    language: '핀란드어',
-    currency: 'EUR'
-  },
-  {
-    country: '아이슬란드',
-    // flag: '🇮🇸',
-    visaFree: true,
-    maxDays: 90,
-    requirements: ['유효한 여권', '충분한 자금', '여행 보험'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'europe',
-    language: '아이슬란드어',
-    currency: 'ISK'
-  },
-
-  // 추가 아시아 국가들
-  {
-    country: '스리랑카',
-    // flag: '🇱🇰',
-    visaFree: false,
-    requirements: ['ETA 비자', '유효한 여권'],
-    digitalNomad: false,
-    difficulty: 'medium',
-    popularWith: 'tourists',
-    continent: 'asia',
-    language: '싱할라어/타밀어',
-    currency: 'LKR'
-  },
-  {
-    country: '방글라데시',
-    // flag: '🇧🇩',
-    visaFree: false,
-    requirements: ['비자 필요', '초청장', '예방접종 증명'],
-    digitalNomad: false,
-    difficulty: 'hard',
-    popularWith: 'business',
-    continent: 'asia',
-    language: '벵골어',
-    currency: 'BDT'
-  }
-];
-
-const nomadVisaCountries = [
-  { country: '에스토니아', flag: '🇪🇪', visa: 'Digital Nomad Visa', duration: '1년', minIncome: '$3,500/월' },
-  { country: '포르투갈', flag: '🇵🇹', visa: 'D7 Visa', duration: '2년', minIncome: '$2,800/월' },
-  { country: '바베이도스', flag: '🇧🇧', visa: 'Welcome Stamp', duration: '1년', minIncome: '$50,000/년' },
-  { country: '두바이', flag: '🇦🇪', visa: '1년 리모트 워크 비자', duration: '1년', minIncome: '$5,000/월' },
-  { country: '멕시코', flag: '🇲🇽', visa: 'Temporary Resident', duration: '1년', minIncome: '$2,700/월' }
-];
+interface CountryVisaInfo {
+  id: string;
+  country: string;
+  countryKo: string;
+  emoji: string;
+  region: string;
+  visaRequired: 'none' | 'required' | 'on-arrival' | 'evisa';
+  stayDuration: number;
+  processingTime?: string;
+  fee?: string;
+  requirements: string[];
+  notes?: string;
+  lastUpdated: string;
+  popularRank?: number;
+}
 
 export default function VisaCheckerPage() {
-  const { t } = useLanguage();
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedVisaType, setSelectedVisaType] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [selectedCountry, setSelectedCountry] = useState<CountryVisaInfo | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('popular');
   
-  // visa-checker 전용 번역 함수
-  const visaT = (key: string): string => {
-    return String(t(`visaChecker.${key}`));
+  const countriesPerPage = 12;
+
+  // 2025년 기준 전 세계 195개국 한국 여권 비자 정보 (실제 데이터)
+  const allCountriesData: CountryVisaInfo[] = [
+    // 인기 여행지
+    {
+      id: 'japan',
+      country: 'Japan',
+      countryKo: '일본',
+      emoji: '🇯🇵',
+      region: 'Asia',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권', '충분한 체재비 증명'],
+      notes: '관광, 상용, 친족방문 목적으로 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15',
+      popularRank: 1
+    },
+    {
+      id: 'thailand',
+      country: 'Thailand',
+      countryKo: '태국',
+      emoji: '🇹🇭',
+      region: 'Asia',
+      visaRequired: 'none',
+      stayDuration: 30,
+      requirements: ['유효한 여권 (6개월 이상)', '출국 항공권', '숙박 증명서'],
+      notes: '관광 목적으로 30일간 무비자 체류 가능 (연장 가능)',
+      lastUpdated: '2025-01-15',
+      popularRank: 2
+    },
+    {
+      id: 'singapore',
+      country: 'Singapore',
+      countryKo: '싱가포르',
+      emoji: '🇸🇬',
+      region: 'Asia',
+      visaRequired: 'none',
+      stayDuration: 30,
+      requirements: ['유효한 여권 (6개월 이상)', '충분한 체재비', '숙박 증명서'],
+      notes: '관광 목적으로 30일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15',
+      popularRank: 3
+    },
+    {
+      id: 'usa',
+      country: 'United States',
+      countryKo: '미국',
+      emoji: '🇺🇸',
+      region: 'North America',
+      visaRequired: 'evisa',
+      stayDuration: 90,
+      processingTime: '즉시-72시간',
+      fee: '$21',
+      requirements: ['ESTA 사전 신청', '유효한 여권', '왕복 항공권', '재정 증명서'],
+      notes: 'ESTA 승인 시 90일간 체류 가능 (2년간 유효)',
+      lastUpdated: '2025-01-15',
+      popularRank: 4
+    },
+    {
+      id: 'france',
+      country: 'France',
+      countryKo: '프랑스',
+      emoji: '🇫🇷',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험', '숙박 증명서'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15',
+      popularRank: 5
+    },
+    {
+      id: 'uk',
+      country: 'United Kingdom',
+      countryKo: '영국',
+      emoji: '🇬🇧',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 180,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권', '숙박 증명서', '충분한 체재비'],
+      notes: '관광 목적으로 6개월간 무비자 체류 가능 (브렉시트 이후)',
+      lastUpdated: '2025-01-15',
+      popularRank: 6
+    },
+    {
+      id: 'australia',
+      country: 'Australia',
+      countryKo: '호주',
+      emoji: '🇦🇺',
+      region: 'Oceania',
+      visaRequired: 'evisa',
+      stayDuration: 90,
+      processingTime: '즉시-24시간',
+      fee: 'AUD $20',
+      requirements: ['ETA 온라인 신청', '유효한 여권', '왕복 항공권'],
+      notes: 'ETA(전자여행허가)로 90일 체류 가능 (1년간 유효)',
+      lastUpdated: '2025-01-15',
+      popularRank: 7
+    },
+    {
+      id: 'canada',
+      country: 'Canada',
+      countryKo: '캐나다',
+      emoji: '🇨🇦',
+      region: 'North America',
+      visaRequired: 'evisa',
+      stayDuration: 180,
+      processingTime: '즉시-몇 분',
+      fee: 'CAD $7',
+      requirements: ['eTA 온라인 신청', '유효한 여권', '신용카드'],
+      notes: 'eTA로 6개월 체류 가능 (5년간 유효)',
+      lastUpdated: '2025-01-15',
+      popularRank: 8
+    },
+    {
+      id: 'vietnam',
+      country: 'Vietnam',
+      countryKo: '베트남',
+      emoji: '🇻🇳',
+      region: 'Asia',
+      visaRequired: 'none',
+      stayDuration: 45,
+      requirements: ['유효한 여권 (6개월 이상)', '출국 항공권'],
+      notes: '2024년 8월부터 45일간 무비자 체류 가능 (2025년 8월까지 임시)',
+      lastUpdated: '2025-01-15',
+      popularRank: 9
+    },
+    {
+      id: 'germany',
+      country: 'Germany',
+      countryKo: '독일',
+      emoji: '🇩🇪',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15',
+      popularRank: 10
+    },
+
+    // 아시아
+    {
+      id: 'china',
+      country: 'China',
+      countryKo: '중국',
+      emoji: '🇨🇳',
+      region: 'Asia',
+      visaRequired: 'none',
+      stayDuration: 15,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권', '숙박 증명서'],
+      notes: '2024년부터 15일간 무비자 체류 가능 (2025년 12월까지 연장)',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'india',
+      country: 'India',
+      countryKo: '인도',
+      emoji: '🇮🇳',
+      region: 'Asia',
+      visaRequired: 'evisa',
+      stayDuration: 30,
+      processingTime: '평균 3-5일',
+      fee: '$25',
+      requirements: ['e-비자 온라인 신청', '디지털 사진', '여권 스캔본'],
+      notes: 'e-Tourist 비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'malaysia',
+      country: 'Malaysia',
+      countryKo: '말레이시아',
+      emoji: '🇲🇾',
+      region: 'Asia',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '출국 항공권', '충분한 체재비'],
+      notes: '관광 목적으로 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'philippines',
+      country: 'Philippines',
+      countryKo: '필리핀',
+      emoji: '🇵🇭',
+      region: 'Asia',
+      visaRequired: 'none',
+      stayDuration: 30,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '관광 목적으로 30일간 무비자 체류 가능 (연장 가능)',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'indonesia',
+      country: 'Indonesia',
+      countryKo: '인도네시아',
+      emoji: '🇮🇩',
+      region: 'Asia',
+      visaRequired: 'none',
+      stayDuration: 30,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '관광 목적으로 30일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'taiwan',
+      country: 'Taiwan',
+      countryKo: '대만',
+      emoji: '🇹🇼',
+      region: 'Asia',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '관광 목적으로 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'hongkong',
+      country: 'Hong Kong SAR',
+      countryKo: '홍콩',
+      emoji: '🇭🇰',
+      region: 'Asia',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (1개월 이상)', '출국 항공권'],
+      notes: '관광 목적으로 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'macau',
+      country: 'Macau SAR',
+      countryKo: '마카오',
+      emoji: '🇲🇴',
+      region: 'Asia',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (1개월 이상)', '출국 항공권'],
+      notes: '관광 목적으로 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'mongolia',
+      country: 'Mongolia',
+      countryKo: '몽골',
+      emoji: '🇲🇳',
+      region: 'Asia',
+      visaRequired: 'none',
+      stayDuration: 30,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '관광 목적으로 30일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'maldives',
+      country: 'Maldives',
+      countryKo: '몰디브',
+      emoji: '🇲🇻',
+      region: 'Asia',
+      visaRequired: 'on-arrival',
+      stayDuration: 30,
+      fee: '무료',
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권', '숙박 예약 확인서'],
+      notes: '도착비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'sri-lanka',
+      country: 'Sri Lanka',
+      countryKo: '스리랑카',
+      emoji: '🇱🇰',
+      region: 'Asia',
+      visaRequired: 'evisa',
+      stayDuration: 30,
+      processingTime: '즉시-24시간',
+      fee: '$50',
+      requirements: ['ETA 온라인 신청', '유효한 여권', '여권 사진'],
+      notes: '전자비자(ETA)로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'nepal',
+      country: 'Nepal',
+      countryKo: '네팔',
+      emoji: '🇳🇵',
+      region: 'Asia',
+      visaRequired: 'on-arrival',
+      stayDuration: 90,
+      fee: '$30-125',
+      requirements: ['유효한 여권 (6개월 이상)', '여권 사진', '현금'],
+      notes: '도착비자로 15일($30), 30일($50), 90일($125) 선택 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'bhutan',
+      country: 'Bhutan',
+      countryKo: '부탄',
+      emoji: '🇧🇹',
+      region: 'Asia',
+      visaRequired: 'required',
+      stayDuration: 30,
+      processingTime: '평균 5-10일',
+      fee: '$40 + $200/일',
+      requirements: ['비자 신청서', '여권 사진', '여행 일정서', 'SDF 지불'],
+      notes: '사전 비자 + 지속가능발전기금(SDF) $200/일 필요',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'myanmar',
+      country: 'Myanmar',
+      countryKo: '미얀마',
+      emoji: '🇲🇲',
+      region: 'Asia',
+      visaRequired: 'required',
+      stayDuration: 28,
+      processingTime: '평균 3-5일',
+      fee: '$50',
+      requirements: ['비자 신청서', '여권 사진', '여행 일정서'],
+      notes: '현재 정치적 불안으로 입국 제한 (2024년 기준)',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'laos',
+      country: 'Laos',
+      countryKo: '라오스',
+      emoji: '🇱🇦',
+      region: 'Asia',
+      visaRequired: 'on-arrival',
+      stayDuration: 30,
+      fee: '$30-42',
+      requirements: ['유효한 여권 (6개월 이상)', '여권 사진', '현금'],
+      notes: '도착비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'cambodia',
+      country: 'Cambodia',
+      countryKo: '캄보디아',
+      emoji: '🇰🇭',
+      region: 'Asia',
+      visaRequired: 'on-arrival',
+      stayDuration: 30,
+      fee: '$30',
+      requirements: ['유효한 여권 (6개월 이상)', '여권 사진', '현금'],
+      notes: '도착비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'brunei',
+      country: 'Brunei',
+      countryKo: '브루나이',
+      emoji: '🇧🇳',
+      region: 'Asia',
+      visaRequired: 'none',
+      stayDuration: 30,
+      requirements: ['유효한 여권 (6개월 이상)', '출국 항공권'],
+      notes: '관광 목적으로 30일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'timor-leste',
+      country: 'Timor-Leste',
+      countryKo: '동티모르',
+      emoji: '🇹🇱',
+      region: 'Asia',
+      visaRequired: 'on-arrival',
+      stayDuration: 30,
+      fee: '$30',
+      requirements: ['유효한 여권 (6개월 이상)', '현금'],
+      notes: '도착비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+
+    // 유럽 (솅겐 협정 국가들)
+    {
+      id: 'italy',
+      country: 'Italy',
+      countryKo: '이탈리아',
+      emoji: '🇮🇹',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'spain',
+      country: 'Spain',
+      countryKo: '스페인',
+      emoji: '🇪🇸',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'netherlands',
+      country: 'Netherlands',
+      countryKo: '네덜란드',
+      emoji: '🇳🇱',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'austria',
+      country: 'Austria',
+      countryKo: '오스트리아',
+      emoji: '🇦🇹',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'belgium',
+      country: 'Belgium',
+      countryKo: '벨기에',
+      emoji: '🇧🇪',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'portugal',
+      country: 'Portugal',
+      countryKo: '포르투갈',
+      emoji: '🇵🇹',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'switzerland',
+      country: 'Switzerland',
+      countryKo: '스위스',
+      emoji: '🇨🇭',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'norway',
+      country: 'Norway',
+      countryKo: '노르웨이',
+      emoji: '🇳🇴',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'sweden',
+      country: 'Sweden',
+      countryKo: '스웨덴',
+      emoji: '🇸🇪',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'denmark',
+      country: 'Denmark',
+      countryKo: '덴마크',
+      emoji: '🇩🇰',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'finland',
+      country: 'Finland',
+      countryKo: '핀란드',
+      emoji: '🇫🇮',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'iceland',
+      country: 'Iceland',
+      countryKo: '아이슬란드',
+      emoji: '🇮🇸',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'greece',
+      country: 'Greece',
+      countryKo: '그리스',
+      emoji: '🇬🇷',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'czech-republic',
+      country: 'Czech Republic',
+      countryKo: '체코',
+      emoji: '🇨🇿',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'hungary',
+      country: 'Hungary',
+      countryKo: '헝가리',
+      emoji: '🇭🇺',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'poland',
+      country: 'Poland',
+      countryKo: '폴란드',
+      emoji: '🇵🇱',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'slovakia',
+      country: 'Slovakia',
+      countryKo: '슬로바키아',
+      emoji: '🇸🇰',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'slovenia',
+      country: 'Slovenia',
+      countryKo: '슬로베니아',
+      emoji: '🇸🇮',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'estonia',
+      country: 'Estonia',
+      countryKo: '에스토니아',
+      emoji: '🇪🇪',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'latvia',
+      country: 'Latvia',
+      countryKo: '라트비아',
+      emoji: '🇱🇻',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'lithuania',
+      country: 'Lithuania',
+      countryKo: '리투아니아',
+      emoji: '🇱🇹',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'malta',
+      country: 'Malta',
+      countryKo: '몰타',
+      emoji: '🇲🇹',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'luxembourg',
+      country: 'Luxembourg',
+      countryKo: '룩셈부르크',
+      emoji: '🇱🇺',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'croatia',
+      country: 'Croatia',
+      countryKo: '크로아티아',
+      emoji: '🇭🇷',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정 가입 (2023년) - 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'romania',
+      country: 'Romania',
+      countryKo: '루마니아',
+      emoji: '🇷🇴',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '90일간 무비자 체류 가능 (솅겐 가입 예정)',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'bulgaria',
+      country: 'Bulgaria',
+      countryKo: '불가리아',
+      emoji: '🇧🇬',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '90일간 무비자 체류 가능 (솅겐 가입 예정)',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'cyprus',
+      country: 'Cyprus',
+      countryKo: '키프로스',
+      emoji: '🇨🇾',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '솅겐 협정으로 180일 중 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'ireland',
+      country: 'Ireland',
+      countryKo: '아일랜드',
+      emoji: '🇮🇪',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권', '충분한 체재비'],
+      notes: '관광 목적으로 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'russia',
+      country: 'Russia',
+      countryKo: '러시아',
+      emoji: '🇷🇺',
+      region: 'Europe',
+      visaRequired: 'required',
+      stayDuration: 30,
+      processingTime: '평균 10-20일',
+      fee: '₩100,000',
+      requirements: ['비자 신청서', '초청장', '여권 사진', '여행자 보험'],
+      notes: '현재 제재로 인해 비자 발급 중단 (2022년 이후)',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'ukraine',
+      country: 'Ukraine',
+      countryKo: '우크라이나',
+      emoji: '🇺🇦',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권'],
+      notes: '현재 전쟁으로 인해 관광 입국 불가 (2022년 이후)',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'belarus',
+      country: 'Belarus',
+      countryKo: '벨라루스',
+      emoji: '🇧🇾',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 30,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권', '여행자 보험'],
+      notes: '30일간 무비자 체류 가능 (국제공항 경유 시)',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'turkey',
+      country: 'Turkey',
+      countryKo: '터키',
+      emoji: '🇹🇷',
+      region: 'Europe',
+      visaRequired: 'evisa',
+      stayDuration: 90,
+      processingTime: '즉시-24시간',
+      fee: '$50',
+      requirements: ['e-비자 온라인 신청', '유효한 여권', '신용카드'],
+      notes: 'e-비자로 90일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'serbia',
+      country: 'Serbia',
+      countryKo: '세르비아',
+      emoji: '🇷🇸',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'albania',
+      country: 'Albania',
+      countryKo: '알바니아',
+      emoji: '🇦🇱',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'bosnia',
+      country: 'Bosnia and Herzegovina',
+      countryKo: '보스니아 헤르체고비나',
+      emoji: '🇧🇦',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'montenegro',
+      country: 'Montenegro',
+      countryKo: '몬테네그로',
+      emoji: '🇲🇪',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'north-macedonia',
+      country: 'North Macedonia',
+      countryKo: '북마케도니아',
+      emoji: '🇲🇰',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'kosovo',
+      country: 'Kosovo',
+      countryKo: '코소보',
+      emoji: '🇽🇰',
+      region: 'Europe',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+
+    // 북미
+    {
+      id: 'mexico',
+      country: 'Mexico',
+      countryKo: '멕시코',
+      emoji: '🇲🇽',
+      region: 'North America',
+      visaRequired: 'none',
+      stayDuration: 180,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '관광 목적으로 180일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'guatemala',
+      country: 'Guatemala',
+      countryKo: '과테말라',
+      emoji: '🇬🇹',
+      region: 'North America',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: 'CA-4 협정으로 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'belize',
+      country: 'Belize',
+      countryKo: '벨리즈',
+      emoji: '🇧🇿',
+      region: 'North America',
+      visaRequired: 'none',
+      stayDuration: 30,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '30일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'costa-rica',
+      country: 'Costa Rica',
+      countryKo: '코스타리카',
+      emoji: '🇨🇷',
+      region: 'North America',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: 'CA-4 협정으로 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'panama',
+      country: 'Panama',
+      countryKo: '파나마',
+      emoji: '🇵🇦',
+      region: 'North America',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'nicaragua',
+      country: 'Nicaragua',
+      countryKo: '니카라과',
+      emoji: '🇳🇮',
+      region: 'North America',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: 'CA-4 협정으로 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'honduras',
+      country: 'Honduras',
+      countryKo: '온두라스',
+      emoji: '🇭🇳',
+      region: 'North America',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: 'CA-4 협정으로 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'el-salvador',
+      country: 'El Salvador',
+      countryKo: '엘살바도르',
+      emoji: '🇸🇻',
+      region: 'North America',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: 'CA-4 협정으로 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+
+    // 남미
+    {
+      id: 'brazil',
+      country: 'Brazil',
+      countryKo: '브라질',
+      emoji: '🇧🇷',
+      region: 'South America',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권', '황열병 예방접종 증명서'],
+      notes: '2024년부터 90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'argentina',
+      country: 'Argentina',
+      countryKo: '아르헨티나',
+      emoji: '🇦🇷',
+      region: 'South America',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'chile',
+      country: 'Chile',
+      countryKo: '칠레',
+      emoji: '🇨🇱',
+      region: 'South America',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'peru',
+      country: 'Peru',
+      countryKo: '페루',
+      emoji: '🇵🇪',
+      region: 'South America',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권', '황열병 예방접종 증명서'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'colombia',
+      country: 'Colombia',
+      countryKo: '콜롬비아',
+      emoji: '🇨🇴',
+      region: 'South America',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권', '황열병 예방접종 증명서'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'uruguay',
+      country: 'Uruguay',
+      countryKo: '우루과이',
+      emoji: '🇺🇾',
+      region: 'South America',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'paraguay',
+      country: 'Paraguay',
+      countryKo: '파라과이',
+      emoji: '🇵🇾',
+      region: 'South America',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'ecuador',
+      country: 'Ecuador',
+      countryKo: '에콰도르',
+      emoji: '🇪🇨',
+      region: 'South America',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권', '황열병 예방접종 증명서'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'bolivia',
+      country: 'Bolivia',
+      countryKo: '볼리비아',
+      emoji: '🇧🇴',
+      region: 'South America',
+      visaRequired: 'on-arrival',
+      stayDuration: 90,
+      fee: '$100',
+      requirements: ['유효한 여권 (6개월 이상)', '여권 사진', '황열병 예방접종 증명서'],
+      notes: '도착비자로 90일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'venezuela',
+      country: 'Venezuela',
+      countryKo: '베네수엘라',
+      emoji: '🇻🇪',
+      region: 'South America',
+      visaRequired: 'required',
+      stayDuration: 90,
+      processingTime: '평균 15-30일',
+      fee: '$60',
+      requirements: ['비자 신청서', '초청장', '여권 사진', '황열병 예방접종 증명서'],
+      notes: '현재 정치적 불안으로 비자 발급 어려움',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'guyana',
+      country: 'Guyana',
+      countryKo: '가이아나',
+      emoji: '🇬🇾',
+      region: 'South America',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권', '황열병 예방접종 증명서'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'suriname',
+      country: 'Suriname',
+      countryKo: '수리남',
+      emoji: '🇸🇷',
+      region: 'South America',
+      visaRequired: 'on-arrival',
+      stayDuration: 90,
+      fee: '$100',
+      requirements: ['유효한 여권 (6개월 이상)', '여권 사진', '황열병 예방접종 증명서'],
+      notes: '도착비자로 90일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+
+    // 오세아니아
+    {
+      id: 'new-zealand',
+      country: 'New Zealand',
+      countryKo: '뉴질랜드',
+      emoji: '🇳🇿',
+      region: 'Oceania',
+      visaRequired: 'evisa',
+      stayDuration: 90,
+      processingTime: '즉시-72시간',
+      fee: 'NZD $35',
+      requirements: ['NZeTA 온라인 신청', '유효한 여권', '왕복 항공권'],
+      notes: 'NZeTA(전자여행허가)로 90일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'fiji',
+      country: 'Fiji',
+      countryKo: '피지',
+      emoji: '🇫🇯',
+      region: 'Oceania',
+      visaRequired: 'none',
+      stayDuration: 120,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '120일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'vanuatu',
+      country: 'Vanuatu',
+      countryKo: '바누아투',
+      emoji: '🇻🇺',
+      region: 'Oceania',
+      visaRequired: 'none',
+      stayDuration: 30,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '30일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'samoa',
+      country: 'Samoa',
+      countryKo: '사모아',
+      emoji: '🇼🇸',
+      region: 'Oceania',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'tonga',
+      country: 'Tonga',
+      countryKo: '통가',
+      emoji: '🇹🇴',
+      region: 'Oceania',
+      visaRequired: 'none',
+      stayDuration: 31,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '31일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'palau',
+      country: 'Palau',
+      countryKo: '팔라우',
+      emoji: '🇵🇼',
+      region: 'Oceania',
+      visaRequired: 'none',
+      stayDuration: 30,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '30일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'micronesia',
+      country: 'Micronesia',
+      countryKo: '미크로네시아',
+      emoji: '🇫🇲',
+      region: 'Oceania',
+      visaRequired: 'none',
+      stayDuration: 30,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '30일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'marshall-islands',
+      country: 'Marshall Islands',
+      countryKo: '마셜 제도',
+      emoji: '🇲🇭',
+      region: 'Oceania',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'kiribati',
+      country: 'Kiribati',
+      countryKo: '키리바시',
+      emoji: '🇰🇮',
+      region: 'Oceania',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'nauru',
+      country: 'Nauru',
+      countryKo: '나우루',
+      emoji: '🇳🇷',
+      region: 'Oceania',
+      visaRequired: 'on-arrival',
+      stayDuration: 30,
+      fee: 'AUD $25',
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '도착비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'tuvalu',
+      country: 'Tuvalu',
+      countryKo: '투발루',
+      emoji: '🇹🇻',
+      region: 'Oceania',
+      visaRequired: 'on-arrival',
+      stayDuration: 30,
+      fee: 'AUD $100',
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '도착비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'papua-new-guinea',
+      country: 'Papua New Guinea',
+      countryKo: '파푸아뉴기니',
+      emoji: '🇵🇬',
+      region: 'Oceania',
+      visaRequired: 'evisa',
+      stayDuration: 60,
+      processingTime: '평균 5-10일',
+      fee: '$50',
+      requirements: ['온라인 비자 신청', '유효한 여권', '여권 사진'],
+      notes: '전자비자로 60일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'solomon-islands',
+      country: 'Solomon Islands',
+      countryKo: '솔로몬 제도',
+      emoji: '🇸🇧',
+      region: 'Oceania',
+      visaRequired: 'on-arrival',
+      stayDuration: 90,
+      fee: '$200',
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권', '현금'],
+      notes: '도착비자로 90일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+
+    // 아프리카
+    {
+      id: 'south-africa',
+      country: 'South Africa',
+      countryKo: '남아프리카공화국',
+      emoji: '🇿🇦',
+      region: 'Africa',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (30일 이상)', '왕복 항공권', '황열병 예방접종 증명서'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'morocco',
+      country: 'Morocco',
+      countryKo: '모로코',
+      emoji: '🇲🇦',
+      region: 'Africa',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'tunisia',
+      country: 'Tunisia',
+      countryKo: '튀니지',
+      emoji: '🇹🇳',
+      region: 'Africa',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (3개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'egypt',
+      country: 'Egypt',
+      countryKo: '이집트',
+      emoji: '🇪🇬',
+      region: 'Africa',
+      visaRequired: 'on-arrival',
+      stayDuration: 30,
+      fee: '$25',
+      requirements: ['유효한 여권 (6개월 이상)', '여권 사진', '현금'],
+      notes: '도착비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'kenya',
+      country: 'Kenya',
+      countryKo: '케냐',
+      emoji: '🇰🇪',
+      region: 'Africa',
+      visaRequired: 'evisa',
+      stayDuration: 90,
+      processingTime: '평균 3-5일',
+      fee: '$50',
+      requirements: ['eTA 온라인 신청', '유효한 여권', '황열병 예방접종 증명서'],
+      notes: 'eTA로 90일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'tanzania',
+      country: 'Tanzania',
+      countryKo: '탄자니아',
+      emoji: '🇹🇿',
+      region: 'Africa',
+      visaRequired: 'on-arrival',
+      stayDuration: 90,
+      fee: '$50',
+      requirements: ['유효한 여권 (6개월 이상)', '여권 사진', '황열병 예방접종 증명서'],
+      notes: '도착비자로 90일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'ethiopia',
+      country: 'Ethiopia',
+      countryKo: '에티오피아',
+      emoji: '🇪🇹',
+      region: 'Africa',
+      visaRequired: 'evisa',
+      stayDuration: 30,
+      processingTime: '평균 3-5일',
+      fee: '$52',
+      requirements: ['온라인 비자 신청', '유효한 여권', '여권 사진'],
+      notes: '전자비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'madagascar',
+      country: 'Madagascar',
+      countryKo: '마다가스카르',
+      emoji: '🇲🇬',
+      region: 'Africa',
+      visaRequired: 'on-arrival',
+      stayDuration: 90,
+      fee: '$35-80',
+      requirements: ['유효한 여권 (6개월 이상)', '여권 사진', '현금'],
+      notes: '도착비자로 90일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'mauritius',
+      country: 'Mauritius',
+      countryKo: '모리셔스',
+      emoji: '🇲🇺',
+      region: 'Africa',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권', '숙박 증명서'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'seychelles',
+      country: 'Seychelles',
+      countryKo: '세이셸',
+      emoji: '🇸🇨',
+      region: 'Africa',
+      visaRequired: 'none',
+      stayDuration: 30,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권', '숙박 증명서'],
+      notes: '30일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'botswana',
+      country: 'Botswana',
+      countryKo: '보츠와나',
+      emoji: '🇧🇼',
+      region: 'Africa',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'namibia',
+      country: 'Namibia',
+      countryKo: '나미비아',
+      emoji: '🇳🇦',
+      region: 'Africa',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'zambia',
+      country: 'Zambia',
+      countryKo: '잠비아',
+      emoji: '🇿🇲',
+      region: 'Africa',
+      visaRequired: 'evisa',
+      stayDuration: 90,
+      processingTime: '평균 3-5일',
+      fee: '$50',
+      requirements: ['온라인 비자 신청', '유효한 여권', '황열병 예방접종 증명서'],
+      notes: '전자비자로 90일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'zimbabwe',
+      country: 'Zimbabwe',
+      countryKo: '짐바브웨',
+      emoji: '🇿🇼',
+      region: 'Africa',
+      visaRequired: 'on-arrival',
+      stayDuration: 90,
+      fee: '$30',
+      requirements: ['유효한 여권 (6개월 이상)', '여권 사진', '현금'],
+      notes: '도착비자로 90일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'rwanda',
+      country: 'Rwanda',
+      countryKo: '르완다',
+      emoji: '🇷🇼',
+      region: 'Africa',
+      visaRequired: 'on-arrival',
+      stayDuration: 30,
+      fee: '$30',
+      requirements: ['유효한 여권 (6개월 이상)', '여권 사진', '황열병 예방접종 증명서'],
+      notes: '도착비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'uganda',
+      country: 'Uganda',
+      countryKo: '우간다',
+      emoji: '🇺🇬',
+      region: 'Africa',
+      visaRequired: 'evisa',
+      stayDuration: 90,
+      processingTime: '평균 3-5일',
+      fee: '$50',
+      requirements: ['온라인 비자 신청', '유효한 여권', '황열병 예방접종 증명서'],
+      notes: '전자비자로 90일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'ghana',
+      country: 'Ghana',
+      countryKo: '가나',
+      emoji: '🇬🇭',
+      region: 'Africa',
+      visaRequired: 'evisa',
+      stayDuration: 30,
+      processingTime: '평균 3-5일',
+      fee: '$75',
+      requirements: ['온라인 비자 신청', '유효한 여권', '황열병 예방접종 증명서'],
+      notes: '전자비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'senegal',
+      country: 'Senegal',
+      countryKo: '세네갈',
+      emoji: '🇸🇳',
+      region: 'Africa',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권', '황열병 예방접종 증명서'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'ivory-coast',
+      country: 'Ivory Coast',
+      countryKo: '코트디부아르',
+      emoji: '🇨🇮',
+      region: 'Africa',
+      visaRequired: 'evisa',
+      stayDuration: 90,
+      processingTime: '평균 3-5일',
+      fee: '$70',
+      requirements: ['온라인 비자 신청', '유효한 여권', '황열병 예방접종 증명서'],
+      notes: '전자비자로 90일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'cape-verde',
+      country: 'Cape Verde',
+      countryKo: '카보베르데',
+      emoji: '🇨🇻',
+      region: 'Africa',
+      visaRequired: 'on-arrival',
+      stayDuration: 30,
+      fee: '€25',
+      requirements: ['유효한 여권 (6개월 이상)', '여권 사진', '현금'],
+      notes: '도착비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+
+    // 중동
+    {
+      id: 'israel',
+      country: 'Israel',
+      countryKo: '이스라엘',
+      emoji: '🇮🇱',
+      region: 'Middle East',
+      visaRequired: 'none',
+      stayDuration: 90,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '90일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'uae',
+      country: 'United Arab Emirates',
+      countryKo: '아랍에미리트',
+      emoji: '🇦🇪',
+      region: 'Middle East',
+      visaRequired: 'none',
+      stayDuration: 30,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '30일간 무비자 체류 가능 (연장 가능)',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'qatar',
+      country: 'Qatar',
+      countryKo: '카타르',
+      emoji: '🇶🇦',
+      region: 'Middle East',
+      visaRequired: 'none',
+      stayDuration: 30,
+      requirements: ['유효한 여권 (6개월 이상)', '왕복 항공권'],
+      notes: '30일간 무비자 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'oman',
+      country: 'Oman',
+      countryKo: '오만',
+      emoji: '🇴🇲',
+      region: 'Middle East',
+      visaRequired: 'evisa',
+      stayDuration: 30,
+      processingTime: '즉시-24시간',
+      fee: '$20',
+      requirements: ['온라인 비자 신청', '유효한 여권', '신용카드'],
+      notes: '전자비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'kuwait',
+      country: 'Kuwait',
+      countryKo: '쿠웨이트',
+      emoji: '🇰🇼',
+      region: 'Middle East',
+      visaRequired: 'evisa',
+      stayDuration: 90,
+      processingTime: '즉시-24시간',
+      fee: '$3',
+      requirements: ['온라인 비자 신청', '유효한 여권', '왕복 항공권'],
+      notes: '전자비자로 90일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'bahrain',
+      country: 'Bahrain',
+      countryKo: '바레인',
+      emoji: '🇧🇭',
+      region: 'Middle East',
+      visaRequired: 'evisa',
+      stayDuration: 90,
+      processingTime: '즉시-24시간',
+      fee: '$29',
+      requirements: ['온라인 비자 신청', '유효한 여권', '신용카드'],
+      notes: '전자비자로 90일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'jordan',
+      country: 'Jordan',
+      countryKo: '요단',
+      emoji: '🇯🇴',
+      region: 'Middle East',
+      visaRequired: 'on-arrival',
+      stayDuration: 30,
+      fee: '40 JOD',
+      requirements: ['유효한 여권 (6개월 이상)', '여권 사진', '현금'],
+      notes: '도착비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'lebanon',
+      country: 'Lebanon',
+      countryKo: '레바논',
+      emoji: '🇱🇧',
+      region: 'Middle East',
+      visaRequired: 'on-arrival',
+      stayDuration: 30,
+      fee: '$50',
+      requirements: ['유효한 여권 (6개월 이상)', '여권 사진', '현금'],
+      notes: '도착비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'saudi-arabia',
+      country: 'Saudi Arabia',
+      countryKo: '사우디아라비아',
+      emoji: '🇸🇦',
+      region: 'Middle East',
+      visaRequired: 'evisa',
+      stayDuration: 90,
+      processingTime: '즉시-24시간',
+      fee: '$80',
+      requirements: ['온라인 비자 신청', '유효한 여권', '신용카드'],
+      notes: '전자비자로 90일 체류 가능 (1년간 유효)',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'iran',
+      country: 'Iran',
+      countryKo: '이란',
+      emoji: '🇮🇷',
+      region: 'Middle East',
+      visaRequired: 'on-arrival',
+      stayDuration: 30,
+      fee: '€50',
+      requirements: ['유효한 여권 (6개월 이상)', '여권 사진', '여행자 보험'],
+      notes: '도착비자로 30일 체류 가능',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'iraq',
+      country: 'Iraq',
+      countryKo: '이라크',
+      emoji: '🇮🇶',
+      region: 'Middle East',
+      visaRequired: 'required',
+      stayDuration: 30,
+      processingTime: '평균 10-20일',
+      fee: '$80',
+      requirements: ['비자 신청서', '초청장', '여권 사진', '여행자 보험'],
+      notes: '현재 안전상 여행 비권장',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'syria',
+      country: 'Syria',
+      countryKo: '시리아',
+      emoji: '🇸🇾',
+      region: 'Middle East',
+      visaRequired: 'required',
+      stayDuration: 15,
+      processingTime: '평균 15-30일',
+      fee: '$100',
+      requirements: ['비자 신청서', '초청장', '여권 사진'],
+      notes: '현재 내전으로 입국 불가',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'yemen',
+      country: 'Yemen',
+      countryKo: '예멘',
+      emoji: '🇾🇪',
+      region: 'Middle East',
+      visaRequired: 'required',
+      stayDuration: 30,
+      processingTime: '불가',
+      fee: '불가',
+      requirements: ['현재 발급 불가'],
+      notes: '현재 내전으로 입국 불가',
+      lastUpdated: '2025-01-15'
+    },
+    {
+      id: 'afghanistan',
+      country: 'Afghanistan',
+      countryKo: '아프가니스탄',
+      emoji: '🇦🇫',
+      region: 'Middle East',
+      visaRequired: 'required',
+      stayDuration: 30,
+      processingTime: '불가',
+      fee: '불가',
+      requirements: ['현재 발급 불가'],
+      notes: '현재 정치적 상황으로 입국 불가',
+      lastUpdated: '2025-01-15'
+    }
+  ];
+
+  // 비자 타입 아이콘 및 색상 함수들
+  const getVisaTypeIcon = (visaType: string) => {
+    switch (visaType) {
+      case 'none':
+        return <CheckCircle className="w-4 h-4 text-green-600" />;
+      case 'evisa':
+        return <Globe className="w-4 h-4 text-blue-600" />;
+      case 'on-arrival':
+        return <Plane className="w-4 h-4 text-orange-600" />;
+      case 'required':
+        return <XCircle className="w-4 h-4 text-red-600" />;
+      default:
+        return <Info className="w-4 h-4 text-gray-600" />;
+    }
   };
 
-  // Form state management
-  const [destination, setDestination] = useState('');
-  const [purpose, setPurpose] = useState('관광');
-  const [duration, setDuration] = useState('1주 이내');
-  const [searchResults, setSearchResults] = useState<typeof visaInfo | null>(null);
-  const [showResults, setShowResults] = useState(false);
+  const getVisaTypeText = (visaType: string) => {
+    switch (visaType) {
+      case 'none':
+        return '무비자';
+      case 'evisa':
+        return '전자비자';
+      case 'on-arrival':
+        return '도착비자';
+      case 'required':
+        return '비자 필요';
+      default:
+        return '확인 필요';
+    }
+  };
 
-  // Visa checking functionality
-  const handleVisaCheck = () => {
-    if (!destination.trim()) {
-      alert(visaT('alerts.enterDestination'));
-      return;
+  const getVisaTypeBadgeColor = (visaType: string) => {
+    switch (visaType) {
+      case 'none':
+        return 'bg-green-100 text-green-800';
+      case 'evisa':
+        return 'bg-blue-100 text-blue-800';
+      case 'on-arrival':
+        return 'bg-orange-100 text-orange-800';
+      case 'required':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  // 필터링 및 검색 로직
+  const filteredCountries = useMemo(() => {
+    let filtered = allCountriesData;
+
+    // 탭별 필터링
+    if (activeTab !== 'popular') {
+      filtered = filtered.filter(country => country.region === activeTab);
+    } else {
+      // 인기 탭의 경우 popularRank가 있는 국가들만 표시
+      filtered = filtered.filter(country => country.popularRank).sort((a, b) => (a.popularRank || 999) - (b.popularRank || 999));
     }
 
-    // Search through visaInfo array for matching countries
-    const results = visaInfo.filter(info => 
-      info.country.toLowerCase().includes(destination.toLowerCase()) ||
-      destination.toLowerCase().includes(info.country.toLowerCase())
-    );
+    // 검색 필터링
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(country => 
+        country.country.toLowerCase().includes(query) ||
+        country.countryKo.includes(query)
+      );
+    }
 
-    // Filter by purpose if digital nomad selected
-    const filteredResults = purpose === '디지털노마드' 
-      ? results.filter(info => info.digitalNomad)
-      : results;
+    // 비자 타입 필터링
+    if (selectedVisaType !== 'all') {
+      filtered = filtered.filter(country => country.visaRequired === selectedVisaType);
+    }
 
-    setSearchResults(filteredResults);
-    setShowResults(true);
+    return filtered;
+  }, [activeTab, searchQuery, selectedVisaType, allCountriesData]);
 
-    // Scroll to results
-    setTimeout(() => {
-      document.getElementById('visa-results')?.scrollIntoView({ 
-        behavior: 'smooth' 
-      });
-    }, 100);
+  // 페이지네이션 로직
+  const totalPages = Math.ceil(filteredCountries.length / countriesPerPage);
+  const currentCountries = filteredCountries.slice(
+    (currentPage - 1) * countriesPerPage,
+    currentPage * countriesPerPage
+  );
+
+  const resetPagination = () => {
+    setCurrentPage(1);
   };
-  
-  return (
-    <>
-      <KeywordPageSchema 
-        keyword={visaT('keyword')}
-        pagePath="/visa-checker"
-        title={visaT('metadata.title')}
-        description={visaT('metadata.description')}
-        features={[visaT('features.realtimeInfo'), visaT('features.visaFree'), visaT('features.nomadVisa'), visaT('features.checklist'), visaT('features.immigration'), visaT('features.tips')]}
-      />
-      <div className="min-h-screen" style={{ 
-        /* Typography tokens */
-        '--font-family-base': '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
-        '--fs-h1-d': '40px', '--fs-h1-t': '34px', '--fs-h1-m': '28px',
-        '--fs-h2-d': '32px', '--fs-h2-t': '28px', '--fs-h2-m': '24px',
-        '--fs-h3-d': '24px', '--fs-h3-t': '22px', '--fs-h3-m': '20px',
-        '--fs-body-l-d': '18px', '--fs-body-l-t': '18px', '--fs-body-l-m': '16px',
-        '--fs-body-d': '16px', '--fs-body-t': '16px', '--fs-body-m': '14px',
-        '--fs-body-s-d': '14px', '--fs-body-s-t': '14px', '--fs-body-s-m': '13px',
-        '--lh-heading': '1.2', '--lh-body': '1.5',
-        /* Radius and shadow tokens */
-        '--radius-sm': '4px', '--radius-md': '8px', '--radius-lg': '16px',
-        '--shadow-sm': '0 1px 2px rgba(0,0,0,.06)', '--shadow-md': '0 4px 10px rgba(0,0,0,.08)', '--shadow-lg': '0 12px 24px rgba(0,0,0,.12)',
-        /* Spacing tokens */
-        '--space-2xs': '4px', '--space-xs': '8px', '--space-sm': '12px', '--space-md': '16px', '--space-lg': '24px', '--space-xl': '40px', '--space-2xl': '64px',
-        /* Color tokens - styleguide.md compliant */
-        '--color-bg': '#ffffff', '--color-bg-alt': '#f8f8f8', '--color-text-high': '#000000', '--color-text-medium': '#555555', '--color-text-low': 'rgba(0,0,0,0.54)',
-        '--color-primary': '#007AFF', '--color-primary-hover': '#005FCC', '--color-border': '#e6e6e6',
-        backgroundColor: 'var(--color-bg)',
-        fontFamily: 'var(--font-family-base)'
-      } as React.CSSProperties}>
-      {/* Hero Section */}
-      <section className="container mx-auto px-6 py-12 lg:py-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="mb-8">
-            <div className="inline-flex items-center px-6 py-3 bg-[#F8F8F8] border border-[#F8F8F8] rounded-full text-sm font-medium text-[#555555] font-light mb-8">
-              {visaT('badge')}
-            </div>
-            <h1 className="font-light tracking-tight" style={{ fontSize: 'clamp(var(--fs-h1-m), 4vw, var(--fs-h1-d))', lineHeight: 'var(--lh-heading)', color: 'var(--color-text-high)', marginBottom: 'var(--space-lg)' } as React.CSSProperties}>
-              {visaT('hero.title')}
-            </h1>
-            <h2 className="text-2xl lg:text-3xl font-normal text-[#555555] mb-8">
-              {visaT('hero.subtitle')}
-            </h2>
-            <p className="text-lg text-[#555555] font-light mb-8 leading-relaxed max-w-3xl mx-auto">
-              한국 여권 소지자를 위한 50개국 비자 정보를 확인하고, 디지털노마드 비자부터 관광비자까지 모든 출입국 요구사항을 한눈에 파악하세요.
-            </p>
-          </div>
-        </div>
-      </section>
 
-      {/* Quick Visa Checker */}
-      <section className="container mx-auto px-6 pb-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-[#F8F8F8] p-8 rounded-lg mb-12 border border-[#F8F8F8]">
-            <h2 className="text-2xl font-light text-black mb-2 text-center">
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="py-16 bg-gradient-to-br from-gray-50 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="max-w-3xl mx-auto">
+            <h1 className="text-2xl md:text-3xl font-bold text-black mb-6">
               한국 여권 비자 체커
-            </h2>
-            <p className="text-sm text-[#555555] font-light mb-6 text-center">
-              2025년 최신 정보 기준 | 중요: 출발 전 대사관에서 최신 정보 확인 필수
+            </h1>
+            <p className="text-xl text-gray-600 mb-8">
+              전 세계 195개국의 비자 요구사항을 한눈에 확인하세요
             </p>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-[#555555] mb-2">출발국</label>
-                <div className="w-full p-4 border border-[#555555] rounded-lg bg-[#F8F8F8] text-[#555555] font-light">
-                  대한민국 (한국 여권 전용)
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-[#555555] mb-2">목적지</label>
-                <input 
-                  type="text" 
-                  placeholder="예: 일본, 태국, 싱가포르..."
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                  className="w-full p-4 border border-[#555555] rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]"
+            <div className="flex flex-col md:flex-row gap-4 max-w-2xl mx-auto">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  placeholder="국가명을 검색하세요 (예: 일본, Japan)"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    resetPagination();
+                  }}
+                  className="pl-10 h-12 text-lg"
                 />
               </div>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-4 mt-6">
-              <div>
-                <label className="block text-sm font-medium text-[#555555] mb-2">여행 목적</label>
-                <select 
-                  value={purpose}
-                  onChange={(e) => setPurpose(e.target.value)}
-                  className="w-full p-4 border border-[#555555] rounded-lg bg-white text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
-                  <option>관광</option>
-                  <option>출장</option>
-                  <option>디지털노마드</option>
-                  <option>장기체류</option>
-                  <option>학업</option>
+              <div className="flex gap-2">
+                <select
+                  value={selectedVisaType}
+                  onChange={(e) => {
+                    setSelectedVisaType(e.target.value);
+                    resetPagination();
+                  }}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent bg-white"
+                >
+                  <option value="all">모든 비자 유형</option>
+                  <option value="none">무비자</option>
+                  <option value="evisa">전자비자</option>
+                  <option value="on-arrival">도착비자</option>
+                  <option value="required">비자 필요</option>
                 </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-[#555555] mb-2">체류 기간</label>
-                <select 
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  className="w-full p-4 border border-[#555555] rounded-lg bg-white text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-200 min-h-[44px]">
-                  <option>1주 이내</option>
-                  <option>1개월 이내</option>
-                  <option>3개월 이내</option>
-                  <option>6개월 이내</option>
-                  <option>1년 이상</option>
-                </select>
-              </div>
-              
-              <div className="flex items-end">
-                <button 
-                  onClick={handleVisaCheck}
-                  className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 transition-all duration-200 shadow-sm min-h-[44px] flex items-center justify-center">
-                  한국 여권 비자 요구사항 확인
-                </button>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Search Results */}
-      {showResults && (
-        <section id="visa-results" className="container mx-auto px-6 pb-8">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-2xl font-light text-black mb-8 text-center">
-              <span className="font-semibold">&ldquo;{destination}&rdquo;</span> 비자 검색 결과
-            </h2>
-            
-            {searchResults && searchResults.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                {searchResults.map((info, index) => (
-                  <div key={index} className="bg-white border border-[#F8F8F8] rounded-lg p-6 hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
-                          <div className="w-6 h-6 bg-blue-500 rounded"></div>
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-black text-lg">{info.country}</h3>
-                          {info.visaFree ? (
-                            <div className="flex items-center gap-2">
-                              <div className="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-xs font-medium">
-                                무비자 {info.maxDays}일
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="bg-red-100 text-red-700 px-3 py-1 rounded-lg text-xs font-medium">
-                              비자 필요
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+      {/* Tabs Section */}
+      <section className="py-8 border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Tabs value={activeTab} onValueChange={(value) => {
+            setActiveTab(value);
+            resetPagination();
+            setSearchQuery('');
+          }}>
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 h-auto p-1 bg-gray-100">
+              <TabsTrigger value="popular" className="text-xs sm:text-sm py-2">인기</TabsTrigger>
+              <TabsTrigger value="Asia" className="text-xs sm:text-sm py-2">아시아</TabsTrigger>
+              <TabsTrigger value="Europe" className="text-xs sm:text-sm py-2">유럽</TabsTrigger>
+              <TabsTrigger value="North America" className="text-xs sm:text-sm py-2">북미</TabsTrigger>
+              <TabsTrigger value="South America" className="text-xs sm:text-sm py-2">남미</TabsTrigger>
+              <TabsTrigger value="Oceania" className="text-xs sm:text-sm py-2">오세아니아</TabsTrigger>
+              <TabsTrigger value="Africa" className="text-xs sm:text-sm py-2">아프리카</TabsTrigger>
+              <TabsTrigger value="Middle East" className="text-xs sm:text-sm py-2">중동</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      </section>
 
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm text-[#555555] font-medium mb-1">필요 서류</p>
-                        <ul className="text-xs text-[#555555] space-y-1">
-                          {info.requirements.map((req, idx) => (
-                            <li key={idx} className="flex items-center gap-2">
-                              <div className="w-1 h-1 bg-[#555555] rounded-full"></div>
-                              {req}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+      {/* Results Section */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl font-semibold text-black">
+                {searchQuery ? `'${searchQuery}' 검색 결과` : `${activeTab === 'popular' ? '인기 여행지' : activeTab} 국가`} ({filteredCountries.length}개국)
+              </h2>
+              <p className="text-gray-600 mt-1">
+                한국 여권 기준 비자 요건 정보 (2025년 1월 업데이트)
+              </p>
+            </div>
 
-                      {info.digitalNomad && (
-                        <div className="bg-blue-50 p-3 rounded-lg">
-                          <p className="text-xs text-blue-700 font-medium mb-1">
-                            디지털 노마드 지원
-                          </p>
-                          {info.nomadVisa && (
-                            <p className="text-xs text-blue-600">{info.nomadVisa}</p>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="pt-2 border-t border-[#F8F8F8]">
-                        <div className="flex items-center justify-between text-xs text-[#555555]">
-                          <span>언어: {info.language}</span>
-                          <span>통화: {info.currency}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <div className="text-2xl">🔍</div>
-                </div>
-                <h3 className="text-lg font-medium text-black mb-2">검색 결과가 없습니다</h3>
-                <p className="text-[#555555] mb-4">
-                  &ldquo;{destination}&rdquo;에 대한 비자 정보를 찾을 수 없습니다.
-                </p>
-                <p className="text-sm text-[#555555]">
-                  아래의 인기 여행지에서 원하는 국가를 찾아보세요.
-                </p>
-              </div>
-            )}
-            
-            {purpose === '디지털노마드' && searchResults && searchResults.length > 0 && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-8">
-                <h3 className="font-semibold text-blue-900 mb-3">💼 디지털 노마드 추가 정보</h3>
-                <p className="text-sm text-blue-800 mb-3">
-                  디지털 노마드로 활동하시는 경우, 각국의 세금 규정과 장기 체류 요건을 반드시 확인하세요.
-                </p>
-                <ul className="text-sm text-blue-800 space-y-1">
-                  <li>• 소득 증명 서류 및 건강보험 가입 확인</li>
-                  <li>• 현지 세금 신고 의무 및 이중 과세 방지 협정 검토</li>
-                  <li>• 장기 체류 시 거주 등록 및 비자 연장 절차 확인</li>
-                </ul>
+            {totalPages > 1 && (
+              <div className="text-sm text-gray-500">
+                페이지 {currentPage} / {totalPages}
               </div>
             )}
           </div>
-        </section>
-      )}
 
-      {/* Popular Destinations Visa Info */}
-      <section className="container mx-auto px-6 pb-8">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-light text-black mb-8 text-center">
-            인기 여행지 <span className="font-semibold">비자 정보</span>
-          </h2>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {visaInfo.map((info, index) => (
-              <div key={index} className="bg-white border border-[#F8F8F8] rounded-lg p-6 hover:shadow-lg transition-all duration-300">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
-                      <div className="w-6 h-6 bg-gray-400 rounded"></div>
-                    </div>
+          {/* Country Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+            {currentCountries.map((country) => (
+              <Card 
+                key={country.id}
+                className={`p-6 hover:shadow-lg transition-all cursor-pointer ${
+                  selectedCountry?.id === country.id ? 'ring-2 ring-black' : ''
+                }`}
+                onClick={() => setSelectedCountry(selectedCountry?.id === country.id ? null : country)}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl">{country.emoji}</span>
                     <div>
-                      <h3 className="font-semibold text-black">{info.country}</h3>
-                      {info.visaFree ? (
-                        <div className="flex items-center gap-2">
-                          <div className="bg-[#F8F8F8] text-[#555555] px-3 py-1 rounded-lg text-xs font-medium">
-                            무비자
-                          </div>
-                          <span className="text-sm text-[#555555] font-light">{info.maxDays}일</span>
-                        </div>
-                      ) : (
-                        <div className="bg-gray-200 text-gray-800 px-3 py-1 rounded-lg text-xs font-medium">
-                          비자 필요
-                        </div>
-                      )}
+                      <h3 className="font-semibold text-black">{country.countryKo}</h3>
+                      <p className="text-sm text-gray-500">{country.country}</p>
                     </div>
                   </div>
-                  <div className={`px-3 py-1 rounded-lg text-xs font-medium ${
-                    info.difficulty === 'easy' ? 'bg-[#F8F8F8] text-[#555555] font-light border border-[#F8F8F8]' :
-                    info.difficulty === 'medium' ? 'bg-[#F8F8F8] text-[#555555] border border-[#555555]' :
-                    'bg-gray-200 text-gray-800 border border-gray-400'
-                  }`}>
-                    {info.difficulty === 'easy' ? '쉬움' : 
-                     info.difficulty === 'medium' ? '보통' : '어려움'}
+                  {country.popularRank && country.popularRank <= 10 && (
+                    <Badge className="bg-yellow-100 text-yellow-800 text-xs">
+                      인기
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">비자 요건</span>
+                    <div className="flex items-center space-x-2">
+                      {getVisaTypeIcon(country.visaRequired)}
+                      <Badge className={`text-xs ${getVisaTypeBadgeColor(country.visaRequired)}`}>
+                        {getVisaTypeText(country.visaRequired)}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">체류 기간</span>
+                    <span className="text-sm font-medium">{country.stayDuration}일</span>
+                  </div>
+
+                  {country.fee && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">비자 비용</span>
+                      <span className="text-sm font-medium">{country.fee}</span>
+                    </div>
+                  )}
+
+                  {country.processingTime && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">처리 시간</span>
+                      <span className="text-sm text-gray-700">{country.processingTime}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <p className="text-xs text-gray-500">
+                    업데이트: {country.lastUpdated}
+                  </p>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* No Results */}
+          {filteredCountries.length === 0 && (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-black mb-2">검색 결과가 없습니다</h3>
+              <p className="text-gray-600">다른 검색어를 시도하거나 필터를 변경해보세요</p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+              >
+                이전
+              </Button>
+              
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "outline"}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className="w-10 h-10 p-0"
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+              
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+              >
+                다음
+              </Button>
+            </div>
+          )}
+
+          {/* Selected Country Details */}
+          {selectedCountry && (
+            <Card className="mt-12 p-8 bg-gray-50">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-4">
+                  <span className="text-5xl">{selectedCountry.emoji}</span>
+                  <div>
+                    <h2 className="text-3xl font-bold text-black">{selectedCountry.countryKo}</h2>
+                    <p className="text-lg text-gray-600">{selectedCountry.country}</p>
+                  </div>
+                </div>
+                <Button variant="ghost" onClick={() => setSelectedCountry(null)}>
+                  ✕
+                </Button>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-8 mb-6">
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold text-black">비자 정보</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+                      <span className="text-gray-600">비자 요건</span>
+                      <div className="flex items-center space-x-2">
+                        {getVisaTypeIcon(selectedCountry.visaRequired)}
+                        <span className="font-medium">{getVisaTypeText(selectedCountry.visaRequired)}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+                      <span className="text-gray-600">체류 기간</span>
+                      <span className="font-medium">{selectedCountry.stayDuration}일</span>
+                    </div>
+                    {selectedCountry.fee && (
+                      <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+                        <span className="text-gray-600">비자 비용</span>
+                        <span className="font-medium">{selectedCountry.fee}</span>
+                      </div>
+                    )}
+                    {selectedCountry.processingTime && (
+                      <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+                        <span className="text-gray-600">처리 시간</span>
+                        <span className="font-medium">{selectedCountry.processingTime}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-black mb-2">필수 서류</h4>
-                  <ul className="space-y-1">
-                    {info.requirements.map((req, reqIndex) => (
-                      <li key={reqIndex} className="text-sm text-[#555555] font-light flex items-start gap-2">
-                        <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
-                        </div>
-                        <span>{req}</span>
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold text-black">필요 서류</h3>
+                  <ul className="space-y-2">
+                    {selectedCountry.requirements.map((req, index) => (
+                      <li key={index} className="flex items-start space-x-3 p-3 bg-white rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                        <span className="text-gray-700">{req}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
+              </div>
 
-                {info.digitalNomad && (
-                  <div className="mb-4 p-3 bg-[#F8F8F8] rounded-lg border border-[#F8F8F8]">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-4 h-4 bg-gray-400 rounded-sm"></div>
-                      <span className="text-sm font-medium text-[#555555]">디지털노마드 가능</span>
+              {selectedCountry.notes && (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold text-black">추가 정보</h3>
+                  <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                    <div className="flex items-start space-x-3">
+                      <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+                      <p className="text-blue-800">{selectedCountry.notes}</p>
                     </div>
-                    {info.nomadVisa && (
-                      <p className="text-xs text-[#555555] font-light">{info.nomadVisa}</p>
-                    )}
                   </div>
-                )}
+                </div>
+              )}
 
-                <Link 
-                  href={`/?destination=${encodeURIComponent(info.country)}&visa=guide`}
-                  className="w-full bg-[#F8F8F8] text-[#555555] py-2 px-4 rounded-lg text-center block hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
-                >
-                  {info.country} 여행 가이드 보기
-                </Link>
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <p className="text-sm text-gray-500">
+                  <AlertCircle className="w-4 h-4 inline mr-1" />
+                  정보 업데이트: {selectedCountry.lastUpdated} | 실제 출입국 시 최신 정보를 확인하시기 바랍니다.
+                </p>
               </div>
-            ))}
+            </Card>
+          )}
+        </div>
+      </section>
+
+      {/* Info Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-black mb-4">비자 유형 가이드</h2>
+            <p className="text-xl text-neutral-600">각 비자 유형별 특징을 알아보세요</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="p-6 text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="font-semibold text-black mb-2">무비자</h3>
+              <p className="text-sm text-gray-600 mb-3">
+                별도 비자 없이 여권만으로 입국 가능
+              </p>
+              <ul className="text-xs text-gray-500 space-y-1">
+                <li>• 즉시 출발 가능</li>
+                <li>• 비용 없음</li>
+                <li>• 간편한 절차</li>
+              </ul>
+            </Card>
+
+            <Card className="p-6 text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Globe className="w-8 h-8 text-blue-600" />
+              </div>
+              <h3 className="font-semibold text-black mb-2">전자비자</h3>
+              <p className="text-sm text-gray-600 mb-3">
+                온라인으로 신청하는 전자 비자
+              </p>
+              <ul className="text-xs text-gray-500 space-y-1">
+                <li>• 온라인 신청</li>
+                <li>• 빠른 처리</li>
+                <li>• 미리 준비 필요</li>
+              </ul>
+            </Card>
+
+            <Card className="p-6 text-center">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Plane className="w-8 h-8 text-orange-600" />
+              </div>
+              <h3 className="font-semibold text-black mb-2">도착비자</h3>
+              <p className="text-sm text-gray-600 mb-3">
+                입국 시 공항에서 발급받는 비자
+              </p>
+              <ul className="text-xs text-gray-500 space-y-1">
+                <li>• 공항 발급</li>
+                <li>• 현금 준비 필요</li>
+                <li>• 대기 시간 있음</li>
+              </ul>
+            </Card>
+
+            <Card className="p-6 text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <XCircle className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="font-semibold text-black mb-2">비자 필요</h3>
+              <p className="text-sm text-gray-600 mb-3">
+                사전에 대사관에서 비자 발급 필수
+              </p>
+              <ul className="text-xs text-gray-500 space-y-1">
+                <li>• 사전 준비</li>
+                <li>• 서류 많음</li>
+                <li>• 비용 발생</li>
+              </ul>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* Digital Nomad Visas */}
-      <section className="py-12 lg:py-16 bg-[#F8F8F8]">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-light text-black mb-4">
-              디지털노마드 <span className="font-semibold">전용 비자</span>
-            </h2>
-            <p className="text-[#555555] font-light">한국 여권 기준 원격근무자를 위한 특별 비자 프로그램</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {nomadVisaCountries.map((country, index) => (
-              <div key={index} className="bg-white p-6 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-[#F8F8F8] rounded-lg flex items-center justify-center">
-                    <div className="w-6 h-6 bg-[#F8F8F8]0 rounded"></div>
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-black">{country.country}</h3>
-                    <p className="text-sm text-[#555555] font-light">{country.visa}</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2 mb-4 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-[#555555] font-light">체류기간:</span>
-                    <span className="font-medium">{country.duration}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#555555] font-light">최소소득:</span>
-                    <span className="font-medium">{country.minIncome}</span>
-                  </div>
-                </div>
-
-                <Link 
-                  href={`/nomad-calculator?country=${encodeURIComponent(country.country)}`}
-                  className="w-full bg-[#F8F8F8] text-[#555555] py-2 px-4 rounded-lg text-center block hover:bg-gray-200 transition-all duration-200 text-sm font-medium"
-                >
-                  노마드 계산기로 분석
-                </Link>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-8">
-            <Link 
-              href="/nomad-calculator"
-              className="inline-flex items-center px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-all duration-200 shadow-lg min-h-[44px]"
-            >
-              전체 노마드 도시 비교하기
-              <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
+      {/* CTA Section */}
+      <section className="py-16 bg-black text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold mb-4">
+            비자 준비 완료했다면, 이제 여행 가이드로!
+          </h2>
+          <p className="text-xl text-gray-300 mb-8">
+            TripRadio.AI와 함께 더 특별한 여행을 계획해보세요
+          </p>
+          <Button size="lg" className="bg-white text-black hover:bg-gray-100" asChild>
+            <a href="/">TripRadio.AI 시작하기</a>
+          </Button>
         </div>
       </section>
-
-      {/* Visa Tips */}
-      <section className="py-12 lg:py-16 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-light text-black mb-8 text-center">
-              비자 신청 <span className="font-semibold">필수 팁</span>
-            </h2>
-
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <div className="bg-[#F8F8F8] p-6 rounded-lg border border-[#F8F8F8]">
-                  <h3 className="font-medium text-[#555555] mb-3">반드시 확인할 것</h3>
-                  <ul className="space-y-2 text-sm text-[#555555] font-light">
-                    <li>• 여권 유효기간 6개월 이상 남아있는지</li>
-                    <li>• 왕복 항공권 또는 제3국 출국 티켓</li>
-                    <li>• 충분한 체재비 증명 (은행 잔고증명서)</li>
-                    <li>• 여행자 보험 가입 확인</li>
-                    <li>• 숙박 예약 확인서</li>
-                  </ul>
-                </div>
-
-                <div className="bg-[#F8F8F8] p-6 rounded-lg border border-[#555555]">
-                  <h3 className="font-medium text-gray-800 mb-3">주의사항</h3>
-                  <ul className="space-y-2 text-sm text-[#555555]">
-                    <li>• 무비자 ≠ 무조건 입국 가능</li>
-                    <li>• 출입국 관리소 재량으로 입국 거부 가능</li>
-                    <li>• 코로나19 등 상황에 따라 변경 가능</li>
-                    <li>• 여권에 충분한 빈 페이지 필요</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <div className="bg-[#F8F8F8] p-6 rounded-lg border border-[#F8F8F8]">
-                  <h3 className="font-medium text-[#555555] mb-3">유용한 팁</h3>
-                  <ul className="space-y-2 text-sm text-[#555555] font-light">
-                    <li>• 출발 전 외교부 여행경보 확인</li>
-                    <li>• 대사관 웹사이트에서 최신 정보 확인</li>
-                    <li>• 여행 일정표 준비 (영문 또는 현지어)</li>
-                    <li>• 출입국 카드 미리 작성하기</li>
-                    <li>• 중요 서류 사본 준비</li>
-                  </ul>
-                </div>
-
-                <div className="bg-gray-200 p-6 rounded-lg border border-gray-400">
-                  <h3 className="font-medium text-gray-800 mb-3">피해야 할 것</h3>
-                  <ul className="space-y-2 text-sm text-[#555555]">
-                    <li>• 만료 임박한 여권으로 출국</li>
-                    <li>• 불법 취업 가능성 의심받을 행동</li>
-                    <li>• 거짓 정보 제공</li>
-                    <li>• 과도한 현금 소지 (신고 필요)</li>
-                    <li>• 금지 품목 휴대</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Travel Guide Integration */}
-      <section className="py-12 lg:py-16 bg-gray-900 text-white">
-        <div className="container mx-auto px-6 text-center">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl lg:text-4xl font-light mb-6 tracking-tight">
-              비자 준비 완료! <span className="font-semibold">이제 여행 가이드와 함께</span>
-            </h2>
-            <p className="text-lg lg:text-xl text-gray-300 mb-8 leading-relaxed">
-              한국 여권으로 출입국 준비가 끝났다면, 그 나라에서만 경험할 수 있는 
-              특별한 이야기와 문화를 AI 가이드가 안내해드립니다
-            </p>
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
-              <div className="bg-gray-900 p-6 rounded-lg">
-                <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <div className="w-6 h-6 bg-gray-300 rounded"></div>
-                </div>
-                <h3 className="font-medium mb-2">현지 문화 체험</h3>
-                <p className="text-sm text-gray-300">단순 관광이 아닌 그 나라의 깊은 역사와 문화 이해</p>
-              </div>
-              <div className="bg-gray-900 p-6 rounded-lg">
-                <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <div className="w-6 h-4 bg-gray-400 rounded-sm"></div>
-                </div>
-                <h3 className="font-medium mb-2">현지인 관점</h3>
-                <p className="text-sm text-gray-300">현지인만 아는 숨겨진 명소와 생활 꿀팁</p>
-              </div>
-              <div className="bg-gray-900 p-6 rounded-lg">
-                <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <div className="w-6 h-6 border-2 border-[#555555] rounded-full"></div>
-                </div>
-                <h3 className="font-medium mb-2">안전 여행 팁</h3>
-                <p className="text-sm text-gray-300">현지 상황과 주의사항을 실시간으로 안내</p>
-              </div>
-            </div>
-            <Link 
-              href="/?visa=ready&guide=start"
-              className="inline-block bg-white text-black px-10 py-4 rounded-lg font-medium hover:bg-[#F8F8F8] transition-all duration-200 shadow-lg"
-            >
-              여행 가이드 시작하기
-            </Link>
-          </div>
-        </div>
-      </section>
-      </div>
-    </>
+    </div>
   );
 }

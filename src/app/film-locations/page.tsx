@@ -778,7 +778,7 @@ export default function FilmLocationsPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto mb-12">
-            <Link href="/trip-planner?theme=movie" className="bg-white p-6 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
+            <Link href="/ai-trip-planner?theme=movie" className="bg-white p-6 rounded-lg border border-[#F8F8F8] hover:shadow-lg transition-all duration-300">
               <div className="text-center mb-4">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                   <div className="w-6 h-6 bg-[#F8F8F8]0 rounded"></div>
@@ -836,7 +836,7 @@ export default function FilmLocationsPage() {
           <div className="bg-white p-8 rounded-lg border border-[#F8F8F8]">
             <h3 className="text-xl font-medium text-black mb-6 text-center">{filmT('routes.title')}</h3>
             <div className="grid md:grid-cols-2 gap-6">
-              <Link href="/trip-planner?route=kdrama-seoul" className="flex items-center gap-4 p-4 bg-[#F8F8F8] rounded-lg hover:bg-gray-100 transition-colors">
+              <Link href="/ai-trip-planner?route=kdrama-seoul" className="flex items-center gap-4 p-4 bg-[#F8F8F8] rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
                   <div className="w-4 h-4 bg-gray-600 rounded"></div>
                 </div>
@@ -847,7 +847,7 @@ export default function FilmLocationsPage() {
                 </div>
               </Link>
               
-              <Link href="/trip-planner?route=ghibli-japan" className="flex items-center gap-4 p-4 bg-[#F8F8F8] rounded-lg hover:bg-gray-100 transition-colors">
+              <Link href="/ai-trip-planner?route=ghibli-japan" className="flex items-center gap-4 p-4 bg-[#F8F8F8] rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
                   <div className="w-4 h-3 bg-gray-700 rounded-sm"></div>
                 </div>
@@ -858,7 +858,7 @@ export default function FilmLocationsPage() {
                 </div>
               </Link>
               
-              <Link href="/trip-planner?route=marvel-usa" className="flex items-center gap-4 p-4 bg-[#F8F8F8] rounded-lg hover:bg-gray-100 transition-colors">
+              <Link href="/ai-trip-planner?route=marvel-usa" className="flex items-center gap-4 p-4 bg-[#F8F8F8] rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
                   <div className="w-3 h-4 bg-gray-600 transform rotate-12"></div>
                 </div>
@@ -869,7 +869,7 @@ export default function FilmLocationsPage() {
                 </div>
               </Link>
               
-              <Link href="/trip-planner?route=lotr-newzealand" className="flex items-center gap-4 p-4 bg-[#F8F8F8] rounded-lg hover:bg-gray-100 transition-colors">
+              <Link href="/ai-trip-planner?route=lotr-newzealand" className="flex items-center gap-4 p-4 bg-[#F8F8F8] rounded-lg hover:bg-gray-100 transition-colors">
                 <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
                   <div className="w-4 h-4 bg-[#F8F8F8]0 rounded-full"></div>
                 </div>

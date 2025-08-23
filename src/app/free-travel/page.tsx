@@ -34,7 +34,7 @@ export default function FreeTravelPage() {
             </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
               <Link 
-                href="/trip-planner?type=solo&focus=safety"
+                href="/ai-trip-planner?type=solo&focus=safety"
                 className="bg-[#007AFF] text-white px-8 py-3 rounded-lg font-medium hover:bg-[#005FCC] transition-colors duration-200 min-w-[200px]"
               >
                 {t('cta.primary')}
@@ -320,7 +320,7 @@ export default function FreeTravelPage() {
               {t('finalCta.description')}
             </p>
             <Link 
-              href="/trip-planner?type=solo&focus=safety"
+              href="/ai-trip-planner?type=solo&focus=safety"
               className="inline-block bg-white text-black px-10 py-4 rounded-lg font-medium hover:bg-[#F8F8F8] transition-colors duration-200"
             >
               {t('finalCta.button')}
