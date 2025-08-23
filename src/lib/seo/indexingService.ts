@@ -79,7 +79,7 @@ export class IndexingService {
       // 올바른 URL 패턴 생성
       const urls: string[] = [];
       
-      // 🚀 새로운 URL 구조: /guide/[language]/[location]
+      // 🚀 새로운 URL 구조: /guide/[language]/[location] - 정규화된 도메인 사용
       languages.forEach(lang => {
         urls.push(`${baseUrl}/guide/${lang}/${encodeURIComponent(locationName)}`);
       });

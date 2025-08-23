@@ -28,12 +28,12 @@ Allow: /visa-checker
 Allow: /nomad-calculator
 Allow: /film-locations
 
-# Important language versions
-Allow: /*?lang=ko
-Allow: /*?lang=en
-Allow: /*?lang=ja
-Allow: /*?lang=zh
-Allow: /*?lang=es
+# Guide pages by language
+Allow: /guide/ko/
+Allow: /guide/en/
+Allow: /guide/ja/
+Allow: /guide/zh/
+Allow: /guide/es/
 
 # Sitemap
 Sitemap: https://navidocent.com/sitemap.xml

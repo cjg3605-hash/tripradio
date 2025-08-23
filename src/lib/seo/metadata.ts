@@ -386,7 +386,7 @@ export function generateSitemapUrls(guides: Array<{ name: string; slug?: string 
         url: guideUrl,
         lastModified: now,
         changeFrequency: 'weekly',
-        priority: 0.7,
+        priority: 0.9,
         // 🚀 다국어 alternate 링크 (새 구조로 업데이트)
         alternates: {
           languages: Object.fromEntries(

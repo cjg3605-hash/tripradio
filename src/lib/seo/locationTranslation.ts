@@ -209,7 +209,7 @@ export function generateLocalizedGuideUrls(koreanLocationName: string): Array<{
     
     return {
       language: lang,
-      url: `${baseUrl}/guide/${encodeURIComponent(slug)}?lang=${lang}`,
+      url: `${baseUrl}/guide/${lang}/${encodeURIComponent(slug)}`,
       localizedName
     };
   });

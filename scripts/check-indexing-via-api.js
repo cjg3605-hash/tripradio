@@ -62,15 +62,15 @@ async function validateUrls(sampleSize = 10) {
     // 주요 URL들 샘플링
     const testUrls = [
       `${baseUrl}`,
-      `${baseUrl}/guide/경복궁`,
-      `${baseUrl}/guide/남산타워`,
-      `${baseUrl}/guide/제주도`,
-      `${baseUrl}/ko/guide/부산`,
-      `${baseUrl}/en/guide/seoul`,
-      `${baseUrl}/ja/guide/seoul`,
-      `${baseUrl}/zh/guide/seoul`,
-      `${baseUrl}/es/guide/seoul`,
-      `${baseUrl}/ko/region/seoul`
+      `${baseUrl}/guide/ko/경복궁`,
+      `${baseUrl}/guide/ko/남산타워`,
+      `${baseUrl}/guide/ko/제주도`,
+      `${baseUrl}/guide/ko/부산`,
+      `${baseUrl}/guide/en/seoul`,
+      `${baseUrl}/guide/ja/seoul`,
+      `${baseUrl}/guide/zh/seoul`,
+      `${baseUrl}/guide/es/seoul`,
+      `${baseUrl}/regions/korea`
     ];
 
     console.log('📋 검증할 URL:');
@@ -143,7 +143,7 @@ async function analyzeGuideUrls() {
       
       guides.slice(0, 5).forEach(guide => {
         languages.forEach(lang => {
-          const url = `${baseUrl}/${lang}/guide/${encodeURIComponent(guide.name || guide.location_name)}`;
+          const url = `${baseUrl}/guide/${lang}/${encodeURIComponent(guide.name || guide.location_name)}`;
           urlPatterns.push({
             guide: guide.name || guide.location_name,
             language: lang,
@@ -222,7 +222,7 @@ async function testSearchConsoleIndexing() {
   
   try {
     // 샘플 URL로 색인 요청 테스트
-    const testUrl = `${baseUrl}/ko/guide/경복궁`;
+    const testUrl = `${baseUrl}/guide/ko/경복궁`;
     
     console.log(`🧪 테스트 URL: ${testUrl}`);
     

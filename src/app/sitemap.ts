@@ -202,7 +202,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
   
-  // 🚀 새 URL 구조 가이드 페이지들 (generateSitemapUrls에서 이미 처리되므로 중복 제거)
+  // 🚀 가이드 페이지들 우선순위 및 변경빈도 최적화
   const guideMultilangPages: MetadataRoute.Sitemap = [];
 
   return [...basicUrls, ...multilangPages, ...keywordPages, ...guideMultilangPages];

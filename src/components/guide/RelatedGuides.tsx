@@ -135,7 +135,7 @@ export default function RelatedGuides({ currentLocation, className = '' }: Relat
         {relatedGuides.map((guide, index) => (
           <Link
             key={`${guide.location_name}-${index}`}
-            href={`/guide/${guide.slug}?lang=${currentLanguage}`}
+            href={`/guide/${currentLanguage}/${guide.slug}`}
             className="group block bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 p-4"
             aria-label={`${guide.location_name} ${t('relatedGuides.aria.linkTo') || '가이드로 이동'}`}
           >

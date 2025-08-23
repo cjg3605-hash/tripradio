@@ -172,7 +172,7 @@ export function generateMultilingualUrls(koreanLocation: string, baseUrl: string
   const urls: Record<string, string> = {};
   for (const [lang, translation] of Object.entries(mapping)) {
     if (lang !== 'ko') {
-      urls[lang] = `${baseUrl}/guide/${encodeURIComponent(translation)}?lang=${lang}`;
+      urls[lang] = `${baseUrl}/guide/${lang}/${encodeURIComponent(translation)}`;
     }
   }
   

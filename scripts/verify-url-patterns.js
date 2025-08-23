@@ -15,19 +15,19 @@ async function testActualUrlPatterns() {
   const urlPatterns = [
     // 기본 패턴
     `${baseUrl}`,
-    `${baseUrl}/guide/${encodeURIComponent(sampleLocation)}`,
+    `${baseUrl}/guide/ko/${encodeURIComponent(sampleLocation)}`,
     
-    // 언어 쿼리 파라미터 패턴
+    // 새로운 언어 URL 패턴  
     `${baseUrl}?lang=en`,
-    `${baseUrl}/guide/${encodeURIComponent(sampleLocation)}?lang=en`,
-    `${baseUrl}/guide/${encodeURIComponent(sampleLocation)}?lang=ja`,
-    `${baseUrl}/guide/${encodeURIComponent(sampleLocation)}?lang=zh`,
-    `${baseUrl}/guide/${encodeURIComponent(sampleLocation)}?lang=es`,
+    `${baseUrl}/guide/en/${encodeURIComponent(sampleLocation)}`,
+    `${baseUrl}/guide/ja/${encodeURIComponent(sampleLocation)}`,
+    `${baseUrl}/guide/zh/${encodeURIComponent(sampleLocation)}`,
+    `${baseUrl}/guide/es/${encodeURIComponent(sampleLocation)}`,
     
-    // 다른 언어별 패턴들 테스트
+    // 언어별 패턴들 테스트
     `${baseUrl}/en`,
-    `${baseUrl}/en/guide/${encodeURIComponent(sampleLocation)}`,
-    `${baseUrl}/ja/guide/${encodeURIComponent(sampleLocation)}`,
+    `${baseUrl}/guide/en/${encodeURIComponent(sampleLocation)}`,
+    `${baseUrl}/guide/ja/${encodeURIComponent(sampleLocation)}`,
     
     // 랜딩 페이지들
     `${baseUrl}/ai-travel`,
@@ -99,7 +99,7 @@ async function testActualUrlPatterns() {
   const pathPrefixSuccess = patternAnalysis['path-prefix'].filter(r => r.isValid).length > 0;
   
   if (queryParamSuccess) {
-    console.log('   ✅ 쿼리 파라미터 방식: /guide/location?lang=en (권장)');
+    console.log('   ✅ 새로운 URL 방식: /guide/language/location (권장)');
   }
   
   if (pathPrefixSuccess) {
@@ -132,9 +132,9 @@ function generateRecommendedUrls(locationName, validPatterns) {
   console.log('  ');
   
   if (validPatterns.some(p => p.pattern === 'query-param' && p.isValid)) {
-    console.log('  // 언어별 URL (쿼리 파라미터 방식)');
+    console.log('  // 언어별 URL (새로운 구조)');
     console.log("  ['en', 'ja', 'zh', 'es'].forEach(lang => {");
-    console.log('    urls.push(`${baseUrl}/guide/${encodeURIComponent(locationName)}?lang=${lang}`);');
+    console.log('    urls.push(`${baseUrl}/guide/${lang}/${encodeURIComponent(locationName)}`);');
     console.log('  });');
   } else {
     console.log('  // 다국어 미지원 - 한국어만');
@@ -148,12 +148,12 @@ function generateRecommendedUrls(locationName, validPatterns) {
   // 실제 URL 예시
   console.log('\n📋 생성될 URL 예시:');
   const sampleUrls = [
-    `${baseUrl}/guide/${encodeURIComponent(locationName)}`
+    `${baseUrl}/guide/ko/${encodeURIComponent(locationName)}`
   ];
   
   if (validPatterns.some(p => p.pattern === 'query-param' && p.isValid)) {
     ['en', 'ja', 'zh', 'es'].forEach(lang => {
-      sampleUrls.push(`${baseUrl}/guide/${encodeURIComponent(locationName)}?lang=${lang}`);
+      sampleUrls.push(`${baseUrl}/guide/${lang}/${encodeURIComponent(locationName)}`);
     });
   }
   

@@ -65,7 +65,7 @@ export async function processLocationForNavigation(
       );
       
       const locationPath = encodeURIComponent(smartResult.selectedLocation.displayName.toLowerCase().trim());
-      const url = `/guide/${locationPath}?lang=${language}`;
+      const url = `/guide/${language}/${locationPath}`;
       
       return {
         success: true,
@@ -123,7 +123,7 @@ export async function processLocationForNavigation(
       );
       
       const locationPath = encodeURIComponent(firstResult.name.toLowerCase().trim());
-      const url = `/guide/${locationPath}?lang=${language}`;
+      const url = `/guide/${language}/${locationPath}`;
       
       return {
         success: true,
@@ -169,7 +169,7 @@ export async function processLocationForNavigation(
   );
   
   const locationPath = encodeURIComponent(query.toLowerCase().trim());
-  const url = `/guide/${locationPath}?lang=${language}`;
+  const url = `/guide/${language}/${locationPath}`;
   
   return {
     success: true,

@@ -103,9 +103,9 @@ export async function POST(request: NextRequest) {
 
     // 샘플 URL 생성 테스트
     const sampleUrls = envCheck.NEXT_PUBLIC_BASE_URL.isValidUrl ? [
-      `${envCheck.NEXT_PUBLIC_BASE_URL.value}/guide/경복궁?lang=ko`,
-      `${envCheck.NEXT_PUBLIC_BASE_URL.value}/guide/경복궁?lang=en`,
-      `${envCheck.NEXT_PUBLIC_BASE_URL.value}/guide/제주도?lang=ko`
+      `${envCheck.NEXT_PUBLIC_BASE_URL.value}/guide/ko/경복궁`,
+      `${envCheck.NEXT_PUBLIC_BASE_URL.value}/guide/en/경복궁`,
+      `${envCheck.NEXT_PUBLIC_BASE_URL.value}/guide/ko/제주도`
     ] : [];
 
     // 종합 점수 계산
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
       
       // 테스트 명령어
       testCommands: {
-        manualIndexing: `curl -X POST ${envCheck.NEXT_PUBLIC_BASE_URL.value || 'https://navidocent.com'}/api/seo/request-indexing -H "Content-Type: application/json" -d '{"url":"${envCheck.NEXT_PUBLIC_BASE_URL.value || 'https://navidocent.com'}/guide/테스트장소?lang=ko"}'`,
+        manualIndexing: `curl -X POST ${envCheck.NEXT_PUBLIC_BASE_URL.value || 'https://navidocent.com'}/api/seo/request-indexing -H "Content-Type: application/json" -d '{"url":"${envCheck.NEXT_PUBLIC_BASE_URL.value || 'https://navidocent.com'}/guide/ko/테스트장소"}'`,
         newGuideGeneration: `curl -X POST ${envCheck.NEXT_PUBLIC_BASE_URL.value || 'https://navidocent.com'}/api/node/ai/generate-guide -H "Content-Type: application/json" -d '{"locationName":"테스트장소","language":"ko"}'`
       }
     };

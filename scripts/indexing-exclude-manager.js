@@ -96,7 +96,7 @@ async function addTodaysSuccessfulUrls() {
     }
     
     for (const lang of languages) {
-      const url = `${baseUrl}/guide/${encodeURIComponent(location)}?lang=${lang}`;
+      const url = `${baseUrl}/guide/${lang}/${encodeURIComponent(location)}`;
       
       if (!excludeData.successfulUrls.includes(url)) {
         excludeData.successfulUrls.push(url);
@@ -136,7 +136,7 @@ function addLocationToExcludeList(locationName) {
   let addedCount = 0;
   
   for (const lang of languages) {
-    const url = `${baseUrl}/guide/${encodeURIComponent(locationName)}?lang=${lang}`;
+    const url = `${baseUrl}/guide/${lang}/${encodeURIComponent(locationName)}`;
     
     if (!excludeData.successfulUrls.includes(url)) {
       excludeData.successfulUrls.push(url);
