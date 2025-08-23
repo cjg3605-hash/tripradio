@@ -32,8 +32,15 @@ const ImagePreloader = dynamic(() => import('@/components/optimization/ImagePrel
   ssr: false
 });
 
-// NextLevelSearchBox - SSR 지원을 위해 직접 import
-import NextLevelSearchBox from '@/components/home/NextLevelSearchBox';
+// NextLevelSearchBox - Critical component, but can be lazy loaded
+const NextLevelSearchBox = dynamic(() => import('@/components/home/NextLevelSearchBox'), {
+  ssr: true,
+  loading: () => (
+    <div className="w-full max-w-4xl mx-auto px-4 animate-pulse">
+      <div className="relative bg-gray-200 rounded-2xl h-16"></div>
+    </div>
+  )
+});
 
 // 에러 바운더리 클래스 컴포넌트
 class ErrorBoundary extends Component<

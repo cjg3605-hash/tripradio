@@ -4,8 +4,18 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { MapPin, Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import dynamic from 'next/dynamic';
+
+// UI 컴포넌트들을 동적 로딩으로 분리
+const Input = dynamic(() => import('@/components/ui/input').then(mod => ({ default: mod.Input })), {
+  ssr: true,
+  loading: () => <div className="h-10 bg-gray-100 rounded-md animate-pulse" />
+});
+
+const Button = dynamic(() => import('@/components/ui/button').then(mod => ({ default: mod.Button })), {
+  ssr: true,
+  loading: () => <div className="h-10 px-4 bg-gray-100 rounded-md animate-pulse" />
+});
 import { saveAutocompleteData } from '@/lib/cache/autocompleteStorage';
 import { smartResolveLocation } from '@/lib/location/smart-location-resolver';
 import { logger } from '@/lib/utils/logger';

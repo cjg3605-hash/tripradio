@@ -159,10 +159,22 @@ const nextConfig = {
   },
   images: {
     unoptimized: false, // 이미지 최적화 활성화
-    formats: ['image/webp', 'image/avif'],
+    formats: ['image/avif', 'image/webp'], // AVIF 우선 (30% 더 작음)
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30일
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048], // 반응형 크기
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384], // 아이콘 크기
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'navidocent.com',
+      },
+      {
+        protocol: 'https', 
+        hostname: '*.googleapis.com',
+      }
+    ],
   },
   // experimental.esmExternals 제거 - webpack 호환성 문제 해결
   // 압축 최적화
@@ -320,7 +332,7 @@ const nextConfig = {
       }
     ];
   },
-  // 번들 크기 최적화
+  // 고급 번들 크기 최적화
   webpack: (config, { isServer, dev }) => {
     // 개발 환경에서만 최적화 비활성화, 프로덕션에서는 최적화 활성화
     if (!isServer && dev) {
@@ -340,7 +352,7 @@ const nextConfig = {
         }
       };
     } else if (!isServer && !dev) {
-      // 프로덕션 환경에서는 최적화 활성화
+      // 프로덕션 환경에서는 고급 최적화 활성화
       config.optimization = {
         ...config.optimization,
         minimize: true,
@@ -348,17 +360,82 @@ const nextConfig = {
         sideEffects: false,
         splitChunks: {
           chunks: 'all',
+          minSize: 20000,
+          maxSize: 150000,
+          minChunks: 1,
+          maxAsyncRequests: 30,
+          maxInitialRequests: 30,
           cacheGroups: {
+            // 🔥 Core libraries - Separate chunks
+            react: {
+              test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+              name: 'react',
+              priority: 40,
+              chunks: 'all',
+              enforce: true
+            },
+            // 🔥 Next.js core
+            nextjs: {
+              test: /[\\/]node_modules[\\/]next[\\/]/,
+              name: 'nextjs',
+              priority: 35,
+              chunks: 'all'
+            },
+            // 🔥 Database & Supabase
+            supabase: {
+              test: /[\\/]node_modules[\\/]@supabase[\\/]/,
+              name: 'supabase',
+              priority: 30,
+              chunks: 'all'
+            },
+            // 🔥 Map libraries (heavy)
+            maps: {
+              test: /[\\/]node_modules[\\/](leaflet|react-leaflet)[\\/]/,
+              name: 'maps',
+              priority: 25,
+              chunks: 'all'
+            },
+            // 🔥 AI & Authentication
+            ai: {
+              test: /[\\/]node_modules[\\/](@google\/generative-ai|@auth\/core|next-auth)[\\/]/,
+              name: 'ai-auth',
+              priority: 20,
+              chunks: 'all'
+            },
+            // 🔥 Lucide 아이콘 별도 분리 (대형 아이콘 라이브러리)
+            icons: {
+              test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
+              name: 'icons',
+              priority: 18,
+              chunks: 'all'
+            },
+            // 🔥 UI libraries (Radix, Framer Motion 등)
+            ui: {
+              test: /[\\/]node_modules[\\/](@radix-ui|framer-motion)[\\/]/,
+              name: 'ui',
+              priority: 15,
+              chunks: 'all'
+            },
+            // 🔥 Remaining vendor libraries
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              priority: 10,
+              chunks: 'all'
+            },
+            // 🔥 Common shared code
+            common: {
+              name: 'common',
+              minChunks: 2,
+              priority: 5,
+              chunks: 'all',
+              reuseExistingChunk: true
+            },
+            // 🔥 Default fallback
             default: {
               minChunks: 2,
               priority: -20,
               reuseExistingChunk: true
-            },
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              priority: -10,
-              chunks: 'all'
             }
           }
         }

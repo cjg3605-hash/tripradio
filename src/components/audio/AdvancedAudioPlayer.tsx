@@ -1,18 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
+
+// 아이콘들을 필요한 것만 정적 로딩
+import { Play, Pause, Volume2, VolumeX, Settings } from 'lucide-react';
+
+// 일단 간단하게 직접 import로 되돌립니다 (SSR 호환성)
 import {
-  Play,
-  Pause,
   SkipBack,
   SkipForward,
-  Volume2,
-  VolumeX,
   Repeat,
   Repeat1,
   Shuffle,
   Bookmark,
-  Settings,
   ChevronDown,
   ChevronUp,
   Clock,

@@ -5,8 +5,25 @@ import { useRouter } from 'next/navigation';
 import { GuideData } from '@/types/guide';
 import { useLanguage, SupportedLanguage } from '@/contexts/LanguageContext';
 
-// TourContent 직접 import (SSR 지원)
-import TourContent from './tour/components/TourContent';
+// TourContent - Dynamic import for bundle optimization
+import dynamic from 'next/dynamic';
+
+const TourContent = dynamic(() => import('./tour/components/TourContent'), {
+  ssr: true,
+  loading: () => (
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="animate-pulse">
+        <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-20 bg-gray-200 rounded"></div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+});
 
 import { guideHistory } from '@/lib/cache/localStorage';
 import { saveGuideHistoryToSupabase } from '@/lib/supabaseGuideHistory';
@@ -20,8 +37,22 @@ import { supabase } from '@/lib/supabaseClient';
 import { getAutocompleteData } from '@/lib/cache/autocompleteStorage';
 import { parseSupabaseCoordinates, validateCoordinates } from '@/lib/coordinates/coordinate-common';
 
-// RegionExploreHub 직접 import (SSR 지원)  
-import RegionExploreHub from './RegionExploreHub';
+// RegionExploreHub - Dynamic import for bundle optimization
+const RegionExploreHub = dynamic(() => import('./RegionExploreHub'), {
+  ssr: true,
+  loading: () => (
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="animate-pulse">
+        <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+});
 
 interface Props {
   initialLocationName: string;

@@ -168,10 +168,13 @@ export default async function RootLayout({
         <link rel="preload" href="/logo.png" as="image" />
         <link rel="preload" href="/favicon-32x32.png" as="image" />
         
-        {/* Hero Section Critical Images - WebP Format */}
+        {/* Hero Section Critical Images - All WebP Format for 50% smaller size */}
         <link rel="preload" href="/images/landmarks/eiffel-tower.webp" as="image" type="image/webp" />
         <link rel="preload" href="/images/landmarks/colosseum.webp" as="image" type="image/webp" />
         <link rel="preload" href="/images/landmarks/gyeongbokgung.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/images/landmarks/taj-mahal.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/images/landmarks/statue-of-liberty.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/images/landmarks/machu-picchu.webp" as="image" type="image/webp" />
         
         {/* Critical JavaScript Resources Prefetch */}
         <link rel="prefetch" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" />

@@ -23,7 +23,20 @@ import { GuideData, GuideChapter } from '@/types/guide';
 import { AudioChapter } from '@/types/audio';
 import GuideLoading from '@/components/ui/GuideLoading';
 import ChapterAudioPlayer from '@/components/audio/ChapterAudioPlayer';
-import StartLocationMap from '@/components/guide/StartLocationMap';
+// Dynamic import for Map component (heavy Leaflet dependency)
+import dynamic from 'next/dynamic';
+
+const StartLocationMap = dynamic(() => import('@/components/guide/StartLocationMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+        <div className="text-sm text-gray-600">지도 로딩 중...</div>
+      </div>
+    </div>
+  )
+});
 import { GuideHeader } from '@/components/guide/GuideHeader';
 import { GuideTitle } from '@/components/guide/GuideTitle';
 import { LiveAudioPlayer } from '@/components/guide/LiveAudioPlayer';

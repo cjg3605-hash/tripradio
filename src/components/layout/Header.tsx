@@ -7,7 +7,10 @@ import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
 import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
 import { useLocationTranslation } from '@/hooks/useLocationTranslation';
-import { Volume2, Globe, User, ChevronDown, LogIn, LogOut, Menu, X } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+// 핵심 아이콘들과 인증 관련 아이콘들을 정적 로딩 (SSR 호환성을 위해)
+import { Globe, Menu, X, User, LogOut, LogIn, ChevronDown, Volume2 } from 'lucide-react';
 
 interface HeaderProps {
   onHistoryOpen?: () => void;
