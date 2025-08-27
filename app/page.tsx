@@ -1350,10 +1350,7 @@ function Home() {
         } as React.CSSProperties}
       >
 
-      {/* SEO Structured Data */}
-      <StructuredData type="WebSite" />
-      <StructuredData type="TravelAgency" />
-      <StructuredData type="SoftwareApplication" />
+      {/* SEO Structured Data는 layout.tsx에서 통합 관리됨 */}
       <Suspense fallback={null}>
         <FAQSchema faqs={getDefaultFAQs(currentLanguage as 'ko' | 'en' | 'ja' | 'zh' | 'es')} language={currentLanguage as 'ko' | 'en' | 'ja' | 'zh' | 'es'} />
         <BreadcrumbSchema items={generateHomeBreadcrumb()} />

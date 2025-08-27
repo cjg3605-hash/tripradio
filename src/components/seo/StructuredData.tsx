@@ -1,4 +1,4 @@
-// src/components/seo/StructuredData.tsx (네이버 SEO 최적화)
+// src/components/seo/StructuredData.tsx (Google Search Console 최적화)
 import React from 'react';
 
 interface StructuredDataProps {
@@ -7,6 +7,11 @@ interface StructuredDataProps {
 }
 
 const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data = {} }) => {
+  // 일관된 브랜드명과 URL 사용
+  const BRAND_NAME = 'TripRadio';
+  const BASE_URL = 'https://navidocent.com';
+  const LOGO_URL = `${BASE_URL}/logo.png`;
+  
   const getStructuredData = () => {
     const baseData = {
       '@context': 'https://schema.org',
@@ -17,21 +22,22 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
       case 'WebSite':
         return {
           ...baseData,
-          name: 'TripRadio',
-          url: 'https://navidocent.com',
-          description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스. 실시간 음성 가이드와 다국어 지원으로 완벽한 여행 경험을 제공합니다.',
+          '@id': `${BASE_URL}#website`,
+          name: BRAND_NAME,
+          url: BASE_URL,
+          description: 'AI 기반 개인 맞춤형 여행 가이드 서비스. 실시간 음성 해설과 다국어 지원으로 완벽한 여행 경험을 제공합니다.',
           potentialAction: {
             '@type': 'SearchAction',
-            target: 'https://navidocent.com/search?q={search_term_string}',
+            target: {
+              '@type': 'EntryPoint',
+              urlTemplate: `${BASE_URL}/guide/ko/{search_term_string}`
+            },
             'query-input': 'required name=search_term_string'
           },
           publisher: {
             '@type': 'Organization',
-            name: 'TripRadio',
-            logo: {
-              '@type': 'ImageObject',
-              url: 'https://navidocent.com/logo.png'
-            }
+            '@id': `${BASE_URL}#organization`,
+            name: BRAND_NAME
           },
           inLanguage: ['ko', 'en', 'ja', 'zh', 'es'],
           ...data
@@ -40,12 +46,13 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
       case 'TravelAgency':
         return {
           ...baseData,
-          name: 'TripRadio',
-          url: 'https://navidocent.com',
-          description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스',
+          '@id': `${BASE_URL}#travelagency`,
+          name: BRAND_NAME,
+          url: BASE_URL,
+          description: 'AI 기반 개인 맞춤형 여행 가이드 서비스',
           address: {
             '@type': 'PostalAddress',
-            addressCountry: 'KOR',
+            addressCountry: 'KR',
             addressRegion: 'Seoul'
           },
           contactPoint: {
@@ -54,36 +61,49 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
             availableLanguage: ['Korean', 'English', 'Japanese', 'Chinese', 'Spanish']
           },
           serviceType: 'AI Travel Guide Service',
-          areaServed: {
-            '@type': 'Country',
-            name: 'South Korea'
-          },
+          areaServed: [
+            {
+              '@type': 'Country',
+              name: 'South Korea'
+            }
+          ],
           ...data
         };
 
       case 'SoftwareApplication':
         return {
           ...baseData,
-          name: 'TripRadio',
+          '@id': `${BASE_URL}#softwareapplication`,
+          name: BRAND_NAME,
           applicationCategory: 'TravelApplication',
-          operatingSystem: 'Web Browser',
-          description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스',
-          url: 'https://navidocent.com',
+          operatingSystem: ['Web Browser', 'iOS', 'Android'],
+          description: 'AI 기반 개인 맞춤형 여행 가이드 서비스',
+          url: BASE_URL,
           softwareVersion: '1.0',
-          datePublished: '2025-01-16',
+          datePublished: '2024-01-01',
+          dateModified: new Date().toISOString().split('T')[0],
           author: {
             '@type': 'Organization',
-            name: 'TripRadio Team'
+            '@id': `${BASE_URL}#organization`,
+            name: BRAND_NAME
+          },
+          publisher: {
+            '@type': 'Organization',
+            '@id': `${BASE_URL}#organization`,
+            name: BRAND_NAME
           },
           offers: {
             '@type': 'Offer',
             price: '0',
-            priceCurrency: 'KRW'
+            priceCurrency: 'KRW',
+            availability: 'https://schema.org/InStock'
           },
           aggregateRating: {
             '@type': 'AggregateRating',
             ratingValue: '4.8',
-            ratingCount: '100'
+            ratingCount: '100',
+            bestRating: '5',
+            worstRating: '1'
           },
           ...data
         };
@@ -93,13 +113,19 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
           ...baseData,
           name: data.name || 'Korean Tourist Attractions',
           description: data.description || 'Discover amazing tourist attractions in Korea with AI-powered guides',
-          image: data.image || 'https://navidocent.com/korea-attractions.jpg',
-          url: data.url || 'https://navidocent.com/destinations',
+          image: data.image || `${BASE_URL}/images/korea-attractions.jpg`,
+          url: data.url || `${BASE_URL}/destinations`,
           address: data.address || {
             '@type': 'PostalAddress',
-            addressCountry: 'KOR'
+            addressCountry: 'KR'
           },
-          geo: data.geo,
+          ...(data.coordinates && {
+            geo: {
+              '@type': 'GeoCoordinates',
+              latitude: data.coordinates.latitude,
+              longitude: data.coordinates.longitude
+            }
+          }),
           touristType: ['Leisure', 'Business', 'Cultural', 'Educational'],
           availableLanguage: ['Korean', 'English', 'Japanese', 'Chinese', 'Spanish'],
           ...data
@@ -108,8 +134,10 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
       case 'TravelGuide':
         return {
           ...baseData,
+          '@id': data.url ? `${data.url}#travelguide` : undefined,
           name: data.name || `${data.location} 여행 가이드`,
           description: data.description || `${data.location}의 상세한 여행 가이드`,
+          url: data.url,
           mainEntity: {
             '@type': 'Place',
             name: data.location,
@@ -125,16 +153,18 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
           },
           author: {
             '@type': 'Organization',
-            name: 'NaviDocent.AI',
-            url: 'https://navidocent.com'
+            '@id': `${BASE_URL}#organization`,
+            name: BRAND_NAME,
+            url: BASE_URL
           },
           publisher: {
             '@type': 'Organization',
-            name: 'NaviDocent.AI',
-            url: 'https://navidocent.com',
+            '@id': `${BASE_URL}#organization`,
+            name: BRAND_NAME,
+            url: BASE_URL,
             logo: {
               '@type': 'ImageObject',
-              url: 'https://navidocent.com/logo.png'
+              url: LOGO_URL
             }
           },
           inLanguage: data.language || 'ko',
@@ -144,26 +174,31 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
             aggregateRating: {
               '@type': 'AggregateRating',
               ratingValue: data.rating,
-              bestRating: '100',
-              worstRating: '0',
+              bestRating: '5',
+              worstRating: '1',
               ratingCount: data.reviewCount || 1
             }
           }),
           keywords: data.keywords?.join(', '),
-          image: data.images || [`https://navidocent.com/guide-images/${encodeURIComponent(data.location)}.jpg`],
+          image: data.images || [`${BASE_URL}/guide-images/${encodeURIComponent(data.location || 'default')}.jpg`],
           ...data
         };
 
       case 'LocalBusiness':
         return {
           ...baseData,
-          name: 'NaviDocent.AI',
-          description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스',
-          url: 'https://navidocent.com',
+          '@id': `${BASE_URL}#localbusiness`,
+          name: BRAND_NAME,
+          description: 'AI 기반 개인 맞춤형 여행 가이드 서비스',
+          url: BASE_URL,
+          logo: {
+            '@type': 'ImageObject',
+            url: LOGO_URL
+          },
           telephone: data.telephone,
           address: {
             '@type': 'PostalAddress',
-            addressCountry: 'KOR',
+            addressCountry: 'KR',
             addressRegion: 'Seoul',
             ...data.address
           },
