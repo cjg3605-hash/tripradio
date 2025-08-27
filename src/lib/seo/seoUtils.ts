@@ -65,11 +65,7 @@ export function generateHreflangUrls(basePath: string): Record<string, string> {
   const fullBasePath = basePath.startsWith('/') ? basePath : `/${basePath}`;
 
   return {
-    'ko-KR': `${baseUrl}${fullBasePath}?lang=ko`,
-    'en-US': `${baseUrl}${fullBasePath}?lang=en`,
-    'ja-JP': `${baseUrl}${fullBasePath}?lang=ja`,
-    'zh-CN': `${baseUrl}${fullBasePath}?lang=zh`,
-    'es-ES': `${baseUrl}${fullBasePath}?lang=es`,
+    'ko-KR': `${baseUrl}${fullBasePath}`,
     'x-default': `${baseUrl}${fullBasePath}`,
   };
 }

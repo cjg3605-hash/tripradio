@@ -56,12 +56,10 @@ export function useLocationTranslation() {
         if (translatedLocationName !== currentLocationName || newLanguage !== 'ko') {
           const newEncodedName = MicrosoftTranslator.toUrlFriendly(translatedLocationName);
           
-          // 언어 매개변수를 쿼리 문자열에 추가 (한국어가 아닌 경우)
-          const langParam = newLanguage !== 'ko' ? `?lang=${newLanguage}` : '';
-          
+          // 새 URL 구조: /guide/언어코드/장소명
           const newPath = pageType 
-            ? `/guide/${newEncodedName}/${pageType}${langParam}`
-            : `/guide/${newEncodedName}${langParam}`;
+            ? `/guide/${newLanguage}/${newEncodedName}/${pageType}`
+            : `/guide/${newLanguage}/${newEncodedName}`;
           
           console.log('🔄 URL 업데이트 (Location 번역):', {
             from: pathname,

@@ -27,10 +27,8 @@ export function InternalLink({
 }: InternalLinkProps) {
   const { currentLanguage } = useLanguage();
   
-  // 언어 파라미터 추가
-  const localizedHref = href.includes('?') 
-    ? `${href}&lang=${currentLanguage}`
-    : `${href}?lang=${currentLanguage}`;
+  // 새 URL 구조에서는 언어 파라미터 불필요 (이미 path에 포함)
+  const localizedHref = href;
 
   return (
     <Link 
