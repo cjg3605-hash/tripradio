@@ -1,0 +1,106 @@
+{
+  "timestamp": "2025-08-24T16-46-43-816Z",
+  "analyzedAt": "2025-08-24T16:46:48.111Z",
+  "baseUrl": "https://navidocent.com",
+  "summary": {
+    "totalPages": 5,
+    "validPages": 5,
+    "averageLoadTime": 426,
+    "averageContentSize": 0,
+    "fastestPage": {
+      "url": "/mypage",
+      "name": "mypage",
+      "description": "마이페이지",
+      "metrics": {
+        "loadTime": 305,
+        "contentSize": 0,
+        "status": 200,
+        "contentType": "text/html; charset=utf-8",
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "serverTiming": null
+      }
+    },
+    "slowestPage": {
+      "url": "/guide/타지마할?lang=ko",
+      "name": "guide-tajmahal",
+      "description": "타지마할 가이드",
+      "metrics": {
+        "loadTime": 527,
+        "contentSize": 0,
+        "status": 404,
+        "contentType": "text/html; charset=utf-8",
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "serverTiming": null
+      }
+    },
+    "performanceGrade": "A"
+  },
+  "pages": {
+    "homepage": {
+      "url": "/",
+      "name": "homepage",
+      "description": "홈페이지",
+      "metrics": {
+        "loadTime": 465,
+        "contentSize": 0,
+        "status": 200,
+        "contentType": "text/html; charset=utf-8",
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "serverTiming": null
+      }
+    },
+    "guide-gyeongbok": {
+      "url": "/guide/경복궁?lang=ko",
+      "name": "guide-gyeongbok",
+      "description": "경복궁 가이드",
+      "metrics": {
+        "loadTime": 509,
+        "contentSize": 0,
+        "status": 404,
+        "contentType": "text/html; charset=utf-8",
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "serverTiming": null
+      }
+    },
+    "guide-eiffel": {
+      "url": "/guide/에펠탑?lang=ko",
+      "name": "guide-eiffel",
+      "description": "에펠탑 가이드",
+      "metrics": {
+        "loadTime": 322,
+        "contentSize": 0,
+        "status": 404,
+        "contentType": "text/html; charset=utf-8",
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "serverTiming": null
+      }
+    },
+    "guide-tajmahal": {
+      "url": "/guide/타지마할?lang=ko",
+      "name": "guide-tajmahal",
+      "description": "타지마할 가이드",
+      "metrics": {
+        "loadTime": 527,
+        "contentSize": 0,
+        "status": 404,
+        "contentType": "text/html; charset=utf-8",
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "serverTiming": null
+      }
+    },
+    "mypage": {
+      "url": "/mypage",
+      "name": "mypage",
+      "description": "마이페이지",
+      "metrics": {
+        "loadTime": 305,
+        "contentSize": 0,
+        "status": 200,
+        "contentType": "text/html; charset=utf-8",
+        "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+        "serverTiming": null
+      }
+    }
+  },
+  "recommendations": []
+}

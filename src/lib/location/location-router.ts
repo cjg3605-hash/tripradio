@@ -16,21 +16,72 @@ import {
   comprehensiveIntentAnalysis, 
   IntentAnalysis 
 } from './intent-analysis';
-import { classifyLocationDynamic } from './dynamic-location-classifier';
 import { logger } from '../utils/logger';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export interface LocationRoutingResult {
   pageType: PageType;
   locationData?: LocationData;
   intentAnalysis?: IntentAnalysis;
   confidence: number;
-  processingMethod: 'exact_match' | 'fuzzy_match' | 'intent_analysis' | 'dynamic' | 'fallback' | 'disambiguation_needed';
+  processingMethod: 'exact_match' | 'fuzzy_match' | 'intent_analysis' | 'simple_ai' | 'fallback' | 'disambiguation_needed';
   reasoning: string;
   suggestedQuery?: string; // 검색어 보정 제안
-  source?: 'static' | 'cache' | 'google' | 'db' | 'ai' | 'fallback' | 'global_landmarks' | 'disambiguation_needed' | 'auto_selected_city' | 'db_with_ai'; // 동적 분류 소스
+  source?: 'static' | 'cache' | 'ai' | 'fallback' | 'simple_ai'; // 간단한 AI 분류
   // 도시 모호성 해결
   needsDisambiguation?: boolean;
   disambiguationOptions?: any[];
+}
+
+/**
+ * 간단한 AI 기반 위치 분류 (허브 vs 가이드 판단)
+ */
+async function simpleAIClassify(query: string, language: string = 'ko'): Promise<boolean> {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.warn('GEMINI_API_KEY 없음, 기본 폴백 사용');
+      return false; // 확실하지 않으면 가이드페이지로
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash-lite',
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 50,
+        topP: 0.9,
+        topK: 10,
+        responseMimeType: "application/json"
+      }
+    });
+
+    const prompt = `"${query}"이 도시나 국가 이름인가요?
+
+응답 예시:
+- "파리" → true (도시)
+- "서울" → true (도시) 
+- "한국" → true (국가)
+- "에펠탑" → false (건물)
+- "경복궁" → false (궁궐)
+
+JSON으로만 답하세요: {"isRegion": true/false}`;
+
+    const result = await Promise.race([
+      model.generateContent(prompt),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('AI timeout')), 2000))
+    ]);
+
+    const response = await (result as any).response.text();
+    const parsed = JSON.parse(response.trim());
+    
+    console.log(`🤖 간단 AI 분류: "${query}" → ${parsed.isRegion ? '허브' : '가이드'}`);
+    return parsed.isRegion === true;
+
+  } catch (error) {
+    console.warn('간단 AI 분류 실패:', error);
+    return false; // 실패 시 가이드페이지로 (안전한 기본값)
+  }
 }
 
 /**
@@ -42,7 +93,12 @@ export interface LocationRoutingResult {
  * @returns LocationRoutingResult
  */
 export async function routeLocationQuery(
-  query: string, 
+  query: string | {
+    placeName: string;
+    region?: string;
+    country?: string;
+    countryCode?: string;
+  }, 
   language: string = 'ko',
   translationContext?: {
     koreanLocationName?: string;
@@ -50,7 +106,7 @@ export async function routeLocationQuery(
     originalLocationName?: string;
   }
 ): Promise<LocationRoutingResult> {
-  const normalizedQuery = query.trim();
+  const normalizedQuery = typeof query === 'string' ? query.trim() : query.placeName.trim();
   
   if (!normalizedQuery) {
     return {
@@ -83,44 +139,27 @@ export async function routeLocationQuery(
     }
   }
   
-  // 1단계: 동적 위치 분류 시도 (정적 데이터 포함)
+  // 1단계: 간단한 AI 분류 시도
   try {
-    const dynamicResult = await classifyLocationDynamic(normalizedQuery);
+    const isMainLocation = await simpleAIClassify(normalizedQuery, language);
+    const pageType = isMainLocation ? 'RegionExploreHub' : 'DetailedGuidePage';
     
-    // 도시 모호성 처리
-    if (dynamicResult.source === 'disambiguation_needed' && dynamicResult.disambiguationOptions) {
-      const result: LocationRoutingResult = {
-        pageType: 'RegionExploreHub', // 도시이므로 허브로 설정
-        confidence: dynamicResult.confidence,
-        processingMethod: 'disambiguation_needed',
-        reasoning: `도시 모호성 발견: "${normalizedQuery}" - 사용자 선택 필요`,
-        source: dynamicResult.source,
-        needsDisambiguation: true,
-        disambiguationOptions: dynamicResult.disambiguationOptions
-      };
-      
-      console.log('🤔 City disambiguation needed:', result);
-      return result;
-    }
+    const result: LocationRoutingResult = {
+      pageType,
+      confidence: 0.85,
+      processingMethod: 'simple_ai',
+      reasoning: `간단 AI 분류: "${normalizedQuery}" → ${pageType}`,
+      source: 'simple_ai'
+    };
     
-    if (dynamicResult.locationData && dynamicResult.confidence >= 0.7) {
-      const result: LocationRoutingResult = {
-        pageType: dynamicResult.pageType,
-        locationData: dynamicResult.locationData,
-        confidence: dynamicResult.confidence,
-        processingMethod: 'dynamic',
-        reasoning: `동적 위치 분류 성공: ${dynamicResult.source} 소스에서 ${dynamicResult.locationData.type} (레벨 ${dynamicResult.locationData.level})`,
-        source: dynamicResult.source
-      };
-      
-      console.log('✅ Dynamic location classification:', result);
-      return result;
-    }
+    console.log('✅ Simple AI classification:', result);
+    return result;
+    
   } catch (error) {
-    console.warn('⚠️ Dynamic classification failed:', error);
+    console.warn('⚠️ Simple AI classification failed:', error);
   }
   
-  // 2단계: 기존 정적 매칭 (백업용)
+  // 2단계: 정적 매칭 (AI 실패시 백업용)
   const locationData = classifyLocation(normalizedQuery);
   
   if (locationData) {
@@ -128,13 +167,13 @@ export async function routeLocationQuery(
     const result: LocationRoutingResult = {
       pageType,
       locationData,
-      confidence: locationData.level <= 3 ? 0.95 : 0.9, // 상위 레벨일수록 높은 신뢰도
+      confidence: locationData.level <= 3 ? 0.8 : 0.7, // AI 백업이므로 신뢰도 낮춤
       processingMethod: 'exact_match',
       reasoning: `정적 위치 매칭 성공: ${locationData.type} (레벨 ${locationData.level})`,
       source: 'static'
     };
     
-    console.log('✅ Static location match (backup):', result);
+    console.log('✅ Static fallback match:', result);
     return result;
   }
   

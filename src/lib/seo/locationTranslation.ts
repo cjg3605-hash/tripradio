@@ -136,6 +136,206 @@ export const LOCATION_TRANSLATIONS: Record<string, LocationTranslation> = {
     ja: "大田",
     zh: "大田",
     es: "Daejeon"
+  },
+  
+  // 해외 주요 관광지
+  "에펠탑": {
+    ko: "에펠탑",
+    en: "Eiffel-Tower",
+    ja: "エッフェル塔", 
+    zh: "埃菲尔铁塔",
+    es: "Torre-Eiffel"
+  },
+  "자유의 여신상": {
+    ko: "자유의 여신상",
+    en: "Statue-of-Liberty",
+    ja: "自由の女神像",
+    zh: "自由女神像",
+    es: "Estatua-de-la-Libertad"
+  },
+  "콜로세움": {
+    ko: "콜로세움", 
+    en: "Colosseum",
+    ja: "コロッセオ",
+    zh: "斗兽场",
+    es: "Coliseo"
+  },
+  "타지마할": {
+    ko: "타지마할",
+    en: "Taj-Mahal", 
+    ja: "タージ・マハル",
+    zh: "泰姬陵",
+    es: "Taj-Mahal"
+  },
+  "마추픽추": {
+    ko: "마추픽추",
+    en: "Machu-Picchu",
+    ja: "マチュピチュ",
+    zh: "马丘比丘", 
+    es: "Machu-Picchu"
+  },
+  "사그라다 파밀리아": {
+    ko: "사그라다 파밀리아",
+    en: "Sagrada-Familia",
+    ja: "サグラダファミリア",
+    zh: "圣家族大教堂",
+    es: "Sagrada-Familia"
+  },
+  "루브르 박물관": {
+    ko: "루브르 박물관", 
+    en: "Louvre-Museum",
+    ja: "ルーヴル美術館",
+    zh: "卢浮宫",
+    es: "Museo-del-Louvre"
+  },
+  "빅벤": {
+    ko: "빅벤",
+    en: "Big-Ben",
+    ja: "ビッグベン",
+    zh: "大本钟",
+    es: "Big-Ben"
+  },
+  "버킹엄 궁전": {
+    ko: "버킹엄 궁전",
+    en: "Buckingham-Palace", 
+    ja: "バッキンガム宮殿",
+    zh: "白金汉宫",
+    es: "Palacio-de-Buckingham"
+  },
+  "타임스퀘어": {
+    ko: "타임스퀘어",
+    en: "Times-Square",
+    ja: "タイムズスクエア",
+    zh: "时代广场",
+    es: "Times-Square"
+  },
+  "자금성": {
+    ko: "자금성",
+    en: "Forbidden-City",
+    ja: "紫禁城", 
+    zh: "故宫",
+    es: "Ciudad-Prohibida"
+  },
+  "만리장성": {
+    ko: "만리장성",
+    en: "Great-Wall-of-China",
+    ja: "万里の長城",
+    zh: "长城",
+    es: "Gran-Muralla-China"
+  },
+  "도쿄타워": {
+    ko: "도쿄타워",
+    en: "Tokyo-Tower",
+    ja: "東京タワー",
+    zh: "东京塔", 
+    es: "Torre-de-Tokio"
+  },
+  "후지산": {
+    ko: "후지산", 
+    en: "Mount-Fuji",
+    ja: "富士山",
+    zh: "富士山",
+    es: "Monte-Fuji"
+  },
+  "센소지": {
+    ko: "센소지",
+    en: "Sensoji-Temple",
+    ja: "浅草寺",
+    zh: "浅草寺",
+    es: "Templo-Sensoji"
+  },
+  "기요미즈데라": {
+    ko: "기요미즈데라",
+    en: "Kiyomizu-dera",
+    ja: "清水寺",
+    zh: "清水寺", 
+    es: "Templo-Kiyomizu"
+  },
+  
+  // 추가 한국 관광지
+  "롯데월드": {
+    ko: "롯데월드",
+    en: "Lotte-World",
+    ja: "ロッテワールド", 
+    zh: "乐天世界",
+    es: "Lotte-World"
+  },
+  "롯데월드타워": {
+    ko: "롯데월드타워",
+    en: "Lotte-World-Tower",
+    ja: "ロッテワールドタワー",
+    zh: "乐天世界大厦",
+    es: "Torre-Lotte-World"
+  },
+  "북촌한옥마을": {
+    ko: "북촌한옥마을",
+    en: "Bukchon-Hanok-Village",
+    ja: "北村韓屋村",
+    zh: "北村韩屋村",
+    es: "Pueblo-Hanok-Bukchon" 
+  },
+  "국립중앙박물관": {
+    ko: "국립중앙박물관",
+    en: "National-Museum-of-Korea",
+    ja: "国立中央博物館",
+    zh: "国立中央博物馆",
+    es: "Museo-Nacional-de-Corea"
+  },
+  "청계천": {
+    ko: "청계천", 
+    en: "Cheonggyecheon",
+    ja: "清渓川",
+    zh: "清溪川",
+    es: "Cheonggyecheon"
+  },
+  "여의도 한강공원": {
+    ko: "여의도 한강공원",
+    en: "Yeouido-Hangang-Park",
+    ja: "汝矣島漢江公園",
+    zh: "汝矣岛汉江公园", 
+    es: "Parque-Hangang-Yeouido"
+  },
+  "석굴암": {
+    ko: "석굴암",
+    en: "Seokguram-Grotto",
+    ja: "石窟庵",
+    zh: "石窟庵",
+    es: "Gruta-Seokguram"
+  },
+  "첨성대": {
+    ko: "첨성대",
+    en: "Cheomseongdae-Observatory", 
+    ja: "瞻星台",
+    zh: "瞻星台",
+    es: "Observatorio-Cheomseongdae"
+  },
+  "용궁사": {
+    ko: "용궁사",
+    en: "Yonggunsa-Temple",
+    ja: "龍宮寺",
+    zh: "龙宫寺",
+    es: "Templo-Yonggunsa"
+  },
+  "해동 용궁사": {
+    ko: "해동 용궁사",
+    en: "Haedong-Yonggunsa-Temple",
+    ja: "海東龍宮寺",
+    zh: "海东龙宫寺", 
+    es: "Templo-Haedong-Yonggunsa"
+  },
+  "자갈치시장": {
+    ko: "자갈치시장",
+    en: "Jagalchi-Fish-Market",
+    ja: "チャガルチ市場",
+    zh: "札嘎其市场",
+    es: "Mercado-Jagalchi"
+  },
+  "광장시장": {
+    ko: "광장시장",
+    en: "Gwangjang-Market",
+    ja: "広蔵市場",
+    zh: "广藏市场",
+    es: "Mercado-Gwangjang"
   }
 };
 

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useMode } from '@/contexts/ModeContext';
 import { MapPin, Search } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
@@ -16,7 +17,7 @@ const Button = dynamic(() => import('@/components/ui/button').then(mod => ({ def
   ssr: true,
   loading: () => <div className="h-10 px-4 bg-gray-100 rounded-md animate-pulse" />
 });
-import { saveAutocompleteData } from '@/lib/cache/autocompleteStorage';
+import { saveAutocompleteData, getAutocompleteData } from '@/lib/cache/autocompleteStorage';
 import { smartResolveLocation } from '@/lib/location/smart-location-resolver';
 import { logger } from '@/lib/utils/logger';
 import { safeGet } from '@/lib/api/safe-fetch';
@@ -57,50 +58,19 @@ interface CacheEntry {
 const countryCodeCache = new Map<string, CacheEntry>();
 const CACHE_DURATION = 1000 * 60 * 60; // 1시간
 
-// 🌏 한국어 국가명 → 영어 매핑 (REST Countries API 호환)
-const koreanCountryMap: Record<string, string> = {
-  '대한민국': 'South Korea',
-  '한국': 'South Korea',
-  '미국': 'United States',
-  '일본': 'Japan',
-  '중국': 'China',
-  '영국': 'United Kingdom',
-  '프랑스': 'France',
-  '독일': 'Germany',
-  '이탈리아': 'Italy',
-  '스페인': 'Spain',
-  '러시아': 'Russia',
-  '인도': 'India',
-  '브라질': 'Brazil',
-  '캐나다': 'Canada',
-  '호주': 'Australia',
-  '태국': 'Thailand',
-  '베트남': 'Vietnam',
-  '싱가포르': 'Singapore',
-  '말레이시아': 'Malaysia',
-  '인도네시아': 'Indonesia',
-  '필리핀': 'Philippines',
-  '터키': 'Turkey',
-  '이집트': 'Egypt',
-  '남아프리카공화국': 'South Africa',
-  '멕시코': 'Mexico',
-  '아르헨티나': 'Argentina',
-  '칠레': 'Chile',
-  '페루': 'Peru',
-  '네덜란드': 'Netherlands',
-  '벨기에': 'Belgium',
-  '스위스': 'Switzerland',
-  '오스트리아': 'Austria',
-  '노르웨이': 'Norway',
-  '스웨덴': 'Sweden',
-  '덴마크': 'Denmark',
-  '핀란드': 'Finland'
-};
+// 🌏 자동완성 API에서 영어 국가명을 반환하므로 별도 변환 불필요
 
 // 🚀 REST Countries API 기반 국가코드 변환
 async function getCountryCode(countryName: string): Promise<string | null> {
   try {
     logger.api.start('country-code-conversion', { countryName });
+    
+    // "미분류", "알 수 없음" 등 Unknown 값 처리 (API 호출 전에 확인)
+    const unknownValues = ['미분류', '알 수 없음', '불명', 'unknown', 'unclassified', 'n/a', ''];
+    if (unknownValues.includes(countryName.toLowerCase().trim())) {
+      logger.general.debug('분류되지 않은 국가명 감지, 처리 중단', { countryName });
+      return null;
+    }
     
     // 캐시 확인 (만료시간 체크)
     const cached = countryCodeCache.get(countryName);
@@ -113,15 +83,12 @@ async function getCountryCode(countryName: string): Promise<string | null> {
       logger.general.debug('만료된 캐시 삭제', { countryName });
     }
     
-    // 🌏 한국어 국가명을 영어로 변환
-    const englishCountryName = koreanCountryMap[countryName] || countryName;
-    if (englishCountryName !== countryName) {
-      logger.general.debug('한국어 국가명 매핑', { korean: countryName, english: englishCountryName });
-    }
+    // 🌏 자동완성 API에서 파싱된 영어 국가명을 직접 사용
+    // (이미 location 파싱 과정에서 영어 국가명을 추출했으므로 매핑 불필요)
     
     // 내부 API를 통해 국가 코드 조회
     try {
-      const response = await fetch(`/api/country-code?country=${encodeURIComponent(englishCountryName)}`);
+      const response = await fetch(`/api/country-code?country=${encodeURIComponent(countryName)}`);
       
       if (!response.ok) {
         logger.api.error('country-code-api', { status: response.status });
@@ -137,11 +104,8 @@ async function getCountryCode(countryName: string): Promise<string | null> {
           timestamp: Date.now()
         };
         
-        // 원래 한국어 이름과 영어 이름 모두 캐시에 저장
+        // 캐시에 저장
         countryCodeCache.set(countryName, cacheEntry);
-        if (englishCountryName !== countryName) {
-          countryCodeCache.set(englishCountryName, cacheEntry);
-        }
         
         logger.api.success('country-code-conversion', { countryName, countryCode });
         return countryCode;
@@ -150,7 +114,7 @@ async function getCountryCode(countryName: string): Promise<string | null> {
       logger.api.error('country-code-api-error', { error: apiError });
     }
     
-    logger.general.warn('모든 국가코드 API 엔드포인트 실패', { countryName, englishCountryName });
+    logger.general.warn('모든 국가코드 API 엔드포인트 실패', { countryName });
     return null;
     
   } catch (error) {
@@ -160,6 +124,7 @@ async function getCountryCode(countryName: string): Promise<string | null> {
 }
 
 export default function NextLevelSearchBox() {
+  const { mode } = useMode();
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -236,7 +201,11 @@ export default function NextLevelSearchBox() {
       const timer = setTimeout(async () => {
         try {
           logger.search.query(query);
-          const result = await safeGet(`/api/locations/${currentLanguage}/search?q=${encodeURIComponent(query)}`);
+          
+          // 3초 타임아웃으로 API 호출 (자동완성은 빠르게)
+          const result = await safeGet(`/api/locations/${currentLanguage}/search?q=${encodeURIComponent(query)}`, {
+            timeout: 3000 // 3초 타임아웃
+          });
           
           if (!result.success) {
             throw new Error(result.error || 'API 요청 실패');
@@ -310,12 +279,17 @@ export default function NextLevelSearchBox() {
     setIsSubmitting(true);
     setIsFocused(false);
     
-    // 🎯 지역/국가 판단: 첫 번째 자동완성 결과가 isMainLocation이면 허브 페이지로 라우팅
+    // 🎯 모드에 따라 다른 페이지로 라우팅
     const basicLocationPath = encodeURIComponent(query.trim());
-    let targetUrl = `/guide/${currentLanguage}/${basicLocationPath}`;
+    let targetUrl;
     
-    // 통일된 URL 구조 사용 (서버에서 지역/허브 vs 일반가이드 자동 분류)
-    targetUrl = `/guide/${currentLanguage}/${basicLocationPath}`;
+    if (mode === 'podcast') {
+      // 팟캐스트 모드: 팟캐스트 전용 페이지로 이동
+      targetUrl = `/podcast/${currentLanguage}/${basicLocationPath}`;
+    } else {
+      // 가이드 모드: 기존 가이드 페이지로 이동
+      targetUrl = `/guide/${currentLanguage}/${basicLocationPath}`;
+    }
     
     if (suggestions.length > 0 && suggestions[0].isMainLocation) {
       logger.ui.interaction('direct-search-hub', { query: query.trim(), isMainLocation: true });
@@ -357,27 +331,70 @@ export default function NextLevelSearchBox() {
       try {
         logger.search.query(query.trim());
         
+        // 1단계: 세션 스토리지에서 이미 저장된 데이터 확인
+        let actualCountry = '';
+        let actualRegion = '';
+        let resolvedCountryCode = '';
+        
+        const savedData = getAutocompleteData(query.trim(), false);
+        if (savedData && savedData.country && savedData.region) {
+          // 저장된 데이터가 유효한 경우 사용
+          const invalidValues = ['미분류', '알 수 없음', '불명', 'unknown', 'unclassified', 'n/a', '', 'loading'];
+          if (!invalidValues.includes(savedData.country.toLowerCase()) && 
+              !invalidValues.includes(savedData.region.toLowerCase())) {
+            actualCountry = savedData.country;
+            actualRegion = savedData.region;
+            resolvedCountryCode = savedData.countryCode || '';
+            console.log(`✅ 세션에서 위치 정보 재사용: ${actualRegion}, ${actualCountry}`);
+          }
+        }
+        
+        // 2단계: Direct search에서는 location 파싱 불가능하므로 스킵
+        
+        // 3단계: 실제 국가 정보가 있으면 먼저 국가코드 구하기 (세션에 없는 경우만)
+        if (actualCountry && !resolvedCountryCode) {
+          try {
+            const countryCodeResult = await getCountryCode(actualCountry);
+            if (countryCodeResult) {
+              resolvedCountryCode = countryCodeResult;
+            }
+          } catch (error) {
+            console.log('국가코드 변환 실패:', error);
+          }
+        }
+        
+        // 4단계: Smart resolver 호출 (실제 위치 데이터와 함께)
+        const locationData = actualCountry && actualRegion ? {
+          country: actualCountry,
+          region: actualRegion,
+          countryCode: resolvedCountryCode
+        } : undefined;
+        
         const smartResolution = await smartResolveLocation(
           query.trim(),
           query.trim(),
-          ''
+          actualCountry ? `country: ${actualCountry}` : '',
+          locationData
         );
         
         logger.general.info('백그라운드 스마트 위치 해결 완료', { confidence: smartResolution.confidence });
         
         const selectedLocation = smartResolution.selectedLocation;
         
-        // 상세 정보 업데이트 (국가코드는 병렬로 처리)
-        const [countryCode] = await Promise.allSettled([
-          getCountryCode(selectedLocation.country)
-        ]);
+        // 5단계: 실제 구한 값들로 보완
+        if (actualCountry && selectedLocation.country === '미분류') {
+          selectedLocation.country = actualCountry;
+        }
+        if (actualRegion && selectedLocation.region === '미분류') {
+          selectedLocation.region = actualRegion;
+        }
         
         const enhancedData = {
           name: selectedLocation.displayName,
           location: `${selectedLocation.region}, ${selectedLocation.country}`,
           region: selectedLocation.region,
           country: selectedLocation.country,
-          countryCode: countryCode.status === 'fulfilled' ? (countryCode.value || undefined) : undefined,
+          countryCode: resolvedCountryCode || undefined,
           type: 'attraction' as const,
           confidence: smartResolution.confidence,
           timestamp: Date.now()
@@ -390,7 +407,7 @@ export default function NextLevelSearchBox() {
           {
             region: selectedLocation.region,
             country: selectedLocation.country,
-            countryCode: countryCode.status === 'fulfilled' ? (countryCode.value || undefined) : undefined
+            countryCode: resolvedCountryCode || undefined
           }
         );
         
@@ -459,17 +476,24 @@ export default function NextLevelSearchBox() {
     setSelectedIndex(-1);
     setIsSubmitting(true);
     
-    // 🚀 새로운 라우팅 로직: isMainLocation에 따라 분기
+    // 🚀 모드에 따른 라우팅 로직
     let targetUrl: string;
     
-    if (suggestion.isMainLocation) {
-      // 지역명(첫 번째 항목)은 통일된 URL로 이동 (서버에서 자동 분류)
-      targetUrl = `/guide/${currentLanguage}/${encodeURIComponent(suggestion.name)}`;
-      console.log('🌏 지역/허브로 이동:', targetUrl);
+    if (mode === 'podcast') {
+      // 팟캐스트 모드: 팟캐스트 전용 페이지로 이동
+      targetUrl = `/podcast/${currentLanguage}/${encodeURIComponent(suggestion.name)}`;
+      console.log('🎙️ 팟캐스트 페이지로 이동:', targetUrl);
     } else {
-      // 관광명소들은 개별 가이드로 이동
-      targetUrl = `/guide/${currentLanguage}/${encodeURIComponent(suggestion.name)}`;
-      console.log('🏛️ 개별 가이드로 이동:', targetUrl);
+      // 가이드 모드: 기존 가이드 페이지로 이동
+      if (suggestion.isMainLocation) {
+        // 지역명(첫 번째 항목)은 통일된 URL로 이동 (서버에서 자동 분류)
+        targetUrl = `/guide/${currentLanguage}/${encodeURIComponent(suggestion.name)}`;
+        console.log('🌏 지역/허브로 이동:', targetUrl);
+      } else {
+        // 관광명소들은 개별 가이드로 이동
+        targetUrl = `/guide/${currentLanguage}/${encodeURIComponent(suggestion.name)}`;
+        console.log('🏛️ 개별 가이드로 이동:', targetUrl);
+      }
     }
     
     // 기본 자동완성 데이터로 즉시 저장
@@ -504,58 +528,52 @@ export default function NextLevelSearchBox() {
         const parts = suggestion.location.split(',').map(part => part.trim());
         
         if (parts.length >= 2) {
-          const region = parts[0];
-          const country = parts[1];
+          let region = parts[0].trim();
+          let country = parts[1].trim();
           
-          // Gemini API와 국가코드 변환을 병렬로 처리
-          const [geminiResult, countryCodeResult] = await Promise.allSettled([
-            // Gemini API 호출 (5초 타임아웃)
-            fetch('/api/locations/extract-regional-info', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                placeName: suggestion.name,
-                language: currentLanguage,
-                detailed: false
-              }),
-              signal: AbortSignal.timeout(5000)
-            }).then(res => res.json()),
-            // 국가코드 변환
-            getCountryCode(country)
-          ]);
+          // "미분류", "알 수 없음" 등 잘못된 값 방지
+          const invalidValues = ['미분류', '알 수 없음', '불명', 'unknown', 'unclassified', 'n/a', ''];
           
-          let enhancedInfo = {
-            region: region,
-            country: country,
-            countryCode: undefined as string | undefined
-          };
-          
-          // Gemini 결과 처리
-          if (geminiResult.status === 'fulfilled' && 
-              geminiResult.value?.success && 
-              geminiResult.value?.data?.region && 
-              geminiResult.value?.data?.countryCode) {
-            enhancedInfo = {
-              region: geminiResult.value.data.region,
-              country: geminiResult.value.data.country || country,
-              countryCode: geminiResult.value.data.countryCode
-            };
-            console.log('✅ Gemini 백그라운드 강화 성공:', enhancedInfo);
-          } else {
-            // 국가코드 결과 사용
-            if (countryCodeResult.status === 'fulfilled' && countryCodeResult.value) {
-              enhancedInfo.countryCode = countryCodeResult.value;
-            }
-            console.log('🔄 기존 방식으로 백그라운드 처리:', enhancedInfo);
+          if (invalidValues.includes(region.toLowerCase())) {
+            console.log(`⚠️ 잘못된 region 값 감지: "${region}" → 기본값으로 대체`);
+            region = suggestion.name; // 장소명을 region으로 사용
           }
           
-          // 향상된 데이터로 업데이트
+          if (invalidValues.includes(country.toLowerCase())) {
+            console.log(`⚠️ 잘못된 country 값 감지: "${country}" → 백그라운드 처리 중단`);
+            return; // country가 잘못되면 처리 중단
+          }
+          
+          // API용 영어 국가명으로 3자리 코드 변환
+          let finalCountryCode = '';
+          if (country) {
+            try {
+              // suggestion.apiCountry가 있으면 사용, 없으면 기존 방식
+              const apiCountryName = (suggestion as any).apiCountry || country;
+              finalCountryCode = await getCountryCode(apiCountryName) || '';
+              console.log(`🌍 API 국가코드 변환: "${apiCountryName}" → "${finalCountryCode}"`);
+            } catch (error) {
+              console.log('국가코드 변환 실패:', error);
+            }
+          }
+          
+          // 파싱된 정확한 데이터 사용 (API 호출 제거)
+          const enhancedInfo = {
+            placeName: suggestion.name,
+            region: region,
+            country: country,
+            countryCode: finalCountryCode || undefined
+          };
+          
+          console.log('✅ 파싱된 정확한 데이터 사용:', enhancedInfo);
+          
+          // 정확한 데이터로 업데이트
           const enhancedData = {
             ...suggestion,
             region: enhancedInfo.region,
             country: enhancedInfo.country,
             countryCode: enhancedInfo.countryCode,
-            confidence: geminiResult.status === 'fulfilled' ? 0.9 : 0.8,
+            confidence: 0.95, // 파싱된 정확한 데이터이므로 높은 신뢰도
             timestamp: Date.now()
           };
           
@@ -657,9 +675,17 @@ export default function NextLevelSearchBox() {
   return (
     <div className="relative w-full max-w-2xl mx-auto px-4 xs:px-0" style={{ zIndex: 'var(--z-searchbox)' }} data-search-container>
       {/* 🎯 메인 검색창 - HeroSection 스타일 */}
-      <div className="flex items-center bg-white/95 backdrop-blur rounded-sm shadow-2xl border border-white/30 p-2 xs:p-3">
+      <div className="search-container flex items-center p-2 xs:p-3 
+                      bg-white/95 dark:bg-dark-surface-2 
+                      border border-gray-200 dark:border-dark-border-2
+                      rounded-lg shadow-lg dark:shadow-dark-lg
+                      backdrop-blur-sm
+                      transition-all duration-200 
+                      hover:shadow-xl dark:hover:shadow-dark-xl
+                      focus-within:border-gray-300 dark:focus-within:border-dark-border-3
+                      focus-within:shadow-xl dark:focus-within:shadow-dark-xl">
         <div className="flex items-center flex-1 px-2 xs:px-4">
-          <MapPin className="w-4 h-4 xs:w-5 xs:h-5 text-gray-400 mr-2 xs:mr-3" />
+          <MapPin className="w-4 h-4 xs:w-5 xs:h-5 text-gray-500 dark:text-dark-text-secondary mr-2 xs:mr-3 flex-shrink-0" />
           <Input
             ref={inputRef}
             type="text"
@@ -678,18 +704,22 @@ export default function NextLevelSearchBox() {
             aria-autocomplete="list"
             role="combobox"
             aria-activedescendant={selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined}
-            className="border-0 bg-transparent text-base xs:text-lg placeholder:text-gray-500 focus-visible:ring-0"
+            className="border-0 bg-transparent text-base
+                      text-gray-900 dark:text-dark-text-primary
+                      placeholder:text-gray-500 dark:placeholder:text-dark-text-secondary 
+                      focus-visible:ring-0 focus-visible:outline-none
+                      disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
         
         {/* 🔄 로딩 인디케이터 */}
         {isTyping && (
           <div className="px-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-500"></div>
+            <div className="animate-spin rounded-full h-6 w-6 border-2 border-gray-300 dark:border-dark-border-2 border-t-transparent"></div>
           </div>
         )}
 
-        {/* 🔍 검색 버튼 - Example HeroSection 스타일 */}
+        {/* 🔍 검색 버튼 - 다크모드 대응 */}
         {!isTyping && (
           <Button 
             size="lg" 
@@ -697,14 +727,22 @@ export default function NextLevelSearchBox() {
             disabled={!query.trim() || isSubmitting}
             aria-label={query.trim() ? `'${query}' 검색하기` : '검색어를 입력하세요'}
             type="submit"
-            className="rounded-sm px-6 xs:px-8 bg-black hover:bg-black/90"
+            className="px-6 xs:px-8 py-2.5 rounded-lg font-medium transition-all duration-200
+                      bg-gray-900 hover:bg-gray-800 active:bg-gray-700 text-white
+                      dark:bg-dark-interactive dark:hover:bg-dark-interactive-hover 
+                      dark:active:bg-dark-interactive-active dark:text-dark-text-primary
+                      border border-gray-800 dark:border-dark-border-2
+                      shadow-md hover:shadow-lg dark:shadow-dark-sm dark:hover:shadow-dark-md
+                      disabled:opacity-50 disabled:cursor-not-allowed
+                      focus-visible:ring-2 focus-visible:ring-gray-500 dark:focus-visible:ring-dark-border-3
+                      focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             {isSubmitting ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-current border-t-transparent"></div>
             ) : (
               <>
-                <Search className="w-5 h-5 mr-2" />
-                {t('search.searchButton')}
+                <Search className="w-5 h-5 mr-2 flex-shrink-0" />
+                <span className="text-base">{t('search.searchButton')}</span>
               </>
             )}
           </Button>
@@ -713,13 +751,17 @@ export default function NextLevelSearchBox() {
 
       {/* 📋 검색 제안 목록 - 검색창과 동일한 스타일로 통일 */}
       {isFocused && !isSubmitting && isValidQuery(query) && (
-        <div className="absolute top-full left-0 w-full" style={{ zIndex: 'var(--z-autocomplete)' }}>
-          <div className="bg-white/95 backdrop-blur border border-white/30 rounded-sm shadow-2xl max-h-80 overflow-y-auto relative">
+        <div className="absolute top-full left-0 w-full mt-2" style={{ zIndex: 'var(--z-autocomplete)' }}>
+          <div className="bg-white/95 dark:bg-dark-surface-2 
+                         border border-gray-200 dark:border-dark-border-2
+                         rounded-lg shadow-xl dark:shadow-dark-xl
+                         backdrop-blur-sm max-h-80 overflow-y-auto
+                         animate-fade-in-down">
             {isTyping ? (
               /* 로딩 상태 */
               <div className="px-6 py-4 flex items-center gap-3">
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent"></div>
-                <span className="text-base text-gray-700 leading-6">{t('search.searching')}</span>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 dark:border-dark-border-2 border-t-transparent"></div>
+                <span className="text-base text-gray-700 dark:text-dark-text-secondary leading-6">{t('search.searching')}</span>
               </div>
             ) : suggestions.length > 0 ? (
               /* 검색 결과 */
@@ -730,16 +772,18 @@ export default function NextLevelSearchBox() {
                     role="option"
                     aria-selected={index === selectedIndex}
                     onClick={() => handleSuggestionClick(suggestion)}
-                    className={`px-6 py-4 cursor-pointer transition-all duration-200 ease border-b border-white/20 last:border-b-0 text-left ${
+                    className={`px-6 py-4 cursor-pointer transition-all duration-200 
+                               border-b border-gray-200/30 dark:border-dark-border-1 
+                               last:border-b-0 text-left ${
                       index === selectedIndex 
-                        ? 'bg-white/80 backdrop-blur' 
-                        : 'hover:bg-white/60 hover:backdrop-blur'
+                        ? 'bg-gray-50/80 dark:bg-dark-surface-3 backdrop-blur-sm' 
+                        : 'hover:bg-gray-50/60 dark:hover:bg-dark-surface-3/70'
                     }`}
                   >
-                    {/* 한 줄 표시: 장소명 + 위치 - 검색창과 동일한 폰트 크기 */}
-                    <div className="text-gray-900 font-medium text-base xs:text-lg leading-5 truncate">
+                    {/* 간결한 표시: 장소명 + 도시/국가 */}
+                    <div className="text-gray-900 dark:text-dark-text-primary font-medium text-base xs:text-lg leading-5 truncate">
                       {suggestion.name}
-                      <span className="text-sm xs:text-base font-normal text-gray-600 ml-2">
+                      <span className="text-sm xs:text-base font-normal text-gray-600 dark:text-dark-text-secondary ml-2">
                         · {suggestion.location}
                       </span>
                     </div>
@@ -749,7 +793,7 @@ export default function NextLevelSearchBox() {
             ) : hasAttemptedSearch ? (
               /* 검색 시도 후 결과가 없을 때 */
               <div className="px-6 py-6 text-center">
-                <div className="text-base text-gray-600 leading-6">
+                <div className="text-base text-gray-600 dark:text-dark-text-secondary leading-6">
                   &ldquo;{query}&rdquo;에 대한 검색 결과가 없습니다
                 </div>
               </div>

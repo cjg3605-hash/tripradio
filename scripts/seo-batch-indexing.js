@@ -2,7 +2,7 @@
 // scripts/seo-batch-indexing.js
 // 기존 가이드 일괄 색인 관리 스크립트 (제외 목록 지원)
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3003';
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 const { getExcludedLocations } = require('./indexing-exclude-manager');
 
 /**
@@ -96,7 +96,23 @@ async function runBatchIndexing(options = {}) {
     excludeProcessed = true
   } = options;
   
+  // 🚨 안전 장치: localhost URL로 실제 색인 방지
+  if (!dryRun && baseUrl.includes('localhost')) {
+    console.error('🚨 위험: localhost URL로 실제 색인을 시도하고 있습니다!');
+    console.error('   현재 BASE_URL:', baseUrl);
+    console.error('   Google은 localhost에 접근할 수 없어 할당량만 낭비됩니다.');
+    console.error('   프로덕션 URL을 사용하거나 --dry-run 모드를 사용하세요.');
+    console.error('   예: NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js run-small-batch');
+    
+    return {
+      success: false,
+      error: 'localhost URL로 실제 색인 시도 방지됨. 프로덕션 URL 필요.',
+      safetyCheck: 'failed'
+    };
+  }
+  
   console.log('🚀 일괄 색인 시작...\n');
+  console.log(`🔗 대상 도메인: ${baseUrl}`);
   console.log(`⚙️ 설정: 모드=${mode}, 배치크기=${batchSize}, 지연=${delayBetweenBatches}ms, 테스트=${dryRun}\n`);
   
   // 제외 목록 확인
@@ -320,12 +336,18 @@ async function main() {
       console.log('   full-process        - 전체 프로세스 자동 실행');
       console.log('   help                - 도움말');
       console.log('');
+      console.log('🚨 안전 사용법 (중요!):');
+      console.log('   ⚠️  실제 색인 시 반드시 프로덕션 URL 사용:');
+      console.log('       NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js <command>');
+      console.log('   ✅  테스트는 localhost 가능:');
+      console.log('       node scripts/seo-batch-indexing.js dry-run');
+      console.log('');
       console.log('💡 권장 순서 (할당량 절약):');
       console.log('   1. node scripts/seo-batch-indexing.js validate');
       console.log('   2. node scripts/seo-batch-indexing.js dry-run');
-      console.log('   3. node scripts/seo-batch-indexing.js run-landing-pages  🏢 (새 랜딩페이지)');
-      console.log('   4. node scripts/seo-batch-indexing.js run-remaining-only  ⭐ (오늘한거 제외)');
-      console.log('   5. node scripts/seo-batch-indexing.js status');
+      console.log('   3. NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js run-landing-pages  🏢');
+      console.log('   4. NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js run-remaining-only  ⭐');
+      console.log('   5. NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js status');
       console.log('');
       console.log('🔄 제외 목록 관리:');
       console.log('   - node scripts/indexing-exclude-manager.js status      (제외 목록 확인)');

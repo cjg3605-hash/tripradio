@@ -5,10 +5,319 @@
       "selectLanguage": "언어 선택",
       "history": "검색 기록",
       "currentSelectedLanguage": "현재 선택된 언어",
-      "profileAlt": "프로필"
+      "profileAlt": "프로필",
+      "guideMode": "가이드",
+      "podcastMode": "팟캐스트",
+      "changeToLanguage": "{{language}}로 변경",
+      "flagAltText": "{{language}} 언어"
     },
     "navigation": {
       "home": "홈"
+    },
+    "tourRadio": {
+      "metadata": {
+        "title": "투어라디오 - AI가 들려주는 특별한 여행 이야기",
+        "description": "지루한 관광은 그만! AI가 생성하는 재미있고 몰입감 있는 라디오 스타일의 여행 가이드를 경험하세요.",
+        "keyword": "투어라디오"
+      },
+      "keyword": "투어라디오",
+      "badge": "🎧 NEW 투어라디오",
+      "hero": {
+        "title": "여행이 이렇게 재미있었나?",
+        "subtitle": "AI가 들려주는 특별한 투어라디오",
+        "description": "지루한 가이드는 안녕! 마치 친구가 들려주는 이야기처럼 재미있고 흥미진진한 여행 라디오를 만나보세요. 전 세계 어디서든 무료로 즐기는 새로운 여행 경험입니다."
+      },
+      "cta": {
+        "primary": "무료로 시작하기",
+        "secondary": "기능 알아보기"
+      },
+      "problems": {
+        "title": "기존 여행 가이드의 문제점",
+        "subtitle": "왜 여행이 재미없을까요?",
+        "items": [
+          {
+            "title": "지루한 관광",
+            "description": "획일적이고 재미없는 기존 가이드"
+          },
+          {
+            "title": "딱딱한 설명",
+            "description": "교과서 같은 지식 전달 방식"
+          },
+          {
+            "title": "높은 비용",
+            "description": "가이드 투어의 부담스러운 가격"
+          },
+          {
+            "title": "시간 제약",
+            "description": "정해진 시간에만 이용 가능"
+          },
+          {
+            "title": "단체 행동",
+            "description": "개인 취향을 고려하지 않는 단체 투어"
+          },
+          {
+            "title": "언어 장벽",
+            "description": "제한적인 언어 지원"
+          }
+        ]
+      },
+      "radioFeatures": {
+        "title": "투어라디오만의 특별함",
+        "subtitle": "전혀 새로운 여행 경험을 선사합니다",
+        "features": [
+          {
+            "title": "라디오 스타일",
+            "description": "재미있고 몰입감 있는 라디오 방송 형태"
+          },
+          {
+            "title": "스토리텔링",
+            "description": "흥미진진한 이야기로 전하는 여행 정보"
+          },
+          {
+            "title": "위치 기반",
+            "description": "현재 위치에 맞는 맞춤 콘텐츠"
+          },
+          {
+            "title": "배경음악",
+            "description": "분위기를 살리는 음악과 효과음"
+          },
+          {
+            "title": "인터랙티브",
+            "description": "사용자와 소통하는 양방향 콘텐츠"
+          },
+          {
+            "title": "전세계 지원",
+            "description": "180개국 어디서나 이용 가능"
+          }
+        ]
+      },
+      "contentTypes": {
+        "title": "다양한 콘텐츠",
+        "subtitle": "취향에 맞는 여행 이야기를 선택하세요",
+        "items": [
+          {
+            "title": "역사 이야기",
+            "description": "흥미진진한 역사적 배경과 이야기"
+          },
+          {
+            "title": "숨겨진 명소",
+            "description": "현지인만 아는 특별한 장소들"
+          },
+          {
+            "title": "맛집 탐방",
+            "description": "현지 음식 문화와 맛집 정보"
+          },
+          {
+            "title": "미스터리",
+            "description": "신비롭고 흥미로운 도시 전설"
+          }
+        ]
+      },
+      "howItWorks": {
+        "title": "사용 방법",
+        "steps": [
+          {
+            "title": "위치 선택",
+            "description": "여행하고 싶은 도시나 장소를 선택합니다"
+          },
+          {
+            "title": "콘텐츠 선택",
+            "description": "관심 있는 주제와 스타일을 선택합니다"
+          },
+          {
+            "title": "라디오 청취",
+            "description": "AI가 생성한 맞춤형 라디오를 즐깁니다"
+          }
+        ]
+      },
+      "samplePrograms": {
+        "title": "샘플 프로그램",
+        "subtitle": "실제 제작된 투어라디오를 미리 들어보세요",
+        "programs": [
+          {
+            "title": "파리 야경 투어",
+            "location": "파리, 프랑스",
+            "description": "에펠탑과 센 강변의 로맨틱한 야경을 배경으로 한 파리의 숨겨진 이야기",
+            "bgMusic": "프렌치 재즈"
+          },
+          {
+            "title": "로마 제국의 흔적",
+            "location": "로마, 이탈리아",
+            "description": "콜로세움과 포로 로마노에서 들려주는 고대 로마 황제들의 이야기",
+            "bgMusic": "클래식 오케스트라"
+          },
+          {
+            "title": "교토 사계절",
+            "location": "교토, 일본",
+            "description": "기온 거리와 청수사에서 만나는 일본 전통 문화와 사계절 이야기",
+            "bgMusic": "일본 전통 음악"
+          },
+          {
+            "title": "알프스 트레킹",
+            "location": "스위스",
+            "description": "융프라우와 마터호른에서 들려주는 알프스 산맥의 전설과 자연의 경이",
+            "bgMusic": "클래식 연주"
+          },
+          {
+            "title": "지중해 크루즈",
+            "location": "그리스",
+            "description": "산토리니와 미코노스 섬에서 펼쳐지는 그리스 신화와 에게해의 이야기",
+            "bgMusic": "지중해 음악"
+          },
+          {
+            "title": "뉴욕 브로드웨이",
+            "location": "뉴욕, 미국",
+            "description": "타임스퀘어와 브로드웨이에서 만나는 뮤지컬과 공연 예술의 세계",
+            "bgMusic": "브로드웨이 뮤지컬"
+          }
+        ]
+      },
+      "finalCta": {
+        "title": "지금 바로 투어라디오 체험하기",
+        "description": "세상에서 가장 재미있는 여행 가이드가 여러분을 기다립니다.",
+        "button": "무료로 시작하기"
+      }
+    },
+    "travelRadio": {
+      "metadata": {
+        "title": "여행라디오 - AI가 만드는 개인맞춤 여행방송",
+        "description": "스마트폰 화면 대신 귀로 듣는 새로운 여행! AI가 생성하는 개인맞춤 여행 라디오로 더 깊고 의미있는 여행을 경험하세요.",
+        "keyword": "여행라디오"
+      },
+      "keyword": "여행라디오",
+      "badge": "📻 AI 여행라디오",
+      "hero": {
+        "title": "귀로 듣는 여행의 혁명",
+        "subtitle": "AI가 만드는 나만의 여행방송",
+        "description": "스마트폰 화면만 보는 여행은 그만! 마치 친구 같은 AI DJ가 들려주는 개인맞춤 여행 라디오로 더 깊이 있고 의미 있는 여행을 만나보세요."
+      },
+      "cta": {
+        "primary": "여행라디오 체험하기",
+        "secondary": "더 자세히 알아보기"
+      },
+      "whyNeeded": {
+        "title": "왜 여행라디오가 필요할까요?",
+        "subtitle": "현대 여행의 문제점을 해결합니다",
+        "problems": [
+          {
+            "title": "지루한 여행",
+            "description": "단조롭고 재미없는 여행 경험"
+          },
+          {
+            "title": "스마트폰 의존",
+            "description": "화면만 보며 놓치는 소중한 순간들"
+          },
+          {
+            "title": "높은 비용",
+            "description": "비싼 현지 가이드와 투어 비용"
+          }
+        ]
+      },
+      "specialExperience": {
+        "title": "여행라디오만의 특별한 경험",
+        "subtitle": "완전히 새로운 여행 방식을 제안합니다",
+        "features": [
+          {
+            "title": "라디오 DJ 스타일",
+            "description": "친근한 DJ가 들려주는 여행 이야기"
+          },
+          {
+            "title": "맞춤형 콘텐츠",
+            "description": "개인 취향에 맞는 여행 정보"
+          },
+          {
+            "title": "전세계 지원",
+            "description": "180개국 어디서나 이용 가능"
+          },
+          {
+            "title": "진짜 라디오",
+            "description": "실제 라디오 방송 같은 몰입감"
+          },
+          {
+            "title": "완전 무료",
+            "description": "모든 기능을 무료로 제공"
+          },
+          {
+            "title": "편안한 청취",
+            "description": "편안하게 들으며 즐기는 여행"
+          }
+        ]
+      },
+      "radioTypes": {
+        "title": "다양한 여행라디오",
+        "subtitle": "취향과 상황에 맞는 라디오를 선택하세요",
+        "categories": [
+          {
+            "title": "역사 탐방",
+            "description": "유적지와 문화유산의 깊은 이야기"
+          },
+          {
+            "title": "자연 체험",
+            "description": "아름다운 자연과 풍경 이야기"
+          },
+          {
+            "title": "음식 문화",
+            "description": "현지 음식과 요리 문화 탐방"
+          },
+          {
+            "title": "예술 문화",
+            "description": "미술관과 문화 예술 체험"
+          },
+          {
+            "title": "도시 탐방",
+            "description": "현대적인 도시의 매력 발견"
+          },
+          {
+            "title": "야경 투어",
+            "description": "밤에 펼쳐지는 특별한 풍경"
+          }
+        ]
+      },
+      "howToListen": {
+        "title": "여행라디오 듣는 방법",
+        "subtitle": "4단계로 간단하게 시작하세요",
+        "steps": [
+          {
+            "title": "목적지 선택",
+            "description": "여행할 도시나 장소를 선택합니다"
+          },
+          {
+            "title": "테마 선택",
+            "description": "관심 있는 여행 테마를 선택합니다"
+          },
+          {
+            "title": "라디오 생성",
+            "description": "AI가 맞춤형 라디오를 제작합니다"
+          },
+          {
+            "title": "여행 청취",
+            "description": "편안하게 들으며 여행을 즐깁니다"
+          }
+        ]
+      },
+      "testimonials": {
+        "title": "여행라디오 체험 후기",
+        "subtitle": "실제 사용자들의 생생한 후기를 들어보세요",
+        "reviews": [
+          {
+            "content": "정말 특별한 여행 경험이었어요. 마치 현지 친구가 안내해주는 것 같았습니다.",
+            "author": "김지현, 파리 여행"
+          },
+          {
+            "content": "무료로 이런 퀄리티의 가이드를 들을 수 있다는 게 놀라워요.",
+            "author": "박민수, 로마 여행"
+          },
+          {
+            "content": "라디오 형식이라 정말 편하게 들으며 여행할 수 있었어요.",
+            "author": "이수진, 도쿄 여행"
+          }
+        ]
+      },
+      "finalCta": {
+        "title": "지금 여행라디오와 함께 떠나세요",
+        "description": "전 세계 어디서든 무료로 즐기는 특별한 여행 경험이 기다립니다.",
+        "button": "여행라디오 시작하기"
+      }
     },
     "home": {
       "brandTitle": "트립라디오.AI",
@@ -27,15 +336,192 @@
       "regionDescription": "세계 각국의 대표 관광명소와 함께하는 특별한 오디오 가이드 여행을 시작하세요",
       "clickAttraction": "명소를 클릭하세요",
       "scrollHint": "좌우로 스크롤하여 더 많은 국가를 확인하세요",
+      "searchPlaceholders": [
+        "어느 장소가 궁금하세요?"
+      ],
+      "attractionDetails": {},
+      "countries": {
+        "seoul": {
+          "name": "서울",
+          "description": "전통과 현대가 어우러진 대한민국의 수도",
+          "attractions": [
+            "경복궁",
+            "남산타워",
+            "명동"
+          ]
+        },
+        "busan": {
+          "name": "부산",
+          "description": "아름다운 항구의 도시",
+          "attractions": [
+            "해운대해수욕장",
+            "감천문화마을",
+            "자갈치시장"
+          ]
+        },
+        "jeju": {
+          "name": "제주",
+          "description": "환상적인 자연경관의 섬",
+          "attractions": [
+            "한라산",
+            "성산일출봉",
+            "중문관광단지"
+          ]
+        },
+        "gyeongju": {
+          "name": "경주",
+          "description": "천년고도 신라의 역사가 살아있는 도시",
+          "attractions": [
+            "불국사",
+            "석굴암",
+            "첨성대"
+          ]
+        },
+        "france": {
+          "name": "프랑스",
+          "description": "로맨틱한 파리와 찬란한 문화유산",
+          "attractions": [
+            "에펠탑",
+            "루브르박물관",
+            "베르사유궁전"
+          ]
+        },
+        "italy": {
+          "name": "이탈리아",
+          "description": "고대 로마의 영광과 르네상스 예술",
+          "attractions": [
+            "콜로세움",
+            "피사의사탑",
+            "바티칸"
+          ]
+        },
+        "spain": {
+          "name": "스페인",
+          "description": "가우디의 건축과 플라멩고의 열정",
+          "attractions": [
+            "사그라다 파밀리아",
+            "알함브라",
+            "구엘공원"
+          ]
+        },
+        "uk": {
+          "name": "영국",
+          "description": "전통과 현대가 조화된 나라",
+          "attractions": [
+            "빅벤",
+            "타워브릿지",
+            "버킹엄궁전"
+          ]
+        },
+        "germany": {
+          "name": "독일",
+          "description": "동화같은 성과 깊은 역사 유산",
+          "attractions": [
+            "브란덴부르크문",
+            "노이슈반슈타인성",
+            "쾰른대성당"
+          ]
+        },
+        "japan": {
+          "name": "일본",
+          "description": "전통과 첨단이 공존하는 신비의 나라",
+          "attractions": [
+            "후지산",
+            "키요미즈데라",
+            "센소지"
+          ]
+        },
+        "china": {
+          "name": "중국",
+          "description": "5천년 역사의 위대한 문명",
+          "attractions": [
+            "만리장성",
+            "자금성",
+            "천안문광장"
+          ]
+        },
+        "india": {
+          "name": "인도",
+          "description": "신비로운 영성과 장엄한 궁전",
+          "attractions": [
+            "타지마할",
+            "레드포트",
+            "갠지스강"
+          ]
+        },
+        "thailand": {
+          "name": "태국",
+          "description": "황금사원과 미소의 나라",
+          "attractions": [
+            "왓아룬",
+            "그랜드팰리스",
+            "왓포"
+          ]
+        },
+        "singapore": {
+          "name": "싱가포르",
+          "description": "미래도시와 다양한 문화의 만남",
+          "attractions": [
+            "마리나베이샌즈",
+            "가든스바이더베이",
+            "머라이언"
+          ]
+        },
+        "usa": {
+          "name": "미국",
+          "description": "자유와 꿈의 나라, 무한한 가능성",
+          "attractions": [
+            "자유의여신상",
+            "그랜드캐니언",
+            "타임스스퀘어"
+          ]
+        },
+        "canada": {
+          "name": "캐나다",
+          "description": "광대한 자연과 깨끗한 도시",
+          "attractions": [
+            "나이아가라폭포",
+            "CN타워",
+            "밴프국립공원"
+          ]
+        },
+        "brazil": {
+          "name": "브라질",
+          "description": "삼바와 축구, 열정의 남미",
+          "attractions": [
+            "예수상",
+            "이구아수폭포",
+            "마라카낭경기장"
+          ]
+        },
+        "peru": {
+          "name": "페루",
+          "description": "잉카문명의 신비로운 유적",
+          "attractions": [
+            "마추픽추",
+            "쿠스코",
+            "나스카라인"
+          ]
+        },
+        "mexico": {
+          "name": "멕시코",
+          "description": "마야문명과 카리브해의 낙원",
+          "attractions": [
+            "치첸이트사",
+            "테오티우아칸",
+            "칸쿤"
+          ]
+        }
+      },
       "stepTitles": {
         "inputLocation": "장소 입력",
-        "aiGenerate": "AI 생성",
-        "audioPlay": "오디오 재생"
+        "aiGenerate": "AI 가이드 생성",
+        "audioPlay": "오디오 투어 시작"
       },
       "stepDescriptions": {
-        "inputLocation": "특정 장소",
-        "aiGenerate": "가이드 자동 생성",
-        "audioPlay": "투어 시작"
+        "inputLocation": "방문할 여행지나 관광명소를 입력하세요",
+        "aiGenerate": "AI가 개인 맞춤형 가이드를 자동으로 생성해드려요",
+        "audioPlay": "생성된 가이드로 몰입감 있는 오디오 투어를 즐기세요"
       },
       "alerts": {
         "enterLocation": "먼저 장소를 입력해주세요.",
@@ -279,12 +765,16 @@
       "support": "고객지원",
       "telegramChannel": "텔레그램 채널",
       "supportHours": "지원시간: 평일 9시-18시",
+      "adsensePolicy": "AdSense 정책",
       "services": {
         "title": "주요 서비스",
         "audioGuide": "오디오가이드",
         "docent": "AI 도슨트",
         "tourRadio": "투어라디오",
-        "travelRadio": "여행라디오"
+        "travelRadio": "여행라디오",
+        "helpCenter": "도움말 센터",
+        "feedback": "피드백 보내기",
+        "adsRevenue": "광고 수익 공지"
       },
       "tools": {
         "title": "여행 도구",
@@ -318,12 +808,6 @@
         "feature2Description": "예산 및 시간 최적화",
         "feature3Title": "오디오 가이드 연동",
         "feature3Description": "AI 오디오 가이드와 완벽 연동"
-      },
-      "header": {
-        "goBack": "돌아가기",
-        "history": "기록",
-        "signIn": "로그인",
-        "signOut": "로그아웃"
       },
       "tabs": {
         "planner": "계획하기",
@@ -881,6 +1365,42 @@
           "longTerm": "장기 체류 지원"
         }
       }
+    },
+    "podcast": {
+      "loading": "로딩 중...",
+      "backToHome": "홈으로",
+      "totalProgress": "전체 진행률",
+      "currentTime": "현재",
+      "segmentDuration": "세그먼트",
+      "chapterPrefix": "챕터",
+      "generateTitle": "{locationName} 팟캐스트 생성",
+      "generateDescription": "AI가 자연스러운 대화로 만드는 특별한 가이드 경험",
+      "generateButton": "팟캐스트 생성하기",
+      "generatingTitle": "팟캐스트 생성 중...",
+      "generatingDescription": "AI가 {locationName}에 대한 흥미로운 대화를 만들고 있어요",
+      "generatingProgress": "% 완료",
+      "playbackRates": {
+        "1": "1×",
+        "2": "2×",
+        "0.75": "0.75×",
+        "1.25": "1.25×",
+        "1.5": "1.5×"
+      },
+      "errors": {
+        "segmentPlayFailed": "세그먼트 {segmentNumber} 재생에 실패했습니다.",
+        "generationFailed": "팟캐스트 생성에 실패했습니다.",
+        "audioLoadFailed": "오디오 로드에 실패했습니다."
+      },
+      "accessibility": {
+        "playButton": "재생",
+        "pauseButton": "일시정지",
+        "previousSegment": "이전 세그먼트",
+        "nextSegment": "다음 세그먼트",
+        "volumeControl": "음량 조절",
+        "muteButton": "음소거",
+        "unmuteButton": "음소거 해제",
+        "progressBar": "재생 진행률 바"
+      }
     }
   },
   "en": {
@@ -889,10 +1409,319 @@
       "selectLanguage": "Select Language",
       "history": "Search History",
       "currentSelectedLanguage": "Currently selected language",
-      "profileAlt": "Profile"
+      "profileAlt": "Profile",
+      "guideMode": "Guide",
+      "podcastMode": "Podcast",
+      "changeToLanguage": "Change to {{language}}",
+      "flagAltText": "{{language}} language"
     },
     "navigation": {
       "home": "Home"
+    },
+    "tourRadio": {
+      "metadata": {
+        "title": "Tour Radio - AI-Powered Travel Storytelling",
+        "description": "Say goodbye to boring tours! Experience immersive, radio-style travel guides generated by AI that make every journey exciting and memorable.",
+        "keyword": "Tour Radio"
+      },
+      "keyword": "Tour Radio",
+      "badge": "🎧 NEW Tour Radio",
+      "hero": {
+        "title": "Is Travel This Much Fun?",
+        "subtitle": "Special Tour Radio by AI",
+        "description": "Say goodbye to boring guides! Meet fun and exciting travel radio that feels like stories from a friend. Enjoy a completely new travel experience, free anywhere in the world."
+      },
+      "cta": {
+        "primary": "Start Free",
+        "secondary": "Learn Features"
+      },
+      "problems": {
+        "title": "Problems with Traditional Travel Guides",
+        "subtitle": "Why is travel so boring?",
+        "items": [
+          {
+            "title": "Boring Tours",
+            "description": "Uniform and uninteresting traditional guides"
+          },
+          {
+            "title": "Rigid Explanations",
+            "description": "Textbook-like information delivery"
+          },
+          {
+            "title": "High Costs",
+            "description": "Expensive guided tour prices"
+          },
+          {
+            "title": "Time Constraints",
+            "description": "Available only at scheduled times"
+          },
+          {
+            "title": "Group Activities",
+            "description": "Group tours that ignore personal preferences"
+          },
+          {
+            "title": "Language Barriers",
+            "description": "Limited language support"
+          }
+        ]
+      },
+      "radioFeatures": {
+        "title": "What Makes Tour Radio Special",
+        "subtitle": "We offer a completely new travel experience",
+        "features": [
+          {
+            "title": "Radio Style",
+            "description": "Fun and immersive radio broadcast format"
+          },
+          {
+            "title": "Storytelling",
+            "description": "Travel information through exciting stories"
+          },
+          {
+            "title": "Location-Based",
+            "description": "Customized content for your current location"
+          },
+          {
+            "title": "Background Music",
+            "description": "Music and sound effects that enhance the atmosphere"
+          },
+          {
+            "title": "Interactive",
+            "description": "Two-way content that communicates with users"
+          },
+          {
+            "title": "Global Support",
+            "description": "Available anywhere in 180 countries"
+          }
+        ]
+      },
+      "contentTypes": {
+        "title": "Diverse Content",
+        "subtitle": "Choose travel stories that match your taste",
+        "items": [
+          {
+            "title": "Historical Stories",
+            "description": "Fascinating historical backgrounds and stories"
+          },
+          {
+            "title": "Hidden Gems",
+            "description": "Special places only locals know"
+          },
+          {
+            "title": "Food Exploration",
+            "description": "Local food culture and restaurant information"
+          },
+          {
+            "title": "Mysteries",
+            "description": "Mysterious and intriguing urban legends"
+          }
+        ]
+      },
+      "howItWorks": {
+        "title": "How to Use",
+        "steps": [
+          {
+            "title": "Select Location",
+            "description": "Choose the city or place you want to travel to"
+          },
+          {
+            "title": "Choose Content",
+            "description": "Select topics and styles that interest you"
+          },
+          {
+            "title": "Listen to Radio",
+            "description": "Enjoy personalized radio generated by AI"
+          }
+        ]
+      },
+      "samplePrograms": {
+        "title": "Sample Programs",
+        "subtitle": "Listen to actual tour radio programs in advance",
+        "programs": [
+          {
+            "title": "Paris Night Tour",
+            "location": "Paris, France",
+            "description": "Hidden stories of Paris against the romantic night view of the Eiffel Tower and Seine River",
+            "bgMusic": "French Jazz"
+          },
+          {
+            "title": "Traces of Roman Empire",
+            "location": "Rome, Italy",
+            "description": "Stories of ancient Roman emperors told from the Colosseum and Roman Forum",
+            "bgMusic": "Classical Orchestra"
+          },
+          {
+            "title": "Kyoto Four Seasons",
+            "location": "Kyoto, Japan",
+            "description": "Japanese traditional culture and seasonal stories from Gion Street and Kiyomizu Temple",
+            "bgMusic": "Japanese Traditional Music"
+          },
+          {
+            "title": "Alps Trekking",
+            "location": "Switzerland",
+            "description": "Legends and natural wonders of the Alps told from Jungfraujoch and Matterhorn",
+            "bgMusic": "Classical Performance"
+          },
+          {
+            "title": "Mediterranean Cruise",
+            "location": "Greece",
+            "description": "Greek mythology and Aegean Sea stories unfolding in Santorini and Mykonos",
+            "bgMusic": "Mediterranean Music"
+          },
+          {
+            "title": "New York Broadway",
+            "location": "New York, USA",
+            "description": "The world of musicals and performing arts in Times Square and Broadway",
+            "bgMusic": "Broadway Musicals"
+          }
+        ]
+      },
+      "finalCta": {
+        "title": "Experience Tour Radio Right Now",
+        "description": "The world's most entertaining travel guide is waiting for you.",
+        "button": "Start Free"
+      }
+    },
+    "travelRadio": {
+      "metadata": {
+        "title": "Travel Radio - AI-Generated Personal Travel Broadcasting",
+        "description": "New travel through your ears instead of smartphone screens! Experience deeper, more meaningful travel with personalized travel radio generated by AI.",
+        "keyword": "Travel Radio"
+      },
+      "keyword": "Travel Radio",
+      "badge": "📻 AI Travel Radio",
+      "hero": {
+        "title": "Revolution of Audio Travel",
+        "subtitle": "AI-Created Personal Travel Broadcasting",
+        "description": "Stop staring at smartphone screens! Meet deeper and more meaningful travel with personalized travel radio told by friendly AI DJ."
+      },
+      "cta": {
+        "primary": "Experience Travel Radio",
+        "secondary": "Learn More"
+      },
+      "whyNeeded": {
+        "title": "Why Do You Need Travel Radio?",
+        "subtitle": "Solving problems of modern travel",
+        "problems": [
+          {
+            "title": "Boring Travel",
+            "description": "Monotonous and uninteresting travel experiences"
+          },
+          {
+            "title": "Smartphone Dependence",
+            "description": "Missing precious moments while staring at screens"
+          },
+          {
+            "title": "High Costs",
+            "description": "Expensive local guides and tour costs"
+          }
+        ]
+      },
+      "specialExperience": {
+        "title": "Travel Radio's Special Experience",
+        "subtitle": "We propose a completely new way of traveling",
+        "features": [
+          {
+            "title": "Radio DJ Style",
+            "description": "Travel stories told by friendly DJ"
+          },
+          {
+            "title": "Personalized Content",
+            "description": "Travel information tailored to personal preferences"
+          },
+          {
+            "title": "Global Support",
+            "description": "Available anywhere in 180 countries"
+          },
+          {
+            "title": "Real Radio",
+            "description": "Immersive experience like actual radio broadcasting"
+          },
+          {
+            "title": "Completely Free",
+            "description": "All features provided for free"
+          },
+          {
+            "title": "Comfortable Listening",
+            "description": "Enjoy travel while listening comfortably"
+          }
+        ]
+      },
+      "radioTypes": {
+        "title": "Various Travel Radio",
+        "subtitle": "Choose radio that matches your taste and situation",
+        "categories": [
+          {
+            "title": "Historical Exploration",
+            "description": "Deep stories of historical sites and cultural heritage"
+          },
+          {
+            "title": "Nature Experience",
+            "description": "Beautiful nature and landscape stories"
+          },
+          {
+            "title": "Food Culture",
+            "description": "Exploration of local food and culinary culture"
+          },
+          {
+            "title": "Art Culture",
+            "description": "Museums and cultural arts experiences"
+          },
+          {
+            "title": "City Exploration",
+            "description": "Discovering the charm of modern cities"
+          },
+          {
+            "title": "Night Tours",
+            "description": "Special scenery that unfolds at night"
+          }
+        ]
+      },
+      "howToListen": {
+        "title": "How to Listen to Travel Radio",
+        "subtitle": "Start simply in 4 steps",
+        "steps": [
+          {
+            "title": "Select Destination",
+            "description": "Choose the city or place you want to travel to"
+          },
+          {
+            "title": "Choose Theme",
+            "description": "Select a travel theme that interests you"
+          },
+          {
+            "title": "Generate Radio",
+            "description": "AI creates personalized radio"
+          },
+          {
+            "title": "Travel Listening",
+            "description": "Enjoy travel while listening comfortably"
+          }
+        ]
+      },
+      "testimonials": {
+        "title": "Travel Radio Experience Reviews",
+        "subtitle": "Listen to vivid reviews from actual users",
+        "reviews": [
+          {
+            "content": "It was truly a special travel experience. It felt like a local friend was guiding me.",
+            "author": "Sarah Kim, Paris Trip"
+          },
+          {
+            "content": "Amazing that I can listen to such quality guide for free.",
+            "author": "Mike Park, Rome Trip"
+          },
+          {
+            "content": "The radio format made it really comfortable to listen while traveling.",
+            "author": "Jessica Lee, Tokyo Trip"
+          }
+        ]
+      },
+      "finalCta": {
+        "title": "Start Your Journey with Travel Radio Now",
+        "description": "A special travel experience that you can enjoy for free anywhere in the world awaits you.",
+        "button": "Start Travel Radio"
+      }
     },
     "home": {
       "brandTitle": "TripRadio.AI",
@@ -911,15 +1740,192 @@
       "regionDescription": "Start a special audio guide journey with representative tourist attractions from around the world",
       "clickAttraction": "Click attractions",
       "scrollHint": "Scroll left and right to see more countries",
+      "searchPlaceholders": [
+        "Where would you like to explore?"
+      ],
+      "attractionDetails": {},
+      "countries": {
+        "seoul": {
+          "name": "Seoul",
+          "description": "Capital of South Korea where tradition meets modernity",
+          "attractions": [
+            "Gyeongbokgung Palace",
+            "N Seoul Tower",
+            "Myeongdong"
+          ]
+        },
+        "busan": {
+          "name": "Busan",
+          "description": "Beautiful port city by the sea",
+          "attractions": [
+            "Haeundae Beach",
+            "Gamcheon Culture Village",
+            "Jagalchi Fish Market"
+          ]
+        },
+        "jeju": {
+          "name": "Jeju",
+          "description": "Island of fantastic natural scenery",
+          "attractions": [
+            "Hallasan Mountain",
+            "Seongsan Ilchulbong",
+            "Jungmun Tourist Complex"
+          ]
+        },
+        "gyeongju": {
+          "name": "Gyeongju",
+          "description": "Ancient capital city where Silla history lives",
+          "attractions": [
+            "Bulguksa Temple",
+            "Seokguram Grotto",
+            "Cheomseongdae Observatory"
+          ]
+        },
+        "france": {
+          "name": "France",
+          "description": "Romantic Paris and magnificent cultural heritage",
+          "attractions": [
+            "Eiffel Tower",
+            "Louvre Museum",
+            "Palace of Versailles"
+          ]
+        },
+        "italy": {
+          "name": "Italy",
+          "description": "Glory of ancient Rome and Renaissance art",
+          "attractions": [
+            "Colosseum",
+            "Leaning Tower of Pisa",
+            "Vatican"
+          ]
+        },
+        "spain": {
+          "name": "Spain",
+          "description": "Gaudí's architecture and flamenco passion",
+          "attractions": [
+            "Sagrada Familia",
+            "Alhambra",
+            "Park Güell"
+          ]
+        },
+        "uk": {
+          "name": "United Kingdom",
+          "description": "Harmonious blend of tradition and modernity",
+          "attractions": [
+            "Big Ben",
+            "Tower Bridge",
+            "Buckingham Palace"
+          ]
+        },
+        "germany": {
+          "name": "Germany",
+          "description": "Fairy-tale castles and deep historical heritage",
+          "attractions": [
+            "Brandenburg Gate",
+            "Neuschwanstein Castle",
+            "Cologne Cathedral"
+          ]
+        },
+        "japan": {
+          "name": "Japan",
+          "description": "Mysterious land where tradition and cutting-edge coexist",
+          "attractions": [
+            "Mount Fuji",
+            "Kiyomizu-dera",
+            "Senso-ji"
+          ]
+        },
+        "china": {
+          "name": "China",
+          "description": "Great civilization with 5000 years of history",
+          "attractions": [
+            "Great Wall",
+            "Forbidden City",
+            "Tiananmen Square"
+          ]
+        },
+        "india": {
+          "name": "India",
+          "description": "Mystical spirituality and magnificent palaces",
+          "attractions": [
+            "Taj Mahal",
+            "Red Fort",
+            "Ganges River"
+          ]
+        },
+        "thailand": {
+          "name": "Thailand",
+          "description": "Golden temples and the land of smiles",
+          "attractions": [
+            "Wat Arun",
+            "Grand Palace",
+            "Wat Pho"
+          ]
+        },
+        "singapore": {
+          "name": "Singapore",
+          "description": "Future city meets diverse cultures",
+          "attractions": [
+            "Marina Bay Sands",
+            "Gardens by the Bay",
+            "Merlion"
+          ]
+        },
+        "usa": {
+          "name": "United States",
+          "description": "Land of freedom and dreams, infinite possibilities",
+          "attractions": [
+            "Statue of Liberty",
+            "Grand Canyon",
+            "Times Square"
+          ]
+        },
+        "canada": {
+          "name": "Canada",
+          "description": "Vast nature and clean cities",
+          "attractions": [
+            "Niagara Falls",
+            "CN Tower",
+            "Banff National Park"
+          ]
+        },
+        "brazil": {
+          "name": "Brazil",
+          "description": "Samba and football, passionate South America",
+          "attractions": [
+            "Christ the Redeemer",
+            "Iguazu Falls",
+            "Maracanã Stadium"
+          ]
+        },
+        "peru": {
+          "name": "Peru",
+          "description": "Mysterious ruins of Inca civilization",
+          "attractions": [
+            "Machu Picchu",
+            "Cusco",
+            "Nazca Lines"
+          ]
+        },
+        "mexico": {
+          "name": "Mexico",
+          "description": "Mayan civilization and Caribbean paradise",
+          "attractions": [
+            "Chichen Itza",
+            "Teotihuacan",
+            "Cancun"
+          ]
+        }
+      },
       "stepTitles": {
         "inputLocation": "Enter Location",
-        "aiGenerate": "AI Generation",
-        "audioPlay": "Audio Playback"
+        "aiGenerate": "AI Guide Generation",
+        "audioPlay": "Start Audio Tour"
       },
       "stepDescriptions": {
-        "inputLocation": "Specific place",
-        "aiGenerate": "Auto guide generation",
-        "audioPlay": "Start tour"
+        "inputLocation": "Enter your travel destination or tourist attraction",
+        "aiGenerate": "AI automatically creates a personalized guide for you",
+        "audioPlay": "Enjoy an immersive audio tour with the generated guide"
       },
       "alerts": {
         "enterLocation": "Please enter a location first.",
@@ -1168,14 +2174,24 @@
         "audioGuide": "Audio Guide",
         "docent": "AI Docent",
         "tourRadio": "Tour Radio",
-        "travelRadio": "Travel Radio"
+        "travelRadio": "Travel Radio",
+        "locationService": "Real-time Location Service",
+        "recommendations": "Personalized Travel Recommendations",
+        "travelLog": "Travel Log Management",
+        "restaurants": "Local Restaurant Recommendations",
+        "checklist": "Travel Preparation Checklist",
+        "helpCenter": "Help Center",
+        "feedback": "Send Feedback",
+        "adsRevenue": "Ad Revenue Notice"
       },
       "tools": {
         "title": "Travel Tools",
         "tripPlanner": "AI Trip Planner",
         "nomadCalculator": "Digital Nomad Calculator",
         "filmLocations": "Film Locations",
-        "visaChecker": "Visa Checker"
+        "visaChecker": "Visa Checker",
+        "restaurants": "Restaurant Guide",
+        "checklist": "Travel Checklist"
       }
     },
     "legal": {
@@ -2364,12 +3380,6 @@
         "flightTime": "Flight Time:",
         "highlights": "Highlights"
       },
-      "header": {
-        "goBack": "Go Back",
-        "history": "History",
-        "signIn": "Sign In",
-        "signOut": "Sign Out"
-      },
       "tabs": {
         "planner": "Planner",
         "destinations": "Destinations",
@@ -2553,6 +3563,42 @@
         "loadButton": "Load",
         "deleteButton": "Delete"
       }
+    },
+    "podcast": {
+      "loading": "Loading...",
+      "backToHome": "Back to Home",
+      "totalProgress": "Total Progress",
+      "currentTime": "Current",
+      "segmentDuration": "Segment",
+      "chapterPrefix": "Chapter",
+      "generateTitle": "{locationName} Podcast Generation",
+      "generateDescription": "Experience a special guide created by AI through natural conversation",
+      "generateButton": "Generate Podcast",
+      "generatingTitle": "Generating Podcast...",
+      "generatingDescription": "AI is creating an interesting conversation about {locationName}",
+      "generatingProgress": "% Complete",
+      "playbackRates": {
+        "1": "1×",
+        "2": "2×",
+        "0.75": "0.75×",
+        "1.25": "1.25×",
+        "1.5": "1.5×"
+      },
+      "errors": {
+        "segmentPlayFailed": "Failed to play segment {segmentNumber}.",
+        "generationFailed": "Failed to generate podcast.",
+        "audioLoadFailed": "Failed to load audio."
+      },
+      "accessibility": {
+        "playButton": "Play",
+        "pauseButton": "Pause",
+        "previousSegment": "Previous Segment",
+        "nextSegment": "Next Segment",
+        "volumeControl": "Volume Control",
+        "muteButton": "Mute",
+        "unmuteButton": "Unmute",
+        "progressBar": "Playback Progress Bar"
+      }
     }
   },
   "ja": {
@@ -2561,10 +3607,319 @@
       "selectLanguage": "言語選択",
       "history": "検索履歴",
       "currentSelectedLanguage": "現在選択されている言語",
-      "profileAlt": "プロフィール"
+      "profileAlt": "プロフィール",
+      "guideMode": "ガイド",
+      "podcastMode": "ポッドキャスト",
+      "changeToLanguage": "{{language}}に変更",
+      "flagAltText": "{{language}}言語"
     },
     "navigation": {
       "home": "ホーム"
+    },
+    "tourRadio": {
+      "metadata": {
+        "title": "ツアーラジオ - AIが語る特別な旅の物語",
+        "description": "退屈な観光はもう終わり！AIが生成する楽しくて没入感のあるラジオスタイルの旅行ガイドを体験してください。",
+        "keyword": "ツアーラジオ"
+      },
+      "keyword": "ツアーラジオ",
+      "badge": "🎧 NEW ツアーラジオ",
+      "hero": {
+        "title": "旅行がこんなに楽しかった？",
+        "subtitle": "AIが語る特別なツアーラジオ",
+        "description": "退屈なガイドはさようなら！友達が語る物語のような楽しくてワクワクする旅行ラジオに出会ってください。世界中どこでも無料で楽しめる新しい旅行体験です。"
+      },
+      "cta": {
+        "primary": "無料で始める",
+        "secondary": "機能を詳しく"
+      },
+      "problems": {
+        "title": "従来の旅行ガイドの問題点",
+        "subtitle": "なぜ旅行がつまらないのでしょうか？",
+        "items": [
+          {
+            "title": "退屈な観光",
+            "description": "画一的で面白くない従来のガイド"
+          },
+          {
+            "title": "固い説明",
+            "description": "教科書のような知識伝達方式"
+          },
+          {
+            "title": "高いコスト",
+            "description": "ガイドツアーの負担の大きい価格"
+          },
+          {
+            "title": "時間制約",
+            "description": "決まった時間にのみ利用可能"
+          },
+          {
+            "title": "団体行動",
+            "description": "個人の好みを考慮しない団体ツアー"
+          },
+          {
+            "title": "言語の壁",
+            "description": "限定的な言語サポート"
+          }
+        ]
+      },
+      "radioFeatures": {
+        "title": "ツアーラジオだけの特別さ",
+        "subtitle": "全く新しい旅行体験をお届けします",
+        "features": [
+          {
+            "title": "ラジオスタイル",
+            "description": "楽しくて没入感のあるラジオ放送形式"
+          },
+          {
+            "title": "ストーリーテリング",
+            "description": "ワクワクする物語で伝える旅行情報"
+          },
+          {
+            "title": "位置ベース",
+            "description": "現在地に合わせたカスタムコンテンツ"
+          },
+          {
+            "title": "背景音楽",
+            "description": "雰囲気を演出する音楽と効果音"
+          },
+          {
+            "title": "インタラクティブ",
+            "description": "ユーザーとコミュニケーションする双方向コンテンツ"
+          },
+          {
+            "title": "世界対応",
+            "description": "180か国どこでも利用可能"
+          }
+        ]
+      },
+      "contentTypes": {
+        "title": "多様なコンテンツ",
+        "subtitle": "お好みに合う旅の物語をお選びください",
+        "items": [
+          {
+            "title": "歴史物語",
+            "description": "ワクワクする歴史的背景と物語"
+          },
+          {
+            "title": "隠れた名所",
+            "description": "地元の人だけが知る特別な場所"
+          },
+          {
+            "title": "グルメ探訪",
+            "description": "現地の食文化とグルメ情報"
+          },
+          {
+            "title": "ミステリー",
+            "description": "神秘的で興味深い都市伝説"
+          }
+        ]
+      },
+      "howItWorks": {
+        "title": "使用方法",
+        "steps": [
+          {
+            "title": "場所選択",
+            "description": "旅行したい都市や場所を選択します"
+          },
+          {
+            "title": "コンテンツ選択",
+            "description": "興味のあるトピックとスタイルを選択します"
+          },
+          {
+            "title": "ラジオ視聴",
+            "description": "AIが生成したカスタムラジオを楽しみます"
+          }
+        ]
+      },
+      "samplePrograms": {
+        "title": "サンプルプログラム",
+        "subtitle": "実際に制作されたツアーラジオを事前にお聴きください",
+        "programs": [
+          {
+            "title": "パリ夜景ツアー",
+            "location": "パリ、フランス",
+            "description": "エッフェル塔とセーヌ川のロマンチックな夜景を背景にしたパリの隠された物語",
+            "bgMusic": "フレンチジャズ"
+          },
+          {
+            "title": "ローマ帝国の痕跡",
+            "location": "ローマ、イタリア",
+            "description": "コロッセウムとフォロ・ロマーノから語られる古代ローマ皇帝の物語",
+            "bgMusic": "クラシックオーケストラ"
+          },
+          {
+            "title": "京都四季",
+            "location": "京都、日本",
+            "description": "祇園街と清水寺で出会う日本の伝統文化と四季の物語",
+            "bgMusic": "日本伝統音楽"
+          },
+          {
+            "title": "アルプストレッキング",
+            "location": "スイス",
+            "description": "ユングフラウとマッターホルンから語られるアルプス山脈の伝説と自然の驚異",
+            "bgMusic": "クラシック演奏"
+          },
+          {
+            "title": "地中海クルーズ",
+            "location": "ギリシャ",
+            "description": "サントリーニとミコノス島で繰り広げられるギリシャ神話とエーゲ海の物語",
+            "bgMusic": "地中海音楽"
+          },
+          {
+            "title": "ニューヨークブロードウェイ",
+            "location": "ニューヨーク、アメリカ",
+            "description": "タイムズスクエアとブロードウェイで出会うミュージカルと舞台芸術の世界",
+            "bgMusic": "ブロードウェイミュージカル"
+          }
+        ]
+      },
+      "finalCta": {
+        "title": "今すぐツアーラジオを体験してください",
+        "description": "世界で最も楽しい旅行ガイドがあなたを待っています。",
+        "button": "無料で始める"
+      }
+    },
+    "travelRadio": {
+      "metadata": {
+        "title": "トラベルラジオ - AIが作る個人向け旅行放送",
+        "description": "スマートフォンの画面ではなく耳で聴く新しい旅行！AIが生成する個人向け旅行ラジオでより深く意味のある旅行を体験してください。",
+        "keyword": "トラベルラジオ"
+      },
+      "keyword": "トラベルラジオ",
+      "badge": "📻 AI トラベルラジオ",
+      "hero": {
+        "title": "耳で聴く旅行の革命",
+        "subtitle": "AIが作る私だけの旅行放送",
+        "description": "スマートフォンの画面を見るだけの旅行はもう終わり！友達のようなAI DJが語る個人向け旅行ラジオでより深く意味のある旅行に出会ってください。"
+      },
+      "cta": {
+        "primary": "トラベルラジオを体験",
+        "secondary": "もっと詳しく"
+      },
+      "whyNeeded": {
+        "title": "なぜトラベルラジオが必要なのでしょうか？",
+        "subtitle": "現代旅行の問題点を解決します",
+        "problems": [
+          {
+            "title": "退屈な旅行",
+            "description": "単調でつまらない旅行体験"
+          },
+          {
+            "title": "スマートフォン依存",
+            "description": "画面ばかり見て逃してしまう大切な瞬間"
+          },
+          {
+            "title": "高いコスト",
+            "description": "高額な現地ガイドとツアー費用"
+          }
+        ]
+      },
+      "specialExperience": {
+        "title": "トラベルラジオだけの特別な体験",
+        "subtitle": "全く新しい旅行スタイルを提案します",
+        "features": [
+          {
+            "title": "ラジオDJスタイル",
+            "description": "親しみやすいDJが語る旅の物語"
+          },
+          {
+            "title": "カスタムコンテンツ",
+            "description": "個人の好みに合わせた旅行情報"
+          },
+          {
+            "title": "世界対応",
+            "description": "180か国どこでも利用可能"
+          },
+          {
+            "title": "本物のラジオ",
+            "description": "実際のラジオ放送のような没入感"
+          },
+          {
+            "title": "完全無料",
+            "description": "すべての機能を無料で提供"
+          },
+          {
+            "title": "快適な視聴",
+            "description": "快適に聴きながら楽しむ旅行"
+          }
+        ]
+      },
+      "radioTypes": {
+        "title": "多様なトラベルラジオ",
+        "subtitle": "お好みと状況に合わせてラジオをお選びください",
+        "categories": [
+          {
+            "title": "歴史探訪",
+            "description": "史跡と文化遺産の深い物語"
+          },
+          {
+            "title": "自然体験",
+            "description": "美しい自然と風景の物語"
+          },
+          {
+            "title": "食文化",
+            "description": "現地の食べ物と料理文化の探訪"
+          },
+          {
+            "title": "芸術文化",
+            "description": "美術館と文化芸術体験"
+          },
+          {
+            "title": "都市探訪",
+            "description": "現代都市の魅力発見"
+          },
+          {
+            "title": "夜景ツアー",
+            "description": "夜に広がる特別な風景"
+          }
+        ]
+      },
+      "howToListen": {
+        "title": "トラベルラジオの聴き方",
+        "subtitle": "4つのステップで簡単に始められます",
+        "steps": [
+          {
+            "title": "目的地選択",
+            "description": "旅行する都市や場所を選択します"
+          },
+          {
+            "title": "テーマ選択",
+            "description": "興味のある旅行テーマを選択します"
+          },
+          {
+            "title": "ラジオ生成",
+            "description": "AIがカスタムラジオを制作します"
+          },
+          {
+            "title": "旅行視聴",
+            "description": "快適に聴きながら旅行を楽しみます"
+          }
+        ]
+      },
+      "testimonials": {
+        "title": "トラベルラジオ体験レビュー",
+        "subtitle": "実際のユーザーの生の声をお聞きください",
+        "reviews": [
+          {
+            "content": "本当に特別な旅行体験でした。まるで現地の友達が案内してくれているようでした。",
+            "author": "田中美香、パリ旅行"
+          },
+          {
+            "content": "無料でこんな高品質のガイドが聴けるなんて驚きです。",
+            "author": "佐藤健太、ローマ旅行"
+          },
+          {
+            "content": "ラジオ形式なので本当に快適に聴きながら旅行できました。",
+            "author": "鈴木由美、東京旅行"
+          }
+        ]
+      },
+      "finalCta": {
+        "title": "今すぐトラベルラジオと一緒に出発しましょう",
+        "description": "世界中どこでも無料で楽しめる特別な旅行体験があなたを待っています。",
+        "button": "トラベルラジオを始める"
+      }
     },
     "home": {
       "brandTitle": "TripRadio.AI",
@@ -2583,15 +3938,192 @@
       "regionDescription": "世界各国の代表的な観光名所と一緒に特別なオーディオガイド旅行を始めましょう",
       "clickAttraction": "名所をクリック",
       "scrollHint": "左右にスクロールしてより多くの国を確認してください",
+      "searchPlaceholders": [
+        "どちらに興味がありますか？"
+      ],
+      "attractionDetails": {},
+      "countries": {
+        "seoul": {
+          "name": "ソウル",
+          "description": "伝統と現代が調和する韓国の首都",
+          "attractions": [
+            "景福宮",
+            "Nソウルタワー",
+            "明洞"
+          ]
+        },
+        "busan": {
+          "name": "釜山",
+          "description": "美しい港湾都市",
+          "attractions": [
+            "海雲台ビーチ",
+            "甘川文化村",
+            "チャガルチ市場"
+          ]
+        },
+        "jeju": {
+          "name": "済州",
+          "description": "幻想的な自然景観の島",
+          "attractions": [
+            "漢拏山",
+            "城山日出峰",
+            "中文観光団地"
+          ]
+        },
+        "gyeongju": {
+          "name": "慶州",
+          "description": "新羅の歴史が生きる千年古都",
+          "attractions": [
+            "仏国寺",
+            "石窟庵",
+            "瞻星台"
+          ]
+        },
+        "france": {
+          "name": "フランス",
+          "description": "ロマンチックなパリと輝かしい文化遺産",
+          "attractions": [
+            "エッフェル塔",
+            "ルーブル美術館",
+            "ベルサイユ宮殿"
+          ]
+        },
+        "italy": {
+          "name": "イタリア",
+          "description": "古代ローマの栄光とルネサンス芸術",
+          "attractions": [
+            "コロッセオ",
+            "ピサの斜塔",
+            "バチカン"
+          ]
+        },
+        "spain": {
+          "name": "スペイン",
+          "description": "ガウディの建築とフラメンコの情熱",
+          "attractions": [
+            "サグラダファミリア",
+            "アルハンブラ",
+            "グエル公園"
+          ]
+        },
+        "uk": {
+          "name": "イギリス",
+          "description": "伝統と現代が調和した国",
+          "attractions": [
+            "ビッグベン",
+            "タワーブリッジ",
+            "バッキンガム宮殿"
+          ]
+        },
+        "germany": {
+          "name": "ドイツ",
+          "description": "おとぎ話の城と深い歴史遺産",
+          "attractions": [
+            "ブランデンブルク門",
+            "ノイシュヴァンシュタイン城",
+            "ケルン大聖堂"
+          ]
+        },
+        "japan": {
+          "name": "日本",
+          "description": "伝統と先端が共存する神秘の国",
+          "attractions": [
+            "富士山",
+            "清水寺",
+            "浅草寺"
+          ]
+        },
+        "china": {
+          "name": "中国",
+          "description": "5千年の歴史を持つ偉大な文明",
+          "attractions": [
+            "万里の長城",
+            "紫禁城",
+            "天安門広場"
+          ]
+        },
+        "india": {
+          "name": "インド",
+          "description": "神秘的な精神性と壮大な宮殿",
+          "attractions": [
+            "タージマハル",
+            "レッドフォート",
+            "ガンジス川"
+          ]
+        },
+        "thailand": {
+          "name": "タイ",
+          "description": "黄金寺院と微笑みの国",
+          "attractions": [
+            "ワット・アルン",
+            "王宮",
+            "ワット・ポー"
+          ]
+        },
+        "singapore": {
+          "name": "シンガポール",
+          "description": "未来都市と多様な文化の出会い",
+          "attractions": [
+            "マリーナベイサンズ",
+            "ガーデンズバイザベイ",
+            "マーライオン"
+          ]
+        },
+        "usa": {
+          "name": "アメリカ",
+          "description": "自由と夢の国、無限の可能性",
+          "attractions": [
+            "自由の女神",
+            "グランドキャニオン",
+            "タイムズスクエア"
+          ]
+        },
+        "canada": {
+          "name": "カナダ",
+          "description": "広大な自然ときれいな都市",
+          "attractions": [
+            "ナイアガラの滝",
+            "CNタワー",
+            "バンフ国立公園"
+          ]
+        },
+        "brazil": {
+          "name": "ブラジル",
+          "description": "サンバとサッカー、情熱の南米",
+          "attractions": [
+            "キリスト像",
+            "イグアスの滝",
+            "マラカナン・スタジアム"
+          ]
+        },
+        "peru": {
+          "name": "ペルー",
+          "description": "インカ文明の神秘的な遺跡",
+          "attractions": [
+            "マチュピチュ",
+            "クスコ",
+            "ナスカの地上絵"
+          ]
+        },
+        "mexico": {
+          "name": "メキシコ",
+          "description": "マヤ文明とカリブ海の楽園",
+          "attractions": [
+            "チチェン・イッツァ",
+            "テオティワカン",
+            "カンクン"
+          ]
+        }
+      },
       "stepTitles": {
         "inputLocation": "場所入力",
-        "aiGenerate": "AI生成",
-        "audioPlay": "音声再生"
+        "aiGenerate": "AIガイド生成",
+        "audioPlay": "音声ツアー開始"
       },
       "stepDescriptions": {
-        "inputLocation": "特定の場所",
-        "aiGenerate": "ガイド自動生成",
-        "audioPlay": "ツアー開始"
+        "inputLocation": "訪れたい旅行先や観光スポットを入力してください",
+        "aiGenerate": "AIがあなた専用のガイドを自動的に作成します",
+        "audioPlay": "生成されたガイドで没入感のある音声ツアーをお楽しみください"
       },
       "alerts": {
         "enterLocation": "まず場所を入力してください。",
@@ -2832,14 +4364,24 @@
         "audioGuide": "オーディオガイド",
         "docent": "AIドーセント",
         "tourRadio": "ツアーラジオ",
-        "travelRadio": "トラベルラジオ"
+        "travelRadio": "トラベルラジオ",
+        "locationService": "リアルタイム位置情報サービス",
+        "recommendations": "パーソナライズ旅行推薦",
+        "travelLog": "旅行記録管理",
+        "restaurants": "現地おすすめレストラン",
+        "checklist": "旅行準備チェックリスト",
+        "helpCenter": "ヘルプセンター",
+        "feedback": "フィードバック送信",
+        "adsRevenue": "広告収益お知らせ"
       },
       "tools": {
         "title": "旅行ツール",
         "tripPlanner": "AI旅行プランナー",
         "nomadCalculator": "デジタルノマド計算機",
         "filmLocations": "映画撮影地",
-        "visaChecker": "ビザチェッカー"
+        "visaChecker": "ビザチェッカー",
+        "restaurants": "レストランガイド",
+        "checklist": "旅行チェックリスト"
       }
     },
     "tripPlanner": {
@@ -3753,6 +5295,42 @@
           "longTerm": "長期滞在サポート"
         }
       }
+    },
+    "podcast": {
+      "loading": "読み込み中...",
+      "backToHome": "ホームに戻る",
+      "totalProgress": "全体の進捗",
+      "currentTime": "現在",
+      "segmentDuration": "セグメント",
+      "chapterPrefix": "チャプター",
+      "generateTitle": "{locationName} ポッドキャスト生成",
+      "generateDescription": "AIが自然な対話で作る特別なガイド体験",
+      "generateButton": "ポッドキャストを生成",
+      "generatingTitle": "ポッドキャスト生成中...",
+      "generatingDescription": "AIが{locationName}について興味深い対話を作成しています",
+      "generatingProgress": "% 完了",
+      "playbackRates": {
+        "1": "1×",
+        "2": "2×",
+        "0.75": "0.75×",
+        "1.25": "1.25×",
+        "1.5": "1.5×"
+      },
+      "errors": {
+        "segmentPlayFailed": "セグメント{segmentNumber}の再生に失敗しました。",
+        "generationFailed": "ポッドキャストの生成に失敗しました。",
+        "audioLoadFailed": "オーディオの読み込みに失敗しました。"
+      },
+      "accessibility": {
+        "playButton": "再生",
+        "pauseButton": "一時停止",
+        "previousSegment": "前のセグメント",
+        "nextSegment": "次のセグメント",
+        "volumeControl": "音量調節",
+        "muteButton": "ミュート",
+        "unmuteButton": "ミュート解除",
+        "progressBar": "再生進捗バー"
+      }
     }
   },
   "zh": {
@@ -3761,10 +5339,319 @@
       "selectLanguage": "选择语言",
       "history": "搜索历史",
       "currentSelectedLanguage": "当前选择的语言",
-      "profileAlt": "个人资料"
+      "profileAlt": "个人资料",
+      "guideMode": "指南",
+      "podcastMode": "播客",
+      "changeToLanguage": "切换到{{language}}",
+      "flagAltText": "{{language}}语言"
     },
     "navigation": {
       "home": "首页"
+    },
+    "tourRadio": {
+      "metadata": {
+        "title": "旅游电台 - AI讲述的特别旅行故事",
+        "description": "告别无聊的旅游！体验由AI生成的有趣且沉浸式的电台风格旅行指南。",
+        "keyword": "旅游电台"
+      },
+      "keyword": "旅游电台",
+      "badge": "🎧 全新 旅游电台",
+      "hero": {
+        "title": "旅行竟然可以这么有趣？",
+        "subtitle": "AI讲述的特别旅游电台",
+        "description": "告别无聊的导游！遇见像朋友讲故事一样有趣和激动人心的旅行电台。在世界任何地方都能免费享受的全新旅行体验。"
+      },
+      "cta": {
+        "primary": "免费开始",
+        "secondary": "了解功能"
+      },
+      "problems": {
+        "title": "传统旅行指南的问题",
+        "subtitle": "为什么旅行这么无聊？",
+        "items": [
+          {
+            "title": "无聊的观光",
+            "description": "千篇一律且无趣的传统导游"
+          },
+          {
+            "title": "生硬的解说",
+            "description": "像教科书一样的知识传递方式"
+          },
+          {
+            "title": "高昂费用",
+            "description": "导游旅游团的昂贵价格"
+          },
+          {
+            "title": "时间限制",
+            "description": "只能在指定时间使用"
+          },
+          {
+            "title": "团体行动",
+            "description": "不考虑个人喜好的团体旅游"
+          },
+          {
+            "title": "语言障碍",
+            "description": "有限的语言支持"
+          }
+        ]
+      },
+      "radioFeatures": {
+        "title": "旅游电台的独特之处",
+        "subtitle": "提供全新的旅行体验",
+        "features": [
+          {
+            "title": "电台风格",
+            "description": "有趣且沉浸式的电台广播形式"
+          },
+          {
+            "title": "故事讲述",
+            "description": "通过激动人心的故事传递旅游信息"
+          },
+          {
+            "title": "位置定制",
+            "description": "根据当前位置提供定制内容"
+          },
+          {
+            "title": "背景音乐",
+            "description": "烘托氛围的音乐和音效"
+          },
+          {
+            "title": "互动体验",
+            "description": "与用户互动的双向内容"
+          },
+          {
+            "title": "全球支持",
+            "description": "在180个国家随时可用"
+          }
+        ]
+      },
+      "contentTypes": {
+        "title": "丰富内容",
+        "subtitle": "选择适合您品味的旅行故事",
+        "items": [
+          {
+            "title": "历史故事",
+            "description": "激动人心的历史背景和故事"
+          },
+          {
+            "title": "隐秘景点",
+            "description": "只有当地人知道的特别地方"
+          },
+          {
+            "title": "美食探索",
+            "description": "当地饮食文化和美食信息"
+          },
+          {
+            "title": "神秘传说",
+            "description": "神秘有趣的都市传说"
+          }
+        ]
+      },
+      "howItWorks": {
+        "title": "使用方法",
+        "steps": [
+          {
+            "title": "选择位置",
+            "description": "选择您想要旅行的城市或地点"
+          },
+          {
+            "title": "选择内容",
+            "description": "选择您感兴趣的主题和风格"
+          },
+          {
+            "title": "收听电台",
+            "description": "享受AI生成的个性化电台"
+          }
+        ]
+      },
+      "samplePrograms": {
+        "title": "样本节目",
+        "subtitle": "提前收听实际制作的旅游电台节目",
+        "programs": [
+          {
+            "title": "巴黎夜景之旅",
+            "location": "巴黎，法国",
+            "description": "以埃菲尔铁塔和塞纳河浪漫夜景为背景的巴黎隐藏故事",
+            "bgMusic": "法式爵士乐"
+          },
+          {
+            "title": "罗马帝国遗迹",
+            "location": "罗马，意大利",
+            "description": "从斗兽场和古罗马广场讲述的古代罗马皇帝故事",
+            "bgMusic": "古典管弦乐"
+          },
+          {
+            "title": "京都四季",
+            "location": "京都，日本",
+            "description": "在祇园街和清水寺邂逅的日本传统文化和四季故事",
+            "bgMusic": "日本传统音乐"
+          },
+          {
+            "title": "阿尔卑斯徒步",
+            "location": "瑞士",
+            "description": "从少女峰和马特洪峰讲述的阿尔卑斯山脉传说和自然奇观",
+            "bgMusic": "古典演奏"
+          },
+          {
+            "title": "地中海游轮",
+            "location": "希腊",
+            "description": "在圣托里尼和米科诺斯岛展开的希腊神话和爱琴海故事",
+            "bgMusic": "地中海音乐"
+          },
+          {
+            "title": "纽约百老汇",
+            "location": "纽约，美国",
+            "description": "在时代广场和百老汇邂逅的音乐剧和表演艺术世界",
+            "bgMusic": "百老汇音乐剧"
+          }
+        ]
+      },
+      "finalCta": {
+        "title": "立即体验旅游电台",
+        "description": "世界上最有趣的旅行指南正在等待您。",
+        "button": "免费开始"
+      }
+    },
+    "travelRadio": {
+      "metadata": {
+        "title": "旅行电台 - AI制作的个人定制旅行广播",
+        "description": "用耳朵而不是智能手机屏幕来体验全新旅行！通过AI生成的个人定制旅行电台体验更深入、更有意义的旅行。",
+        "keyword": "旅行电台"
+      },
+      "keyword": "旅行电台",
+      "badge": "📻 AI 旅行电台",
+      "hero": {
+        "title": "听觉旅行的革命",
+        "subtitle": "AI制作的专属旅行广播",
+        "description": "停止只盯着智能手机屏幕的旅行！通过友善的AI DJ讲述的个人定制旅行电台遇见更深入、更有意义的旅行。"
+      },
+      "cta": {
+        "primary": "体验旅行电台",
+        "secondary": "了解更多"
+      },
+      "whyNeeded": {
+        "title": "为什么需要旅行电台？",
+        "subtitle": "解决现代旅行的问题",
+        "problems": [
+          {
+            "title": "无聊的旅行",
+            "description": "单调无趣的旅行体验"
+          },
+          {
+            "title": "手机依赖",
+            "description": "只看屏幕而错过的珍贵时光"
+          },
+          {
+            "title": "高昂费用",
+            "description": "昂贵的当地导游和旅游费用"
+          }
+        ]
+      },
+      "specialExperience": {
+        "title": "旅行电台的特别体验",
+        "subtitle": "提出全新的旅行方式",
+        "features": [
+          {
+            "title": "电台DJ风格",
+            "description": "友好的DJ讲述的旅行故事"
+          },
+          {
+            "title": "定制内容",
+            "description": "符合个人喜好的旅游信息"
+          },
+          {
+            "title": "全球支持",
+            "description": "在180个国家随时可用"
+          },
+          {
+            "title": "真实电台",
+            "description": "如真实电台广播般的沉浸感"
+          },
+          {
+            "title": "完全免费",
+            "description": "免费提供所有功能"
+          },
+          {
+            "title": "舒适收听",
+            "description": "舒适地边听边享受旅行"
+          }
+        ]
+      },
+      "radioTypes": {
+        "title": "多样的旅行电台",
+        "subtitle": "选择适合您品味和情况的电台",
+        "categories": [
+          {
+            "title": "历史探索",
+            "description": "历史遗迹和文化遗产的深度故事"
+          },
+          {
+            "title": "自然体验",
+            "description": "美丽自然和风景的故事"
+          },
+          {
+            "title": "饮食文化",
+            "description": "当地饮食和烹饪文化的探索"
+          },
+          {
+            "title": "艺术文化",
+            "description": "博物馆和文化艺术体验"
+          },
+          {
+            "title": "都市探索",
+            "description": "发现现代都市的魅力"
+          },
+          {
+            "title": "夜景之旅",
+            "description": "夜晚展开的特别风景"
+          }
+        ]
+      },
+      "howToListen": {
+        "title": "如何收听旅行电台",
+        "subtitle": "4个步骤轻松开始",
+        "steps": [
+          {
+            "title": "选择目的地",
+            "description": "选择您要旅行的城市或地点"
+          },
+          {
+            "title": "选择主题",
+            "description": "选择您感兴趣的旅行主题"
+          },
+          {
+            "title": "生成电台",
+            "description": "AI制作定制电台"
+          },
+          {
+            "title": "旅行收听",
+            "description": "舒适地边听边享受旅行"
+          }
+        ]
+      },
+      "testimonials": {
+        "title": "旅行电台体验评价",
+        "subtitle": "听听真实用户的生动评价",
+        "reviews": [
+          {
+            "content": "真是特别的旅行体验。就像当地朋友在为我导游一样。",
+            "author": "李美华，巴黎旅行"
+          },
+          {
+            "content": "免费就能听到这么高质量的指南真是太棒了。",
+            "author": "王建民，罗马旅行"
+          },
+          {
+            "content": "电台形式让我在旅行时能够很舒适地收听。",
+            "author": "张秀英，东京旅行"
+          }
+        ]
+      },
+      "finalCta": {
+        "title": "现在就和旅行电台一起出发吧",
+        "description": "在世界任何地方都能免费享受的特别旅行体验正等待着您。",
+        "button": "开始旅行电台"
+      }
     },
     "home": {
       "brandTitle": "TripRadio.AI",
@@ -3783,15 +5670,192 @@
       "regionDescription": "与世界各国代表性旅游景点一起开始特别的音频指南之旅",
       "clickAttraction": "点击景点",
       "scrollHint": "左右滑动查看更多国家",
+      "searchPlaceholders": [
+        "您想探索哪个地方？"
+      ],
+      "attractionDetails": {},
+      "countries": {
+        "seoul": {
+          "name": "首尔",
+          "description": "传统与现代交融的韩国首都",
+          "attractions": [
+            "景福宫",
+            "首尔塔",
+            "明洞"
+          ]
+        },
+        "busan": {
+          "name": "釜山",
+          "description": "美丽的港口城市",
+          "attractions": [
+            "海云台海水浴场",
+            "甘川文化村",
+            "札嘎其市场"
+          ]
+        },
+        "jeju": {
+          "name": "济州",
+          "description": "梦幻自然景观的岛屿",
+          "attractions": [
+            "汉拿山",
+            "城山日出峰",
+            "中文旅游区"
+          ]
+        },
+        "gyeongju": {
+          "name": "庆州",
+          "description": "新罗历史悠久的千年古都",
+          "attractions": [
+            "佛国寺",
+            "石窟庵",
+            "瞻星台"
+          ]
+        },
+        "france": {
+          "name": "法国",
+          "description": "浪漫巴黎和灿烂文化遗产",
+          "attractions": [
+            "埃菲尔铁塔",
+            "卢浮宫",
+            "凡尔赛宫"
+          ]
+        },
+        "italy": {
+          "name": "意大利",
+          "description": "古罗马荣光与文艺复兴艺术",
+          "attractions": [
+            "斗兽场",
+            "比萨斜塔",
+            "梵蒂冈"
+          ]
+        },
+        "spain": {
+          "name": "西班牙",
+          "description": "高迪建筑与弗拉明戈激情",
+          "attractions": [
+            "圣家族大教堂",
+            "阿尔罕布拉宫",
+            "古埃尔公园"
+          ]
+        },
+        "uk": {
+          "name": "英国",
+          "description": "传统与现代和谐的国家",
+          "attractions": [
+            "大本钟",
+            "伦敦塔桥",
+            "白金汉宫"
+          ]
+        },
+        "germany": {
+          "name": "德国",
+          "description": "童话城堡与深厚历史遗产",
+          "attractions": [
+            "勃兰登堡门",
+            "新天鹅堡",
+            "科隆大教堂"
+          ]
+        },
+        "japan": {
+          "name": "日本",
+          "description": "传统与尖端共存的神秘之国",
+          "attractions": [
+            "富士山",
+            "清水寺",
+            "浅草寺"
+          ]
+        },
+        "china": {
+          "name": "中国",
+          "description": "五千年历史的伟大文明",
+          "attractions": [
+            "长城",
+            "紫禁城",
+            "天安门广场"
+          ]
+        },
+        "india": {
+          "name": "印度",
+          "description": "神秘灵性与宏伟宫殿",
+          "attractions": [
+            "泰姬陵",
+            "红堡",
+            "恒河"
+          ]
+        },
+        "thailand": {
+          "name": "泰国",
+          "description": "金色寺庙与微笑之国",
+          "attractions": [
+            "郑王庙",
+            "大皇宫",
+            "卧佛寺"
+          ]
+        },
+        "singapore": {
+          "name": "新加坡",
+          "description": "未来城市与多元文化相遇",
+          "attractions": [
+            "滨海湾金沙",
+            "滨海湾花园",
+            "鱼尾狮"
+          ]
+        },
+        "usa": {
+          "name": "美国",
+          "description": "自由与梦想之国，无限可能",
+          "attractions": [
+            "自由女神像",
+            "大峡谷",
+            "时代广场"
+          ]
+        },
+        "canada": {
+          "name": "加拿大",
+          "description": "广阔自然与清洁城市",
+          "attractions": [
+            "尼亚加拉大瀑布",
+            "加拿大国家电视塔",
+            "班夫国家公园"
+          ]
+        },
+        "brazil": {
+          "name": "巴西",
+          "description": "桑巴与足球，激情南美",
+          "attractions": [
+            "基督像",
+            "伊瓜苏瀑布",
+            "马拉卡纳体育场"
+          ]
+        },
+        "peru": {
+          "name": "秘鲁",
+          "description": "印加文明的神秘遗迹",
+          "attractions": [
+            "马丘比丘",
+            "库斯科",
+            "纳斯卡线条"
+          ]
+        },
+        "mexico": {
+          "name": "墨西哥",
+          "description": "玛雅文明与加勒比海天堂",
+          "attractions": [
+            "奇琴伊察",
+            "特奥蒂瓦坎",
+            "坎昆"
+          ]
+        }
+      },
       "stepTitles": {
         "inputLocation": "输入地点",
-        "aiGenerate": "AI生成",
-        "audioPlay": "音频播放"
+        "aiGenerate": "AI指南生成",
+        "audioPlay": "开始音频导览"
       },
       "stepDescriptions": {
-        "inputLocation": "特定场所",
-        "aiGenerate": "自动生成指南",
-        "audioPlay": "开始旅程"
+        "inputLocation": "输入您要访问的旅游目的地或景点",
+        "aiGenerate": "AI为您自动创建个性化指南",
+        "audioPlay": "使用生成的指南享受沉浸式音频导览"
       },
       "alerts": {
         "enterLocation": "请先输入地点。",
@@ -4032,14 +6096,24 @@
         "audioGuide": "音频指南",
         "docent": "AI导览员",
         "tourRadio": "旅游电台",
-        "travelRadio": "旅行电台"
+        "travelRadio": "旅行电台",
+        "locationService": "实时位置服务",
+        "recommendations": "个性化旅行推荐",
+        "travelLog": "旅行记录管理",
+        "restaurants": "本地餐厅推荐",
+        "checklist": "旅行准备清单",
+        "helpCenter": "帮助中心",
+        "feedback": "发送反馈",
+        "adsRevenue": "广告收入通知"
       },
       "tools": {
         "title": "旅行工具",
         "tripPlanner": "AI行程规划",
         "nomadCalculator": "数字游民生活成本计算器",
         "filmLocations": "电影拍摄地",
-        "visaChecker": "签证查询"
+        "visaChecker": "签证查询",
+        "restaurants": "餐厅指南",
+        "checklist": "旅行清单"
       }
     },
     "tripPlanner": {
@@ -4953,6 +7027,42 @@
           "longTerm": "长期住宿支持"
         }
       }
+    },
+    "podcast": {
+      "loading": "加载中...",
+      "backToHome": "返回首页",
+      "totalProgress": "总进度",
+      "currentTime": "当前",
+      "segmentDuration": "片段",
+      "chapterPrefix": "章节",
+      "generateTitle": "{locationName} 播客生成",
+      "generateDescription": "体验AI通过自然对话创造的特别导游体验",
+      "generateButton": "生成播客",
+      "generatingTitle": "正在生成播客...",
+      "generatingDescription": "AI正在创造关于{locationName}的有趣对话",
+      "generatingProgress": "% 完成",
+      "playbackRates": {
+        "1": "1×",
+        "2": "2×",
+        "0.75": "0.75×",
+        "1.25": "1.25×",
+        "1.5": "1.5×"
+      },
+      "errors": {
+        "segmentPlayFailed": "播放片段{segmentNumber}失败。",
+        "generationFailed": "播客生成失败。",
+        "audioLoadFailed": "音频加载失败。"
+      },
+      "accessibility": {
+        "playButton": "播放",
+        "pauseButton": "暂停",
+        "previousSegment": "上一片段",
+        "nextSegment": "下一片段",
+        "volumeControl": "音量控制",
+        "muteButton": "静音",
+        "unmuteButton": "取消静音",
+        "progressBar": "播放进度条"
+      }
     }
   },
   "es": {
@@ -4961,10 +7071,319 @@
       "selectLanguage": "Seleccionar Idioma",
       "history": "Historial de Búsqueda",
       "currentSelectedLanguage": "Idioma actualmente seleccionado",
-      "profileAlt": "Perfil"
+      "profileAlt": "Perfil",
+      "guideMode": "Guía",
+      "podcastMode": "Podcast",
+      "changeToLanguage": "Cambiar a {{language}}",
+      "flagAltText": "Idioma {{language}}"
     },
     "navigation": {
       "home": "Inicio"
+    },
+    "tourRadio": {
+      "metadata": {
+        "title": "Tour Radio - Historias de Viaje Especiales Narradas por IA",
+        "description": "¡Adiós a los tours aburridos! Experimenta guías de viaje inmersivas y divertidas en estilo de radio generadas por IA.",
+        "keyword": "Tour Radio"
+      },
+      "keyword": "Tour Radio",
+      "badge": "🎧 NUEVO Tour Radio",
+      "hero": {
+        "title": "¿Los Viajes Pueden Ser Así de Divertidos?",
+        "subtitle": "Tour Radio Especial por IA",
+        "description": "¡Adiós a los guías aburridos! Conoce la radio de viajes divertida y emocionante que se siente como historias contadas por un amigo. Una experiencia de viaje completamente nueva que puedes disfrutar gratis en cualquier parte del mundo."
+      },
+      "cta": {
+        "primary": "Comenzar Gratis",
+        "secondary": "Conocer Funciones"
+      },
+      "problems": {
+        "title": "Problemas de las Guías Turísticas Tradicionales",
+        "subtitle": "¿Por qué los viajes son tan aburridos?",
+        "items": [
+          {
+            "title": "Tours Aburridos",
+            "description": "Guías tradicionales uniformes y sin interés"
+          },
+          {
+            "title": "Explicaciones Rígidas",
+            "description": "Método de transmisión de conocimiento como libros de texto"
+          },
+          {
+            "title": "Costos Altos",
+            "description": "Precios costosos de tours guiados"
+          },
+          {
+            "title": "Restricciones de Tiempo",
+            "description": "Disponible solo en horarios programados"
+          },
+          {
+            "title": "Actividades Grupales",
+            "description": "Tours grupales que ignoran preferencias personales"
+          },
+          {
+            "title": "Barreras de Idioma",
+            "description": "Soporte limitado de idiomas"
+          }
+        ]
+      },
+      "radioFeatures": {
+        "title": "Lo Especial del Tour Radio",
+        "subtitle": "Ofrecemos una experiencia de viaje completamente nueva",
+        "features": [
+          {
+            "title": "Estilo Radio",
+            "description": "Formato de transmisión de radio divertido e inmersivo"
+          },
+          {
+            "title": "Narrativa",
+            "description": "Información de viaje a través de historias emocionantes"
+          },
+          {
+            "title": "Basado en Ubicación",
+            "description": "Contenido personalizado para tu ubicación actual"
+          },
+          {
+            "title": "Música de Fondo",
+            "description": "Música y efectos de sonido que realzan la atmósfera"
+          },
+          {
+            "title": "Interactivo",
+            "description": "Contenido bidireccional que se comunica con los usuarios"
+          },
+          {
+            "title": "Soporte Global",
+            "description": "Disponible en cualquier lugar de 180 países"
+          }
+        ]
+      },
+      "contentTypes": {
+        "title": "Contenido Diverso",
+        "subtitle": "Elige historias de viaje que coincidan con tu gusto",
+        "items": [
+          {
+            "title": "Historias Históricas",
+            "description": "Trasfondos históricos fascinantes e historias"
+          },
+          {
+            "title": "Gemas Ocultas",
+            "description": "Lugares especiales que solo conocen los locales"
+          },
+          {
+            "title": "Exploración Gastronómica",
+            "description": "Cultura gastronómica local e información de restaurantes"
+          },
+          {
+            "title": "Misterios",
+            "description": "Leyendas urbanas misteriosas e intrigantes"
+          }
+        ]
+      },
+      "howItWorks": {
+        "title": "Cómo Usar",
+        "steps": [
+          {
+            "title": "Seleccionar Ubicación",
+            "description": "Elige la ciudad o lugar al que quieres viajar"
+          },
+          {
+            "title": "Elegir Contenido",
+            "description": "Selecciona temas y estilos que te interesen"
+          },
+          {
+            "title": "Escuchar Radio",
+            "description": "Disfruta de la radio personalizada generada por IA"
+          }
+        ]
+      },
+      "samplePrograms": {
+        "title": "Programas de Muestra",
+        "subtitle": "Escucha programas de tour radio realmente producidos con anticipación",
+        "programs": [
+          {
+            "title": "Tour Nocturno de París",
+            "location": "París, Francia",
+            "description": "Historias ocultas de París con la vista nocturna romántica de la Torre Eiffel y el Río Sena de fondo",
+            "bgMusic": "Jazz Francés"
+          },
+          {
+            "title": "Huellas del Imperio Romano",
+            "location": "Roma, Italia",
+            "description": "Historias de emperadores romanos antiguos contadas desde el Coliseo y el Foro Romano",
+            "bgMusic": "Orquesta Clásica"
+          },
+          {
+            "title": "Las Cuatro Estaciones de Kioto",
+            "location": "Kioto, Japón",
+            "description": "Cultura tradicional japonesa e historias estacionales encontradas en la Calle Gion y el Templo Kiyomizu",
+            "bgMusic": "Música Tradicional Japonesa"
+          },
+          {
+            "title": "Senderismo en los Alpes",
+            "location": "Suiza",
+            "description": "Leyendas y maravillas naturales de los Alpes contadas desde Jungfrau y Matterhorn",
+            "bgMusic": "Interpretación Clásica"
+          },
+          {
+            "title": "Crucero Mediterráneo",
+            "location": "Grecia",
+            "description": "Mitología griega e historias del Mar Egeo desarrollándose en Santorini y Miconos",
+            "bgMusic": "Música Mediterránea"
+          },
+          {
+            "title": "Broadway de Nueva York",
+            "location": "Nueva York, EE.UU.",
+            "description": "El mundo de musicales y artes escénicas en Times Square y Broadway",
+            "bgMusic": "Musicales de Broadway"
+          }
+        ]
+      },
+      "finalCta": {
+        "title": "Experimenta Tour Radio Ahora Mismo",
+        "description": "La guía de viaje más entretenida del mundo te está esperando.",
+        "button": "Comenzar Gratis"
+      }
+    },
+    "travelRadio": {
+      "metadata": {
+        "title": "Travel Radio - Transmisión de Viaje Personal Generada por IA",
+        "description": "¡Nuevo viaje a través de tus oídos en lugar de pantallas de smartphone! Experimenta viajes más profundos y significativos con radio de viaje personalizada generada por IA.",
+        "keyword": "Travel Radio"
+      },
+      "keyword": "Travel Radio",
+      "badge": "📻 IA Travel Radio",
+      "hero": {
+        "title": "Revolución del Viaje Auditivo",
+        "subtitle": "Transmisión de Viaje Personal Creada por IA",
+        "description": "¡Deja de mirar solo las pantallas de smartphones! Conoce viajes más profundos y significativos con radio de viaje personalizada contada por un DJ IA amigable."
+      },
+      "cta": {
+        "primary": "Experimentar Travel Radio",
+        "secondary": "Aprender Más"
+      },
+      "whyNeeded": {
+        "title": "¿Por Qué Necesitas Travel Radio?",
+        "subtitle": "Resolviendo problemas del viaje moderno",
+        "problems": [
+          {
+            "title": "Viajes Aburridos",
+            "description": "Experiencias de viaje monótonas y sin interés"
+          },
+          {
+            "title": "Dependencia del Smartphone",
+            "description": "Momentos preciosos perdidos mientras miras pantallas"
+          },
+          {
+            "title": "Costos Altos",
+            "description": "Guías locales costosos y costos de tours"
+          }
+        ]
+      },
+      "specialExperience": {
+        "title": "Experiencia Especial de Travel Radio",
+        "subtitle": "Proponemos una forma completamente nueva de viajar",
+        "features": [
+          {
+            "title": "Estilo DJ de Radio",
+            "description": "Historias de viaje contadas por DJ amigable"
+          },
+          {
+            "title": "Contenido Personalizado",
+            "description": "Información de viaje adaptada a preferencias personales"
+          },
+          {
+            "title": "Soporte Global",
+            "description": "Disponible en cualquier lugar de 180 países"
+          },
+          {
+            "title": "Radio Real",
+            "description": "Experiencia inmersiva como transmisión de radio real"
+          },
+          {
+            "title": "Completamente Gratis",
+            "description": "Todas las funciones proporcionadas gratis"
+          },
+          {
+            "title": "Escucha Cómoda",
+            "description": "Disfruta el viaje mientras escuchas cómodamente"
+          }
+        ]
+      },
+      "radioTypes": {
+        "title": "Travel Radio Variado",
+        "subtitle": "Elige radio que coincida con tu gusto y situación",
+        "categories": [
+          {
+            "title": "Exploración Histórica",
+            "description": "Historias profundas de sitios históricos y patrimonio cultural"
+          },
+          {
+            "title": "Experiencia Natural",
+            "description": "Historias de hermosa naturaleza y paisajes"
+          },
+          {
+            "title": "Cultura Gastronómica",
+            "description": "Exploración de comida local y cultura culinaria"
+          },
+          {
+            "title": "Cultura Artística",
+            "description": "Experiencias de museos y artes culturales"
+          },
+          {
+            "title": "Exploración Urbana",
+            "description": "Descubriendo el encanto de ciudades modernas"
+          },
+          {
+            "title": "Tours Nocturnos",
+            "description": "Paisajes especiales que se despliegan por la noche"
+          }
+        ]
+      },
+      "howToListen": {
+        "title": "Cómo Escuchar Travel Radio",
+        "subtitle": "Comienza simplemente en 4 pasos",
+        "steps": [
+          {
+            "title": "Seleccionar Destino",
+            "description": "Elige la ciudad o lugar al que quieres viajar"
+          },
+          {
+            "title": "Elegir Tema",
+            "description": "Selecciona un tema de viaje que te interese"
+          },
+          {
+            "title": "Generar Radio",
+            "description": "IA crea radio personalizada"
+          },
+          {
+            "title": "Escucha de Viaje",
+            "description": "Disfruta el viaje mientras escuchas cómodamente"
+          }
+        ]
+      },
+      "testimonials": {
+        "title": "Reseñas de Experiencia con Travel Radio",
+        "subtitle": "Escucha reseñas vívidas de usuarios reales",
+        "reviews": [
+          {
+            "content": "Fue verdaderamente una experiencia de viaje especial. Se sintió como si un amigo local me estuviera guiando.",
+            "author": "María García, Viaje a París"
+          },
+          {
+            "content": "Es sorprendente que pueda escuchar una guía de tal calidad gratis.",
+            "author": "Carlos Rodríguez, Viaje a Roma"
+          },
+          {
+            "content": "El formato de radio hizo que fuera realmente cómodo escuchar mientras viajaba.",
+            "author": "Ana López, Viaje a Tokio"
+          }
+        ]
+      },
+      "finalCta": {
+        "title": "Comienza Tu Viaje con Travel Radio Ahora",
+        "description": "Una experiencia de viaje especial que puedes disfrutar gratis en cualquier parte del mundo te está esperando.",
+        "button": "Comenzar Travel Radio"
+      }
     },
     "home": {
       "brandTitle": "TripRadio.AI",
@@ -4983,15 +7402,192 @@
       "regionDescription": "Comienza un viaje especial de guía de audio con atracciones turísticas representativas de todo el mundo",
       "clickAttraction": "Haz clic en atracciones",
       "scrollHint": "Desplázate a la izquierda y derecha para ver más países",
+      "searchPlaceholders": [
+        "¿Qué lugar te gustaría explorar?"
+      ],
+      "attractionDetails": {},
+      "countries": {
+        "seoul": {
+          "name": "Seúl",
+          "description": "Capital de Corea del Sur donde la tradición se encuentra con la modernidad",
+          "attractions": [
+            "Palacio Gyeongbokgung",
+            "Torre N de Seúl",
+            "Myeongdong"
+          ]
+        },
+        "busan": {
+          "name": "Busan",
+          "description": "Hermosa ciudad portuaria junto al mar",
+          "attractions": [
+            "Playa Haeundae",
+            "Pueblo Cultural Gamcheon",
+            "Mercado de Pescado Jagalchi"
+          ]
+        },
+        "jeju": {
+          "name": "Jeju",
+          "description": "Isla de paisajes naturales fantásticos",
+          "attractions": [
+            "Monte Hallasan",
+            "Seongsan Ilchulbong",
+            "Complejo Turístico Jungmun"
+          ]
+        },
+        "gyeongju": {
+          "name": "Gyeongju",
+          "description": "Antigua capital donde vive la historia de Silla",
+          "attractions": [
+            "Templo Bulguksa",
+            "Gruta Seokguram",
+            "Observatorio Cheomseongdae"
+          ]
+        },
+        "france": {
+          "name": "Francia",
+          "description": "París romántico y magnífico patrimonio cultural",
+          "attractions": [
+            "Torre Eiffel",
+            "Museo del Louvre",
+            "Palacio de Versalles"
+          ]
+        },
+        "italy": {
+          "name": "Italia",
+          "description": "Gloria de la antigua Roma y arte renacentista",
+          "attractions": [
+            "Coliseo",
+            "Torre Inclinada de Pisa",
+            "Vaticano"
+          ]
+        },
+        "spain": {
+          "name": "España",
+          "description": "Arquitectura de Gaudí y pasión flamenca",
+          "attractions": [
+            "Sagrada Familia",
+            "Alhambra",
+            "Parque Güell"
+          ]
+        },
+        "uk": {
+          "name": "Reino Unido",
+          "description": "Mezcla armoniosa de tradición y modernidad",
+          "attractions": [
+            "Big Ben",
+            "Tower Bridge",
+            "Palacio de Buckingham"
+          ]
+        },
+        "germany": {
+          "name": "Alemania",
+          "description": "Castillos de cuento de hadas y profundo patrimonio histórico",
+          "attractions": [
+            "Puerta de Brandenburgo",
+            "Castillo de Neuschwanstein",
+            "Catedral de Colonia"
+          ]
+        },
+        "japan": {
+          "name": "Japón",
+          "description": "Tierra misteriosa donde coexisten tradición y vanguardia",
+          "attractions": [
+            "Monte Fuji",
+            "Kiyomizu-dera",
+            "Senso-ji"
+          ]
+        },
+        "china": {
+          "name": "China",
+          "description": "Gran civilización con 5000 años de historia",
+          "attractions": [
+            "Gran Muralla",
+            "Ciudad Prohibida",
+            "Plaza de Tiananmen"
+          ]
+        },
+        "india": {
+          "name": "India",
+          "description": "Espiritualidad mística y palacios magníficos",
+          "attractions": [
+            "Taj Mahal",
+            "Fuerte Rojo",
+            "Río Ganges"
+          ]
+        },
+        "thailand": {
+          "name": "Tailandia",
+          "description": "Templos dorados y tierra de sonrisas",
+          "attractions": [
+            "Wat Arun",
+            "Gran Palacio",
+            "Wat Pho"
+          ]
+        },
+        "singapore": {
+          "name": "Singapur",
+          "description": "Ciudad futura se encuentra con culturas diversas",
+          "attractions": [
+            "Marina Bay Sands",
+            "Gardens by the Bay",
+            "Merlion"
+          ]
+        },
+        "usa": {
+          "name": "Estados Unidos",
+          "description": "Tierra de libertad y sueños, posibilidades infinitas",
+          "attractions": [
+            "Estatua de la Libertad",
+            "Gran Cañón",
+            "Times Square"
+          ]
+        },
+        "canada": {
+          "name": "Canadá",
+          "description": "Naturaleza vasta y ciudades limpias",
+          "attractions": [
+            "Cataratas del Niágara",
+            "Torre CN",
+            "Parque Nacional Banff"
+          ]
+        },
+        "brazil": {
+          "name": "Brasil",
+          "description": "Samba y fútbol, Sudamérica apasionada",
+          "attractions": [
+            "Cristo Redentor",
+            "Cataratas del Iguazú",
+            "Estadio Maracanã"
+          ]
+        },
+        "peru": {
+          "name": "Perú",
+          "description": "Ruinas misteriosas de la civilización inca",
+          "attractions": [
+            "Machu Picchu",
+            "Cusco",
+            "Líneas de Nazca"
+          ]
+        },
+        "mexico": {
+          "name": "México",
+          "description": "Civilización maya y paraíso caribeño",
+          "attractions": [
+            "Chichen Itza",
+            "Teotihuacán",
+            "Cancún"
+          ]
+        }
+      },
       "stepTitles": {
         "inputLocation": "Ingresar Ubicación",
-        "aiGenerate": "Generación AI",
-        "audioPlay": "Reproducción de Audio"
+        "aiGenerate": "Generación de Guía IA",
+        "audioPlay": "Iniciar Tour de Audio"
       },
       "stepDescriptions": {
-        "inputLocation": "Lugar específico",
-        "aiGenerate": "Generación automática de guía",
-        "audioPlay": "Comenzar tour"
+        "inputLocation": "Ingrese su destino de viaje o atracción turística",
+        "aiGenerate": "La IA crea automáticamente una guía personalizada para usted",
+        "audioPlay": "Disfrute de un tour de audio inmersivo con la guía generada"
       },
       "alerts": {
         "enterLocation": "Por favor, ingrese primero una ubicación.",
@@ -5232,14 +7828,24 @@
         "audioGuide": "Guía de Audio",
         "docent": "AI Docente",
         "tourRadio": "Radio de Tour",
-        "travelRadio": "Radio de Viaje"
+        "travelRadio": "Radio de Viaje",
+        "locationService": "Servicio de Ubicación en Tiempo Real",
+        "recommendations": "Recomendaciones de Viaje Personalizadas",
+        "travelLog": "Gestión de Registro de Viajes",
+        "restaurants": "Recomendaciones de Restaurantes Locales",
+        "checklist": "Lista de Verificación de Preparación de Viaje",
+        "helpCenter": "Centro de Ayuda",
+        "feedback": "Enviar Comentarios",
+        "adsRevenue": "Aviso de Ingresos por Publicidad"
       },
       "tools": {
         "title": "Herramientas de Viaje",
         "tripPlanner": "Planificador de Viaje AI",
         "nomadCalculator": "Calculadora de Costo de Vida Nómada",
         "filmLocations": "Locaciones de Películas",
-        "visaChecker": "Verificador de Visa"
+        "visaChecker": "Verificador de Visa",
+        "restaurants": "Guía de Restaurantes",
+        "checklist": "Lista de Viaje"
       }
     },
     "tripPlanner": {
@@ -6059,6 +8665,42 @@
           "coworking": "Espacios de Coworking",
           "longTerm": "Soporte para Estadía Prolongada"
         }
+      }
+    },
+    "podcast": {
+      "loading": "Cargando...",
+      "backToHome": "Volver al Inicio",
+      "totalProgress": "Progreso Total",
+      "currentTime": "Actual",
+      "segmentDuration": "Segmento",
+      "chapterPrefix": "Capítulo",
+      "generateTitle": "Generación de Podcast de {locationName}",
+      "generateDescription": "Experimenta una guía especial creada por IA a través de conversación natural",
+      "generateButton": "Generar Podcast",
+      "generatingTitle": "Generando Podcast...",
+      "generatingDescription": "IA está creando una conversación interesante sobre {locationName}",
+      "generatingProgress": "% Completado",
+      "playbackRates": {
+        "1": "1×",
+        "2": "2×",
+        "0.75": "0.75×",
+        "1.25": "1.25×",
+        "1.5": "1.5×"
+      },
+      "errors": {
+        "segmentPlayFailed": "Falló la reproducción del segmento {segmentNumber}.",
+        "generationFailed": "Falló la generación del podcast.",
+        "audioLoadFailed": "Falló la carga del audio."
+      },
+      "accessibility": {
+        "playButton": "Reproducir",
+        "pauseButton": "Pausar",
+        "previousSegment": "Segmento Anterior",
+        "nextSegment": "Siguiente Segmento",
+        "volumeControl": "Control de Volumen",
+        "muteButton": "Silenciar",
+        "unmuteButton": "Activar Sonido",
+        "progressBar": "Barra de Progreso de Reproducción"
       }
     }
   }

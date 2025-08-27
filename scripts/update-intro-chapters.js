@@ -36,8 +36,8 @@ async function updateIntroChapterSelectively(guide) {
     // 기존 가이드 구조 완전 복사 (deep copy)
     const updatedGuide = JSON.parse(JSON.stringify(guide.content));
     
-    // 🔧 정확한 DB 구조에 맞는 경로 수정
-    const originalIntro = updatedGuide.content?.realTimeGuide?.chapters?.[0];
+    // 🔧 정확한 DB 구조에 맞는 경로 수정 (실제 DB 구조: content.content.realTimeGuide.chapters)
+    const originalIntro = updatedGuide.content?.content?.realTimeGuide?.chapters?.[0];
     
     if (!originalIntro) {
       console.log(`⚠️ 인트로 챕터가 없습니다: ${guide.locationname}`);
@@ -52,7 +52,7 @@ async function updateIntroChapterSelectively(guide) {
     };
     
     // 🔧 정확한 DB 구조에 맞는 경로로 인트로 챕터 교체
-    updatedGuide.content.realTimeGuide.chapters[0] = updatedIntro;
+    updatedGuide.content.content.realTimeGuide.chapters[0] = updatedIntro;
     
     // 좌표 정밀화 시스템 적용
     const { enhancedGuide } = await enhanceGuideCoordinates(
@@ -90,9 +90,9 @@ async function enhanceGuideCoordinates(guideData, locationName, language) {
       return { enhancedGuide: guideData };
     }
     
-    // 가이드 복사 - 🔧 정확한 DB 구조 경로
+    // 가이드 복사 - 🔧 정확한 DB 구조 경로 (content.content.realTimeGuide.chapters)
     const enhancedGuide = JSON.parse(JSON.stringify(guideData));
-    const chapters = enhancedGuide.content?.realTimeGuide?.chapters || [];
+    const chapters = enhancedGuide.content?.content?.realTimeGuide?.chapters || [];
     
     if (chapters.length === 0) {
       return { enhancedGuide: guideData };
@@ -197,13 +197,13 @@ async function enhanceGuideCoordinates(guideData, locationName, language) {
  */
 function validateGuideStructure(original, updated) {
   try {
-    // 필수 구조 존재 확인 - 🔧 정확한 DB 구조 경로
-    if (!updated.content?.realTimeGuide?.chapters) {
+    // 필수 구조 존재 확인 - 🔧 정확한 DB 구조 경로 (content.content.realTimeGuide.chapters)
+    if (!updated.content?.content?.realTimeGuide?.chapters) {
       throw new Error('Invalid guide structure: missing chapters');
     }
     
-    const originalChapters = original.content?.realTimeGuide?.chapters || [];
-    const updatedChapters = updated.content.realTimeGuide.chapters;
+    const originalChapters = original.content?.content?.realTimeGuide?.chapters || [];
+    const updatedChapters = updated.content.content.realTimeGuide.chapters;
     
     // 챕터 개수 동일 확인
     if (originalChapters.length !== updatedChapters.length) {
@@ -255,7 +255,7 @@ async function updateGuideInDatabase(guide, updatedContent) {
     }
     
     // 2. guide_chapters 테이블도 동기화 (있는 경우) - 🔧 정확한 경로
-    const introChapter = updatedContent.realTimeGuide?.chapters?.[0];
+    const introChapter = updatedContent.content.content.realTimeGuide?.chapters?.[0];
     if (introChapter) {
       const { error: chapterError } = await supabase
         .from('guide_chapters')

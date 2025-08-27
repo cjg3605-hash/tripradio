@@ -79,6 +79,8 @@ interface Translations {
     profile: string;
     settings: string;
     currentSelectedLanguage: string;
+    guideMode: string;
+    podcastMode: string;
   };
   navigation: {
     home: string;
@@ -96,6 +98,7 @@ interface Translations {
     searchPlaceholder: string;
     searchButton: string;
     popularDestinations: string;
+    viewMoreAttractions: string;
     description: string;
     searchPlaceholders?: string[];
     defaultSuggestions?: Array<{ name: string; location: string }>;
@@ -229,6 +232,7 @@ interface Translations {
     hide: string;
     exists: string;
     notExists: string;
+    pleaseWait: string;
     confirmDelete: string;
     daysAgo: string;
     weeksAgo: string;
@@ -714,6 +718,130 @@ interface Translations {
       };
     };
   };
+  tourRadio: {
+    metadata: {
+      title: string;
+      description: string;
+      keyword: string;
+    };
+    badge: string;
+    hero: {
+      title: string;
+      subtitle: string;
+      description: string;
+    };
+    cta: {
+      primary: string;
+      secondary: string;
+    };
+    problems: {
+      title: string;
+      subtitle: string;
+      items: Array<{
+        title: string;
+        description: string;
+      }>;
+    };
+    radioFeatures: {
+      title: string;
+      subtitle: string;
+      features: Array<{
+        title: string;
+        description: string;
+      }>;
+    };
+    contentTypes: {
+      title: string;
+      subtitle: string;
+      items: Array<{
+        title: string;
+        description: string;
+      }>;
+    };
+    howToUse: {
+      title: string;
+      subtitle: string;
+      steps: Array<{
+        title: string;
+        description: string;
+      }>;
+    };
+    testimonials: {
+      title: string;
+      subtitle: string;
+      reviews: Array<{
+        content: string;
+        author: string;
+      }>;
+    };
+    finalCta: {
+      title: string;
+      description: string;
+      button: string;
+    };
+  };
+  travelRadio: {
+    metadata: {
+      title: string;
+      description: string;
+      keyword: string;
+    };
+    badge: string;
+    hero: {
+      title: string;
+      subtitle: string;
+      description: string;
+    };
+    cta: {
+      primary: string;
+      secondary: string;
+    };
+    whyNeeded: {
+      title: string;
+      subtitle: string;
+      problems: Array<{
+        title: string;
+        description: string;
+      }>;
+    };
+    specialExperience: {
+      title: string;
+      subtitle: string;
+      features: Array<{
+        title: string;
+        description: string;
+      }>;
+    };
+    radioTypes: {
+      title: string;
+      subtitle: string;
+      categories: Array<{
+        title: string;
+        description: string;
+      }>;
+    };
+    howToListen: {
+      title: string;
+      subtitle: string;
+      steps: Array<{
+        title: string;
+        description: string;
+      }>;
+    };
+    testimonials: {
+      title: string;
+      subtitle: string;
+      reviews: Array<{
+        content: string;
+        author: string;
+      }>;
+    };
+    finalCta: {
+      title: string;
+      description: string;
+      button: string;
+    };
+  };
 }
 
 // 기본 번역 데이터 (한국어)
@@ -726,7 +854,9 @@ const DEFAULT_TRANSLATIONS: Translations = {
     history: '히스토리',
     profile: '프로필',
     settings: '설정',
-    currentSelectedLanguage: '현재 선택된 언어'
+    currentSelectedLanguage: '현재 선택된 언어',
+    guideMode: '가이드',
+    podcastMode: '팟캐스트'
   },
   navigation: {
     home: '홈',
@@ -744,6 +874,7 @@ const DEFAULT_TRANSLATIONS: Translations = {
     searchPlaceholder: '어디 장소 앞에 계신가요?',
     searchButton: '검색',
     popularDestinations: '인기 여행지',
+    viewMoreAttractions: '더 많은 명소 보기',
     description: 'AI 기술로 생성되는 개인화된 여행 가이드',
     searchPlaceholders: [
       '에펠탑',
@@ -775,7 +906,7 @@ const DEFAULT_TRANSLATIONS: Translations = {
       korea: '한국',
       europe: '유럽',
       asia: '아시아',
-      americas: '아메리카'
+      americas: '미주'
     },
     regionDescription: '다양한 지역의 인기 여행지를 둘러보세요',
     countryAttraction: 'TOP ATTRACTIONS',
@@ -983,6 +1114,7 @@ const DEFAULT_TRANSLATIONS: Translations = {
     hide: '숨기기',
     exists: '있음',
     notExists: '없음',
+    pleaseWait: '잠시만 기다려주세요...',
     confirmDelete: '정말 삭제하시겠습니까?',
     daysAgo: '일 전',
     weeksAgo: '주 전',
@@ -1526,6 +1658,298 @@ const DEFAULT_TRANSLATIONS: Translations = {
         longTerm: '장기 체류 지원'
       }
     }
+  },
+  tourRadio: {
+    metadata: {
+      title: '투어라디오 - AI가 들려주는 특별한 여행 이야기',
+      description: '지루한 관광은 그만! AI가 생성하는 재미있고 몰입감 있는 라디오 스타일의 여행 가이드를 경험하세요.',
+      keyword: '투어라디오'
+    },
+    badge: '🎧 NEW 투어라디오',
+    hero: {
+      title: '여행이 이렇게 재미있었나?',
+      subtitle: 'AI가 들려주는 특별한 투어라디오',
+      description: '지루한 가이드는 안녕! 마치 친구가 들려주는 이야기처럼 재미있고 흥미진진한 여행 라디오를 만나보세요. 전 세계 어디서든 무료로 즐기는 새로운 여행 경험입니다.'
+    },
+    cta: {
+      primary: '무료로 시작하기',
+      secondary: '기능 알아보기'
+    },
+    problems: {
+      title: '기존 여행 가이드의 문제점',
+      subtitle: '왜 여행이 재미없을까요?',
+      items: [
+        {
+          title: '지루한 관광',
+          description: '획일적이고 재미없는 기존 가이드'
+        },
+        {
+          title: '딱딱한 설명',
+          description: '교과서 같은 지식 전달 방식'
+        },
+        {
+          title: '높은 비용',
+          description: '가이드 투어의 부담스러운 가격'
+        },
+        {
+          title: '시간 제약',
+          description: '정해진 시간에만 이용 가능'
+        },
+        {
+          title: '단체 행동',
+          description: '개인 취향을 고려하지 않는 단체 투어'
+        },
+        {
+          title: '언어 장벽',
+          description: '제한적인 언어 지원'
+        }
+      ]
+    },
+    radioFeatures: {
+      title: '투어라디오만의 특별함',
+      subtitle: '전혀 새로운 여행 경험을 선사합니다',
+      features: [
+        {
+          title: '라디오 스타일',
+          description: '재미있고 몰입감 있는 라디오 방송 형태'
+        },
+        {
+          title: '스토리텔링',
+          description: '흥미진진한 이야기로 전하는 여행 정보'
+        },
+        {
+          title: '위치 기반',
+          description: '현재 위치에 맞는 맞춤 콘텐츠'
+        },
+        {
+          title: '배경음악',
+          description: '분위기를 살리는 음악과 효과음'
+        },
+        {
+          title: '인터랙티브',
+          description: '사용자와 소통하는 양방향 콘텐츠'
+        },
+        {
+          title: '전세계 지원',
+          description: '180개국 어디서나 이용 가능'
+        }
+      ]
+    },
+    contentTypes: {
+      title: '다양한 콘텐츠 타입',
+      subtitle: '취향에 맞는 여행 라디오를 선택하세요',
+      items: [
+        {
+          title: '역사 이야기',
+          description: '흥미진진한 역사적 배경과 이야기'
+        },
+        {
+          title: '문화 탐방',
+          description: '현지 문화와 전통을 깊이 있게'
+        },
+        {
+          title: '맛집 투어',
+          description: '현지인이 추천하는 진짜 맛집'
+        },
+        {
+          title: '자연 여행',
+          description: '아름다운 자연과 풍경 이야기'
+        },
+        {
+          title: '예술 문화',
+          description: '미술관과 문화 예술 체험'
+        },
+        {
+          title: '현지 생활',
+          description: '현지인의 일상과 생활 이야기'
+        }
+      ]
+    },
+    howToUse: {
+      title: '투어라디오 사용법',
+      subtitle: '간단한 3단계로 시작하세요',
+      steps: [
+        {
+          title: '장소 선택',
+          description: '방문하고 싶은 도시나 명소를 선택합니다'
+        },
+        {
+          title: '취향 설정',
+          description: '관심 있는 콘텐츠 타입을 선택합니다'
+        },
+        {
+          title: '라디오 생성',
+          description: 'AI가 맞춤형 투어라디오를 생성합니다'
+        },
+        {
+          title: '여행 시작',
+          description: '편안하게 들으며 특별한 여행을 시작하세요'
+        }
+      ]
+    },
+    testimonials: {
+      title: '사용자 후기',
+      subtitle: '투어라디오로 달라진 여행 경험',
+      reviews: [
+        {
+          content: '정말 새로운 경험이었어요. 마치 현지 친구가 안내해주는 것 같았습니다.',
+          author: '김지현, 파리 여행'
+        },
+        {
+          content: '무료로 이런 퀄리티의 가이드를 들을 수 있다는 게 놀라워요.',
+          author: '박민수, 로마 여행'
+        },
+        {
+          content: '라디오 형식이라 정말 편하게 들으며 여행할 수 있었어요.',
+          author: '이수진, 도쿄 여행'
+        }
+      ]
+    },
+    finalCta: {
+      title: '지금 바로 투어라디오를 체험해보세요',
+      description: '무료로 시작하는 새로운 여행 경험, 투어라디오와 함께 특별한 여행을 만들어보세요.',
+      button: '무료 체험 시작하기'
+    }
+  },
+  travelRadio: {
+    metadata: {
+      title: '여행라디오 - AI가 만드는 개인맞춤 여행방송',
+      description: '스마트폰 화면 대신 귀로 듣는 새로운 여행! AI가 생성하는 개인맞춤 여행 라디오로 더 깊고 의미있는 여행을 경험하세요.',
+      keyword: '여행라디오'
+    },
+    badge: '📻 AI 여행라디오',
+    hero: {
+      title: '귀로 듣는 여행의 혁명',
+      subtitle: 'AI가 만드는 나만의 여행방송',
+      description: '스마트폰 화면만 보는 여행은 그만! 마치 친구 같은 AI DJ가 들려주는 개인맞춤 여행 라디오로 더 깊이 있고 의미 있는 여행을 만나보세요.'
+    },
+    cta: {
+      primary: '여행라디오 체험하기',
+      secondary: '더 자세히 알아보기'
+    },
+    whyNeeded: {
+      title: '왜 여행라디오가 필요할까요?',
+      subtitle: '현대 여행의 문제점을 해결합니다',
+      problems: [
+        {
+          title: '지루한 여행',
+          description: '단조롭고 재미없는 여행 경험'
+        },
+        {
+          title: '스마트폰 의존',
+          description: '화면만 보며 놓치는 소중한 순간들'
+        },
+        {
+          title: '높은 비용',
+          description: '비싼 현지 가이드와 투어 비용'
+        }
+      ]
+    },
+    specialExperience: {
+      title: '여행라디오만의 특별한 경험',
+      subtitle: '전혀 새로운 방식으로 여행하세요',
+      features: [
+        {
+          title: '라디오 DJ 스타일',
+          description: '친근한 DJ가 들려주는 여행 이야기'
+        },
+        {
+          title: '맞춤형 콘텐츠',
+          description: '개인 취향에 맞는 여행 정보'
+        },
+        {
+          title: '전세계 지원',
+          description: '180개국 어디서나 이용 가능'
+        },
+        {
+          title: '진짜 라디오',
+          description: '실제 라디오 방송 같은 몰입감'
+        },
+        {
+          title: '완전 무료',
+          description: '모든 기능을 무료로 제공'
+        },
+        {
+          title: '편안한 청취',
+          description: '편안하게 들으며 즐기는 여행'
+        }
+      ]
+    },
+    radioTypes: {
+      title: '다양한 여행라디오 장르',
+      subtitle: '취향에 맞는 라디오를 선택하세요',
+      categories: [
+        {
+          title: '역사 탐방',
+          description: '유적지와 문화유산의 깊은 이야기'
+        },
+        {
+          title: '자연 체험',
+          description: '아름다운 자연과 풍경 이야기'
+        },
+        {
+          title: '음식 문화',
+          description: '현지 음식과 요리 문화 탐방'
+        },
+        {
+          title: '예술 문화',
+          description: '미술관과 문화 예술 체험'
+        },
+        {
+          title: '도시 탐방',
+          description: '현대적인 도시의 매력 발견'
+        },
+        {
+          title: '야경 투어',
+          description: '밤에 펼쳐지는 특별한 풍경'
+        }
+      ]
+    },
+    howToListen: {
+      title: '여행라디오 듣는 방법',
+      subtitle: '쉽고 간단한 4단계',
+      steps: [
+        {
+          title: '목적지 선택',
+          description: '여행할 도시나 장소를 선택합니다'
+        },
+        {
+          title: '테마 선택',
+          description: '관심 있는 여행 테마를 선택합니다'
+        },
+        {
+          title: '라디오 생성',
+          description: 'AI가 맞춤형 라디오를 제작합니다'
+        },
+        {
+          title: '여행 청취',
+          description: '편안하게 들으며 여행을 즐깁니다'
+        }
+      ]
+    },
+    testimonials: {
+      title: '여행라디오 경험담',
+      subtitle: '실제 사용자들의 생생한 후기',
+      reviews: [
+        {
+          content: '정말 특별한 여행 경험이었어요. 마치 현지 친구가 안내해주는 것 같았습니다.',
+          author: '김지현, 파리 여행'
+        },
+        {
+          content: '무료로 이런 퀄리티의 가이드를 들을 수 있다는 게 놀라워요.',
+          author: '박민수, 로마 여행'
+        },
+        {
+          content: '라디오 형식이라 정말 편하게 들으며 여행할 수 있었어요.',
+          author: '이수진, 도쿄 여행'
+        }
+      ]
+    },
+    finalCta: {
+      title: '지금 바로 여행라디오를 시작하세요',
+      description: '스마트폰을 잠시 내려놓고, 귀로 듣는 새로운 여행의 세계를 경험해보세요.',
+      button: '무료로 시작하기'
+    }
   }
 };
 
@@ -1564,7 +1988,7 @@ const detectBrowserLanguage = (): SupportedLanguage => {
 async function loadTranslations(language: SupportedLanguage): Promise<Translations> {
   try {
     // 🔥 캐시 무효화를 위한 버전 관리 (강화된 캐시 우회)
-    const TRANSLATION_VERSION = '1.1.0'; // DEFAULT_TRANSLATIONS 누락 키 추가
+    const TRANSLATION_VERSION = '1.2.0'; // tourRadio, travelRadio 추가
     const cacheKey = `translations-${language}-v${TRANSLATION_VERSION}`;
     
     // 🔥 강제 로딩 모드 확인 (언어 변경 시)
@@ -1619,7 +2043,10 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
     // 🔥 디버그: 실제 로딩된 번역 구조 확인
     console.log(`🔍 [${language}] tripPlanner exists:`, !!translations?.tripPlanner);
     console.log(`🔍 [${language}] tripTypes exists:`, !!translations?.tripTypes);
+    console.log(`🔍 [${language}] home exists:`, !!translations?.home);
+    console.log(`🔍 [${language}] home.viewMoreAttractions:`, translations?.home?.viewMoreAttractions);
     if (language === 'ko') {
+      console.log(`🔍 [${language}] home keys:`, translations?.home ? Object.keys(translations.home) : 'no home');
       console.log(`🔍 [${language}] tripPlanner.quickPlanner.title:`, translations?.tripPlanner?.quickPlanner?.title);
       console.log(`🔍 [${language}] tripTypes.solo.name:`, translations?.tripTypes?.solo?.name);
     }
@@ -1930,6 +2357,98 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
             ...(translations?.tripTypes?.nomad?.features || {})
           }
         }
+      },
+      // 🔥 tourRadio 필드 추가
+      tourRadio: {
+        ...DEFAULT_TRANSLATIONS.tourRadio,
+        ...(translations?.tourRadio || {}),
+        metadata: {
+          ...DEFAULT_TRANSLATIONS.tourRadio.metadata,
+          ...(translations?.tourRadio?.metadata || {})
+        },
+        hero: {
+          ...DEFAULT_TRANSLATIONS.tourRadio.hero,
+          ...(translations?.tourRadio?.hero || {})
+        },
+        cta: {
+          ...DEFAULT_TRANSLATIONS.tourRadio.cta,
+          ...(translations?.tourRadio?.cta || {})
+        },
+        problems: {
+          ...DEFAULT_TRANSLATIONS.tourRadio.problems,
+          ...(translations?.tourRadio?.problems || {}),
+          items: translations?.tourRadio?.problems?.items || DEFAULT_TRANSLATIONS.tourRadio.problems.items
+        },
+        radioFeatures: {
+          ...DEFAULT_TRANSLATIONS.tourRadio.radioFeatures,
+          ...(translations?.tourRadio?.radioFeatures || {}),
+          features: translations?.tourRadio?.radioFeatures?.features || DEFAULT_TRANSLATIONS.tourRadio.radioFeatures.features
+        },
+        contentTypes: {
+          ...DEFAULT_TRANSLATIONS.tourRadio.contentTypes,
+          ...(translations?.tourRadio?.contentTypes || {}),
+          items: translations?.tourRadio?.contentTypes?.items || DEFAULT_TRANSLATIONS.tourRadio.contentTypes.items
+        },
+        howToUse: {
+          ...DEFAULT_TRANSLATIONS.tourRadio.howToUse,
+          ...(translations?.tourRadio?.howToUse || {}),
+          steps: translations?.tourRadio?.howToUse?.steps || DEFAULT_TRANSLATIONS.tourRadio.howToUse.steps
+        },
+        testimonials: {
+          ...DEFAULT_TRANSLATIONS.tourRadio.testimonials,
+          ...(translations?.tourRadio?.testimonials || {}),
+          reviews: translations?.tourRadio?.testimonials?.reviews || DEFAULT_TRANSLATIONS.tourRadio.testimonials.reviews
+        },
+        finalCta: {
+          ...DEFAULT_TRANSLATIONS.tourRadio.finalCta,
+          ...(translations?.tourRadio?.finalCta || {})
+        }
+      },
+      // 🔥 travelRadio 필드 추가
+      travelRadio: {
+        ...DEFAULT_TRANSLATIONS.travelRadio,
+        ...(translations?.travelRadio || {}),
+        metadata: {
+          ...DEFAULT_TRANSLATIONS.travelRadio.metadata,
+          ...(translations?.travelRadio?.metadata || {})
+        },
+        hero: {
+          ...DEFAULT_TRANSLATIONS.travelRadio.hero,
+          ...(translations?.travelRadio?.hero || {})
+        },
+        cta: {
+          ...DEFAULT_TRANSLATIONS.travelRadio.cta,
+          ...(translations?.travelRadio?.cta || {})
+        },
+        whyNeeded: {
+          ...DEFAULT_TRANSLATIONS.travelRadio.whyNeeded,
+          ...(translations?.travelRadio?.whyNeeded || {}),
+          problems: translations?.travelRadio?.whyNeeded?.problems || DEFAULT_TRANSLATIONS.travelRadio.whyNeeded.problems
+        },
+        specialExperience: {
+          ...DEFAULT_TRANSLATIONS.travelRadio.specialExperience,
+          ...(translations?.travelRadio?.specialExperience || {}),
+          features: translations?.travelRadio?.specialExperience?.features || DEFAULT_TRANSLATIONS.travelRadio.specialExperience.features
+        },
+        radioTypes: {
+          ...DEFAULT_TRANSLATIONS.travelRadio.radioTypes,
+          ...(translations?.travelRadio?.radioTypes || {}),
+          categories: translations?.travelRadio?.radioTypes?.categories || DEFAULT_TRANSLATIONS.travelRadio.radioTypes.categories
+        },
+        howToListen: {
+          ...DEFAULT_TRANSLATIONS.travelRadio.howToListen,
+          ...(translations?.travelRadio?.howToListen || {}),
+          steps: translations?.travelRadio?.howToListen?.steps || DEFAULT_TRANSLATIONS.travelRadio.howToListen.steps
+        },
+        testimonials: {
+          ...DEFAULT_TRANSLATIONS.travelRadio.testimonials,
+          ...(translations?.travelRadio?.testimonials || {}),
+          reviews: translations?.travelRadio?.testimonials?.reviews || DEFAULT_TRANSLATIONS.travelRadio.testimonials.reviews
+        },
+        finalCta: {
+          ...DEFAULT_TRANSLATIONS.travelRadio.finalCta,
+          ...(translations?.travelRadio?.finalCta || {})
+        }
       }
     };
     
@@ -2196,6 +2715,17 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     
     // 🔥 디버그 로그 추가
     const debugLog = process.env.NODE_ENV === 'development';
+    
+    // 🔥 특별 디버깅: home.viewMoreAttractions
+    if (key === 'home.viewMoreAttractions' && debugLog) {
+      console.log('🔍 Special debug for home.viewMoreAttractions:', {
+        translations: !!translations,
+        home: !!translations?.home,
+        hasViewMoreAttractions: translations?.home && 'viewMoreAttractions' in translations.home,
+        value: translations?.home?.viewMoreAttractions,
+        homeKeys: translations?.home ? Object.keys(translations.home) : 'no home'
+      });
+    }
     
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {

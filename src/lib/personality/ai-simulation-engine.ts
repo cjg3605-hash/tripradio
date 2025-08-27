@@ -55,7 +55,20 @@ export class AISimulationEngine {
     console.log(`🎭 ${count.toLocaleString()}명의 여행자 AI 페르소나 생성 시작...`);
     
     const personas: TravelerPersona[] = [];
-    const countries = ['KR', 'JP', 'CN', 'US', 'FR', 'IT', 'DE', 'GB', 'ES', 'RU', 'BR', 'IN', 'TH', 'EG', 'AU', 'CA', 'MX', 'TR', 'SG', 'VN'];
+    const countries = [
+      // 주요 관광 강국 (높은 가중치)
+      'KOR', 'JPN', 'CHN', 'USA', 'FRA', 'ITA', 'ESP', 'GBR', 'DEU', 'THA', 'AUS', 'BRA', 'IND', 'CAN', 'RUS', 'MEX',
+      // 아시아-태평양
+      'IDN', 'MYS', 'SGP', 'VNM', 'PHL', 'TWN', 'HKG', 'NZL', 'KAZ', 'UZB', 'MMR', 'KHM', 'LAO', 'MNG',
+      // 유럽  
+      'NLD', 'BEL', 'CHE', 'AUT', 'DNK', 'SWE', 'NOR', 'FIN', 'POL', 'CZE', 'HUN', 'PRT', 'GRC', 'HRV', 'ROU', 'BGR', 'UKR',
+      // 중동
+      'TUR', 'ARE', 'SAU', 'ISR', 'JOR', 'QAT', 'KWT', 'OMN', 'LBN', 'EGY', 'MAR', 'TUN', 'IRN',
+      // 아프리카
+      'ZAF', 'KEN', 'TZA', 'ETH', 'GHA', 'NGA', 'UGA', 'RWA', 'ZWE', 'BWA', 'NAM', 'MUS', 'SYC', 'MDG',
+      // 아메리카
+      'ARG', 'CHL', 'PER', 'COL', 'VEN', 'ECU', 'URY', 'BOL', 'PRY', 'CRI', 'PAN', 'GTM', 'CUB', 'JAM', 'DOM'
+    ];
     
     for (let i = 0; i < count; i++) {
       const nationality = countries[Math.floor(Math.random() * countries.length)];
@@ -291,56 +304,201 @@ export class AISimulationEngine {
 
   private static getCulturalContext(nationality: string): string {
     const culturalGroups: Record<string, string> = {
-      'KR': 'East Asian - Collectivist',
-      'JP': 'East Asian - Collectivist',
-      'CN': 'East Asian - Collectivist',
-      'US': 'Western - Individualist',
-      'FR': 'Western European',
-      'IT': 'Mediterranean',
-      'DE': 'Western European',
-      'GB': 'Anglo-Saxon',
-      'ES': 'Mediterranean',
-      'RU': 'Eastern European',
-      'BR': 'Latin American',
-      'IN': 'South Asian',
-      'TH': 'Southeast Asian',
-      'EG': 'Middle Eastern/African',
-      'AU': 'Anglo-Saxon',
-      'CA': 'Anglo-Saxon',
-      'MX': 'Latin American',
-      'TR': 'Middle Eastern',
-      'SG': 'Southeast Asian - Multicultural',
-      'VN': 'Southeast Asian'
+      // 동아시아 - 집단주의
+      'KOR': 'East Asian - Collectivist',
+      'JPN': 'East Asian - Collectivist',
+      'CHN': 'East Asian - Collectivist',
+      'TWN': 'East Asian - Collectivist',
+      'HKG': 'East Asian - Collectivist',
+      'MNG': 'East Asian - Collectivist',
+      
+      // 동남아시아 - 관계 중심
+      'THA': 'Southeast Asian - Relationship-focused',
+      'VNM': 'Southeast Asian - Relationship-focused',
+      'IDN': 'Southeast Asian - Relationship-focused',
+      'MYS': 'Southeast Asian - Relationship-focused',
+      'PHL': 'Southeast Asian - Relationship-focused',
+      'SGP': 'Southeast Asian - Multicultural',
+      'MMR': 'Southeast Asian - Traditional',
+      'KHM': 'Southeast Asian - Traditional',
+      'LAO': 'Southeast Asian - Traditional',
+      
+      // 서구 - 개인주의
+      'USA': 'Western - Individualist',
+      'CAN': 'Western - Individualist',
+      'AUS': 'Western - Individualist',
+      'NZL': 'Western - Individualist',
+      'GBR': 'Anglo-Saxon',
+      
+      // 서유럽
+      'FRA': 'Western European',
+      'DEU': 'Western European',
+      'NLD': 'Western European',
+      'BEL': 'Western European',
+      'CHE': 'Western European',
+      'AUT': 'Western European',
+      
+      // 북유럽 - 평등주의
+      'DNK': 'Nordic - Egalitarian',
+      'SWE': 'Nordic - Egalitarian',
+      'NOR': 'Nordic - Egalitarian',
+      'FIN': 'Nordic - Egalitarian',
+      'ISL': 'Nordic - Egalitarian',
+      
+      // 남유럽 - 지중해
+      'ITA': 'Mediterranean',
+      'ESP': 'Mediterranean',
+      'PRT': 'Mediterranean',
+      'GRC': 'Mediterranean',
+      'HRV': 'Mediterranean',
+      'MLT': 'Mediterranean',
+      
+      // 동유럽 - 전통적
+      'RUS': 'Eastern European',
+      'POL': 'Eastern European',
+      'CZE': 'Eastern European',
+      'HUN': 'Eastern European',
+      'ROU': 'Eastern European',
+      'BGR': 'Eastern European',
+      'UKR': 'Eastern European',
+      
+      // 라틴 아메리카 - 가족 중심
+      'BRA': 'Latin American',
+      'ARG': 'Latin American',
+      'MEX': 'Latin American',
+      'CHL': 'Latin American',
+      'COL': 'Latin American',
+      'PER': 'Latin American',
+      'VEN': 'Latin American',
+      'ECU': 'Latin American',
+      'URY': 'Latin American',
+      
+      // 중동 - 전통적/종교적
+      'TUR': 'Middle Eastern',
+      'ARE': 'Middle Eastern',
+      'SAU': 'Middle Eastern',
+      'EGY': 'Middle Eastern - Traditional',
+      'JOR': 'Middle Eastern',
+      'LBN': 'Middle Eastern - Liberal',
+      'ISR': 'Middle Eastern - Modern',
+      
+      // 남아시아 - 계층적
+      'IND': 'South Asian - Hierarchical',
+      'PAK': 'South Asian - Traditional',
+      'BGD': 'South Asian - Traditional',
+      'LKA': 'South Asian - Traditional',
+      
+      // 아프리카 - 공동체 중심
+      'ZAF': 'African - Community-focused',
+      'KEN': 'African - Traditional',
+      'ETH': 'African - Traditional',
+      'GHA': 'African - Community-focused',
+      'NGA': 'African - Community-focused',
+      
+      // 기본값
+      'DEFAULT': 'Multicultural'
     };
     
-    return culturalGroups[nationality] || 'Unknown';
+    return culturalGroups[nationality] || culturalGroups['DEFAULT'];
   }
 
   private static generateLanguages(nationality: string): string[] {
     const primaryLanguages: Record<string, string[]> = {
-      'KR': ['Korean', 'English'],
-      'JP': ['Japanese', 'English'],
-      'CN': ['Chinese', 'English'],
-      'US': ['English'],
-      'FR': ['French', 'English'],
-      'IT': ['Italian', 'English'],
-      'DE': ['German', 'English'],
-      'GB': ['English'],
-      'ES': ['Spanish', 'English'],
-      'RU': ['Russian', 'English'],
-      'BR': ['Portuguese', 'English'],
-      'IN': ['Hindi', 'English'],
-      'TH': ['Thai', 'English'],
-      'EG': ['Arabic', 'English'],
-      'AU': ['English'],
-      'CA': ['English', 'French'],
-      'MX': ['Spanish', 'English'],
-      'TR': ['Turkish', 'English'],
-      'SG': ['English', 'Chinese', 'Malay'],
-      'VN': ['Vietnamese', 'English']
+      // 동아시아
+      'KOR': ['Korean', 'English'],
+      'JPN': ['Japanese', 'English'],
+      'CHN': ['Chinese', 'English'],
+      'TWN': ['Chinese', 'English'],
+      'HKG': ['Chinese', 'English'],
+      'MNG': ['Mongolian', 'English'],
+      
+      // 동남아시아
+      'THA': ['Thai', 'English'],
+      'VNM': ['Vietnamese', 'English'],
+      'IDN': ['Indonesian', 'English'],
+      'MYS': ['Malay', 'English'],
+      'PHL': ['Filipino', 'English'],
+      'SGP': ['English', 'Chinese', 'Malay'],
+      'MMR': ['Burmese', 'English'],
+      'KHM': ['Khmer', 'English'],
+      'LAO': ['Lao', 'English'],
+      
+      // 영어권
+      'USA': ['English'],
+      'CAN': ['English', 'French'],
+      'GBR': ['English'],
+      'AUS': ['English'],
+      'NZL': ['English'],
+      
+      // 서유럽
+      'FRA': ['French', 'English'],
+      'DEU': ['German', 'English'],
+      'ITA': ['Italian', 'English'],
+      'ESP': ['Spanish', 'English'],
+      'PRT': ['Portuguese', 'English'],
+      'NLD': ['Dutch', 'English'],
+      'BEL': ['Dutch', 'French', 'English'],
+      'CHE': ['German', 'French', 'Italian', 'English'],
+      'AUT': ['German', 'English'],
+      
+      // 북유럽
+      'DNK': ['Danish', 'English'],
+      'SWE': ['Swedish', 'English'],
+      'NOR': ['Norwegian', 'English'],
+      'FIN': ['Finnish', 'Swedish', 'English'],
+      
+      // 남유럽
+      'GRC': ['Greek', 'English'],
+      'HRV': ['Croatian', 'English'],
+      'MLT': ['Maltese', 'English'],
+      
+      // 동유럽
+      'RUS': ['Russian', 'English'],
+      'POL': ['Polish', 'English'],
+      'CZE': ['Czech', 'English'],
+      'HUN': ['Hungarian', 'English'],
+      'ROU': ['Romanian', 'English'],
+      'BGR': ['Bulgarian', 'English'],
+      'UKR': ['Ukrainian', 'English'],
+      
+      // 라틴 아메리카
+      'BRA': ['Portuguese', 'English'],
+      'ARG': ['Spanish', 'English'],
+      'MEX': ['Spanish', 'English'],
+      'CHL': ['Spanish', 'English'],
+      'COL': ['Spanish', 'English'],
+      'PER': ['Spanish', 'English'],
+      'VEN': ['Spanish', 'English'],
+      'ECU': ['Spanish', 'English'],
+      'URY': ['Spanish', 'English'],
+      
+      // 중동
+      'TUR': ['Turkish', 'English'],
+      'ARE': ['Arabic', 'English'],
+      'SAU': ['Arabic', 'English'],
+      'EGY': ['Arabic', 'English'],
+      'JOR': ['Arabic', 'English'],
+      'LBN': ['Arabic', 'French', 'English'],
+      'ISR': ['Hebrew', 'Arabic', 'English'],
+      
+      // 남아시아
+      'IND': ['Hindi', 'English'],
+      'PAK': ['Urdu', 'English'],
+      'BGD': ['Bengali', 'English'],
+      'LKA': ['Sinhalese', 'Tamil', 'English'],
+      
+      // 아프리카
+      'ZAF': ['English', 'Afrikaans'],
+      'KEN': ['Swahili', 'English'],
+      'ETH': ['Amharic', 'English'],
+      'GHA': ['English'],
+      'NGA': ['English'],
+      
+      // 기본값
+      'DEFAULT': ['English']
     };
     
-    return primaryLanguages[nationality] || ['English'];
+    return primaryLanguages[nationality] || primaryLanguages['DEFAULT'];
   }
 
   private static generateTravelPreferences() {

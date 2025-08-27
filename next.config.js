@@ -14,10 +14,10 @@ if (isDevelopment) {
   process.env.NEXTAUTH_URL = `http://localhost:${currentPort}`;
   console.log(`🔄 동적 NEXTAUTH_URL 설정: http://localhost:${currentPort}`);
 }
-const withNextIntl = require('next-intl/plugin')(
-  // This is the default location for the i18n config
-  './src/i18n.ts'
-);
+// const withNextIntl = require('next-intl/plugin')(
+//   // This is the default location for the i18n config
+//   './src/i18n.ts'
+// );
 const withPWA = require('next-pwa')({
   dest: 'public',
   register: process.env.NODE_ENV !== 'development',
@@ -240,16 +240,38 @@ const nextConfig = {
         ],
       },
       {
-        // 가이드 페이지들 - 적극적 색인
+        // 가이드 페이지들 - 적극적 색인 및 SEO 최적화
         source: '/guide/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, s-maxage=1800, stale-while-revalidate=86400',
+            value: 'public, s-maxage=1800, stale-while-revalidate=86400, max-age=1800',
           },
           {
             key: 'X-Robots-Tag',
-            value: 'index, follow, max-snippet:-1, max-image-preview:large',
+            value: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
+          },
+          {
+            key: 'Vary',
+            value: 'Accept-Encoding, Accept-Language',
+          },
+        ],
+      },
+      {
+        // 팟캐스트 페이지들 - 적극적 색인
+        source: '/podcast/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=1800, stale-while-revalidate=86400, max-age=1800',
+          },
+          {
+            key: 'X-Robots-Tag',
+            value: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
+          },
+          {
+            key: 'Vary',
+            value: 'Accept-Encoding, Accept-Language',
           },
         ],
       },
@@ -416,9 +438,16 @@ const nextConfig = {
               priority: 15,
               chunks: 'all'
             },
+            // 🔥 Heavy libraries - separate chunks for performance
+            leaflet: {
+              test: /[\\/]node_modules[\\/](leaflet|react-leaflet)[\\/]/,
+              name: 'leaflet',
+              priority: 12,
+              chunks: 'async' // Load maps only when needed
+            },
             // 🔥 Remaining vendor libraries
             vendor: {
-              test: /[\\/]node_modules[\\/]/,
+              test: /[\\/]node_modules[\\/](?!leaflet|react-leaflet|framer-motion)/,
               name: 'vendors',
               priority: 10,
               chunks: 'all'
@@ -463,4 +492,4 @@ const nextConfig = {
   }
 };
 
-module.exports = withNextIntl(withPWA(nextConfig));
+module.exports = withPWA(nextConfig);

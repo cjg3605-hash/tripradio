@@ -51,7 +51,7 @@ export class MapErrorBoundary extends React.Component<MapErrorBoundaryProps, Map
 
       // 기본 fallback UI
       return (
-        <div className="w-full h-64 flex items-center justify-center bg-gray-50 border-2 border-dashed border-gray-300 rounded-3xl">
+        <div className="w-full h-64 flex items-center justify-center bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg">
           <div className="text-center text-gray-600">
             <div className="text-2xl mb-2">🗺️</div>
             <div className="text-sm font-medium">지도를 불러오는 중입니다</div>

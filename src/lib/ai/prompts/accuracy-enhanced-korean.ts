@@ -188,7 +188,7 @@ ${ACCURACY_VERIFICATION_SYSTEM.SAFE_DESCRIPTION_PATTERNS}
  */
 const createGlobalAccuracyPrompt = (
   locationName: string,
-  countryCode: string = 'KR',
+  countryCode: string = 'KOR',
   userProfile?: UserProfile
 ): string => {
   return `# 🌍 Global Accuracy-First Guide Generation

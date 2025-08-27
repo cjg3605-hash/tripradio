@@ -1,0 +1,1428 @@
+{
+  "summary": {
+    "totalGuides": 251,
+    "processed": 251,
+    "successful": 0,
+    "failed": 234,
+    "skipped": 17,
+    "successRate": "0.0%",
+    "elapsedTime": "1556.9초",
+    "avgProcessingTime": "0ms"
+  },
+  "errors": [
+    {
+      "guide": "buckingham palace (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:09:33.160Z",
+      "processingTime": 35
+    },
+    {
+      "guide": "cancun (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:09:39.436Z",
+      "processingTime": 36
+    },
+    {
+      "guide": "christ the redeemer (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:09:46.190Z",
+      "processingTime": 36
+    },
+    {
+      "guide": "christ-the-redeemer (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:09:52.225Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "cn 타워 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:09:58.756Z",
+      "processingTime": 42
+    },
+    {
+      "guide": "cnタワー (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:10:05.277Z",
+      "processingTime": 46
+    },
+    {
+      "guide": "cristo redentor (es)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:10:14.070Z",
+      "processingTime": 550
+    },
+    {
+      "guide": "ganges river (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:10:20.377Z",
+      "processingTime": 47
+    },
+    {
+      "guide": "grand canyon (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:10:26.685Z",
+      "processingTime": 47
+    },
+    {
+      "guide": "grand palace (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:10:33.009Z",
+      "processingTime": 45
+    },
+    {
+      "guide": "great wall (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:10:40.254Z",
+      "processingTime": 43
+    },
+    {
+      "guide": "gyeongbokgung (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:10:46.264Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "gyeongbokgung (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:10:52.295Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "kiyomizu-dera (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:10:58.596Z",
+      "processingTime": 43
+    },
+    {
+      "guide": "ko (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:11:04.633Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "marina bay sands (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:11:10.899Z",
+      "processingTime": 34
+    },
+    {
+      "guide": "merlion (es)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:11:17.187Z",
+      "processingTime": 35
+    },
+    {
+      "guide": "mount fuji (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:11:23.485Z",
+      "processingTime": 34
+    },
+    {
+      "guide": "museo del louvre (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:11:29.774Z",
+      "processingTime": 35
+    },
+    {
+      "guide": "museo del louvre (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:11:36.034Z",
+      "processingTime": 34
+    },
+    {
+      "guide": "myeongdong (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:11:43.230Z",
+      "processingTime": 35
+    },
+    {
+      "guide": "namsan tower (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:11:49.493Z",
+      "processingTime": 35
+    },
+    {
+      "guide": "niagara falls (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:11:55.784Z",
+      "processingTime": 36
+    },
+    {
+      "guide": "red port (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:12:02.063Z",
+      "processingTime": 36
+    },
+    {
+      "guide": "seongsan ilchulbong peak (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:12:08.354Z",
+      "processingTime": 36
+    },
+    {
+      "guide": "statue of liberty (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:12:14.643Z",
+      "processingTime": 36
+    },
+    {
+      "guide": "taipei 101 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:12:20.674Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "taipei 101 (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:12:26.680Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "taj mahal (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:12:32.960Z",
+      "processingTime": 37
+    },
+    {
+      "guide": "taj mahal (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:12:39.240Z",
+      "processingTime": 36
+    },
+    {
+      "guide": "tiananmen square (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:12:46.434Z",
+      "processingTime": 38
+    },
+    {
+      "guide": "times square (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:12:52.729Z",
+      "processingTime": 36
+    },
+    {
+      "guide": "tower bridge (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:12:59.018Z",
+      "processingTime": 36
+    },
+    {
+      "guide": "가든스 바이 더 베이 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:13:05.305Z",
+      "processingTime": 36
+    },
+    {
+      "guide": "감천문화마을 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:13:11.604Z",
+      "processingTime": 37
+    },
+    {
+      "guide": "강북 한옥마을 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:13:17.631Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "경복궁 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:13:23.918Z",
+      "processingTime": 40
+    },
+    {
+      "guide": "경복궁 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:13:29.944Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "경복궁 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:13:37.237Z",
+      "processingTime": 40
+    },
+    {
+      "guide": "경복궁 야간투어 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:13:43.546Z",
+      "processingTime": 38
+    },
+    {
+      "guide": "경포대 해수욕장 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:13:49.574Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "광장시장 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:13:55.596Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "구엘 공원 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:14:01.893Z",
+      "processingTime": 38
+    },
+    {
+      "guide": "구엘 저택 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:14:07.922Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "국립중앙박물관 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:14:13.942Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "그라나다 대성당 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:14:19.973Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "그랜드 캐년 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:14:26.277Z",
+      "processingTime": 43
+    },
+    {
+      "guide": "그랜드 캐니언 국립공원 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:14:32.301Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "기요미즈데라 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:14:39.560Z",
+      "processingTime": 33
+    },
+    {
+      "guide": "나스카 라인 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:14:45.809Z",
+      "processingTime": 32
+    },
+    {
+      "guide": "나이아가라 폭포 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:14:52.063Z",
+      "processingTime": 33
+    },
+    {
+      "guide": "남산타워 (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:14:58.068Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "남산타워 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:15:04.095Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "노이슈반슈타인 성 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:15:10.386Z",
+      "processingTime": 39
+    },
+    {
+      "guide": "노트르담 대성당 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:15:16.403Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "누에보 다리 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:15:22.432Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "대왕궁 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:15:28.448Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "도쿄타워 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:15:34.480Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "레드 포트 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:15:41.740Z",
+      "processingTime": 33
+    },
+    {
+      "guide": "롯데월드 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:15:47.762Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "롯데월드타워 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:15:53.797Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "루브르 박물관 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:16:00.090Z",
+      "processingTime": 38
+    },
+    {
+      "guide": "마라카낭 스타디움 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:16:06.403Z",
+      "processingTime": 40
+    },
+    {
+      "guide": "마리나 베이 샌즈 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:16:12.691Z",
+      "processingTime": 38
+    },
+    {
+      "guide": "마추픽추 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:16:18.963Z",
+      "processingTime": 38
+    },
+    {
+      "guide": "만리장성 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:16:24.995Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "말라가 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:16:31.378Z",
+      "processingTime": 43
+    },
+    {
+      "guide": "말라가 알카사바 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:16:37.400Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "멀라이언 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:16:44.665Z",
+      "processingTime": 33
+    },
+    {
+      "guide": "명동 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:16:50.923Z",
+      "processingTime": 33
+    },
+    {
+      "guide": "명동 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:16:57.197Z",
+      "processingTime": 31
+    },
+    {
+      "guide": "명동 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:17:03.464Z",
+      "processingTime": 33
+    },
+    {
+      "guide": "모전리 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:17:09.490Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "바티칸 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:17:15.778Z",
+      "processingTime": 40
+    },
+    {
+      "guide": "반포 한강공원 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:17:21.805Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "밴프 국립공원 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:17:28.102Z",
+      "processingTime": 38
+    },
+    {
+      "guide": "버킹엄 궁전 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:17:34.359Z",
+      "processingTime": 36
+    },
+    {
+      "guide": "베르사유 궁전 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:17:40.649Z",
+      "processingTime": 38
+    },
+    {
+      "guide": "북촌한옥마을 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:17:47.683Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "붉은 요새 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:17:53.967Z",
+      "processingTime": 38
+    },
+    {
+      "guide": "브란덴부르크 문 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:18:00.269Z",
+      "processingTime": 36
+    },
+    {
+      "guide": "빅벤 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:18:06.564Z",
+      "processingTime": 34
+    },
+    {
+      "guide": "사그라다 파밀리아 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:18:12.861Z",
+      "processingTime": 40
+    },
+    {
+      "guide": "사그라다파밀리아 (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:18:18.872Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "살바도르 성당 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:18:24.896Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "석굴암 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:18:31.199Z",
+      "processingTime": 41
+    },
+    {
+      "guide": "성산일출봉 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:18:37.469Z",
+      "processingTime": 40
+    },
+    {
+      "guide": "세비야 대성당 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:18:43.777Z",
+      "processingTime": 43
+    },
+    {
+      "guide": "세비야 이사벨 2세 다리 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:18:50.801Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "센소지 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:18:57.098Z",
+      "processingTime": 38
+    },
+    {
+      "guide": "알람 브라 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:19:03.391Z",
+      "processingTime": 38
+    },
+    {
+      "guide": "알함브라 궁전 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:19:09.686Z",
+      "processingTime": 40
+    },
+    {
+      "guide": "에버랜드 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:19:15.709Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "여의도 공원 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:19:21.727Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "여의도 한강공원 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:19:27.748Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "오키나와 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:19:33.765Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "오키나와성 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:19:39.784Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "왓 아룬 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:19:47.101Z",
+      "processingTime": 41
+    },
+    {
+      "guide": "왓 포 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:19:53.390Z",
+      "processingTime": 40
+    },
+    {
+      "guide": "용궁사 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:19:59.402Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "이과수 폭포 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:20:05.700Z",
+      "processingTime": 39
+    },
+    {
+      "guide": "자갈치시장 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:20:11.993Z",
+      "processingTime": 39
+    },
+    {
+      "guide": "자금성 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:20:18.274Z",
+      "processingTime": 40
+    },
+    {
+      "guide": "자유의 여신상 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:20:24.879Z",
+      "processingTime": 41
+    },
+    {
+      "guide": "중문관광단지 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:20:31.247Z",
+      "processingTime": 40
+    },
+    {
+      "guide": "창덕궁 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:20:37.283Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "천안문 광장 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:20:43.720Z",
+      "processingTime": 65
+    },
+    {
+      "guide": "천안문 광장 (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:20:50.759Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "첨성대 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:20:57.204Z",
+      "processingTime": 64
+    },
+    {
+      "guide": "청계천 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:21:03.237Z",
+      "processingTime": 0
+    },
+    {
+      "guide": "츄라우미 수족관 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:21:09.257Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "치첸이차 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:21:15.693Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "카사 바트요 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:21:21.734Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "칸쿤 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:21:28.199Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "코르도바 대성당 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:21:34.235Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "코르도바 메스키타 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:21:40.685Z",
+      "processingTime": 63
+    },
+    {
+      "guide": "콜로세움 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:21:47.133Z",
+      "processingTime": 70
+    },
+    {
+      "guide": "쾰른 대성당 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:21:54.433Z",
+      "processingTime": 64
+    },
+    {
+      "guide": "쿠스코 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:22:00.906Z",
+      "processingTime": 64
+    },
+    {
+      "guide": "타워 브리지 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:22:07.766Z",
+      "processingTime": 65
+    },
+    {
+      "guide": "타임스퀘어 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:22:14.781Z",
+      "processingTime": 64
+    },
+    {
+      "guide": "타지마 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:22:21.557Z",
+      "processingTime": 65
+    },
+    {
+      "guide": "타지마할 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:22:28.326Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "테오티우아칸 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:22:35.126Z",
+      "processingTime": 65
+    },
+    {
+      "guide": "퐁피두센터 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:22:41.157Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "피사의 사탑 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:22:48.028Z",
+      "processingTime": 65
+    },
+    {
+      "guide": "피카소 미술관 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:22:54.781Z",
+      "processingTime": 65
+    },
+    {
+      "guide": "한라산 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:23:02.578Z",
+      "processingTime": 65
+    },
+    {
+      "guide": "해동 용궁사 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:23:08.613Z",
+      "processingTime": 1
+    },
+    {
+      "guide": "후지산 (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:23:15.411Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "イグアスの滝 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:23:22.267Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "エッフェル塔 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:23:29.194Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "ガーデンズ・バイ・ザ・ベイ (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:23:36.067Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "カンクン (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:23:42.789Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "グエル公園 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:23:49.522Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "クスコ (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:23:56.228Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "グランドキャニオン (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:24:03.129Z",
+      "processingTime": 87
+    },
+    {
+      "guide": "ケルン大聖堂 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:24:10.879Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "サグラダ・ファミリア (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:24:17.873Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "サグラダファミリア (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:24:24.574Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "タワーブリッジ (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:24:33.707Z",
+      "processingTime": 615
+    },
+    {
+      "guide": "チチェン・イッツァ (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:24:40.536Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "テオティワカン (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:24:47.360Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "ノイシュヴァンシュタイン城 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:24:54.893Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "バッキンガム宮殿 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:25:01.699Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "バンフ国立公園 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:25:08.633Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "ピサの斜塔 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:25:15.572Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "ビッグベン (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:25:22.453Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "ブランデンブルク門 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:25:29.377Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "ベルサイユ宮殿 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:25:36.108Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "マーライオン (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:25:43.660Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "マチュピチュ (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:25:50.495Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "ルーブル美術館 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:25:57.493Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "レッドフォート (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:26:04.340Z",
+      "processingTime": 69
+    },
+    {
+      "guide": "レッドフォートレス (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:26:11.059Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "ワット・アルン (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:26:17.970Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "ワット・ポー (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:26:24.838Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "中文旅游综合体 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:26:36.474Z",
+      "processingTime": 1098
+    },
+    {
+      "guide": "中文観光団地 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:26:43.081Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "仏国寺 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:26:49.981Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "伊瓜苏瀑布 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:26:57.142Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "佛国寺 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:27:04.069Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "凡尔赛宫 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:27:10.929Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "加拿大国家电视塔 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:27:17.827Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "勃兰登堡门 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:27:24.771Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "南山タワー (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:27:31.647Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "南山タワー (ko)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:27:38.941Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "南山塔 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:27:46.013Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "卢浮宫博物馆 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:27:52.730Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "卧佛寺 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:27:59.516Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "圣家堂 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:28:06.349Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "坎昆 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:28:13.166Z",
+      "processingTime": 71
+    },
+    {
+      "guide": "城山日出峰 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:28:20.447Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "城山日出峰 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:28:26.901Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "埃菲尔铁塔 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:28:33.571Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "塔桥 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:28:41.252Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "大峡谷 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:28:48.151Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "大本钟 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:28:54.924Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "大皇宫 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:29:02.159Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "天安門広場 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:29:09.027Z",
+      "processingTime": 69
+    },
+    {
+      "guide": "天安门广场 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:29:15.759Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "奇琴伊察 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:29:22.647Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "富士山 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:29:29.368Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "富士山 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:29:35.807Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "尼亚加拉瀑布 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:29:42.805Z",
+      "processingTime": 69
+    },
+    {
+      "guide": "库斯科 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:29:50.493Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "恒河 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:29:57.440Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "救い主キリスト (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:30:04.200Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "救赎主基督 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:30:11.008Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "斗 兽 场 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:30:18.066Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "新天鹅堡 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:30:25.017Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "时代广场 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:30:32.035Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "明洞 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:30:39.000Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "景福宫 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:30:46.019Z",
+      "processingTime": 70
+    },
+    {
+      "guide": "景福宮 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:30:55.192Z",
+      "processingTime": 69
+    },
+    {
+      "guide": "札嘎其市场 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:31:02.131Z",
+      "processingTime": 69
+    },
+    {
+      "guide": "桂尔公园 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:31:08.855Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "梵蒂冈 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:31:15.607Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "比萨斜塔 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:31:22.524Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "汉拿山 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:31:29.250Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "泰姬陵 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:31:36.184Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "浅草寺 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:31:42.971Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "浅草寺 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:31:49.416Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "海云台海水浴场 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:31:56.447Z",
+      "processingTime": 70
+    },
+    {
+      "guide": "海云台海水浴场 (en)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:32:03.754Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "海云台海水浴场 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:32:10.210Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "海雲台海水浴場 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:32:17.099Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "清水寺 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:32:23.822Z",
+      "processingTime": 69
+    },
+    {
+      "guide": "清水寺 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:32:30.265Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "滨海湾花园 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:32:37.102Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "滨海湾金沙 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:32:44.194Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "漢拏山 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:32:51.010Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "特奥蒂瓦坎 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:32:58.073Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "王宮 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:33:04.959Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "班夫国家公园 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:33:12.750Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "甘川文化村 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:33:19.886Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "甘川文化村 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:33:26.247Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "白金汉宫 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:33:33.125Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "瞻城大学 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:33:39.976Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "瞻城大学 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:33:46.353Z",
+      "processingTime": 68
+    },
+    {
+      "guide": "石窟庵 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:33:53.089Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "科隆大教堂 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:33:59.819Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "紫禁城 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:34:06.701Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "紫禁城 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:34:14.003Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "红堡 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:34:20.829Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "纳斯卡线 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:34:27.592Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "自由の女神 (ja)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:34:34.467Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "自由女神像 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:34:41.354Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "郑王庙 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:34:48.092Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "长城 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:34:54.854Z",
+      "processingTime": 67
+    },
+    {
+      "guide": "阿尔罕布拉 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:35:01.716Z",
+      "processingTime": 66
+    },
+    {
+      "guide": "马丘比丘 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:35:08.732Z",
+      "processingTime": 69
+    },
+    {
+      "guide": "马拉卡纳体育场 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:35:15.709Z",
+      "processingTime": 77
+    },
+    {
+      "guide": "鱼尾狮 (zh)",
+      "error": "업데이트된 구조 검증 실패",
+      "timestamp": "2025-08-26T15:35:23.387Z",
+      "processingTime": 67
+    }
+  ],
+  "config": {
+    "batchSize": 10,
+    "maxRetries": 3,
+    "retryDelayMs": 2000,
+    "saveProgressEvery": 5,
+    "testMode": false,
+    "enableRollback": true
+  },
+  "options": {},
+  "timestamp": "2025-08-26T15:35:23.387Z"
+}

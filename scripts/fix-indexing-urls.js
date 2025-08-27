@@ -194,7 +194,7 @@ async function testUrlGeneration() {
     }
     
     // 간단한 URL 생성 테스트
-    const baseUrl = 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
     const locationName = '경복궁';
     const languages = ['ko', 'en', 'ja', 'zh', 'es'];
     

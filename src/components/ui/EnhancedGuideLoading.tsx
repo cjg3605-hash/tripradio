@@ -161,7 +161,7 @@ export default function EnhancedGuideLoading({
 
   return (
     <div className={`flex flex-col items-center justify-center p-8 min-h-screen bg-gray-50 ${className}`}>
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 max-w-md w-full">
+      <div className="bg-white rounded-lg shadow-lg border border-gray-100 p-8 max-w-md w-full">
         {/* 메인 로딩 아이콘 */}
         <div className="text-center space-y-6">
           <div className="relative mx-auto w-24 h-24">

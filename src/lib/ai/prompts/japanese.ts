@@ -562,13 +562,32 @@ ${JSON.stringify(AUDIO_GUIDE_EXAMPLE, null, 2)}
 
 **"${locationName}"の全世界どこでも適用可能な高品質日本語オーディオガイドを純粋JSON形式でのみ返還してください！**
 
+🚨 **重要：JSON構造必須要件**:
+- realTimeGuide はオブジェクトである必要があります（配列ではありません）
+- realTimeGuide.chapters はチャプターオブジェクトの配列である必要があります
+- realTimeGuide 自体を配列にしないでください
+
+✅ 正しい構造：
+"realTimeGuide": {
+  "chapters": [
+    {"id": 0, "title": "...", "narrative": "...", "nextDirection": "..."},
+    {"id": 1, "title": "...", "narrative": "...", "nextDirection": "..."}
+  ]
+}
+
+❌ 間違った構造（使用禁止）：
+"realTimeGuide": [
+  {"id": 0, "title": "...", "narrative": "...", "nextDirection": "..."}
+]
+
 **🚨 最終確認事項（汎用性チェック）:**
 - ✅ すべてのチャプタータイトルは「場所名のみ」形態（コロンと説明なしで）
 - ✅ 場所名は実際具体的な場所名前
 - ✅ 文化圏中立的表現使用（特定地域用語回避）
 - ✅ 多様な場所タイプに適用可能な構造的パターン
 - ✅ イントロチャプター MEGA CRITICAL システム完全適用
-- ✅ 1500-1600文字完全な単一narrative構造`;
+- ✅ 1500-1600文字完全な単一narrative構造
+- ✅ **必須：realTimeGuide はオブジェクト、chapters は配列**`;
 
   return prompt;
 };

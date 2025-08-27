@@ -562,13 +562,32 @@ ${JSON.stringify(AUDIO_GUIDE_EXAMPLE, null, 2)}
 
 **Create "${locationName}"'s universally applicable high-quality English audio guide in pure JSON format!**
 
+🚨 **CRITICAL: JSON Structure Requirements**:
+- realTimeGuide MUST BE AN OBJECT (not an array)
+- realTimeGuide.chapters MUST BE AN ARRAY of chapter objects
+- NEVER make realTimeGuide itself an array
+
+✅ CORRECT Structure:
+"realTimeGuide": {
+  "chapters": [
+    {"id": 0, "title": "...", "narrative": "...", "nextDirection": "..."},
+    {"id": 1, "title": "...", "narrative": "...", "nextDirection": "..."}
+  ]
+}
+
+❌ WRONG Structure (NEVER USE):
+"realTimeGuide": [
+  {"id": 0, "title": "...", "narrative": "...", "nextDirection": "..."}
+]
+
 **🚨 Final Verification (Universality Check):**
 - ✅ All chapter titles in "location name only" format (without colons and descriptions)
 - ✅ Location names are actual specific place names
 - ✅ Use culturally neutral expressions (avoid region-specific terms)
 - ✅ Structural patterns applicable to various location types
 - ✅ Complete application of intro chapter MEGA CRITICAL system
-- ✅ Complete single narrative structure of 1500-1600 characters`;
+- ✅ Complete single narrative structure of 1500-1600 characters
+- ✅ **MANDATORY: realTimeGuide as OBJECT, chapters as ARRAY**`;
 
   return prompt;
 };

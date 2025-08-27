@@ -2,7 +2,7 @@
  * 위치 분류 캐시 관리 유틸리티
  */
 
-import { getCacheStats, clearExpiredCache, clearAllCache } from './dynamic-location-classifier';
+import { getCacheStats, clearExpiredCache, clearAllCache } from './location-classification';
 
 /**
  * 캐시 관리 API

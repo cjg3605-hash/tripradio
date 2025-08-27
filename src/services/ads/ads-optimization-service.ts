@@ -190,7 +190,7 @@ ${adsTxtContent}
         }
       ],
       targetingOptions: {
-        geographical: ['KR', 'US', 'JP', 'CN', 'UK', 'DE', 'FR'],
+        geographical: ['KOR', 'USA', 'JPN', 'CHN', 'GBR', 'DEU', 'FRA'],
         demographic: {
           ageGroups: ['18-24', '25-34', '35-44', '45-54', '55-64'],
           interests: ['travel', 'tourism', 'technology', 'mobile-apps', 'lifestyle']
@@ -367,7 +367,7 @@ ${adsTxtContent}
         }
       ],
       targetingOptions: {
-        geographical: ['KR', 'US', 'JP', 'CN'],
+        geographical: ['KOR', 'USA', 'JPN', 'CHN'],
         demographic: {
           ageGroups: ['18-24', '25-34', '35-44', '45-54'],
           interests: ['travel', 'tourism', 'technology', 'mobile-apps']

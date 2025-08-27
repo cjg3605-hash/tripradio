@@ -45,7 +45,7 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
           description: 'AI 기반 개인 맞춤형 여행 도슨트 서비스',
           address: {
             '@type': 'PostalAddress',
-            addressCountry: 'KR',
+            addressCountry: 'KOR',
             addressRegion: 'Seoul'
           },
           contactPoint: {
@@ -97,7 +97,7 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
           url: data.url || 'https://navidocent.com/destinations',
           address: data.address || {
             '@type': 'PostalAddress',
-            addressCountry: 'KR'
+            addressCountry: 'KOR'
           },
           geo: data.geo,
           touristType: ['Leisure', 'Business', 'Cultural', 'Educational'],
@@ -163,7 +163,7 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
           telephone: data.telephone,
           address: {
             '@type': 'PostalAddress',
-            addressCountry: 'KR',
+            addressCountry: 'KOR',
             addressRegion: 'Seoul',
             ...data.address
           },

@@ -282,7 +282,7 @@ const MapWithRoute = memo<MapWithRouteProps>(({
   return (
     <div 
       ref={mapContainerRef}
-      className="relative w-full h-64 rounded-3xl overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white"
+      className="relative w-full h-64 rounded-lg overflow-hidden shadow-lg shadow-black/10 border border-black/8 bg-white"
       id={`map-container-${mapKey}`}
     >
       {/* Error Boundary로 안전한 지도 렌더링 */}

@@ -653,7 +653,7 @@ export function LiveAudioPlayer({
             {/* 배속 선택 드롭다운 */}
             {showSpeedMenu && (
               <div className="absolute bottom-full mb-2 right-0 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50">
-                {[0.5, 0.8, 1, 1.2, 1.5].map((rate) => (
+                {[0.75, 1, 1.25, 1.5, 2].map((rate) => (
                   <button
                     key={rate}
                     onClick={() => changePlaybackRate(rate)}

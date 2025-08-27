@@ -92,7 +92,7 @@ const PopupNotification: React.FC<PopupNotificationProps> = ({
     >
       {/* 팝업 컨테이너 */}
       <div 
-        className="relative bg-white rounded-3xl shadow-2xl border border-black/10 mx-4 max-w-sm w-full"
+        className="relative bg-white rounded-lg shadow-2xl border border-black/10 mx-4 max-w-sm w-full"
         style={{
           animation: isOpen ? 'popupSlideIn 0.3s ease-out' : 'popupSlideOut 0.2s ease-in'
         }}
@@ -102,7 +102,7 @@ const PopupNotification: React.FC<PopupNotificationProps> = ({
         <div className="px-6 pt-6 pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                 type === 'success' ? 'bg-green-100' : 'bg-orange-100'
               }`}>
                 {type === 'success' ? (
@@ -141,13 +141,13 @@ const PopupNotification: React.FC<PopupNotificationProps> = ({
             <div className="flex gap-3">
               <button
                 onClick={handleCancel}
-                className="flex-1 px-4 py-3 bg-black/5 hover:bg-black/10 text-black font-semibold rounded-2xl transition-all duration-200 active:scale-95"
+                className="flex-1 px-4 py-3 bg-black/5 hover:bg-black/10 text-black font-semibold rounded-lg transition-all duration-200 active:scale-95"
               >
                 {cancelText}
               </button>
               <button
                 onClick={handleConfirm}
-                className="flex-1 px-4 py-3 bg-black hover:bg-black/80 text-white font-semibold rounded-2xl transition-all duration-200 active:scale-95 hover:shadow-lg"
+                className="flex-1 px-4 py-3 bg-black hover:bg-black/80 text-white font-semibold rounded-lg transition-all duration-200 active:scale-95 hover:shadow-lg"
               >
                 {confirmText}
               </button>
@@ -157,7 +157,7 @@ const PopupNotification: React.FC<PopupNotificationProps> = ({
 
         {/* 자동 닫기 진행바 (success + autoClose) */}
         {type === 'success' && autoClose && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/5 rounded-b-3xl overflow-hidden">
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/5 rounded-b-lg overflow-hidden">
             <div 
               className="h-full bg-green-500 transition-all ease-linear"
               style={{

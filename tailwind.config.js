@@ -4,10 +4,11 @@ module.exports = {
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',  // app 디렉토리 추가
   ],
   theme: {
     extend: {
-      // Ultra Modern Color Palette
+      // Ultra Modern Color Palette with Dark Mode Support
       colors: {
         black: '#000000',
         white: '#ffffff',
@@ -22,7 +23,65 @@ module.exports = {
           700: '#404040',
           800: '#262626',
           900: '#171717',
+          950: '#0a0a0a',
         },
+        // 다크모드 전용 색상 - Material Design 3.0 기반 계층 구조
+        'dark': {
+          // 표면 계층 (Surface layers)
+          'surface-1': '#121212',    // 기본 배경 (Primary surface)
+          'surface-2': '#1e1e1e',    // 카드, 시트 (Elevated surface +1dp)
+          'surface-3': '#252525',    // 버튼, 메뉴 (Elevated surface +2dp)
+          'surface-4': '#2c2c2c',    // 모달, 팝오버 (Elevated surface +3dp)
+          'surface-5': '#333333',    // 최고 레벨 요소 (Elevated surface +4dp)
+          
+          // 경계선 및 구분선 (Borders & Dividers)
+          'border-1': '#2a2a2a',     // 기본 경계선 (Subtle borders)
+          'border-2': '#3a3a3a',     // 강조 경계선 (Medium borders)
+          'border-3': '#4a4a4a',     // 선택/포커스 경계선 (Strong borders)
+          
+          // 텍스트 계층 (Text hierarchy)
+          'text-primary': '#ffffff',    // 주요 텍스트 (87% opacity equivalent)
+          'text-secondary': '#b3b3b3',  // 보조 텍스트 (60% opacity equivalent)
+          'text-disabled': '#666666',   // 비활성 텍스트 (38% opacity equivalent)
+          'text-inverse': '#000000',    // 역방향 텍스트 (밝은 배경에서)
+          
+          // 상호작용 요소 (Interactive elements)
+          'interactive': '#404040',     // 버튼, 링크의 기본 상태
+          'interactive-hover': '#4a4a4a', // 호버 상태
+          'interactive-active': '#505050', // 활성/눌림 상태
+          'interactive-selected': '#5a5a5a', // 선택된 상태
+          
+          // 상태 색상 (State colors)
+          'success': '#4ade80',         // 성공 (Green-400)
+          'warning': '#facc15',         // 경고 (Yellow-400)  
+          'error': '#f87171',           // 오류 (Red-400)
+          'info': '#60a5fa',            // 정보 (Blue-400)
+        },
+        // 브랜드 색상 (팟캐스트용)
+        'brand-purple': {
+          50: '#faf5ff',
+          100: '#f3e8ff',
+          200: '#e9d5ff',
+          300: '#d8b4fe',
+          400: '#c084fc',
+          500: '#a855f7',
+          600: '#9333ea',
+          700: '#7c3aed',
+          800: '#6b21a8',
+          900: '#581c87',
+        },
+        'brand-pink': {
+          50: '#fdf2f8',
+          100: '#fce7f3',
+          200: '#fbcfe8',
+          300: '#f9a8d4',
+          400: '#f472b6',
+          500: '#ec4899',
+          600: '#db2777',
+          700: '#be185d',
+          800: '#9d174d',
+          900: '#831843',
+        }
       },
 
       // Advanced Typography System - Korean(Pretendard) + English(Roboto)
@@ -159,6 +218,13 @@ module.exports = {
         'premium': '0 10px 25px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.05)',
         'ultra': '0 25px 50px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05)',
         'glow': '0 0 20px rgba(0, 0, 0, 0.1), 0 0 40px rgba(0, 0, 0, 0.05)',
+        
+        // 다크모드 전용 그림자 (Dark mode shadows)
+        'dark-sm': '0 1px 2px 0 rgba(0, 0, 0, 0.5)',
+        'dark-md': '0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3)',
+        'dark-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.4)',
+        'dark-xl': '0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 8px 10px -6px rgba(0, 0, 0, 0.5)',
+        'dark-glow': '0 0 20px rgba(255, 255, 255, 0.05), 0 0 40px rgba(255, 255, 255, 0.02)',
       },
 
       // Advanced Animations
@@ -340,10 +406,22 @@ module.exports = {
           border: '1px solid rgba(255, 255, 255, 0.2)',
         },
         '.glass-dark': {
-          background: 'rgba(0, 0, 0, 0.1)',
+          background: 'rgba(30, 30, 30, 0.8)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid rgba(0, 0, 0, 0.1)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+        },
+        '.glass-card-dark': {
+          background: 'rgba(37, 37, 37, 0.9)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+        },
+        '.glass-effect': {
+          background: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
         },
       });
 
@@ -392,6 +470,66 @@ module.exports = {
           '&:hover': {
             backgroundColor: theme('colors.gray.200'),
             transform: 'translateY(-1px)',
+          },
+        },
+        
+        // 다크모드 전용 버튼 컴포넌트
+        '.btn-dark-primary': {
+          padding: `${theme('spacing.3')} ${theme('spacing.6')}`,
+          backgroundColor: '#404040',
+          color: '#ffffff',
+          border: '1px solid #4a4a4a',
+          borderRadius: theme('borderRadius.xl'),
+          fontWeight: theme('fontWeight.medium'),
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.5)',
+          '&:hover': {
+            backgroundColor: '#4a4a4a',
+            borderColor: '#505050',
+            transform: 'translateY(-1px)',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3)',
+          },
+          '&:active': {
+            backgroundColor: '#505050',
+            transform: 'translateY(0)',
+          },
+        },
+        '.btn-dark-secondary': {
+          padding: `${theme('spacing.3')} ${theme('spacing.6')}`,
+          backgroundColor: '#252525',
+          color: '#b3b3b3',
+          border: '1px solid #3a3a3a',
+          borderRadius: theme('borderRadius.xl'),
+          fontWeight: theme('fontWeight.medium'),
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': {
+            backgroundColor: '#2c2c2c',
+            color: '#ffffff',
+            borderColor: '#4a4a4a',
+            transform: 'translateY(-1px)',
+          },
+          '&:active': {
+            backgroundColor: '#333333',
+            transform: 'translateY(0)',
+          },
+        },
+        '.btn-dark-ghost': {
+          padding: `${theme('spacing.3')} ${theme('spacing.6')}`,
+          backgroundColor: 'transparent',
+          color: '#b3b3b3',
+          border: '1px solid #2a2a2a',
+          borderRadius: theme('borderRadius.xl'),
+          fontWeight: theme('fontWeight.medium'),
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': {
+            backgroundColor: '#1e1e1e',
+            color: '#ffffff',
+            borderColor: '#3a3a3a',
+            transform: 'translateY(-1px)',
+          },
+          '&:active': {
+            backgroundColor: '#252525',
+            transform: 'translateY(0)',
           },
         },
       });

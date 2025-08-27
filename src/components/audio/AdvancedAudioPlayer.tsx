@@ -30,7 +30,7 @@ interface AdvancedAudioPlayerProps {
   className?: string;
 }
 
-const playbackRates: PlaybackRate[] = [0.5, 0.75, 1, 1.25, 1.5, 2];
+const playbackRates: PlaybackRate[] = [0.75, 1, 1.25, 1.5, 2];
 
 const AdvancedAudioPlayer: React.FC<AdvancedAudioPlayerProps> = ({
   chapters,

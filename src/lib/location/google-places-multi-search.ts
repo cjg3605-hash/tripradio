@@ -297,7 +297,9 @@ function calculateNameSimilarity(googleName: string, baseName: string): number {
  * 🗺️ 주소에서 지역 정보 추출
  */
 function extractRegionInfo(address: string): { region: string; country: string } {
-  if (!address) return { region: '미분류', country: '미분류' };
+  if (!address) {
+    return { region: '미분류', country: '미분류' };
+  }
   
   const parts = address.split(',').map(part => part.trim());
   

@@ -513,13 +513,11 @@ ${getQualityRequirementsByType(locationType)}
 
 ${JSON.stringify(AUDIO_GUIDE_EXAMPLE, null, 2)}
 
-🚨 **最终检查要求**:
-1. 纯JSON格式，无额外文本
-2. 所有信息基于可验证事实
-3. 专业性和教育性平衡
-4. 自然流畅的叙述风格
-5. 第一章节标题无冒号
-6. 1500-1600字详细内容
+🚨 **关键：JSON结构要求**:
+- realTimeGuide 必须是对象（不是数组）
+- realTimeGuide.chapters 必须是章节对象的数组
+
+**生成"${locationName}"的高质量中文音频导游，纯JSON格式！**
 
 **记住**: 您的使命是创造让游客赞叹的世界级导游体验！`;
 

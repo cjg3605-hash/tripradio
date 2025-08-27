@@ -6,11 +6,13 @@ import dynamic from 'next/dynamic';
 import Header from './Header';
 import { HistorySidebar } from './HistorySidebar';
 import { LanguageDetectionToast } from '@/components/common/LanguageDetectionToast';
+import { ModeProvider } from '@/contexts/ModeContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
-// 성능 모니터링 프로바이더 동적 로드
-const PerformanceProvider = dynamic(() => import('@/components/providers/PerformanceProvider'), {
-  ssr: false
-});
+// 성능 모니터링 프로바이더 동적 로드 (임시 비활성화)
+// const PerformanceProvider = dynamic(() => import('@/components/providers/PerformanceProvider'), {
+//   ssr: false
+// });
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -23,16 +25,20 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const shouldHideHeader = isGuidePage || isNomadCalculatorPage || isAiTripPlannerPage;
   
   return (
-    <PerformanceProvider>
-      {!shouldHideHeader && <Header onHistoryOpen={() => setIsHistoryOpen(true)} />}
-      <HistorySidebar isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
-      
-      {/* 🌍 언어 자동 감지 알림 토스트 */}
-      <LanguageDetectionToast />
-      
-      <main>
-        {children}
-      </main>
-    </PerformanceProvider>
+    <ThemeProvider defaultTheme="system" enableSystem>
+      <ModeProvider>
+        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+          {!shouldHideHeader && <Header onHistoryOpen={() => setIsHistoryOpen(true)} />}
+          <HistorySidebar isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
+          
+          {/* 🌍 언어 자동 감지 알림 토스트 */}
+          <LanguageDetectionToast />
+          
+          <main>
+            {children}
+          </main>
+        </div>
+      </ModeProvider>
+    </ThemeProvider>
   );
 }

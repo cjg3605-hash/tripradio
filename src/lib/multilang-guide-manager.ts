@@ -343,8 +343,8 @@ export class MultiLangGuideManager {
           console.log(`🔄 SessionStorage 데이터 불완전, 폴백 시스템 우선 시도: "${locationName}"`);
           
           // 🥈 2순위: 폴백 시스템 먼저 시도 (속도 및 안정성 우선)
-          const { classifyLocationDynamic } = await import('@/lib/location/dynamic-location-classifier');
-          const classificationResult = await classifyLocationDynamic(locationName);
+          const { routeLocationQueryCached } = await import('@/lib/location/location-router');
+          const classificationResult = await routeLocationQueryCached(locationName);
           
           console.log('🎯 폴백 지역 분류 결과:', classificationResult);
           

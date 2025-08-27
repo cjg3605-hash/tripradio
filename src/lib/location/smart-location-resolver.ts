@@ -38,7 +38,8 @@ export interface SmartResolutionResult {
 export async function smartResolveLocation(
   locationName: string,
   userQuery?: string,
-  userContext?: string
+  userContext?: string,
+  locationData?: { country?: string; region?: string; countryCode?: string }
 ): Promise<SmartResolutionResult> {
   
   console.log(`🤖 스마트 위치 해결 시작: "${locationName}"`);
@@ -48,7 +49,7 @@ export async function smartResolveLocation(
   
   if (!isAmbiguous) {
     // 모호하지 않은 경우 - 일반 처리
-    return await handleNonAmbiguousLocation(locationName);
+    return await handleNonAmbiguousLocation(locationName, locationData);
   }
   
   console.log(`🔍 동명 장소 감지: "${locationName}"`);
@@ -60,7 +61,7 @@ export async function smartResolveLocation(
   // 3️⃣ 후보 목록 획득
   const candidates = getLocationCandidates(locationName);
   if (candidates.length === 0) {
-    return await handleUnknownLocation(locationName);
+    return await handleUnknownLocation(locationName, locationData);
   }
   
   console.log(`📋 후보 장소 ${candidates.length}개 발견`);
@@ -303,17 +304,44 @@ function makeSmartDecision(
  * 🚫 모호하지 않은 위치 처리
  */
 async function handleNonAmbiguousLocation(
-  locationName: string
+  locationName: string,
+  locationData?: { country?: string; region?: string; countryCode?: string }
 ): Promise<SmartResolutionResult> {
   
-  // 단일 후보로 처리
+  // 실제 위치 데이터 사용 또는 Google API로 검증
+  let actualRegion = '';
+  let actualCountry = '';
+  
+  if (locationData?.region && locationData?.country) {
+    actualRegion = locationData.region;
+    actualCountry = locationData.country;
+  } else {
+    // Google API로 정보 검증 시도
+    try {
+      const googleResults = await performMultiLocationSearch(locationName, []);
+      if (googleResults.length > 0) {
+        const topResult = googleResults[0];
+        actualRegion = topResult.region;
+        actualCountry = topResult.country;
+      }
+    } catch (error) {
+      console.log(`⚠️ Google API 검증 실패, 기본값 사용:`, error);
+    }
+  }
+  
+  // 여전히 정보가 없으면 최소한의 fallback (locationName을 region으로 사용하지 않음)
+  if (!actualRegion || !actualCountry) {
+    actualRegion = '알 수 없는 지역';
+    actualCountry = '알 수 없는 국가';
+  }
+  
   const singleCandidate: LocationCandidate = {
     id: `single-${locationName}`,
     displayName: locationName,
-    region: '미분류',
-    country: '미분류',
+    region: actualRegion,
+    country: actualCountry,
     description: `${locationName} 관련 장소`,
-    popularityScore: 7, // 기본 점수
+    popularityScore: 7,
     keywords: [],
     aliases: [locationName]
   };
@@ -333,10 +361,36 @@ async function handleNonAmbiguousLocation(
  * ❓ 알려지지 않은 위치 처리
  */
 async function handleUnknownLocation(
-  locationName: string
+  locationName: string,
+  locationData?: { country?: string; region?: string; countryCode?: string }
 ): Promise<SmartResolutionResult> {
   
   console.log(`❓ 알려지지 않은 위치: "${locationName}" - Google API로 검색`);
+  
+  // 먼저 전달받은 위치 데이터 확인
+  if (locationData?.region && locationData?.country) {
+    const knownCandidate: LocationCandidate = {
+      id: `known-${locationName}`,
+      displayName: locationName,
+      region: locationData.region,
+      country: locationData.country,
+      description: `${locationName} - ${locationData.region}, ${locationData.country}`,
+      popularityScore: 6,
+      keywords: [],
+      aliases: [locationName]
+    };
+    
+    return {
+      selectedLocation: knownCandidate,
+      confidence: 0.8,
+      resolutionMethod: 'context',
+      shouldShowAlternatives: false,
+      reasoning: [
+        `세션 데이터에서 "${locationName}" 위치 정보 확인됨`,
+        `${locationData.region}, ${locationData.country}에 위치`
+      ]
+    };
+  }
   
   try {
     // Google API로 직접 검색
@@ -373,12 +427,12 @@ async function handleUnknownLocation(
     console.error(`❌ Google 검색 실패:`, error);
   }
   
-  // 최종 fallback
+  // 최종 fallback - 하드코딩 대신 명시적으로 알 수 없음 표시
   const fallbackCandidate: LocationCandidate = {
     id: `fallback-${locationName}`,
     displayName: locationName,
-    region: '미분류',
-    country: '미분류',
+    region: '알 수 없는 지역',
+    country: '알 수 없는 국가',
     description: `${locationName} - 정확한 위치 정보를 찾을 수 없음`,
     popularityScore: 5,
     keywords: [],

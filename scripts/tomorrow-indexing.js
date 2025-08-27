@@ -21,23 +21,23 @@ async function main() {
     console.log('\n2️⃣ SEO 설정 검증 중...\n');
     
     // SEO 설정 검증
-    execSync('NEXT_PUBLIC_BASE_URL=http://localhost:3000 node scripts/seo-batch-indexing.js validate', {
+    execSync('NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js validate', {
       stdio: 'inherit',
       cwd: process.cwd()
     });
     
     console.log('\n3️⃣ 남은 가이드 테스트 실행 중...\n');
     
-    // 테스트 실행 (제외 목록 적용)
-    execSync('NEXT_PUBLIC_BASE_URL=http://localhost:3000 node scripts/seo-batch-indexing.js dry-run', {
+    // 테스트 실행 (제외 목록 적용) - 테스트는 localhost 가능
+    execSync('node scripts/seo-batch-indexing.js dry-run', {
       stdio: 'inherit',
       cwd: process.cwd()
     });
     
     console.log('\n4️⃣ 실제 색인 요청 실행 중 (오늘 처리한 것 제외)...\n');
     
-    // 실제 색인 요청 (오늘 처리한 것 제외)
-    execSync('NEXT_PUBLIC_BASE_URL=http://localhost:3000 node scripts/seo-batch-indexing.js run-remaining-only', {
+    // 실제 색인 요청 (오늘 처리한 것 제외) - 반드시 프로덕션 URL 사용
+    execSync('NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js run-remaining-only', {
       stdio: 'inherit',
       cwd: process.cwd()
     });
@@ -45,7 +45,7 @@ async function main() {
     console.log('\n5️⃣ 최종 상태 확인 중...\n');
     
     // 최종 상태 확인
-    execSync('NEXT_PUBLIC_BASE_URL=http://localhost:3000 node scripts/seo-batch-indexing.js status', {
+    execSync('NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js status', {
       stdio: 'inherit',
       cwd: process.cwd()
     });
@@ -57,8 +57,8 @@ async function main() {
     console.error('\n❌ 내일 색인 작업 실행 중 오류 발생:', error.message);
     console.log('\n🔄 수동 실행 명령어:');
     console.log('   1. npm run dev  (다른 터미널에서 서버 실행)');
-    console.log('   2. NEXT_PUBLIC_BASE_URL=http://localhost:3000 node scripts/seo-batch-indexing.js validate');
-    console.log('   3. NEXT_PUBLIC_BASE_URL=http://localhost:3000 node scripts/seo-batch-indexing.js run-remaining-only');
+    console.log('   2. NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js validate');
+    console.log('   3. NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js run-remaining-only');
     
     process.exit(1);
   }

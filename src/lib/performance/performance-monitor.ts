@@ -29,12 +29,16 @@ interface PerformanceBudget {
 class PerformanceMonitor {
   private metrics: PerformanceMetrics = {};
   private budget: PerformanceBudget = {
-    LCP: 2500,
+    LCP: 2500, // Target: <2.5s for mobile optimization
     FID: 100,
     CLS: 0.1,
     FCP: 1800,
     TTFB: 600
   };
+  
+  // LCP-specific monitoring
+  private lcpObserver: PerformanceObserver | null = null;
+  private isLCPOptimized = false;
   
   private observers: PerformanceObserver[] = [];
   private isInitialized = false;
@@ -61,11 +65,23 @@ class PerformanceMonitor {
   }
 
   private observeWebVitals() {
-    // LCP (Largest Contentful Paint)
+    // Enhanced LCP (Largest Contentful Paint) monitoring
     this.createObserver('largest-contentful-paint', (entries) => {
       const lcpEntry = entries[entries.length - 1] as PerformanceEntry;
       this.metrics.LCP = lcpEntry.startTime;
       this.checkBudget('LCP', lcpEntry.startTime);
+      
+      // LCP-specific optimization feedback
+      if (lcpEntry.startTime < 1200) {
+        console.log('🚀 Excellent LCP performance:', Math.round(lcpEntry.startTime), 'ms');
+        this.isLCPOptimized = true;
+      } else if (lcpEntry.startTime < 2500) {
+        console.log('✅ Good LCP performance:', Math.round(lcpEntry.startTime), 'ms');
+        this.isLCPOptimized = true;
+      } else {
+        console.warn('⚠️ LCP needs improvement:', Math.round(lcpEntry.startTime), 'ms - Target: <2500ms');
+        this.suggestLCPOptimizations(lcpEntry.startTime);
+      }
     });
 
     // FID (First Input Delay) 
@@ -294,9 +310,38 @@ class PerformanceMonitor {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
+  // LCP 최적화 제안 시스템
+  private suggestLCPOptimizations(lcpValue: number) {
+    console.group('🎯 LCP 최적화 제안');
+    
+    if (lcpValue > 4000) {
+      console.warn('🔥 Critical LCP issue detected:', Math.round(lcpValue), 'ms');
+      console.log('💡 Suggestions:');
+      console.log('  • Check for render-blocking resources');
+      console.log('  • Optimize largest image/element');
+      console.log('  • Consider server-side rendering');
+    } else if (lcpValue > 2500) {
+      console.warn('⚠️ LCP above mobile target:', Math.round(lcpValue), 'ms');
+      console.log('💡 Suggestions:');
+      console.log('  • Preload critical fonts and images');
+      console.log('  • Optimize CSS delivery');
+      console.log('  • Review resource hints');
+    }
+    
+    console.groupEnd();
+  }
+
+  // LCP 상태 확인
+  isLCPWithinBudget(): boolean {
+    return this.isLCPOptimized && (this.metrics.LCP || 0) < this.budget.LCP;
+  }
+
   // 정리
   destroy() {
     this.observers.forEach(observer => observer.disconnect());
+    if (this.lcpObserver) {
+      this.lcpObserver.disconnect();
+    }
     this.observers = [];
     this.isInitialized = false;
     console.log('🚀 Performance Monitor destroyed');

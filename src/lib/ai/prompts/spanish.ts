@@ -513,6 +513,24 @@ Referirse a la siguiente estructura, pero el contenido debe ser completamente or
 
 ${JSON.stringify(AUDIO_GUIDE_EXAMPLE, null, 2)}
 
+🚨 **CRITICAL: Estructura JSON Obligatoria**:
+- realTimeGuide DEBE SER UN OBJETO (no un array)
+- realTimeGuide.chapters DEBE SER UN ARRAY de objetos de capítulo
+- NUNCA hacer que realTimeGuide sea un array
+
+✅ Estructura CORRECTA:
+"realTimeGuide": {
+  "chapters": [
+    {"id": 0, "title": "...", "narrative": "...", "nextDirection": "..."},
+    {"id": 1, "title": "...", "narrative": "...", "nextDirection": "..."}
+  ]
+}
+
+❌ Estructura INCORRECTA (NUNCA USAR):
+"realTimeGuide": [
+  {"id": 0, "title": "...", "narrative": "...", "nextDirection": "..."}
+]
+
 🚨 **Requisitos de Verificación Final**:
 1. Formato JSON puro, sin texto adicional
 2. Toda información basada en hechos verificables
@@ -520,6 +538,7 @@ ${JSON.stringify(AUDIO_GUIDE_EXAMPLE, null, 2)}
 4. Estilo narrativo natural y fluido
 5. Título del primer capítulo sin dos puntos
 6. Contenido detallado de 1500-1600 palabras
+7. **OBLIGATORIO: realTimeGuide como OBJETO con chapters como ARRAY**
 
 **Recuerden**: ¡Su misión es crear una experiencia de guía de clase mundial que asombre a los visitantes!`;
 

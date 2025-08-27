@@ -117,7 +117,7 @@ export default function RegionalSearchBox({
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder || String(t('search.placeholder'))}
-          className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-blue-500 focus:outline-none transition-all duration-300 bg-white shadow-lg"
+          className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-all duration-300 bg-white shadow-lg"
         />
         
         {/* 🔄 로딩 인디케이터 */}
@@ -186,7 +186,7 @@ export default function RegionalSearchBox({
 
       {/* 📋 검색 제안 목록 */}
       {suggestions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border rounded-2xl shadow-2xl z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white border rounded-lg shadow-2xl z-50 max-h-96 overflow-y-auto">
           {suggestions.map((suggestion, index) => (
             <div
               key={`${suggestion.id}-${suggestion.language}`}

@@ -88,10 +88,9 @@ export class IndexingService {
     }
   }
 
-  // 랜딩 페이지 URL 생성
+  // 랜딩 페이지 URL 생성 (실제 존재하는 한국어 페이지들만)
   generateLandingPageUrls(): string[] {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
-    const languages = ['ko', 'en', 'ja', 'zh', 'es'] as const;
     
     const landingPages = [
       '', // 홈페이지
@@ -109,25 +108,15 @@ export class IndexingService {
     
     const urls: string[] = [];
     
-    // 각 랜딩 페이지별 다국어 URL 생성
+    // 한국어 기본 페이지들만 생성 (실제 배포된 구조에 맞춤)
     landingPages.forEach(page => {
-      languages.forEach(lang => {
-        if (page === '') {
-          // 홈페이지
-          if (lang === 'ko') {
-            urls.push(baseUrl);
-          } else {
-            urls.push(`${baseUrl}?lang=${lang}`);
-          }
-        } else {
-          // 다른 페이지들
-          if (lang === 'ko') {
-            urls.push(`${baseUrl}/${page}`);
-          } else {
-            urls.push(`${baseUrl}/${page}?lang=${lang}`);
-          }
-        }
-      });
+      if (page === '') {
+        // 홈페이지
+        urls.push(baseUrl);
+      } else {
+        // 다른 페이지들
+        urls.push(`${baseUrl}/${page}`);
+      }
     });
     
     return urls;

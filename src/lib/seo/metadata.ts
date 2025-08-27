@@ -374,27 +374,49 @@ export function generateSitemapUrls(guides: Array<{ name: string; slug?: string 
     }
   ];
 
-  // 🚀 각 가이드에 대한 URL 생성 (새로운 구조: /guide/[language]/[location])
+  // 🚀 각 가이드에 대한 URL 생성 (번역된 장소명 사용)
   guides.forEach(guide => {
-    const guidePath = guide.slug || encodeURIComponent(guide.name);
-    
-    languages.forEach(lang => {
-      // 🚀 새로운 URL 구조: /guide/[language]/[location]
-      const guideUrl = `${baseUrl}/guide/${lang}/${guidePath}`;
-        
-      urls.push({
-        url: guideUrl,
-        lastModified: now,
-        changeFrequency: 'weekly',
-        priority: 0.9,
-        // 🚀 다국어 alternate 링크 (새 구조로 업데이트)
-        alternates: {
-          languages: Object.fromEntries(
-            languages.map(l => [l, `${baseUrl}/guide/${l}/${guidePath}`])
-          )
-        }
+    // 번역 시스템 사용하여 언어별 URL 생성
+    try {
+      const { generateLocalizedGuideUrls } = require('./locationTranslation');
+      const localizedUrls = generateLocalizedGuideUrls(guide.name);
+      
+      localizedUrls.forEach(({ language, url, localizedName }) => {
+        urls.push({
+          url: url,
+          lastModified: now,
+          changeFrequency: 'weekly',
+          priority: 0.9,
+          // 🚀 다국어 alternate 링크 (번역된 장소명 사용)
+          alternates: {
+            languages: Object.fromEntries(
+              localizedUrls.map(item => [item.language, item.url])
+            )
+          }
+        });
       });
-    });
+    } catch (error) {
+      // 번역 모듈 없으면 기존 방식 사용
+      console.log('📝 번역 모듈 없음, 기본 사이트맵 생성:', error);
+      const guidePath = guide.slug || encodeURIComponent(guide.name);
+      
+      languages.forEach(lang => {
+        // 🚀 기본 URL 구조: /guide/[language]/[location]
+        const guideUrl = `${baseUrl}/guide/${lang}/${guidePath}`;
+          
+        urls.push({
+          url: guideUrl,
+          lastModified: now,
+          changeFrequency: 'weekly',
+          priority: 0.9,
+          alternates: {
+            languages: Object.fromEntries(
+              languages.map(l => [l, `${baseUrl}/guide/${l}/${guidePath}`])
+            )
+          }
+        });
+      });
+    }
   });
 
   return urls;
