@@ -133,6 +133,8 @@ export default function NextLevelSearchBox() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [hasAttemptedSearch, setHasAttemptedSearch] = useState(false);
+  const [hasApiError, setHasApiError] = useState(false);
+  const [apiErrorType, setApiErrorType] = useState<'network' | 'timeout' | 'server' | null>(null);
   const [showExploration, setShowExploration] = useState(false);
   
   const inputRef = useRef<HTMLInputElement>(null);
@@ -151,6 +153,9 @@ export default function NextLevelSearchBox() {
       setQuery('');
       setSuggestions([]);
       setSelectedIndex(-1);
+      setHasAttemptedSearch(false);
+      setHasApiError(false);
+      setApiErrorType(null);
     };
 
     if (typeof window !== 'undefined') {
@@ -202,29 +207,50 @@ export default function NextLevelSearchBox() {
         try {
           logger.search.query(query);
           
+          // 상태 초기화
+          setHasApiError(false);
+          setApiErrorType(null);
+          
           // 5초 타임아웃으로 API 호출 (AI 처리 시간 고려)
           const result = await safeGet(`/api/locations/${currentLanguage}/search?q=${encodeURIComponent(query)}`, {
             timeout: 5000 // 5초 타임아웃
           });
           
           if (!result.success) {
-            throw new Error(result.error || 'API 요청 실패');
+            // API 호출 실패 - 에러 타입 분류
+            const errorMessage = result.error || 'API 요청 실패';
+            let errorType: 'network' | 'timeout' | 'server' = 'server';
+            
+            if (errorMessage.includes('timeout') || errorMessage.includes('시간초과')) {
+              errorType = 'timeout';
+            } else if (errorMessage.includes('network') || errorMessage.includes('네트워크') || errorMessage.includes('fetch')) {
+              errorType = 'network';
+            }
+            
+            setHasApiError(true);
+            setApiErrorType(errorType);
+            setSuggestions([]);
+            setHasAttemptedSearch(false); // API 실패 시에는 검색 시도로 간주하지 않음
+            
+            throw new Error(errorMessage);
           }
           
           const data = result.data;
           const suggestionCount = data.success ? data.data.length : 0;
           
+          // API 호출 성공
           setSuggestions(data.success ? data.data : []);
           setExplorationSuggestions(data.explorationSuggestions || []);
           setShowExploration(data.hasExploration || false);
           setSelectedIndex(-1);
-          setHasAttemptedSearch(true);
+          setHasAttemptedSearch(true); // 성공적인 API 호출 후에만 true
+          setHasApiError(false);
+          setApiErrorType(null);
           
           logger.search.results(suggestionCount);
         } catch (error) {
           logger.search.error(error);
-          setSuggestions([]);
-          setHasAttemptedSearch(true);
+          // catch 블록에서는 이미 위에서 에러 상태가 설정됨
         } finally {
           setIsTyping(false);
         }
@@ -237,6 +263,8 @@ export default function NextLevelSearchBox() {
       setIsTyping(false);
       setSelectedIndex(-1);
       setHasAttemptedSearch(false);
+      setHasApiError(false);
+      setApiErrorType(null);
       return undefined;
     }
   }, [query, currentLanguage]); // currentLanguage 필요 - API 호출에 사용됨
@@ -647,6 +675,59 @@ export default function NextLevelSearchBox() {
     }));
   };
 
+  // 재시도 함수
+  const handleRetrySearch = async () => {
+    if (!query.trim() || isTyping) return;
+    
+    setIsTyping(true);
+    setHasApiError(false);
+    setApiErrorType(null);
+    
+    try {
+      logger.search.query(`${query} (재시도)`);
+      
+      const result = await safeGet(`/api/locations/${currentLanguage}/search?q=${encodeURIComponent(query)}`, {
+        timeout: 5000
+      });
+      
+      if (!result.success) {
+        const errorMessage = result.error || 'API 요청 실패';
+        let errorType: 'network' | 'timeout' | 'server' = 'server';
+        
+        if (errorMessage.includes('timeout') || errorMessage.includes('시간초과')) {
+          errorType = 'timeout';
+        } else if (errorMessage.includes('network') || errorMessage.includes('네트워크') || errorMessage.includes('fetch')) {
+          errorType = 'network';
+        }
+        
+        setHasApiError(true);
+        setApiErrorType(errorType);
+        setSuggestions([]);
+        setHasAttemptedSearch(false);
+        return;
+      }
+      
+      const data = result.data;
+      const suggestionCount = data.success ? data.data.length : 0;
+      
+      setSuggestions(data.success ? data.data : []);
+      setExplorationSuggestions(data.explorationSuggestions || []);
+      setShowExploration(data.hasExploration || false);
+      setSelectedIndex(-1);
+      setHasAttemptedSearch(true);
+      setHasApiError(false);
+      setApiErrorType(null);
+      
+      logger.search.results(suggestionCount);
+    } catch (error) {
+      logger.search.error(error);
+      setHasApiError(true);
+      setApiErrorType('server');
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
   const handleBlur = (e: React.FocusEvent) => {
     // relatedTarget을 확인하여 드롭다운 내부 클릭인지 확인
     const target = e.relatedTarget as HTMLElement;
@@ -684,8 +765,8 @@ export default function NextLevelSearchBox() {
                       hover:shadow-xl dark:hover:shadow-dark-xl
                       focus-within:border-gray-300 dark:focus-within:border-dark-border-3
                       focus-within:shadow-xl dark:focus-within:shadow-dark-xl">
-        <div className="flex items-center flex-1 px-2 xs:px-4">
-          <MapPin className="w-4 h-4 xs:w-5 xs:h-5 text-gray-500 dark:text-dark-text-secondary mr-2 xs:mr-3 flex-shrink-0" />
+        <div className="flex items-center flex-1 px-4 xs:px-6">
+          <MapPin className="w-5 h-5 text-gray-500 dark:text-dark-text-secondary mr-3 flex-shrink-0" />
           <Input
             ref={inputRef}
             type="text"
@@ -699,14 +780,16 @@ export default function NextLevelSearchBox() {
             // 접근성 속성
             aria-label={String(t('search.searchLocation'))}
             aria-describedby="search-suggestions"
-            aria-expanded={suggestions.length > 0 && isFocused}
+            aria-expanded={isFocused && isValidQuery(query) && (suggestions.length > 0 || hasApiError || hasAttemptedSearch)}
             aria-controls="search-suggestions"
             aria-autocomplete="list"
             role="combobox"
             aria-activedescendant={selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined}
-            className="border-0 bg-transparent text-base
+            aria-invalid={hasApiError ? 'true' : 'false'}
+            className="border-0 bg-transparent text-base xs:text-lg
                       text-gray-900 dark:text-dark-text-primary
                       placeholder:text-gray-500 dark:placeholder:text-dark-text-secondary 
+                      placeholder:text-base placeholder:xs:text-lg
                       focus-visible:ring-0 focus-visible:outline-none
                       disabled:opacity-50 disabled:cursor-not-allowed"
           />
@@ -727,7 +810,7 @@ export default function NextLevelSearchBox() {
             disabled={!query.trim() || isSubmitting}
             aria-label={query.trim() ? `'${query}' 검색하기` : '검색어를 입력하세요'}
             type="submit"
-            className="px-6 xs:px-8 py-2.5 rounded-lg font-medium transition-all duration-200
+            className="px-4 xs:px-6 py-2.5 rounded-lg font-medium transition-all duration-200
                       bg-gray-900 hover:bg-gray-800 active:bg-gray-700 text-white
                       dark:bg-dark-interactive dark:hover:bg-dark-interactive-hover 
                       dark:active:bg-dark-interactive-active dark:text-dark-text-primary
@@ -742,7 +825,7 @@ export default function NextLevelSearchBox() {
             ) : (
               <>
                 <Search className="w-5 h-5 mr-2 flex-shrink-0" />
-                <span className="text-base">{t('search.searchButton')}</span>
+                <span className="text-base xs:text-lg">{t('search.searchButton')}</span>
               </>
             )}
           </Button>
@@ -751,17 +834,52 @@ export default function NextLevelSearchBox() {
 
       {/* 📋 검색 제안 목록 - 검색창과 동일한 스타일로 통일 */}
       {isFocused && !isSubmitting && isValidQuery(query) && (
-        <div className="absolute top-full left-0 w-full mt-2" style={{ zIndex: 'var(--z-autocomplete)' }}>
-          <div className="bg-white/95 dark:bg-dark-surface-2 
+        <div className="absolute top-full left-0 w-full mt-1" style={{ zIndex: 'var(--z-autocomplete)' }}>
+          <div id="search-suggestions" 
+               className="bg-white/95 dark:bg-dark-surface-2 
                          border border-gray-200 dark:border-dark-border-2
                          rounded-lg shadow-xl dark:shadow-dark-xl
                          backdrop-blur-sm max-h-80 overflow-y-auto
-                         animate-fade-in-down">
+                         animate-fade-in-down"
+               role="region" 
+               aria-label="검색 제안사항">
             {isTyping ? (
               /* 로딩 상태 */
               <div className="px-6 py-4 flex items-center gap-3">
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 dark:border-dark-border-2 border-t-transparent"></div>
-                <span className="text-base text-gray-700 dark:text-dark-text-secondary leading-6">{t('search.searching')}</span>
+                <span className="text-base xs:text-lg text-gray-700 dark:text-dark-text-secondary leading-6">{t('search.searching')}</span>
+              </div>
+            ) : hasApiError ? (
+              /* API 에러 상태 */
+              <div className="px-6 py-6" role="alert" aria-live="assertive">
+                <div className="text-center">
+                  <div className="text-red-600 dark:text-red-400 mb-3">
+                    <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                  </div>
+                  <div className="text-base xs:text-lg font-medium text-gray-900 dark:text-dark-text-primary mb-2">
+                    {apiErrorType === 'timeout' ? '검색 시간이 초과되었습니다' :
+                     apiErrorType === 'network' ? '인터넷 연결을 확인해 주세요' :
+                     '검색 서비스에 일시적인 문제가 발생했습니다'}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-dark-text-secondary mb-4">
+                    {apiErrorType === 'timeout' ? '서버 응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.' :
+                     apiErrorType === 'network' ? '네트워크 연결 상태를 확인하고 다시 시도해 주세요.' :
+                     '잠시 후 다시 시도해 주세요.'}
+                  </div>
+                  <button
+                    onClick={handleRetrySearch}
+                    disabled={isTyping}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label={`"${query}" 검색 재시도하기`}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    다시 시도
+                  </button>
+                </div>
               </div>
             ) : suggestions.length > 0 ? (
               /* 검색 결과 */
@@ -769,6 +887,7 @@ export default function NextLevelSearchBox() {
                 {suggestions.map((suggestion, index) => (
                   <div
                     key={`${suggestion.id || suggestion.name}-${index}`}
+                    id={`suggestion-${index}`}
                     role="option"
                     aria-selected={index === selectedIndex}
                     onClick={() => handleSuggestionClick(suggestion)}
@@ -779,6 +898,7 @@ export default function NextLevelSearchBox() {
                         ? 'bg-gray-50/80 dark:bg-dark-surface-3 backdrop-blur-sm' 
                         : 'hover:bg-gray-50/60 dark:hover:bg-dark-surface-3/70'
                     }`}
+                    tabIndex={-1}
                   >
                     {/* 간결한 표시: 장소명 + 도시/국가 */}
                     <div className="text-gray-900 dark:text-dark-text-primary font-medium text-base xs:text-lg leading-5 truncate">
@@ -791,10 +911,21 @@ export default function NextLevelSearchBox() {
                 ))}
               </div>
             ) : hasAttemptedSearch ? (
-              /* 검색 시도 후 결과가 없을 때 */
-              <div className="px-6 py-6 text-center">
-                <div className="text-base text-gray-600 dark:text-dark-text-secondary leading-6">
+              /* 성공적인 API 호출 후 결과가 없을 때 */
+              <div className="px-6 py-6 text-center" role="status" aria-live="polite">
+                <div className="mb-3">
+                  <svg className="w-12 h-12 text-gray-300 dark:text-dark-border-2 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <div className="text-base xs:text-lg font-medium text-gray-900 dark:text-dark-text-primary mb-2">
                   &ldquo;{query}&rdquo;에 대한 검색 결과가 없습니다
+                </div>
+                <div className="text-sm text-gray-600 dark:text-dark-text-secondary mb-4">
+                  다른 검색어를 시도해보세요. 예: 도시명, 관광명소, 박물관 등
+                </div>
+                <div className="text-xs text-gray-500 dark:text-dark-text-tertiary">
+                  💡 팁: 한글 또는 영어로 더 구체적인 지명을 입력해보세요
                 </div>
               </div>
             ) : null}
