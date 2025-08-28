@@ -529,7 +529,7 @@ export default function PremiumPodcastPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       {/* 글래스 헤더 */}
-      <header className="sticky top-0 z-50 glass-header backdrop-blur-xl bg-white/80 border-b border-gray-200/50">
+      <header className="sticky top-0 z-40 glass-header backdrop-blur-xl bg-white/80 border-b border-gray-200/50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link 
@@ -584,7 +584,7 @@ export default function PremiumPodcastPage() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">
-                        {t('chapterPrefix')} {episode.segments[currentSegmentIndex].chapterIndex || 1}: {(episode.segments[currentSegmentIndex].chapterTitle || locationName).replace(new RegExp(`^${t('chapterPrefix')}\\s*${episode.segments[currentSegmentIndex].chapterIndex || 1}\\s*[:：]\\s*`, 'i'), '')}
+                        {t('podcast.chapterPrefix')} {episode.segments[currentSegmentIndex].chapterIndex || 1}: {(episode.segments[currentSegmentIndex].chapterTitle || locationName).replace(new RegExp(`^${t('podcast.chapterPrefix')}\\s*${episode.segments[currentSegmentIndex].chapterIndex || 1}\\s*[:：]\\s*`, 'i'), '')}
                       </h3>
                     </div>
                   </div>

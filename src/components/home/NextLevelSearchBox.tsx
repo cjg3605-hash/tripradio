@@ -202,9 +202,9 @@ export default function NextLevelSearchBox() {
         try {
           logger.search.query(query);
           
-          // 3초 타임아웃으로 API 호출 (자동완성은 빠르게)
+          // 5초 타임아웃으로 API 호출 (AI 처리 시간 고려)
           const result = await safeGet(`/api/locations/${currentLanguage}/search?q=${encodeURIComponent(query)}`, {
-            timeout: 3000 // 3초 타임아웃
+            timeout: 5000 // 5초 타임아웃
           });
           
           if (!result.success) {

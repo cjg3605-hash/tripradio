@@ -475,7 +475,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                           bg-white/95 dark:bg-dark-surface-2/95 
                           border border-gray-200/80 dark:border-dark-border-2
                           shadow-xl dark:shadow-dark-xl
-                          backdrop-blur-sm z-50 animate-fade-in-down"
+                          backdrop-blur-sm z-[100] animate-fade-in-down"
                 style={{
                   marginTop: 'var(--space-1)',
                   borderRadius: 'var(--radius-md)',
@@ -571,7 +571,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                             bg-white/95 dark:bg-dark-surface-2/95 
                             border border-gray-200/80 dark:border-dark-border-2
                             shadow-xl dark:shadow-dark-xl
-                            backdrop-blur-sm z-50 animate-fade-in-down"
+                            backdrop-blur-sm z-[100] animate-fade-in-down"
                   style={{
                     marginTop: 'var(--space-1)',
                     borderRadius: 'var(--radius-md)',
@@ -682,7 +682,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
               </button>
 
               {isProfileMenuOpen && (
-                <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-dropdown border border-gray-200 py-1 min-w-40 z-50">
+                <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-dropdown border border-gray-200 py-1 min-w-40 z-[100]">
                   <a
                     onClick={(e) => {
                       console.log('🖱️ Desktop mypage option clicked');
