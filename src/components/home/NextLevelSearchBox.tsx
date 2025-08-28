@@ -138,6 +138,7 @@ export default function NextLevelSearchBox() {
   const [showExploration, setShowExploration] = useState(false);
   
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const router = useRouter();
   const { currentLanguage, t } = useLanguage();
   
@@ -200,10 +201,17 @@ export default function NextLevelSearchBox() {
   // Advanced search suggestions
   useEffect(() => {
     if (isValidQuery(query)) {
-      // 로딩 상태 시작
-      setIsTyping(true);
-      
       const timer = setTimeout(async () => {
+        // 이전 API 요청 취소
+        if (abortControllerRef.current) {
+          abortControllerRef.current.abort();
+        }
+        
+        // 새 AbortController 생성
+        abortControllerRef.current = new AbortController();
+        
+        // 디바운스 후 API 호출 직전에만 로딩 상태 시작
+        setIsTyping(true);
         try {
           logger.search.query(query);
           
@@ -213,7 +221,8 @@ export default function NextLevelSearchBox() {
           
           // 5초 타임아웃으로 API 호출 (AI 처리 시간 고려)
           const result = await safeGet(`/api/locations/${currentLanguage}/search?q=${encodeURIComponent(query)}`, {
-            timeout: 5000 // 5초 타임아웃
+            timeout: 5000, // 5초 타임아웃
+            signal: abortControllerRef.current.signal // AbortController 신호 추가
           });
           
           if (!result.success) {
@@ -249,12 +258,17 @@ export default function NextLevelSearchBox() {
           
           logger.search.results(suggestionCount);
         } catch (error) {
+          // AbortError는 정상적인 취소이므로 무시
+          if (error instanceof Error && error.name === 'AbortError') {
+            return; // 취소된 요청은 무시
+          }
+          
           logger.search.error(error);
           // catch 블록에서는 이미 위에서 에러 상태가 설정됨
         } finally {
           setIsTyping(false);
         }
-      }, 100); // 100ms 디바운스 (더 빠름)
+      }, 250); // 250ms 디바운스 (업계 표준)
       return () => clearTimeout(timer);
     } else {
       setSuggestions([]);
@@ -679,6 +693,14 @@ export default function NextLevelSearchBox() {
   const handleRetrySearch = async () => {
     if (!query.trim() || isTyping) return;
     
+    // 이전 API 요청 취소
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // 새 AbortController 생성
+    abortControllerRef.current = new AbortController();
+    
     setIsTyping(true);
     setHasApiError(false);
     setApiErrorType(null);
@@ -687,7 +709,8 @@ export default function NextLevelSearchBox() {
       logger.search.query(`${query} (재시도)`);
       
       const result = await safeGet(`/api/locations/${currentLanguage}/search?q=${encodeURIComponent(query)}`, {
-        timeout: 5000
+        timeout: 5000,
+        signal: abortControllerRef.current.signal
       });
       
       if (!result.success) {
@@ -720,6 +743,11 @@ export default function NextLevelSearchBox() {
       
       logger.search.results(suggestionCount);
     } catch (error) {
+      // AbortError는 정상적인 취소이므로 무시
+      if (error instanceof Error && error.name === 'AbortError') {
+        return; // 취소된 요청은 무시
+      }
+      
       logger.search.error(error);
       setHasApiError(true);
       setApiErrorType('server');
@@ -771,7 +799,14 @@ export default function NextLevelSearchBox() {
             ref={inputRef}
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              // 타이핑 즉시 드롭다운 관련 상태 초기화 (더 빠른 반응성)
+              setIsTyping(false);
+              setSuggestions([]);
+              setHasApiError(false);
+              setHasAttemptedSearch(false);
+            }}
             onKeyDown={handleKeyDown}
             onFocus={handleFocus}
             onBlur={handleBlur}
@@ -832,8 +867,8 @@ export default function NextLevelSearchBox() {
         )}
       </div>
 
-      {/* 📋 검색 제안 목록 - 검색창과 동일한 스타일로 통일 */}
-      {isFocused && !isSubmitting && isValidQuery(query) && (
+      {/* 📋 검색 제안 목록 - API 호출 관련 상태가 있을 때만 표시 */}
+      {isFocused && !isSubmitting && (isTyping || hasApiError || suggestions.length > 0 || hasAttemptedSearch) && (
         <div className="absolute top-full left-0 w-full mt-1" style={{ zIndex: 'var(--z-autocomplete)' }}>
           <div id="search-suggestions" 
                className="bg-white/95 dark:bg-dark-surface-2 
