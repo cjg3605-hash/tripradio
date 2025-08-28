@@ -158,7 +158,7 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
     }
     
     // 🎯 다국어 URL 생성 (새 구조 적용)
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.ai';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
     const multilingualUrls = generateMultilingualUrls(locationName, baseUrl);
     const adjustedUrls = Object.entries(multilingualUrls).reduce((acc, [lang, url]) => {
       // 새로운 URL 구조로 변환: /guide/[language]/[location]
@@ -177,7 +177,7 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
             location: locationName,
             language: serverDetectedLanguage,
             description: `${locationName}의 상세한 여행 가이드`,
-            url: `https://tripradio.ai/guide/${requestedLang}/${encodeURIComponent(locationName)}`,
+            url: `${baseUrl}/guide/${requestedLang}/${encodeURIComponent(locationName)}`,
             coordinates: existingGuide?.[0]?.coordinates,
             datePublished: existingGuide?.[0]?.created_at,
             dateModified: existingGuide?.[0]?.updated_at
@@ -187,7 +187,7 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
           data={{
             name: locationName,
             description: `${locationName}의 상세한 관광 정보`,
-            website: `https://tripradio.ai/guide/${requestedLang}/${encodeURIComponent(locationName)}`,
+            website: `${baseUrl}/guide/${requestedLang}/${encodeURIComponent(locationName)}`,
             coordinates: existingGuide?.[0]?.coordinates
           }}
         />
@@ -201,7 +201,7 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
         <AudioObjectSchema 
           data={{
             name: `${locationName} 오디오 가이드`,
-            contentUrl: `https://tripradio.ai/guide/${requestedLang}/${encodeURIComponent(locationName)}/audio`,
+            contentUrl: `${baseUrl}/guide/${requestedLang}/${encodeURIComponent(locationName)}/audio`,
             description: `${locationName}의 음성 해설 가이드`
           }}
         />

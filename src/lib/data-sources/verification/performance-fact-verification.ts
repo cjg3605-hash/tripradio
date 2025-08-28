@@ -501,8 +501,7 @@ export class PerformanceFactVerification {
     const authorityWeights = {
       unesco: 1.0,
       government: 0.9,
-      wikidata: 0.8,
-      google_places: 0.7
+      wikidata: 0.8
     };
 
     let totalWeight = 0;

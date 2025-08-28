@@ -98,7 +98,7 @@ export interface GuideChapter {
   regenerationAttempts?: number;
   validationStatus?: 'pending' | 'verified' | 'failed' | 'manual';
   lastValidatedAt?: string;
-  validationSource?: string; // 'google_places', 'manual', 'ai_generated' 등
+  validationSource?: string; // 'manual', 'ai_generated', 'crowdsourced' 등
   coordinateConfidence?: number; // 0-1 사이 값
   
   // 기존 호환성을 위해 유지하되 deprecated 표시
@@ -232,7 +232,7 @@ export interface CoordinateValidation {
   attempts: number; // 재생성 시도 횟수
   status: 'pending' | 'verified' | 'failed' | 'manual';
   lastValidatedAt?: string;
-  source: 'google_places' | 'manual' | 'ai_generated' | 'ai_regenerated';
+  source: 'crowdsourced' | 'manual' | 'ai_generated' | 'ai_regenerated';
 }
 
 export interface CoordinateRegenerationRequest {

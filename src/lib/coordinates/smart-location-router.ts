@@ -71,7 +71,7 @@ export class SmartLocationRouter {
   private async createPreciseStrategy(title: string, locationName: string): Promise<LocationStrategy> {
     return {
       tier: 'PRECISE',
-      method: 'google_places_verified',
+      method: 'crowdsourced_verified',
       expectedAccuracy: 10,
       confidence: 0.9,
       
@@ -90,17 +90,14 @@ export class SmartLocationRouter {
       },
       
       implementation: async () => {
-        // 1. Google Places 정밀 검색
-        const googleResult = await this.googlePlacesSearch(title, locationName);
-        
-        // 2. 크라우드소싱 데이터 확인 (있다면)
+        // 1. 크라우드소싱 데이터 확인 (있다면)
         const crowdsourcedData = await this.getCrowdsourcedLocation(title);
         
-        // 3. 수동 큐레이션 데이터 확인
+        // 2. 수동 큐레이션 데이터 확인
         const curatedData = await this.getCuratedLocation(title, locationName);
         
-        // 4. 가장 신뢰할 수 있는 좌표 선택
-        return this.selectBestCoordinate([googleResult, crowdsourcedData, curatedData]);
+        // 3. 가장 신뢰할 수 있는 좌표 선택
+        return this.selectBestCoordinate([crowdsourcedData, curatedData]);
       }
     };
   }

@@ -9,9 +9,10 @@ Disallow: /.well-known/
 Disallow: /test/
 Disallow: /debug/
 Disallow: /temp/
-Disallow: /*.js$
-Disallow: /*.css$
-Disallow: /*.json$
+# Allow essential resources for crawling
+# Disallow: /*.js$ (제거 - Next.js 필요)
+# Disallow: /*.css$ (제거 - 스타일링 필요)  
+# Disallow: /*.json$ (제거 - 구조화 데이터 필요)
 
 # Priority crawling for key SEO pages
 Allow: /guide/

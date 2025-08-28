@@ -57,7 +57,6 @@ export class FactVerificationPipeline {
         'unesco': 0.95,
         'government': 0.90,
         'wikidata': 0.80,
-        'google_places': 0.75,
         'cultural_heritage_administration': 0.95,
         'korea_tourism_organization': 0.85
       },
@@ -845,7 +844,6 @@ export class FactVerificationPipeline {
       ['korea_tourism_organization', 0.90],
       ['government', 0.85],
       ['wikidata', 0.80],
-      ['google_places', 0.75],
       ['user_generated', 0.50]
     ]);
   }

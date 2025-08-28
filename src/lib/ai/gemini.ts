@@ -294,7 +294,7 @@ export async function generatePersonalizedGuide(
         location.trim(),
         undefined,
         {
-          dataSources: ['unesco', 'wikidata', 'government', 'google_places'],
+          dataSources: ['unesco', 'wikidata', 'government'],
           includeReviews: true,
           includeImages: true,
           language: safeProfile.language,
@@ -846,26 +846,6 @@ function formatExternalDataForAI(integratedData: any, location: string): string 
     });
   }
 
-  // Google Places 정보
-  if (integratedData.sources?.google_places?.data) {
-    const placesData = Array.isArray(integratedData.sources.google_places.data) 
-      ? integratedData.sources.google_places.data 
-      : [integratedData.sources.google_places.data];
-    
-    sections.push(`
-
-### 📍 **Google Places 정보** (실시간)
-`);
-    
-    placesData.slice(0, 3).forEach((item: any, index: number) => {
-      sections.push(`
-**${index + 1}. ${item.name || '이름 없음'}**
-- 주소: ${item.formatted_address || item.vicinity || '주소 정보 없음'}
-- 평점: ${item.rating ? `⭐ ${item.rating}/5 (${item.user_ratings_total || 0}개 리뷰)` : '평점 없음'}
-- 상태: ${item.opening_hours?.open_now ? '✅ 현재 운영 중' : '⚠️ 운영 상태 확인 필요'}${item.price_level ? `
-- 가격대: ${'$'.repeat(item.price_level)} (${item.price_level}/4)` : ''}`);
-    });
-  }
 
   // UNESCO 정보
   if (integratedData.sources?.unesco?.data) {

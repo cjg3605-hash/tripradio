@@ -20,11 +20,6 @@ const REQUIRED_ENV_VARS: RequiredEnvVars = {
     fallback: ['NEXT_PUBLIC_GEMINI_API_KEY'],
     validation: (value) => value.startsWith('AIza') && value.length > 30
   },
-  GOOGLE_PLACES_API_KEY: {
-    required: false, // 폴백 시스템이 있으므로 선택사항
-    description: 'Google Places API 키 - 정확한 지역 정보 추출용 (폴백 시스템 있음)',
-    validation: (value) => value.startsWith('AIza') && value.length > 30
-  },
   NEXT_PUBLIC_SUPABASE_URL: {
     required: true,
     description: 'Supabase 프로젝트 URL - 데이터베이스 연결에 필수',
@@ -129,7 +124,6 @@ function getEnvValue(key: string, fallbacks?: string[]): string | undefined {
 function getExampleValue(envKey: string): string {
   const examples: { [key: string]: string } = {
     GEMINI_API_KEY: 'AIzaSyABC...DEF123 # Google AI Studio에서 생성',
-    GOOGLE_PLACES_API_KEY: 'AIzaSyAXYZ...ABC456 # Google Cloud Console에서 생성',
     NEXT_PUBLIC_SUPABASE_URL: 'https://your-project.supabase.co',
     NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
   };
@@ -190,6 +184,5 @@ export function validateRuntimeEnv(requiredKeys: string[]): { isValid: boolean; 
  */
 export const ServiceValidators = {
   gemini: () => validateRuntimeEnv(['GEMINI_API_KEY']),
-  googlePlaces: () => validateRuntimeEnv(['GOOGLE_PLACES_API_KEY']),
   supabase: () => validateRuntimeEnv(['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'])
 };

@@ -427,20 +427,23 @@ interface Translations {
     supportHours: string;
     adsenseNotice: string;
     adsensePolicy: string;
-    services: string;
-    travelTools: string;
-    legal: string;
-    audioGuide: string;
-    aiDocent: string;
-    tourRadio: string;
-    travelRadio: string;
-    aiTravelPlan: string;
-    nomadCalculator: string;
-    filmingLocations: string;
-    visaChecker: string;
-    serviceIntro: string;
-    description: string;
-    adRevenue: string;
+    services: {
+      title: string;
+      audioGuide: string;
+      docent: string;
+      tourRadio: string;
+      travelRadio: string;
+      helpCenter: string;
+      feedback: string;
+      adsRevenue: string;
+    };
+    tools: {
+      title: string;
+      tripPlanner: string;
+      nomadCalculator: string;
+      visaChecker: string;
+      filmLocations: string;
+    };
   };
   aiTravel: {
     title: string;
@@ -1309,20 +1312,23 @@ const DEFAULT_TRANSLATIONS: Translations = {
     supportHours: '지원시간: 평일 9시-18시',
     adsenseNotice: '광고 수익 공지',
     adsensePolicy: 'AdSense 정책',
-    services: '주요 서비스',
-    travelTools: '여행 도구',
-    legal: '법적 정보',
-    audioGuide: '오디오가이드',
-    aiDocent: 'AI 도슨트',
-    tourRadio: '투어라디오',
-    travelRadio: '여행라디오',
-    aiTravelPlan: 'AI 여행 계획',
-    nomadCalculator: '노마드 계산기',
-    filmingLocations: '영화 촬영지',
-    visaChecker: '비자 체커',
-    serviceIntro: '서비스 소개',
-    description: 'AI 기반 개인화 여행 가이드 서비스',
-    adRevenue: '광고 수익 공지'
+    services: {
+      title: '주요 서비스',
+      audioGuide: '오디오가이드',
+      docent: 'AI 도슨트',
+      tourRadio: '투어라디오',
+      travelRadio: '여행라디오',
+      helpCenter: '도움말 센터',
+      feedback: '피드백 보내기',
+      adsRevenue: '광고 수익 공지'
+    },
+    tools: {
+      title: '여행 도구',
+      tripPlanner: 'AI 여행 계획',
+      nomadCalculator: '노마드 계산기',
+      visaChecker: '비자 체커',
+      filmLocations: '영화 촬영지'
+    }
   },
   aiTravel: {
     title: 'AI 여행',
@@ -1988,7 +1994,7 @@ const detectBrowserLanguage = (): SupportedLanguage => {
 async function loadTranslations(language: SupportedLanguage): Promise<Translations> {
   try {
     // 🔥 캐시 무효화를 위한 버전 관리 (강화된 캐시 우회)
-    const TRANSLATION_VERSION = '1.2.0'; // tourRadio, travelRadio 추가
+    const TRANSLATION_VERSION = '1.3.0'; // footer 구조 수정
     const cacheKey = `translations-${language}-v${TRANSLATION_VERSION}`;
     
     // 🔥 강제 로딩 모드 확인 (언어 변경 시)
@@ -2134,10 +2140,6 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
       history: {
         ...DEFAULT_TRANSLATIONS.history,
         ...(translations?.history || {})
-      },
-      footer: {
-        ...DEFAULT_TRANSLATIONS.footer,
-        ...(translations?.footer || {})
       },
       aiTravel: {
         ...DEFAULT_TRANSLATIONS.aiTravel,
@@ -2448,6 +2450,19 @@ async function loadTranslations(language: SupportedLanguage): Promise<Translatio
         finalCta: {
           ...DEFAULT_TRANSLATIONS.travelRadio.finalCta,
           ...(translations?.travelRadio?.finalCta || {})
+        }
+      },
+      // 🔥 footer 필드 추가 (누락된 중요 섹션)
+      footer: {
+        ...DEFAULT_TRANSLATIONS.footer,
+        ...(translations?.footer || {}),
+        services: {
+          ...DEFAULT_TRANSLATIONS.footer.services,
+          ...(translations?.footer?.services || {})
+        },
+        tools: {
+          ...DEFAULT_TRANSLATIONS.footer.tools,
+          ...(translations?.footer?.tools || {})
         }
       }
     };

@@ -126,7 +126,7 @@ export class ParallelOrchestrator {
       cacheStrategy?: 'aggressive' | 'conservative' | 'adaptive';
     }
   ) {
-    const sources = options?.sources || ['unesco', 'wikidata', 'government', 'google_places'];
+    const sources = options?.sources || ['unesco', 'wikidata', 'government'];
     const priorityMode = options?.priorityMode || 'speed';
     
     // Create optimized tasks based on priority mode
@@ -295,22 +295,19 @@ export class ParallelOrchestrator {
   private getSourcePriority(source: string, mode: string): 'low' | 'medium' | 'high' | 'critical' {
     const priorities = {
       speed: {
-        google_places: 'critical' as const,
-        unesco: 'high' as const,
-        wikidata: 'medium' as const,
-        government: 'low' as const
+        unesco: 'critical' as const,
+        wikidata: 'high' as const,
+        government: 'medium' as const
       },
       accuracy: {
         unesco: 'critical' as const,
         government: 'high' as const,
-        wikidata: 'medium' as const,
-        google_places: 'low' as const
+        wikidata: 'medium' as const
       },
       comprehensive: {
         unesco: 'high' as const,
         wikidata: 'high' as const,
-        government: 'high' as const,
-        google_places: 'high' as const
+        government: 'high' as const
       }
     };
     
@@ -320,19 +317,16 @@ export class ParallelOrchestrator {
   private getOptimalTimeout(source: string, mode: string): number {
     const timeouts = {
       speed: {
-        google_places: 3000,
         unesco: 5000,
         wikidata: 6000,
         government: 8000
       },
       accuracy: {
-        google_places: 5000,
         unesco: 10000,
         wikidata: 12000,
         government: 15000
       },
       comprehensive: {
-        google_places: 8000,
         unesco: 15000,
         wikidata: 18000,
         government: 20000

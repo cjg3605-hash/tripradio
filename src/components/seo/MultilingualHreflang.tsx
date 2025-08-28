@@ -16,11 +16,12 @@ export default function MultilingualHreflang({
   currentLanguage, 
   urls 
 }: MultilingualHreflangProps) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.ai';
+  // 🔧 도메인 통일: navidocent.com 사용
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
 
   return (
     <>
-      {/* 🚀 새 URL 구조: /guide/[language]/[location] */}
+      {/* 🚀 언어별 alternate URL 생성 */}
       {Object.entries(urls).map(([lang, url]) => {
         const hrefLangCode = {
           ko: 'ko-KR',
@@ -40,14 +41,14 @@ export default function MultilingualHreflang({
         );
       })}
       
-      {/* x-default는 한국어 기본 페이지로 설정 */}
+      {/* ✅ x-default는 한 번만 설정 (한국어 기본) */}
       <link 
         rel="alternate" 
         hrefLang="x-default" 
         href={`${baseUrl}/guide/ko/${encodeURIComponent(locationName)}`} 
       />
       
-      {/* 현재 페이지의 canonical URL */}
+      {/* ✅ Canonical URL - 현재 페이지만 */}
       <link 
         rel="canonical" 
         href={`${baseUrl}/guide/${currentLanguage}/${encodeURIComponent(locationName)}`} 

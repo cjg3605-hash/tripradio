@@ -16,7 +16,6 @@ import {
 import { UNESCOService } from '../unesco/unesco-service';
 import { WikidataService } from '../wikidata/wikidata-service';
 import { GovernmentDataService } from '../government/government-service';
-import { GooglePlacesService } from '../google/places-service';
 import { FactVerificationPipeline } from '../verification/fact-verification';
 import { DataSourceCache } from '../cache/data-cache';
 import { parallelOrchestrator } from '../performance/parallel-orchestrator';
@@ -68,7 +67,6 @@ export class DataIntegrationOrchestrator {
     this.services.set('unesco', UNESCOService.getInstance());
     this.services.set('wikidata', WikidataService.getInstance());
     this.services.set('government', GovernmentDataService.getInstance());
-    this.services.set('google_places', GooglePlacesService.getInstance());
 
     this.verificationPipeline = FactVerificationPipeline.getInstance();
     this.cache = new DataSourceCache({
@@ -324,11 +322,6 @@ export class DataIntegrationOrchestrator {
       const nearbyPromises: Promise<SourceData | SourceData[]>[] = [];
       const usedSources: string[] = [];
 
-      // Google Places 근처 검색
-      nearbyPromises.push(
-        this.services.get('google_places').searchNearbyPlaces(lat, lng, radius)
-          .then((result: SourceData) => { usedSources.push('google_places'); return result; })
-      );
 
       // UNESCO 좌표 기반 검색 (옵션)
       if (options?.includeUNESCO !== false) {
@@ -422,7 +415,7 @@ export class DataIntegrationOrchestrator {
     options?: any
   ): Promise<Promise<SourceData | SourceData[]>[]> {
     const promises: Promise<SourceData | SourceData[]>[] = [];
-    const targetSources = options?.dataSources || ['unesco', 'wikidata', 'government', 'google_places'];
+    const targetSources = options?.dataSources || ['unesco', 'wikidata', 'government'];
 
     // UNESCO 검색
     if (targetSources.includes('unesco')) {
@@ -457,16 +450,6 @@ export class DataIntegrationOrchestrator {
       );
     }
 
-    // Google Places 검색
-    if (targetSources.includes('google_places')) {
-      promises.push(
-        this.timeoutPromise(
-          this.services.get('google_places').searchPlaces(query, coordinates),
-          this.config.timeout,
-          'Google Places 검색 시간초과'
-        )
-      );
-    }
 
     return promises;
   }
