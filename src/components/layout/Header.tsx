@@ -313,27 +313,28 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center h-14 sm:h-16">
-          {/* 로고 + 모바일 모드 토글 */}
-          <div className="flex items-center space-x-3 sm:space-x-4">
-            <div className="flex items-center space-x-1.5 sm:space-x-2">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-900 dark:bg-dark-interactive 
-                           flex items-center justify-center
-                           shadow-sm dark:shadow-dark-sm
-                           border border-gray-200 dark:border-dark-border-2
-                           rounded">
-                <span className="text-white text-xs sm:text-sm font-bold">T</span>
-              </div>
-              <Link 
-                href="/"
-                className="text-lg sm:text-xl font-bold 
-                          text-gray-900 dark:text-dark-text-primary 
-                          hover:text-gray-700 dark:hover:text-dark-text-secondary 
-                          transition-colors duration-200"
-              >
-                {t('home.brandTitle')}
-              </Link>
+          {/* 로고 */}
+          <div className="flex items-center space-x-1.5 sm:space-x-2">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-900 dark:bg-dark-interactive 
+                         flex items-center justify-center
+                         shadow-sm dark:shadow-dark-sm
+                         border border-gray-200 dark:border-dark-border-2
+                         rounded">
+              <span className="text-white text-xs sm:text-sm font-bold">T</span>
             </div>
-            
+            <Link 
+              href="/"
+              className="text-lg sm:text-xl font-bold 
+                        text-gray-900 dark:text-dark-text-primary 
+                        hover:text-gray-700 dark:hover:text-dark-text-secondary 
+                        transition-colors duration-200"
+            >
+              {t('home.brandTitle')}
+            </Link>
+          </div>
+
+          {/* 중앙 모드 토글 스위치 - 모바일과 데스크톱 모두 중앙에 정렬 */}
+          <div className="flex-1 flex justify-center items-center">
             {/* 모바일 축소형 모드 토글 */}
             <div className="sm:hidden flex items-center">
               <div className="relative bg-gray-50/90 dark:bg-dark-surface-2/90 
@@ -342,44 +343,42 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                              shadow-md">
                 {/* 슬라이딩 배경 */}
                 <div 
-                  className={`absolute top-0.5 bottom-0.5 w-8 
+                  className={`absolute top-0.5 bottom-0.5 w-12 
                              bg-gradient-to-b from-gray-800 to-black 
                              dark:from-dark-interactive dark:to-dark-interactive-active
                              rounded-full shadow-lg 
                              transition-all duration-300 ease-out ${
-                    mode === 'guide' ? 'left-0.5' : 'left-0.5 translate-x-8'
+                    mode === 'guide' ? 'left-0.5' : 'left-0.5 translate-x-12'
                   }`}
                 />
                 <div className="flex relative z-10">
                   <button
                     onClick={() => setMode('guide')}
-                    className={`flex items-center justify-center w-8 h-8 text-xs rounded-full transition-all duration-300 ease-out ${
+                    className={`flex items-center justify-center w-12 h-8 text-xs rounded-full transition-all duration-300 ease-out ${
                       mode === 'guide'
-                        ? 'text-white scale-105'
+                        ? 'text-white scale-105 font-medium'
                         : 'text-gray-600 dark:text-dark-text-secondary'
                     }`}
                     title={String(t('header.guideMode'))}
                   >
-                    🎧
+                    {String(t('header.guideMode'))}
                   </button>
                   <button
                     onClick={() => setMode('podcast')}
-                    className={`flex items-center justify-center w-8 h-8 text-xs rounded-full transition-all duration-300 ease-out ${
+                    className={`flex items-center justify-center w-12 h-8 text-xs rounded-full transition-all duration-300 ease-out ${
                       mode === 'podcast'
-                        ? 'text-white scale-105'
+                        ? 'text-white scale-105 font-medium'
                         : 'text-gray-600 dark:text-dark-text-secondary'
                     }`}
                     title={String(t('header.podcastMode'))}
                   >
-                    🎙️
+                    {String(t('header.podcastMode'))}
                   </button>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* 중앙 모드 토글 스위치 - 뱃지 중앙에 정렬 */}
-          <div className="flex-1 flex justify-center items-center">
+            {/* 데스크톱 모드 토글 */}
             <div className="hidden sm:flex relative 
                            bg-gray-50/90 dark:bg-dark-surface-2/90 
                            backdrop-blur-sm rounded-full p-1.5 
@@ -408,7 +407,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                     : 'text-gray-600 dark:text-dark-text-secondary hover:text-gray-800 dark:hover:text-dark-text-primary hover:scale-102'
                 }`}
               >
-                🎧 {t('header.guideMode')}
+                {t('header.guideMode')}
               </button>
               <button
                 onClick={() => setMode('podcast')}
@@ -418,7 +417,7 @@ const Header = memo(function Header({ onHistoryOpen }: HeaderProps) {
                     : 'text-gray-600 dark:text-dark-text-secondary hover:text-gray-800 dark:hover:text-dark-text-primary hover:scale-102'
                 }`}
               >
-                🎙️ {t('header.podcastMode')}
+                {t('header.podcastMode')}
               </button>
             </div>
           </div>
