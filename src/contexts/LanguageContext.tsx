@@ -3,7 +3,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { detectPreferredLanguage, setLanguageCookie, getLanguageCookie } from '@/lib/utils';
 import { mapLocationToKorean, translateLocationFromKorean } from '@/lib/location-mapping';
-import type { LanguageDetectionResult, LanguageDetectionSource, getDetectionSourceMessage } from '@/lib/ip-language-detection';
+import type { LanguageDetectionResult, LanguageDetectionSource } from '@/types/language-detection';
+import { getDetectionSourceMessage } from '@/types/language-detection';
 
 // 지원 언어 타입
 export type SupportedLanguage = 'ko' | 'en' | 'ja' | 'zh' | 'es';
@@ -2674,36 +2675,45 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     initializeLanguage();
   }, []); // 🔥 의존성 배열: 초기화는 한 번만 실행
 
-  // 🌍 쿠키 기반 언어 감지 정보 캐치
+  // 🌍 Middleware에서 설정한 언어 감지 정보 처리
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const handleLanguageDetection = () => {
-      // 쿠키에서 언어 감지 여부 확인
-      const isFirstVisit = !document.cookie.includes('language-preference-set');
-      const languageCookie = getLanguageCookie();
+      // Middleware에서 설정한 언어 감지 정보 쿠키 확인
+      const detectionInfoCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('language-detection-info='));
       
-      // 첫 방문이고 언어가 자동 설정된 경우
-      if (isFirstVisit && languageCookie && languageCookie !== 'ko') {
-        const detectionResult: LanguageDetectionResult = {
-          language: languageCookie as SupportedLanguage,
-          source: 'ip', // 첫 방문 자동 감지는 IP 기반으로 추정
-          confidence: 0.8,
-          timestamp: Date.now()
-        };
-        
-        setDetectionInfo(detectionResult);
-        setShowDetectionNotice(true);
-        
-        // 감지 확인 쿠키 설정
-        document.cookie = 'language-preference-set=true; max-age=2592000; path=/';
-        
-        console.log('🔔 언어 자동 감지 알림 표시:', detectionResult);
-        
-        // 5초 후 자동으로 알림 숨김
-        setTimeout(() => {
-          setShowDetectionNotice(false);
-        }, 5000);
+      if (detectionInfoCookie) {
+        try {
+          const detectionInfoValue = decodeURIComponent(detectionInfoCookie.split('=')[1]);
+          const detectionResult: LanguageDetectionResult = JSON.parse(detectionInfoValue);
+          
+          console.log('🌍 Middleware 언어 감지 정보 수신:', detectionResult);
+          
+          // 감지 정보 설정
+          setDetectionInfo(detectionResult);
+          setShowDetectionNotice(true);
+          
+          // 언어 설정 업데이트 (Middleware에서 이미 설정했지만 React 상태 동기화)
+          if (detectionResult.language !== currentLanguage) {
+            setCurrentLanguage(detectionResult.language as SupportedLanguage);
+          }
+          
+          console.log('🔔 언어 자동 감지 알림 표시:', detectionResult);
+          
+          // 감지 정보 쿠키 삭제 (일회성 정보)
+          document.cookie = 'language-detection-info=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+          
+          // 5초 후 자동으로 알림 숨김
+          setTimeout(() => {
+            setShowDetectionNotice(false);
+          }, 5000);
+          
+        } catch (error) {
+          console.error('❌ 언어 감지 정보 파싱 오류:', error);
+        }
       }
     };
 
@@ -2716,7 +2726,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return () => {
       window.removeEventListener('popstate', handleLanguageDetection);
     };
-  }, []);
+  }, [currentLanguage]);
 
   // 감지 알림 숨김 함수
   const hideDetectionNotice = useCallback(() => {

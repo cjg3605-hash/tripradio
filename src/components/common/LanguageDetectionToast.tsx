@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getDetectionSourceMessage, type LanguageDetectionResult } from '@/lib/ip-language-detection';
+import { getDetectionSourceMessage, type LanguageDetectionResult } from '@/types/language-detection';
 
 /**
  * 언어 자동 감지 알림 토스트 컴포넌트
