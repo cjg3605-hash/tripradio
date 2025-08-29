@@ -182,8 +182,8 @@ export const LOCATION_TYPES: Record<string, LocationTypeDefinition> = {
     id: 'museum',
     name: '박물관',
     personas: ['curator', 'art_historian'],
-    avgChapters: 6,
-    chapterRange: [4, 10],
+    avgChapters: 4,
+    chapterRange: [3, 6],
     keywords: ['박물관', 'museum', '미술관', 'gallery', '전시관', '소장품', '큐레이터', '전시'],
     culturalFactors: ['collection_size', 'historical_significance', 'architectural_importance']
   },
@@ -200,8 +200,8 @@ export const LOCATION_TYPES: Record<string, LocationTypeDefinition> = {
     id: 'palace_castle',
     name: '궁궐/성',
     personas: ['architect', 'culture_critic'],
-    avgChapters: 7,
-    chapterRange: [5, 12],
+    avgChapters: 5,
+    chapterRange: [4, 7],
     keywords: ['궁궐', '궁', 'palace', '성', 'castle', '왕궁', '제궁', '별궁'],
     culturalFactors: ['royal_history', 'political_significance', 'architectural_grandeur']
   },

@@ -428,11 +428,12 @@ export default function PremiumPodcastPage() {
     setError(null);
     setGenerationProgress(0);
 
-    // 진행률 시뮬레이션
+    // 진행률 시뮬레이션 (90% 이후에도 천천히 증가)
     const progressInterval = setInterval(() => {
       setGenerationProgress(prev => {
-        if (prev >= 90) return prev;
-        return prev + Math.random() * 10;
+        if (prev >= 98) return prev; // 98%에서 멈추고 실제 완료를 기다림
+        if (prev >= 90) return Math.round(prev + Math.random() * 2); // 90% 이후 천천히 증가
+        return Math.round(prev + Math.random() * 10);
       });
     }, 1000);
 
@@ -447,6 +448,10 @@ export default function PremiumPodcastPage() {
         }
       });
 
+      // 타임아웃 설정 (10분)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10 * 60 * 1000);
+
       const response = await fetch('/api/tts/notebooklm/generate', {
         method: 'POST',
         headers: {
@@ -460,8 +465,11 @@ export default function PremiumPodcastPage() {
             audienceLevel: 'intermediate',
             podcastStyle: 'educational'
           }
-        })
+        }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       const result = await response.json();
 
@@ -501,7 +509,17 @@ export default function PremiumPodcastPage() {
 
     } catch (error) {
       console.error('❌ NotebookLM 팟캐스트 생성 실패:', error);
-      setError(error instanceof Error ? error.message : '팟캐스트 생성에 실패했습니다.');
+      
+      let errorMessage = '팟캐스트 생성에 실패했습니다.';
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = '팟캐스트 생성이 시간초과되었습니다. 다시 시도해주세요.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       clearInterval(progressInterval);
       setIsGenerating(false);

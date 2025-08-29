@@ -1,7 +1,9 @@
 /**
  * NotebookLM 스타일 팟캐스트 프롬프트 시스템
- * 실제 NotebookLM Audio Overview 분석 결과를 바탕으로 구현
+ * 실제 NotebookLM Audio Overview 분석 결과 + 페르소나 동적 패턴 완전 연동
  */
+
+import { personaPromptIntegrator, PersonaPromptConfig } from './persona-prompt-integration';
 
 export interface NotebookStylePodcastConfig {
   museumName: string;
@@ -132,7 +134,7 @@ const DIALOGUE_STRUCTURE = {
 };
 
 /**
- * 메인 NotebookLM 스타일 프롬프트 생성기
+ * 메인 NotebookLM 스타일 프롬프트 생성기 (페르소나 동적 패턴 완전 연동)
  */
 export function createNotebookStylePodcastPrompt(config: NotebookStylePodcastConfig): string {
   const { museumName, curatorContent, chapterIndex, exhibition, language = 'ko', targetLength = 5000 } = config;
@@ -140,6 +142,19 @@ export function createNotebookStylePodcastPrompt(config: NotebookStylePodcastCon
   const patterns = NOTEBOOKLM_PATTERNS;
   const isIntro = chapterIndex === 0;
   const chapterName = isIntro ? '인트로' : exhibition?.name;
+  
+  // 페르소나 동적 패턴 통합 설정
+  const personaConfig: PersonaPromptConfig = {
+    language: language as 'ko' | 'en',
+    situationType: isIntro ? 'intro' : 'main',
+    contextInfo: {
+      museumName,
+      chapterIndex,
+      exhibition,
+      facts: []
+    },
+    targetLength
+  };
   
   return `
 # 🎙️ TripRadio NotebookLM 스타일 팟캐스트 생성
@@ -190,61 +205,42 @@ ${isIntro ? `
 
 #### 🎯 NotebookLM 패턴 적용 (필수)
 
-**오프닝 (500-600자)**
-${isIntro ? `
-진행자: "${patterns.openings.ko[0]} TripRadio입니다. 오늘은 정말 특별한 곳, ${museumName}에 와있는데요. 와... 일단 규모부터가..."
+**🎭 동적 페르소나 오프닝 (500-600자)**
+${personaPromptIntegrator.generateDynamicOpening(personaConfig)}
 
-큐레이터: "안녕하세요, 큐레이터 ${generateCuratorName()}입니다. 네, 여기가 ${generateScaleComparison()}..."
+**📝 참고: 위 오프닝은 실제 페르소나 특성을 바탕으로 동적 생성된 예시입니다. 실제 대화에서는 다음 패턴을 따라주세요:**
 
-진행자: "${generateSurpriseReaction()}..."
-
-큐레이터: "${generateSpecificFacts()}..."
-
-진행자: "${generateCuriousQuestion()}?"
-
-큐레이터: "${generateEngagingAnswer()}..."
-` : `
-진행자: "자, 이제 ${exhibition?.name}으로 들어왔습니다. 어? 근데 여기 ${generateEnvironmentObservation()}..."
-
-큐레이터: "아, 잘 보셨네요! ${exhibition?.name}은 ${generateTechnicalExplanation()}..."
-
-진행자: "${generateComparison()}?"
-
-큐레이터: "${generateDetailedExplanation()}..."
-
-진행자: "아~ 그래서... 근데 벌써 ${generateArtworkSpotting()}?"
-
-큐레이터: "네, 바로 ${exhibition?.artworks?.[0]?.name || '대표 작품'}이죠. 이게..."
-`}
-
-**메인 대화 (${targetLength - 1000}자) - 초고밀도 정보**
+**🔄 동적 메인 대화 생성 지침 (${targetLength - 1000}자) - 초고밀도 정보**
 
 ${generateMainDialogueTemplate(config)}
 
-**마무리 및 전환 (400-500자)**
-${generateTransitionTemplate(config)}
+**💡 페르소나 기반 동적 대화 패턴 적용:**
+${personaPromptIntegrator.generatePersonaGuidelines('ko')}
 
-#### 💡 NotebookLM 대화 기법 (필수 적용)
+**🎯 동적 페르소나 전환 (400-500자)**
+${personaPromptIntegrator.generateDynamicTransition(personaConfig)}
 
-1. **정보 계층화**
-   - 1단계: 기본 사실 ("이게 국보 191호 금관입니다")
-   - 2단계: 흥미로운 디테일 ("높이 27.5cm, 무게 1킬로그램") 
-   - 3단계: 놀라운 사실 ("곡옥은 일본에서 수입한 거예요")
+**📝 참고: 위 전환은 실제 페르소나 특성을 바탕으로 동적 생성된 예시입니다.**
 
-2. **자연스러운 인터럽션**
-   - "아, 그거..." / "맞아요, 그리고..." / "잠깐만요, 그럼..."
-   - 상대방 말을 받아서 정보 추가하기
-   - 예상되는 질문을 미리 대답하기
+#### 💡 NotebookLM + 페르소나 동적 대화 기법 (필수 적용)
 
-3. **청취자 의식**
-   - "청취자분들이 지금 궁금해하실 텐데..."
-   - "여러분도 상상해보세요..."
-   - "이 부분이 중요한 포인트인데..."
+1. **페르소나 기반 정보 계층화**
+   - 진행자: 기본 질문 → 놀라움 표현 → 청취자 관점 재질문
+   - 큐레이터: 전문 사실 → 디테일 설명 → 특별한 인사이트
+   - 예: "이게 국보 191호 금관입니다" → "와, 진짜요? 얼마나 오래된 건가요?" → "1,500년 전 신라 시대죠. 높이 27.5cm, 무게 1킬로그램인데..." → "헉! 그럼 곡옥은?" → "곡옥은 흥미롭게도 일본에서 수입한 거예요"
 
-4. **감정적 몰입**
-   - 진짜 놀라는 반응: "헉! 그 정도로?"
-   - 공감대 형성: "저도 처음 알았을 때..."
-   - 호기심 자극: "더 놀라운 건..."
+2. **페르소나별 자연스러운 인터럽션**
+   - 진행자: "아, 잠깐만요..." / "어? 그럼..." / "그게 무슨 뜻이에요?"
+   - 큐레이터: "아, 그건 말이죠..." / "맞아요, 그리고..." / "정확해요. 추가로..."
+   - 상황별 동적 선택: ${personaPromptIntegrator.generateNaturalInterruption('host', 'ko', '놀라운 발견')}
+
+3. **페르소나 특성 기반 청취자 의식**
+   - 진행자 스타일: "청취자분들도 상상해보세요" / "여러분이라면 어떨까요?"
+   - 큐레이터 스타일: "관람하실 때 꼭 주목해보세요" / "큐레이터만 아는 비밀이 있다면..."
+
+4. **페르소나별 감정적 몰입**
+   - 진행자 놀라움: "와, 진짜요?" / "헉! 그 정도로?" / "상상도 못했네요"
+   - 큐레이터 전문성: "맞아요! 정말 놀라운 건..." / "저도 처음 알았을 때 깜짝 놀랐어요"
 
 ## 필수 출력 형식
 

@@ -24,9 +24,9 @@ export interface PodcastStructure {
 }
 
 export class ChapterGenerator {
-  private static readonly TARGET_CHAPTER_DURATION = 690; // 1.15배속 10분 = 실제 11.5분
-  private static readonly SEGMENT_DURATION_RANGE = [25, 35]; // 초
-  private static readonly SEGMENTS_PER_CHAPTER = 23; // 평균값
+  private static readonly TARGET_CHAPTER_DURATION = 360; // 6분/챕터 (최적화)
+  private static readonly SEGMENT_DURATION_RANGE = [20, 30]; // 초 (단축)
+  private static readonly SEGMENTS_PER_CHAPTER = 15; // 평균값 (단축)
 
   /**
    * 메인 챕터 구조 생성 함수

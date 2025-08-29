@@ -7,6 +7,9 @@ import { GuideData } from '@/types/guide';
 import { TTSExpertPersona, TTSExpertPersonaSelector } from '../personas/tts-expert-persona';
 import { DualScriptGenerator, UserChapterScript, TTSAudioScript } from '../scripts/dual-script-generator';
 import { NotebookLMTTSOptimizer, NotebookLMOptimizationFactory } from '../optimization/notebooklm-tts-optimization-guide';
+import { createFullGuidePodcastPrompt } from '@/lib/ai/prompts/podcast';
+import { PERSONAS } from '@/lib/ai/personas/podcast-personas';
+import type { PodcastPersona } from '@/lib/ai/personas/podcast-personas';
 
 export interface FullGuidePodcastScript {
   // 사용자용 스크립트 (전체 팟캐스트 자막)
@@ -49,6 +52,21 @@ export interface TTSGenerationMetadata {
   processingTimeMs: number;
   optimizationLevel: string;
   ssmlComplexity: number;
+  // 새로운 페르소나 정보 (선택적)
+  podcastPersonas?: {
+    host: {
+      name: string;
+      role: string;
+      language: string;
+    };
+    curator: {
+      name: string;
+      role: string;
+      language: string;
+    };
+  };
+  promptSystem?: string;
+  features?: string[];
 }
 
 export class FullGuidePodcastGenerator {
@@ -107,25 +125,42 @@ export class FullGuidePodcastGenerator {
 
       // 5단계: 최종 결과 구성
       const processingTime = Date.now() - startTime;
+      const selectedPersona = this.selectOptimalPersona(guideData, { ...options, language });
+      const podcastPersonas = this.selectPodcastPersonas(language, this.detectContentType(guideData.overview.title), options.priority || 'engagement');
       
       return {
         userScript: {
-          title: this.generatePodcastTitle(guideData),
-          description: this.generatePodcastDescription(guideData),
+          title: this.generatePodcastTitle(guideData, language),
+          description: this.generatePodcastDescription(guideData, language),
           totalDuration: this.estimateTotalDuration(dualScripts.userScript),
           script: dualScripts.userScript,
           chapterTimestamps: this.generateChapterTimestamps(guideData, dualScripts.userScript)
         },
         ttsScript: {
           combinedScript: dualScripts.ttsScript,
-          systemPrompt: this.generateSystemPrompt(guideData, options),
+          systemPrompt: this.generateSystemPrompt(guideData, options, language),
           metadata: {
-            persona: this.selectOptimalPersona(guideData, options),
+            persona: selectedPersona,
             language,
             totalTokens: this.estimateTokenCount(dualScripts.ttsScript),
             processingTimeMs: processingTime,
-            optimizationLevel: 'notebooklm-enhanced',
-            ssmlComplexity: this.calculateSSMLComplexity(dualScripts.ttsScript)
+            optimizationLevel: 'notebooklm-enhanced-v2',
+            ssmlComplexity: this.calculateSSMLComplexity(dualScripts.ttsScript),
+            // 새로운 페르소나 정보 추가
+            podcastPersonas: {
+              host: {
+                name: podcastPersonas.host.name,
+                role: podcastPersonas.host.role,
+                language: this.getPersonaLanguage(language)
+              },
+              curator: {
+                name: podcastPersonas.curator.name,
+                role: podcastPersonas.curator.role,
+                language: this.getPersonaLanguage(language)
+              }
+            },
+            promptSystem: 'podcast-prompts-v2',
+            features: ['persona-integration', 'language-specific', 'notebooklm-patterns']
           }
         },
         qualityMetrics
@@ -180,7 +215,7 @@ export class FullGuidePodcastGenerator {
   }
 
   /**
-   * NotebookLM 스타일 전체 팟캐스트 스크립트 생성
+   * NotebookLM 스타일 전체 팟캐스트 스크립트 생성 (새 프롬프트 시스템 사용)
    */
   private async generateNotebookLMPodcastScript(
     guideData: GuideData,
@@ -189,81 +224,85 @@ export class FullGuidePodcastGenerator {
     options: any
   ): Promise<string> {
 
-    const prompt = createQuickPrompt(`
-# 🎙️ NotebookLM 스타일 전체 가이드 팟캐스트 생성
+    console.log('🤖 새로운 프롬프트 시스템으로 전체 팟캐스트 스크립트 생성 중...');
+    
+    try {
+      // 새로운 프롬프트 시스템 사용
+      const prompt = await createFullGuidePodcastPrompt(
+        guideData.overview.title,
+        guideData,
+        language,
+        options
+      );
+
+      const response = await this.geminiClient.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.8, // 창의적이지만 일관성 있게
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 8192, // 긴 팟캐스트를 위해 충분한 토큰
+        }
+      });
+
+      const scriptText = response.response.text().trim();
+      
+      if (!scriptText || scriptText.length < 1000) {
+        throw new Error('생성된 팟캐스트 스크립트가 너무 짧거나 비어있습니다.');
+      }
+
+      console.log('✅ 전체 팟캐스트 스크립트 생성 완료 (새 프롬프트 시스템):', {
+        length: scriptText.length,
+        estimatedDuration: Math.round((scriptText.replace(/\*\*[^*]+\*\*/g, '').split(' ').length / 150) * 60) + '초',
+        promptSystem: 'podcast-prompts',
+        language: language
+      });
+
+      return scriptText;
+
+    } catch (error) {
+      console.error('❌ 새 프롬프트 시스템 사용 실패, 기본 프롬프트로 폴백:', error);
+      
+      // 폴백: 기존 하드코딩 프롬프트 사용
+      const fallbackPrompt = createQuickPrompt(`
+# 🎙️ NotebookLM 스타일 전체 가이드 팟캐스트 생성 (폴백)
 
 ## 미션
 ${guideData.overview.title}에 대한 완전한 정보를 하나의 자연스러운 팟캐스트로 변환하세요.
 
-## NotebookLM 스타일 특징 (2025년 기준)
-1. **Two-Host Conversation**: 진행자(호기심 많은 일반인) + 큐레이터(전문가)
-2. **Deep Dive 방식**: 표면적 → 흥미로운 → 놀라운 사실 순으로 정보 레이어링
-3. **자연스러운 대화**: 실제 사람들이 대화하는 것처럼 끼어들기, 감탄, 질문
-4. **청취자 참여**: "상상해보세요", "믿기 어렵겠지만" 등 몰입도 높이는 표현
-5. **감정적 연결**: 개인적 경험과 연결, 공감할 수 있는 이야기
-
-## 가이드 정보 통합
-### 개요
+## 가이드 정보
 - 제목: ${guideData.overview.title}
 - 주요 특징: ${guideData.overview.keyFeatures || guideData.overview.summary || ''}
 - 배경: ${guideData.overview.background || guideData.overview.historicalBackground || ''}
 
-### 필수 방문 포인트
-${guideData.mustVisitSpots || '주요 관람 포인트들이 있습니다.'}
-
-### 챕터별 상세 정보
-${guideData.realTimeGuide?.chapters?.map((chapter, idx) => `
-**챕터 ${idx + 1}: ${chapter.title}**
-내용: ${chapter.narrative || chapter.coreNarrative || ''}
-다음 방향: ${chapter.nextDirection || ''}
-`).join('\n')}
-
-## 팟캐스트 구성 요구사항
-1. **자연스러운 시작**: "안녕하세요, 여러분! 오늘은 정말 흥미로운..."
-2. **정보 레이어링**: 기본 정보 → 흥미로운 사실 → 놀라운 발견
-3. **화자 역할 분담**:
-   - **진행자**: 호기심, 질문, 감탄, 청취자 대변
-   - **큐레이터**: 전문 지식, 배경 설명, 깊이 있는 해석
-4. **자연스러운 전환**: "그런데 말이야", "아, 그거 정말 흥미로운 점이야"
-5. **감정적 몰입**: 경외감, 호기심, 감동을 자연스럽게 표현
-6. **완성도 있는 마무리**: 전체 여행의 의미와 기억에 남을 포인트 정리
-
-## 언어 및 톤
-- 언어: ${language === 'ko-KR' ? '한국어' : language}
-- 톤: ${options.podcastStyle === 'deep-dive' ? '깊이 있는 탐구' : '친근하고 교육적'}
-- 청중 수준: ${options.audienceLevel || 'intermediate'}
-
 ## 출력 형식
-전체 가이드 정보를 완전히 포함한 하나의 연속된 팟캐스트 대화로 생성하세요.
-화자 표시: **진행자:** 와 **큐레이터:** 로 명확히 구분하세요.
-
-모든 챕터의 내용을 자연스럽게 통합하여 15-20분 분량의 완성된 팟캐스트를 만드세요.
+**male:** 와 **female:** 형식으로 자연스러운 대화를 생성하세요.
+NotebookLM 스타일의 깊이 있고 매력적인 팟캐스트를 만드세요.
 `);
 
-    console.log('🤖 Gemini로 전체 팟캐스트 스크립트 생성 중...');
-    
-    const response = await this.geminiClient.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.8, // 창의적이지만 일관성 있게
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 8192, // 긴 팟캐스트를 위해 충분한 토큰
+      const fallbackResponse = await this.geminiClient.generateContent({
+        contents: [{ role: 'user', parts: [{ text: fallbackPrompt }] }],
+        generationConfig: {
+          temperature: 0.8,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 8192,
+        }
+      });
+
+      const fallbackText = fallbackResponse.response.text().trim();
+      
+      if (!fallbackText || fallbackText.length < 1000) {
+        throw new Error('폴백 프롬프트로도 팟캐스트 스크립트 생성에 실패했습니다.');
       }
-    });
 
-    const scriptText = response.response.text().trim();
-    
-    if (!scriptText || scriptText.length < 1000) {
-      throw new Error('생성된 팟캐스트 스크립트가 너무 짧거나 비어있습니다.');
+      console.log('⚠️ 폴백 프롬프트로 팟캐스트 스크립트 생성 완료:', {
+        length: fallbackText.length,
+        mode: 'fallback'
+      });
+
+      return fallbackText;
     }
-
-    console.log('✅ 전체 팟캐스트 스크립트 생성 완료:', {
-      length: scriptText.length,
-      estimatedDuration: Math.round((scriptText.replace(/\*\*[^*]+\*\*/g, '').split(' ').length / 150) * 60) + '초'
-    });
-
-    return scriptText;
   }
 
   /**
@@ -326,18 +365,60 @@ ${guideData.realTimeGuide?.chapters?.map((chapter, idx) => `
   }
 
   /**
-   * 최적 페르소나 선택
+   * 최적 페르소나 선택 (팟캐스트 페르소나 시스템 활용)
    */
   private selectOptimalPersona(guideData: GuideData, options: any): TTSExpertPersona {
     const contentType = this.detectContentType(guideData.overview.title);
     const priority = options.priority || 'engagement';
     const audienceLevel = options.audienceLevel || 'intermediate';
+    const language = options.language || 'ko';
 
+    // 새로운 페르소나 시스템에서 페르소나 선택
+    const podcastPersonas = this.selectPodcastPersonas(language, contentType, priority);
+    
+    console.log('🎭 페르소나 시스템 활용:', {
+      language,
+      contentType,
+      priority,
+      audienceLevel,
+      selectedHost: podcastPersonas.host.name,
+      selectedCurator: podcastPersonas.curator.name
+    });
+
+    // 기존 TTS 페르소나 시스템과의 호환성 유지
     return TTSExpertPersonaSelector.selectOptimalPersona(
       contentType,
       audienceLevel,
       priority
     );
+  }
+
+  /**
+   * 언어와 컨텍스트에 따른 팟캐스트 페르소나 선택
+   */
+  private selectPodcastPersonas(language: string, contentType: string, priority: string): {
+    host: PodcastPersona;
+    curator: PodcastPersona;
+  } {
+    const langCode = language.slice(0, 2).toLowerCase();
+    
+    switch (langCode) {
+      case 'en':
+        return {
+          host: PERSONAS.ENGLISH_HOST,
+          curator: PERSONAS.ENGLISH_CURATOR
+        };
+      case 'ja':
+        return {
+          host: PERSONAS.JAPANESE_HOST,
+          curator: PERSONAS.JAPANESE_CURATOR
+        };
+      default:
+        return {
+          host: PERSONAS.HOST,
+          curator: PERSONAS.CURATOR
+        };
+    }
   }
 
   /**
@@ -386,12 +467,52 @@ ${guideData.realTimeGuide?.chapters?.map((chapter, idx) => `
     return complexityScore;
   }
 
-  private generatePodcastTitle(guideData: GuideData): string {
-    return `${guideData.overview.title} 완전 가이드 - 깊이 있는 탐구`;
+  private generatePodcastTitle(guideData: GuideData, language: string = 'ko'): string {
+    const langCode = language.slice(0, 2).toLowerCase();
+    const title = guideData.overview.title;
+    
+    switch (langCode) {
+      case 'en':
+        return `${title} - Complete Guide: Deep Exploration`;
+      case 'ja':
+        return `${title} 完全ガイド - 詳細な探求`;
+      case 'zh':
+        return `${title} 完整指南 - 深度探索`;
+      case 'es':
+        return `${title} - Guía Completa: Exploración Profunda`;
+      default:
+        return `${title} 완전 가이드 - 깊이 있는 탐구`;
+    }
   }
 
-  private generatePodcastDescription(guideData: GuideData): string {
-    return `${guideData.overview.title}의 모든 것을 담은 NotebookLM 스타일 오디오 가이드입니다. 전문 큐레이터와 함께 하는 흥미진진한 여행을 경험해보세요.`;
+  private generatePodcastDescription(guideData: GuideData, language: string = 'ko'): string {
+    const langCode = language.slice(0, 2).toLowerCase();
+    const title = guideData.overview.title;
+    
+    switch (langCode) {
+      case 'en':
+        return `A comprehensive NotebookLM-style audio guide covering everything about ${title}. Experience an exciting journey with expert curators.`;
+      case 'ja':
+        return `${title}のすべてを含むNotebookLMスタイルのオーディオガイドです。専門学芸員との興味深い旅をお楽しみください。`;
+      case 'zh':
+        return `包含${title}所有内容的NotebookLM风格音频指南。与专业策展人一起体验精彩的旅程。`;
+      case 'es':
+        return `Una guía de audio estilo NotebookLM que cubre todo sobre ${title}. Experimenta un viaje emocionante con curadores expertos.`;
+      default:
+        return `${title}의 모든 것을 담은 NotebookLM 스타일 오디오 가이드입니다. 전문 큐레이터와 함께 하는 흥미진진한 여행을 경험해보세요.`;
+    }
+  }
+
+  private getPersonaLanguage(language: string): string {
+    const langCode = language.slice(0, 2).toLowerCase();
+    const languages = {
+      ko: '한국어',
+      en: 'English',
+      ja: '日本語',
+      zh: '中文',
+      es: 'Español'
+    };
+    return languages[langCode as keyof typeof languages] || languages.ko;
   }
 
   private estimateTotalDuration(script: string): string {
@@ -432,8 +553,23 @@ ${guideData.realTimeGuide?.chapters?.map((chapter, idx) => `
     return topics.slice(0, 3); // 최대 3개
   }
 
-  private generateSystemPrompt(guideData: GuideData, options: any): string {
-    return `NotebookLM 스타일 ${guideData.overview.title} 전체 가이드 팟캐스트 TTS 생성을 위한 시스템 프롬프트입니다. 자연스러운 대화, 감정적 깊이, 정보 전달의 균형을 맞춘 고품질 음성 생성을 목표로 합니다.`;
+  private generateSystemPrompt(guideData: GuideData, options: any, language: string = 'ko'): string {
+    const langCode = language.slice(0, 2).toLowerCase();
+    const title = guideData.overview.title;
+    const podcastPersonas = this.selectPodcastPersonas(language, this.detectContentType(title), options.priority || 'engagement');
+    
+    switch (langCode) {
+      case 'en':
+        return `NotebookLM-style complete guide podcast TTS generation system prompt for ${title}. Features ${podcastPersonas.host.name} and ${podcastPersonas.curator.name} personas with natural dialogue, emotional depth, and balanced information delivery for high-quality voice generation.`;
+      case 'ja':
+        return `${title}のNotebookLMスタイル完全ガイドポッドキャストTTS生成用システムプロンプトです。${podcastPersonas.host.name}と${podcastPersonas.curator.name}のペルソナを特徴とし、自然な対話、感情的な深さ、情報伝達のバランスを取った高品質な音声生成を目標とします。`;
+      case 'zh':
+        return `${title}的NotebookLM风格完整指南播客TTS生成系统提示。具有${podcastPersonas.host.name}和${podcastPersonas.curator.name}角色，以自然对话、情感深度和信息传递平衡为目标，生成高质量语音。`;
+      case 'es':
+        return `Prompt del sistema de generación TTS para podcast de guía completa estilo NotebookLM de ${title}. Presenta las personalidades de ${podcastPersonas.host.name} y ${podcastPersonas.curator.name} con diálogo natural, profundidad emocional y entrega de información equilibrada para una generación de voz de alta calidad.`;
+      default:
+        return `NotebookLM 스타일 ${title} 전체 가이드 팟캐스트 TTS 생성을 위한 시스템 프롬프트입니다. ${podcastPersonas.host.name}와 ${podcastPersonas.curator.name} 페르소나를 활용하여 자연스러운 대화, 감정적 깊이, 정보 전달의 균형을 맞춘 고품질 음성 생성을 목표로 합니다.`;
+    }
   }
 
   private evaluatePodcastQuality(

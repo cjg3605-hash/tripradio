@@ -56,9 +56,9 @@ export const MULTILINGUAL_VOICE_PROFILES: Record<string, LanguageVoiceConfig> = 
     languageCode: 'ko-KR',
     displayName: '한국어',
     primaryVoice: {
-      voiceId: 'ko-KR-Neural2-A',
-      displayName: '진행자 (여성, 친근한)',
-      gender: 'female',
+      voiceId: 'ko-KR-Neural2-C',
+      displayName: '진행자 (남성, 친근한)',
+      gender: 'male',
       characteristics: ['친근한', '활발한', '호기심 많은', '표현력 풍부한'],
       recommendedFor: ['박물관 가이드', '문화 해설', '교육 콘텐츠'],
       ssmlOptimizations: {
@@ -85,9 +85,9 @@ export const MULTILINGUAL_VOICE_PROFILES: Record<string, LanguageVoiceConfig> = 
       }
     },
     secondaryVoice: {
-      voiceId: 'ko-KR-Neural2-C',
-      displayName: '큐레이터 (남성, 차분한)',
-      gender: 'male',
+      voiceId: 'ko-KR-Neural2-A',
+      displayName: '큐레이터 (여성, 차분한)',
+      gender: 'female',
       characteristics: ['차분한', '지적인', '신뢰할 수 있는', '깊이 있는'],
       recommendedFor: ['전문 해설', '역사 설명', '학술적 내용'],
       ssmlOptimizations: {
