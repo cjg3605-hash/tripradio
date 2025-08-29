@@ -50,19 +50,21 @@ export class SequentialTTSGenerator {
   );
 
   /**
-   * 세그먼트들을 순차적으로 TTS 생성
+   * 세그먼트들을 순차적으로 TTS 생성 (범용 인터페이스)
    */
   static async generateSequentialTTS(
-    segments: DialogueSegment[],
+    segments: DialogueSegment[] | any[],
     locationName: string,
     episodeId: string,
-    language: string = 'ko-KR'
+    language: string = 'ko-KR',
+    actualChapterIndex?: number  // API에서 전달하는 실제 챕터 인덱스
   ): Promise<SequentialTTSResult> {
     
     console.log('🎙️ 순차 TTS 생성 시작:', {
       segmentCount: segments.length,
       locationName,
-      episodeId
+      episodeId,
+      actualChapterIndex: actualChapterIndex  // 받은 챕터 인덱스 로깅
     });
 
     const segmentFiles: GeneratedSegmentFile[] = [];
@@ -86,15 +88,36 @@ export class SequentialTTSGenerator {
       slugSource: slugResult.source
     };
     
-    for (const segment of segments) {
-      try {
-        console.log(`🔊 세그먼트 ${segment.sequenceNumber} TTS 생성 중...`);
-        
-        const audioData = await this.generateSingleTTS(
-          segment.textContent,
-          segment.speakerType,
-          language
-        );
+    // 배치 처리 최적화 (10개씩, 병렬 처리)
+    const batchSize = 10;
+    const batches: any[][] = [];
+    for (let i = 0; i < segments.length; i += batchSize) {
+      batches.push(segments.slice(i, i + batchSize));
+    }
+    
+    console.log(`📦 ${segments.length}개 세그먼트를 ${batches.length}개 배치로 처리`);
+    
+    for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+      const batch = batches[batchIndex];
+      const progress = Math.round(((batchIndex) / batches.length) * 100);
+      const completedSegments = batchIndex * batchSize;
+      const remainingTime = Math.round(((segments.length - completedSegments) * 2.5) / 60); // 예상 분
+      
+      console.log(`\n🔄 배치 ${batchIndex + 1}/${batches.length} 처리 중... (${batch.length}개 세그먼트) - ${progress}% 완료, 예상 ${remainingTime}분 남음`);
+      
+      // 배치 내 병렬 처리
+      const batchPromises = batch.map(async (segment, segmentIndex) => {
+        try {
+          console.log(`🔊 세그먼트 ${segment.sequenceNumber} TTS 생성 중...`);
+          
+          // 세그먼트 간 스태거드 시작 (동시 API 호출 방지)
+          await new Promise(resolve => setTimeout(resolve, segmentIndex * 100));
+          
+          const audioData = await this.generateSingleTTS(
+            segment.textContent,
+            segment.speakerType,
+            language
+          );
         
         if (!audioData.success || !audioData.audioBuffer) {
           throw new Error(audioData.error || 'TTS 생성 실패');
@@ -102,10 +125,34 @@ export class SequentialTTSGenerator {
         
         // 파일명: {챕터번호}-{세그먼트번호}{언어코드}.mp3 형식 (예: 1-1ko.mp3, 1-2ko.mp3, 2-1ko.mp3)
         const langCode = language.split('-')[0]; // ko-KR → ko
-        const chapterIndex = segment.chapterIndex || 1;
-        // 챕터 내에서의 세그먼트 번호를 계산 (전체 순서가 아닌 챕터 내 순서)
-        const chapterSegmentNumber = segments.filter(s => (s.chapterIndex || 1) === chapterIndex && s.sequenceNumber <= segment.sequenceNumber).length;
+        
+        // 파일명 생성: 실제 챕터 인덱스 사용 (API에서 전달받은 값)
+        let chapterIndex: number;
+        let chapterSegmentNumber: number;
+        
+        if (actualChapterIndex !== undefined) {
+          // API에서 실제 챕터 인덱스를 전달한 경우 (가장 정확함)
+          chapterIndex = actualChapterIndex;
+          // 챕터 내에서의 세그먼트 순서: 현재 세그먼트가 배열에서 몇 번째인지 + 1
+          chapterSegmentNumber = segments.indexOf(segment) + 1;
+        } else {
+          // 폴백: sequenceNumber 기반 계산 (기존 로직 유지)
+          if (segment.sequenceNumber <= 25) {
+            chapterIndex = 1;
+            chapterSegmentNumber = segment.sequenceNumber;
+          } else if (segment.sequenceNumber >= 101 && segment.sequenceNumber <= 125) {
+            chapterIndex = 2;
+            chapterSegmentNumber = segment.sequenceNumber - 100;
+          } else {
+            // 기본 계산
+            chapterIndex = Math.floor((segment.sequenceNumber - 1) / 25) + 1;
+            chapterSegmentNumber = ((segment.sequenceNumber - 1) % 25) + 1;
+          }
+        }
+        
         const fileName = `${chapterIndex}-${chapterSegmentNumber}${langCode}.mp3`;
+        
+        console.log(`📋 파일명 계산: actualChapterIndex=${actualChapterIndex}, seq=${segment.sequenceNumber} → 챕터 ${chapterIndex}, 세그먼트 ${chapterSegmentNumber} → ${fileName}`);
         
         // Supabase에 업로드
         const uploadResult = await this.uploadToSupabase(
@@ -125,22 +172,48 @@ export class SequentialTTSGenerator {
           duration: audioData.duration || segment.estimatedDuration,
           fileSize: audioData.audioBuffer.length,
           fileName,
-          supabaseUrl: uploadResult.publicUrl
+          supabaseUrl: uploadResult.publicUrl,
+          textContent: segment.textContent, // 실제 대화 텍스트 전달
+          filePath: uploadResult.publicUrl,  // file_path 필드용
+          metadata: {
+            chapterIndex: chapterIndex,
+            chapterTitle: `챕터 ${chapterIndex}`,
+            originalSequenceNumber: segment.sequenceNumber,
+            chapterSegmentNumber: chapterSegmentNumber
+          }
         };
-        
-        segmentFiles.push(segmentFile);
-        totalDuration += segmentFile.duration;
-        totalFileSize += segmentFile.fileSize;
         
         console.log(`✅ 세그먼트 ${segment.sequenceNumber} 완료 (${segmentFile.duration}초, ${Math.round(segmentFile.fileSize/1024)}KB)`);
         
-        // 생성 간 딜레이 (API 제한 고려)
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // 메모리 최적화: 불필요한 버퍼 해제
+        audioData.audioBuffer = null as any;
         
-      } catch (error) {
-        const errorMsg = `세그먼트 ${segment.sequenceNumber} 생성 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`;
-        console.error(`❌ ${errorMsg}`);
-        errors.push(errorMsg);
+        return segmentFile;
+          
+        } catch (error) {
+          const errorMsg = `세그먼트 ${segment.sequenceNumber} 생성 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`;
+          console.error(`❌ ${errorMsg}`);
+          errors.push(errorMsg);
+          return null;
+        }
+      });
+      
+      // 배치 병렬 처리 실행
+      const batchResults = await Promise.allSettled(batchPromises);
+      
+      // 성공한 결과만 추가
+      for (const result of batchResults) {
+        if (result.status === 'fulfilled' && result.value) {
+          segmentFiles.push(result.value);
+          totalDuration += result.value.duration;
+          totalFileSize += result.value.fileSize;
+        }
+      }
+      
+      // 배치 간 딜레이 단축 (1.5초)
+      if (batchIndex < batches.length - 1) {
+        console.log(`⏳ 배치 간 대기 (1.5초)... 다음: 배치 ${batchIndex + 2}`);
+        await new Promise(resolve => setTimeout(resolve, 1500)); // 1.5초 대기
       }
     }
     
@@ -184,7 +257,9 @@ export class SequentialTTSGenerator {
   private static async generateSingleTTS(
     text: string,
     speakerType: 'male' | 'female',
-    language: string = 'ko-KR'
+    language: string = 'ko-KR',
+    retryCount: number = 0,
+    maxRetries: number = 2
   ): Promise<{
     success: boolean;
     audioBuffer?: Buffer;
@@ -202,8 +277,8 @@ export class SequentialTTSGenerator {
     try {
       const voiceConfig = MultilingualVoiceManager.getVoiceConfig(normalizedLanguage);
       voiceNames = {
-        female: voiceConfig.primaryVoice.voiceId,    // 진행자 (Host) - 여성
-        male: voiceConfig.secondaryVoice.voiceId     // 큐레이터 (Curator) - 남성
+        male: voiceConfig.primaryVoice.voiceId,      // 진행자 (Host) - 남성
+        female: voiceConfig.secondaryVoice.voiceId   // 큐레이터 (Curator) - 여성
       };
       
       console.log(`🎤 ${normalizedLanguage} 음성 선택:`, {
@@ -261,9 +336,24 @@ export class SequentialTTSGenerator {
       };
 
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 TTS 오류';
+      
+      // 재시도 로직
+      if (retryCount < maxRetries && 
+          (errorMessage.includes('타임아웃') || 
+           errorMessage.includes('네트워크') || 
+           errorMessage.includes('503') || 
+           errorMessage.includes('502'))) {
+        
+        console.warn(`⚠️ TTS 생성 실패 (${retryCount + 1}/${maxRetries + 1}), 재시도 중... 오류: ${errorMessage}`);
+        await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 1000)); // 점진적 대기
+        
+        return this.generateSingleTTS(text, speakerType, language, retryCount + 1, maxRetries);
+      }
+      
       return {
         success: false,
-        error: error instanceof Error ? error.message : '알 수 없는 TTS 오류'
+        error: errorMessage
       };
     }
   }
@@ -304,7 +394,7 @@ export class SequentialTTSGenerator {
 
       // 30초 타임아웃 설정
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('업로드 타임아웃 (30초)')), 30000);
+        setTimeout(() => reject(new Error('업로드 타임아웃 (60초)')), 60000);
       });
 
       const { data, error } = await Promise.race([uploadPromise, timeoutPromise]) as any;
@@ -458,9 +548,10 @@ export class SequentialTTSGenerator {
           episode_id: episodeId,
           sequence_number: file.sequenceNumber,
           speaker_type: file.speakerType,
-          text_content: `[챕터${chapterNumber}] 세그먼트 ${segmentInChapter} (${file.fileName})`,
-          audio_url: file.supabaseUrl,
-          duration_seconds: file.duration
+          text_content: file.textContent || `[챕터${chapterNumber}] 세그먼트 ${segmentInChapter}`,
+          audio_url: file.filePath || file.supabaseUrl, // audio_url 필드에 저장
+          file_size_bytes: file.fileSize,
+          duration_seconds: Math.round(file.duration)
         };
       });
 

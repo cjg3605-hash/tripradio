@@ -6,6 +6,7 @@ import SequentialTTSGenerator from '@/lib/ai/tts/sequential-tts-generator';
 import { ChapterGenerator } from '@/lib/ai/chapter-generator';
 import { LocationAnalyzer, LocationContext, EXPERT_PERSONAS } from '@/lib/ai/location-analyzer';
 import LocationSlugService from '@/lib/location/location-slug-service';
+import { createPodcastChapterPrompt, type PodcastPromptConfig, parseDialogueScript } from '@/lib/ai/prompts/podcast';
 
 // 순차 재생용 팟캐스트 생성
 
@@ -16,7 +17,7 @@ const supabase = createClient(
 );
 
 /**
- * 챕터별 NotebookLM 스타일 스크립트 생성 함수 (다국어 지원)
+ * 챕터별 NotebookLM 스타일 스크립트 생성 함수 - 새 프롬프트 시스템 통합
  */
 async function generateChapterScript(
   model: any,
@@ -27,132 +28,49 @@ async function generateChapterScript(
   locationAnalysis: any,
   language: string
 ) {
-  const personaInfo = personaDetails.map(p => 
-    `### ${p.name}\n${p.description}\n전문분야: ${p.expertise.join(', ')}`
-  ).join('\n\n');
+  // 새 프롬프트 시스템을 위한 설정 변환
+  const config: PodcastPromptConfig = {
+    locationName,
+    chapter: {
+      title: chapter.title,
+      description: chapter.description,
+      targetDuration: chapter.targetDuration,
+      estimatedSegments: chapter.estimatedSegments,
+      contentFocus: chapter.contentFocus || []
+    },
+    locationContext,
+    personaDetails: personaDetails.map(p => ({
+      name: p.name,
+      description: p.description,
+      expertise: p.expertise,
+      speechStyle: '친근하고 전문적인',
+      emotionalTone: '열정적이고 호기심 많은'
+    })),
+    locationAnalysis: {
+      significance: locationAnalysis.culturalSignificance || '중요한 문화유산',
+      historicalImportance: locationAnalysis.complexityScore || 8,
+      culturalValue: 9,
+      uniqueFeatures: [locationAnalysis.locationType || '특별한 장소'],
+      recommendations: ['필수 관람 포인트']
+    },
+    language
+  };
 
-  // 언어별 프롬프트 생성
-  let prompt: string;
-  
-  if (language === 'en' || language === 'en-US') {
-    // 영어 프롬프트
-    prompt = `
-## Core Mission
-Perfectly replicate the **actual conversation patterns** of Google NotebookLM Audio Overview to create 
-a natural and engaging ${locationName} - ${chapter.title} episode.
-
-## Chapter Information
-- **Title**: ${chapter.title}
-- **Description**: ${chapter.description}  
-- **Target Duration**: ${chapter.targetDuration} seconds (about ${Math.round(chapter.targetDuration/60)} minutes)
-- **Expected Segments**: ${chapter.estimatedSegments} segments
-- **Main Content**: ${chapter.contentFocus.join(', ')}
-
-## Activated Expert Personas
-${personaInfo}
-
-## Location Analysis Results
-- **Location Type**: ${locationAnalysis.locationType}
-- **Cultural Significance**: ${locationAnalysis.culturalSignificance}
-- **Complexity Score**: ${locationAnalysis.complexityScore}/10
-
-## NotebookLM Core Characteristics (Research-based)
-
-### 1. Natural Conversation Flow
-- **Mutual completion**: When one person starts, the other naturally completes
-- **Predictable interruptions**: "Oh, that..." / "Right, and..." 
-- **Information layering**: Basic info → interesting details → amazing facts in order
-
-### 2. High Information Density and Specificity
-- **2-3 concrete facts per turn** mandatory
-- **Number contextualization**: "420,000 pieces... if you saw one daily, it'd take 1,150 years"
-- **Comparisons and connections**: "Size of 18 football fields" / "Half of Central Park"
-
-### 3. Natural Surprise and Discovery
-- **Gradual amazement**: "But did you know? What's even more amazing is..."
-- **Shared discovery**: "I had no idea until I learned this..."
-- **Continuous curiosity**: "So what happens next..."
-
-### 4. Listener-Centered Awareness
-- **Meta awareness**: "Our listeners are probably wondering..."
-- **Participation invitation**: "Imagine if you were there..."
-- **Clear guidance**: "To summarize..." / "Simply put..."
-
-## Required Output Format
-**Host:** (dialogue)
-**Curator:** (dialogue)
-
-## Absolute Prohibitions
-- No markdown formatting (**, ##, * etc.) allowed
-- No emoji usage
-- No abstract flowery language ("beautiful", "amazing" etc.)
-- No speculative expressions ("probably", "seems like")
-
-**Create a NotebookLM-style ${chapter.title} episode right now in **Host:** and **Curator:** format!**
-`;
-  } else {
-    // 한국어 프롬프트 (기본)
-    prompt = `
-## 핵심 미션
-Google NotebookLM Audio Overview의 **실제 대화 패턴**을 완벽 재현하여 
-자연스럽고 매력적인 ${locationName} - ${chapter.title} 에피소드를 제작하세요.
-
-## 챕터 정보
-- **제목**: ${chapter.title}
-- **설명**: ${chapter.description}  
-- **목표 시간**: ${chapter.targetDuration}초 (약 ${Math.round(chapter.targetDuration/60)}분)
-- **예상 세그먼트**: ${chapter.estimatedSegments}개
-- **주요 내용**: ${chapter.contentFocus.join(', ')}
-
-## 활성화된 전문가 페르소나
-${personaInfo}
-
-## 위치 분석 결과
-- **장소 유형**: ${locationAnalysis.locationType}
-- **문화적 중요성**: ${locationAnalysis.culturalSignificance}
-- **복잡성 점수**: ${locationAnalysis.complexityScore}/10
-
-## NotebookLM 핵심 특성 (연구 결과 기반)
-
-### 1. 대화의 자연스러운 흐름
-- **상호 완성**: 한 사람이 말을 시작하면 다른 사람이 자연스럽게 완성
-- **예상 가능한 인터럽션**: "아, 그거..." / "맞아요, 그리고..." 
-- **정보 계층화**: 기본 정보 → 흥미로운 디테일 → 놀라운 사실 순서
-
-### 2. 높은 정보 밀도와 구체성
-- **한 턴당 2-3개 구체적 사실** 필수 포함
-- **숫자의 체감화**: "42만 점이면... 하루에 하나씩 봐도 1,150년"
-- **비교와 연결**: "축구장 18개 크기" / "여의도 공원 절반"
-
-### 3. 자연스러운 놀라움과 발견
-- **단계적 놀라움**: "근데 이거 알아요? 더 놀라운 건..."
-- **공유된 발견**: "저도 이번에 처음 알았는데..."
-- **지속적인 호기심**: "그럼 그 다음엔 뭐가..."
-
-### 4. 청취자 중심 의식
-- **메타 인식**: "지금 청취자분들이 궁금해하실 텐데..."
-- **참여 유도**: "여러분도 상상해보세요..."
-- **명확한 안내**: "정리하면..." / "쉽게 말하면..."
-
-## 필수 출력 포맷
-**male:** (대사)
-**female:** (대사)
-
-## 절대 금지사항
-- 마크다운 형식 (**, ##, * 등) 절대 사용 금지
-- 이모지 사용 금지
-- 추상적 미사여구 ("아름다운", "놀라운" 등) 금지
-- 추측성 표현 ("아마도", "~것 같다") 금지
-
-**지금 바로 NotebookLM 스타일 ${chapter.title} 에피소드를 **male:**와 **female:** 형식으로 제작하세요!**
-`;
-  }
+  // 새 프롬프트 시스템으로 프롬프트 생성
+  const prompt = await createPodcastChapterPrompt(config);
 
   const result = await model.generateContent(prompt);
   const scriptText = result.response.text();
 
-  // 언어에 따른 스크립트 파싱
-  const segments = parseScriptToSegments(scriptText, language);
+  // 새 파싱 시스템 사용 (기존 호환성 유지)
+  const dialogueSegments = parseDialogueScript(scriptText, language);
+  
+  // 기존 형식으로 변환 (기존 API 호환성 보장)
+  const segments = dialogueSegments.map(segment => ({
+    speaker: segment.speaker,
+    text: segment.content,
+    estimatedSeconds: Math.min(Math.max(Math.ceil(segment.content.length / 8), 15), 45)
+  }));
   
   return {
     chapterIndex: chapter.chapterIndex,
@@ -163,45 +81,19 @@ ${personaInfo}
 }
 
 /**
- * 생성된 스크립트를 세그먼트로 파싱하는 함수 (다국어 지원)
+ * 생성된 스크립트를 세그먼트로 파싱하는 함수 (호환성 래퍼 - 레거시 지원)
+ * @deprecated 새 parseDialogueScript 함수 사용 권장
  */
 function parseScriptToSegments(scriptText: string, language: string = 'ko') {
-  const segments: Array<{
-    speaker: string;
-    text: string;
-    estimatedSeconds: number;
-  }> = [];
-  const lines = scriptText.split('\n').filter(line => line.trim());
+  // 새 파싱 시스템 사용
+  const dialogueSegments = parseDialogueScript(scriptText, language);
   
-  for (const line of lines) {
-    let maleMatch, femaleMatch;
-    
-    if (language === 'en' || language === 'en-US') {
-      // 영어: Host/Curator 패턴 매칭
-      maleMatch = line.match(/\*\*(?:Host|Male):\*\*\s*(.+)/i);
-      femaleMatch = line.match(/\*\*(?:Curator|Female):\*\*\s*(.+)/i);
-    } else {
-      // 한국어: male/female 또는 진행자/큐레이터 패턴 매칭
-      maleMatch = line.match(/\*\*(?:male|진행자):\*\*\s*(.+)/i);
-      femaleMatch = line.match(/\*\*(?:female|큐레이터):\*\*\s*(.+)/i);
-    }
-    
-    if (maleMatch) {
-      segments.push({
-        speaker: 'male',
-        text: maleMatch[1].trim(),
-        estimatedSeconds: Math.min(Math.max(Math.ceil(maleMatch[1].length / 8), 15), 45)
-      });
-    } else if (femaleMatch) {
-      segments.push({
-        speaker: 'female', 
-        text: femaleMatch[1].trim(),
-        estimatedSeconds: Math.min(Math.max(Math.ceil(femaleMatch[1].length / 8), 15), 45)
-      });
-    }
-  }
-  
-  return segments;
+  // 기존 형식으로 변환
+  return dialogueSegments.map(segment => ({
+    speaker: segment.speaker,
+    text: segment.content,
+    estimatedSeconds: Math.min(Math.max(Math.ceil(segment.content.length / 8), 15), 45)
+  }));
 }
 
 export async function POST(req: NextRequest) {
@@ -224,6 +116,93 @@ export async function POST(req: NextRequest) {
         success: false, 
         error: '위치명이 필요합니다.' 
       }, { status: 400 });
+    }
+
+    // 🔍 Step 0: 기존 팟캐스트 에피소드 확인 (중복 방지)
+    console.log('🔍 0단계: 기존 에피소드 중복 확인');
+    const slugResult = await LocationSlugService.getOrCreateLocationSlug(locationName, language);
+    console.log(`📍 슬러그 확인: "${locationName}" → "${slugResult.slug}" (${slugResult.source})`);
+
+    // 슬러그 기반 기존 에피소드 조회
+    const { data: existingEpisodes, error: episodeCheckError } = await supabase
+      .from('podcast_episodes')
+      .select('*')
+      .eq('location_slug', slugResult.slug)
+      .eq('language', language)
+      .order('created_at', { ascending: false });
+    
+    if (episodeCheckError) {
+      console.warn('⚠️ 에피소드 조회 중 오류 (계속 진행):', episodeCheckError);
+    }
+
+    // 기존 에피소드가 있는 경우 처리
+    if (existingEpisodes && existingEpisodes.length > 0) {
+      const existingEpisode = existingEpisodes[0];
+      console.log('🎙️ 기존 에피소드 발견:', {
+        id: existingEpisode.id,
+        status: existingEpisode.status,
+        created_at: existingEpisode.created_at
+      });
+
+      // 완료된 에피소드가 있으면 바로 반환
+      if (existingEpisode.status === 'completed') {
+        console.log('✅ 완료된 팟캐스트 발견, 기존 에피소드 반환');
+        
+        // 세그먼트 조회
+        const { data: segments } = await supabase
+          .from('podcast_segments')
+          .select('*')
+          .eq('episode_id', existingEpisode.id)
+          .order('sequence_number', { ascending: true });
+
+        return NextResponse.json({
+          success: true,
+          message: '기존 완료된 팟캐스트를 반환합니다.',
+          data: {
+            episodeId: existingEpisode.id,
+            locationName: locationName,
+            language: language,
+            status: 'completed',
+            existingEpisode: true,
+            segmentCount: segments?.length || 0,
+            totalDuration: existingEpisode.total_duration || 0,
+            folderPath: existingEpisode.folder_path
+          }
+        });
+      }
+
+      // 생성 중인 에피소드가 있으면 오류 반환
+      if (existingEpisode.status === 'generating') {
+        console.log('⚠️ 생성 중인 에피소드 발견, 중복 생성 방지');
+        return NextResponse.json({
+          success: false,
+          error: '이미 팟캐스트 생성이 진행 중입니다. 잠시만 기다려주세요.',
+          data: {
+            episodeId: existingEpisode.id,
+            status: 'generating',
+            created_at: existingEpisode.created_at
+          }
+        }, { status: 409 }); // Conflict 상태 코드
+      }
+
+      // 실패한 에피소드가 있으면 재생성 허용 (하지만 기존 레코드 삭제)
+      if (existingEpisode.status === 'failed') {
+        console.log('🗑️ 실패한 에피소드 발견, 기존 레코드 정리 후 재생성');
+        
+        // 기존 세그먼트 삭제
+        await supabase
+          .from('podcast_segments')
+          .delete()
+          .eq('episode_id', existingEpisode.id);
+        
+        // 기존 에피소드 삭제
+        await supabase
+          .from('podcast_episodes')
+          .delete()
+          .eq('id', existingEpisode.id);
+        
+        console.log('🗑️ 실패한 에피소드 정리 완료');
+      }
     }
 
     // 📍 Step 1: 장소 분석 및 챕터 구조 생성
@@ -425,7 +404,31 @@ export async function POST(req: NextRequest) {
     
     try {
       // 언어 코드 정규화 (TTS 시스템 호환성)
-      const normalizedLanguage = language === 'en' ? 'en-US' : language === 'ko' ? 'ko-KR' : language;
+      let normalizedLanguage: string;
+      switch (language) {
+        case 'en':
+        case 'en-US':
+          normalizedLanguage = 'en-US';
+          break;
+        case 'ko':
+        case 'ko-KR':
+          normalizedLanguage = 'ko-KR';
+          break;
+        case 'ja':
+        case 'ja-JP':
+          normalizedLanguage = 'ja-JP';
+          break;
+        case 'zh':
+        case 'zh-CN':
+          normalizedLanguage = 'zh-CN';
+          break;
+        case 'es':
+        case 'es-ES':
+          normalizedLanguage = 'es-ES';
+          break;
+        default:
+          normalizedLanguage = language;
+      }
       
       const ttsResult = await SequentialTTSGenerator.generateSequentialTTS(
         processedDialogue.segments,
@@ -451,29 +454,8 @@ export async function POST(req: NextRequest) {
       console.warn('⚠️ 생성된 파일 검증 경고:', fileValidation.issues);
     }
     
-    // 4. 세그먼트 DB 저장
-    console.log('💾 세그먼트 정보 DB 저장...');
-    const segmentInserts = ttsResult.segmentFiles.map((file, index) => ({
-      episode_id: episodeId,
-      sequence_number: index + 1,
-      speaker_type: file.speakerType,
-      text_content: file.textContent,
-      file_path: file.filePath,
-      file_size: file.fileSize,
-      duration_seconds: Math.round(file.duration),
-      chapter_index: file.metadata?.chapterIndex || 0,
-      chapter_title: file.metadata?.chapterTitle || 'Unknown'
-    }));
-
-    const { error: segmentError } = await supabase
-      .from('podcast_segments')
-      .insert(segmentInserts);
-
-    if (segmentError) {
-      console.warn('⚠️ 세그먼트 저장 경고 (메인 기능은 정상):', segmentError);
-    } else {
-      console.log(`✅ ${segmentInserts.length}개 세그먼트 정보 저장 완료`);
-    }
+    // 4. 세그먼트는 TTS 생성기에서 이미 저장됨 (중복 제거)
+    console.log('📝 세그먼트는 TTS 생성기에서 이미 DB에 저장됨');
 
     // 5. 에피소드 상태 업데이트 (최종 슬러그 정보 포함)
     console.log('🔄 최종 슬러그 정보 확인:', ttsResult.slugInfo);
