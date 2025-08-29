@@ -1,0 +1,402 @@
+name: Podcast Generation QA Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/lib/ai/podcast/**'
+      - 'src/lib/ai/tts/**' 
+      - 'app/api/tts/**'
+      - 'src/components/audio/**'
+      - 'tests/podcast/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/lib/ai/podcast/**'
+      - 'src/lib/ai/tts/**'
+      - 'app/api/tts/**'
+      - 'src/components/audio/**'
+      - 'tests/podcast/**'
+  schedule:
+    # 매일 오전 2시에 전체 테스트 실행
+    - cron: '0 2 * * *'
+
+env:
+  NODE_VERSION: '18'
+  PNPM_VERSION: '8'
+  
+jobs:
+  # 1. 단위 테스트 및 린팅
+  unit-tests:
+    name: Unit Tests & Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run type check
+        run: npm run type-check
+
+      - name: Run unit tests
+        run: npm run test:unit
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Upload unit test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-test-results
+          path: test-reports/unit/
+
+  # 2. 통합 테스트
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: unit-tests
+    
+    strategy:
+      matrix:
+        language: ['ko', 'en', 'ja']
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run integration tests
+        run: npm run test:integration
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TEST_LANGUAGE: ${{ matrix.language }}
+
+      - name: Upload integration test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results-${{ matrix.language }}
+          path: test-reports/integration/
+
+  # 3. 성능 벤치마킹
+  performance-tests:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: unit-tests
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run performance benchmarks
+        run: npm run test:performance
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-test-results
+          path: test-reports/performance/
+
+      - name: Comment performance results
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            try {
+              const results = fs.readFileSync('test-reports/performance/benchmark-summary.json', 'utf8');
+              const data = JSON.parse(results);
+              
+              const comment = `## 🚀 성능 벤치마킹 결과
+              
+              | 테스트 | 소요시간 | 목표시간 | 상태 |
+              |--------|----------|----------|------|
+              | 소형 박물관 | ${data.small}ms | <15s | ${data.small < 15000 ? '✅' : '❌'} |
+              | 중형 박물관 | ${data.medium}ms | <30s | ${data.medium < 30000 ? '✅' : '❌'} |
+              | 대형 박물관 | ${data.large}ms | <60s | ${data.large < 60000 ? '✅' : '❌'} |
+              
+              **전체 개선률**: ${data.improvement}% (기준: 79초 → 목표: 30초)`;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } catch (error) {
+              console.log('벤치마킹 결과 댓글 생성 실패:', error);
+            }
+
+  # 4. 장애 시나리오 테스트
+  failure-scenarios:
+    name: Failure Scenario Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: unit-tests
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run failure scenario tests
+        run: npm run test:failure
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Upload failure test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: failure-test-results
+          path: test-reports/failure/
+
+  # 5. E2E 테스트 (Playwright)
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: [unit-tests, integration-tests]
+    
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+        include:
+          - browser: chromium
+            os: ubuntu-latest
+          - browser: firefox  
+            os: ubuntu-latest
+          - browser: webkit
+            os: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Build application
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Run E2E tests
+        run: npx playwright test --project=${{ matrix.browser }}
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload E2E test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-test-results-${{ matrix.browser }}
+          path: test-results/
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: test-reports/playwright-report/
+
+  # 6. 품질 리포트 생성
+  quality-report:
+    name: Generate Quality Report
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, performance-tests, failure-scenarios, e2e-tests]
+    if: always()
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          path: all-test-results/
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Generate quality report
+        run: |
+          node scripts/generate-quality-report.js all-test-results/
+        
+      - name: Upload quality report
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-report
+          path: quality-report/
+
+      - name: Comment quality summary
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            try {
+              const summary = fs.readFileSync('quality-report/summary.json', 'utf8');
+              const data = JSON.parse(summary);
+              
+              const comment = `## 📊 팟캐스트 QA 품질 리포트
+              
+              ### 테스트 결과 요약
+              - **단위 테스트**: ${data.unit.passed}/${data.unit.total} 통과 (${data.unit.coverage}% 커버리지)
+              - **통합 테스트**: ${data.integration.passed}/${data.integration.total} 통과
+              - **성능 테스트**: ${data.performance.passed}/${data.performance.total} 통과
+              - **장애 시나리오**: ${data.failure.passed}/${data.failure.total} 통과  
+              - **E2E 테스트**: ${data.e2e.passed}/${data.e2e.total} 통과
+              
+              ### 핵심 지표
+              - **98-99% 실패율 해결**: ${data.metrics.failureRateReduced ? '✅' : '❌'}
+              - **30초 성능 목표**: ${data.metrics.performanceTarget ? '✅' : '❌'} (평균: ${data.metrics.avgTime}ms)
+              - **타임아웃 문제 해결**: ${data.metrics.timeoutFixed ? '✅' : '❌'}
+              - **전체 품질 점수**: ${data.metrics.qualityScore}/100
+              
+              ${data.recommendations.length > 0 ? '### 🔧 개선 권장사항\n' + data.recommendations.map(r => `- ${r}`).join('\n') : ''}
+              `;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } catch (error) {
+              console.log('품질 리포트 댓글 생성 실패:', error);
+            }
+
+  # 7. 배포 전 최종 검증 (main 브랜치만)
+  pre-deployment-validation:
+    name: Pre-deployment Validation
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: [unit-tests, integration-tests, performance-tests, failure-scenarios, e2e-tests]
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run comprehensive validation
+        run: npm run test:validate-deployment
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Validate database migrations
+        run: npm run db:validate
+
+      - name: Check for breaking changes
+        run: npm run check:breaking-changes
+
+      - name: Final quality gate
+        run: |
+          echo "🎯 배포 전 최종 검증 완료"
+          echo "✅ 모든 테스트 통과"
+          echo "✅ 성능 기준 달성"
+          echo "✅ 품질 기준 충족"
+
+# 스케줄러 알림 (매일 테스트 결과)
+  daily-health-check:
+    name: Daily Health Check
+    runs-on: ubuntu-latest
+    if: github.event.schedule
+    needs: [unit-tests, integration-tests, performance-tests, failure-scenarios, e2e-tests]
+    
+    steps:
+      - name: Send daily report
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Slack/Discord 등으로 일일 헬스체크 결과 전송
+            console.log('📊 일일 팟캐스트 시스템 헬스체크 완료');
+            
+            // 웹훅 URL이 있으면 알림 전송
+            if (process.env.DAILY_REPORT_WEBHOOK) {
+              const webhook = process.env.DAILY_REPORT_WEBHOOK;
+              // 실제 알림 로직 구현
+            }

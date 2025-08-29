@@ -94,11 +94,6 @@ export class LocationSlugService {
       // 메모리 캐시에 저장
       this.slugCache.set(cacheKey, uniqueSlug);
       
-      // DB에 영구 저장 (비동기 - 실패해도 진행)
-      this.savePermanentSlug(locationInput, uniqueSlug, language).catch(err => 
-        console.warn('⚠️ 슬러그 영구 저장 실패:', err)
-      );
-      
       console.log(`✅ 새 슬러그 생성: "${locationInput}" → "${uniqueSlug}"`);
       return {
         slug: uniqueSlug,
@@ -124,7 +119,7 @@ export class LocationSlugService {
   }
   
   /**
-   * DB에서 영구 슬러그 조회: 모든 언어 버전에서 확인하여 일관성 보장
+   * DB에서 영구 슬러그 조회: podcast_episodes 테이블을 활용하여 일관성 보장
    */
   private static async findPermanentSlug(
     locationInput: string, 
@@ -132,33 +127,33 @@ export class LocationSlugService {
   ): Promise<string | null> {
     
     try {
-      // 1. 정확히 일치하는 location_input 찾기
+      // 1. 정확히 일치하는 location_input 찾기 (모든 언어에서 검색)
       let { data, error } = await supabase
         .from('podcast_episodes')
-        .select('location_slug, location_input')
+        .select('location_slug, location_input, language')
         .eq('location_input', locationInput)
-        .eq('language', language)
         .not('location_slug', 'is', null)
+        .order('created_at', { ascending: false })
         .limit(1);
       
       if (error) {
-        console.warn('⚠️ 캐시 조회 오류:', error);
+        console.warn('⚠️ 슬러그 조회 오류:', error);
         return null;
       }
       
       if (data && data.length > 0) {
-        console.log(`📋 정확한 매치 발견: "${locationInput}" → "${data[0].location_slug}"`);
+        console.log(`📋 정확한 매치 발견: "${locationInput}" → "${data[0].location_slug}" (${data[0].language})`);
         return data[0].location_slug;
       }
       
-      // 2. 유사한 이름들 찾기 (트림, 대소문자 무시)
+      // 2. 유사한 이름들 찾기 (트림, 대소문자 무시, 모든 언어)
       const trimmedInput = locationInput.trim();
       const { data: similarData, error: similarError } = await supabase
         .from('podcast_episodes')
-        .select('location_slug, location_input')
-        .eq('language', language)
+        .select('location_slug, location_input, language')
         .not('location_slug', 'is', null)
-        .limit(10); // 최대 10개까지 확인
+        .order('created_at', { ascending: false })
+        .limit(20); // 더 많은 결과에서 검색
       
       if (similarError) {
         console.warn('⚠️ 유사 매치 조회 오류:', similarError);
@@ -171,26 +166,28 @@ export class LocationSlugService {
       );
       
       if (similarMatch) {
-        console.log(`📋 유사 매치 발견: "${trimmedInput}" → "${similarMatch.location_slug}" (원본: "${similarMatch.location_input}")`);
+        console.log(`📋 유사 매치 발견: "${trimmedInput}" → "${similarMatch.location_slug}" (원본: "${similarMatch.location_input}", ${similarMatch.language})`);
         return similarMatch.location_slug;
       }
       
       // 3. 부분 매치 찾기 (핵심 키워드 포함)
       const coreKeyword = trimmedInput.replace(/[(){}[\]]/g, '').trim();
-      const partialMatch = similarData?.find(item => {
-        const itemCore = item.location_input?.replace(/[(){}[\]]/g, '').trim() || '';
-        return itemCore.includes(coreKeyword) || coreKeyword.includes(itemCore);
-      });
-      
-      if (partialMatch) {
-        console.log(`📋 부분 매치 발견: "${coreKeyword}" → "${partialMatch.location_slug}" (원본: "${partialMatch.location_input}")`);
-        return partialMatch.location_slug;
+      if (coreKeyword.length >= 2) {
+        const partialMatch = similarData?.find(item => {
+          const itemCore = item.location_input?.replace(/[(){}[\]]/g, '').trim() || '';
+          return itemCore.includes(coreKeyword) || coreKeyword.includes(itemCore);
+        });
+        
+        if (partialMatch) {
+          console.log(`📋 부분 매치 발견: "${coreKeyword}" → "${partialMatch.location_slug}" (원본: "${partialMatch.location_input}", ${partialMatch.language})`);
+          return partialMatch.location_slug;
+        }
       }
       
       return null;
       
     } catch (error) {
-      console.warn('⚠️ 캐시 조회 실패:', error);
+      console.warn('⚠️ 슬러그 조회 실패:', error);
       return null;
     }
   }
@@ -265,82 +262,49 @@ export class LocationSlugService {
   }
   
   /**
-   * 슬러그 중복 체크 및 고유성 보장
+   * 슬러그 확인 및 재사용: 중복 시 기존 슬러그 재사용
    */
   private static async ensureUniqueSlug(baseSlug: string): Promise<string> {
     
-    let uniqueSlug = baseSlug;
-    let counter = 0;
-    
-    while (true) {
-      // DB에서 중복 체크
+    try {
+      // DB에서 기존 슬러그 확인
       const { data, error } = await supabase
         .from('podcast_episodes')
-        .select('id')
-        .eq('location_slug', uniqueSlug)
+        .select('location_slug')
+        .eq('location_slug', baseSlug)
         .limit(1);
       
       if (error) {
-        console.warn('⚠️ 슬러그 중복 체크 오류:', error);
-        // 오류시에도 계속 진행 (고유 suffix 추가)
-        return `${baseSlug}-${Date.now().toString(36)}`;
+        console.warn('⚠️ 슬러그 체크 오류:', error);
+        return baseSlug; // 오류 시 기본 슬러그 사용
       }
       
-      // 중복이 없으면 사용
-      if (!data || data.length === 0) {
-        break;
+      // 기존 슬러그가 있든 없든 동일한 슬러그 사용 (중복 허용)
+      if (data && data.length > 0) {
+        console.log(`♻️ 기존 슬러그 재사용: "${baseSlug}"`);
+      } else {
+        console.log(`✨ 새 슬러그 사용: "${baseSlug}"`);
       }
       
-      // 중복이 있으면 suffix 추가
-      counter++;
-      uniqueSlug = `${baseSlug}-${counter}`;
-      console.log(`⚠️ 슬러그 중복 발견, 시도: "${uniqueSlug}"`);
+      return baseSlug;
+      
+    } catch (error) {
+      console.warn('⚠️ 슬러그 확인 실패:', error);
+      return baseSlug; // 오류 시 기본 슬러그 사용
     }
-    
-    return uniqueSlug;
   }
   
   /**
-   * 영구 슬러그 저장: DB에 저장하여 재사용 보장
+   * 영구 슬러그 저장: 메모리 캐시만 사용 (DB 저장 제거)
+   * @deprecated DB 제약조건 오류 방지를 위해 메모리 캐시만 사용
    */
   private static async savePermanentSlug(
     locationInput: string,
     locationSlug: string,
     language: string
   ): Promise<void> {
-    
-    try {
-      // podcast_episodes 테이블에 영구 저장을 위한 임시 레코드 생성
-      // 실제 에피소드는 아니지만 슬러그 캐싱 용도로 사용
-      const cacheId = `slug-cache-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      
-      const { error } = await supabase
-        .from('podcast_episodes')
-        .insert({
-          id: cacheId,
-          title: `[SLUG_CACHE] ${locationInput}`,
-          description: 'Auto-generated slug cache entry',
-          language: language,
-          location_input: locationInput,
-          location_slug: locationSlug,
-          slug_source: 'cache',
-          // 최소 필수 필드들
-          user_script: '',
-          tts_script: '',
-          status: 'slug_cache',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
-      
-      if (error) {
-        console.warn('⚠️ 슬러그 영구 저장 실패:', error);
-      } else {
-        console.log(`💾 슬러그 영구 저장 성공: "${locationInput}" → "${locationSlug}" (${language})`);
-      }
-      
-    } catch (error) {
-      console.warn('⚠️ 슬러그 저장 오류:', error);
-    }
+    // DB 저장 비활성화 - 메모리 캐시만 사용
+    console.log(`💾 슬러그 메모리 캐시 저장: "${locationInput}" → "${locationSlug}" (${language})`);
   }
   
   /**
@@ -408,6 +372,7 @@ export class LocationSlugService {
   
   /**
    * 슬러그 캐시 저장 (에피소드 생성시 자동 호출)
+   * 기존 podcast_episodes 레코드에 안전하게 슬러그 정보를 저장
    */
   static async cacheLocationSlug(
     episodeId: string,
@@ -418,23 +383,56 @@ export class LocationSlugService {
   ): Promise<void> {
     
     try {
+      // 먼저 기존 에피소드 상태 확인
+      const { data: existingEpisode, error: selectError } = await supabase
+        .from('podcast_episodes')
+        .select('status, location_slug, location_input')
+        .eq('id', episodeId)
+        .single();
+      
+      if (selectError) {
+        console.warn('⚠️ 에피소드 조회 실패:', selectError);
+        return;
+      }
+      
+      // 이미 슬러그가 설정되어 있으면 업데이트하지 않음 (일관성 유지)
+      if (existingEpisode.location_slug && existingEpisode.location_input) {
+        console.log(`📋 슬러그 이미 설정됨: "${existingEpisode.location_input}" → "${existingEpisode.location_slug}"`);
+        return;
+      }
+      
+      // 안전한 업데이트: location_slug와 location_input만 설정
+      const updateData: any = {
+        location_input: locationInput,
+        location_slug: locationSlug,
+        slug_source: source
+      };
+      
+      // status가 pending이 아닌 경우에만 상태 변경하지 않음
       const { error } = await supabase
         .from('podcast_episodes')
-        .update({
-          location_input: locationInput,
-          location_slug: locationSlug,
-          slug_source: source
-        })
+        .update(updateData)
         .eq('id', episodeId);
       
       if (error) {
-        console.warn('⚠️ 슬러그 캐시 저장 실패:', error);
+        console.warn('⚠️ 슬러그 캐시 저장 실패:', error.message);
+        // 메모리 캐시에라도 저장
+        const cacheKey = this.getCacheKey(locationInput, language);
+        this.slugCache.set(cacheKey, locationSlug);
+        console.log(`💾 메모리 캐시로 대체 저장: "${locationInput}" → "${locationSlug}"`);
       } else {
-        console.log(`💾 슬러그 캐시 저장: "${locationInput}" → "${locationSlug}" (${source})`);
+        console.log(`💾 슬러그 캐시 저장 완료: "${locationInput}" → "${locationSlug}" (${source})`);
+        // 메모리 캐시에도 저장하여 빠른 액세스 보장
+        const cacheKey = this.getCacheKey(locationInput, language);
+        this.slugCache.set(cacheKey, locationSlug);
       }
       
     } catch (error) {
       console.warn('⚠️ 슬러그 캐시 저장 오류:', error);
+      // 실패 시 메모리 캐시라도 유지
+      const cacheKey = this.getCacheKey(locationInput, language);
+      this.slugCache.set(cacheKey, locationSlug);
+      console.log(`💾 메모리 캐시로 폴백 저장: "${locationInput}" → "${locationSlug}"`);
     }
   }
   

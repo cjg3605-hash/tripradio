@@ -185,11 +185,27 @@ async function handleInitialization(
     });
   }
 
-  // 생성 중인 에피소드 정리
+  // 생성 중인 에피소드 재사용
   if (existingEpisodes && existingEpisodes.length > 0 && existingEpisodes[0].status === 'generating') {
-    console.log('🗑️ 기존 생성 중인 에피소드 정리');
-    await supabase.from('podcast_segments').delete().eq('episode_id', existingEpisodes[0].id);
-    await supabase.from('podcast_episodes').delete().eq('id', existingEpisodes[0].id);
+    console.log('♻️ 기존 생성 중인 에피소드 재사용');
+    
+    // 기존 세그먼트 확인
+    const { data: segments } = await supabase
+      .from('podcast_segments')
+      .select('*')
+      .eq('episode_id', existingEpisodes[0].id)
+      .order('sequence_number', { ascending: true });
+
+    return NextResponse.json({
+      success: true,
+      message: '기존 생성 중인 팟캐스트를 계속 진행합니다.',
+      data: {
+        episodeId: existingEpisodes[0].id,
+        status: 'generating',
+        existingEpisode: true,
+        segmentCount: segments?.length || 0
+      }
+    });
   }
 
   // 장소 분석 및 챕터 구조 생성

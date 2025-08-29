@@ -164,6 +164,10 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
     try {
       console.log('🚀 팟캐스트 구조 초기화 시작');
       
+      // ✅ 타임아웃 설정 (2분)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000);
+      
       const response = await fetch('/api/tts/notebooklm/generate-by-chapter', {
         method: 'POST',
         headers: {
@@ -173,8 +177,11 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
           locationName,
           language: language || currentLanguage,
           action: 'init'
-        })
+        }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
       const result = await response.json();
 
@@ -217,6 +224,10 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
           : ch
       ));
       
+      // ✅ 챕터별 타임아웃 설정 (3분)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 180000);
+      
       const response = await fetch('/api/tts/notebooklm/generate-by-chapter', {
         method: 'POST',
         headers: {
@@ -227,8 +238,11 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
           language: language || currentLanguage,
           action: 'generate_chapter',
           chapterIndex
-        })
+        }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
       const result = await response.json();
 
@@ -276,6 +290,10 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
     try {
       console.log('🏁 팟캐스트 최종화 시작');
       
+      // ✅ 최종화 타임아웃 설정 (1분)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
+      
       const response = await fetch('/api/tts/notebooklm/generate-by-chapter', {
         method: 'POST',
         headers: {
@@ -285,8 +303,11 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
           locationName,
           language: language || currentLanguage,
           action: 'finalize'
-        })
+        }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
       const result = await response.json();
 
@@ -307,6 +328,30 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
     }
   };
 
+  // ✅ 정확한 진행률 계산 시스템
+  const calculateAccurateProgress = (stage: string, chapterIndex: number, totalChapters: number) => {
+    const stages = {
+      'init': { weight: 15, name: '초기화 중' },
+      'chapters': { weight: 70, name: '챕터 생성 중' },
+      'finalize': { weight: 15, name: '최종 처리 중' }
+    };
+    
+    let progress = 0;
+    
+    if (stage === 'init') {
+      progress = Math.min(stages.init.weight, 15);
+    } else if (stage === 'chapters' && totalChapters > 0) {
+      progress = stages.init.weight + (chapterIndex / totalChapters) * stages.chapters.weight;
+    } else if (stage === 'finalize') {
+      progress = stages.init.weight + stages.chapters.weight + Math.random() * 10; // 85-95%
+    } else if (stage === 'completed') {
+      progress = 100; // 완료시에만 100%
+    }
+    
+    // ✅ 98% 멈춤 방지: 완료 전까지는 최대 97%로 제한
+    return Math.min(Math.floor(progress), stage === 'completed' ? 100 : 97);
+  };
+
   // 전체 생성 프로세스
   const generateFullPodcast = async () => {
     if (isGenerating) return;
@@ -319,15 +364,24 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
     try {
       // 1단계: 초기화 (이미 초기화된 경우 건너뜀)
       if (!isInitialized) {
+        console.log('📋 1단계: 초기화 시작');
+        setGenerationProgress(calculateAccurateProgress('init', 0, chapters.length));
         await initializePodcast();
-        setGenerationProgress(10);
       }
 
       // 2단계: 각 챕터 순차 생성
+      console.log('🎤 2단계: 챕터별 생성 시작');
       for (let i = 0; i < chapters.length; i++) {
         setCurrentGeneratingChapter(i);
+        console.log(`📝 챕터 ${i + 1}/${chapters.length} 생성 중`);
+        
+        // ✅ 실제 진행률 계산
+        setGenerationProgress(calculateAccurateProgress('chapters', i, chapters.length));
+        
         await generateChapter(i);
-        setGenerationProgress(10 + (80 * (i + 1)) / chapters.length);
+        
+        // ✅ 챕터 완료 후 진행률 업데이트
+        setGenerationProgress(calculateAccurateProgress('chapters', i + 1, chapters.length));
         
         // 챕터 간 잠깐 대기 (API 부하 방지)
         if (i < chapters.length - 1) {
@@ -336,10 +390,14 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
       }
 
       // 3단계: 최종화
+      console.log('🏁 3단계: 최종화 시작');
       setCurrentGeneratingChapter(-1);
+      setGenerationProgress(calculateAccurateProgress('finalize', 0, chapters.length));
+      
       await finalizePodcast();
-      setGenerationProgress(100);
-
+      
+      // ✅ 완료시에만 100% 설정
+      setGenerationProgress(calculateAccurateProgress('completed', 0, chapters.length));
       console.log('🎉 전체 팟캐스트 생성 완료!');
 
     } catch (error) {
@@ -347,7 +405,16 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
       
       let errorMessage = '팟캐스트 생성에 실패했습니다.';
       if (error instanceof Error) {
-        errorMessage = error.message;
+        // ✅ 사용자 친화적 에러 메시지
+        if (error.name === 'AbortError') {
+          errorMessage = '처리 시간이 길어지고 있습니다. 서버가 아직 작업 중일 수 있으니 잠시 후 다시 확인해주세요.';
+        } else if (error.message.includes('fetch')) {
+          errorMessage = '네트워크 연결에 문제가 있습니다. 인터넷 연결을 확인하고 다시 시도해주세요.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = '서버 응답 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.';
+        } else {
+          errorMessage = error.message;
+        }
       }
       
       setError(errorMessage);

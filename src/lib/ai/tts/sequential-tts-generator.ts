@@ -49,6 +49,23 @@ export class SequentialTTSGenerator {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
+  // Circuit Breaker 상태 관리
+  private static circuitBreakerState = {
+    isOpen: false,
+    consecutiveFailures: 0,
+    lastFailureTime: 0,
+    failureThreshold: 3,        // 연속 3회 실패시 Circuit 열림
+    resetTimeoutMs: 30000,      // 30초 후 재시도
+    halfOpenMaxAttempts: 1      // Half-Open 상태에서 1회만 테스트
+  };
+
+  // API 헬스 체크 캐시
+  private static apiHealthCache = {
+    isHealthy: true,
+    lastCheckTime: 0,
+    cacheValidityMs: 60000     // 1분간 캐시 유효
+  };
+
   /**
    * 세그먼트들을 순차적으로 TTS 생성 (범용 인터페이스)
    */
@@ -66,6 +83,24 @@ export class SequentialTTSGenerator {
       episodeId,
       actualChapterIndex: actualChapterIndex  // 받은 챕터 인덱스 로깅
     });
+
+    // 배치 처리 전 API 헬스 체크
+    const healthCheck = await this.checkApiHealth();
+    if (!healthCheck.isHealthy) {
+      console.error(`🚨 TTS API 헬스 체크 실패: ${healthCheck.message}`);
+      return {
+        episodeId,
+        locationName,
+        segmentFiles: [],
+        totalDuration: 0,
+        totalFileSize: 0,
+        folderPath: '',
+        success: false,
+        errors: [`API 헬스 체크 실패: ${healthCheck.message}`]
+      };
+    }
+
+    console.log(`✅ ${healthCheck.message} - 배치 처리 계속 진행`);
 
     const segmentFiles: GeneratedSegmentFile[] = [];
     const errors: string[] = [];
@@ -88,8 +123,8 @@ export class SequentialTTSGenerator {
       slugSource: slugResult.source
     };
     
-    // 배치 처리 최적화 (10개씩, 병렬 처리)
-    const batchSize = 10;
+    // 배치 처리 최적화 (3개씩, 병렬 처리) - API 과부하 방지
+    const batchSize = 3;
     const batches: any[][] = [];
     for (let i = 0; i < segments.length; i += batchSize) {
       batches.push(segments.slice(i, i + batchSize));
@@ -101,7 +136,7 @@ export class SequentialTTSGenerator {
       const batch = batches[batchIndex];
       const progress = Math.round(((batchIndex) / batches.length) * 100);
       const completedSegments = batchIndex * batchSize;
-      const remainingTime = Math.round(((segments.length - completedSegments) * 2.5) / 60); // 예상 분
+      const remainingTime = Math.round(((segments.length - completedSegments) * 4.2) / 60); // 예상 분 (배치 크기 감소 반영)
       
       console.log(`\n🔄 배치 ${batchIndex + 1}/${batches.length} 처리 중... (${batch.length}개 세그먼트) - ${progress}% 완료, 예상 ${remainingTime}분 남음`);
       
@@ -110,8 +145,8 @@ export class SequentialTTSGenerator {
         try {
           console.log(`🔊 세그먼트 ${segment.sequenceNumber} TTS 생성 중...`);
           
-          // 세그먼트 간 스태거드 시작 (동시 API 호출 방지)
-          await new Promise(resolve => setTimeout(resolve, segmentIndex * 100));
+          // 세그먼트 간 스태거드 시작 최적화 (동시 API 호출 방지)
+          await new Promise(resolve => setTimeout(resolve, segmentIndex * 200));
           
           const audioData = await this.generateSingleTTS(
             segment.textContent,
@@ -185,8 +220,18 @@ export class SequentialTTSGenerator {
         
         console.log(`✅ 세그먼트 ${segment.sequenceNumber} 완료 (${segmentFile.duration}초, ${Math.round(segmentFile.fileSize/1024)}KB)`);
         
-        // 메모리 최적화: 불필요한 버퍼 해제
-        audioData.audioBuffer = null as any;
+        // 메모리 최적화: 메모리 참조 정리 (더블 레퍼런스 방지)
+        if (audioData.audioBuffer) {
+          // Buffer 내용 초기화 후 참조 해제
+          audioData.audioBuffer.fill(0);
+          (audioData as any).audioBuffer = undefined; // Buffer 참조 해제
+          // Note: audioData는 const이므로 직접 재할당 불가, 내부 속성만 정리
+        }
+        
+        // 강제 가비지 컬렉션 힌트 (메모리 정리)
+        if (global.gc && segmentIndex % 2 === 1) {
+          global.gc();
+        }
         
         return segmentFile;
           
@@ -210,10 +255,10 @@ export class SequentialTTSGenerator {
         }
       }
       
-      // 배치 간 딜레이 단축 (1.5초)
+      // 배치 간 딜레이 최적화 (2초) - API 복구 시간 확보
       if (batchIndex < batches.length - 1) {
-        console.log(`⏳ 배치 간 대기 (1.5초)... 다음: 배치 ${batchIndex + 2}`);
-        await new Promise(resolve => setTimeout(resolve, 1500)); // 1.5초 대기
+        console.log(`⏳ 배치 간 대기 (2초)... 다음: 배치 ${batchIndex + 2}`);
+        await new Promise(resolve => setTimeout(resolve, 2000)); // 2초 대기
       }
     }
     
@@ -252,6 +297,121 @@ export class SequentialTTSGenerator {
   }
 
   /**
+   * TTS API 헬스 체크
+   */
+  private static async checkApiHealth(): Promise<{ isHealthy: boolean; message?: string }> {
+    const now = Date.now();
+    const cache = this.apiHealthCache;
+
+    // 캐시된 결과가 유효하면 반환
+    if (now - cache.lastCheckTime < cache.cacheValidityMs) {
+      return { 
+        isHealthy: cache.isHealthy, 
+        message: cache.isHealthy ? 'API 정상 (캐시됨)' : 'API 비정상 (캐시됨)' 
+      };
+    }
+
+    console.log('🏥 TTS API 헬스 체크 시작...');
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5초 타임아웃
+
+      const response = await fetch(`${process.env.NEXTAUTH_URL}/api/tts/multi-voice`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: '테스트',
+          language: 'ko-KR',
+          voice: 'ko-KR-Standard-A',
+          ssmlGender: 'NEUTRAL'
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      const isHealthy = response.ok;
+      const message = isHealthy ? 
+        `✅ API 정상 (${response.status})` : 
+        `❌ API 비정상 (${response.status})`;
+
+      // 캐시 업데이트
+      cache.isHealthy = isHealthy;
+      cache.lastCheckTime = now;
+
+      console.log(`🏥 ${message}`);
+      return { isHealthy, message };
+
+    } catch (error) {
+      const message = error instanceof Error && error.name === 'AbortError' ? 
+        '❌ API 타임아웃 (5초)' : 
+        `❌ API 헬스 체크 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`;
+
+      // 캐시 업데이트 (실패)
+      cache.isHealthy = false;
+      cache.lastCheckTime = now;
+
+      console.error(`🏥 ${message}`);
+      return { isHealthy: false, message };
+    }
+  }
+
+  /**
+   * Circuit Breaker 상태 확인
+   */
+  private static checkCircuitBreaker(): { canProceed: boolean; reason?: string } {
+    const cb = this.circuitBreakerState;
+    const now = Date.now();
+
+    // Circuit이 열린 상태인지 확인
+    if (cb.isOpen) {
+      // 재설정 시간이 지났는지 확인 (Half-Open으로 전환)
+      if (now - cb.lastFailureTime >= cb.resetTimeoutMs) {
+        console.log('🔄 Circuit Breaker: Half-Open 상태로 전환 (테스트 재시도)');
+        return { canProceed: true };
+      }
+      
+      const remainingTime = Math.ceil((cb.resetTimeoutMs - (now - cb.lastFailureTime)) / 1000);
+      return { 
+        canProceed: false, 
+        reason: `Circuit Breaker 열림: ${remainingTime}초 후 재시도 가능` 
+      };
+    }
+
+    return { canProceed: true };
+  }
+
+  /**
+   * Circuit Breaker 성공 처리
+   */
+  private static onCircuitBreakerSuccess(): void {
+    const cb = this.circuitBreakerState;
+    if (cb.consecutiveFailures > 0 || cb.isOpen) {
+      console.log('✅ Circuit Breaker: 성공으로 인한 상태 재설정');
+      cb.consecutiveFailures = 0;
+      cb.isOpen = false;
+      cb.lastFailureTime = 0;
+    }
+  }
+
+  /**
+   * Circuit Breaker 실패 처리
+   */
+  private static onCircuitBreakerFailure(): void {
+    const cb = this.circuitBreakerState;
+    cb.consecutiveFailures++;
+    cb.lastFailureTime = Date.now();
+
+    if (cb.consecutiveFailures >= cb.failureThreshold) {
+      cb.isOpen = true;
+      console.error(`🚨 Circuit Breaker: ${cb.consecutiveFailures}회 연속 실패로 Circuit 열림 (${cb.resetTimeoutMs/1000}초 후 재시도)`);
+    } else {
+      console.warn(`⚠️ Circuit Breaker: 연속 실패 ${cb.consecutiveFailures}/${cb.failureThreshold}`);
+    }
+  }
+
+  /**
    * 단일 TTS 생성 (다국어 지원)
    */
   private static async generateSingleTTS(
@@ -266,6 +426,16 @@ export class SequentialTTSGenerator {
     duration?: number;
     error?: string;
   }> {
+    
+    // Circuit Breaker 상태 확인
+    const circuitCheck = this.checkCircuitBreaker();
+    if (!circuitCheck.canProceed) {
+      console.error(`🚫 ${circuitCheck.reason}`);
+      return { 
+        success: false, 
+        error: circuitCheck.reason || 'Circuit Breaker 활성화' 
+      };
+    }
     
     // 언어 코드 정규화
     const normalizedLanguage = language === 'ko' ? 'ko-KR' : 
@@ -296,60 +466,93 @@ export class SequentialTTSGenerator {
     }
 
     try {
-      // Google Cloud TTS 호출 (기존 multi-voice API 사용)
-      const response = await fetch(`${process.env.NEXTAUTH_URL}/api/tts/multi-voice`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text,
-          language: normalizedLanguage,
-          voice: voiceNames[speakerType],
-          ssmlGender: speakerType === 'male' ? 'MALE' : 'FEMALE',
-          speakingRate: normalizedLanguage.startsWith('en') ? 1.1 : 1.0, // 영어는 조금 빠르게
-          pitch: normalizedLanguage.startsWith('en') ? 1 : 0,             // 영어는 조금 높게
-          volumeGainDb: 0
-        })
-      });
+      // TTS API 타임아웃 설정 (60초)
+      const ttsTimeout = 60000;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), ttsTimeout);
 
-      if (!response.ok) {
-        throw new Error(`TTS API 오류: ${response.status} ${response.statusText}`);
+      try {
+        // Google Cloud TTS 호출 (기존 multi-voice API 사용)
+        const response = await fetch(`${process.env.NEXTAUTH_URL}/api/tts/multi-voice`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text,
+            language: normalizedLanguage,
+            voice: voiceNames[speakerType],
+            ssmlGender: speakerType === 'male' ? 'MALE' : 'FEMALE',
+            speakingRate: normalizedLanguage.startsWith('en') ? 1.1 : 1.0, // 영어는 조금 빠르게
+            pitch: normalizedLanguage.startsWith('en') ? 1 : 0,             // 영어는 조금 높게
+            volumeGainDb: 0
+          }),
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`TTS API 오류: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        
+        if (!result.success || !result.audioData) {
+          throw new Error(result.error || 'TTS 응답에 오디오 데이터 없음');
+        }
+
+        // Base64 디코딩
+        const audioBuffer = Buffer.from(result.audioData, 'base64');
+        
+        // 대략적인 duration 계산 (3초/초)
+        const estimatedDuration = Math.ceil(text.length / 3);
+
+        // Circuit Breaker 성공 처리
+        this.onCircuitBreakerSuccess();
+
+        return {
+          success: true,
+          audioBuffer,
+          duration: estimatedDuration
+        };
+
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        
+        // AbortController 타임아웃 오류 처리
+        if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+          throw new Error(`TTS API 타임아웃 (${ttsTimeout/1000}초 초과)`);
+        }
+        throw fetchError;
       }
-
-      const result = await response.json();
-      
-      if (!result.success || !result.audioData) {
-        throw new Error(result.error || 'TTS 응답에 오디오 데이터 없음');
-      }
-
-      // Base64 디코딩
-      const audioBuffer = Buffer.from(result.audioData, 'base64');
-      
-      // 대략적인 duration 계산 (3초/초)
-      const estimatedDuration = Math.ceil(text.length / 3);
-
-      return {
-        success: true,
-        audioBuffer,
-        duration: estimatedDuration
-      };
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '알 수 없는 TTS 오류';
       
-      // 재시도 로직
+      // 강화된 재시도 로직 (Exponential Backoff + 확장된 에러 코드)
       if (retryCount < maxRetries && 
           (errorMessage.includes('타임아웃') || 
+           errorMessage.includes('TTS API 타임아웃') ||  // AbortController 타임아웃
            errorMessage.includes('네트워크') || 
            errorMessage.includes('503') || 
-           errorMessage.includes('502'))) {
+           errorMessage.includes('502') ||
+           errorMessage.includes('429') ||  // Rate Limiting
+           errorMessage.includes('500') ||  // Internal Server Error
+           errorMessage.includes('408') ||  // Request Timeout
+           errorMessage.includes('ECONNRESET') ||
+           errorMessage.includes('ETIMEDOUT'))) {
         
-        console.warn(`⚠️ TTS 생성 실패 (${retryCount + 1}/${maxRetries + 1}), 재시도 중... 오류: ${errorMessage}`);
-        await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 1000)); // 점진적 대기
+        // Exponential backoff with jitter (최대 30초)
+        const backoffDelay = Math.min(30000, 1000 * Math.pow(2, retryCount) + Math.random() * 1000);
+        console.warn(`⚠️ TTS 생성 실패 (${retryCount + 1}/${maxRetries + 1}), ${Math.round(backoffDelay/1000)}초 후 재시도... 오류: ${errorMessage}`);
+        await new Promise(resolve => setTimeout(resolve, backoffDelay));
         
         return this.generateSingleTTS(text, speakerType, language, retryCount + 1, maxRetries);
       }
+      
+      // 최종 실패 시 Circuit Breaker 실패 처리
+      this.onCircuitBreakerFailure();
       
       return {
         success: false,

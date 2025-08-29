@@ -16,7 +16,19 @@
     "update:analyze": "node scripts/analyze-existing-guides.js",
     "update:test": "node scripts/batch-update-intros.js test",
     "update:run": "node scripts/batch-update-intros.js run",
-    "update:help": "echo '🚀 인트로 챕터 업데이트 명령어:\\n  npm run update:analyze - DB 구조 분석\\n  npm run update:test [개수] - 테스트 실행 (기본 5개)\\n  npm run update:run [옵션] - 테스트 모드 실행\\n  npm run update:run -- --confirm [옵션] - 실제 업데이트 실행\\n\\n옵션:\\n  --language ko/en/ja/zh/es - 특정 언어\\n  --location 명동 - 특정 위치 패턴\\n  --limit 100 - 최대 개수'"
+    "update:help": "echo '🚀 인트로 챕터 업데이트 명령어:\\n  npm run update:analyze - DB 구조 분석\\n  npm run update:test [개수] - 테스트 실행 (기본 5개)\\n  npm run update:run [옵션] - 테스트 모드 실행\\n  npm run update:run -- --confirm [옵션] - 실제 업데이트 실행\\n\\n옵션:\\n  --language ko/en/ja/zh/es - 특정 언어\\n  --location 명동 - 특정 위치 패턴\\n  --limit 100 - 최대 개수'",
+    "test": "jest",
+    "test:unit": "jest --selectProjects='Unit Tests'",
+    "test:integration": "jest --selectProjects='Integration Tests'",
+    "test:performance": "jest --selectProjects='Performance Tests'",
+    "test:failure": "jest --selectProjects='Failure Scenarios'",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test:validate-deployment": "npm run test:unit && npm run test:integration && npm run test:performance",
+    "test:help": "echo '🧪 팟캐스트 QA 테스트 명령어:\\n\\n📦 단위/통합 테스트:\\n  npm test - 전체 테스트 실행\\n  npm run test:unit - 단위 테스트만\\n  npm run test:integration - 통합 테스트만\\n  npm run test:performance - 성능 벤치마크\\n  npm run test:failure - 장애 시나리오\\n  npm run test:coverage - 커버리지 포함\\n\\n🎭 E2E 테스트:\\n  npm run test:e2e - Playwright E2E 테스트\\n  npm run test:e2e:headed - 브라우저 표시\\n  npm run test:e2e:ui - UI 모드\\n\\n🚀 배포 검증:\\n  npm run test:validate-deployment - 배포 전 검증\\n\\n예시:\\n  npm run test:unit\\n  npm run test:performance\\n  npm run test:e2e -- --project=chromium'"
   },
   "browserslist": {
     "production": [

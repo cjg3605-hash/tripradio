@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import ChapterList from '@/components/audio/ChapterList';
+import { supabase } from '@/lib/supabaseClient';
+import LocationSlugService from '@/lib/location/location-slug-service';
 
 interface DialogueSegment {
   sequenceNumber: number;
@@ -301,6 +303,50 @@ export default function PremiumPodcastPage() {
     }
   }, [episode]);
 
+  /**
+   * 스토리지 검증: TTS 오디오 파일과 DB 매칭 확인
+   * 클라이언트 사이드에서는 간단한 확인만 수행합니다
+   */
+  const verifyStorageIntegrity = async (episodeData: any, locationName: string, language: string) => {
+    try {
+      console.log('🔍 클라이언트 스토리지 검증 시작:', { locationName, language, episodeId: episodeData.episodeId });
+
+      // 클라이언트에서는 API를 통한 간단한 검증만 수행
+      const response = await fetch(`/api/podcast/verify-storage`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          locationName,
+          language,
+          episodeData
+        })
+      });
+
+      if (!response.ok) {
+        console.warn('⚠️ 스토리지 검증 API 실패:', response.status);
+        return {
+          isValid: false,
+          reason: 'api_error',
+          status: response.status
+        };
+      }
+
+      const result = await response.json();
+      console.log(result.isValid ? '✅ 스토리지 검증 성공' : '❌ 스토리지 검증 실패', result);
+      return result;
+
+    } catch (error) {
+      console.error('❌ 스토리지 검증 중 오류:', error);
+      return {
+        isValid: false,
+        reason: 'verification_error',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  };
+
   const checkExistingPodcast = async (location: string) => {
     try {
       console.log('🔍 GET 요청 - 팟캐스트 조회:', { locationName: location, language: currentLanguage });
@@ -314,6 +360,18 @@ export default function PremiumPodcastPage() {
         if (result.success && result.data.hasEpisode && result.data.status === 'completed') {
           let allSegments: SegmentInfo[] = [];
           let chapterInfos: ChapterInfo[] = [];
+          
+          // 스토리지 검증을 먼저 수행하여 폴더 경로 확인
+          console.log('🔍 스토리지 무결성 검증 시작...');
+          const storageVerification = await verifyStorageIntegrity(result.data, location, currentLanguage);
+          let audioFolderPath = 'podcasts/louvre-museum'; // 기본값
+          
+          if (storageVerification.isValid && storageVerification.folderPath) {
+            audioFolderPath = storageVerification.folderPath;
+            console.log('✅ 스토리지 검증 성공 - 폴더 경로:', audioFolderPath);
+          } else {
+            console.warn('⚠️ 스토리지 검증 실패 - 기본 경로 사용:', audioFolderPath);
+          }
           
           if (result.data.chapters && Array.isArray(result.data.chapters)) {
             // 챕터별 데이터에서 모든 세그먼트 추출
@@ -342,7 +400,8 @@ export default function PremiumPodcastPage() {
                   const match = fileName.match(/^(\d+)-(\d+)ko\.mp3$/);
                   const segmentNumber = match ? parseInt(match[2]) : index + 1;
                   
-                  const audioUrl = `https://fajiwgztfwoiisgnnams.supabase.co/storage/v1/object/public/audio/podcasts/british-museum/${fileName}`;
+                  // 검증된 폴더 경로를 사용하여 오디오 URL 생성
+                  const audioUrl = `https://fajiwgztfwoiisgnnams.supabase.co/storage/v1/object/public/audio/${audioFolderPath}/${fileName}`;
                   
                   totalSegmentCount++;
                   
@@ -393,6 +452,77 @@ export default function PremiumPodcastPage() {
             chapterCount: episodeData.chapters?.length || 0,
             chapters: episodeData.chapters
           });
+
+          // 스토리지 검증은 이미 위에서 완료됨 - 부분 보완 처리만 수행
+          if (!storageVerification.isValid && storageVerification.reason === 'missing_files' && 
+              storageVerification.missingFiles && storageVerification.missingFiles.length > 0) {
+            
+            console.log('🔧 부분 보완 시작:', storageVerification.missingFiles.slice(0, 5));
+            
+            // 사용자에게 부분 보완 진행 알림
+            setError(`누락된 오디오 파일 ${storageVerification.missingCount}개를 생성 중입니다...`);
+            setIsGenerating(true);
+            setGenerationProgress(0);
+            
+            // 진행률 시뮬레이션 (실제 생성 시간 기준으로 추정)
+            const missingCount = storageVerification.missingCount;
+            const estimatedTimePerFile = 3000; // 파일당 약 3초 추정
+            const totalEstimatedTime = missingCount * estimatedTimePerFile;
+            
+            const progressInterval = setInterval(() => {
+              setGenerationProgress(prev => {
+                if (prev >= 95) return prev; // 95%에서 멈추고 실제 완료를 기다림
+                return prev + (100 / (totalEstimatedTime / 500)); // 500ms마다 업데이트
+              });
+            }, 500);
+            
+            try {
+              const repairResponse = await fetch('/api/podcast/generate-missing', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  locationName: location,
+                  language: currentLanguage,
+                  episodeData: result.data,
+                  missingFiles: storageVerification.missingFiles
+                })
+              });
+              
+              if (repairResponse.ok) {
+                const repairResult = await repairResponse.json();
+                
+                if (repairResult.success) {
+                  console.log('✅ 부분 보완 성공:', repairResult);
+                  setError(null);
+                  
+                  // 보완 완료 후 다시 검증
+                  console.log('🔄 보완 후 재검증 시작...');
+                  const reVerification = await verifyStorageIntegrity(result.data, location, currentLanguage);
+                  
+                  if (reVerification.isValid) {
+                    console.log('🎉 재검증 성공 - 완전한 팟캐스트 로드 완료');
+                  } else {
+                    console.warn('⚠️ 재검증에서도 일부 파일 누락, 기존 파일로 진행');
+                  }
+                } else {
+                  console.error('❌ 부분 보완 실패:', repairResult.error);
+                  setError(`부분 보완 실패: ${repairResult.error}`);
+                }
+              } else {
+                console.error('❌ 부분 보완 API 호출 실패:', repairResponse.status);
+                setError('부분 보완 중 오류가 발생했습니다.');
+              }
+            } catch (repairError) {
+              console.error('❌ 부분 보완 중 예외 발생:', repairError);
+              setError('부분 보완 중 오류가 발생했습니다.');
+            } finally {
+              clearInterval(progressInterval);
+              setIsGenerating(false);
+              setGenerationProgress(0);
+            }
+          }
           
           setEpisode(episodeData);
           setCurrentSegmentIndex(0);
