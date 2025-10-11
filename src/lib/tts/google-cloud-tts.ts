@@ -34,6 +34,7 @@ class GoogleCloudTTSService {
 
   /**
    * 클라이언트 초기화 (지연 로딩)
+   * 보안 강화: 개별 환경변수만 사용
    */
   private async initializeClient(): Promise<boolean> {
     if (this.isInitialized) {
@@ -41,18 +42,26 @@ class GoogleCloudTTSService {
     }
 
     try {
-      // 환경 변수 확인
-      if (!process.env.GOOGLE_APPLICATION_CREDENTIALS && !process.env.GOOGLE_CLOUD_PROJECT) {
+      // 개별 환경변수 확인
+      if (!process.env.GCP_PROJECT_ID || !process.env.GCP_CLIENT_EMAIL || !process.env.GCP_PRIVATE_KEY) {
         console.error('❌ Google Cloud 인증 정보가 설정되지 않음');
-        console.error('환경 변수 GOOGLE_CLOUD_PROJECT 및 GOOGLE_APPLICATION_CREDENTIALS 설정 필요');
+        console.error('필수 환경변수: GCP_PROJECT_ID, GCP_CLIENT_EMAIL, GCP_PRIVATE_KEY');
         this.isInitialized = true;
         return false;
       }
 
-      // 클라이언트 초기화
+      // 개별 환경변수로 credentials 객체 구성
+      console.log('🔐 개별 환경변수를 사용하여 TTS 인증 (보안 강화)');
+      const credentials = {
+        type: 'service_account',
+        project_id: process.env.GCP_PROJECT_ID,
+        client_email: process.env.GCP_CLIENT_EMAIL,
+        private_key: process.env.GCP_PRIVATE_KEY.replace(/\\n/g, '\n'), // 개행문자 복원
+      };
+
       this.client = new TextToSpeechClient({
-        projectId: process.env.GOOGLE_CLOUD_PROJECT,
-        keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS
+        projectId: process.env.GCP_PROJECT_ID,
+        credentials: credentials
       });
 
       console.log('✅ Google Cloud TTS 클라이언트 초기화 완료');
@@ -86,10 +95,10 @@ class GoogleCloudTTSService {
         let errorMessage = 'Google Cloud TTS 클라이언트를 초기화할 수 없습니다.\n';
         
         if (!status.hasCredentials) {
-          errorMessage += '원인: 환경 변수 GOOGLE_CLOUD_PROJECT 및 GOOGLE_APPLICATION_CREDENTIALS가 설정되지 않았습니다.\n';
+          errorMessage += '원인: 환경 변수 GOOGLE_CLOUD_PROJECT 및 GOOGLE_APPLICATION_CREDENTIALS_JSON이 설정되지 않았습니다.\n';
           errorMessage += '해결: .env.local 파일에 Google Cloud 프로젝트 정보를 추가하세요.';
         } else {
-          errorMessage += '원인: Google Cloud 서비스 계정 키 파일이 잘못되었거나 권한이 부족합니다.';
+          errorMessage += '원인: Google Cloud 서비스 계정 키가 잘못되었거나 권한이 부족합니다.';
         }
         
         throw new Error(errorMessage);
@@ -165,10 +174,10 @@ class GoogleCloudTTSService {
         let errorMessage = 'Google Cloud TTS SSML 클라이언트를 초기화할 수 없습니다.\n';
         
         if (!status.hasCredentials) {
-          errorMessage += '원인: 환경 변수 GOOGLE_CLOUD_PROJECT 및 GOOGLE_APPLICATION_CREDENTIALS가 설정되지 않았습니다.\n';
+          errorMessage += '원인: 환경 변수 GOOGLE_CLOUD_PROJECT 및 GOOGLE_APPLICATION_CREDENTIALS_JSON이 설정되지 않았습니다.\n';
           errorMessage += '해결: .env.local 파일에 Google Cloud 프로젝트 정보를 추가하세요.';
         } else {
-          errorMessage += '원인: Google Cloud 서비스 계정 키 파일이 잘못되었거나 권한이 부족합니다.';
+          errorMessage += '원인: Google Cloud 서비스 계정 키가 잘못되었거나 권한이 부족합니다.';
         }
         
         throw new Error(errorMessage);
@@ -271,7 +280,7 @@ class GoogleCloudTTSService {
     return {
       isInitialized: this.isInitialized,
       hasClient: this.client !== null,
-      hasCredentials: !!(process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.GOOGLE_CLOUD_PROJECT)
+      hasCredentials: !!(process.env.GCP_PROJECT_ID && process.env.GCP_CLIENT_EMAIL && process.env.GCP_PRIVATE_KEY)
     };
   }
 }
