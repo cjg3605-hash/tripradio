@@ -465,16 +465,12 @@ export default function PremiumPodcastPage() {
               });
             }
           }
-            
-            console.log('🎯 페이지 - 전체 세그먼트 파싱 완료:', {
-              chapterCount: chapterInfos.length,
-              totalSegments: allSegments.length,
-              segmentsByChapter: chapterInfos.map(ch => `${ch.title}: ${ch.segmentCount}개`)
-            });
-          } else if (result.data.segments) {
-            // 기존 평면 구조 지원 (fallback)
-            allSegments = result.data.segments;
-          }
+
+          console.log('🎯 페이지 - 전체 세그먼트 파싱 완료:', {
+            chapterCount: chapterInfos.length,
+            totalSegments: allSegments.length,
+            segmentsByChapter: chapterInfos.map(ch => `${ch.title}: ${ch.segmentCount}개`)
+          });
 
           // 전체 duration을 segments의 duration 합계로 계산 (NaN 방지)
           const calculatedTotalDuration = allSegments.reduce((total, segment) => total + (isNaN(segment.duration) ? 0 : segment.duration), 0);
