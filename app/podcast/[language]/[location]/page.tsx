@@ -373,10 +373,22 @@ export default function PremiumPodcastPage() {
             console.warn('⚠️ 스토리지 검증 실패 - 기본 경로 사용:', audioFolderPath);
           }
           
+          // 데이터베이스에서 실제 세그먼트 데이터 가져오기
+          console.log('🔍 데이터베이스에서 세그먼트 조회:', result.data.episodeId);
+          const { data: dbSegments, error: segmentError } = await supabase
+            .from('podcast_segments')
+            .select('sequence_number, speaker_name, speaker_type, text_content, audio_url, duration, chapter_index')
+            .eq('episode_id', result.data.episodeId)
+            .order('sequence_number', { ascending: true });
+
+          if (segmentError) {
+            console.error('❌ 세그먼트 조회 실패:', segmentError);
+          } else {
+            console.log(`✅ DB에서 ${dbSegments?.length}개 세그먼트 조회 성공`);
+          }
+
           if (result.data.chapters && Array.isArray(result.data.chapters)) {
-            // 챕터별 데이터에서 모든 세그먼트 추출
-            let totalSegmentCount = 0;
-            
+            // 챕터별 정보 생성
             result.data.chapters.forEach((chapter: any) => {
               const chapterInfo: ChapterInfo = {
                 chapterIndex: chapter.chapterNumber,
@@ -387,57 +399,71 @@ export default function PremiumPodcastPage() {
                 contentFocus: []
               };
               chapterInfos.push(chapterInfo);
-              
+
               console.log(`🔍 페이지 - 챕터 ${chapter.chapterNumber} 파싱:`, {
                 title: chapter.title,
                 fileCount: chapter.files?.length || 0,
                 hasFiles: !!chapter.files
               });
-              
-              // 챕터의 파일들을 개별 세그먼트로 변환
-              if (chapter.files && Array.isArray(chapter.files)) {
-                // 파일명을 정렬 (0-1ko.mp3, 0-2ko.mp3, ... , 0-10ko.mp3, 0-11ko.mp3 순서)
-                const sortedFiles = [...chapter.files].sort((a, b) => {
-                  const matchA = a.match(/^(\d+)-(\d+)ko\.mp3$/);
-                  const matchB = b.match(/^(\d+)-(\d+)ko\.mp3$/);
-                  if (!matchA || !matchB) return 0;
-
-                  const chapterA = parseInt(matchA[1]);
-                  const chapterB = parseInt(matchB[1]);
-                  const segmentA = parseInt(matchA[2]);
-                  const segmentB = parseInt(matchB[2]);
-
-                  // 챕터 번호가 같으면 세그먼트 번호로 정렬
-                  if (chapterA === chapterB) {
-                    return segmentA - segmentB;
-                  }
-                  return chapterA - chapterB;
-                });
-
-                const chapterSegments = sortedFiles.map((fileName: string, index: number) => {
-                  const match = fileName.match(/^(\d+)-(\d+)ko\.mp3$/);
-                  const segmentNumber = match ? parseInt(match[2]) : index + 1;
-                  
-                  // 검증된 폴더 경로를 사용하여 오디오 URL 생성
-                  const audioUrl = `https://fajiwgztfwoiisgnnams.supabase.co/storage/v1/object/public/audio/${audioFolderPath}/${fileName}`;
-                  
-                  totalSegmentCount++;
-                  
-                  return {
-                    sequenceNumber: totalSegmentCount,
-                    speakerType: (segmentNumber % 2 === 1) ? 'male' : 'female' as 'male' | 'female',
-                    audioUrl: audioUrl,
-                    duration: 30,
-                    textContent: `챕터 ${chapter.chapterNumber} - 세그먼트 ${segmentNumber}`,
-                    chapterIndex: chapter.chapterNumber,
-                    chapterTitle: chapter.title
-                  };
-                });
-                
-                console.log(`✅ 페이지 - 챕터 ${chapter.chapterNumber} 세그먼트 생성:`, chapterSegments.length + '개');
-                allSegments.push(...chapterSegments);
-              }
             });
+
+            // DB에서 가져온 세그먼트를 사용
+            if (dbSegments && dbSegments.length > 0) {
+              allSegments = dbSegments.map((seg: any) => ({
+                sequenceNumber: seg.sequence_number,
+                speakerType: (seg.speaker_name === 'Host' || seg.speaker_type === 'male') ? 'male' : 'female',
+                audioUrl: seg.audio_url,
+                duration: seg.duration || 30,
+                textContent: seg.text_content || '',
+                chapterIndex: seg.chapter_index,
+                chapterTitle: chapterInfos.find(ch => ch.chapterIndex === seg.chapter_index)?.title || ''
+              }));
+
+              console.log(`✅ DB 세그먼트를 allSegments로 변환: ${allSegments.length}개`);
+            } else {
+              console.warn('⚠️ DB에서 세그먼트를 가져오지 못함 - 파일 기반 fallback 사용');
+              // 파일 기반 fallback (기존 로직)
+              let totalSegmentCount = 0;
+              result.data.chapters.forEach((chapter: any) => {
+                if (chapter.files && Array.isArray(chapter.files)) {
+                  const sortedFiles = [...chapter.files].sort((a, b) => {
+                    const matchA = a.match(/^(\d+)-(\d+)ko\.mp3$/);
+                    const matchB = b.match(/^(\d+)-(\d+)ko\.mp3$/);
+                    if (!matchA || !matchB) return 0;
+
+                    const chapterA = parseInt(matchA[1]);
+                    const chapterB = parseInt(matchB[1]);
+                    const segmentA = parseInt(matchA[2]);
+                    const segmentB = parseInt(matchB[2]);
+
+                    if (chapterA === chapterB) {
+                      return segmentA - segmentB;
+                    }
+                    return chapterA - chapterB;
+                  });
+
+                  const chapterSegments = sortedFiles.map((fileName: string, index: number) => {
+                    const match = fileName.match(/^(\d+)-(\d+)ko\.mp3$/);
+                    const segmentNumber = match ? parseInt(match[2]) : index + 1;
+                    const audioUrl = `https://fajiwgztfwoiisgnnams.supabase.co/storage/v1/object/public/audio/${audioFolderPath}/${fileName}`;
+                    totalSegmentCount++;
+
+                    return {
+                      sequenceNumber: totalSegmentCount,
+                      speakerType: (segmentNumber % 2 === 1) ? 'male' : 'female' as 'male' | 'female',
+                      audioUrl: audioUrl,
+                      duration: 30,
+                      textContent: '(대화 내용 로드 중...)',
+                      chapterIndex: chapter.chapterNumber,
+                      chapterTitle: chapter.title
+                    };
+                  });
+
+                  allSegments.push(...chapterSegments);
+                }
+              });
+            }
+          }
             
             console.log('🎯 페이지 - 전체 세그먼트 파싱 완료:', {
               chapterCount: chapterInfos.length,
@@ -773,7 +799,30 @@ export default function PremiumPodcastPage() {
                     })()}</span>
                   </div>
                 </div>
-                
+
+                {/* 현재 재생 중인 대화 내용 */}
+                <div className="mt-6 p-6 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                  <div className="flex items-start space-x-3">
+                    <div className={`mt-1 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      episode.segments[currentSegmentIndex].speakerType === 'male'
+                        ? 'bg-gray-900' : 'bg-gray-700'
+                    }`}>
+                      {episode.segments[currentSegmentIndex].speakerType === 'male' ? (
+                        <User className="w-4 h-4 text-white" />
+                      ) : (
+                        <Users className="w-4 h-4 text-white" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        {episode.segments[currentSegmentIndex].speakerType === 'male' ? 'Host' : 'Curator'}
+                      </p>
+                      <p className="text-base text-gray-900 dark:text-gray-100 leading-relaxed">
+                        {episode.segments[currentSegmentIndex].textContent || '대화 내용을 불러오는 중...'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
                 {/* 메인 플레이어 컨트롤 */}
                 <div className="space-y-6">
