@@ -396,7 +396,25 @@ export default function PremiumPodcastPage() {
               
               // 챕터의 파일들을 개별 세그먼트로 변환
               if (chapter.files && Array.isArray(chapter.files)) {
-                const chapterSegments = chapter.files.map((fileName: string, index: number) => {
+                // 파일명을 정렬 (0-1ko.mp3, 0-2ko.mp3, ... , 0-10ko.mp3, 0-11ko.mp3 순서)
+                const sortedFiles = [...chapter.files].sort((a, b) => {
+                  const matchA = a.match(/^(\d+)-(\d+)ko\.mp3$/);
+                  const matchB = b.match(/^(\d+)-(\d+)ko\.mp3$/);
+                  if (!matchA || !matchB) return 0;
+
+                  const chapterA = parseInt(matchA[1]);
+                  const chapterB = parseInt(matchB[1]);
+                  const segmentA = parseInt(matchA[2]);
+                  const segmentB = parseInt(matchB[2]);
+
+                  // 챕터 번호가 같으면 세그먼트 번호로 정렬
+                  if (chapterA === chapterB) {
+                    return segmentA - segmentB;
+                  }
+                  return chapterA - chapterB;
+                });
+
+                const chapterSegments = sortedFiles.map((fileName: string, index: number) => {
                   const match = fileName.match(/^(\d+)-(\d+)ko\.mp3$/);
                   const segmentNumber = match ? parseInt(match[2]) : index + 1;
                   
