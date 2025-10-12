@@ -375,7 +375,7 @@ export default function PremiumPodcastPage() {
           }
           
           // 데이터베이스에서 실제 세그먼트 데이터 가져오기
-          console.log('🔍 데이터베이스에서 세그먼트 조회:', result.data.episodeId);
+          console.log('🔍🔍🔍 [NEW CODE v3] 데이터베이스에서 세그먼트 조회:', result.data.episodeId);
           const { data: dbSegments, error: segmentError } = await supabase
             .from('podcast_segments')
             .select('sequence_number, speaker_name, speaker_type, text_content, audio_url, duration, chapter_index')
@@ -574,7 +574,7 @@ export default function PremiumPodcastPage() {
           
           // 첫 번째 세그먼트를 오디오에 자동 로드 (바로 재생 준비)
           if (episodeData.segments.length > 0 && audioRef.current) {
-            console.log('🎵 첫 번째 세그먼트 자동 로드:', episodeData.segments[0]);
+            console.log('🎵🎵🎵 [NEW CODE v3] 첫 번째 세그먼트 자동 로드:', episodeData.segments[0]);
             audioRef.current.src = episodeData.segments[0].audioUrl;
             audioRef.current.load();
             audioRef.current.volume = volume;
