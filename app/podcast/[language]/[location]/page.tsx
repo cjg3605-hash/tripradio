@@ -1,5 +1,5 @@
 'use client';
-// Force cache invalidation v2
+// Force cache invalidation v4 - 2025-01-13
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
