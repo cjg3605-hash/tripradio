@@ -1377,18 +1377,18 @@ function Home() {
                   index === currentLandmarkIndex ? 'opacity-100' : 'opacity-0'
                 }`}
                 style={{
-                  backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('${landmarkImages[landmarkKey]}')`,
+                  backgroundImage: `linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.25)), url('${landmarkImages[landmarkKey]}')`,
                   backgroundSize: 'cover',
-                  backgroundPosition: isMobile ? 'center center' : 'top center',
+                  backgroundPosition: 'center center',
                   backgroundRepeat: 'no-repeat'
                 }}
               />
               );
             })}
             {/* Overlay */}
-            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 bg-black/20" />
             {/* Gradient overlay for better text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
           </div>
 
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center" style={{ transform: 'translateY(-4px)' }}>
