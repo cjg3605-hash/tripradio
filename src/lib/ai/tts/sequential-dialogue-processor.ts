@@ -9,6 +9,7 @@ export interface DialogueSegment {
   textContent: string;
   estimatedDuration: number; // 초 단위 예상 재생 시간
   chapterIndex?: number; // 챕터 번호
+  chapterTitle?: string; // 챕터 제목
 }
 
 export interface ProcessedDialogue {

@@ -139,6 +139,7 @@ export class ChapterGenerator {
 
   /**
    * 기존 가이드 데이터 기반 챕터 생성
+   * 🎯 가이드 데이터의 실제 챕터 제목 활용
    */
   private static generateFromGuideData(
     guideChapters: any[],
@@ -147,23 +148,31 @@ export class ChapterGenerator {
     locationAnalysis: any
   ): ChapterStructure[] {
     const chapters: ChapterStructure[] = [];
-    
+
     // 가이드 챕터를 목표 수에 맞게 조정
     const selectedChapters = this.selectAndGroupChapters(guideChapters, targetCount);
 
     selectedChapters.forEach((chapterGroup, index) => {
       const chapterIndex = index + 1;
       const mainChapter = Array.isArray(chapterGroup) ? chapterGroup[0] : chapterGroup;
-      
+
+      // 🎯 실제 챕터 제목 추출 (scene_name 또는 title 우선 사용)
+      let chapterTitle = mainChapter.scene_name || mainChapter.title;
+
+      // 제목이 없으면 AI가 생성한 구체적인 장소명 사용
+      if (!chapterTitle) {
+        chapterTitle = this.generateChapterTitle(mainChapter, locationAnalysis.locationType);
+      }
+
       chapters.push({
         chapterIndex,
-        title: this.generateChapterTitle(mainChapter, locationAnalysis.locationType),
+        title: chapterTitle,
         description: this.generateChapterDescription(chapterGroup, locationAnalysis),
         targetDuration: this.TARGET_CHAPTER_DURATION,
         estimatedSegments: this.SEGMENTS_PER_CHAPTER,
         contentFocus: this.extractContentFocus(chapterGroup),
-        transitionToNext: index < selectedChapters.length - 1 ? 
-          `다음으로는 ${locationName}의 또 다른 매력적인 구역을 살펴보겠습니다.` : undefined
+        transitionToNext: index < selectedChapters.length - 1 ?
+          `다음으로는 ${selectedChapters[index + 1]?.scene_name || selectedChapters[index + 1]?.title || '다음 장소'}로 이동하겠습니다.` : undefined
       });
     });
 
@@ -172,6 +181,7 @@ export class ChapterGenerator {
 
   /**
    * AI 기반 자동 챕터 생성 (가이드 데이터가 없는 경우)
+   * 🎯 각 챕터는 실제 장소의 특정 스팟을 대표함
    */
   private static generateFromLocationAnalysis(
     locationName: string,
@@ -182,24 +192,117 @@ export class ChapterGenerator {
     const chapters: ChapterStructure[] = [];
     const locationType = locationAnalysis.locationType;
 
-    // 장소 유형별 기본 챕터 템플릿
-    const chapterTemplates = this.getChapterTemplates(locationType);
-    
-    for (let i = 0; i < targetCount; i++) {
-      const template = chapterTemplates[i] || chapterTemplates[chapterTemplates.length - 1];
-      
+    // 🎯 장소별 실제 유명 스팟 생성 (AI가 구체적인 장소명을 생성하도록)
+    const specificSpots = this.generateSpecificSpots(locationName, locationType, targetCount);
+
+    specificSpots.forEach((spot, index) => {
       chapters.push({
-        chapterIndex: i + 1,
-        title: template.title.replace('{locationName}', locationName),
-        description: template.description.replace('{locationName}', locationName),
+        chapterIndex: index + 1,
+        title: spot.name,
+        description: spot.description,
         targetDuration: this.TARGET_CHAPTER_DURATION,
         estimatedSegments: this.SEGMENTS_PER_CHAPTER,
-        contentFocus: template.contentFocus,
-        transitionToNext: i < targetCount - 1 ? template.transition : undefined
+        contentFocus: spot.contentFocus,
+        transitionToNext: index < specificSpots.length - 1 ?
+          `다음으로는 ${specificSpots[index + 1].name}으로 이동하겠습니다.` : undefined
       });
-    }
+    });
 
     return chapters;
+  }
+
+  /**
+   * 🎯 실제 장소별 구체적인 스팟 생성
+   * AI가 프롬프트에서 이 정보를 활용하여 해당 스팟에 대한 대화 생성
+   */
+  private static generateSpecificSpots(
+    locationName: string,
+    locationType: string,
+    count: number
+  ): Array<{name: string, description: string, contentFocus: string[]}> {
+    const spots: Array<{name: string, description: string, contentFocus: string[]}> = [];
+
+    // 장소 이름 기반 스팟 추론
+    const lowerName = locationName.toLowerCase();
+
+    // 🏛️ 에펠탑 예시
+    if (lowerName.includes('에펠') || lowerName.includes('eiffel')) {
+      spots.push(
+        { name: '에펠탑 1층 전망대', description: '투명 유리바닥과 첫 번째 전망 공간', contentFocus: ['유리바닥 체험', '파리 전경', '레스토랑', '전시관'] },
+        { name: '에펠탑 2층 전망대', description: '최고의 파리 조망과 레스토랑', contentFocus: ['파노라마 뷰', '줄 베른 레스토랑', '망원경 체험', '야경 포인트'] },
+        { name: '에펠탑 정상', description: '구스타브 에펠의 사무실과 최상층 전망', contentFocus: ['최고층 전망', '에펠 사무실', '샴페인 바', '기념품 구매'] },
+        { name: '샹드마르스 공원', description: '에펠탑을 배경으로 한 완벽한 사진 촬영지', contentFocus: ['포토 스팟', '피크닉 장소', '야외 휴식', '거리 공연'] }
+      );
+    }
+    // 🏯 콜로세움 예시
+    else if (lowerName.includes('콜로') || lowerName.includes('colosseum')) {
+      spots.push(
+        { name: '콜로세움 지상층', description: '검투사들이 싸웠던 아레나 바닥', contentFocus: ['아레나 구조', '검투사 역사', '동물 사육장', '건축 기술'] },
+        { name: '콜로세움 지하층', description: '숨겨진 통로와 무대 장치', contentFocus: ['지하 통로', '엘리베이터 시스템', '대기 공간', '무대 장치'] },
+        { name: '콜로세움 상층부', description: '관중석과 로마 전경', contentFocus: ['관중석 구조', '로마 포럼 조망', '계급별 좌석', '건축 양식'] }
+      );
+    }
+    // 🏰 경복궁 예시
+    else if (lowerName.includes('경복궁') || lowerName.includes('gyeongbokgung')) {
+      spots.push(
+        { name: '광화문과 흥례문', description: '조선 왕조의 정문과 첫 인상', contentFocus: ['광화문 현판', '해태상', '근정문', '수문장 교대식'] },
+        { name: '근정전', description: '왕의 즉위식이 열리던 정전', contentFocus: ['용마루', '월대', '품계석', '조정 의식'] },
+        { name: '경회루', description: '연못 위의 아름다운 누각', contentFocus: ['인공 연못', '연회 공간', '건축미', '사계절 풍경'] },
+        { name: '향원정과 자경전', description: '왕실 여성들의 공간', contentFocus: ['향원정 연못', '취향교', '자경전 꽃담', '왕비 처소'] }
+      );
+    }
+    // 🗼 도쿄타워 예시
+    else if (lowerName.includes('도쿄') && lowerName.includes('타워') || lowerName.includes('tokyo') && lowerName.includes('tower')) {
+      spots.push(
+        { name: '도쿄타워 메인 전망대', description: '150m 높이의 도쿄 전경', contentFocus: ['도쿄 시내 조망', '후지산 뷰', '기념 사진', '카페'] },
+        { name: '도쿄타워 탑 데크', description: '250m 최상층 특별 전망대', contentFocus: ['최고층 전망', '투명 바닥', '럭셔리 라운지', '일몰 명소'] },
+        { name: '도쿄타워 풋타운', description: '쇼핑과 엔터테인먼트 복합공간', contentFocus: ['원피스 타워', '기념품 샵', '레스토랑', '게임센터'] }
+      );
+    }
+    // 🏛️ 일반 박물관
+    else if (lowerName.includes('박물관') || lowerName.includes('museum')) {
+      spots.push(
+        { name: `${locationName} 주요 전시실`, description: '대표 소장품과 하이라이트', contentFocus: ['대표 유물', '국보급 소장품', '주요 작품', '상설 전시'] },
+        { name: `${locationName} 특별전시관`, description: '기획 전시와 특별 전시', contentFocus: ['기획전', '순회 전시', '체험 프로그램', '미디어 아트'] },
+        { name: `${locationName} 역사관`, description: '시대별 역사와 문화', contentFocus: ['연대기', '역사적 사건', '문화 변천', '시대상'] }
+      );
+    }
+    // 🕌 사찰/절
+    else if (lowerName.includes('사') || lowerName.includes('암') || lowerName.includes('절') || lowerName.includes('temple')) {
+      spots.push(
+        { name: `${locationName} 일주문`, description: '신성한 영역의 시작', contentFocus: ['일주문 의미', '사찰 입구', '편액', '기둥 구조'] },
+        { name: `${locationName} 대웅전`, description: '부처님을 모신 주불전', contentFocus: ['불상', '단청', '불화', '예불 의식'] },
+        { name: `${locationName} 탑과 석조물`, description: '석탑과 불교 미술', contentFocus: ['다층석탑', '석등', '석조 유물', '불교 상징'] }
+      );
+    }
+    // 🏯 궁궐/성
+    else if (lowerName.includes('궁') || lowerName.includes('성') || lowerName.includes('palace') || lowerName.includes('castle')) {
+      spots.push(
+        { name: `${locationName} 정문`, description: '궁궐의 위엄있는 정문', contentFocus: ['정문 건축', '수문장', '궁궐 구조', '의례 공간'] },
+        { name: `${locationName} 정전`, description: '왕의 공식 행사 공간', contentFocus: ['정전 의식', '왕좌', '조정', '건축미'] },
+        { name: `${locationName} 침전`, description: '왕실 가족의 생활 공간', contentFocus: ['생활 풍속', '왕실 문화', '궁중 의례', '건축 특징'] }
+      );
+    }
+    // 🌳 자연/공원
+    else if (lowerName.includes('공원') || lowerName.includes('산') || lowerName.includes('park') || lowerName.includes('mountain')) {
+      spots.push(
+        { name: `${locationName} 주요 탐방로`, description: '대표 산책로와 트레일', contentFocus: ['트레킹 코스', '자연 경관', '포토존', '휴게소'] },
+        { name: `${locationName} 전망대`, description: '최고의 조망 포인트', contentFocus: ['파노라마 뷰', '일출 일몰', '사진 촬영', '전망 시설'] },
+        { name: `${locationName} 생태 구역`, description: '자연 생태와 야생 동식물', contentFocus: ['생태계', '야생 동물', '식물 관찰', '환경 보호'] }
+      );
+    }
+    // 기본 템플릿 (일반 관광지)
+    else {
+      for (let i = 0; i < count; i++) {
+        spots.push({
+          name: `${locationName} 핵심 스팟 ${i + 1}`,
+          description: `${locationName}의 ${i + 1}번째 주요 관광 포인트`,
+          contentFocus: ['주요 특징', '역사적 의미', '관람 포인트', '사진 촬영지']
+        });
+      }
+    }
+
+    return spots.slice(0, count);
   }
 
   /**

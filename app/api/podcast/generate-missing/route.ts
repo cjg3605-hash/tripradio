@@ -50,7 +50,13 @@ export async function POST(request: NextRequest) {
     console.log('📊 챕터별 누락 파일 분석:', missingByChapter);
 
     // 3. 각 챕터의 누락된 세그먼트만 TTS 생성
-    const generationResults = [];
+    const generationResults: Array<{
+      fileName: string;
+      segment: string;
+      success: boolean;
+      url?: string;
+      error?: string;
+    }> = [];
     let totalGenerated = 0;
 
     for (const [chapterKey, segments] of Object.entries(missingByChapter)) {

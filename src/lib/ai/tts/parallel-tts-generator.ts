@@ -193,7 +193,7 @@ export class ParallelTTSGenerator {
         if (result.value.success) {
           successes.push(result.value.result);
         } else {
-          errors.push(result.value.error);
+          errors.push(result.value.error || 'Unknown error');
         }
       } else {
         errors.push(`배치 처리 실패: ${result.reason}`);

@@ -22,16 +22,6 @@ import ChapterList from '@/components/audio/ChapterList';
 import { supabase } from '@/lib/supabaseClient';
 import LocationSlugService from '@/lib/location/location-slug-service';
 
-interface DialogueSegment {
-  sequenceNumber: number;
-  speakerType: 'male' | 'female';
-  audioUrl: string;
-  duration: number;
-  textContent: string;
-  chapterIndex?: number;
-  chapterTitle?: string;
-}
-
 interface ChapterInfo {
   chapterIndex: number;
   title: string;
@@ -57,7 +47,7 @@ interface PodcastEpisode {
   userScript: string;
   totalDuration: number;
   segmentCount: number;
-  segments: DialogueSegment[];
+  segments: SegmentInfo[];  // Fixed: Changed from DialogueSegment[] to SegmentInfo[] for type consistency
   chapters?: ChapterInfo[];
   metadata?: {
     folderPath: string;
@@ -174,16 +164,21 @@ export default function PremiumPodcastPage() {
 
   const loadAndPlaySegment = async (segmentIndex: number, shouldAutoPlay: boolean = isPlaying) => {
     if (!episode?.segments || !audioRef.current) return;
-    
+
     const segment = episode.segments[segmentIndex];
-    
+
     try {
+      // 🔧 FIX: 새 오디오 로드 전에 현재 재생 중지 (play() interrupted 에러 방지)
+      if (!audioRef.current.paused) {
+        audioRef.current.pause();
+      }
+
       audioRef.current.src = segment.audioUrl;
       audioRef.current.load();
       audioRef.current.volume = volume;
       audioRef.current.playbackRate = playbackRate;
       audioRef.current.muted = isMuted;
-      
+
       if (shouldAutoPlay) {
         await audioRef.current.play();
         setIsPlaying(true);
@@ -378,7 +373,7 @@ export default function PremiumPodcastPage() {
           console.log('🔍🔍🔍 [NEW CODE v3] 데이터베이스에서 세그먼트 조회:', result.data.episodeId);
           const { data: dbSegments, error: segmentError } = await supabase
             .from('podcast_segments')
-            .select('sequence_number, speaker_name, speaker_type, text_content, audio_url, duration, chapter_index')
+            .select('sequence_number, speaker_name, speaker_type, text_content, audio_url, duration_seconds, chapter_index')
             .eq('episode_id', result.data.episodeId)
             .order('sequence_number', { ascending: true });
 
@@ -413,8 +408,10 @@ export default function PremiumPodcastPage() {
               allSegments = dbSegments.map((seg: any) => ({
                 sequenceNumber: seg.sequence_number,
                 speakerType: (seg.speaker_name === 'Host' || seg.speaker_type === 'male') ? 'male' : 'female',
-                audioUrl: seg.audio_url,
-                duration: seg.duration || 30,
+                audioUrl: seg.audio_url.startsWith('http')
+                  ? seg.audio_url
+                  : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${seg.audio_url}`,
+                duration: seg.duration_seconds || 30,
                 textContent: seg.text_content || '',
                 chapterIndex: seg.chapter_index,
                 chapterTitle: chapterInfos.find(ch => ch.chapterIndex === seg.chapter_index)?.title || ''
@@ -773,14 +770,14 @@ export default function PremiumPodcastPage() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">
-                        {t('podcast.chapterPrefix')} {episode.segments[currentSegmentIndex].chapterIndex || 1}: {(episode.segments[currentSegmentIndex].chapterTitle || locationName).replace(new RegExp(`^${t('podcast.chapterPrefix')}\\s*${episode.segments[currentSegmentIndex].chapterIndex || 1}\\s*[:：]\\s*`, 'i'), '')}
+                        {t('podcast.chapterPrefix')} {episode.segments[currentSegmentIndex].chapterIndex ?? 0}: {(episode.segments[currentSegmentIndex].chapterTitle || locationName).replace(new RegExp(`^${t('podcast.chapterPrefix')}\\s*${episode.segments[currentSegmentIndex].chapterIndex ?? 0}\\s*[:：]\\s*`, 'i'), '')}
                       </h3>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2 text-sm text-gray-500">
                     <Clock className="w-4 h-4" />
                     <span>{(() => {
-                      const currentChapterIndex = episode.segments[currentSegmentIndex]?.chapterIndex || 1;
+                      const currentChapterIndex = episode.segments[currentSegmentIndex]?.chapterIndex ?? 0;
                       const currentChapter = episode.chapters?.find(ch => ch.chapterIndex === currentChapterIndex);
                       const currentChapterSegments = episode.segments.filter(seg => seg.chapterIndex === currentChapterIndex);
                       const chapterElapsedTime = currentChapterSegments
@@ -952,7 +949,7 @@ export default function PremiumPodcastPage() {
                               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                           }`}
                         >
-                          {t(`playbackRates.${rate}`)}
+                          {rate}x
                         </button>
                       ))}
                     </div>
@@ -1009,16 +1006,23 @@ export default function PremiumPodcastPage() {
             {/* 챕터 목록 - 챕터가 있는 경우만 표시 */}
             {episode && episode.chapters && episode.chapters.length > 0 && (
               <div className="glass-effect rounded-lg p-6 shadow-xl border border-gray-200/20">
-                <ChapterList 
+                <ChapterList
                   chapters={episode.chapters}
-                  currentChapterIndex={episode.segments[currentSegmentIndex]?.chapterIndex || 1}
+                  currentChapterIndex={episode.segments[currentSegmentIndex]?.chapterIndex ?? 0}
                   onChapterSelect={(chapterIndex) => {
+                    console.log('🎯 챕터 선택:', chapterIndex);
+
                     // 선택된 챕터의 첫 번째 세그먼트 찾기
                     const chapterFirstSegmentIndex = episode.segments.findIndex(
                       segment => segment.chapterIndex === chapterIndex
                     );
+
+                    console.log('📍 찾은 세그먼트 인덱스:', chapterFirstSegmentIndex);
+
                     if (chapterFirstSegmentIndex >= 0) {
                       jumpToSegment(chapterFirstSegmentIndex);
+                    } else {
+                      console.warn('⚠️ 해당 챕터의 세그먼트를 찾을 수 없습니다:', chapterIndex);
                     }
                   }}
                 />

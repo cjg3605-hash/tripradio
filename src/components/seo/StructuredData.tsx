@@ -81,7 +81,7 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
           url: BASE_URL,
           softwareVersion: '1.0',
           datePublished: '2024-01-01',
-          dateModified: new Date().toISOString().split('T')[0],
+          dateModified: '2025-01-14',  // Fixed date to prevent hydration mismatch
           author: {
             '@type': 'Organization',
             '@id': `${BASE_URL}#organization`,
@@ -169,7 +169,7 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
           },
           inLanguage: data.language || 'ko',
           datePublished: data.datePublished,
-          dateModified: data.dateModified || new Date().toISOString(),
+          dateModified: data.dateModified,  // Only use provided date, don't generate new one
           ...(data.rating && {
             aggregateRating: {
               '@type': 'AggregateRating',
@@ -228,6 +228,7 @@ const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data 
   return (
     <script
       type="application/ld+json"
+      suppressHydrationWarning
       dangerouslySetInnerHTML={{
         __html: JSON.stringify(getStructuredData())
       }}

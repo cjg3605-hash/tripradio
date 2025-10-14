@@ -55,7 +55,8 @@ const ChapterList: React.FC<ChapterListProps> = ({
                   ? 'text-white'
                   : 'text-gray-900 dark:text-white'
               }`}>
-                챕터 {chapter.chapterIndex}: {chapter.title.replace(new RegExp(`^챕터\\s*${chapter.chapterIndex}\\s*[:：]\\s*`, 'i'), '')}
+                {/* 🎯 챕터 제목을 그대로 표시 (중복 제거 없이) */}
+                {chapter.title}
               </span>
               
               {currentChapterIndex === chapter.chapterIndex && (

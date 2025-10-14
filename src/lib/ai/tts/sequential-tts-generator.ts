@@ -200,6 +200,8 @@ export class SequentialTTSGenerator {
           throw new Error(uploadResult.error);
         }
         
+        const chapterTitle = segment.chapterTitle || `챕터 ${chapterIndex}`;
+
         const segmentFile: GeneratedSegmentFile = {
           sequenceNumber: segment.sequenceNumber,
           speakerType: segment.speakerType,
@@ -212,7 +214,7 @@ export class SequentialTTSGenerator {
           filePath: uploadResult.publicUrl,  // file_path 필드용
           metadata: {
             chapterIndex: chapterIndex,
-            chapterTitle: `챕터 ${chapterIndex}`,
+            chapterTitle,
             originalSequenceNumber: segment.sequenceNumber,
             chapterSegmentNumber: chapterSegmentNumber
           }
@@ -485,7 +487,7 @@ export class SequentialTTSGenerator {
             ssmlGender: speakerType === 'male' ? 'MALE' : 'FEMALE',
             speakingRate: normalizedLanguage.startsWith('en') ? 1.1 : 1.0, // 영어는 조금 빠르게
             pitch: normalizedLanguage.startsWith('en') ? 1 : 0,             // 영어는 조금 높게
-            volumeGainDb: 0
+            volumeGainDb: speakerType === 'female' ? 2.0 : 0  // 여성 목소리 볼륨 +2dB (남성과 균형)
           }),
           signal: controller.signal
         });
@@ -746,13 +748,17 @@ export class SequentialTTSGenerator {
         const match = file.fileName.match(/^(\d+)-(\d+)ko\.mp3$/);
         const chapterNumber = match ? parseInt(match[1]) : 1;
         const segmentInChapter = match ? parseInt(match[2]) : file.sequenceNumber;
+        const rawUrl = file.supabaseUrl || file.filePath || '';
+        const normalizedUrl = rawUrl && !rawUrl.startsWith('http')
+          ? `${process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, '')}/storage/v1/object/public/${rawUrl.replace(/^\/?/, '')}`
+          : rawUrl;
 
         return {
           episode_id: episodeId,
           sequence_number: file.sequenceNumber,
           speaker_type: file.speakerType,
           text_content: file.textContent || `[챕터${chapterNumber}] 세그먼트 ${segmentInChapter}`,
-          audio_url: file.filePath || file.supabaseUrl, // audio_url 필드에 저장
+          audio_url: normalizedUrl || null,
           file_size_bytes: file.fileSize,
           duration_seconds: Math.round(file.duration)
         };

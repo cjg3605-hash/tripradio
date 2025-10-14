@@ -381,7 +381,8 @@ export async function POST(req: NextRequest) {
       speakerType: segment.speakerType,
       textContent: segment.text,
       estimatedDuration: segment.estimatedSeconds,
-      chapterIndex: segment.chapterIndex
+      chapterIndex: segment.chapterIndex,
+      chapterTitle: segment.chapterTitle
     }));
 
     const processedDialogue = {
@@ -501,10 +502,105 @@ export async function POST(req: NextRequest) {
       console.warn('⚠️ 생성된 파일 검증 경고:', fileValidation.issues);
     }
     
-    // 4. 세그먼트는 TTS 생성기에서 이미 저장됨 (중복 제거)
+    // 4. 챕터 메타데이터 계산 (제목, 구간 정보 등)
+    const chapterMetaMap = new Map<number, {
+      title: string;
+      description?: string;
+      contentFocus?: string[];
+    }>();
+
+    chapterScripts.forEach(chapterScript => {
+      const index = chapterScript.chapterIndex;
+      const resolvedTitle =
+        chapterScript.script?.title ||
+        chapterScript.title ||
+        `챕터 ${index}`;
+
+      chapterMetaMap.set(index, {
+        title: resolvedTitle,
+        description: chapterScript.description,
+        contentFocus: Array.isArray(chapterScript.contentFocus)
+          ? chapterScript.contentFocus
+          : undefined
+      });
+    });
+
+    const sortedSegmentFiles = [...ttsResult.segmentFiles].sort(
+      (a, b) => a.sequenceNumber - b.sequenceNumber
+    );
+
+    const chapterTimelineMap = new Map<number, {
+      startTime: number;
+      endTime: number;
+      duration: number;
+      segmentCount: number;
+      title: string;
+      description?: string;
+      contentFocus?: string[];
+    }>();
+
+    let accumulatedTime = 0;
+
+    sortedSegmentFiles.forEach(file => {
+      const chapterIndex = file.metadata?.chapterIndex ?? 0;
+      const chapterMeta = chapterMetaMap.get(chapterIndex);
+      const titleFromSegment =
+        (file.metadata?.chapterTitle as string | undefined) ||
+        chapterMeta?.title ||
+        `챕터 ${chapterIndex}`;
+
+      if (!chapterTimelineMap.has(chapterIndex)) {
+        chapterTimelineMap.set(chapterIndex, {
+          startTime: accumulatedTime,
+          endTime: accumulatedTime,
+          duration: 0,
+          segmentCount: 0,
+          title: titleFromSegment,
+          description: chapterMeta?.description,
+          contentFocus: chapterMeta?.contentFocus
+        });
+      }
+
+      const current = chapterTimelineMap.get(chapterIndex)!;
+      current.segmentCount += 1;
+      const segmentDuration = Number.isFinite(file.duration) ? file.duration : 0;
+      current.duration += segmentDuration;
+      accumulatedTime += segmentDuration;
+      current.endTime = accumulatedTime;
+    });
+
+    // 챕터 메타데이터가 있지만 세그먼트가 없는 경우도 포함
+    chapterMetaMap.forEach((meta, index) => {
+      if (!chapterTimelineMap.has(index)) {
+        chapterTimelineMap.set(index, {
+          startTime: 0,
+          endTime: 0,
+          duration: 0,
+          segmentCount: 0,
+          title: meta?.title || `챕터 ${index}`,
+          description: meta?.description,
+          contentFocus: meta?.contentFocus
+        });
+      }
+    });
+
+    const chapterTimeline = Array.from(chapterTimelineMap.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([chapterIndex, value]) => ({
+        chapterIndex,
+        title: value.title,
+        description: value.description,
+        contentFocus: value.contentFocus,
+        segmentCount: value.segmentCount,
+        startTime: Math.round(value.startTime),
+        endTime: Math.round(value.endTime),
+        duration: Math.round(value.duration)
+      }));
+
+    // 5. 세그먼트는 TTS 생성기에서 이미 저장됨 (중복 제거)
     console.log('📝 세그먼트는 TTS 생성기에서 이미 DB에 저장됨');
 
-    // 5. 에피소드 상태 업데이트 (최종 슬러그 정보 포함)
+    // 6. 에피소드 상태 업데이트 (최종 슬러그 정보 포함)
     console.log('🔄 최종 슬러그 정보 확인:', ttsResult.slugInfo);
     
     const { error: updateError } = await supabase
@@ -518,6 +614,7 @@ export async function POST(req: NextRequest) {
         location_input: ttsResult.slugInfo?.locationInput || locationName,
         location_slug: ttsResult.slugInfo?.locationSlug || initialSlugResult.slug,
         slug_source: ttsResult.slugInfo?.slugSource || initialSlugResult.source,
+        chapter_timestamps: chapterTimeline,
         updated_at: new Date().toISOString()
       })
       .eq('id', episodeId);
@@ -553,13 +650,15 @@ export async function POST(req: NextRequest) {
         podcastStructure: {
           totalChapters: finalPodcastStructure.totalChapters,
           totalDuration: finalPodcastStructure.totalDuration,
-          selectedPersonas: finalPodcastStructure.selectedPersonas
+          selectedPersonas: finalPodcastStructure.selectedPersonas,
+          chapters: chapterTimeline
         },
         generation: {
           segmentCount: ttsResult.segmentFiles.length,
           totalDuration: Math.round(ttsResult.totalDuration),
           totalSize: Math.round(ttsResult.totalFileSize / 1024),
-          folderPath: ttsResult.folderPath
+          folderPath: ttsResult.folderPath,
+          chapters: chapterTimeline
         },
         performance: {
           totalTime: `${totalTime}ms`,
@@ -689,6 +788,32 @@ export async function GET(request: NextRequest) {
     });
 
     const episode = episodes[0];
+
+    let chapterTimelineMeta: any[] = [];
+    const rawChapterTimeline = episode.chapter_timestamps;
+
+    if (Array.isArray(rawChapterTimeline)) {
+      chapterTimelineMeta = rawChapterTimeline;
+    } else if (typeof rawChapterTimeline === 'string') {
+      try {
+        const parsed = JSON.parse(rawChapterTimeline);
+        if (Array.isArray(parsed)) {
+          chapterTimelineMeta = parsed;
+        }
+      } catch (parseError) {
+        console.warn('⚠️ chapter_timestamps 문자열 파싱 실패:', parseError);
+      }
+    }
+
+    const chapterMetaMap = new Map<number, any>();
+    chapterTimelineMeta.forEach((meta) => {
+      if (!meta) return;
+      if (typeof meta.chapterIndex === 'number') {
+        chapterMetaMap.set(meta.chapterIndex, meta);
+      } else if (typeof meta.chapter_index === 'number') {
+        chapterMetaMap.set(meta.chapter_index, meta);
+      }
+    });
     
     // 세그먼트 조회
     const { data: segments, error: segmentError } = await supabase
@@ -724,26 +849,73 @@ export async function GET(request: NextRequest) {
     }
 
     // 세그먼트 데이터를 기반으로 챕터 구조 처리
-    let chapters = [];
-    
+    let chapters: any[] = [];
+
     if (!segments || segments.length === 0) {
       console.log('📁 세그먼트가 없음 - 스토리지 파일 스캔으로 챕터 구조 구성');
     } else {
-      console.log(`📊 기존 세그먼트 발견: ${segments.length}개 - JSON 데이터 파싱 시도`);
-      
-      try {
-        // segments에서 text_content JSON 파싱
-        const chapterMap = new Map();
-        
+      console.log(`📊 기존 세그먼트 발견: ${segments.length}개 - chapter_index 기반 그룹화 시작`);
+
+      // 우선: chapter_index 기반으로 세그먼트 그룹화 (실제 대화 내용 기반)
+      const chapterSegmentMap = new Map<number, any[]>();
+
+      segments.forEach((segment) => {
+        const chapterIdx = segment.chapter_index || 0;
+        if (!chapterSegmentMap.has(chapterIdx)) {
+          chapterSegmentMap.set(chapterIdx, []);
+        }
+        chapterSegmentMap.get(chapterIdx)!.push(segment);
+      });
+
+      // 챕터별로 정리
+      chapters = Array.from(chapterSegmentMap.entries())
+        .map(([chapterIndex, chapterSegments]) => {
+          const meta = chapterMetaMap.get(chapterIndex);
+          const chapterTitle = meta?.title || `챕터 ${chapterIndex}`;
+
+          // 챕터별 총 시간 계산
+          const totalDuration = chapterSegments.reduce((sum, seg) =>
+            sum + (seg.duration_seconds || 30), 0
+          );
+
+          return {
+            chapterNumber: chapterIndex,
+            title: chapterTitle,
+            description: meta?.description || `${chapterSegments.length}개 대화`,
+            segmentCount: chapterSegments.length,
+            totalDuration: meta?.duration || totalDuration,
+            segments: chapterSegments.map(seg => ({
+              sequenceNumber: seg.sequence_number,
+              speakerType: seg.speaker_type || 'male',
+              audioUrl: seg.audio_url,
+              duration: seg.duration_seconds || 30,
+              textContent: seg.text_content || '',
+              chapterIndex: seg.chapter_index
+            })),
+            files: [] // 호환성을 위해 빈 배열
+          };
+        })
+        .sort((a, b) => a.chapterNumber - b.chapterNumber);
+
+      console.log(`✅ chapter_index 기반 챕터 구조 생성 완료: ${chapters.length}개 챕터`);
+
+      // 기존 JSON 파싱 로직은 fallback으로만 사용
+      if (chapters.length === 0) {
+        console.log(`🔄 Fallback: JSON 데이터 파싱 시도`);
+
+        try {
+          // segments에서 text_content JSON 파싱
+          const chapterMap = new Map();
+
         segments.forEach((segment, index) => {
           try {
             if (segment.text_content && typeof segment.text_content === 'string') {
               // JSON 문자열을 파싱
               const chapterData = JSON.parse(segment.text_content);
-              
+
               if (chapterData && chapterData.files && Array.isArray(chapterData.files)) {
                 const chapterKey = segment.sequence_number || (index + 1);
-                
+
                 chapterMap.set(chapterKey, {
                   chapterNumber: chapterKey,
                   title: chapterData.title || `챕터 ${chapterKey}`,
@@ -755,38 +927,39 @@ export async function GET(request: NextRequest) {
                   files: chapterData.files,
                   segments: []
                 });
-                
+
                 console.log(`✅ 챕터 ${chapterKey} JSON 파싱 성공: ${chapterData.files.length}개 파일`);
               }
             }
           } catch (parseError) {
-            console.warn(`⚠️ 세그먼트 ${index + 1} JSON 파싱 실패:`, parseError.message);
+            console.warn(`⚠️ 세그먼트 ${index + 1} JSON 파싱 실패:`, parseError instanceof Error ? parseError.message : String(parseError));
           }
         });
-        
+
         // Map을 배열로 변환하고 정렬
         chapters = Array.from(chapterMap.values()).sort((a, b) => a.chapterNumber - b.chapterNumber);
-        
+
         console.log(`✅ JSON 기반 챕터 구조 파싱 완료: ${chapters.length}개 챕터`);
-        
-      } catch (error) {
-        console.error('❌ JSON 파싱 중 오류 발생:', error);
-        console.log('🔄 대체 방법으로 스토리지 파일 스캔 실행');
-        chapters = []; // 파싱 실패 시 빈 배열로 설정하여 다음 단계로 진행
+
+        } catch (error) {
+          console.error('❌ JSON 파싱 중 오류 발생:', error);
+          console.log('🔄 대체 방법으로 스토리지 파일 스캔 실행');
+          chapters = []; // 파싱 실패 시 빈 배열로 설정하여 다음 단계로 진행
+        }
       }
     }
-    
+
     // JSON 파싱이 실패했거나 세그먼트가 없는 경우 스토리지 스캔
     if (chapters.length === 0) {
       console.log('📁 스토리지 파일 스캔으로 챕터 구조 구성');
-      
+
       try {
         // LocationSlugService를 사용하여 폴더 경로 확인
         const locationSlug = episode.location_slug || 'default-location';
         const folderPath = `podcasts/${locationSlug}`;
-        
+
         console.log(`🔍 스토리지 폴더 스캔: ${folderPath}`);
-        
+
         // Supabase 스토리지에서 실제 오디오 파일 목록 조회
         const { data: audioFiles, error: storageError } = await supabase.storage
           .from('audio')
@@ -799,10 +972,10 @@ export async function GET(request: NextRequest) {
           // .mp3 파일만 필터링
           const mp3Files = audioFiles.filter(file => file.name.endsWith('.mp3'));
           console.log(`📊 발견된 오디오 파일: ${mp3Files.length}개`);
-          
+
           // 파일명을 기반으로 챕터별로 그룹화 (예: 1-1ko.mp3, 1-2ko.mp3, 2-1ko.mp3)
           const chapterGroups: { [key: number]: string[] } = {};
-          
+
           mp3Files.forEach(file => {
             const match = file.name.match(/^(\d+)-(\d+)[a-z]{2}\.mp3$/);
             if (match) {
@@ -813,25 +986,26 @@ export async function GET(request: NextRequest) {
               chapterGroups[chapterNumber].push(file.name);
             }
           });
-          
+
           // 챕터 구조 생성
           chapters = Object.keys(chapterGroups).map(chapterNumStr => {
             const chapterNumber = parseInt(chapterNumStr);
             const files = chapterGroups[chapterNumber].sort(); // 파일명 순서 정렬
-            
+            const meta = chapterMetaMap.get(chapterNumber);
+
             return {
               chapterNumber: chapterNumber,
-              title: `챕터 ${chapterNumber}`,
-              description: `${files.length}개 오디오 세그먼트`,
+              title: meta?.title || `챕터 ${chapterNumber}`,
+              description: meta?.description || `${files.length}개 오디오 세그먼트`,
               segmentCount: files.length,
-              totalDuration: files.length * 30, // 추정 시간 (30초 × 파일 개수)
+              totalDuration: meta?.duration || files.length * 30, // 추정 시간
               startFile: files[0],
               endFile: files[files.length - 1],
               files: files,
               segments: []
             };
           }).sort((a, b) => a.chapterNumber - b.chapterNumber);
-          
+
           console.log(`✅ 스토리지 기반 챕터 구조 생성: ${chapters.length}개 챕터, 총 ${mp3Files.length}개 파일`);
         } else {
           console.warn('⚠️ 스토리지에서 오디오 파일을 찾을 수 없음:', storageError);
@@ -841,36 +1015,6 @@ export async function GET(request: NextRequest) {
         console.error('❌ 스토리지 스캔 중 오류:', error);
         chapters = [];
       }
-    } else {
-      // 기존 세그먼트가 있는 경우 (기존 로직 유지)
-      chapters = segments.map(segment => {
-        let chapterData;
-        try {
-          chapterData = JSON.parse(segment.text_content);
-        } catch (error) {
-          console.warn('챕터 데이터 파싱 실패:', segment.text_content);
-          chapterData = {
-            title: `챕터 ${segment.sequence_number}`,
-            description: '챕터 설명',
-            startFile: null,
-            endFile: null,
-            fileCount: 0,
-            files: []
-          };
-        }
-
-        return {
-          chapterNumber: segment.sequence_number,
-          title: chapterData.title,
-          description: chapterData.description,
-          segmentCount: chapterData.fileCount,
-          totalDuration: segment.duration_seconds,
-          startFile: chapterData.startFile,
-          endFile: chapterData.endFile,
-          files: chapterData.files || [],
-          segments: []
-        };
-      }).sort((a, b) => a.chapterNumber - b.chapterNumber);
     }
 
     console.log('✅ 기존 팟캐스트 조회 성공 (챕터별 구성):', {
@@ -889,7 +1033,8 @@ export async function GET(request: NextRequest) {
         userScript: episode.user_script,
         duration: episode.total_duration,
         chapters: chapters,
-        qualityScore: episode.quality_score
+        qualityScore: episode.quality_score,
+        chapterTimeline: chapterTimelineMeta
       }
     });
 
