@@ -468,8 +468,8 @@ export class SequentialTTSGenerator {
     }
 
     try {
-      // TTS API 타임아웃 설정 (60초)
-      const ttsTimeout = 60000;
+      // TTS API 타임아웃 설정 (30초) - 스펙 준수
+      const ttsTimeout = 30000;
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), ttsTimeout);
 
@@ -757,10 +757,13 @@ export class SequentialTTSGenerator {
           episode_id: episodeId,
           sequence_number: file.sequenceNumber,
           speaker_type: file.speakerType,
+          speaker_name: file.speakerType === 'male' ? 'Host' : 'Curator',
           text_content: file.textContent || `[챕터${chapterNumber}] 세그먼트 ${segmentInChapter}`,
           audio_url: normalizedUrl || null,
           file_size_bytes: file.fileSize,
-          duration_seconds: Math.round(file.duration)
+          duration_seconds: Math.round(file.duration),
+          duration: Math.round(file.duration),
+          chapter_index: file.metadata?.chapterIndex || chapterNumber
         };
       });
 

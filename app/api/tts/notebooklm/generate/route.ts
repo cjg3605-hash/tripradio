@@ -377,8 +377,22 @@ export async function POST(req: NextRequest) {
       femaleSegments: processedSegments.filter(s => s.speakerType === 'female').length
     };
     
+    // 빈 세그먼트 검증 강화
     if (processedDialogue.segments.length === 0) {
       throw new Error('대화 세그먼트 분할에 실패했습니다.');
+    }
+
+    // 각 세그먼트의 텍스트 내용 검증
+    const invalidSegments = processedDialogue.segments.filter(
+      seg => !seg.textContent || seg.textContent.trim().length < 10
+    );
+
+    if (invalidSegments.length > 0) {
+      throw new Error(
+        `유효하지 않은 세그먼트 ${invalidSegments.length}개 발견: ` +
+        invalidSegments.map(s => `#${s.sequenceNumber}`).join(', ') +
+        '. 각 세그먼트는 최소 10자 이상이어야 합니다.'
+      );
     }
     
     console.log('📝 스크립트 분할 완료:', {

@@ -44,15 +44,9 @@ export async function extractAccurateLocationInfo(
       const query = searchQueries[i];
       console.log(`🎯 검색 시도 ${i + 1}/${searchQueries.length}: "${query}"`);
 
-      // Google Geocoding API 호출
-      const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
-        params: {
-          address: query,
-          key: apiKey,
-          language: language === 'ko' ? 'ko' : 'en'
-        },
-        timeout: 15000
-      });
+      // Google Geocoding API 호출 (비활성화됨)
+      // 아래 코드는 실행되지 않음 (위에서 return null)
+      const response = null as any;
 
       const data = response.data;
       console.log(`📡 Google API 응답: ${data.status} (결과 ${data.results?.length || 0}개)`);
