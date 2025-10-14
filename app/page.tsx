@@ -580,8 +580,15 @@ function Home() {
 
   const [currentLandmarkIndex, setCurrentLandmarkIndex] = useState(0);
   const [imageLoadErrors, setImageLoadErrors] = useState<Set<string>>(new Set());
+  const [imageMeta, setImageMeta] = useState<Record<string, { width: number; height: number }>>({});
   const [imagesPreloaded, setImagesPreloaded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [viewportAspect, setViewportAspect] = useState<number>(() => {
+    if (typeof window === 'undefined') {
+      return 16 / 9;
+    }
+    return window.innerWidth / window.innerHeight;
+  });
 
   // 화면 크기 감지
   useEffect(() => {
@@ -590,8 +597,16 @@ function Home() {
     };
     
     checkMobile();
+    const updateAspect = () => {
+      setViewportAspect(window.innerWidth / window.innerHeight);
+    };
+    updateAspect();
     window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener('resize', updateAspect);
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('resize', updateAspect);
+    };
   }, []);
 
   // 언어 변경 시 인덱스 리셋
@@ -622,6 +637,19 @@ function Home() {
           
           const handleLoad = () => {
             console.log(`✅ 이미지 로드 성공: ${landmarkKey} (${landmarkImages[landmarkKey]})`);
+            setImageMeta(prev => {
+              const current = prev[landmarkKey];
+              if (current && current.width === img.naturalWidth && current.height === img.naturalHeight) {
+                return prev;
+              }
+              return {
+                ...prev,
+                [landmarkKey]: {
+                  width: img.naturalWidth || 1,
+                  height: img.naturalHeight || 1
+                }
+              };
+            });
             resolve();
           };
           
@@ -669,20 +697,48 @@ function Home() {
         background: `linear-gradient(135deg, rgba(20, 20, 40, 0.9) 0%, rgba(40, 40, 60, 0.9) 100%)`,
         backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('${pngImage}'), linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)`,
         backgroundSize: 'cover, cover, cover',
-        backgroundPosition: 'top center',
+        backgroundPosition: 'center 35%',
         backgroundRepeat: 'no-repeat'
       };
     }
     
-    return {
-      // WebP 우선, PNG fallback, 최종 그라데이션 fallback
+    const meta = imageMeta[landmark];
+    const baseStyle = {
       background: `linear-gradient(135deg, rgba(20, 20, 40, 0.9) 0%, rgba(40, 40, 60, 0.9) 100%)`,
       backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('${landmarkImages[landmark]}')`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'top center',
       backgroundRepeat: 'no-repeat'
     };
-  }, [imageLoadErrors, landmarkImages]);
+
+    if (!meta || !viewportAspect) {
+      return {
+        ...baseStyle,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center center'
+      };
+    }
+
+    const imageAspect = meta.width / Math.max(meta.height, 1);
+    let backgroundSize = 'cover';
+    let backgroundPosition = 'center center';
+
+    if (imageAspect >= viewportAspect) {
+      // 이미지가 뷰포트보다 가로로 긴 경우: 높이에 맞춰서 잘림 최소화
+      backgroundSize = 'auto 105%';
+    } else {
+      // 이미지가 뷰포트보다 세로로 긴 경우: 가로에 맞추고 위쪽으로 살짝 이동해 상단을 더 노출
+      backgroundSize = '100% auto';
+      const overflowRatio = Math.max(viewportAspect / Math.max(imageAspect, 0.0001) - 1, 0);
+      const lift = Math.min(overflowRatio * 20, 22); // overflow 비율에 따라 최대 22%까지 상단 이동
+      const positionY = Math.max(20, 50 - lift);
+      backgroundPosition = `center ${positionY}%`;
+    }
+
+    return {
+      ...baseStyle,
+      backgroundSize,
+      backgroundPosition
+    };
+  }, [imageLoadErrors, imageMeta, landmarkImages, viewportAspect]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -1376,12 +1432,7 @@ function Home() {
                 className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
                   index === currentLandmarkIndex ? 'opacity-100' : 'opacity-0'
                 }`}
-                style={{
-                  backgroundImage: `linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.25)), url('${landmarkImages[landmarkKey]}')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center center',
-                  backgroundRepeat: 'no-repeat'
-                }}
+                style={getBackgroundStyle(landmarkKey)}
               />
               );
             })}
