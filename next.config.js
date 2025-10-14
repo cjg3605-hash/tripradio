@@ -114,6 +114,17 @@ const withPWA = require('next-pwa')({
       }
     },
     {
+      urlPattern: /^https?:\/\/.+\/(manifest\.json|favicon\.ico)$/i,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'pwa-assets',
+        expiration: {
+          maxEntries: 10,
+          maxAgeSeconds: 7 * 24 * 60 * 60 // 7일
+        }
+      }
+    },
+    {
       urlPattern: ({ url }) => {
         // 세션 관련 API는 캐시에서 완전 제외
         return url.origin === self.location.origin && 

@@ -161,7 +161,7 @@ export async function POST(req: NextRequest) {
       console.warn('⚠️ 에피소드 조회 중 오류 (계속 진행):', episodeCheckError);
     }
 
-    // 기존 에피소드가 있는 경우 처리
+    // 기존 에피소드가 있는 경우 처리 - completed만 반환, 나머지는 재생성
     if (existingEpisodes && existingEpisodes.length > 0) {
       const existingEpisode = existingEpisodes[0];
       console.log('🎙️ 기존 에피소드 발견:', {
@@ -173,13 +173,13 @@ export async function POST(req: NextRequest) {
       // 완료된 에피소드가 있으면 바로 반환
       if (existingEpisode.status === 'completed') {
         console.log('✅ 완료된 팟캐스트 발견, 기존 에피소드 반환');
-        
+
         // 세그먼트 조회
         const { data: segments } = await supabase
           .from('podcast_segments')
           .select('*')
           .eq('episode_id', existingEpisode.id)
-          .order('sequence_number', { ascending: true });
+          .order('sequence_number', { ascending: true});
 
         return NextResponse.json({
           success: true,
@@ -197,38 +197,22 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // 생성 중인 에피소드가 있으면 오류 반환
-      if (existingEpisode.status === 'generating') {
-        console.log('⚠️ 생성 중인 에피소드 발견, 중복 생성 방지');
-        return NextResponse.json({
-          success: false,
-          error: '이미 팟캐스트 생성이 진행 중입니다. 잠시만 기다려주세요.',
-          data: {
-            episodeId: existingEpisode.id,
-            status: 'generating',
-            created_at: existingEpisode.created_at
-          }
-        }, { status: 409 }); // Conflict 상태 코드
-      }
+      // generating이나 failed 상태는 기존 레코드 삭제 후 재생성
+      console.log(`🗑️ 기존 에피소드(${existingEpisode.status}) 삭제 후 재생성`);
 
-      // 실패한 에피소드가 있으면 재생성 허용 (하지만 기존 레코드 삭제)
-      if (existingEpisode.status === 'failed') {
-        console.log('🗑️ 실패한 에피소드 발견, 기존 레코드 정리 후 재생성');
-        
-        // 기존 세그먼트 삭제
-        await supabase
-          .from('podcast_segments')
-          .delete()
-          .eq('episode_id', existingEpisode.id);
-        
-        // 기존 에피소드 삭제
-        await supabase
-          .from('podcast_episodes')
-          .delete()
-          .eq('id', existingEpisode.id);
-        
-        console.log('🗑️ 실패한 에피소드 정리 완료');
-      }
+      // 기존 세그먼트 삭제
+      await supabase
+        .from('podcast_segments')
+        .delete()
+        .eq('episode_id', existingEpisode.id);
+
+      // 기존 에피소드 삭제
+      await supabase
+        .from('podcast_episodes')
+        .delete()
+        .eq('id', existingEpisode.id);
+
+      console.log('🗑️ 기존 에피소드 정리 완료');
     }
 
     // 📍 Step 1: 장소 분석 및 챕터 구조 생성

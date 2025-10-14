@@ -29,12 +29,9 @@ export async function extractAccurateLocationInfo(
   language: string = 'ko'
 ): Promise<AccurateLocationInfo | null> {
   try {
-    // 🔒 Google Places API 키 검증 (선택적)
-    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-    if (!apiKey) {
-      console.warn('⚠️ GOOGLE_PLACES_API_KEY 환경변수가 설정되지 않음, 폴백 시스템 사용');
-      return null; // 폴백 시스템이 처리함
-    }
+    // Google Places API 사용 안 함 - 항상 null 반환
+    console.log('⚠️ Google Places API 비활성화됨, 대체 시스템 사용');
+    return null;
 
     console.log(`🔍 정확한 지역 정보 추출 시작: "${placeName}"`);
 
