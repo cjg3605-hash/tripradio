@@ -173,6 +173,9 @@ export default function PremiumPodcastPage() {
         audioRef.current.pause();
       }
 
+      // 약간의 지연을 주어 pause()가 완료될 시간 확보
+      await new Promise(resolve => setTimeout(resolve, 50));
+
       audioRef.current.src = segment.audioUrl;
       audioRef.current.load();
       audioRef.current.volume = volume;
@@ -180,11 +183,18 @@ export default function PremiumPodcastPage() {
       audioRef.current.muted = isMuted;
 
       if (shouldAutoPlay) {
-        await audioRef.current.play();
-        setIsPlaying(true);
+        try {
+          await audioRef.current.play();
+          setIsPlaying(true);
+        } catch (playError) {
+          // play() 실패 시 자동으로 다음 세그먼트로 이동하지 않고 사용자에게 알림
+          console.warn(`⚠️ 세그먼트 ${segmentIndex + 1} 자동 재생 실패 (사용자 상호작용 필요):`, playError);
+          setIsPlaying(false);
+        }
       }
     } catch (error) {
-      console.error(`세그먼트 ${segmentIndex + 1} 재생 실패:`, error);
+      console.error(`❌ 세그먼트 ${segmentIndex + 1} 로드 실패:`, error);
+      setIsPlaying(false);
     }
   };
 
