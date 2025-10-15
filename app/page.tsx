@@ -545,6 +545,8 @@ function Home() {
 
 
   // 회전하는 세계명소들 (구체적 장소 검색 유도) - 7개 핵심 명소
+  const LANDMARK_ASPECT_RATIO = 21 / 9;
+
   const landmarks = useMemo(() => [
     t('home.countries.france.attractions.0'),
     t('home.countries.italy.attractions.0'),
@@ -568,13 +570,13 @@ function Home() {
     };
 
     return {
-      [getTranslationString('home.countries.france.attractions.0')]: `/images/landmarks/eiffel-tower.webp`,
-      [getTranslationString('home.countries.italy.attractions.0')]: `/images/landmarks/colosseum.webp`,
-      [getTranslationString('home.countries.india.attractions.0')]: `/images/landmarks/taj-mahal.webp`,
-      [getTranslationString('home.countries.usa.attractions.0')]: `/images/landmarks/statue-of-liberty.webp`,
-      [getTranslationString('home.countries.seoul.attractions.0')]: `/images/landmarks/gyeongbokgung.webp`,
-      [getTranslationString('home.countries.peru.attractions.0')]: `/images/landmarks/machu-picchu.webp`,
-      [getTranslationString('home.countries.spain.attractions.0')]: `/images/landmarks/sagrada-familia.webp`
+      [getTranslationString('home.countries.france.attractions.0')]: `/images/landmarks/eiffel-tower.webp${cacheBuster}`,
+      [getTranslationString('home.countries.italy.attractions.0')]: `/images/landmarks/colosseum.webp${cacheBuster}`,
+      [getTranslationString('home.countries.india.attractions.0')]: `/images/landmarks/taj-mahal.webp${cacheBuster}`,
+      [getTranslationString('home.countries.usa.attractions.0')]: `/images/landmarks/statue-of-liberty.webp${cacheBuster}`,
+      [getTranslationString('home.countries.seoul.attractions.0')]: `/images/landmarks/gyeongbokgung.webp${cacheBuster}`,
+      [getTranslationString('home.countries.peru.attractions.0')]: `/images/landmarks/machu-picchu.webp${cacheBuster}`,
+      [getTranslationString('home.countries.spain.attractions.0')]: `/images/landmarks/sagrada-familia.webp${cacheBuster}`
     };
   }, [t]);
 
@@ -691,13 +693,12 @@ function Home() {
   const getBackgroundStyle = useCallback((landmark: string) => {
     const hasError = imageLoadErrors.has(landmark);
     if (hasError) {
-      // 폴백: WebP 실패 시 PNG 사용, 그것도 실패하면 그라데이션
       const pngImage = landmarkImages[landmark].replace('.webp', '.png');
       return {
         background: `linear-gradient(135deg, rgba(40, 45, 80, 0.35) 0%, rgba(60, 65, 100, 0.25) 100%)`,
         backgroundImage: `linear-gradient(rgba(0,0,0,0.14), rgba(0,0,0,0.22)), url('${pngImage}'), linear-gradient(135deg, rgba(102, 126, 234, 0.5) 0%, rgba(118, 75, 162, 0.5) 100%)`,
         backgroundSize: 'cover, auto 100%, cover',
-        backgroundPosition: 'center center, center center, center center',
+        backgroundPosition: 'center center, center 48%, center center',
         backgroundRepeat: 'no-repeat'
       };
     }
@@ -709,30 +710,27 @@ function Home() {
       backgroundRepeat: 'no-repeat'
     };
 
-    if (!meta || !viewportAspect) {
+    if (!viewportAspect) {
       return {
         ...baseStyle,
         backgroundSize: 'cover, cover',
-        backgroundPosition: 'center center, center center'
+        backgroundPosition: 'center center, center 48%'
       };
     }
 
-    const imageAspect = meta.width / Math.max(meta.height, 1);
-    let backgroundSize = 'cover, cover';
-    let backgroundPosition = 'center center, center center';
+    const imageAspect = meta && meta.width && meta.height
+      ? meta.width / Math.max(meta.height, 1)
+      : LANDMARK_ASPECT_RATIO;
+    const shouldFillHeight = imageAspect >= viewportAspect;
+    const backgroundSize = shouldFillHeight ? 'cover, auto 100%' : 'cover, 100% auto';
 
-    if (imageAspect >= viewportAspect) {
-      // 이미지가 뷰포트보다 가로로 긴 경우: 높이에 맞춰서 잘림 최소화
-      backgroundSize = 'cover, auto 100%';
-    } else {
-      // 이미지가 뷰포트보다 세로로 긴 경우: 높이에 맞춰서 전체를 보여주고 좌우는 자연스러운 그라데이션으로 보완
-      backgroundSize = 'cover, auto 100%';
-    }
+    // 넓은 21:9 비율에 맞춰 주요 피사체가 잘리지 않도록 살짝 위로 보정
+    const focusPosition = imageAspect >= LANDMARK_ASPECT_RATIO ? 'center 48%' : 'center center';
 
     return {
       ...baseStyle,
       backgroundSize,
-      backgroundPosition
+      backgroundPosition: `center center, ${focusPosition}`
     };
   }, [imageLoadErrors, imageMeta, landmarkImages, viewportAspect]);
 
