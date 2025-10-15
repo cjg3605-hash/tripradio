@@ -1,9 +1,10 @@
 'use client';
 // Force cache invalidation v4 - 2025-01-13
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams } from 'next/navigation';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage, SUPPORTED_LANGUAGES } from '@/contexts/LanguageContext';
+import type { SupportedLanguage } from '@/contexts/LanguageContext';
 import { 
   ArrowLeft, 
   Headphones, 
@@ -61,7 +62,24 @@ interface PodcastEpisode {
 
 export default function PremiumPodcastPage() {
   const params = useParams();
-  const { currentLanguage, t } = useLanguage();
+  const { currentLanguage, setLanguage, t } = useLanguage();
+  const routeLanguage = useMemo<SupportedLanguage | null>(() => {
+    const param = params?.language;
+    const raw = Array.isArray(param) ? param[0] : param;
+    if (!raw) return null;
+    const normalized = raw.toLowerCase();
+    return SUPPORTED_LANGUAGES.some(lang => lang.code === normalized)
+      ? (normalized as SupportedLanguage)
+      : null;
+  }, [params?.language]);
+  const effectiveLanguage = routeLanguage ?? currentLanguage;
+  
+  useEffect(() => {
+    if (!routeLanguage) return;
+    if (routeLanguage !== currentLanguage) {
+      setLanguage(routeLanguage);
+    }
+  }, [routeLanguage, currentLanguage, setLanguage]);
   
   // 번역 함수에서 문자열 추출 헬퍼
   const getTranslationString = (key: string): string => {
@@ -282,13 +300,17 @@ export default function PremiumPodcastPage() {
   };
 
   useEffect(() => {
-    if (params.location) {
-      const decodedLocation = decodeURIComponent(params.location as string);
-      setLocationName(decodedLocation);
-      setIsLoading(false);
-      checkExistingPodcast(decodedLocation);
-    }
-  }, [params.location]);
+    const rawLocation = params?.location;
+    if (!rawLocation) return;
+
+    const locationParam = Array.isArray(rawLocation) ? rawLocation[0] : rawLocation;
+    if (!locationParam) return;
+
+    const decodedLocation = decodeURIComponent(locationParam);
+    setLocationName(decodedLocation);
+    setIsLoading(false);
+    checkExistingPodcast(decodedLocation, effectiveLanguage);
+  }, [params?.location, effectiveLanguage]);
 
   // 에피소드 로드시 첫 번째 세그먼트 준비 (NotebookLMPodcastPlayer와 동일)
   useEffect(() => {
@@ -353,10 +375,10 @@ export default function PremiumPodcastPage() {
     }
   };
 
-  const checkExistingPodcast = async (location: string) => {
+  const checkExistingPodcast = async (location: string, language: SupportedLanguage) => {
     try {
-      console.log('🔍 GET 요청 - 팟캐스트 조회:', { locationName: location, language: currentLanguage });
-      const response = await fetch(`/api/tts/notebooklm/generate?location=${encodeURIComponent(location)}&language=${currentLanguage}`);
+      console.log('🔍 GET 요청 - 팟캐스트 조회:', { locationName: location, language });
+      const response = await fetch(`/api/tts/notebooklm/generate?location=${encodeURIComponent(location)}&language=${language}`);
       
       if (response.ok) {
         const result = await response.json();
@@ -369,7 +391,7 @@ export default function PremiumPodcastPage() {
           
           // 스토리지 검증을 먼저 수행하여 폴더 경로 확인
           console.log('🔍 스토리지 무결성 검증 시작...');
-          const storageVerification = await verifyStorageIntegrity(result.data, location, currentLanguage);
+          const storageVerification = await verifyStorageIntegrity(result.data, location, language);
           let audioFolderPath = 'podcasts/louvre-museum'; // 기본값
           
           if (storageVerification.isValid && storageVerification.folderPath) {
@@ -532,7 +554,7 @@ export default function PremiumPodcastPage() {
                 },
                 body: JSON.stringify({
                   locationName: location,
-                  language: currentLanguage,
+                  language,
                   episodeData: result.data,
                   missingFiles: storageVerification.missingFiles
                 })
@@ -547,7 +569,7 @@ export default function PremiumPodcastPage() {
                   
                   // 보완 완료 후 다시 검증
                   console.log('🔄 보완 후 재검증 시작...');
-                  const reVerification = await verifyStorageIntegrity(result.data, location, currentLanguage);
+                  const reVerification = await verifyStorageIntegrity(result.data, location, language);
                   
                   if (reVerification.isValid) {
                     console.log('🎉 재검증 성공 - 완전한 팟캐스트 로드 완료');
@@ -602,6 +624,7 @@ export default function PremiumPodcastPage() {
   const generatePodcast = async () => {
     if (isGenerating) return;
 
+    const targetLanguage = effectiveLanguage;
     setIsGenerating(true);
     setError(null);
     setGenerationProgress(0);
@@ -618,7 +641,7 @@ export default function PremiumPodcastPage() {
     try {
       console.log('🎙️ NotebookLM 스타일 전체 팟캐스트 생성 시작:', {
         locationName,
-        language: currentLanguage,
+        language: targetLanguage,
         options: {
           priority: 'engagement',
           audienceLevel: 'intermediate',
@@ -637,7 +660,7 @@ export default function PremiumPodcastPage() {
         },
         body: JSON.stringify({
           locationName,
-          language: currentLanguage,
+          language: targetLanguage,
           options: {
             priority: 'engagement',
             audienceLevel: 'intermediate',
