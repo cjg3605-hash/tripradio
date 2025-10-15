@@ -694,43 +694,39 @@ function Home() {
       // 폴백: WebP 실패 시 PNG 사용, 그것도 실패하면 그라데이션
       const pngImage = landmarkImages[landmark].replace('.webp', '.png');
       return {
-        background: `linear-gradient(135deg, rgba(20, 20, 40, 0.9) 0%, rgba(40, 40, 60, 0.9) 100%)`,
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('${pngImage}'), linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)`,
-        backgroundSize: 'cover, cover, cover',
-        backgroundPosition: 'center 35%',
+        background: `linear-gradient(135deg, rgba(40, 45, 80, 0.35) 0%, rgba(60, 65, 100, 0.25) 100%)`,
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.14), rgba(0,0,0,0.22)), url('${pngImage}'), linear-gradient(135deg, rgba(102, 126, 234, 0.5) 0%, rgba(118, 75, 162, 0.5) 100%)`,
+        backgroundSize: 'cover, auto 100%, cover',
+        backgroundPosition: 'center center, center center, center center',
         backgroundRepeat: 'no-repeat'
       };
     }
     
     const meta = imageMeta[landmark];
     const baseStyle = {
-      background: `linear-gradient(135deg, rgba(20, 20, 40, 0.9) 0%, rgba(40, 40, 60, 0.9) 100%)`,
-      backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url('${landmarkImages[landmark]}')`,
+      background: `linear-gradient(135deg, rgba(40, 45, 80, 0.35) 0%, rgba(60, 65, 100, 0.25) 100%)`,
+      backgroundImage: `linear-gradient(rgba(0,0,0,0.14), rgba(0,0,0,0.22)), url('${landmarkImages[landmark]}')`,
       backgroundRepeat: 'no-repeat'
     };
 
     if (!meta || !viewportAspect) {
       return {
         ...baseStyle,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center center'
+        backgroundSize: 'cover, cover',
+        backgroundPosition: 'center center, center center'
       };
     }
 
     const imageAspect = meta.width / Math.max(meta.height, 1);
-    let backgroundSize = 'cover';
-    let backgroundPosition = 'center center';
+    let backgroundSize = 'cover, cover';
+    let backgroundPosition = 'center center, center center';
 
     if (imageAspect >= viewportAspect) {
       // 이미지가 뷰포트보다 가로로 긴 경우: 높이에 맞춰서 잘림 최소화
-      backgroundSize = 'auto 105%';
+      backgroundSize = 'cover, auto 100%';
     } else {
-      // 이미지가 뷰포트보다 세로로 긴 경우: 가로에 맞추고 위쪽으로 살짝 이동해 상단을 더 노출
-      backgroundSize = '100% auto';
-      const overflowRatio = Math.max(viewportAspect / Math.max(imageAspect, 0.0001) - 1, 0);
-      const lift = Math.min(overflowRatio * 20, 22); // overflow 비율에 따라 최대 22%까지 상단 이동
-      const positionY = Math.max(20, 50 - lift);
-      backgroundPosition = `center ${positionY}%`;
+      // 이미지가 뷰포트보다 세로로 긴 경우: 높이에 맞춰서 전체를 보여주고 좌우는 자연스러운 그라데이션으로 보완
+      backgroundSize = 'cover, auto 100%';
     }
 
     return {
@@ -1437,9 +1433,9 @@ function Home() {
               );
             })}
             {/* Overlay */}
-            <div className="absolute inset-0 bg-black/20" />
+            <div className="absolute inset-0 bg-black/10" />
             {/* Gradient overlay for better text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-black/8 to-transparent" />
           </div>
 
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center" style={{ transform: 'translateY(-4px)' }}>
