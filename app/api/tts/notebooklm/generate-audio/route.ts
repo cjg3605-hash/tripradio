@@ -8,6 +8,8 @@ import { createClient } from '@supabase/supabase-js';
 import { SequentialTTSGenerator } from '@/lib/ai/tts/sequential-tts-generator';
 import { DialogueSegment } from '@/lib/ai/tts/sequential-dialogue-processor';
 
+export const maxDuration = 30;
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 

@@ -8,6 +8,8 @@ import { LocationAnalyzer, LocationContext, EXPERT_PERSONAS } from '@/lib/ai/loc
 import LocationSlugService from '@/lib/location/location-slug-service';
 import { createPodcastChapterPrompt, type PodcastPromptConfig, parseDialogueScript } from '@/lib/ai/prompts/podcast';
 
+export const maxDuration = 60;
+
 // 순차 재생용 팟캐스트 생성
 
 // Supabase 클라이언트 생성
