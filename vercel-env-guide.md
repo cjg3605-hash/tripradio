@@ -5,7 +5,7 @@
 ### 🔐 필수 환경변수
 ```bash
 # NextAuth 설정 (프로덕션용)
-NEXTAUTH_URL=https://navidocent.com
+NEXTAUTH_URL=https://tripradio.shop
 NEXTAUTH_SECRET=your-production-secret
 
 # Google OAuth
@@ -22,15 +22,15 @@ GEMINI_API_KEY=your-gemini-api-key
 GOOGLE_PLACES_API_KEY=your-places-api-key
 
 # Base URLs (프로덕션)
-NEXT_PUBLIC_BASE_URL=https://navidocent.com
-NEXT_PUBLIC_APP_URL=https://navidocent.com
+NEXT_PUBLIC_BASE_URL=https://tripradio.shop
+NEXT_PUBLIC_APP_URL=https://tripradio.shop
 ```
 
 ### 🎯 동적 환경변수가 프로덕션에서 **작동하지 않는** 이유
 
 1. **NODE_ENV 체크**: 모든 동적 설정이 `NODE_ENV !== 'production'` 조건부
 2. **Vercel 자동 설정**: Vercel이 `NEXTAUTH_URL`을 자동으로 설정
-3. **고정 도메인**: 프로덕션은 항상 `navidocent.com`
+3. **고정 도메인**: 프로덕션은 항상 `tripradio.shop`
 
 ### ✅ 배포 전 체크리스트
 
@@ -41,15 +41,15 @@ NEXT_PUBLIC_APP_URL=https://navidocent.com
 #### 2. 도메인 설정 확인
 ```bash
 # 프로덕션 환경에서는 이 값들이 사용됨
-NEXTAUTH_URL=https://navidocent.com
-NEXT_PUBLIC_BASE_URL=https://navidocent.com
+NEXTAUTH_URL=https://tripradio.shop
+NEXT_PUBLIC_BASE_URL=https://tripradio.shop
 ```
 
 #### 3. Google OAuth 리다이렉트 URL 설정
 ```
 Google Cloud Console → APIs & Services → Credentials
 → 승인된 리디렉션 URI에 추가:
-https://navidocent.com/api/auth/callback/google
+https://tripradio.shop/api/auth/callback/google
 ```
 
 #### 4. 보안 검사

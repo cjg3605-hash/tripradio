@@ -173,7 +173,7 @@ export default function AdminSetupTestPage() {
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-medium text-gray-900 mb-2">📝 관리자 로그인 정보</h3>
             <div className="text-sm text-gray-600 space-y-1">
-              <p><span className="font-medium">이메일:</span> naviadmin@navidocent.com</p>
+              <p><span className="font-medium">이메일:</span> naviadmin@tripradio.shop</p>
               <p><span className="font-medium">비밀번호:</span> naviadmin1134</p>
               <p><span className="font-medium">대시보드:</span> 
                 <a href="/admin/dashboard" className="text-blue-600 hover:text-blue-800 ml-1">

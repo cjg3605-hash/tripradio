@@ -66,9 +66,9 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: [
-      'https://navidocent.com/sitemap.xml',
-      'https://navidocent.com/sitemap-keywords.xml',
+      `${process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop'}/sitemap.xml`,
+      `${process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop'}/sitemap-keywords.xml`,
     ],
-    host: 'https://navidocent.com',
+    host: process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop',
   };
 } 

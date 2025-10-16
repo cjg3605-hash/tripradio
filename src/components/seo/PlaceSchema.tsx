@@ -40,10 +40,10 @@ const PlaceSchema: React.FC<PlaceSchemaProps> = ({ data }) => {
   const schemaData = {
     "@context": "https://schema.org",
     "@type": ["Place", data.placeType || "TouristDestination"],
-    "@id": `https://navidocent.com/guide/${encodeURIComponent(data.name)}#place`,
+    "@id": `https://tripradio.shop/guide/${encodeURIComponent(data.name)}#place`,
     name: data.name,
     description: data.description,
-    url: data.website || `https://navidocent.com/guide/${encodeURIComponent(data.name)}`,
+    url: data.website || `https://tripradio.shop/guide/${encodeURIComponent(data.name)}`,
     
     // 식별자
     identifier: {
@@ -181,14 +181,14 @@ const PlaceSchema: React.FC<PlaceSchemaProps> = ({ data }) => {
     // 검색 액션
     potentialAction: {
       "@type": "SearchAction",
-      target: `https://navidocent.com/guide/${encodeURIComponent(data.name)}?q={search_term_string}`,
+      target: `https://tripradio.shop/guide/${encodeURIComponent(data.name)}?q={search_term_string}`,
       "query-input": "required name=search_term_string"
     },
     
     // 메인 엔티티
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `https://navidocent.com/guide/${encodeURIComponent(data.name)}`
+      "@id": `https://tripradio.shop/guide/${encodeURIComponent(data.name)}`
     }
   };
 

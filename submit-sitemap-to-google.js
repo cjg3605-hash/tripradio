@@ -3,9 +3,10 @@
 
 const https = require('https');
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
 const sitemapsToSubmit = [
-  'https://navidocent.com/sitemap.xml',
-  'https://navidocent.com/sitemap-keywords.xml'
+  `${baseUrl}/sitemap.xml`,
+  `${baseUrl}/sitemap-keywords.xml`
 ];
 
 console.log('📋 Google Search Console에 사이트맵 제출');
@@ -25,14 +26,14 @@ console.log('1. Google Search Console → URL 검사');
 console.log('2. 다음 주요 URL들을 개별 검사:');
 
 const priorityUrls = [
-  'https://navidocent.com',
-  'https://navidocent.com/guide/ko/경복궁',
-  'https://navidocent.com/guide/en/gyeongbokgung-palace',
-  'https://navidocent.com/podcast/ko/경복궁',
-  'https://navidocent.com/destinations',
-  'https://navidocent.com/docent',
-  'https://navidocent.com/tour-radio',
-  'https://navidocent.com/regions/korea'
+  baseUrl,
+  `${baseUrl}/guide/ko/경복궁`,
+  `${baseUrl}/guide/en/gyeongbokgung-palace`,
+  `${baseUrl}/podcast/ko/경복궁`,
+  `${baseUrl}/destinations`,
+  `${baseUrl}/docent`,
+  `${baseUrl}/tour-radio`,
+  `${baseUrl}/regions/korea`
 ];
 
 priorityUrls.forEach((url, index) => {

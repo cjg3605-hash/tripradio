@@ -16,8 +16,8 @@ export default function MultilingualHreflang({
   currentLanguage, 
   urls 
 }: MultilingualHreflangProps) {
-  // 🔧 도메인 통일: navidocent.com 사용
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+  // 🔧 도메인 통일: tripradio.shop 사용
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
 
   return (
     <>

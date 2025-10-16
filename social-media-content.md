@@ -21,7 +21,7 @@
 더 이상 비싼 투어 가이드 필요 없어요!
 지금 바로 체험해보세요 👇
 
-🔗 https://navidocent.com
+🔗 https://tripradio.shop
 
 #여행 #AI가이드 #도슨트 #해외여행 #자유여행 #NaviDocent
 ```
@@ -39,7 +39,7 @@
 더 이상 가이드북 들고 다니지 마세요 📚❌
 AI가 당신만의 전문 도슨트가 되어드립니다 🤖✨
 
-🔗 navidocent.com
+🔗 tripradio.shop
 
 #AI여행 #NaviDocent #스마트투어 #여행혁신
 ```
@@ -70,7 +70,7 @@ AI가 당신만의 전문 도슨트가 되어드립니다 🤖✨
 🚨 여행러들 주목! 게임체인저 등장 🚨
 
 NaviDocent - AI 여행 도슨트 서비스
-👉 https://navidocent.com
+👉 https://tripradio.shop
 
 💡 이게 뭐냐면:
 - 여행지 이름만 치면 → AI가 즉시 전문 가이드 생성

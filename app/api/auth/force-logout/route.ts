@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     authCookieNames.forEach(cookieName => {
       // 환경에 따른 도메인 설정
       const domains = process.env.NODE_ENV === 'production' 
-        ? ['navidocent.com', '.navidocent.com', undefined]
+        ? ['tripradio.shop', '.tripradio.shop', undefined]
         : [undefined]; // 개발환경에서는 도메인 설정 안함
       const paths = ['/', '/auth', '/api'];
       

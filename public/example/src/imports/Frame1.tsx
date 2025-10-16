@@ -2257,7 +2257,7 @@ function DesktopLightMode() {
           <p className="block leading-[48px] whitespace-pre">Desktop - Light Mode - 1440x900</p>
         </div>
         <div className="absolute font-['Inter:Semi_Bold',_sans-serif] font-semibold leading-[0] left-[200px] not-italic text-[#ffffff] text-[24px] text-left text-nowrap top-[100px]">
-          <p className="block leading-[30px] whitespace-pre">https://navidocent.com/</p>
+          <p className="block leading-[30px] whitespace-pre">https://tripradio.shop/</p>
         </div>
       </div>
       <div

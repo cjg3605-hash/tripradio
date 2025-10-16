@@ -35,7 +35,7 @@ export async function POST() {
 export async function GET() {
   try {
     const { getUserByEmail } = await import('@/lib/user');
-    const adminUser = await getUserByEmail('naviadmin@navidocent.com');
+    const adminUser = await getUserByEmail('naviadmin@tripradio.shop');
     
     return NextResponse.json({
       exists: !!adminUser,

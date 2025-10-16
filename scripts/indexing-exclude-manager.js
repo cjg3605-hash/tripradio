@@ -83,7 +83,7 @@ async function addTodaysSuccessfulUrls() {
   ];
   
   // 각 위치별로 성공한 URL 생성 (5개 언어)
-  const baseUrl = 'https://navidocent.com';
+  const baseUrl = 'https://tripradio.shop';
   const languages = ['ko', 'en', 'ja', 'zh', 'es'];
   
   let addedCount = 0;
@@ -130,7 +130,7 @@ function addLocationToExcludeList(locationName) {
   console.log(`📝 ${locationName} URL들을 제외 목록에 추가 중...`);
   
   const excludeData = loadExcludeList();
-  const baseUrl = 'https://navidocent.com';
+  const baseUrl = 'https://tripradio.shop';
   const languages = ['ko', 'en', 'ja', 'zh', 'es'];
   
   let addedCount = 0;

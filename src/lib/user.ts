@@ -106,7 +106,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 
 // 관리자 계정 생성 또는 업데이트 함수
 export async function createOrUpdateAdmin(): Promise<User> {
-  const adminEmail = 'naviadmin@navidocent.com';
+  const adminEmail = 'naviadmin@tripradio.shop';
   const adminName = 'NaviAdmin';
   const adminPassword = 'naviadmin1134';
 

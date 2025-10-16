@@ -400,7 +400,7 @@ export function generateLocalizedGuideUrls(koreanLocationName: string): Array<{
   url: string;
   localizedName: string;
 }> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
   const languages: SupportedLanguage[] = ['ko', 'en', 'ja', 'zh', 'es'];
   
   return languages.map(lang => {

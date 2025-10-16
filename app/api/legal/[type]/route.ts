@@ -23,7 +23,7 @@ export async function GET(
         state: '서울시',
         country: '대한민국'
       },
-      email: 'contact@navidocent.com',
+      email: 'contact@tripradio.shop',
       developerName: 'TripRadio Developer'
     });
 

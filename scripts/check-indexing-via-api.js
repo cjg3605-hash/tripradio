@@ -2,7 +2,7 @@
 // scripts/check-indexing-via-api.js
 // API를 통한 색인 상태 확인 및 URL 정리 도구
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
 
 /**
  * API 호출 헬퍼

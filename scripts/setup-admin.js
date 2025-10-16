@@ -19,7 +19,7 @@ async function setupAdmin() {
     console.log('🌐 대시보드 URL: http://localhost:3002/admin/dashboard');
     
     console.log('\n📝 로그인 정보:');
-    console.log('   이메일: naviadmin@navidocent.com');
+    console.log('   이메일: naviadmin@tripradio.shop');
     console.log('   비밀번호: naviadmin1134');
     
   } catch (error) {

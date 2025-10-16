@@ -4,7 +4,7 @@
 
 ## 📋 개요
 
-- **대상 도메인**: `https://navidocent.com`
+- **대상 도메인**: `https://tripradio.shop`
 - **목표**: 할당량 초과로 실패한 URL들 자동 재시도
 - **체크 간격**: 1시간마다
 - **자동 종료**: 모든 작업 완료 후
@@ -23,7 +23,7 @@ node scripts/auto-indexing-scheduler.js
 ### 2. 환경 변수 지정
 ```bash
 # 특정 도메인으로 실행
-NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/start-scheduler.js
+NEXT_PUBLIC_BASE_URL=https://tripradio.shop node scripts/start-scheduler.js
 ```
 
 ### 3. 백그라운드 실행 (선택사항)
@@ -45,10 +45,10 @@ nohup node scripts/start-scheduler.js > indexing.log 2>&1 &
 ### 2. 자동 색인 실행
 ```bash
 # 남은 가이드들 색인
-NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js run-remaining-only
+NEXT_PUBLIC_BASE_URL=https://tripradio.shop node scripts/seo-batch-indexing.js run-remaining-only
 
 # 랜딩 페이지들 색인
-NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js run-landing-pages
+NEXT_PUBLIC_BASE_URL=https://tripradio.shop node scripts/seo-batch-indexing.js run-landing-pages
 ```
 
 ### 3. 자동 종료
@@ -76,7 +76,7 @@ node scripts/start-scheduler.js
 
 ```
 📅 Google Indexing API 할당량 자동 체크 스케줄러 시작
-🌐 대상 도메인: https://navidocent.com
+🌐 대상 도메인: https://tripradio.shop
 🎯 목표: 남은 가이드들 + 랜딩페이지 색인 완료
 ⏰ 할당량 재설정 시간: 매일 자정 (UTC)
 📋 실행 모드: run-remaining-only + run-landing-pages
@@ -91,7 +91,7 @@ node scripts/start-scheduler.js
 ```
 ✅ 할당량 재설정 확인! 배치 색인 시작...
 🚀 전체 가이드 배치 색인 실행 중...
-📋 실행 명령: NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js run-remaining-only
+📋 실행 명령: NEXT_PUBLIC_BASE_URL=https://tripradio.shop node scripts/seo-batch-indexing.js run-remaining-only
 🎉 배치 색인 완료!
 🏢 랜딩 페이지 재시도 중...
 ✅ 랜딩 페이지 색인 완료!
@@ -125,10 +125,10 @@ node scripts/start-scheduler.js
 
 ```bash
 # 현재 상태 확인
-NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js status
+NEXT_PUBLIC_BASE_URL=https://tripradio.shop node scripts/seo-batch-indexing.js status
 
 # 수동 색인 실행
-NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js run-remaining-only
+NEXT_PUBLIC_BASE_URL=https://tripradio.shop node scripts/seo-batch-indexing.js run-remaining-only
 ```
 
 ## 🕐 할당량 재설정 시간

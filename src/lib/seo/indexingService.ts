@@ -65,7 +65,7 @@ export class IndexingService {
 
   // 새로운 가이드에 대한 5개 언어 URL 생성 (번역된 장소명 사용)
   generateGuideUrls(locationName: string): string[] {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
     const languages = ['ko', 'en', 'ja', 'zh', 'es'] as const;
     
     // 번역 모듈 동적 import (optional)
@@ -90,7 +90,7 @@ export class IndexingService {
 
   // 랜딩 페이지 URL 생성 (실제 존재하는 한국어 페이지들만)
   generateLandingPageUrls(): string[] {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
     
     const landingPages = [
       '', // 홈페이지
@@ -415,7 +415,7 @@ export function validateIndexingConfiguration(): {
 
   if (!process.env.NEXT_PUBLIC_BASE_URL) {
     missing.push('NEXT_PUBLIC_BASE_URL');
-    recommendations.push('사이트의 기본 URL을 환경 변수에 설정하세요. (예: https://navidocent.com)');
+    recommendations.push('사이트의 기본 URL을 환경 변수에 설정하세요. (예: https://tripradio.shop)');
   }
 
   return {

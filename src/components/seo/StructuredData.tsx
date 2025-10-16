@@ -8,8 +8,8 @@ interface StructuredDataProps {
 
 const StructuredData: React.FC<StructuredDataProps> = ({ type = 'WebSite', data = {} }) => {
   // 일관된 브랜드명과 URL 사용
-  const BRAND_NAME = 'TripRadio';
-  const BASE_URL = 'https://navidocent.com';
+  const BRAND_NAME = 'TripRadio.AI';
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
   const LOGO_URL = `${BASE_URL}/logo.png`;
   
   const getStructuredData = () => {

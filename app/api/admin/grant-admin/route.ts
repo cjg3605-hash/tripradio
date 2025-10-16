@@ -5,7 +5,7 @@ export async function POST() {
   try {
     console.log('🔧 기존 계정에 관리자 권한 부여 시작...');
 
-    const adminEmail = 'naviadmin@navidocent.com';
+    const adminEmail = 'naviadmin@tripradio.shop';
 
     // 1. 기존 계정 확인
     const { data: existingUser, error: findError } = await supabase
@@ -73,7 +73,7 @@ export async function POST() {
         isAdmin: verifyUser?.is_admin
       },
       login_info: {
-        email: 'naviadmin@navidocent.com',
+        email: 'naviadmin@tripradio.shop',
         password: 'naviadmin1134'
       }
     });
@@ -93,7 +93,7 @@ export async function GET() {
     const { data: adminUser, error } = await supabase
       .from('users')
       .select('id, email, name, is_admin, created_at, updated_at')
-      .eq('email', 'naviadmin@navidocent.com')
+      .eq('email', 'naviadmin@tripradio.shop')
       .single();
 
     if (error) {

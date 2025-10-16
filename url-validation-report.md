@@ -22,25 +22,25 @@
 ## ✅ 검증 완료된 URL들
 
 ### 가이드 페이지
-- ✅ `https://navidocent.com/guide/ko/경복궁` (200 OK)
-- ✅ `https://navidocent.com/guide/en/seoul` (200 OK)
-- ✅ `https://navidocent.com/guide/ja/seoul` (200 OK)
-- ✅ `https://navidocent.com/guide/zh/seoul` (200 OK)
-- ✅ `https://navidocent.com/guide/es/seoul` (200 OK)
+- ✅ `https://tripradio.shop/guide/ko/경복궁` (200 OK)
+- ✅ `https://tripradio.shop/guide/en/seoul` (200 OK)
+- ✅ `https://tripradio.shop/guide/ja/seoul` (200 OK)
+- ✅ `https://tripradio.shop/guide/zh/seoul` (200 OK)
+- ✅ `https://tripradio.shop/guide/es/seoul` (200 OK)
 
 ### 팟캐스트 페이지
-- ✅ `https://navidocent.com/podcast/ko/경복궁` (200 OK)
+- ✅ `https://tripradio.shop/podcast/ko/경복궁` (200 OK)
 
 ### 랜딩 페이지
-- ✅ `https://navidocent.com` (200 OK)
-- ✅ `https://navidocent.com/destinations` (200 OK)
-- ✅ `https://navidocent.com/docent` (200 OK)
-- ✅ `https://navidocent.com/regions/korea` (200 OK)
+- ✅ `https://tripradio.shop` (200 OK)
+- ✅ `https://tripradio.shop/destinations` (200 OK)
+- ✅ `https://tripradio.shop/docent` (200 OK)
+- ✅ `https://tripradio.shop/regions/korea` (200 OK)
 
 ## 📊 사이트맵 상태
 
 ### sitemap.xml
-- **URL**: `https://navidocent.com/sitemap.xml`
+- **URL**: `https://tripradio.shop/sitemap.xml`
 - **총 URL 개수**: 416개
   - 홈페이지: 1개
   - 키워드 페이지: 19개  
@@ -49,7 +49,7 @@
 - **상태**: ✅ 정상 생성
 
 ### sitemap-keywords.xml  
-- **URL**: `https://navidocent.com/sitemap-keywords.xml`
+- **URL**: `https://tripradio.shop/sitemap-keywords.xml`
 - **상태**: ✅ 정상 생성 (불필요한 hreflang 태그 제거됨)
 
 ## 🚀 SEO 최적화 완료 사항
@@ -75,20 +75,20 @@ Google Search Console에서 다음 작업 필요:
 
 ### 1. 사이트맵 제출
 ```
-https://navidocent.com/sitemap.xml
-https://navidocent.com/sitemap-keywords.xml
+https://tripradio.shop/sitemap.xml
+https://tripradio.shop/sitemap-keywords.xml
 ```
 
 ### 2. 우선 순위 URL 개별 색인 요청
 ```
-https://navidocent.com
-https://navidocent.com/guide/ko/경복궁
-https://navidocent.com/guide/en/gyeongbokgung-palace
-https://navidocent.com/podcast/ko/경복궁
-https://navidocent.com/destinations
-https://navidocent.com/docent
-https://navidocent.com/tour-radio
-https://navidocent.com/regions/korea
+https://tripradio.shop
+https://tripradio.shop/guide/ko/경복궁
+https://tripradio.shop/guide/en/gyeongbokgung-palace
+https://tripradio.shop/podcast/ko/경복궁
+https://tripradio.shop/destinations
+https://tripradio.shop/docent
+https://tripradio.shop/tour-radio
+https://tripradio.shop/regions/korea
 ```
 
 ## 🎯 예상 효과

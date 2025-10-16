@@ -179,7 +179,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'navidocent.com',
+        hostname: 'tripradio.shop',
       },
       {
         protocol: 'https', 
@@ -325,10 +325,10 @@ const nextConfig = {
         has: [
           {
             type: 'host',
-            value: 'www.navidocent.com'
+            value: 'www.tripradio.shop'
           }
         ],
-        destination: 'https://navidocent.com/:path*',
+        destination: 'https://tripradio.shop/:path*',
         permanent: true
       },
       {
@@ -340,7 +340,7 @@ const nextConfig = {
             value: 'http'
           }
         ],
-        destination: 'https://navidocent.com/:path*',
+        destination: 'https://tripradio.shop/:path*',
         permanent: true
       },
       // 🔄 기존 URL 구조 리다이렉션

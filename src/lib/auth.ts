@@ -75,7 +75,7 @@ export const authOptions: NextAuthOptions = {
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         // 프로덕션에서 명시적으로 도메인 설정
-        domain: process.env.NODE_ENV === 'production' ? '.navidocent.com' : undefined
+        domain: process.env.NODE_ENV === 'production' ? '.tripradio.shop' : undefined
       }
     },
     callbackUrl: {
@@ -85,7 +85,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: process.env.NODE_ENV === 'production' ? '.navidocent.com' : undefined
+        domain: process.env.NODE_ENV === 'production' ? '.tripradio.shop' : undefined
       }
     },
     csrfToken: {
@@ -95,7 +95,7 @@ export const authOptions: NextAuthOptions = {
         httpOnly: true,
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: process.env.NODE_ENV === 'production' ? '.navidocent.com' : undefined
+        domain: process.env.NODE_ENV === 'production' ? '.tripradio.shop' : undefined
       }
     }
   },

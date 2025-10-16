@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
         success: false,
         error: 'urls 또는 locations 중 하나를 지정해야 합니다.',
         example: {
-          byUrls: '{"urls": ["https://navidocent.com/guide/ko/부산"]}',
+          byUrls: '{"urls": ["https://tripradio.shop/guide/ko/부산"]}',
           byLocations: '{"locations": ["부산", "제주도"]}'
         }
       }, { status: 400, headers });

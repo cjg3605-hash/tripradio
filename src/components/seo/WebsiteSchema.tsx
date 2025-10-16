@@ -4,7 +4,7 @@ interface WebsiteSchemaProps {
   url?: string;
 }
 
-export default function WebsiteSchema({ url = 'https://navidocent.com' }: WebsiteSchemaProps) {
+export default function WebsiteSchema({ url = 'https://tripradio.shop' }: WebsiteSchemaProps) {
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",

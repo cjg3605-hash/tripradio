@@ -19,7 +19,7 @@ export interface SEOPageData {
  * Generate structured data for different page types
  */
 export function generateStructuredData(pageData: SEOPageData) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
   const fullUrl = pageData.url.startsWith('http') ? pageData.url : `${baseUrl}${pageData.url}`;
   const fullImageUrl = pageData.imageUrl?.startsWith('http') 
     ? pageData.imageUrl 
@@ -61,7 +61,7 @@ export function generateStructuredData(pageData: SEOPageData) {
  * Generate hreflang URLs for a given page
  */
 export function generateHreflangUrls(basePath: string): Record<string, string> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
   const fullBasePath = basePath.startsWith('/') ? basePath : `/${basePath}`;
 
   return {
@@ -172,7 +172,7 @@ export function optimizeMetaDescription(description: string, maxLength: number =
  * Generate canonical URL
  */
 export function generateCanonicalUrl(path: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   return `${baseUrl}${cleanPath}`;
 }

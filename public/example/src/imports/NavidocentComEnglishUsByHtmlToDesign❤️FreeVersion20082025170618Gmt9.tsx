@@ -1318,7 +1318,7 @@ export default function NavidocentComEnglishUsByHtmlToDesignFreeVersion200820251
   return (
     <div
       className="bg-[#444444] relative rounded-sm size-full"
-      data-name="navidocent.com (English-US) by html.to.design ❤️ FREE version - 20/08/2025, 17:06:18 GMT+9"
+      data-name="tripradio.shop (English-US) by html.to.design ❤️ FREE version - 20/08/2025, 17:06:18 GMT+9"
     >
       <div className="overflow-clip relative size-full">
         <Component1920WLight />

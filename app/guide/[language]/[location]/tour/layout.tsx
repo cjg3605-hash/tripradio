@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ language:
     prioritizeUrl: true
   });
   
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
   
   // 언어별 메타데이터 템플릿
   const templates = {
@@ -124,7 +124,7 @@ export default async function TourLayout({ children, params }: TourLayoutProps) 
   const resolvedParams = await params;
   const locationName = decodeURIComponent(resolvedParams.location || '');
   const requestedLang = resolvedParams.language; // 🚀 URL에서 언어 추출
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
   
   return (
     <>

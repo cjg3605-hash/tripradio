@@ -157,8 +157,8 @@ export async function POST(request: NextRequest) {
       
       // 테스트 명령어
       testCommands: {
-        manualIndexing: `curl -X POST ${envCheck.NEXT_PUBLIC_BASE_URL.value || 'https://navidocent.com'}/api/seo/request-indexing -H "Content-Type: application/json" -d '{"url":"${envCheck.NEXT_PUBLIC_BASE_URL.value || 'https://navidocent.com'}/guide/ko/테스트장소"}'`,
-        newGuideGeneration: `curl -X POST ${envCheck.NEXT_PUBLIC_BASE_URL.value || 'https://navidocent.com'}/api/node/ai/generate-guide -H "Content-Type: application/json" -d '{"locationName":"테스트장소","language":"ko"}'`
+        manualIndexing: `curl -X POST ${envCheck.NEXT_PUBLIC_BASE_URL.value || 'https://tripradio.shop'}/api/seo/request-indexing -H "Content-Type: application/json" -d '{"url":"${envCheck.NEXT_PUBLIC_BASE_URL.value || 'https://tripradio.shop'}/guide/ko/테스트장소"}'`,
+        newGuideGeneration: `curl -X POST ${envCheck.NEXT_PUBLIC_BASE_URL.value || 'https://tripradio.shop'}/api/node/ai/generate-guide -H "Content-Type: application/json" -d '{"locationName":"테스트장소","language":"ko"}'`
       }
     };
 

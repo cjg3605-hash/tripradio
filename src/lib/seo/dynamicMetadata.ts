@@ -42,7 +42,7 @@ export async function generateGuideMetadata({
   guideContent
 }: GuideMetadataProps): Promise<Metadata> {
   const template = metadataTemplates[language as keyof typeof metadataTemplates] || metadataTemplates.ko;
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
   
   // 가이드 내용에서 실제 정보 추출
   let extractedDescription = template.descriptionTemplate.replace(/{location}/g, locationName);

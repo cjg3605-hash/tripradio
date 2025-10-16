@@ -49,7 +49,7 @@ export async function GET() {
     const { data: adminCheck, error: adminError } = await supabase
       .from('users')
       .select('id, email, name, is_admin')
-      .eq('email', 'naviadmin@navidocent.com')
+      .eq('email', 'naviadmin@tripradio.shop')
       .maybeSingle();
 
     console.log('👤 관리자 계정 확인:', adminCheck);
@@ -103,7 +103,7 @@ export async function POST() {
     const bcrypt = require('bcryptjs');
     const { randomUUID } = require('crypto');
 
-    const adminEmail = 'naviadmin@navidocent.com';
+    const adminEmail = 'naviadmin@tripradio.shop';
     const adminName = 'NaviAdmin';
     const adminPassword = 'naviadmin1134';
     const hashedPassword = await bcrypt.hash(adminPassword, 12);

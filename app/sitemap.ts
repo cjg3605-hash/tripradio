@@ -82,7 +82,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   
   // 🚀 정규화된 도메인 (SEO 최적화)
-  const BASE_URL = 'https://navidocent.com';
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
   
   const sitemapEntries: MetadataRoute.Sitemap = [
     // 메인 페이지

@@ -187,7 +187,7 @@ const ReviewSchema: React.FC<ReviewSchemaProps> = ({ itemReviewed, reviews = [],
     provider: {
       "@type": "Organization",
       name: "TripRadio.AI",
-      url: "https://navidocent.com"
+      url: "https://tripradio.shop"
     },
     
     // 언어

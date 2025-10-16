@@ -52,7 +52,7 @@ export function detectRuntimeConfig(req?: any): RuntimeConfig {
   // 환경변수 기반 기본값
   const port = parseInt(process.env.PORT || '3000', 10);
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-  const host = process.env.NODE_ENV === 'production' ? 'navidocent.com' : 'localhost';
+  const host = process.env.NODE_ENV === 'production' ? 'tripradio.shop' : 'localhost';
   const baseUrl = `${protocol}://${host}${port === 80 || port === 443 ? '' : `:${port}`}`;
 
   return {

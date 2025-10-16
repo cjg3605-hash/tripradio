@@ -244,7 +244,7 @@ export async function OPTIONS() {
 
 // 정적 페이지 목록 정의
 function getStaticPages(): Array<{ pageName: string; urls: string[] }> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
   const languages = ['ko', 'en', 'ja', 'zh', 'es'];
   
   return [

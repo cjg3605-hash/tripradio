@@ -55,7 +55,7 @@ export class LegalPagesService {
       state: '서울시',
       country: '대한민국'
     },
-    email: 'contact@navidocent.com'
+    email: 'contact@tripradio.shop'
   };
   private pages = new Map<string, LegalPageContent>();
 
@@ -321,7 +321,7 @@ export class LegalPagesService {
 회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보보호책임자를 지정하고 있습니다.
 
 **개인정보보호책임자**
-- 연락처: ${this.contactInfo?.email || 'contact@navidocent.com'}
+- 연락처: ${this.contactInfo?.email || 'contact@tripradio.shop'}
 
 ## 8. 개인정보 처리방침 변경
 
@@ -381,7 +381,7 @@ This website uses Google AdSense to serve advertisements:
 ## 7. Contact Us
 
 If you have any questions about this Privacy Policy, please contact us at:
-Email: ${this.contactInfo?.email || 'contact@navidocent.com'}
+Email: ${this.contactInfo?.email || 'contact@tripradio.shop'}
 
 This policy is effective as of ${new Date().toLocaleDateString('en-US')}.
       `;
@@ -582,7 +582,7 @@ Matters not specified in these terms will be governed by applicable laws and cus
 
 **사업자 정보**
 - 회사명: 트립라디오AI
-- 이메일: ${this.contactInfo?.email || 'contact@navidocent.com'}
+- 이메일: ${this.contactInfo?.email || 'contact@tripradio.shop'}
 - 주소: ${this.contactInfo?.serviceAddress?.city || '서울'}, ${this.contactInfo?.serviceAddress?.country || '대한민국'}
 
 **문의 유형**
@@ -651,7 +651,7 @@ We prioritize user privacy protection:
 
 **Business Information**
 - Company: NaviGuide AI
-- Email: ${this.contactInfo?.email || 'contact@navidocent.com'}
+- Email: ${this.contactInfo?.email || 'contact@tripradio.shop'}
 - Address: ${this.contactInfo?.serviceAddress?.city || 'Seoul'}, ${this.contactInfo?.serviceAddress?.country || 'South Korea'}
 
 **Contact Types**
@@ -720,7 +720,7 @@ A: 가이드 다운로드 기능을 통해 오프라인에서도 이용 가능�
 ## 🌐 소셜 미디어
 
 저희 소식을 소셜 미디어에서도 확인하세요:
-- **웹사이트**: https://navidocent.com
+- **웹사이트**: https://tripradio.shop
 - **블로그**: 준비 중
 - **뉴스레터**: 구독 신청 가능
 
@@ -774,15 +774,15 @@ A: It can be used offline through the guide download function.
 ## 🌐 Social Media
 
 Check our news on social media:
-- **Website**: https://navidocent.com
+- **Website**: https://tripradio.shop
 - **Blog**: Coming soon
 - **Newsletter**: Subscription available
 
 ## 📋 Feedback and Suggestions
 
 Please send us your valuable opinions for service improvement:
-- **Feedback**: feedback@navidocent.com
-- **Feature Suggestions**: suggestions@navidocent.com
+- **Feedback**: feedback@tripradio.shop
+- **Feature Suggestions**: suggestions@tripradio.shop
 
 ---
 
@@ -917,7 +917,7 @@ Please send us your valuable opinions for service improvement:
 광고 정책에 대한 문의나 의견이 있으시면 언제든지 연락해 주세요:
 
 **연락처**
-- 이메일: ${this.contactInfo?.email || 'contact@navidocent.com'}
+- 이메일: ${this.contactInfo?.email || 'contact@tripradio.shop'}
 - 텔레그램: [네비:가이드AI](https://t.me/+z2Z5yfFKu30xN2Vl)
 
 ## 8. 정책 적용일
@@ -1018,7 +1018,7 @@ This advertising revenue policy may be updated in the following cases:
 If you have any questions or feedback about our advertising policy, please contact us anytime:
 
 **Contact Information**
-- Email: ${this.contactInfo?.email || 'contact@navidocent.com'}
+- Email: ${this.contactInfo?.email || 'contact@tripradio.shop'}
 - Telegram: [Navi:GuideAI](https://t.me/+z2Z5yfFKu30xN2Vl)
 
 ## 8. Policy Effective Date

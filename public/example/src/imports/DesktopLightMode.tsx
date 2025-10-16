@@ -2745,7 +2745,7 @@ export default function DesktopLightMode() {
         </div>
         <div className="absolute font-['Inter:Semi_Bold',_sans-serif] font-semibold leading-[0] left-[200px] not-italic text-[#ffffff] text-[24px] text-nowrap top-[100px]">
           <p className="block leading-[30px] whitespace-pre">
-            https://navidocent.com/guide/%EB%82%A8%EC%82%B0%ED%83%80%EC%9B%8C?lang=ko
+            https://tripradio.shop/guide/%EB%82%A8%EC%82%B0%ED%83%80%EC%9B%8C?lang=ko
           </p>
         </div>
       </div>

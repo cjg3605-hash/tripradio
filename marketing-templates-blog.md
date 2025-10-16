@@ -31,7 +31,7 @@
 3️⃣ 오디오 재생으로 투어 시작!
 
 **🔗 지금 바로 체험해보세요**
-▶️ https://navidocent.com
+▶️ https://tripradio.shop
 
 #여행앱 #AI가이드 #스마트여행 #여행꿀팁 #NAVIDOCENT
 ```
@@ -69,7 +69,7 @@
 "부산 여행할 때 숨은 맛집까지 알려줘서 대박!" - 이**님
 
 **🎁 완전 무료니까 부담없이 써보세요**
-👉 https://navidocent.com
+👉 https://tripradio.shop
 
 어떤 곳이든 검색창에 입력만 하면 끝!
 
@@ -120,7 +120,7 @@
 
 이정도면 여행 필수앱 아닌가요?
 
-🔗 여러분도 써보세요: https://navidocent.com
+🔗 여러분도 써보세요: https://tripradio.shop
 
 #경복궁 #NAVIDOCENT #여행후기 #AI가이드 #무료여행앱
 ```
@@ -166,7 +166,7 @@
 - 체류시간
 
 ## 🌐 서비스 정보
-- **서비스 URL**: https://navidocent.com
+- **서비스 URL**: https://tripradio.shop
 - **지원 언어**: 한국어, 영어, 일본어, 중국어, 스페인어
 - **서비스 형태**: 완전 무료 웹 애플리케이션
 - **주요 기능**: AI 가이드 생성, 오디오 해설, 다국어 지원, PWA

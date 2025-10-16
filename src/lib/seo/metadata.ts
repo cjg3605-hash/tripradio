@@ -64,7 +64,7 @@ const SEO_CONFIGS: Record<SupportedLanguage, SEOConfig> = {
 };
 
 // 정규화된 도메인 사용 (리디렉션 없는 최종 URL)
-const BASE_DOMAIN = 'https://navidocent.com';
+const BASE_DOMAIN = 'https://tripradio.shop';
 
 const LOCALE_MAP: Record<SupportedLanguage, string> = {
   ko: 'ko_KR',
@@ -346,7 +346,7 @@ export const defaultViewport: Viewport = {
  * 사이트맵 URL 생성 (실제 쿼리 파라미터 기반 구조에 맞게 수정)
  */
 export function generateSitemapUrls(guides: Array<{ name: string; slug?: string }>): MetadataRoute.Sitemap {
-  const baseUrl = 'https://navidocent.com';
+  const baseUrl = 'https://tripradio.shop';
   const languages: SupportedLanguage[] = ['ko', 'en', 'ja', 'zh', 'es'];
   const now = new Date();
   

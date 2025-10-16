@@ -10,7 +10,7 @@ const path = require('path');
  */
 class PerformanceAnalyzer {
   constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+    this.baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
     this.outputDir = path.join(__dirname, 'performance-reports');
     this.timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     

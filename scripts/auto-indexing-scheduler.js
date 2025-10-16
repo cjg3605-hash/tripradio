@@ -5,7 +5,7 @@
 const { execSync } = require('child_process');
 
 // 환경 변수에서 기본 URL 가져오기
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
 const API_URL = `${BASE_URL}/api/seo`;
 
 /**

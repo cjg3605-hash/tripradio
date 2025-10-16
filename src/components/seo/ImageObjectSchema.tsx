@@ -161,11 +161,11 @@ const ImageObjectSchema: React.FC<ImageObjectSchemaProps> = ({ images, context }
     provider: {
       "@type": "Organization",
       name: "TripRadio.AI",
-      url: "https://navidocent.com"
+      url: "https://tripradio.shop"
     },
     
     // 라이센스 정보
-    license: "https://navidocent.com/license",
+    license: "https://tripradio.shop/license",
     usageInfo: "Images for educational and travel guidance purposes",
     
     // 컬렉션 정보

@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   authors: [{ name: 'TripRadio.AI 팀' }],
   creator: 'TripRadio.AI',
   publisher: 'TripRadio.AI',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop'),
   openGraph: {
     type: 'website',
     locale: 'ko_KR',
@@ -183,8 +183,8 @@ export default async function RootLayout({
         
         
         {/* hreflang Tags for Multilingual SEO - Updated for New URL Structure */}
-        <link rel="alternate" hrefLang="ko-KR" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'} />
-        <link rel="alternate" hrefLang="x-default" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com'} />
+        <link rel="alternate" hrefLang="ko-KR" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop'} />
+        <link rel="alternate" hrefLang="x-default" href={process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop'} />
         
         {/* Enhanced Language Discovery for Search Engines */}
         <meta name="google" content="notranslate" />
@@ -281,7 +281,7 @@ export default async function RootLayout({
             potentialAction: {
               target: {
                 '@type': 'EntryPoint',
-                urlTemplate: `https://navidocent.com/guide/ko/{search_term_string}`
+                urlTemplate: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop'}/guide/ko/{search_term_string}`
               }
             }
           }}

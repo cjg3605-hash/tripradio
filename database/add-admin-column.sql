@@ -14,7 +14,7 @@ WHERE is_admin IS NULL;
 CREATE OR REPLACE FUNCTION ensure_admin_user()
 RETURNS void AS $$
 DECLARE
-    admin_email text := 'naviadmin@navidocent.com';
+    admin_email text := 'admin@tripradio.shop';
     admin_exists boolean;
 BEGIN
     -- 관리자 계정 존재 확인

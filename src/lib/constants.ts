@@ -5,7 +5,7 @@ export const APP_CONFIG = {
   name: 'TripRadio.AI',
   description: 'AI-powered personalized travel radio guide service',
   version: '1.0.0',
-  supportEmail: 'contact@navidocent.com'
+  supportEmail: 'contact@tripradio.shop'
 } as const;
 
 export const SUPPORTED_LANGUAGES = {

@@ -14,7 +14,7 @@ const path = require('path');
 
 // 테스트 설정
 const TEST_CONFIG = {
-  API_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com',
+  API_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop',
   DELAY_BETWEEN_TESTS: 3000, // 3초 딜레이
   OUTPUT_DIR: 'test-results',
   QUICK_TEST_LOCATIONS: ['용궁사', '경복궁', '부산 감천문화마을', 'Eiffel Tower', 'Tokyo Tower']

@@ -37,7 +37,7 @@ Allow: /guide/zh/
 Allow: /guide/es/
 
 # Sitemap
-Sitemap: https://navidocent.com/sitemap.xml
+Sitemap: https://tripradio.shop/sitemap.xml
 
 # Crawl-delay (reduces server load but allows frequent updates)
 Crawl-delay: 0.5

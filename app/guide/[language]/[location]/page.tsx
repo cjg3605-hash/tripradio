@@ -158,7 +158,7 @@ export default async function GuidePage({ params, searchParams }: PageProps) {
     }
     
     // 🎯 다국어 URL 생성 (새 구조 적용)
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
     const multilingualUrls = generateMultilingualUrls(locationName, baseUrl);
     const adjustedUrls = Object.entries(multilingualUrls).reduce((acc, [lang, url]) => {
       // 새로운 URL 구조로 변환: /guide/[language]/[location]

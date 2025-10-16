@@ -2,7 +2,7 @@
 // 수동 색인 스크립트 - 새 URL 구조 반영
 const https = require('https');
 
-const baseUrl = 'https://navidocent.com';
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
 
 // 주요 페이지들 - 새 URL 구조 적용
 const urlsToIndex = [

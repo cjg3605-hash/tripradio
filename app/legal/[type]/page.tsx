@@ -29,7 +29,7 @@ export async function generateMetadata({ params, searchParams }: LegalPageProps)
         state: '서울시',
         country: '대한민국'
       },
-      email: 'contact@navidocent.com'
+      email: 'support@tripradio.shop'
     });
 
     let page;
@@ -54,6 +54,7 @@ export async function generateMetadata({ params, searchParams }: LegalPageProps)
     }
     
     const seo = page.seoMetadata;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
     
     return {
       title: `${page.title} | 트립라디오AI`,
@@ -61,7 +62,7 @@ export async function generateMetadata({ params, searchParams }: LegalPageProps)
       keywords: seo.keywords.join(', '),
       robots: 'index, follow',
       alternates: {
-        canonical: `${process.env.NEXT_PUBLIC_BASE_URL}${seo.canonicalUrl}`,
+        canonical: `${baseUrl}${seo.canonicalUrl}`,
         languages: {
           'ko': `/legal/${type}?lang=ko`,
           'en': `/legal/${type}?lang=en`
@@ -70,7 +71,7 @@ export async function generateMetadata({ params, searchParams }: LegalPageProps)
       openGraph: {
         title: page.title,
         description: seo.description,
-        url: `${process.env.NEXT_PUBLIC_BASE_URL}${seo.canonicalUrl}`,
+        url: `${baseUrl}${seo.canonicalUrl}`,
         siteName: '트립라디오AI',
         locale: lang === 'ko' ? 'ko_KR' : 'en_US',
         type: 'website',
@@ -114,7 +115,7 @@ export default async function LegalPage({ params, searchParams }: LegalPageProps
         state: '서울시',
         country: '대한민국'
       },
-      email: 'contact@navidocent.com'
+      email: 'support@tripradio.shop'
     });
 
     let page;
@@ -139,6 +140,7 @@ export default async function LegalPage({ params, searchParams }: LegalPageProps
     }
     
     const compliance = legalPagesService.assessAdSenseCompliance();
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
     
     // Markdown을 HTML로 변환하는 간단한 함수
     const markdownToHtml = (markdown: string) => {
@@ -269,18 +271,18 @@ export default async function LegalPage({ params, searchParams }: LegalPageProps
               "@type": "WebPage",
               "name": page.title,
               "description": page.seoMetadata?.description,
-              "url": `${process.env.NEXT_PUBLIC_BASE_URL}/legal/${type}`,
+              "url": `${baseUrl}/legal/${type}`,
               "dateModified": page.lastUpdated,
               "inLanguage": lang === 'ko' ? 'ko-KR' : 'en-US',
               "isPartOf": {
                 "@type": "WebSite",
                 "name": "트립라디오AI",
-                "url": process.env.NEXT_PUBLIC_BASE_URL
+                "url": baseUrl
               },
               "publisher": {
                 "@type": "Organization",
                 "name": "트립라디오AI",
-                "url": process.env.NEXT_PUBLIC_BASE_URL
+                "url": baseUrl
               }
             })
           }}

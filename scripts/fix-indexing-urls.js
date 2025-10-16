@@ -18,7 +18,7 @@ function fixIndexingUrls() {
     
     // 기존 generateGuideUrls 함수 찾기
     const originalFunction = `  generateGuideUrls(locationName: string): string[] {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
     const languages = ['ko', 'en', 'ja', 'zh', 'es'] as const;
     
     // 번역 모듈 동적 import (optional)
@@ -37,7 +37,7 @@ function fixIndexingUrls() {
 
     // 수정된 함수
     const newFunction = `  generateGuideUrls(locationName: string): string[] {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
     const languages = ['ko', 'en', 'ja', 'zh', 'es'] as const;
     
     // 번역 모듈 동적 import (optional)
@@ -112,7 +112,7 @@ function addLandingPageUrlGeneration() {
     const landingPageFunction = `
   // 랜딩 페이지 URL 생성
   generateLandingPageUrls(): string[] {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
     const languages = ['ko', 'en', 'ja', 'zh', 'es'] as const;
     
     const landingPages = [
@@ -194,7 +194,7 @@ async function testUrlGeneration() {
     }
     
     // 간단한 URL 생성 테스트
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
     const locationName = '경복궁';
     const languages = ['ko', 'en', 'ja', 'zh', 'es'];
     

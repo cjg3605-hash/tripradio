@@ -35,8 +35,8 @@ export function clearAllAuthCookies(): void {
   // 환경에 따른 도메인 설정
   const isProduction = process.env.NODE_ENV === 'production';
   const domains = isProduction ? [
-    'navidocent.com',
-    '.navidocent.com',
+    'tripradio.shop',
+    '.tripradio.shop',
     undefined
   ] : [
     window.location.hostname,

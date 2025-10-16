@@ -25,7 +25,7 @@ interface LocalBusinessSchemaProps {
 export default function LocalBusinessSchema({
   businessName = "TripRadio.AI",
   description,
-  url = "https://navidocent.com",
+  url = "https://tripradio.shop",
   address,
   telephone,
   email,

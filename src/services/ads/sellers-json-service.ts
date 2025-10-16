@@ -39,8 +39,8 @@ export class SellersJsonService {
     this.businessConfig = {
       publicDisclosure: false, // 기본값: 내부용
       businessName: '트립라디오AI',
-      verifiedDomain: 'navidocent.com',
-      contactEmail: 'contact@navidocent.com',
+      verifiedDomain: 'tripradio.shop',
+      contactEmail: 'contact@tripradio.shop',
       businessAddress: '서울특별시 강남구',
       publisherType: 'content'
     };

@@ -59,7 +59,7 @@ export function generateNextAuthUrl(): string {
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
   
   if (process.env.NODE_ENV === 'production') {
-    return process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+    return process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
   }
   
   return `${protocol}://localhost:${port}`;

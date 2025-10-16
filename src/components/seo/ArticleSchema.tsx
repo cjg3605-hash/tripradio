@@ -26,7 +26,7 @@ export default function ArticleSchema({
   readingTime = 5
 }: ArticleSchemaProps) {
   
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://navidocent.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
   const fullImageUrl = imageUrl.startsWith('http') ? imageUrl : `${baseUrl}${imageUrl}`;
   const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
 

@@ -117,7 +117,7 @@ console.log('📊 캐시 상태:', window.cacheStats);
 
 **숨겨진 URL 파라미터들:**
 ```
-https://navidocent.com/?lang=en&theme=dark&voice=slow&format=detailed
+https://tripradio.shop/?lang=en&theme=dark&voice=slow&format=detailed
 
 📌 사용 가능한 파라미터:
 - lang: ko|en|ja|zh|es (언어 강제 설정)
@@ -132,7 +132,7 @@ https://navidocent.com/?lang=en&theme=dark&voice=slow&format=detailed
 // 현재 페이지를 NAVIDOCENT에서 검색
 javascript:(function(){
   var location = prompt('검색할 장소를 입력하세요:');
-  if(location) window.open('https://navidocent.com/?q=' + encodeURIComponent(location));
+  if(location) window.open('https://tripradio.shop/?q=' + encodeURIComponent(location));
 })();
 ```
 
@@ -358,7 +358,7 @@ performance.measure('generation-time', 'guide-generation-start', 'guide-generati
 4. **전문 활용** 🚀 비즈니스/교육 목적으로 확장 활용
 5. **커뮤니티 기여** 💪 피드백 제공으로 서비스 발전에 기여
 
-**🔗 바로 시작하기:** https://navidocent.com
+**🔗 바로 시작하기:** https://tripradio.shop
 
 여러분도 이제 NAVIDOCENT 파워 유저가 되어보세요! 
 더 궁금한 고급 기능이나 활용법이 있다면 댓글로 알려주세요 💬

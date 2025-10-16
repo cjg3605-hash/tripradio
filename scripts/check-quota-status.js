@@ -34,7 +34,7 @@ async function checkQuotaStatus() {
     
     try {
       // 메타데이터 요청 (할당량 소모가 적음)
-      const testUrl = 'https://navidocent.com/guide/경복궁?lang=ko';
+      const testUrl = 'https://tripradio.shop/guide/경복궁?lang=ko';
       const metadataResponse = await indexing.urlNotifications.getMetadata({
         url: testUrl
       });

@@ -42,10 +42,10 @@ const TouristAttractionSchema: React.FC<TouristAttractionSchemaProps> = ({ data 
   const schemaData = {
     "@context": "https://schema.org",
     "@type": "TouristAttraction",
-    "@id": `https://navidocent.com/guide/${encodeURIComponent(data.name)}#touristattraction`,
+    "@id": `https://tripradio.shop/guide/${encodeURIComponent(data.name)}#touristattraction`,
     name: data.name,
     description: data.description,
-    url: data.website || `https://navidocent.com/guide/${encodeURIComponent(data.name)}`,
+    url: data.website || `https://tripradio.shop/guide/${encodeURIComponent(data.name)}`,
     
     // 주소 정보
     address: {
@@ -125,10 +125,10 @@ const TouristAttractionSchema: React.FC<TouristAttractionSchemaProps> = ({ data 
     provider: {
       "@type": "Organization",
       name: "TripRadio.AI",
-      url: "https://navidocent.com",
+      url: "https://tripradio.shop",
       logo: {
         "@type": "ImageObject",
-        url: "https://navidocent.com/logo.png"
+        url: "https://tripradio.shop/logo.png"
       }
     },
     
@@ -137,19 +137,19 @@ const TouristAttractionSchema: React.FC<TouristAttractionSchemaProps> = ({ data 
       {
         "@type": "ListenAction",
         name: "AI 음성 가이드 듣기",
-        target: `https://navidocent.com/guide/${encodeURIComponent(data.name)}/tour`
+        target: `https://tripradio.shop/guide/${encodeURIComponent(data.name)}/tour`
       },
       {
         "@type": "ReadAction",
         name: "여행 가이드 읽기",
-        target: `https://navidocent.com/guide/${encodeURIComponent(data.name)}`
+        target: `https://tripradio.shop/guide/${encodeURIComponent(data.name)}`
       }
     ],
     
     // 추가 속성
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `https://navidocent.com/guide/${encodeURIComponent(data.name)}`
+      "@id": `https://tripradio.shop/guide/${encodeURIComponent(data.name)}`
     },
     
     // 콘텐츠 정보

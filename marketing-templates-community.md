@@ -33,7 +33,7 @@
 ✅ 오프라인에서도 사용 가능
 
 **💡 사용법:**
-1. 웹사이트 접속 (navidocent.com)
+1. 웹사이트 접속 (tripradio.shop)
 2. 가고 싶은 장소 검색
 3. AI 가이드 생성 클릭
 4. 오디오 재생하면서 투어 시작!
@@ -45,7 +45,7 @@
 가이드북보다 훨씬 상세하고 재미있어서
 시간 가는 줄 몰랐어요 ㅎㅎ
 
-**🔗 링크:** https://navidocent.com
+**🔗 링크:** https://tripradio.shop
 
 여러분도 여행 가실 때 한번 써보세요!
 정말 강추합니다 👍
@@ -72,7 +72,7 @@ AI 여행 가이드 NAVIDOCENT 아시나요?
 - 완전 무료!
 
 사용법도 엄청 간단해요
-navidocent.com 접속해서
+tripradio.shop 접속해서
 가고 싶은 곳 검색만 하면 끝!
 
 저는 어제 경복궁에서 써봤는데
@@ -128,7 +128,7 @@ navidocent.com 접속해서
 무엇보다 **완전 무료**라는 점이 놀라웠습니다.
 광고도 없고, 회원가입도 선택사항이에요.
 
-**🔗 체험:** https://navidocent.com
+**🔗 체험:** https://tripradio.shop
 
 기술 스택이나 구현 방식 궁금한 분들은
 GitHub에서 코드도 확인할 수 있어요.
@@ -194,7 +194,7 @@ IT 업계 종사자분들이나 개발에 관심 있는 분들도
 - NAVIDOCENT: **완전 무료** 🎉
 
 **📱 사용법:**
-1. navidocent.com 접속
+1. tripradio.shop 접속
 2. 여행지 검색 (한국어로 OK)
 3. AI 가이드 생성 클릭
 4. 이어폰 꽂고 투어 시작!
@@ -208,7 +208,7 @@ IT 업계 종사자분들이나 개발에 관심 있는 분들도
 진짜 여행의 질이 완전 달라져요!
 저는 이제 여행 필수템이 되었습니다 ㅎㅎ
 
-🔗 **링크:** https://navidocent.com
+🔗 **링크:** https://tripradio.shop
 
 ---
 💬 혹시 써보신 분 계신가요?
@@ -252,7 +252,7 @@ AI 여행 가이드 'NAVIDOCENT'인데
 진짜 몰입감 장난 아니야 🎧
 
 ✨ **사용법:**
-navidocent.com 접속
+tripradio.shop 접속
 → 가고 싶은 곳 검색  
 → AI 가이드 생성
 → 재생 버튼 누르고 투어 시작
@@ -292,7 +292,7 @@ NAVIDOCENT라고 3초만에 가이드 만들어줌
 💰 완전 무료
 📱 PWA라서 앱처럼 설치 가능
 
-navidocent.com 들어가서 써봐
+tripradio.shop 들어가서 써봐
 진짜 퀄리티 개좋음 👍
 
 누가 써봤으면 후기 좀 알려줘!
@@ -318,7 +318,7 @@ NAVIDOCENT - AI 여행 가이드
 
 완전 무료라서 채널 운영비 걱정 없어요!
 
-🔗 navidocent.com
+🔗 tripradio.shop
 
 혹시 써보신 크리에이터 분들 계신가요?
 후기 궁금해요! 💬
@@ -396,7 +396,7 @@ NAVIDOCENT - AI 여행 가이드
 ---
 
 ## 🌐 서비스 정보
-- **서비스 URL**: https://navidocent.com
+- **서비스 URL**: https://tripradio.shop
 - **GitHub**: https://github.com/jg5209/navi-guide-ai
 - **Telegram**: https://t.me/naviguideai
 - **서비스 특징**: 완전 무료, 광고 없음, 회원가입 선택

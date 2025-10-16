@@ -42,7 +42,7 @@ TripRadio의 새로운 가이드가 생성될 때마다 Google과 Naver 검색�
    ```
 
 2. **속성 선택**
-   - `navidocent.com` 속성 선택
+   - `tripradio.shop` 속성 선택
 
 3. **사용자 추가**
    - 설정 → 사용자 및 권한 → 사용자 추가
@@ -60,7 +60,7 @@ TripRadio의 새로운 가이드가 생성될 때마다 Google과 Naver 검색�
 GOOGLE_SERVICE_ACCOUNT_KEY="ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCIsCiAgInByb2plY3RfaWQiOiAieW91ci1wcm9qZWN0LWlkIiwKICAicHJpdmF0ZV9rZXlfaWQiOiAieW91ci1rZXktaWQiLAogICJwcml2YXRlX2tleSI6ICItLS0tLUJFR0lOIFBSSVZBVEUgS0VZLS0tLS1cblsuLi5dXG4tLS0tLUVORCBQUklWQVRFIEtFWS0tLS0tXG4iLAogICJjbGllbnRfZW1haWwiOiAieW91ci1zZXJ2aWNlLWFjY291bnRAeW91ci1wcm9qZWN0LmlhbS5nc2VydmljZWFjY291bnQuY29tIiwKICAiY2xpZW50X2lkIjogInlvdXItY2xpZW50LWlkIiwKICAiYXV0aF91cmkiOiAiaHR0cHM6Ly9hY2NvdW50cy5nb29nbGUuY29tL28vb2F1dGgyL2F1dGgiLAogICJ0b2tlbl91cmkiOiAiaHR0cHM6Ly9vYXV0aDIuZ29vZ2xlYXBpcy5jb20vdG9rZW4iLAogICJhdXRoX3Byb3ZpZGVyX3g1MDlfY2VydF91cmwiOiAiaHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vb2F1dGgyL3YxL2NlcnRzIiwKICAiY2xpZW50X3g1MDlfY2VydF91cmwiOiAiaHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vcm9ib3QvdjEvbWV0YWRhdGEveDUwOS95b3VyLXNlcnZpY2UtYWNjb3VudCU0MHlvdXItcHJvamVjdC5pYW0uZ3NlcnZpY2VhY2NvdW50LmNvbSIsCiAgInVuaXZlcnNlX2RvbWFpbiI6ICJnb29nbGVhcGlzLmNvbSIKfQ=="
 
 # 사이트 기본 URL
-NEXT_PUBLIC_BASE_URL="https://navidocent.com"
+NEXT_PUBLIC_BASE_URL="https://tripradio.shop"
 ```
 
 ### Base64 인코딩 방법
@@ -131,15 +131,15 @@ fetch('/api/seo/validate-config', { method: 'POST' })
 
 1. **가이드 생성 API 호출**
    ```bash
-   curl -X POST https://navidocent.com/api/node/ai/generate-guide \
+   curl -X POST https://tripradio.shop/api/node/ai/generate-guide \
      -H "Content-Type: application/json" \
      -d '{"locationName": "테스트장소", "language": "ko"}'
    ```
 
 2. **로그 확인**
    ```
-   ✅ Google 색인 요청 성공: https://navidocent.com/guide/테스트장소?lang=ko
-   ✅ Google 색인 요청 성공: https://navidocent.com/guide/테스트장소?lang=en
+   ✅ Google 색인 요청 성공: https://tripradio.shop/guide/테스트장소?lang=ko
+   ✅ Google 색인 요청 성공: https://tripradio.shop/guide/테스트장소?lang=en
    ...
    ```
 

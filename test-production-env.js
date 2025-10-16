@@ -36,18 +36,18 @@ if (!isProduction) {
 } else {
   console.log('   ✅ 동적 설정 비활성화 - Vercel 환경변수 사용');
   console.log('   📋 사용되는 환경변수: Vercel Dashboard 설정');
-  console.log('   🌐 NEXTAUTH_URL: https://navidocent.com (고정)');
+  console.log('   🌐 NEXTAUTH_URL: https://tripradio.shop (고정)');
 }
 
 // 3. Vercel 환경 시뮬레이션
 console.log('\n☁️ Vercel 배포 환경 시뮬레이션:');
 process.env.NODE_ENV = 'production';
 process.env.VERCEL = '1';
-process.env.VERCEL_URL = 'navidocent.com';
+process.env.VERCEL_URL = 'tripradio.shop';
 
 console.log('   환경변수 소스: Vercel Dashboard');
-console.log('   NEXTAUTH_URL: https://navidocent.com');
-console.log('   NEXT_PUBLIC_BASE_URL: https://navidocent.com');
+console.log('   NEXTAUTH_URL: https://tripradio.shop');
+console.log('   NEXT_PUBLIC_BASE_URL: https://tripradio.shop');
 console.log('   동적 환경변수: 완전히 비활성화됨 ✅');
 
 // 4. 런타임 설정 테스트
@@ -56,15 +56,15 @@ try {
   // runtime-config 모듈 시뮬레이션
   const mockReq = {
     headers: {
-      host: 'navidocent.com',
+      host: 'tripradio.shop',
       'x-forwarded-proto': 'https'
     }
   };
   
   console.log('   프로덕션에서 런타임 감지 결과:');
-  console.log('   - Host: navidocent.com');
+  console.log('   - Host: tripradio.shop');
   console.log('   - Protocol: https');
-  console.log('   - BaseURL: https://navidocent.com');
+  console.log('   - BaseURL: https://tripradio.shop');
   console.log('   - 환경변수 오버라이드: 비활성화됨 ✅');
   
 } catch (error) {
@@ -81,6 +81,6 @@ console.log('✅ Vercel 배포: 100% 안전함');
 console.log('✅ 기존 프로덕션 설정에 영향 없음');
 
 console.log('\n🎯 Vercel에서 실제 사용되는 환경변수:');
-console.log('   NEXTAUTH_URL=https://navidocent.com (Dashboard 설정)');
-console.log('   NEXT_PUBLIC_BASE_URL=https://navidocent.com (Dashboard 설정)');
+console.log('   NEXTAUTH_URL=https://tripradio.shop (Dashboard 설정)');
+console.log('   NEXT_PUBLIC_BASE_URL=https://tripradio.shop (Dashboard 설정)');
 console.log('   동적 포트 감지 로직: 완전히 우회됨');

@@ -8,7 +8,7 @@ interface SoftwareApplicationSchemaProps {
 export default function SoftwareApplicationSchema({
   appName = "TripRadio.AI",
   description,
-  url = "https://navidocent.com",
+  url = "https://tripradio.shop",
   language = "ko"
 }: SoftwareApplicationSchemaProps) {
 

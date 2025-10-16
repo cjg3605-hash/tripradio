@@ -15,7 +15,7 @@ function startScheduler() {
   
   console.log('📋 스케줄러 정보:');
   console.log(`   실행 파일: ${schedulerPath}`);
-  console.log(`   대상 도메인: https://navidocent.com`);
+  console.log(`   대상 도메인: https://tripradio.shop`);
   console.log(`   체크 간격: 1시간`);
   console.log(`   목표: 남은 가이드 + 랜딩페이지 색인`);
   console.log('');
@@ -28,7 +28,7 @@ function startScheduler() {
     stdio: 'inherit',
     env: {
       ...process.env,
-      NEXT_PUBLIC_BASE_URL: 'https://navidocent.com'
+      NEXT_PUBLIC_BASE_URL: 'https://tripradio.shop'
     }
   });
   
@@ -77,7 +77,7 @@ function main() {
     console.log('   - 모든 작업 완료 후 자동 종료');
     console.log('');
     console.log('환경 변수:');
-    console.log('   NEXT_PUBLIC_BASE_URL=https://navidocent.com (기본값)');
+    console.log('   NEXT_PUBLIC_BASE_URL=https://tripradio.shop (기본값)');
     console.log('');
     console.log('중단 방법:');
     console.log('   Ctrl+C');

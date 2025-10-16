@@ -65,7 +65,7 @@
 가이드북 찾느라 시간 낭비 그만하고
 AI가 3초만에 만들어주는 가이드 써보세요 🤖
 
-navidocent.com 👈 링크 in bio!
+tripradio.shop 👈 링크 in bio!
 
 #여행준비 #여행꿀팁 #AI가이드 #NAVIDOCENT #릴스 #여행앱추천 #스마트여행
 ```
@@ -121,7 +121,7 @@ navidocent.com 👈 링크 in bio!
 걸으면서 들으니까 더 몰입돼요 🎧
 
 링크는 바이오에 있어요!
-navidocent.com 👆
+tripradio.shop 👆
 
 #여행가이드 #AI기술 #NAVIDOCENT #여행앱 #스마트여행 #여행정보 #데이터 #인포그래픽
 ```
@@ -268,7 +268,7 @@ CTA: 버튼 스타일, 눈에 띄는 컬러
 ### 템플릿 요소
 ```
 로고: 일관된 위치와 크기
-QR코드: navidocent.com 바로가기
+QR코드: tripradio.shop 바로가기
 아이콘: 일관된 스타일과 크기
 프레임: 브랜드 아이덴티티 반영
 ```
@@ -302,7 +302,7 @@ QR코드: navidocent.com 바로가기
 ---
 
 ## 🌐 서비스 정보
-- **서비스 URL**: https://navidocent.com
-- **Instagram Bio 링크**: navidocent.com
+- **서비스 URL**: https://tripradio.shop
+- **Instagram Bio 링크**: tripradio.shop
 - **문의**: @navidocent_official
 - **해시태그**: #NAVIDOCENT

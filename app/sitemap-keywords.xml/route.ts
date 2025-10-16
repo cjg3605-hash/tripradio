@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export async function GET(): Promise<Response> {
-  const baseUrl = 'https://navidocent.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
   const currentDate = new Date().toISOString();
   
   const keywordPages = [

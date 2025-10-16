@@ -3,7 +3,7 @@
 ## 📊 전체 테스트 요약
 
 **테스트 일시**: 2025-08-07  
-**테스트 환경**: Vercel Production (navidocent.com)  
+**테스트 환경**: Vercel Production (tripradio.shop)  
 **테스트 범위**: 다국어 라우팅, AI 가이드 생성, PWA, 광고 시스템, DB 연결, 보안 시스템
 
 ---
@@ -248,13 +248,13 @@ Content-Security-Policy: 정상 설정
 
 ```bash
 # 1. OG 이미지 API 재배포
-vercel --prod --env NEXT_PUBLIC_API_URL=https://navidocent.com
+vercel --prod --env NEXT_PUBLIC_API_URL=https://tripradio.shop
 
 # 2. 캐시 클리어 및 CDN 갱신  
-curl -X POST https://navidocent.com/api/cache/clear
+curl -X POST https://tripradio.shop/api/cache/clear
 
 # 3. 서비스 헬스체크
-curl https://navidocent.com/api/health
+curl https://tripradio.shop/api/health
 
 # 4. AdSense 설정 검증
 # 수동으로 Google AdSense 콘솔 확인 필요

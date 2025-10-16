@@ -23,7 +23,7 @@ export function KeywordPageSchema({
   breadcrumbs = []
 }: KeywordPageSchemaProps) {
   
-  const baseUrl = 'https://navidocent.com';
+  const baseUrl = 'https://tripradio.shop';
   const finalPagePath = pagePath || canonicalUrl || '';
   
   // 키워드별 맞춤형 스키마 생성

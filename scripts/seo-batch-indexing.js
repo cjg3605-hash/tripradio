@@ -102,7 +102,7 @@ async function runBatchIndexing(options = {}) {
     console.error('   현재 BASE_URL:', baseUrl);
     console.error('   Google은 localhost에 접근할 수 없어 할당량만 낭비됩니다.');
     console.error('   프로덕션 URL을 사용하거나 --dry-run 모드를 사용하세요.');
-    console.error('   예: NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js run-small-batch');
+    console.error('   예: NEXT_PUBLIC_BASE_URL=https://tripradio.shop node scripts/seo-batch-indexing.js run-small-batch');
     
     return {
       success: false,
@@ -338,16 +338,16 @@ async function main() {
       console.log('');
       console.log('🚨 안전 사용법 (중요!):');
       console.log('   ⚠️  실제 색인 시 반드시 프로덕션 URL 사용:');
-      console.log('       NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js <command>');
+      console.log('       NEXT_PUBLIC_BASE_URL=https://tripradio.shop node scripts/seo-batch-indexing.js <command>');
       console.log('   ✅  테스트는 localhost 가능:');
       console.log('       node scripts/seo-batch-indexing.js dry-run');
       console.log('');
       console.log('💡 권장 순서 (할당량 절약):');
       console.log('   1. node scripts/seo-batch-indexing.js validate');
       console.log('   2. node scripts/seo-batch-indexing.js dry-run');
-      console.log('   3. NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js run-landing-pages  🏢');
-      console.log('   4. NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js run-remaining-only  ⭐');
-      console.log('   5. NEXT_PUBLIC_BASE_URL=https://navidocent.com node scripts/seo-batch-indexing.js status');
+      console.log('   3. NEXT_PUBLIC_BASE_URL=https://tripradio.shop node scripts/seo-batch-indexing.js run-landing-pages  🏢');
+      console.log('   4. NEXT_PUBLIC_BASE_URL=https://tripradio.shop node scripts/seo-batch-indexing.js run-remaining-only  ⭐');
+      console.log('   5. NEXT_PUBLIC_BASE_URL=https://tripradio.shop node scripts/seo-batch-indexing.js status');
       console.log('');
       console.log('🔄 제외 목록 관리:');
       console.log('   - node scripts/indexing-exclude-manager.js status      (제외 목록 확인)');

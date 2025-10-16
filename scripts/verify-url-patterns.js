@@ -8,7 +8,7 @@
 async function testActualUrlPatterns() {
   console.log('🔍 실제 사이트 URL 패턴 검증\n');
   
-  const baseUrl = 'https://navidocent.com';
+  const baseUrl = 'https://tripradio.shop';
   const sampleLocation = '경복궁';
   
   // 테스트할 URL 패턴들
@@ -119,7 +119,7 @@ async function testActualUrlPatterns() {
 function generateRecommendedUrls(locationName, validPatterns) {
   console.log('\n🎯 올바른 URL 생성 로직:\n');
   
-  const baseUrl = 'https://navidocent.com';
+  const baseUrl = 'https://tripradio.shop';
   const languages = ['ko', 'en', 'ja', 'zh', 'es'];
   
   console.log('```typescript');

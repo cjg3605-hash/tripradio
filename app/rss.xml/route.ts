@@ -24,8 +24,9 @@ export async function GET() {
       console.error('RSS feed query error:', error);
     }
 
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tripradio.shop';
     const items = (data || []).map((row) => {
-      const url = `https://navidocent.com/guide/${encodeURIComponent(row.locationname)}`;
+      const url = `${baseUrl}/guide/${encodeURIComponent(row.locationname)}`;
       const title = escapeXml(row.locationname);
       // 본문 전체 포함(문자열/객체 대응)
       let description = '';
@@ -51,8 +52,8 @@ export async function GET() {
     const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title>TripRadio.AI - navidocent.com</title>
-    <link>https://navidocent.com/</link>
+    <title>TripRadio.AI - ${baseUrl.replace(/^https?:\/\//, '')}</title>
+    <link>${baseUrl}/</link>
     <description>AI가 만드는 개인 맞춤형 여행 오디오가이드</description>
     ${items}
   </channel>

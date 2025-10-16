@@ -394,6 +394,6 @@ NAVIDOCENT는 단순한 여행 가이드를 넘어서 **개인의 취향과 상�
    - 여행 외의 교육, 취미, 업무 활용
    - 나만의 독특한 사용법 개발
 
-**🔗 지금 바로 시작하세요:** https://navidocent.com
+**🔗 지금 바로 시작하세요:** https://tripradio.shop
 
 당신만의 특별한 NAVIDOCENT 활용법을 찾아보세요! ✨
