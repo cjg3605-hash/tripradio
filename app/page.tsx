@@ -1414,7 +1414,15 @@ function Home() {
       {/* Main Content */}
       <main id="main-content" className="relative" tabIndex={-1}>
         {/* Hero Section - 예시와 동일한 구조 */}
-        <section className="relative min-h-[50vh] xs:min-h-[50vh] sm:min-h-[60vh] md:min-h-[70vh] flex items-center justify-center" aria-labelledby="hero-heading">
+        <section
+          className="relative min-h-[50vh] xs:min-h-[50vh] sm:min-h-[60vh] md:min-h-[70vh] flex items-center justify-center"
+          aria-labelledby="hero-heading"
+          style={{
+            marginLeft: 'calc(50% - 50vw)',
+            marginRight: 'calc(50% - 50vw)',
+            width: '100vw'
+          }}
+        >
           {/* Background Image - 예시와 동일하게 섹션 내부에 */}
           <div className="absolute inset-0 overflow-hidden">
             {landmarks.map((landmark, index) => {
