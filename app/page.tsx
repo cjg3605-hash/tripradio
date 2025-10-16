@@ -697,7 +697,7 @@ function Home() {
       return {
         background: `linear-gradient(135deg, rgba(40, 45, 80, 0.35) 0%, rgba(60, 65, 100, 0.25) 100%)`,
         backgroundImage: `linear-gradient(rgba(0,0,0,0.14), rgba(0,0,0,0.22)), url('${pngImage}'), linear-gradient(135deg, rgba(102, 126, 234, 0.5) 0%, rgba(118, 75, 162, 0.5) 100%)`,
-        backgroundSize: 'cover, auto 100%, cover',
+        backgroundSize: 'cover, cover, cover',
         backgroundPosition: 'center center, center 48%, center center',
         backgroundRepeat: 'no-repeat'
       };
@@ -721,15 +721,14 @@ function Home() {
     const imageAspect = meta && meta.width && meta.height
       ? meta.width / Math.max(meta.height, 1)
       : LANDMARK_ASPECT_RATIO;
-    const shouldFillHeight = imageAspect >= viewportAspect;
-    const backgroundSize = shouldFillHeight ? 'cover, auto 100%' : 'cover, 100% auto';
 
-    // 넓은 21:9 비율에 맞춰 주요 피사체가 잘리지 않도록 살짝 위로 보정
-    const focusPosition = imageAspect >= LANDMARK_ASPECT_RATIO ? 'center 48%' : 'center center';
+    // 화면이 더 넓거나 이미지가 매우 와이드인 경우 상단 초점 유지
+    const shouldOffsetFocus = imageAspect >= LANDMARK_ASPECT_RATIO || viewportAspect > imageAspect;
+    const focusPosition = shouldOffsetFocus ? 'center 48%' : 'center center';
 
     return {
       ...baseStyle,
-      backgroundSize,
+      backgroundSize: 'cover, cover',
       backgroundPosition: `center center, ${focusPosition}`
     };
   }, [imageLoadErrors, imageMeta, landmarkImages, viewportAspect]);

@@ -72,3 +72,20 @@ SuperClaude/
 # 기타 Claude 관련 임시 파일들
 *claude*
 *Claude*
+
+# Google Cloud 및 OAuth 키 파일 (민감 정보)
+client_secret_*.json
+*client_secret*.json
+valued-range-*.json
+*-credentials.json
+service-account-*.json
+
+# 임시 디버그/테스트 스크립트
+fix-*.js
+test-*.js
+check-*.js
+debug-*.js
+analyze-*.js
+monitor-*.js
+repair-*.js
+cleanup-*.js

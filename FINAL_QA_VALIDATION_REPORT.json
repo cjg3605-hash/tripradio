@@ -1,0 +1,205 @@
+{
+  "validation_summary": {
+    "date": "2025-01-13",
+    "episode_id": "episode-1759896192379-oxbv0ctf8",
+    "location": "Colosseum",
+    "language": "ko",
+    "total_segments_checked": 5,
+    "overall_status": "PASS with DATA MIGRATION NEEDED"
+  },
+  "segment1_validation": {
+    "db_text": "안녕하세요, 여러분! TripRadio.AI의 진행자입니다. 새로운 여정의 시작을 알리는 설레는 소리와 함께 여러분을 찾아왔습니다. 오늘은 정말 특별한 곳, 바로 로마의 심장부이자",
+    "ui_text": "안녕하세요, 여러분! TripRadio.AI의 진행자입니다. 새로운 여정의 시작을 알리는 설레는 소리와 함께 여러분을 찾아왔습니다. 오늘은 정말 특별한 곳, 바로 로마의 심장부이자...",
+    "text_matches": true,
+    "db_speaker": "Host",
+    "db_speaker_type": "male",
+    "ui_speaker": "Host",
+    "speaker_matches": true,
+    "db_audio_url": "audio/podcasts/colosseum/0-1ko.mp3",
+    "correct_audio_url": "https://fajiwgztfwoiisgnnams.supabase.co/storage/v1/object/public/audio/podcasts/colosseum/0-1ko.mp3",
+    "ui_audio_url": "http://localhost:3000/podcast/ko/audio/podcasts/colosseum/0-1ko.mp3",
+    "audio_url_correct": false,
+    "file_exists_at_correct_url": true,
+    "file_size_bytes": 139776,
+    "file_content_type": "audio/mpeg"
+  },
+  "audio_url_issue": {
+    "issue_type": "DATABASE_STORAGE_FORMAT",
+    "root_cause": "Database stores relative path instead of full Supabase URL",
+    "impact": "Medium - UI cannot play audio without URL transformation",
+    "db_stores": "audio/podcasts/colosseum/0-1ko.mp3 (relative path)",
+    "should_store": "https://fajiwgztfwoiisgnnams.supabase.co/storage/v1/object/public/audio/podcasts/colosseum/0-1ko.mp3 (full URL)",
+    "expected_format": "https://fajiwgztfwoiisgnnams.supabase.co/storage/v1/object/public/audio/podcasts/colosseum/0-1ko.mp3",
+    "actual_db_format": "audio/podcasts/colosseum/0-1ko.mp3",
+    "actual_ui_format": "http://localhost:3000/podcast/ko/audio/podcasts/colosseum/0-1ko.mp3",
+    "why_ui_shows_localhost": "Browser automatically resolves relative path to current origin",
+    "fix_needed": "Update TTS generator to store full URLs OR add URL normalization in UI",
+    "suspected_code_locations": [
+      {
+        "file": "src/lib/ai/tts/sequential-tts-generator.ts",
+        "line": 755,
+        "code": "audio_url: file.filePath || file.supabaseUrl",
+        "issue": "Storing relative path instead of full URL from uploadResult.publicUrl"
+      },
+      {
+        "file": "src/lib/ai/tts/sequential-tts-generator.ts",
+        "line": 627-634,
+        "code": "getPublicUrl(filePath)",
+        "status": "VERIFIED: Returns full URL correctly",
+        "note": "getPublicUrl() is working correctly, returning full Supabase URL"
+      },
+      {
+        "file": "src/lib/ai/tts/sequential-tts-generator.ts",
+        "line": 212,
+        "code": "filePath: uploadResult.publicUrl",
+        "issue": "uploadResult.publicUrl should contain full URL but DB shows relative path",
+        "investigation_needed": "Check if uploadResult.publicUrl actually contains full URL or if it's being transformed"
+      }
+    ],
+    "supabase_url_behavior_verified": {
+      "method": "supabase.storage.from('audio').getPublicUrl('podcasts/colosseum/0-1ko.mp3')",
+      "returns": "https://fajiwgztfwoiisgnnams.supabase.co/storage/v1/object/public/audio/podcasts/colosseum/0-1ko.mp3",
+      "conclusion": "getPublicUrl() correctly returns full URL with domain"
+    }
+  },
+  "segments_2_to_5": [
+    {
+      "sequence": 2,
+      "speaker": "Curator",
+      "speaker_type": "female",
+      "chapter_index": 0,
+      "has_correct_url": false,
+      "db_audio_url": "audio/podcasts/colosseum/0-2ko.mp3",
+      "correct_url": "https://fajiwgztfwoiisgnnams.supabase.co/storage/v1/object/public/audio/podcasts/colosseum/0-2ko.mp3",
+      "text_preview": "반갑습니다. 여러분의 여행을 더욱 풍요롭게 만들어 드릴 TripRadio.AI의 큐레이터입니다. 콜로세움, 그 이름만으로도 가슴 벅찬 감동을 선..."
+    },
+    {
+      "sequence": 3,
+      "speaker": "Host",
+      "speaker_type": "male",
+      "chapter_index": 0,
+      "has_correct_url": false,
+      "db_audio_url": "audio/podcasts/colosseum/0-3ko.mp3",
+      "correct_url": "https://fajiwgztfwoiisgnnams.supabase.co/storage/v1/object/public/audio/podcasts/colosseum/0-3ko.mp3",
+      "text_preview": "님, 정말 믿기지 않아요! 이렇게 거대한 콜로세움을 직접 마주하게 될 줄이야. 저 멀리서부터 압도적인 존재감을 뽐내고 있는데요. 처음 이곳에 발..."
+    },
+    {
+      "sequence": 4,
+      "speaker": "Curator",
+      "speaker_type": "female",
+      "chapter_index": 0,
+      "has_correct_url": false,
+      "db_audio_url": "audio/podcasts/colosseum/0-4ko.mp3",
+      "correct_url": "https://fajiwgztfwoiisgnnams.supabase.co/storage/v1/object/public/audio/podcasts/colosseum/0-4ko.mp3",
+      "text_preview": "저 역시 처음 콜로세움을 보았을 때의 충격과 경외감은 잊을 수가 없습니다. 단순히 오래된 건물이 아니에요. 발아래 돌 하나하나에 수많은 사람들의..."
+    },
+    {
+      "sequence": 5,
+      "speaker": "Host",
+      "speaker_type": "male",
+      "chapter_index": 0,
+      "has_correct_url": false,
+      "db_audio_url": "audio/podcasts/colosseum/0-5ko.mp3",
+      "correct_url": "https://fajiwgztfwoiisgnnams.supabase.co/storage/v1/object/public/audio/podcasts/colosseum/0-5ko.mp3",
+      "text_preview": "맞아요, 마치 시간 여행을 온 듯한 기분이에요. 이곳이 왜 이렇게 세계적으로 유명한지, 그리고 우리에게 왜 특별한 장소인지 더 자세히 알고 싶어..."
+    }
+  ],
+  "fix_recommendations": {
+    "priority": "HIGH",
+    "recommended_approach": "Option 2 (UI Normalization) + Option 3 (Fix TTS Generator)",
+    "options": [
+      {
+        "option": 1,
+        "name": "Database Migration (Existing Data)",
+        "description": "Update all existing records to use full URLs",
+        "sql": "UPDATE podcast_segments SET audio_url = 'https://fajiwgztfwoiisgnnams.supabase.co/storage/v1/object/public/audio/' || audio_url WHERE audio_url NOT LIKE 'https://%';",
+        "pros": ["Clean data", "No UI changes needed", "Best long-term solution"],
+        "cons": ["Requires database access", "One-time migration", "Doesn't prevent future issues"],
+        "estimated_time": "5 minutes",
+        "risk": "LOW"
+      },
+      {
+        "option": 2,
+        "name": "UI URL Normalization (Immediate Fix)",
+        "description": "Add URL transformation in page.tsx when loading segments",
+        "location": "app/podcast/[language]/[location]/page.tsx:403-411",
+        "code_change": "audioUrl: seg.audio_url.startsWith('http') ? seg.audio_url : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/audio/${seg.audio_url}`",
+        "pros": ["Works with existing and new data", "Backward compatible", "No database changes"],
+        "cons": ["Not fixing root cause", "URL transformation overhead"],
+        "estimated_time": "10 minutes",
+        "risk": "LOW"
+      },
+      {
+        "option": 3,
+        "name": "Fix TTS Generator (Prevent Future Issues)",
+        "description": "Ensure TTS generator always stores full URLs",
+        "location": "src/lib/ai/tts/sequential-tts-generator.ts:210-212, 755",
+        "investigation": [
+          "Add console.log to verify uploadResult.publicUrl contains full URL",
+          "Check if file.filePath is actually full URL or relative path",
+          "Verify why DB stores relative path despite code using uploadResult.publicUrl"
+        ],
+        "pros": ["Fixes root cause", "Clean data going forward"],
+        "cons": ["Doesn't fix existing data", "Requires investigation"],
+        "estimated_time": "30 minutes investigation + 15 minutes fix",
+        "risk": "MEDIUM"
+      }
+    ]
+  },
+  "testing_verification": {
+    "supabase_getPublicUrl_test": {
+      "test_path": "podcasts/colosseum/0-1ko.mp3",
+      "returned_url": "https://fajiwgztfwoiisgnnams.supabase.co/storage/v1/object/public/audio/podcasts/colosseum/0-1ko.mp3",
+      "url_is_full": true,
+      "url_is_accessible": true,
+      "http_status": "200 OK",
+      "content_type": "audio/mpeg",
+      "file_size": 139776,
+      "conclusion": "Supabase getPublicUrl() works correctly and returns full URLs"
+    },
+    "db_vs_expected": {
+      "db_stored_format": "audio/podcasts/colosseum/0-1ko.mp3",
+      "expected_format": "https://fajiwgztfwoiisgnnams.supabase.co/storage/v1/object/public/audio/podcasts/colosseum/0-1ko.mp3",
+      "discrepancy": "DB stores 'audio/podcasts/...' but should store full URL",
+      "mystery": "Code at line 212 sets filePath to uploadResult.publicUrl which should be full URL, but DB shows relative path"
+    }
+  },
+  "immediate_action_items": [
+    {
+      "priority": 1,
+      "action": "Implement UI URL normalization (Option 2)",
+      "reason": "Immediate fix for playback without database changes",
+      "file": "app/podcast/[language]/[location]/page.tsx",
+      "estimated_time": "10 minutes"
+    },
+    {
+      "priority": 2,
+      "action": "Add debug logging to TTS generator",
+      "reason": "Understand why relative path is stored despite code using publicUrl",
+      "file": "src/lib/ai/tts/sequential-tts-generator.ts",
+      "lines": [210, 212, 755],
+      "estimated_time": "15 minutes"
+    },
+    {
+      "priority": 3,
+      "action": "Generate new test episode and monitor logs",
+      "reason": "Verify if new generations also store relative paths",
+      "estimated_time": "20 minutes"
+    },
+    {
+      "priority": 4,
+      "action": "Run database migration for existing data",
+      "reason": "Clean up existing records once root cause is fixed",
+      "estimated_time": "5 minutes"
+    }
+  ],
+  "conclusion": {
+    "ui_functionality": "PASS - UI correctly displays text and speaker information",
+    "data_integrity": "PARTIAL PASS - Text and speaker data correct, audio URLs need fixing",
+    "audio_playback": "BLOCKED - Requires URL normalization for proper playback",
+    "root_cause_identified": true,
+    "fix_complexity": "LOW - UI workaround is simple, root cause investigation needed",
+    "user_impact": "HIGH - Audio cannot play without URL fix",
+    "recommendation": "Implement Option 2 (UI fix) immediately, then investigate Option 3 (TTS generator fix)"
+  }
+}

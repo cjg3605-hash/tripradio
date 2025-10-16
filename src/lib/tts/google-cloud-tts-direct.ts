@@ -36,17 +36,11 @@ class DirectGoogleCloudTTS {
     }
 
     try {
-      // 환경변수에서 서비스 계정 JSON 파싱
-      const serviceAccountJson = process.env.GCP_SERVICE_ACCOUNT;
-      if (!serviceAccountJson) {
-        throw new Error('GCP_SERVICE_ACCOUNT 환경변수가 설정되지 않음');
-      }
+      const serviceAccount = this.resolveServiceAccountConfig();
 
-      const serviceAccount = JSON.parse(serviceAccountJson);
-      
       // JWT 생성 (간단한 방법: googleapis 라이브러리 사용)
       const { GoogleAuth } = await import('google-auth-library');
-      
+
       const auth = new GoogleAuth({
         credentials: serviceAccount,
         scopes: ['https://www.googleapis.com/auth/cloud-platform']
@@ -54,7 +48,7 @@ class DirectGoogleCloudTTS {
 
       const authClient = await auth.getClient();
       const accessTokenResponse = await authClient.getAccessToken();
-      
+
       if (!accessTokenResponse.token) {
         throw new Error('액세스 토큰 획득 실패');
       }
@@ -68,6 +62,59 @@ class DirectGoogleCloudTTS {
     } catch (error) {
       console.error('❌ 액세스 토큰 획득 실패:', error);
       throw new Error(`인증 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+    }
+  }
+
+  /**
+   * 환경변수에 저장된 서비스 계정 정보를 가져와 파싱
+   */
+  private resolveServiceAccountConfig(): Record<string, any> {
+    const directJson = process.env.GCP_SERVICE_ACCOUNT;
+    if (directJson) {
+      try {
+        return JSON.parse(directJson);
+      } catch (error) {
+        throw new Error('GCP_SERVICE_ACCOUNT 파싱 실패: JSON 형식을 확인하세요.');
+      }
+    }
+
+    const encodedJson = process.env.GOOGLE_SERVICE_ACCOUNT_KEY || process.env.GCP_SERVICE_ACCOUNT_KEY;
+    if (encodedJson) {
+      try {
+        // 서비스 계정 키는 Base64 또는 순수 JSON 문자열일 수 있음
+        const maybeJson = this.decodeMaybeBase64(encodedJson.trim());
+        return JSON.parse(maybeJson);
+      } catch (error) {
+        throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY 파싱 실패: Base64 또는 JSON 형식을 확인하세요.');
+      }
+    }
+
+    throw new Error('GCP_SERVICE_ACCOUNT 또는 GOOGLE_SERVICE_ACCOUNT_KEY 환경변수가 설정되지 않음');
+  }
+
+  /**
+   * 입력이 Base64 형태이면 디코딩하고, 아니면 원문 반환
+   */
+  private decodeMaybeBase64(value: string): string {
+    // Base64는 A-Z, a-z, 0-9, +, /, = 문자만 포함
+    const base64Regex = /^[A-Za-z0-9+/=_\\-\\r\\n]+$/;
+    if (!base64Regex.test(value)) {
+      return value;
+    }
+
+    try {
+      const buffer = Buffer.from(value, 'base64');
+      const decoded = buffer.toString('utf8');
+
+      // 디코딩 결과가 JSON 객체처럼 보이는지 간단히 확인
+      if (decoded.trim().startsWith('{') && decoded.trim().endsWith('}')) {
+        return decoded;
+      }
+
+      // Base64가 맞지만 결과가 JSON이 아니면 원문 반환
+      return value;
+    } catch {
+      return value;
     }
   }
 
