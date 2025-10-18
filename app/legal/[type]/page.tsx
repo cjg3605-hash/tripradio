@@ -49,6 +49,9 @@ export async function generateMetadata({ params, searchParams }: LegalPageProps)
       case 'ads-revenue':
         page = legalPagesService.generateAdsRevenuePage(lang);
         break;
+      case 'cookie-policy':
+        page = legalPagesService.generateCookiePolicy(lang);
+        break;
       default:
         notFound();
     }
@@ -92,7 +95,7 @@ export async function generateMetadata({ params, searchParams }: LegalPageProps)
 }
 
 // 유효한 법적 페이지 타입들
-const validPageTypes = ['privacy', 'terms', 'about', 'contact', 'ads-revenue'];
+const validPageTypes = ['privacy', 'terms', 'about', 'contact', 'ads-revenue', 'cookie-policy'];
 
 export default async function LegalPage({ params, searchParams }: LegalPageProps) {
   const resolvedParams = await params;
@@ -134,6 +137,9 @@ export default async function LegalPage({ params, searchParams }: LegalPageProps
         break;
       case 'ads-revenue':
         page = legalPagesService.generateAdsRevenuePage(lang);
+        break;
+      case 'cookie-policy':
+        page = legalPagesService.generateCookiePolicy(lang);
         break;
       default:
         notFound();
@@ -242,6 +248,7 @@ export default async function LegalPage({ params, searchParams }: LegalPageProps
                     {pageType === 'about' && (lang === 'ko' ? '회사 소개' : 'About Us')}
                     {pageType === 'contact' && (lang === 'ko' ? '연락처' : 'Contact')}
                     {pageType === 'ads-revenue' && (lang === 'ko' ? '광고 수익 공지' : 'Ad Revenue Notice')}
+                    {pageType === 'cookie-policy' && (lang === 'ko' ? '쿠키 정책' : 'Cookie Policy')}
                   </a>
                 ))}
               </div>

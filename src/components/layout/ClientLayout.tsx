@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import Header from './Header';
 import { HistorySidebar } from './HistorySidebar';
 import { LanguageDetectionToast } from '@/components/common/LanguageDetectionToast';
+import CookieConsent from '@/components/common/CookieConsent';
 import { ModeProvider } from '@/contexts/ModeContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 
@@ -33,7 +34,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           
           {/* 🌍 언어 자동 감지 알림 토스트 */}
           <LanguageDetectionToast />
-          
+
+          {/* 🍪 Cookie Consent Banner (GDPR/CCPA 준수) */}
+          <CookieConsent />
+
           <main>
             {children}
           </main>

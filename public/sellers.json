@@ -1,0 +1,21 @@
+{
+  "contact_email": "support@tripradio.shop",
+  "contact_address": "Gyeonggi-do, Anyang-si, South Korea",
+  "version": "1.0",
+  "identifiers": [
+    {
+      "name": "TAG-ID",
+      "value": "pub-8225961966676319"
+    }
+  ],
+  "sellers": [
+    {
+      "seller_id": "pub-8225961966676319",
+      "name": "TripRadio.AI",
+      "domain": "tripradio.shop",
+      "seller_type": "PUBLISHER",
+      "is_confidential": 0,
+      "is_passthrough": 0
+    }
+  ]
+}

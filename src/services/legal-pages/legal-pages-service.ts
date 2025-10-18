@@ -5,7 +5,7 @@
 
 export interface LegalPageContent {
   id: string;
-  type: 'privacy' | 'terms' | 'about' | 'contact' | 'disclaimer' | 'ads-revenue';
+  type: 'privacy' | 'terms' | 'about' | 'contact' | 'disclaimer' | 'ads-revenue' | 'cookie-policy';
   title: string;
   content: string;
   lastUpdated: Date;
@@ -207,6 +207,34 @@ export class LegalPagesService {
   }
 
   /**
+   * 쿠키 정책 페이지 생성 (GDPR/CCPA 준수)
+   */
+  generateCookiePolicy(language: string = 'ko'): LegalPageContent {
+    const cookiePolicyContent = this.buildCookiePolicyContent(language);
+
+    const page: LegalPageContent = {
+      id: `cookie-policy-${language}`,
+      type: 'cookie-policy',
+      title: language === 'ko' ? '쿠키 정책' : 'Cookie Policy',
+      content: cookiePolicyContent,
+      lastUpdated: new Date(),
+      version: '1.0.0',
+      language,
+      isPublished: true,
+      seoMetadata: {
+        description: language === 'ko'
+          ? 'TripRadio.AI 쿠키 정책 - 쿠키 사용 및 관리 안내'
+          : 'TripRadio.AI Cookie Policy - Cookie usage and management guidelines',
+        keywords: ['cookie policy', 'cookies', 'GDPR', 'CCPA', '쿠키정책', '개인정보보호'],
+        canonicalUrl: `/legal/cookie-policy`
+      }
+    };
+
+    this.pages.set(page.id, page);
+    return page;
+  }
+
+  /**
    * AdSense 정책 준수 상태 평가
    */
   assessAdSenseCompliance(): AdSenseComplianceMetrics {
@@ -255,13 +283,14 @@ export class LegalPagesService {
    */
   generateAllLegalPages(languages: string[] = ['ko', 'en']): LegalPageContent[] {
     const pages: LegalPageContent[] = [];
-    
+
     languages.forEach(lang => {
       pages.push(this.generatePrivacyPolicy(lang));
       pages.push(this.generateTermsOfService(lang));
       pages.push(this.generateAboutPage(lang));
       pages.push(this.generateContactPage(lang));
       pages.push(this.generateAdsRevenuePage(lang));
+      pages.push(this.generateCookiePolicy(lang));
     });
 
     return pages;
@@ -1028,6 +1057,309 @@ This advertising revenue policy is effective from ${new Date().toLocaleDateStrin
 ---
 
 **TripRadio AI is committed to providing sustainable services through transparent and responsible advertising policies.**
+      `;
+    }
+  }
+
+  /**
+   * 쿠키 정책 내용 구축
+   */
+  private buildCookiePolicyContent(language: string): string {
+    if (language === 'ko') {
+      return `
+# 쿠키 정책
+
+**최종 업데이트: ${new Date().toLocaleDateString('ko-KR')}**
+
+## 쿠키(Cookie)란?
+
+쿠키는 웹사이트가 사용자의 브라우저에 저장하는 작은 텍스트 파일입니다. 쿠키를 통해 웹사이트는 사용자의 방문 정보를 기억하고, 더 나은 사용자 경험을 제공할 수 있습니다.
+
+## 트립라디오AI의 쿠키 사용
+
+트립라디오AI는 다음과 같은 목적으로 쿠키를 사용합니다:
+
+### 1. 필수 쿠키 (Essential Cookies)
+서비스 기본 기능 제공을 위해 반드시 필요한 쿠키입니다:
+- **세션 관리**: 로그인 상태 유지
+- **보안**: CSRF 공격 방지
+- **언어 설정**: 선호 언어 저장
+- **쿠키 동의**: 쿠키 사용 동의 여부 저장
+
+**저장기간**: 세션 종료 시 또는 최대 1년
+
+### 2. 기능성 쿠키 (Functionality Cookies)
+사용자 경험 개선을 위한 쿠키입니다:
+- **사용자 설정**: 테마, 레이아웃 선호도
+- **지역 설정**: 위치 기반 콘텐츠 제공
+- **최근 검색**: 검색 히스토리 저장
+
+**저장기간**: 최대 1년
+
+### 3. 성능 쿠키 (Performance Cookies)
+서비스 성능 분석 및 개선을 위한 쿠키입니다:
+- **Google Analytics**: 방문자 통계, 페이지 조회수
+- **페이지 로딩 시간**: 성능 모니터링
+- **사용 패턴 분석**: 사용자 행동 분석
+
+**저장기간**: 최대 2년
+
+### 4. 광고 쿠키 (Advertising Cookies)
+맞춤형 광고 제공을 위한 쿠키입니다:
+- **Google AdSense**: 개인화된 광고 게재
+- **광고 성과 측정**: 광고 효과 분석
+- **재마케팅**: 관심사 기반 광고
+
+**저장기간**: 최대 2년
+
+## Google AdSense 쿠키
+
+본 웹사이트는 Google AdSense를 사용하여 광고를 게재합니다:
+
+### Google이 사용하는 쿠키
+- **DoubleClick 쿠키**: 광고 게재 및 측정
+- **NID 쿠키**: 사용자 선호도 저장
+- **CONSENT 쿠키**: GDPR 동의 상태 저장
+
+### 광고 개인화 설정
+사용자는 다음 방법으로 광고 개인화를 관리할 수 있습니다:
+- [Google 광고 설정](https://adssettings.google.com/)에서 맞춤형 광고 비활성화
+- [NAI 옵트아웃 페이지](http://optout.networkadvertising.org/)에서 일괄 설정
+
+## 쿠키 관리 방법
+
+### 브라우저 설정
+대부분의 웹 브라우저는 쿠키 관리 기능을 제공합니다:
+
+**Chrome**
+1. 설정 > 개인정보 및 보안 > 쿠키 및 기타 사이트 데이터
+2. 원하는 옵션 선택
+
+**Firefox**
+1. 설정 > 개인정보 및 보안 > 쿠키 및 사이트 데이터
+2. 쿠키 삭제 또는 차단
+
+**Safari**
+1. 환경설정 > 개인정보 보호
+2. 쿠키 및 웹사이트 데이터 관리
+
+**Edge**
+1. 설정 > 쿠키 및 사이트 권한
+2. 쿠키 및 사이트 데이터 관리
+
+### 쿠키 차단의 영향
+모든 쿠키를 차단하면 다음과 같은 제한이 있을 수 있습니다:
+- 로그인 상태 유지 불가
+- 개인화된 설정 미적용
+- 일부 기능 사용 제한
+- 광고는 표시되지만 개인화되지 않음
+
+## 제3자 쿠키
+
+트립라디오AI는 다음 제3자 서비스의 쿠키를 사용합니다:
+
+### Google Analytics
+- **목적**: 웹사이트 사용 통계 분석
+- **개인정보 처리방침**: [Google 개인정보처리방침](https://policies.google.com/privacy)
+- **옵트아웃**: [Google Analytics 옵트아웃 추가 기능](https://tools.google.com/dlpage/gaoptout)
+
+### Google AdSense
+- **목적**: 광고 게재 및 성과 측정
+- **개인정보 처리방침**: [Google 개인정보처리방침](https://policies.google.com/privacy)
+- **옵트아웃**: [Google 광고 설정](https://adssettings.google.com/)
+
+## GDPR 및 CCPA 준수
+
+### EU 사용자 권리 (GDPR)
+유럽연합 사용자는 다음 권리를 가집니다:
+- **접근권**: 수집된 데이터 확인
+- **정정권**: 부정확한 데이터 수정
+- **삭제권**: 데이터 삭제 요청
+- **이동권**: 데이터 이전 요청
+- **거부권**: 데이터 처리 거부
+
+### 캘리포니아 사용자 권리 (CCPA)
+캘리포니아 거주자는 다음 권리를 가집니다:
+- 수집되는 개인정보 카테고리 확인
+- 개인정보 판매 거부
+- 개인정보 삭제 요청
+- 권리 행사에 대한 차별 금지
+
+## 쿠키 정책 변경
+
+본 쿠키 정책은 다음의 경우 업데이트될 수 있습니다:
+- 쿠키 사용 목적 변경
+- 새로운 쿠키 유형 추가
+- 법적 요구사항 변경
+- 사용자 피드백 반영
+
+중요한 변경사항은 웹사이트 공지를 통해 사전 안내됩니다.
+
+## 문의
+
+쿠키 정책에 대한 문의나 데이터 권리 행사를 원하시면 연락해 주세요:
+
+**연락처**
+- 이메일: ${this.contactInfo?.email || 'contact@tripradio.shop'}
+- 텔레그램: [네비:가이드AI](https://t.me/+z2Z5yfFKu30xN2Vl)
+
+## 관련 정책
+
+- [개인정보처리방침](/legal/privacy)
+- [이용약관](/legal/terms)
+- [광고 수익 공지](/legal/ads-revenue)
+
+---
+
+**본 쿠키 정책은 ${new Date().toLocaleDateString('ko-KR')}부터 시행됩니다.**
+      `;
+    } else {
+      return `
+# Cookie Policy
+
+**Last Updated: ${new Date().toLocaleDateString('en-US')}**
+
+## What are Cookies?
+
+Cookies are small text files that websites store in users' browsers. Through cookies, websites can remember user visit information and provide a better user experience.
+
+## TripRadio.AI's Cookie Usage
+
+TripRadio.AI uses cookies for the following purposes:
+
+### 1. Essential Cookies
+Cookies absolutely necessary for providing basic service functions:
+- **Session Management**: Maintaining login status
+- **Security**: CSRF attack prevention
+- **Language Settings**: Storing preferred language
+- **Cookie Consent**: Storing cookie usage consent status
+
+**Storage Period**: Until session ends or up to 1 year
+
+### 2. Functionality Cookies
+Cookies for improving user experience:
+- **User Preferences**: Theme, layout preferences
+- **Location Settings**: Location-based content provision
+- **Recent Searches**: Search history storage
+
+**Storage Period**: Up to 1 year
+
+### 3. Performance Cookies
+Cookies for service performance analysis and improvement:
+- **Google Analytics**: Visitor statistics, page views
+- **Page Loading Time**: Performance monitoring
+- **Usage Pattern Analysis**: User behavior analysis
+
+**Storage Period**: Up to 2 years
+
+### 4. Advertising Cookies
+Cookies for providing personalized advertisements:
+- **Google AdSense**: Personalized ad serving
+- **Ad Performance Measurement**: Advertising effectiveness analysis
+- **Remarketing**: Interest-based advertising
+
+**Storage Period**: Up to 2 years
+
+## Google AdSense Cookies
+
+This website uses Google AdSense to serve advertisements:
+
+### Cookies Used by Google
+- **DoubleClick Cookie**: Ad serving and measurement
+- **NID Cookie**: User preference storage
+- **CONSENT Cookie**: GDPR consent status storage
+
+### Ad Personalization Settings
+Users can manage ad personalization through:
+- Disable personalized ads in [Google Ad Settings](https://adssettings.google.com/)
+- Bulk settings on [NAI Opt-out Page](http://optout.networkadvertising.org/)
+
+## How to Manage Cookies
+
+### Browser Settings
+Most web browsers provide cookie management features:
+
+**Chrome**
+1. Settings > Privacy and Security > Cookies and other site data
+2. Select desired option
+
+**Firefox**
+1. Settings > Privacy & Security > Cookies and Site Data
+2. Delete or block cookies
+
+**Safari**
+1. Preferences > Privacy
+2. Manage Cookies and Website Data
+
+**Edge**
+1. Settings > Cookies and site permissions
+2. Manage cookies and site data
+
+### Impact of Blocking Cookies
+Blocking all cookies may have the following limitations:
+- Unable to maintain login status
+- Personalized settings not applied
+- Some features restricted
+- Ads displayed but not personalized
+
+## Third-party Cookies
+
+TripRadio.AI uses cookies from the following third-party services:
+
+### Google Analytics
+- **Purpose**: Website usage statistics analysis
+- **Privacy Policy**: [Google Privacy Policy](https://policies.google.com/privacy)
+- **Opt-out**: [Google Analytics Opt-out Add-on](https://tools.google.com/dlpage/gaoptout)
+
+### Google AdSense
+- **Purpose**: Ad serving and performance measurement
+- **Privacy Policy**: [Google Privacy Policy](https://policies.google.com/privacy)
+- **Opt-out**: [Google Ad Settings](https://adssettings.google.com/)
+
+## GDPR and CCPA Compliance
+
+### EU User Rights (GDPR)
+European Union users have the following rights:
+- **Right to Access**: Verify collected data
+- **Right to Rectification**: Correct inaccurate data
+- **Right to Erasure**: Request data deletion
+- **Right to Data Portability**: Request data transfer
+- **Right to Object**: Refuse data processing
+
+### California User Rights (CCPA)
+California residents have the following rights:
+- Verify categories of personal information collected
+- Refuse sale of personal information
+- Request deletion of personal information
+- Non-discrimination for exercising rights
+
+## Cookie Policy Changes
+
+This Cookie Policy may be updated in the following cases:
+- Changes in cookie usage purposes
+- Addition of new cookie types
+- Changes in legal requirements
+- Reflection of user feedback
+
+Important changes will be announced through website notifications in advance.
+
+## Contact
+
+If you have questions about the Cookie Policy or wish to exercise your data rights, please contact us:
+
+**Contact Information**
+- Email: ${this.contactInfo?.email || 'contact@tripradio.shop'}
+- Telegram: [Navi:GuideAI](https://t.me/+z2Z5yfFKu30xN2Vl)
+
+## Related Policies
+
+- [Privacy Policy](/legal/privacy)
+- [Terms of Service](/legal/terms)
+- [Ad Revenue Notice](/legal/ads-revenue)
+
+---
+
+**This Cookie Policy is effective from ${new Date().toLocaleDateString('en-US')}.**
       `;
     }
   }
