@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
       if (process.env.GEMINI_API_KEY) {
         const { GoogleGenerativeAI } = require('@google/generative-ai');
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
         
         // 매우 간단한 테스트 (5초 타임아웃)
         await Promise.race([

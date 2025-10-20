@@ -4,9 +4,8 @@
  * 기존 우수 프롬프트들을 통합한 완성도 높은 시스템
  */
 
-import { PERSONAS, type PodcastPersona } from '@/lib/ai/personas/podcast-personas';
+import { HOST_PERSONA, CURATOR_PERSONA, type PodcastPersona } from '@/lib/ai/personas/podcast-personas';
 import type { PodcastPromptConfig } from './index';
-import { personaPromptIntegrator, personaQualityValidator } from './persona-prompt-integration';
 
 // ===============================
 // 🔧 NotebookLM 대화 패턴 시스템
@@ -105,28 +104,25 @@ const DIALOGUE_STRUCTURE = {
 // ===============================
 
 /**
- * 페르소나 특성을 실제 프롬프트에 적용
+ * 페르소나 특성을 프롬프트에 포함시키기 위한 함수
  */
-function applyPersonaCharacteristics(persona: PodcastPersona, content: string): string {
-  const { characteristics, responses } = persona;
-  
-  if (persona.role === 'host') {
-    // 진행자: 호기심 많고 친근한 톤
-    const hostPatterns = [
-      ...responses.surprise,
-      ...responses.curiosity,
-      ...characteristics.speakingStyle.slice(0, 3)
-    ];
-    return `진행자 특성 적용: ${hostPatterns.slice(0, 2).join(', ')}을 활용한 ${content}`;
-  } else {
-    // 큐레이터: 전문적이지만 친근한 해설
-    const curatorPatterns = [
-      ...responses.explanation, 
-      ...characteristics.expertise.slice(0, 2),
-      ...characteristics.conversationPatterns.slice(0, 2)
-    ];
-    return `큐레이터 특성 적용: ${curatorPatterns.slice(0, 2).join(', ')}을 활용한 ${content}`;
-  }
+function applyPersonaCharacteristics(persona: PodcastPersona, role: string): string {
+  return `
+${persona.name}는 다음과 같은 특성을 가진 ${role} 캐릭터입니다:
+- 인물: ${persona.characteristics.personality.slice(0, 2).join(', ')}
+- 전문 분야: ${persona.characteristics.expertise.slice(0, 2).join(', ')}
+- 대화 방식: ${persona.characteristics.conversationPatterns.slice(0, 2).join(', ')}
+`.trim();
+}
+
+/**
+ * Host와 Curator만 사용 (구체적 이름 제거)
+ */
+function getHostCuratorDescriptions(): { host: string; curator: string } {
+  return {
+    host: '호기심 많고 친근한 진행자 - 청중에게 질문을 던지고 공감하는 역할',
+    curator: '전문적이지만 친근한 큐레이터 - 깊이 있는 정보와 통찰력 제공'
+  };
 }
 
 // ===============================
@@ -138,11 +134,14 @@ function applyPersonaCharacteristics(persona: PodcastPersona, content: string): 
  */
 export function createKoreanPodcastPrompt(config: PodcastPromptConfig): string {
   const { locationName, chapter, locationContext, personaDetails, locationAnalysis, language } = config;
-  
-  const hostPersona = PERSONAS.HOST;
-  const curatorPersona = PERSONAS.CURATOR;
+
+  // Host와 Curator 페르소나 설정
+  const hostPersona = HOST_PERSONA;
+  const curatorPersona = CURATOR_PERSONA;
+  const hostName = 'Host';
+  const curatorName = 'Curator';
   const targetLength = chapter.targetDuration * 8; // 초당 8자 기준
-  
+
   return `
 ## 핵심 미션
 Google NotebookLM Audio Overview의 **실제 대화 패턴**을 완벽 재현하여 
@@ -201,7 +200,7 @@ ${applyPersonaCharacteristics(curatorPersona, '전문가이지만 친근한 해�
 **오프닝 구조 (500-600자)**
 진행자: "${NOTEBOOKLM_PATTERNS.openings[0]} TripRadio입니다. 오늘은 ${locationName}에 와있는데요..."
 
-큐레이터: "안녕하세요, ${personaDetails.find(p => p.expertise.includes('큐레이터') || p.name.includes('큐레이터'))?.name || '김문화'}입니다. 여기 ${locationName}은..."
+큐레이터: "안녕하세요, Curator입니다. 여기 ${locationName}은..."
 
 **메인 대화 구조 (${targetLength - 1000}자) - 초고밀도 정보**
 
@@ -274,8 +273,11 @@ export function createKoreanFullGuidePrompt(
   } = {}
 ): string {
   const { priority = 'engagement', audienceLevel = 'beginner', podcastStyle = 'educational' } = options;
-  const hostPersona = PERSONAS.HOST;
-  const curatorPersona = PERSONAS.CURATOR;
+  // Host/Curator 페르소나 설정
+  const hostPersona = HOST_PERSONA;
+  const curatorPersona = CURATOR_PERSONA;
+  const hostName = 'Host';
+  const curatorName = 'Curator';
   
   const styleConfig = {
     'deep-dive': '심층 분석과 전문적 해설',
@@ -306,9 +308,9 @@ ${styleConfig[podcastStyle]}으로 ${audienceConfig[audienceLevel]}에 맞춰 �
 ### 전체 구성 전략
 
 #### 1단계: 전체적 소개 (1000-1200자)
-${hostPersona.name}: "${NOTEBOOKLM_PATTERNS.openings[1]} ${locationName}에 대한 완전한 이야기를 들려드릴게요..."
+${hostName}: "${NOTEBOOKLM_PATTERNS.openings[1]} ${locationName}에 대한 완전한 이야기를 들려드릴게요..."
 
-${curatorPersona.name}: "${curatorPersona.responses.explanation[0]} ${locationName}은 단순히 관광지가 아니라..."
+${curatorName}: "${locationName}은 단순히 관광지가 아니라..."
 
 **포함 요소**:
 - 장소의 전체적 의미와 중요성

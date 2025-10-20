@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
     const generatedFile = result.segmentFiles[0];
 
     console.log(`✅ TTS 생성 완료:`, {
-      audioUrl: generatedFile.publicUrl,
+      audioUrl: generatedFile.supabaseUrl,
       duration: generatedFile.duration
     });
 
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
     const { error: updateError } = await supabase
       .from('podcast_segments')
       .update({
-        audio_url: generatedFile.publicUrl,
+        audio_url: generatedFile.supabaseUrl,
         duration_seconds: Math.round(generatedFile.duration),
         duration: Math.round(generatedFile.duration),
         file_size_bytes: generatedFile.fileSize
@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      audioUrl: generatedFile.publicUrl,
+      audioUrl: generatedFile.supabaseUrl,
       duration: generatedFile.duration,
       fileSize: generatedFile.fileSize
     });

@@ -12,10 +12,10 @@ export const maxDuration = 60;
 
 // 순차 재생용 팟캐스트 생성
 
-// Supabase 클라이언트 생성
+// Supabase 클라이언트 생성 (서버사이드에서 RLS 우회하기 위해 SERVICE_ROLE_KEY 사용)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 // 프롬프트 캐시 (성능 최적화)
@@ -268,8 +268,8 @@ export async function POST(req: NextRequest) {
     
     console.log('👥 활성화된 페르소나:', personaDetails.map(p => `${p.name} (${p.expertise.join(', ')})`));
 
-    // 🎤 Step 4: 챕터별 NotebookLM 스타일 스크립트 병렬 생성 (성능 최적화)
-    console.log('🎤 4단계: 챕터별 스크립트 병렬 생성 시작');
+    // 🎤 Step 4: 챕터별 NotebookLM 스타일 스크립트 순차 생성 (API 안정성 우선)
+    console.log('🎤 4단계: 챕터별 스크립트 순차 생성 시작');
     const geminiClient = getGeminiClient();
     const model = geminiClient.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
@@ -279,13 +279,18 @@ export async function POST(req: NextRequest) {
       ...(finalPodcastStructure.outro ? [finalPodcastStructure.outro] : [])
     ];
 
-    console.log(`📊 병렬 처리 시작: ${allChapters.length}개 챕터 동시 생성`);
+    console.log(`📊 순차 처리 시작: ${allChapters.length}개 챕터를 하나씩 생성 (API 안정성 향상)`);
     const startTime = Date.now();
-    
-    // 병렬 처리로 성능 최적화 (순차 처리 대비 70% 성능 향상)
-    const chapterScriptPromises = allChapters.map(async (chapter) => {
-      console.log(`📝 챕터 ${chapter.chapterIndex} 병렬 생성: ${chapter.title}`);
-      
+
+    // 순차 처리로 API 과부하 방지 및 안정성 확보
+    const chapterScripts: any[] = [];
+
+    for (let i = 0; i < allChapters.length; i++) {
+      const chapter = allChapters[i];
+      console.log(`📝 챕터 ${chapter.chapterIndex + 1}/${allChapters.length} 생성 시작: ${chapter.title}`);
+
+      const chapterStartTime = Date.now();
+
       const chapterScript = await generateChapterScript(
         model,
         chapter,
@@ -295,22 +300,23 @@ export async function POST(req: NextRequest) {
         finalPodcastStructure.locationAnalysis,
         language
       );
-      
-      return {
+
+      const chapterTime = Date.now() - chapterStartTime;
+      console.log(`✅ 챕터 ${chapter.chapterIndex + 1} 완료 (${chapterTime}ms): ${chapterScript.segments.length}개 세그먼트`);
+
+      chapterScripts.push({
         ...chapter,
         script: chapterScript
-      };
-    });
+      });
 
-    // 모든 챕터 스크립트를 병렬로 생성하고 완료 대기
-    const chapterScripts = await Promise.all(chapterScriptPromises);
-    
-    const parallelTime = Date.now() - startTime;
-    performanceMetrics.chapterGeneration = parallelTime;
-    console.log(`⚡ 병렬 스크립트 생성 완료: ${parallelTime}ms (예상 성능 향상: ~70%)`);
-    
-    // 원본 순서대로 정렬 (chapterIndex 기준)
-    chapterScripts.sort((a, b) => a.chapterIndex - b.chapterIndex);
+      // 진행률 표시
+      const progress = Math.round(((i + 1) / allChapters.length) * 100);
+      console.log(`📊 전체 진행률: ${progress}% (${i + 1}/${allChapters.length} 챕터 완료)`);
+    }
+
+    const chapterGenerationTime = Date.now() - startTime;
+    performanceMetrics.chapterGeneration = chapterGenerationTime;
+    console.log(`⚡ 순차 스크립트 생성 완료: ${chapterGenerationTime}ms (평균 ${Math.round(chapterGenerationTime / allChapters.length)}ms/챕터)`);
     
     // 🔄 Step 5: 챕터 스크립트들을 하나의 연속된 대화로 통합
     console.log('🔄 5단계: 챕터 스크립트 통합 및 TTS 변환');
@@ -384,17 +390,37 @@ export async function POST(req: NextRequest) {
       throw new Error('대화 세그먼트 분할에 실패했습니다.');
     }
 
-    // 각 세그먼트의 텍스트 내용 검증
-    const invalidSegments = processedDialogue.segments.filter(
-      seg => !seg.textContent || seg.textContent.trim().length < 10
+    // 각 세그먼트의 텍스트 내용 검증 및 필터링
+    const shortSegments = processedDialogue.segments.filter(
+      seg => seg.textContent && seg.textContent.trim().length > 0 && seg.textContent.trim().length < 5
     );
 
-    if (invalidSegments.length > 0) {
-      throw new Error(
-        `유효하지 않은 세그먼트 ${invalidSegments.length}개 발견: ` +
-        invalidSegments.map(s => `#${s.sequenceNumber}`).join(', ') +
-        '. 각 세그먼트는 최소 10자 이상이어야 합니다.'
+    if (shortSegments.length > 0) {
+      console.log(`⚠️  짧은 세그먼트 ${shortSegments.length}개 발견 (5자 미만), 필터링:`,
+        shortSegments.map(s => `#${s.sequenceNumber}: "${s.textContent}"`).join(', ')
       );
+
+      // 짧은 세그먼트는 제외하고 진행
+      processedDialogue.segments = processedDialogue.segments.filter(
+        seg => seg.textContent && seg.textContent.trim().length >= 5
+      );
+
+      // 세그먼트 번호 재정렬
+      processedDialogue.segments.forEach((seg, idx) => {
+        seg.sequenceNumber = idx + 1;
+      });
+
+      processedDialogue.totalSegments = processedDialogue.segments.length;
+    }
+
+    // 완전히 빈 세그먼트 체크
+    const emptySegments = processedDialogue.segments.filter(
+      seg => !seg.textContent || seg.textContent.trim().length === 0
+    );
+
+    if (emptySegments.length > 0) {
+      console.error(`❌ 빈 세그먼트 발견:`, emptySegments.map(s => `#${s.sequenceNumber}`).join(', '));
+      throw new Error(`빈 세그먼트 ${emptySegments.length}개 발견. 스크립트 생성을 재시도해주세요.`);
     }
     
     console.log('📝 스크립트 분할 완료:', {
@@ -412,6 +438,12 @@ export async function POST(req: NextRequest) {
     const initialSlugResult = await LocationSlugService.getOrCreateLocationSlug(locationName, language);
     console.log(`📍 초기 슬러그 생성: "${locationName}" → "${initialSlugResult.slug}" (${initialSlugResult.source})`);
     
+    // 다국어 location_names 구성
+    const locationNames = {
+      [language]: locationName,
+      en: initialSlugResult.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    };
+
     const { error: insertError } = await supabase
       .from('podcast_episodes')
       .upsert({
@@ -423,10 +455,12 @@ export async function POST(req: NextRequest) {
         location_input: locationName,
         location_slug: initialSlugResult.slug,
         slug_source: initialSlugResult.source,
+        location_names: locationNames,  // ✅ 다국어 이름 JSONB
         user_script: rawScript,
         tts_script: processedDialogue.segments.map(s => `${s.speakerType}: ${s.textContent}`).join('\n'),
         status: 'generating',
         duration_seconds: Math.round(processedDialogue.totalEstimatedDuration),
+        quality_score: 75,  // ✅ 초기 품질 점수 (최소 기준)
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       });
@@ -438,69 +472,11 @@ export async function POST(req: NextRequest) {
     
     console.log('📝 에피소드 DB 저장 완료:', episodeId);
 
-    // 3. TTS 생성 (성능 최적화)
-    console.log('🎵 최적화된 다중 화자 TTS 생성 시작...');
-    
-    try {
-      const ttsStartTime = Date.now();
-      
-      // 언어 코드 정규화 (TTS 시스템 호환성)
-      let normalizedLanguage: string;
-      switch (language) {
-        case 'en':
-        case 'en-US':
-          normalizedLanguage = 'en-US';
-          break;
-        case 'ko':
-        case 'ko-KR':
-          normalizedLanguage = 'ko-KR';
-          break;
-        case 'ja':
-        case 'ja-JP':
-          normalizedLanguage = 'ja-JP';
-          break;
-        case 'zh':
-        case 'zh-CN':
-          normalizedLanguage = 'zh-CN';
-          break;
-        case 'es':
-        case 'es-ES':
-          normalizedLanguage = 'es-ES';
-          break;
-        default:
-          normalizedLanguage = language;
-      }
-      
-      console.log(`📊 TTS 입력 정보: ${processedDialogue.segments.length}개 세그먼트, 언어: ${normalizedLanguage}`);
-      
-      const ttsResult = await SequentialTTSGenerator.generateSequentialTTS(
-        processedDialogue.segments,
-        locationName,
-        episodeId,
-        normalizedLanguage
-      );
-      
-      const ttsTime = Date.now() - ttsStartTime;
-      performanceMetrics.ttsGeneration = ttsTime;
-      performanceMetrics.segmentCount = processedDialogue.segments.length;
-      console.log(`⚡ TTS 생성 완료 시간: ${ttsTime}ms`);
-      
-      if (!ttsResult.success || ttsResult.segmentFiles.length === 0) {
-        throw new Error(`TTS 생성 실패: ${ttsResult.errors?.join(', ') || '알 수 없는 오류'}`);
-      }
-    
-    console.log('🎵 순차 TTS 생성 완료:', {
-      segmentCount: ttsResult.segmentFiles.length,
-      totalDuration: `${Math.round(ttsResult.totalDuration)}초`,
-      totalSize: `${Math.round(ttsResult.totalFileSize / 1024)}KB`,
-      folderPath: ttsResult.folderPath
-    });
-    
-    // TTS 결과 검증
-    const fileValidation = SequentialTTSGenerator.validateGeneratedFiles(ttsResult.segmentFiles);
-    if (!fileValidation.isValid) {
-      console.warn('⚠️ 생성된 파일 검증 경고:', fileValidation.issues);
-    }
+    // 3. ⚠️ TTS 생성은 제외 - 사용자가 재생 버튼 클릭 시 별도 생성
+    console.log('📝 스크립트 생성 완료 - TTS는 재생 시 생성됩니다');
+
+    // TTS 없이 스크립트 세그먼트만 저장
+    performanceMetrics.segmentCount = processedDialogue.segments.length;
     
     // 4. 챕터 메타데이터 계산 (제목, 구간 정보 등)
     const chapterMetaMap = new Map<number, {
@@ -525,7 +501,8 @@ export async function POST(req: NextRequest) {
       });
     });
 
-    const sortedSegmentFiles = [...ttsResult.segmentFiles].sort(
+    // TTS 없이 스크립트 세그먼트 기반으로 타임라인 계산
+    const sortedSegments = [...processedDialogue.segments].sort(
       (a, b) => a.sequenceNumber - b.sequenceNumber
     );
 
@@ -541,11 +518,11 @@ export async function POST(req: NextRequest) {
 
     let accumulatedTime = 0;
 
-    sortedSegmentFiles.forEach(file => {
-      const chapterIndex = file.metadata?.chapterIndex ?? 0;
+    sortedSegments.forEach(segment => {
+      const chapterIndex = segment.chapterIndex ?? 0;
       const chapterMeta = chapterMetaMap.get(chapterIndex);
       const titleFromSegment =
-        (file.metadata?.chapterTitle as string | undefined) ||
+        segment.chapterTitle ||
         chapterMeta?.title ||
         `챕터 ${chapterIndex}`;
 
@@ -563,9 +540,10 @@ export async function POST(req: NextRequest) {
 
       const current = chapterTimelineMap.get(chapterIndex)!;
       current.segmentCount += 1;
-      const segmentDuration = Number.isFinite(file.duration) ? file.duration : 0;
-      current.duration += segmentDuration;
-      accumulatedTime += segmentDuration;
+      // 예상 재생 시간 계산 (텍스트 길이 기반)
+      const estimatedDuration = segment.estimatedDuration || Math.ceil(segment.textContent.length / 8);
+      current.duration += estimatedDuration;
+      accumulatedTime += estimatedDuration;
       current.endTime = accumulatedTime;
     });
 
@@ -597,24 +575,68 @@ export async function POST(req: NextRequest) {
         duration: Math.round(value.duration)
       }));
 
-    // 5. 세그먼트는 TTS 생성기에서 이미 저장됨 (중복 제거)
-    console.log('📝 세그먼트는 TTS 생성기에서 이미 DB에 저장됨');
+    // 5. 스크립트 세그먼트를 DB에 저장 (텍스트만, audio_url은 null)
+    console.log('📝 스크립트 세그먼트 DB 저장 시작...');
 
-    // 6. 에피소드 상태 업데이트 (최종 슬러그 정보 포함)
-    console.log('🔄 최종 슬러그 정보 확인:', ttsResult.slugInfo);
-    
+    const segmentRecords = sortedSegments.map(segment => ({
+      episode_id: episodeId,
+      sequence_number: segment.sequenceNumber,
+      speaker_type: segment.speakerType,
+      speaker_name: segment.speakerType === 'male' ? 'Host' : 'Curator',
+      text_content: segment.textContent,
+      audio_url: null,  // TTS 미생성 상태
+      file_size_bytes: 0,
+      duration_seconds: segment.estimatedDuration || Math.ceil(segment.textContent.length / 8),
+      chapter_index: segment.chapterIndex || 0
+    }));
+
+    // 배치 삽입
+    const batchSize = 20;
+    let insertedCount = 0;
+
+    for (let i = 0; i < segmentRecords.length; i += batchSize) {
+      const batch = segmentRecords.slice(i, i + batchSize);
+
+      const { error: segmentError } = await supabase
+        .from('podcast_segments')
+        .insert(batch);
+
+      if (segmentError) {
+        console.error(`❌ 세그먼트 배치 ${Math.floor(i/batchSize) + 1} 삽입 실패:`, segmentError);
+        throw segmentError;
+      }
+
+      insertedCount += batch.length;
+    }
+
+    console.log(`✅ ${insertedCount}개 세그먼트 DB 저장 완료`);
+
+    // 6. 에피소드 상태 업데이트 (script_ready 상태)
+    const finalLocationSlug = initialSlugResult.slug;
+    const finalLocationNames = {
+      [language]: locationName,
+      en: finalLocationSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    };
+
+    // 품질 점수 계산 (세그먼트 수, 챕터 구조 등 고려)
+    const qualityScore = Math.min(
+      75 + Math.floor(processedDialogue.segments.length / 5),  // 세그먼트 많을수록 +점수
+      Math.max(90, chapterTimeline.length * 5)  // 챕터 구조 잘 갖춰져 있으면 +점수
+    );
+
+    const totalEstimatedDuration = chapterTimeline.reduce((sum, ch) => sum + ch.duration, 0);
+
     const { error: updateError } = await supabase
       .from('podcast_episodes')
       .update({
-        status: 'completed',
-        file_count: ttsResult.segmentFiles.length,
-        total_duration: Math.round(ttsResult.totalDuration),
-        total_size: ttsResult.totalFileSize,
-        folder_path: ttsResult.folderPath,
-        location_input: ttsResult.slugInfo?.locationInput || locationName,
-        location_slug: ttsResult.slugInfo?.locationSlug || initialSlugResult.slug,
-        slug_source: ttsResult.slugInfo?.slugSource || initialSlugResult.source,
+        status: 'script_ready',  // 스크립트만 준비된 상태
+        location_input: locationName,
+        location_slug: finalLocationSlug,
+        slug_source: initialSlugResult.source,
+        location_names: finalLocationNames,
         chapter_timestamps: chapterTimeline,
+        quality_score: qualityScore,
+        duration_seconds: totalEstimatedDuration,  // 예상 재생 시간
         updated_at: new Date().toISOString()
       })
       .eq('id', episodeId);
@@ -626,73 +648,33 @@ export async function POST(req: NextRequest) {
     // 최종 성능 지표 계산
     const totalTime = Date.now() - totalStartTime;
     performanceMetrics.totalTime = totalTime;
-    performanceMetrics.throughput = performanceMetrics.segmentCount > 0 
-      ? Math.round((performanceMetrics.segmentCount / totalTime) * 1000 * 100) / 100 // 세그먼트/초
-      : 0;
 
-    console.log('🎉 NotebookLM 스타일 팟캐스트 생성 완료!');
+    console.log('🎉 팟캐스트 스크립트 생성 완료!');
     console.log(`📊 성능 지표:`, {
       총_소요시간: `${totalTime}ms`,
       챕터_생성: `${performanceMetrics.chapterGeneration}ms`,
-      TTS_생성: `${performanceMetrics.ttsGeneration}ms`,
-      처리량: `${performanceMetrics.throughput} 세그먼트/초`,
-      성능_개선: `${Math.round(((79000 - totalTime) / 79000) * 100)}%`
+      세그먼트_개수: performanceMetrics.segmentCount
     });
 
-    // 6. 성공 응답 반환 (성능 지표 포함)
+    // 7. ✅ CQRS 패턴: POST는 최소 메타데이터만 반환 (상세 정보는 GET으로 조회)
     return NextResponse.json({
       success: true,
-      message: 'NotebookLM 스타일 팟캐스트가 성공적으로 생성되었습니다.',
+      message: '팟캐스트 스크립트가 성공적으로 생성되었습니다. 재생 버튼을 누르면 오디오가 생성됩니다.',
       data: {
         episodeId: episodeId,
+        status: 'script_ready',
         locationName: locationName,
         language: language,
-        podcastStructure: {
-          totalChapters: finalPodcastStructure.totalChapters,
-          totalDuration: finalPodcastStructure.totalDuration,
-          selectedPersonas: finalPodcastStructure.selectedPersonas,
-          chapters: chapterTimeline
-        },
-        generation: {
-          segmentCount: ttsResult.segmentFiles.length,
-          totalDuration: Math.round(ttsResult.totalDuration),
-          totalSize: Math.round(ttsResult.totalFileSize / 1024),
-          folderPath: ttsResult.folderPath,
-          chapters: chapterTimeline
-        },
-        performance: {
+        segmentCount: processedDialogue.segments.length,
+        estimatedDuration: totalEstimatedDuration,
+        chapterCount: chapterTimeline.length,
+        // ✅ 성능 지표 (개발용)
+        performance: process.env.NODE_ENV === 'development' ? {
           totalTime: `${totalTime}ms`,
-          chapterGeneration: `${performanceMetrics.chapterGeneration}ms`,
-          ttsGeneration: `${performanceMetrics.ttsGeneration}ms`,
-          throughput: `${performanceMetrics.throughput} 세그먼트/초`,
-          improvementPercent: `${Math.round(((79000 - totalTime) / 79000) * 100)}%`,
-          baseline: '79000ms (최적화 전)'
-        },
-        files: ttsResult.segmentFiles.map(f => ({
-          sequenceNumber: f.sequenceNumber,
-          speaker: f.speakerType,
-          duration: Math.round(f.duration),
-          filePath: f.filePath,
-          chapterInfo: f.metadata
-        }))
+          챕터_생성: `${performanceMetrics.chapterGeneration}ms`
+        } : undefined
       }
     });
-
-    } catch (ttsError) {
-      console.error('❌ TTS 생성 중 오류:', ttsError);
-      
-      // 에피소드 상태를 실패로 업데이트
-      await supabase
-        .from('podcast_episodes')
-        .update({
-          status: 'failed',
-          error_message: ttsError instanceof Error ? ttsError.message : String(ttsError),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', episodeId);
-
-      throw ttsError;
-    }
 
   } catch (error) {
     console.error('❌ NotebookLM 팟캐스트 생성 중 오류:', error);

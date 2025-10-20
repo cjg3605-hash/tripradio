@@ -35,7 +35,7 @@ interface ChapterInfo {
 interface SegmentInfo {
   sequenceNumber: number;
   speakerType: 'male' | 'female';
-  audioUrl: string;
+  audioUrl: string | null; // script_ready 상태에서는 null일 수 있음
   duration: number;
   textContent: string;
   chapterIndex: number;
@@ -154,7 +154,7 @@ export default function PremiumPodcastPage() {
   useEffect(() => {
     if (episode?.segments && episode.segments.length > 0) {
       setCurrentSegmentIndex(0);
-      if (audioRef.current) {
+      if (audioRef.current && episode.segments[0].audioUrl) {
         audioRef.current.src = episode.segments[0].audioUrl;
         audioRef.current.load();
         audioRef.current.volume = volume;
@@ -184,6 +184,28 @@ export default function PremiumPodcastPage() {
     if (!episode?.segments || !audioRef.current) return;
 
     const segment = episode.segments[segmentIndex];
+
+    // 🔧 NEW: audio_url이 null인 경우 처리 - TEST 4 해결
+    if (!segment.audioUrl) {
+      console.warn('⚠️ 세그먼트의 오디오 URL이 없음:', segmentIndex);
+
+      // script_ready 상태이면 다음 유효한 세그먼트 찾기
+      if (episode.status === 'script_ready') {
+        console.log('🔧 TTS 생성 필요, 다음 유효한 세그먼트 탐색...');
+
+        // 다음 세그먼트 중 오디오가 있는 것 찾기
+        for (let i = segmentIndex + 1; i < episode.segments.length; i++) {
+          if (episode.segments[i].audioUrl) {
+            console.log(`🔄 다음 유효한 세그먼트로 이동: ${i + 1}`);
+            return loadAndPlaySegment(i, shouldAutoPlay);
+          }
+        }
+
+        console.log('📭 재생 가능한 오디오가 없음');
+        setIsPlaying(false);
+      }
+      return;
+    }
 
     try {
       // 🔧 FIX: 새 오디오 로드 전에 현재 재생 중지 (play() interrupted 에러 방지)
@@ -233,13 +255,81 @@ export default function PremiumPodcastPage() {
       await generatePodcast();
       return;
     }
-    
+
     if (!audioRef.current) {
       console.log('⚠️ 오디오 레퍼런스 없음');
       return;
     }
 
     const currentSegment = episode.segments[currentSegmentIndex];
+
+    // 🔧 NEW: audio_url이 null인 경우 처리 (script_ready 상태) - TEST 4 해결
+    if (!currentSegment.audioUrl) {
+      console.log('🔧 TTS 오디오 파일 생성 필요:', {
+        segmentIndex: currentSegmentIndex,
+        status: episode.status
+      });
+
+      if (episode.status === 'script_ready') {
+        setError('🎵 오디오를 생성 중입니다. 잠시만 기다려주세요...');
+        setIsGenerating(true);
+
+        try {
+          console.log('🎵 TTS 생성 API 호출 시작...');
+          // TTS 생성 API 호출
+          const generateResponse = await fetch('/api/tts/notebooklm/generate-audio', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              episodeId: episode.episodeId,
+              language: effectiveLanguage,
+              segments: episode.segments
+            })
+          });
+
+          if (generateResponse.ok) {
+            const result = await generateResponse.json();
+            console.log('✅ TTS 생성 완료:', {
+              generatedCount: result.data?.generatedCount,
+              status: result.data?.status
+            });
+
+            // episode 업데이트
+            if (result.data && result.data.segments) {
+              setEpisode(prev => {
+                if (!prev) return prev;
+                return {
+                  ...prev,
+                  status: 'completed',
+                  segments: prev.segments.map((seg, idx) => {
+                    const newAudioUrl = result.data.segments[idx]?.audioUrl;
+                    return newAudioUrl ? { ...seg, audioUrl: newAudioUrl } : seg;
+                  })
+                };
+              });
+            }
+
+            setError(null);
+            // 재생 재시도
+            console.log('🔄 TTS 생성 후 재생 재시도...');
+            await togglePlayPause();
+          } else {
+            const errorData = await generateResponse.json().catch(() => ({}));
+            console.error('❌ TTS 생성 실패:', errorData);
+            setError(`❌ 오디오 생성 실패: ${errorData.error || '서버 오류'}\n다시 시도해주세요.`);
+          }
+        } catch (error) {
+          console.error('❌ TTS 생성 중 오류:', error);
+          setError('❌ 오디오 생성 중 오류가 발생했습니다.\n네트워크 연결을 확인해주세요.');
+        } finally {
+          setIsGenerating(false);
+        }
+      } else {
+        setError('⚠️ 오디오 파일을 사용할 수 없습니다.');
+      }
+      return;
+    }
+
     console.log(`▶️ 순차 재생 시도 - 세그먼트 ${currentSegmentIndex + 1}:`, {
       speakerType: currentSegment.speakerType,
       isPlaying,
@@ -256,19 +346,19 @@ export default function PremiumPodcastPage() {
           console.log(`🔧 세그먼트 ${currentSegmentIndex + 1} 로드:`, currentSegment.audioUrl);
           audioRef.current.src = currentSegment.audioUrl;
           audioRef.current.load();
-          
+
           // 설정 복원
           audioRef.current.volume = volume;
           audioRef.current.playbackRate = playbackRate;
           audioRef.current.muted = isMuted;
         }
-        
+
         await audioRef.current.play();
       }
     } catch (error) {
       console.error(`❌ 세그먼트 ${currentSegmentIndex + 1} 재생 실패:`, error);
-      setError(`세그먼트 ${currentSegmentIndex + 1} 재생에 실패했습니다.`);
-      
+      setError(`❌ 재생 실패: 다시 시도해주세요.`);
+
       // 자동으로 다음 세그먼트로 이동 (선택사항)
       if (currentSegmentIndex < episode.segments.length - 1) {
         console.log('🔄 다음 세그먼트로 자동 이동...');
@@ -319,10 +409,10 @@ export default function PremiumPodcastPage() {
       setCurrentSegmentIndex(0);
       
       // 첫 번째 세그먼트를 오디오 엘리먼트에 로드 (자동 재생은 하지 않음)
-      if (audioRef.current) {
+      if (audioRef.current && episode.segments[0].audioUrl) {
         audioRef.current.src = episode.segments[0].audioUrl;
         audioRef.current.load();
-        
+
         // 설정 적용
         audioRef.current.volume = volume;
         audioRef.current.playbackRate = playbackRate;
@@ -383,9 +473,10 @@ export default function PremiumPodcastPage() {
       if (response.ok) {
         const result = await response.json();
         console.log('🎙️ 기존 에피소드 조회 결과:', result);
-        
+
         // 새로운 챕터 기반 구조 처리 (NotebookLMPodcastPlayer와 동일)
-        if (result.success && result.data.hasEpisode && result.data.status === 'completed') {
+        // script_ready 상태도 포함 - 세그먼트가 있으면 재생 페이지 표시
+        if (result.success && result.data.hasEpisode && (result.data.status === 'completed' || result.data.status === 'script_ready')) {
           let allSegments: SegmentInfo[] = [];
           let chapterInfos: ChapterInfo[] = [];
           
@@ -440,9 +531,11 @@ export default function PremiumPodcastPage() {
               allSegments = dbSegments.map((seg: any) => ({
                 sequenceNumber: seg.sequence_number,
                 speakerType: (seg.speaker_name === 'Host' || seg.speaker_type === 'male') ? 'male' : 'female',
-                audioUrl: seg.audio_url.startsWith('http')
+                audioUrl: seg.audio_url && seg.audio_url.startsWith('http')
                   ? seg.audio_url
-                  : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${seg.audio_url}`,
+                  : seg.audio_url
+                    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${seg.audio_url}`
+                    : null,
                 duration: seg.duration_seconds || 30,
                 textContent: seg.text_content || '',
                 chapterIndex: seg.chapter_index,
@@ -493,6 +586,33 @@ export default function PremiumPodcastPage() {
                 }
               });
             }
+          }
+
+          // 🔧 NEW: chapters가 비어있으면 DB 세그먼트로 재구성 - TEST 3 개선
+          if (chapterInfos.length === 0 && dbSegments && dbSegments.length > 0) {
+            console.log('🔄 chapters 정보 없음 - DB 세그먼트로 재구성');
+
+            const chapterMap = new Map<number, any[]>();
+            dbSegments.forEach(seg => {
+              const chapterIdx = seg.chapter_index || 0;
+              if (!chapterMap.has(chapterIdx)) {
+                chapterMap.set(chapterIdx, []);
+              }
+              chapterMap.get(chapterIdx)!.push(seg);
+            });
+
+            chapterMap.forEach((segments, chapterIdx) => {
+              chapterInfos.push({
+                chapterIndex: chapterIdx,
+                title: `챕터 ${chapterIdx}`,
+                description: `${segments.length}개 대화`,
+                segmentCount: segments.length,
+                estimatedDuration: segments.reduce((sum, seg) => sum + (seg.duration_seconds || 30), 0),
+                contentFocus: []
+              });
+            });
+
+            console.log(`✅ ${chapterInfos.length}개 챕터 재구성 완료`);
           }
 
           console.log('🎯 페이지 - 전체 세그먼트 파싱 완료:', {
@@ -598,7 +718,7 @@ export default function PremiumPodcastPage() {
           setCurrentSegmentIndex(0);
           
           // 첫 번째 세그먼트를 오디오에 자동 로드 (바로 재생 준비)
-          if (episodeData.segments.length > 0 && audioRef.current) {
+          if (episodeData.segments.length > 0 && audioRef.current && episodeData.segments[0].audioUrl) {
             console.log('🎵🎵🎵 [NEW CODE v3] 첫 번째 세그먼트 자동 로드:', episodeData.segments[0]);
             audioRef.current.src = episodeData.segments[0].audioUrl;
             audioRef.current.load();
@@ -699,7 +819,7 @@ export default function PremiumPodcastPage() {
       });
 
       // 생성 완료 후 첫 번째 세그먼트 자동 로드
-      if (episodeData.segments.length > 0 && audioRef.current) {
+      if (episodeData.segments.length > 0 && audioRef.current && episodeData.segments[0].audioUrl) {
         console.log('🎵 생성 완료 - 첫 번째 세그먼트 자동 로드:', episodeData.segments[0]);
         audioRef.current.src = episodeData.segments[0].audioUrl;
         audioRef.current.load();

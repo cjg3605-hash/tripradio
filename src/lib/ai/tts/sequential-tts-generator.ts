@@ -762,7 +762,6 @@ export class SequentialTTSGenerator {
           audio_url: normalizedUrl || null,
           file_size_bytes: file.fileSize,
           duration_seconds: Math.round(file.duration),
-          duration: Math.round(file.duration),
           chapter_index: file.metadata?.chapterIndex || chapterNumber
         };
       });
