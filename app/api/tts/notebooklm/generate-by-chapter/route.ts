@@ -7,11 +7,22 @@ import { LocationAnalyzer, LocationContext, EXPERT_PERSONAS } from '@/lib/ai/loc
 import LocationSlugService from '@/lib/location/location-slug-service';
 import { createPodcastChapterPrompt, type PodcastPromptConfig, parseDialogueScript } from '@/lib/ai/prompts/podcast';
 
+// ✅ Vercel에서 API 타임아웃 설정 (5분)
+export const maxDuration = 300;
+export const dynamic = 'force-dynamic';
+
 // 챕터별 순차 생성용 팟캐스트 API
 
+// 클라이언트 사용 (공개 읽기 권한)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+// ✅ 서버사이드 관리자 클라이언트 (전체 접근 권한 - SERVICE_ROLE_KEY 사용)
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 /**
@@ -609,12 +620,17 @@ async function handleFinalization(locationName: string, language: string) {
 
   const episode = episodes[0];
 
-  // 모든 세그먼트 조회
-  const { data: segments } = await supabase
+  // ✅ 모든 세그먼트 조회 (supabaseAdmin 사용 - RLS 정책 우회)
+  const { data: segments, error: segmentsError } = await supabaseAdmin
     .from('podcast_segments')
     .select('*')
     .eq('episode_id', episode.id)
     .order('sequence_number', { ascending: true });
+
+  if (segmentsError) {
+    console.error('❌ 세그먼트 조회 실패:', segmentsError);
+    throw new Error(`세그먼트 조회 실패: ${segmentsError.message}`);
+  }
 
   if (!segments || segments.length === 0) {
     return NextResponse.json({
@@ -627,8 +643,8 @@ async function handleFinalization(locationName: string, language: string) {
   const totalDuration = segments.reduce((sum, seg) => sum + (seg.duration_seconds || 0), 0);
   const totalSize = segments.reduce((sum, seg) => sum + (seg.file_size_bytes || 0), 0);
 
-  // 에피소드 완료 처리
-  const { error: updateError } = await supabase
+  // ✅ 에피소드 완료 처리 (supabaseAdmin 사용 - 상태 업데이트 반드시 성공해야 함)
+  const { error: updateError } = await supabaseAdmin
     .from('podcast_episodes')
     .update({
       status: 'completed',
@@ -640,7 +656,8 @@ async function handleFinalization(locationName: string, language: string) {
     .eq('id', episode.id);
 
   if (updateError) {
-    console.warn('⚠️ 에피소드 상태 업데이트 실패:', updateError);
+    console.error('❌ 에피소드 상태 업데이트 실패:', updateError);
+    throw new Error(`에피소드 상태 업데이트 실패: ${updateError.message}`);
   }
 
   console.log('🎉 팟캐스트 최종화 완료!', {

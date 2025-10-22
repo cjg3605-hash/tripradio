@@ -289,10 +289,10 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
   const finalizePodcast = async () => {
     try {
       console.log('🏁 팟캐스트 최종화 시작');
-      
-      // ✅ 최종화 타임아웃 설정 (1분)
+
+      // ✅ 최종화 타임아웃 설정 (2분 - 서버 처리 시간 확보)
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000);
+      const timeoutId = setTimeout(() => controller.abort(), 120000);
       
       const response = await fetch('/api/tts/notebooklm/generate-by-chapter', {
         method: 'POST',
