@@ -82,10 +82,25 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
     podcastStyle: 'educational' as 'deep-dive' | 'casual' | 'educational' | 'exploratory'
   });
 
+  // UX 개선: 챕터 0 완료 후 페이지 표시를 위한 상태
+  const [chapter0Completed, setChapter0Completed] = useState(false);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   // 페이지 로드시 기존 팟캐스트 확인
   useEffect(() => {
     checkExistingPodcast();
   }, [locationName, language]);
+
+  // 컴포넌트 언마운트 시 폴링 정리
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+        console.log('🧹 폴링 정리됨');
+      }
+    };
+  }, []);
 
   const checkExistingPodcast = async () => {
     try {
@@ -112,7 +127,7 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
 
   const loadCompletedPodcast = (data: any) => {
     console.log('✅ 완료된 팟캐스트 로드:', data);
-    
+
     // 챕터별 상태 설정
     const chapterInfos = data.chapters.map((chapter: any) => ({
       index: chapter.chapterIndex,
@@ -122,13 +137,14 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
       estimatedSegments: chapter.segmentCount,
       status: 'completed' as const
     }));
-    
+
     setChapters(chapterInfos);
     setIsInitialized(true);
     setEpisodeId(data.episodeId);
-    
+    setChapter0Completed(true); // 완료된 팟캐스트는 chapter 0도 완료된 상태
+
     // 모든 세그먼트 로드
-    const segments = data.chapters.flatMap((chapter: any) => 
+    const segments = data.chapters.flatMap((chapter: any) =>
       chapter.files.map((file: any) => ({
         sequenceNumber: file.sequenceNumber,
         speaker: file.speakerType,
@@ -137,13 +153,13 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
         filePath: file.audioUrl
       }))
     );
-    
+
     setAllSegments(segments);
   };
 
   const loadInProgressPodcast = (data: any) => {
     console.log('🔄 진행 중인 팟캐스트 로드:', data);
-    
+
     // 진행 상태에 따라 챕터 상태 설정
     const chapterInfos = data.chapters?.map((chapter: any, index: number) => ({
       index,
@@ -153,10 +169,30 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
       estimatedSegments: chapter.estimatedSegments,
       status: chapter.segmentCount > 0 ? 'completed' : 'pending' as const
     })) || [];
-    
+
     setChapters(chapterInfos);
     setIsInitialized(true);
     setEpisodeId(data.episodeId);
+
+    // 챕터 0이 완료되었으면 페이지 표시 활성화 및 세그먼트 로드
+    const chapter0 = chapterInfos.find(ch => ch.index === 0);
+    if (chapter0 && chapter0.status === 'completed') {
+      console.log('✅ 저장된 팟캐스트에서 챕터 0 완료 상태 감지');
+      setChapter0Completed(true);
+
+      // 챕터 0의 세그먼트 로드
+      const chapter0Data = data.chapters[0];
+      if (chapter0Data && chapter0Data.files) {
+        const newSegments = chapter0Data.files.map((file: any) => ({
+          sequenceNumber: file.sequenceNumber,
+          speaker: file.speakerType,
+          duration: file.duration,
+          fileName: `segment-${file.sequenceNumber}.mp3`,
+          filePath: file.audioUrl
+        }));
+        setAllSegments(newSegments);
+      }
+    }
   };
 
   // 1단계: 초기화
@@ -328,6 +364,81 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
     }
   };
 
+  // 🔄 실시간 챕터 상태 폴링
+  const startChapterStatusPolling = async () => {
+    console.log('🔄 챕터 상태 폴링 시작');
+
+    const pollChapterStatus = async () => {
+      try {
+        if (!episodeId) return;
+
+        const response = await fetch(
+          `/api/tts/notebooklm/generate-by-chapter?location=${encodeURIComponent(locationName)}&language=${language || currentLanguage}`,
+          { method: 'GET' }
+        );
+
+        if (response.ok) {
+          const result = await response.json();
+
+          if (result.success && result.data.chapters) {
+            // 챕터 상태 업데이트
+            const updatedChapters = result.data.chapters.map((chapter: any, index: number) => {
+              const existingChapter = chapters.find(c => c.index === index);
+              const isCompleted = chapter.segmentCount > 0;
+
+              return {
+                index,
+                title: chapter.title || `챕터 ${index}`,
+                description: chapter.description || `${chapter.segmentCount || 0}개 세그먼트`,
+                estimatedDuration: chapter.totalDuration || existingChapter?.estimatedDuration || 0,
+                estimatedSegments: chapter.segmentCount || chapter.estimatedSegments || 0,
+                status: isCompleted ? 'completed' as const : 'pending' as const
+              };
+            });
+
+            setChapters(updatedChapters);
+
+            // 챕터 0이 완료되면 페이지 표시 활성화
+            const chapter0 = updatedChapters.find(ch => ch.index === 0);
+            if (chapter0 && chapter0.status === 'completed' && !chapter0Completed) {
+              console.log('✅ 챕터 0 완료! 페이지 표시 활성화');
+              setChapter0Completed(true);
+
+              // 챕터 0의 세그먼트 로드
+              const chapter0Data = result.data.chapters[0];
+              if (chapter0Data && chapter0Data.files) {
+                const newSegments = chapter0Data.files.map((file: any) => ({
+                  sequenceNumber: file.sequenceNumber,
+                  speaker: file.speakerType,
+                  duration: file.duration,
+                  fileName: `segment-${file.sequenceNumber}.mp3`,
+                  filePath: file.audioUrl
+                }));
+                setAllSegments(newSegments);
+              }
+            }
+
+            // 모든 챕터가 완료되면 폴링 종료
+            const allCompleted = updatedChapters.every(ch => ch.status === 'completed');
+            if (allCompleted && pollingIntervalRef.current) {
+              console.log('✅ 모든 챕터 완료! 폴링 종료');
+              clearInterval(pollingIntervalRef.current);
+              pollingIntervalRef.current = null;
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('⚠️ 폴링 중 오류:', error);
+      }
+    };
+
+    // 초기 폴링 시작 (2초 간격)
+    pollingIntervalRef.current = setInterval(pollChapterStatus, 2000);
+
+    // 첫 폴링 즉시 실행
+    await pollChapterStatus();
+  };
+
   // ✅ 정확한 진행률 계산 시스템
   const calculateAccurateProgress = (stage: string, chapterIndex: number, totalChapters: number) => {
     const stages = {
@@ -360,6 +471,7 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
     setError(null);
     setGenerationProgress(0);
     setCurrentGeneratingChapter(-1);
+    setChapter0Completed(false);
 
     try {
       // 1단계: 초기화 (이미 초기화된 경우 건너뜀)
@@ -369,20 +481,30 @@ const ChapterBasedPodcastGenerator: React.FC<ChapterBasedPodcastGeneratorProps> 
         await initializePodcast();
       }
 
+      // 🔄 실시간 폴링 시작 (백그라운드에서 챕터 상태 추적)
+      console.log('🔄 백그라운드 폴링 시작');
+      startChapterStatusPolling().catch(err => console.warn('폴링 시작 실패:', err));
+
       // 2단계: 각 챕터 순차 생성
       console.log('🎤 2단계: 챕터별 생성 시작');
       for (let i = 0; i < chapters.length; i++) {
         setCurrentGeneratingChapter(i);
         console.log(`📝 챕터 ${i + 1}/${chapters.length} 생성 중`);
-        
+
         // ✅ 실제 진행률 계산
         setGenerationProgress(calculateAccurateProgress('chapters', i, chapters.length));
-        
+
         await generateChapter(i);
-        
+
+        // ✅ 챕터 0 완료 후 페이지 표시 활성화
+        if (i === 0) {
+          console.log('✅ 챕터 0 생성 완료 → 페이지 표시 활성화');
+          setChapter0Completed(true);
+        }
+
         // ✅ 챕터 완료 후 진행률 업데이트
         setGenerationProgress(calculateAccurateProgress('chapters', i + 1, chapters.length));
-        
+
         // 챕터 간 잠깐 대기 (API 부하 방지)
         if (i < chapters.length - 1) {
           await new Promise(resolve => setTimeout(resolve, 2000));

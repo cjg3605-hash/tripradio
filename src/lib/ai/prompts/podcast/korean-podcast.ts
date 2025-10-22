@@ -200,7 +200,7 @@ ${applyPersonaCharacteristics(curatorPersona, '전문가이지만 친근한 해�
 **오프닝 구조 (500-600자)**
 진행자: "${NOTEBOOKLM_PATTERNS.openings[0]} TripRadio입니다. 오늘은 ${locationName}에 와있는데요..."
 
-큐레이터: "안녕하세요, Curator입니다. 여기 ${locationName}은..."
+큐레이터: "안녕하세요, 큐레이터입니다. 여기 ${locationName}은..."
 
 **메인 대화 구조 (${targetLength - 1000}자) - 초고밀도 정보**
 

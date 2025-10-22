@@ -31,7 +31,7 @@ export interface PodcastPersona {
  */
 export const HOST_PERSONA: PodcastPersona = {
   role: 'host',
-  name: '김진행',
+  name: '진행자',
   characteristics: {
     personality: [
       '호기심이 많고 질문을 두려워하지 않음',
@@ -126,7 +126,7 @@ export const HOST_PERSONA: PodcastPersona = {
  */
 export const CURATOR_PERSONA: PodcastPersona = {
   role: 'curator',
-  name: '박문화',
+  name: '큐레이터',
   characteristics: {
     personality: [
       '깊이 있는 전문 지식과 경험 보유',
