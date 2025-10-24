@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Header from './Header';
+import Footer from './Footer';
 import { HistorySidebar } from './HistorySidebar';
 import { LanguageDetectionToast } from '@/components/common/LanguageDetectionToast';
 import CookieConsent from '@/components/common/CookieConsent';
@@ -41,6 +42,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           <main>
             {children}
           </main>
+
+          <Footer />
         </div>
       </ModeProvider>
     </ThemeProvider>

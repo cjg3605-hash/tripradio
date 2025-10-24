@@ -41,6 +41,7 @@ export interface PodcastPromptConfig {
   personaDetails: PersonaDetail[];
   locationAnalysis: LocationAnalysisResult;
   language: string;
+  previousLastSpeaker?: 'male' | 'female' | null;  // 🔥 이전 챕터의 마지막 화자 (챕터 전환 시 연속 발화 방지)
 }
 
 export interface SpeakerLabels {
@@ -306,29 +307,51 @@ export function getPodcastPersonas(language: string): { host: PodcastPersona; cu
 }
 
 /**
- * 스크립트를 세그먼트로 파싱 - 기존 API와 완벽 호환
+ * 스크립트를 세그먼트로 파싱 - 개선된 형식 지원
+ * [male] / [female] 패턴 + 마크다운 형식 모두 지원
  */
 export function parseDialogueScript(
-  scriptText: string, 
+  scriptText: string,
   language: string = 'ko'
 ): DialogueSegment[] {
   const segments: DialogueSegment[] = [];
   const lines = scriptText.split('\n').filter(line => line.trim());
-  
-  // 기존 parseScriptToSegments와 동일한 로직 유지 (완벽한 호환성)
+
   for (const line of lines) {
     let maleMatch, femaleMatch;
-    
+
     if (language === 'en' || language === 'en-US') {
-      // 영어: Host/Curator 또는 Male/Female 패턴
-      maleMatch = line.match(/\*\*(?:Host|Male):\*\*\s*(.+)/i);
-      femaleMatch = line.match(/\*\*(?:Curator|Female):\*\*\s*(.+)/i);
+      // 영어: 모든 패턴 지원 (Host/Curator/Male/Female, 마크다운 및 브래킷)
+      maleMatch =
+        line.match(/^\[male\]\s*(.+)$/i) ||
+        line.match(/^\*\*Host:\*\*\s*(.+)$/i) ||
+        line.match(/^\*\*Male:\*\*\s*(.+)$/i) ||
+        line.match(/^Host:\s*(.+)$/i) ||
+        line.match(/^Male:\s*(.+)$/i);
+
+      femaleMatch =
+        line.match(/^\[female\]\s*(.+)$/i) ||
+        line.match(/^\*\*Curator:\*\*\s*(.+)$/i) ||
+        line.match(/^\*\*Female:\*\*\s*(.+)$/i) ||
+        line.match(/^Curator:\s*(.+)$/i) ||
+        line.match(/^Female:\s*(.+)$/i);
     } else {
-      // 한국어: male/female 또는 진행자/큐레이터 패턴
-      maleMatch = line.match(/(?:\*\*)?(?:male|진행자):(?:\*\*)?\s*(.+)/i);
-      femaleMatch = line.match(/(?:\*\*)?(?:female|큐레이터):(?:\*\*)?\s*(.+)/i);
+      // 한국어: 모든 패턴 지원 ([male]/[female], 마크다운, 이름)
+      maleMatch =
+        line.match(/^\[male\]\s*(.+)$/i) ||
+        line.match(/^\*\*male:\*\*\s*(.+)$/i) ||
+        line.match(/^\*\*진행자:\*\*\s*(.+)$/i) ||
+        line.match(/^male:\s*(.+)$/i) ||
+        line.match(/^진행자:\s*(.+)$/i);
+
+      femaleMatch =
+        line.match(/^\[female\]\s*(.+)$/i) ||
+        line.match(/^\*\*female:\*\*\s*(.+)$/i) ||
+        line.match(/^\*\*큐레이터:\*\*\s*(.+)$/i) ||
+        line.match(/^female:\s*(.+)$/i) ||
+        line.match(/^큐레이터:\s*(.+)$/i);
     }
-    
+
     if (maleMatch) {
       segments.push({
         speaker: 'male',
@@ -336,13 +359,180 @@ export function parseDialogueScript(
       });
     } else if (femaleMatch) {
       segments.push({
-        speaker: 'female', 
+        speaker: 'female',
         content: femaleMatch[1].trim()
       });
     }
   }
-  
+
   return segments;
+}
+
+/**
+ * 팟캐스트 스크립트 검증 함수
+ * 형식, 턴 교대, 내용 검증
+ */
+export interface PodcastValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+  stats: {
+    totalTurns: number;
+    maleCount: number;
+    femaleCount: number;
+    malePercentage: number;
+    femalePercentage: number;
+    hasConsecutiveSpeaker: boolean;
+    averageTurnLength: number;
+  };
+}
+
+export function validatePodcastScript(
+  scriptText: string,
+  language: string = 'ko'
+): PodcastValidationResult {
+  const segments = parseDialogueScript(scriptText, language);
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // 통계 계산
+  const maleCount = segments.filter(s => s.speaker === 'male').length;
+  const femaleCount = segments.filter(s => s.speaker === 'female').length;
+  const totalTurns = segments.length;
+  const malePercentage = totalTurns > 0 ? (maleCount / totalTurns) * 100 : 0;
+  const femalePercentage = totalTurns > 0 ? (femaleCount / totalTurns) * 100 : 0;
+  const totalLength = segments.reduce((sum, s) => sum + s.content.length, 0);
+  const averageTurnLength = totalTurns > 0 ? totalLength / totalTurns : 0;
+
+  // 연속 같은 화자 감지
+  let hasConsecutiveSpeaker = false;
+  for (let i = 0; i < segments.length - 1; i++) {
+    if (segments[i].speaker === segments[i + 1].speaker) {
+      hasConsecutiveSpeaker = true;
+      errors.push(
+        `❌ Line ${i + 1}-${i + 2}: [${segments[i].speaker}]가 연속으로 2회 발화 (위치: "${segments[i].content.substring(0, 30)}...")`
+      );
+    }
+  }
+
+  // 형식 검증
+  const formatIssues = validateScriptFormat(scriptText, language);
+  errors.push(...formatIssues.errors);
+  warnings.push(...formatIssues.warnings);
+
+  // 내용 검증
+  const contentIssues = validateScriptContent(segments, language);
+  warnings.push(...contentIssues.warnings);
+
+  // 균형 검증
+  if (maleCount === 0) {
+    errors.push('❌ [male] 화자가 없습니다. 최소 3회 이상 필요합니다.');
+  } else if (maleCount < 3) {
+    warnings.push('⚠️ [male] 화자가 3회 미만입니다. 더 많은 질문이 필요할 수 있습니다.');
+  }
+
+  if (femaleCount === 0) {
+    errors.push('❌ [female] 화자가 없습니다. 최소 3회 이상 필요합니다.');
+  } else if (femaleCount < 3) {
+    warnings.push('⚠️ [female] 화자가 3회 미만입니다. 더 많은 설명이 필요할 수 있습니다.');
+  }
+
+  // 비율 검증 (40-60% 범위 권장)
+  if (malePercentage < 30 || malePercentage > 70) {
+    warnings.push(`⚠️ [male] 비율이 ${malePercentage.toFixed(1)}%입니다. 40-60% 범위를 권장합니다.`);
+  }
+  if (femalePercentage < 30 || femalePercentage > 70) {
+    warnings.push(`⚠️ [female] 비율이 ${femalePercentage.toFixed(1)}%입니다. 40-60% 범위를 권장합니다.`);
+  }
+
+  // 턴 길이 검증
+  const tooLongTurns = segments.filter(s => s.content.split('。').length > 5 || s.content.length > 200);
+  if (tooLongTurns.length > 0) {
+    warnings.push(`⚠️ ${tooLongTurns.length}개의 턴이 너무 깁니다. (권장: 한 턴 3-4문장 이내)`);
+  }
+
+  const isValid = errors.length === 0;
+
+  return {
+    isValid,
+    errors,
+    warnings,
+    stats: {
+      totalTurns,
+      maleCount,
+      femaleCount,
+      malePercentage: parseFloat(malePercentage.toFixed(1)),
+      femalePercentage: parseFloat(femalePercentage.toFixed(1)),
+      hasConsecutiveSpeaker,
+      averageTurnLength: parseFloat(averageTurnLength.toFixed(1))
+    }
+  };
+}
+
+/**
+ * 스크립트 형식 검증
+ */
+function validateScriptFormat(scriptText: string, language: string): { errors: string[]; warnings: string[] } {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // 마크다운 형식 검사
+  if (scriptText.includes('**') || scriptText.includes('##') || scriptText.includes('- ') || scriptText.includes('* ')) {
+    warnings.push('⚠️ 마크다운 형식(**, ##, -, *)이 포함되어 있습니다. [male]/[female] 형식만 사용하세요.');
+  }
+
+  // 이모지 검사
+  const emojiRegex = /[\p{Emoji}]/gu;
+  if (emojiRegex.test(scriptText)) {
+    warnings.push('⚠️ 이모지가 포함되어 있습니다. 제거하세요.');
+  }
+
+  // [male]/[female] 형식 확인
+  const lines = scriptText.split('\n').filter(line => line.trim());
+  const validLines = lines.filter(line => /^\[(male|female)\]/.test(line.trim()));
+  const invalidLines = lines.filter(line => line.trim() && !/^\[(male|female)\]/.test(line.trim()));
+
+  if (invalidLines.length > 0) {
+    if (invalidLines.length > 2) {
+      errors.push(`❌ ${invalidLines.length}개의 줄이 올바른 형식이 아닙니다. "[male]" 또는 "[female]"로 시작해야 합니다.`);
+    } else {
+      invalidLines.forEach(line => {
+        warnings.push(`⚠️ 형식 문제: "${line.substring(0, 40)}..."`);
+      });
+    }
+  }
+
+  return { errors, warnings };
+}
+
+/**
+ * 스크립트 내용 검증
+ */
+function validateScriptContent(segments: DialogueSegment[], language: string): { warnings: string[] } {
+  const warnings: string[] = [];
+
+  // 추상적 표현 검사
+  const abstractPhrases = ['아름다운', '신비로운', '경이로운', '멋진', '황홀한', '웅장한'];
+  const emptySegments = segments.filter(s =>
+    !s.content || s.content.trim().length === 0
+  );
+
+  if (emptySegments.length > 0) {
+    warnings.push(`⚠️ ${emptySegments.length}개의 빈 세그먼트가 있습니다.`);
+  }
+
+  // 반복 표현 검사
+  const filler = ['정말', '정말', '진짜', '대충', '좀'];
+  segments.forEach(segment => {
+    const content = segment.content;
+    abstractPhrases.forEach(phrase => {
+      if (content.includes(phrase)) {
+        warnings.push(`⚠️ [${segment.speaker}] 추상적 표현 발견: "${phrase}"`);
+      }
+    });
+  });
+
+  return { warnings };
 }
 
 /**

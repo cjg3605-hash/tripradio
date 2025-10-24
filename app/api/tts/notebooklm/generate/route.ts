@@ -31,11 +31,12 @@ async function generateChapterScript(
   locationContext: LocationContext,
   personaDetails: any[],
   locationAnalysis: any,
-  language: string
+  language: string,
+  previousLastSpeaker?: 'male' | 'female' | null
 ) {
-  // 캐시 키 생성 (성능 최적화)
-  const cacheKey = `${locationName}-${chapter.chapterIndex}-${language}`;
-  
+  // 캐시 키 생성 (성능 최적화) - previousLastSpeaker 포함하여 정확한 캐싱
+  const cacheKey = `${locationName}-${chapter.chapterIndex}-${language}-${previousLastSpeaker || 'first'}`;
+
   // 캐시된 프롬프트 확인
   let prompt: string;
   if (promptCache.has(cacheKey)) {
@@ -67,13 +68,14 @@ async function generateChapterScript(
         uniqueFeatures: [locationAnalysis.locationType || '특별한 장소'],
         recommendations: ['필수 관람 포인트']
       },
-      language
+      language,
+      previousLastSpeaker: previousLastSpeaker || null  // 🔥 이전 챕터 마지막 화자 정보 전달
     };
 
     // 새 프롬프트 시스템으로 프롬프트 생성 및 캐시
     prompt = await createPodcastChapterPrompt(config);
     promptCache.set(cacheKey, prompt);
-    console.log(`💾 새 프롬프트 생성 및 캐시: 챕터 ${chapter.chapterIndex}`);
+    console.log(`💾 새 프롬프트 생성 및 캐시: 챕터 ${chapter.chapterIndex} (이전 화자: ${previousLastSpeaker || '없음'})`);
   }
 
   const result = await model.generateContent(prompt);
@@ -284,6 +286,7 @@ export async function POST(req: NextRequest) {
 
     // 순차 처리로 API 과부하 방지 및 안정성 확보
     const chapterScripts: any[] = [];
+    let previousLastSpeaker: 'male' | 'female' | null = null; // 🔥 이전 챕터의 마지막 화자 추적
 
     for (let i = 0; i < allChapters.length; i++) {
       const chapter = allChapters[i];
@@ -298,7 +301,8 @@ export async function POST(req: NextRequest) {
         locationContext,
         personaDetails,
         finalPodcastStructure.locationAnalysis,
-        language
+        language,
+        previousLastSpeaker  // 🔥 이전 챕터의 마지막 화자 전달
       );
 
       const chapterTime = Date.now() - chapterStartTime;
@@ -308,6 +312,15 @@ export async function POST(req: NextRequest) {
         ...chapter,
         script: chapterScript
       });
+
+      // 🔥 현재 챕터의 마지막 화자를 다음 챕터를 위해 저장
+      // 주의: 이 시점에서는 아직 전환 세그먼트가 추가되기 전이므로,
+      // 실제 마지막 화자를 정확히 추적하려면 전환 세그먼트 추가 후 업데이트 필요
+      if (chapterScript.segments && chapterScript.segments.length > 0) {
+        const lastSegment = chapterScript.segments[chapterScript.segments.length - 1];
+        previousLastSpeaker = lastSegment.speaker as 'male' | 'female';
+        console.log(`🎤 챕터 ${chapter.chapterIndex + 1} 콘텐츠 마지막 화자: ${previousLastSpeaker}`);
+      }
 
       // 진행률 표시
       const progress = Math.round(((i + 1) / allChapters.length) * 100);
@@ -345,18 +358,30 @@ export async function POST(req: NextRequest) {
       
       // 챕터 간 전환 멘트 추가 (마지막 챕터가 아닌 경우)
       if (chapterScript.script.transition && chapterScript !== chapterScripts[chapterScripts.length - 1]) {
+        // 🔥 전환 세그먼트는 마지막 콘텐츠 화자와 **반대** 화자가 말함
+        // 이렇게 하면 챕터 내부에서도 교대가 유지되고, 다음 챕터 시작도 자연스럽게 교대됨
+        // 예: 콘텐츠 끝 [female] → 전환 [male] → 다음 챕터 시작 [female]
+        const lastContentSpeaker = chapterScript.script.segments && chapterScript.script.segments.length > 0
+          ? chapterScript.script.segments[chapterScript.script.segments.length - 1].speaker
+          : 'female';
+        const transitionSpeaker = lastContentSpeaker === 'male' ? 'female' : 'male'; // 반대 화자!
+
         const transitionSegment = {
           sequenceNumber: segmentCounter,
-          speakerType: 'male', // 전환은 주 진행자가
+          speakerType: transitionSpeaker,
           text: chapterScript.script.transition,
           estimatedSeconds: 15,
           chapterIndex: chapterScript.chapterIndex,
           chapterTitle: '전환'
         };
-        
+
         allSegments.push(transitionSegment);
-        combinedScript += `[male] ${chapterScript.script.transition}\n\n`;
+        combinedScript += `[${transitionSpeaker}] ${chapterScript.script.transition}\n\n`;
         segmentCounter++;
+
+        // 🔥 전환 세그먼트가 실제 마지막 화자이므로 previousLastSpeaker 업데이트
+        previousLastSpeaker = transitionSpeaker;
+        console.log(`🔄 챕터 ${chapterScript.chapterIndex + 1} 전환 세그먼트 화자: ${transitionSpeaker} (다음 챕터는 ${transitionSpeaker === 'male' ? 'female' : 'male'}로 시작)`);
       }
     }
     
@@ -603,6 +628,23 @@ export async function POST(req: NextRequest) {
 
       if (segmentError) {
         console.error(`❌ 세그먼트 배치 ${Math.floor(i/batchSize) + 1} 삽입 실패:`, segmentError);
+
+        // 🔧 개선: 에러 발생 시에도 에피소드 상태를 'failed'로 업데이트
+        const { error: failUpdate } = await supabase
+          .from('podcast_episodes')
+          .update({
+            status: 'failed',
+            error_message: `세그먼트 배치 ${Math.floor(i/batchSize) + 1} 삽입 실패: ${segmentError.message}`,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', episodeId);
+
+        if (failUpdate) {
+          console.error('⚠️ 실패 상태 업데이트 실패:', failUpdate);
+        } else {
+          console.log('✅ 에피소드 상태를 failed로 업데이트함');
+        }
+
         throw segmentError;
       }
 
@@ -760,6 +802,10 @@ export async function GET(request: NextRequest) {
         }
       });
     }
+
+    // 🔧 NEW: 세그먼트가 없어도 에피소드가 있으면 반환 (부분 생성된 경우도 표시)
+    // 이렇게 하면 segment가 부분적으로라도 저장되면 바로 페이지에서 표시됨
+    console.log('🔍 에피소드 발견! 세그먼트 조회 전에 기본 정보 먼저 반환하도록 준비중...');
 
     // 찾은 에피소드 정보 로깅
     console.log('🎙️ 찾은 에피소드:', {

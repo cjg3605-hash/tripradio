@@ -44,7 +44,7 @@ interface SegmentInfo {
 
 interface PodcastEpisode {
   episodeId: string;
-  status: 'completed' | 'script_ready';
+  status: 'generating' | 'completed' | 'script_ready' | 'failed';
   userScript: string;
   totalDuration: number;
   segmentCount: number;
@@ -407,7 +407,7 @@ export default function PremiumPodcastPage() {
     if (episode?.segments && episode.segments.length > 0) {
       console.log('🎵 첫 번째 세그먼트 준비:', episode.segments[0]);
       setCurrentSegmentIndex(0);
-      
+
       // 첫 번째 세그먼트를 오디오 엘리먼트에 로드 (자동 재생은 하지 않음)
       if (audioRef.current && episode.segments[0].audioUrl) {
         audioRef.current.src = episode.segments[0].audioUrl;
@@ -420,6 +420,58 @@ export default function PremiumPodcastPage() {
       }
     }
   }, [episode]);
+
+  // 🔧 NEW: 'generating' 상태 에피소드의 자동 갱신
+  useEffect(() => {
+    if (!episode || episode.status !== 'generating') return;
+
+    console.log('🔄 generating 상태 감지 - 자동 갱신 시작:', episode.episodeId);
+    setIsGenerating(true);
+    setGenerationProgress(50); // 초기 진행률
+
+    const refreshInterval = setInterval(async () => {
+      console.log('🔄 상태 갱신 시도:', { episodeId: episode.episodeId, location: locationName });
+
+      try {
+        const response = await fetch(`/api/tts/notebooklm/generate?location=${encodeURIComponent(locationName)}&language=${effectiveLanguage}`);
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('📊 갱신된 에피소드 상태:', result.data?.status);
+
+          // 상태가 변경되었으면 setEpisode 호출
+          if (result.success && result.data.hasEpisode) {
+            const newStatus = result.data.status;
+
+            // 완료 또는 script_ready 상태로 변경된 경우
+            if (newStatus === 'completed' || newStatus === 'script_ready') {
+              console.log(`✅ 에피소드 생성 완료: ${newStatus}`);
+              setIsGenerating(false);
+              setGenerationProgress(100);
+
+              // 에피소드 다시 로드하여 새로운 데이터 반영
+              checkExistingPodcast(locationName, effectiveLanguage);
+              clearInterval(refreshInterval);
+            } else if (newStatus === 'failed') {
+              console.log('❌ 에피소드 생성 실패');
+              setIsGenerating(false);
+              setError('팟캐스트 생성에 실패했습니다. 다시 시도해주세요.');
+              clearInterval(refreshInterval);
+            } else {
+              // 여전히 generating 상태
+              setGenerationProgress(prev => Math.min(prev + Math.random() * 15, 95));
+            }
+          }
+        }
+      } catch (error) {
+        console.error('❌ 상태 갱신 중 오류:', error);
+      }
+    }, 3000); // 3초마다 확인
+
+    return () => {
+      clearInterval(refreshInterval);
+    };
+  }, [episode?.status, locationName, effectiveLanguage, episode?.episodeId]);
 
   /**
    * 스토리지 검증: TTS 오디오 파일과 DB 매칭 확인
@@ -475,8 +527,8 @@ export default function PremiumPodcastPage() {
         console.log('🎙️ 기존 에피소드 조회 결과:', result);
 
         // 새로운 챕터 기반 구조 처리 (NotebookLMPodcastPlayer와 동일)
-        // script_ready 상태도 포함 - 세그먼트가 있으면 재생 페이지 표시
-        if (result.success && result.data.hasEpisode && (result.data.status === 'completed' || result.data.status === 'script_ready')) {
+        // script_ready, generating 상태도 포함 - 세그먼트가 있거나 생성 중이면 페이지 표시
+        if (result.success && result.data.hasEpisode && (result.data.status === 'completed' || result.data.status === 'script_ready' || result.data.status === 'generating')) {
           let allSegments: SegmentInfo[] = [];
           let chapterInfos: ChapterInfo[] = [];
           
@@ -544,7 +596,10 @@ export default function PremiumPodcastPage() {
 
               console.log(`✅ DB 세그먼트를 allSegments로 변환: ${allSegments.length}개`);
             } else {
-              console.warn('⚠️ DB에서 세그먼트를 가져오지 못함 - 파일 기반 fallback 사용');
+              console.warn('⚠️ DB에서 세그먼트를 가져오지 못함 (generating 상태일 수 있음) - 빈 배열로 진행');
+              // 🔧 NEW: segment가 0개여도 episodes가 있으면 UI 표시
+              // generating 상태이면 "생성 중..." 표시, 아니면 "준비 중..." 표시
+              allSegments = [];
               // 파일 기반 fallback (기존 로직)
               let totalSegmentCount = 0;
               result.data.chapters.forEach((chapter: any) => {
@@ -856,29 +911,29 @@ export default function PremiumPodcastPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center">
-        <div className="glass-effect rounded-lg p-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto"></div>
-          <p className="text-gray-600 mt-4 text-center">로딩 중...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="glass-effect rounded-lg p-8 dark:bg-gray-900/50 dark:border dark:border-gray-700/30">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black dark:border-white mx-auto"></div>
+          <p className="text-gray-600 dark:text-gray-400 mt-4 text-center">{getTranslationString('podcast.loading')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800">
       {/* 글래스 헤더 */}
-      <header className="sticky top-0 z-40 glass-header backdrop-blur-xl bg-white/80 border-b border-gray-200/50">
+      <header className="sticky top-0 z-40 glass-header backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-gray-200/50 dark:border-gray-700/50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link 
+            <Link
               href="/"
-              className="flex items-center space-x-2 text-gray-600 hover:text-black transition-all duration-300 group"
+              className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-all duration-300 group"
             >
-              <div className="p-2 rounded-xl bg-black/5 group-hover:bg-black/10 transition-colors">
+              <div className="p-2 rounded-xl bg-black/5 dark:bg-white/5 group-hover:bg-black/10 dark:group-hover:bg-white/10 transition-colors">
                 <ArrowLeft className="w-4 h-4" />
               </div>
-              <span className="font-medium hidden sm:block">홈으로</span>
+              <span className="font-medium hidden sm:block">{getTranslationString('navigation.home')}</span>
             </Link>
             
             <div className="text-center flex-1 mx-4">
@@ -887,7 +942,7 @@ export default function PremiumPodcastPage() {
                   <Headphones className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                     {locationName}
                   </h1>
                 </div>
@@ -908,7 +963,7 @@ export default function PremiumPodcastPage() {
             
             {/* 현재 대화 카드 - 에피소드가 있고 세그먼트가 로드된 경우만 표시 */}
             {episode && episode.segments && episode.segments.length > 0 && episode.segments[currentSegmentIndex] && (
-              <div className="glass-effect rounded-lg p-6 sm:p-8 shadow-xl border border-gray-200/20">
+              <div className="glass-effect rounded-lg p-6 sm:p-8 shadow-xl border border-gray-200/20 dark:bg-gray-900/40 dark:border-gray-700/30">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
@@ -948,7 +1003,7 @@ export default function PremiumPodcastPage() {
                 </div>
 
                 {/* 현재 재생 중인 대화 내용 */}
-                <div className="mt-6 p-6 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                <div className="mt-6 p-6 bg-gray-50 dark:bg-gray-800/30 rounded-lg">
                   <div className="flex items-start space-x-3">
                     <div className={`mt-1 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                       episode.segments[currentSegmentIndex].speakerType === 'male'
@@ -962,10 +1017,10 @@ export default function PremiumPodcastPage() {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        {episode.segments[currentSegmentIndex].speakerType === 'male' ? 'Host' : 'Curator'}
+                        {episode.segments[currentSegmentIndex].speakerType === 'male' ? getTranslationString('podcast.speaker.host') : getTranslationString('podcast.speaker.curator')}
                       </p>
                       <p className="text-base text-gray-900 dark:text-gray-100 leading-relaxed">
-                        {episode.segments[currentSegmentIndex].textContent || '대화 내용을 불러오는 중...'}
+                        {episode.segments[currentSegmentIndex].textContent || getTranslationString('podcast.contentLoading')}
                       </p>
                     </div>
                   </div>
@@ -975,8 +1030,8 @@ export default function PremiumPodcastPage() {
                 <div className="space-y-6">
                   {/* 진행률 바 */}
                   <div className="space-y-2">
-                    <div className="flex justify-between text-sm text-gray-600">
-                      <span>전체 진행률</span>
+                    <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+                      <span>{getTranslationString('podcast.totalProgress')}</span>
                       <span>{(() => {
                         if (!episode.totalDuration || episode.totalDuration <= 0 || isNaN(totalElapsedTime)) return '0%';
                         const progress = Math.round((totalElapsedTime / episode.totalDuration) * 100);
@@ -984,7 +1039,7 @@ export default function PremiumPodcastPage() {
                       })()}</span>
                     </div>
                     <div 
-                      className="h-2 bg-gray-200 rounded-full overflow-hidden cursor-pointer"
+                      className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer"
                       aria-label={getTranslationString('accessibility.progressBar')}
                       onClick={(e) => {
                         if (!episode || !audioRef.current) return;
@@ -1027,9 +1082,9 @@ export default function PremiumPodcastPage() {
                         })()}%` }}
                       />
                     </div>
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>현재: {formatTime(currentTime)}</span>
-                      <span>세그먼트: {formatTime(episode.segments[currentSegmentIndex]?.duration || 0)}</span>
+                    <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                      <span>{getTranslationString('podcast.currentTime')}: {formatTime(currentTime)}</span>
+                      <span>{getTranslationString('podcast.segmentDuration')}: {formatTime(episode.segments[currentSegmentIndex]?.duration || 0)}</span>
                     </div>
                   </div>
 
@@ -1038,15 +1093,15 @@ export default function PremiumPodcastPage() {
                     <button
                       onClick={playPreviousSegment}
                       disabled={currentSegmentIndex === 0}
-                      className="w-12 h-12 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl"
+                      className="w-12 h-12 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl"
                       aria-label={getTranslationString('accessibility.previousSegment')}
                     >
-                      <SkipBack className="w-5 h-5 text-gray-700" />
+                      <SkipBack className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                     </button>
                     
                     <button
                       onClick={togglePlayPause}
-                      className="w-16 h-16 bg-black hover:bg-gray-800 text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105"
+                      className="w-16 h-16 bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black rounded-full flex items-center justify-center transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105"
                       aria-label={isPlaying ? getTranslationString('accessibility.pauseButton') : getTranslationString('accessibility.playButton')}
                     >
                       {isPlaying ? (
@@ -1059,10 +1114,10 @@ export default function PremiumPodcastPage() {
                     <button
                       onClick={playNextSegment}
                       disabled={currentSegmentIndex === episode.segments.length - 1}
-                      className="w-12 h-12 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl"
+                      className="w-12 h-12 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-full flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl"
                       aria-label={getTranslationString('accessibility.nextSegment')}
                     >
-                      <SkipForward className="w-5 h-5 text-gray-700" />
+                      <SkipForward className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                     </button>
                   </div>
 
@@ -1071,12 +1126,12 @@ export default function PremiumPodcastPage() {
                     <div className="flex items-center space-x-3">
                       <button 
                         onClick={toggleMute}
-                        className="text-gray-600 hover:text-gray-800"
+                        className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                         aria-label={isMuted ? getTranslationString('accessibility.unmuteButton') : getTranslationString('accessibility.muteButton')}
                       >
                         {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
                       </button>
-                      <div className="w-20 h-2 bg-gray-200 rounded-full cursor-pointer"
+                      <div className="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full cursor-pointer"
                            aria-label={getTranslationString('accessibility.volumeControl')}
                            onClick={(e) => {
                              const rect = e.currentTarget.getBoundingClientRect();
@@ -1112,43 +1167,43 @@ export default function PremiumPodcastPage() {
             )}
 
             {/* 팟캐스트 생성 - 에피소드가 없을 때만 표시 */}
-            {!episode && !isGenerating && (
-              <div className="glass-effect rounded-lg p-8 shadow-xl border border-gray-200/20 text-center">
+            {!episode && !isGenerating && !isLoading && (
+              <div className="glass-effect rounded-lg p-8 shadow-xl border border-gray-200/20 dark:bg-gray-900/40 dark:border-gray-700/30 text-center">
                 <div className="w-20 h-20 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
                   <Headphones className="w-10 h-10 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  {locationName} 팟캐스트 생성
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                  {t('podcast.generateTitle', { locationName })}
                 </h2>
-                <p className="text-gray-600 mb-8">
-                  AI가 자연스러운 대화로 만드는 특별한 가이드 경험
+                <p className="text-gray-600 dark:text-gray-300 mb-8">
+                  {getTranslationString('podcast.generateDescription')}
                 </p>
                 <button
                   onClick={generatePodcast}
                   className="px-8 py-4 bg-black hover:bg-gray-800 text-white font-medium rounded-lg transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105"
                 >
-                  팟캐스트 생성하기
+                  {getTranslationString('podcast.generateButton')}
                 </button>
               </div>
             )}
 
             {/* 생성 중 */}
             {isGenerating && (
-              <div className="glass-effect rounded-lg p-8 shadow-xl border border-gray-200/20 text-center">
+              <div className="glass-effect rounded-lg p-8 shadow-xl border border-gray-200/20 dark:bg-gray-900/40 dark:border-gray-700/30 text-center">
                 <div className="w-16 h-16 border-4 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-6"></div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  팟캐스트 생성 중...
+                  {getTranslationString('podcast.generatingTitle')}
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  AI가 {locationName}에 대한 흥미로운 대화를 만들고 있어요
+                  {t('podcast.generatingDescription', { locationName })}
                 </p>
                 <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                  <div 
+                  <div
                     className="bg-black h-2 rounded-full transition-all duration-300"
                     style={{ width: `${generationProgress}%` }}
                   />
                 </div>
-                <p className="text-sm text-gray-500">{generationProgress}% 완료</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t('podcast.completionPercentage', { percentage: Math.round(generationProgress).toString() })}</p>
               </div>
             )}
           </div>

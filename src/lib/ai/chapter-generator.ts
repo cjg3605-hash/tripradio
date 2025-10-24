@@ -259,6 +259,44 @@ export class ChapterGenerator {
         { name: '도쿄타워 풋타운', description: '쇼핑과 엔터테인먼트 복합공간', contentFocus: ['원피스 타워', '기념품 샵', '레스토랑', '게임센터'] }
       );
     }
+    // 🗼 남산타워 예시
+    else if (lowerName.includes('남산')) {
+      spots.push(
+        { name: 'N서울타워 전망대', description: '서울 전역을 조망하는 360도 파노라마', contentFocus: ['360도 전망', '망원경 체험', '야경 명소', '일몰 포토스팟'] },
+        { name: '사랑의 자물쇠', description: '연인들의 사랑을 약속하는 상징적 공간', contentFocus: ['자물쇠 벽', '데이트 명소', '추억 만들기', '포토존'] },
+        { name: '남산 케이블카', description: '케이블카로 즐기는 서울 전경', contentFocus: ['케이블카 탑승', '공중 조망', '이동 체험', '사계절 풍경'] },
+        { name: '남산 산책로', description: '남산 자락을 따라 걷는 힐링 코스', contentFocus: ['둘레길', '자연 경관', '팔각정', '야외 휴식'] }
+      );
+    }
+    // 🏗️ 동대문디자인플라자(DDP) 예시
+    else if (lowerName.includes('동대문') || lowerName.includes('ddp') || lowerName.includes('디자인플라자')) {
+      spots.push(
+        { name: 'DDP 외관과 LED 장미정원', description: '자하 하디드의 곡선미와 빛의 향연', contentFocus: ['건축 외관', 'LED 장미', '야경 명소', '포토존'] },
+        { name: 'DDP 디자인 갤러리', description: '최신 디자인 전시와 아트 컬렉션', contentFocus: ['전시 관람', '디자인 트렌드', '기획전', '체험 공간'] },
+        { name: 'DDP 알림터', description: '패션쇼와 이벤트가 열리는 중심 공간', contentFocus: ['이벤트홀', '패션쇼', '런웨이', '문화 행사'] },
+        { name: 'DDP 야경 산책', description: '밤에 빛나는 DDP의 또 다른 매력', contentFocus: ['야경 포토', '조명 연출', '산책로', '분위기'] }
+      );
+    }
+    // 🏖️ 오이도/해변 예시
+    else if (lowerName.includes('오이도') || lowerName.includes('갯벌') || lowerName.includes('포구') || lowerName.includes('해변') || lowerName.includes('해수욕장')) {
+      spots.push(
+        { name: '오이도 소개', description: '서해 갯벌의 보석, 오이도 전체 안내', contentFocus: ['지리적 특징', '갯벌 생태', '역사', '방문 정보'] },
+        { name: '오이도 빨간등대', description: '오이도의 상징, 빨간등대와 주변 경관', contentFocus: ['등대 역사', '사진 명소', '낙조 감상', '등대 구조'] },
+        { name: '오이도 갯벌체험', description: '갯벌에서의 천연 생물 관찰과 활동', contentFocus: ['갯벌 생태', '조개캐기', '조류 관찰', '환경 학습'] },
+        { name: '오이도 포구', description: '어항의 정취와 신선한 먹거리', contentFocus: ['해산물 시장', '포구 풍경', '먹거리', '마을 문화'] },
+        { name: '오이도 서해낙조', description: '일몰 시간 서해의 자연이 만드는 경이', contentFocus: ['낙조 감상', '사진 촬영', '감성 여행', '야경'] }
+      );
+    }
+    // 🏔️ 갓바위/산 예시
+    else if (lowerName.includes('갓바위') || lowerName.includes('godbaawi')) {
+      spots.push(
+        { name: '갓바위 소개', description: '한국의 영험한 산 갓바위 전체 안내', contentFocus: ['지리적 특징', '종교적 의미', '역사와 전설', '방문 정보'] },
+        { name: '갓바위 불상과 기도터', description: '바위 위의 관음보살 불상과 신성한 기도 공간', contentFocus: ['불상 역사', '영험함', '참배 문화', '불교 신앙'] },
+        { name: '갓바위 등산로', description: '대구 시내를 조망하는 산책과 등산 코스', contentFocus: ['등산 경로', '자연 경관', '계절 풍경', '힐링 명소'] },
+        { name: '갓바위 일출/일몰', description: '해돋이와 해넘이를 감상하는 최고의 포인트', contentFocus: ['해돋이 명소', '해넘이 경관', '사진 촬영지', '명상 공간'] },
+        { name: '갓바위 주변 관광지', description: '갓바위 근처 다양한 명소와 문화유산', contentFocus: ['주변 사찰', '전통시장', '먹거리', '문화 체험'] }
+      );
+    }
     // 🏛️ 일반 박물관
     else if (lowerName.includes('박물관') || lowerName.includes('museum')) {
       spots.push(
@@ -291,14 +329,39 @@ export class ChapterGenerator {
         { name: `${locationName} 생태 구역`, description: '자연 생태와 야생 동식물', contentFocus: ['생태계', '야생 동물', '식물 관찰', '환경 보호'] }
       );
     }
-    // 기본 템플릿 (일반 관광지)
+    // 기본 템플릿 (일반 관광지) - 더 나은 설명과 함께
     else {
-      for (let i = 0; i < count; i++) {
+      // 더 나은 기본 제목 생성
+      const defaultSpotNames = [
+        `${locationName} 소개`,
+        `${locationName} 주요 명소`,
+        `${locationName} 역사와 문화`,
+        `${locationName} 추천 포토스팟`,
+        `${locationName} 방문 정보`,
+        `${locationName} 음식문화`,
+        `${locationName} 쇼핑 & 엔터테인먼트`,
+        `${locationName} 자연 경관`,
+        `${locationName} 야경명소`,
+        `${locationName} 숨은 보석 명소`
+      ];
+
+      for (let i = 0; i < count && i < defaultSpotNames.length; i++) {
         spots.push({
-          name: `${locationName} 핵심 스팟 ${i + 1}`,
-          description: `${locationName}의 ${i + 1}번째 주요 관광 포인트`,
+          name: defaultSpotNames[i],
+          description: `${locationName}의 ${defaultSpotNames[i].split(' ').pop()} 구간`,
           contentFocus: ['주요 특징', '역사적 의미', '관람 포인트', '사진 촬영지']
         });
+      }
+
+      // 필요한 경우 추가 생성 (5개 이상)
+      if (count > defaultSpotNames.length) {
+        for (let i = defaultSpotNames.length; i < count; i++) {
+          spots.push({
+            name: `${locationName} 특별한 장소 ${i - defaultSpotNames.length + 1}`,
+            description: `${locationName}의 독특한 매력을 느낄 수 있는 장소`,
+            contentFocus: ['지역 특색', '문화 체험', '감성 여행', '추억 장소']
+          });
+        }
       }
     }
 

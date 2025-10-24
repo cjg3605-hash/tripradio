@@ -1305,19 +1305,23 @@
     "legal": {
       "terms": {
         "title": "이용약관",
-        "description": "트립라디오.AI 서비스 이용약관",
-        "content": "서비스 이용에 관한 약관 내용",
+        "description": "TripRadio.AI 서비스 이용약관",
+        "content": "\n\n【 TripRadio.AI 서비스 이용약관 】\n\n본 약관은 TripRadio.AI(이하 \"서비스\") 이용에 관한 권리, 의무 및 기타 필요한 사항을 규정합니다.\n\n1. 서비스 개요\n- 서비스명: TripRadio.AI (AI 기반 여행 오디오 가이드)\n- 제공업체: TripRadio.AI\n- 서비스 내용: AI가 생성한 여행 정보, 오디오 가이드, 팟캐스트 등 제공\n\n2. 회원의 의무\n(1) 회원은 서비스 이용 시 타인의 정보를 도용하거나 부정한 방법으로 가입하면 안 됩니다.\n(2) 회원은 자신의 계정과 비밀번호에 대한 책임을 집니다.\n(3) 회원은 서비스 이용 중 다음 행동을 하면 안 됩니다:\n    - 불법적인 내용 게시 또는 공유\n    - 타인의 저작권 침해\n    - 서비스 시스템 해킹 또는 방해\n    - 스팸, 욕설, 명예훼손 행위\n    - 과도한 자동 요청이나 봇 사용\n\n3. 지적재산권\n- 본 서비스의 모든 콘텐츠(텍스트, 이미지, 오디오, 코드 등)는 TripRadio.AI 또는 라이선싱 파트너의 소유입니다.\n- 회원은 개인 사용 목적으로만 콘텐츠를 이용할 수 있으며, 상업적 이용은 금지됩니다.\n- 저작권 침해 신고는 support@tripradio.shop으로 연락하시기 바랍니다.\n\n4. 서비스 제한 및 책임\n(1) 서비스 제공자는 다음과 같은 이유로 서비스를 일시적으로 중단할 수 있습니다:\n    - 정기적인 점검 및 유지보수\n    - 보안 상 문제 해결\n    - 기술적 오류 수정\n\n(2) 서비스 제공자는 다음 사항에 대해 책임을 지지 않습니다:\n    - AI가 생성한 콘텐츠의 정확성, 완전성, 신뢰성\n    - 회원이 서비스 이용으로 인한 손실이나 손해\n    - 외부 링크 또는 제3자 콘텐츠로 인한 문제\n    - 인터넷 연결 불안정으로 인한 서비스 이용 중단\n    - 천재지변, 전쟁, 테러 등 불가항력 상황\n\n5. AI 콘텐츠 투명성\n- 본 서비스는 Google Gemini AI를 사용하여 여행 정보를 생성합니다.\n- 생성된 콘텐츠는 정보 제공 목적이며, 실제 방문 시 현장 정보 확인이 필수입니다.\n- 사용자는 AI 생성 콘텐츠를 그대로 신뢰하기보다 자신의 판단과 검증 후 이용해야 합니다.\n\n6. 광고 및 제3자 서비스\n(1) 본 서비스는 Google AdSense를 통해 관련 광고를 게재합니다.\n(2) 제3자 광고나 외부 링크에 대해 서비스 제공자는 책임을 지지 않습니다.\n(3) 광고 클릭으로 인한 결과에 대해 서비스 제공자는 책임을 지지 않습니다.\n\n7. 약관 변경\n- 서비스 제공자는 필요에 따라 본 약관을 변경할 수 있습니다.\n- 약관 변경 시 최소 7일 전에 공지합니다.\n- 개정된 약관에 동의하지 않으면 서비스 이용을 중단할 수 있습니다.\n\n8. 분쟁 해결\n(1) 본 약관에 관련하여 분쟁이 발생할 경우, 먼저 협의를 통해 해결합니다.\n(2) 협의가 이루어지지 않을 경우, 서비스 제공자 소재지의 관할 법원에 소를 제기할 수 있습니다.\n\n9. 서비스 이용 중단 및 해지\n- 서비스 제공자는 다음의 경우 회원 계정을 제한하거나 삭제할 수 있습니다:\n  - 본 약관 위반\n  - 불법 행위\n  - 타인의 권리 침해\n  - 과도한 서버 부하 행위\n\n10. 연락처\n이용약관과 관련한 문의: support@tripradio.shop\n\n최종 업데이트: 2025-10-23\n    ",
         "lastUpdated": "최종 업데이트"
       },
       "privacy": {
         "title": "개인정보 처리방침",
-        "description": "트립라디오.AI 개인정보 처리방침",
-        "content": "개인정보 처리에 관한 방침 내용",
+        "description": "TripRadio.AI 개인정보 처리방침",
+        "content": "\n\n【 TripRadio.AI 개인정보 처리방침 】\n\nTripRadio.AI(이하 \"회사\")는 사용자의 개인정보를 소중히 여기며, 개인정보 보호법을 준수합니다. 본 방침은 회사가 수집, 이용, 관리하는 개인정보에 관한 사항을 설명합니다.\n\n1. 수집하는 개인정보 항목\n\n(1) 필수 정보\n- 이메일 주소: 로그인, 비밀번호 재설정, 서비스 공지\n- 사용자 이름: 프로필 표시 및 개인화\n- 비밀번호: 계정 보안\n\n(2) 선택 정보\n- 휴대폰 번호: 푸시 알림, 고객 지원\n- 프로필 사진: 커뮤니티 기능\n- 여행 선호도: 맞춤형 추천 제공\n\n(3) 자동 수집 정보\n- IP 주소: 서비스 성능 분석, 보안\n- 쿠키 및 로컬스토리지: 사용자 환경 설정 저장\n- 사용 기록: 방문 페이지, 클릭한 콘텐츠, 재생 시간\n- 디바이스 정보: OS, 브라우저, 해상도\n- 위치 정보: GPS 기반 맞춤형 가이드 (선택적)\n\n(4) Google Analytics 수집\n- 페이지뷰, 세션 시간, 이탈률\n- 검색어 및 클릭 패턴\n- 트래픽 출처 (검색 엔진, 소셜 미디어, 직접 방문)\n\n2. 개인정보 수집 목적\n\n(1) 서비스 제공\n- 계정 생성 및 관리\n- 여행 가이드 제공\n- 오디오 재생 및 다운로드\n- 팟캐스트 생성 및 배포\n\n(2) 맞춤형 서비스\n- 관심 지역 및 여행 스타일 기반 추천\n- 다언어 인터페이스 제공\n- GPS 기반 위치별 가이드\n\n(3) 분석 및 개선\n- 사용자 행동 분석\n- 서비스 개선 및 최적화\n- 새로운 기능 개발\n\n(4) 마케팅 및 광고\n- 뉴스레터 발송 (동의 시)\n- 서비스 업데이트 안내\n- 특별 프로모션 정보\n\n(5) 법적 의무\n- 통신비밀보호법 준수\n- 전자상거래법 준수\n- 개인정보보호법 준수\n\n3. 개인정보 보유 및 이용 기간\n\n(1) 회원 탈퇴 시까지: 계정 정보, 사용 기록\n(2) 3년: 결제 정보 (세금법 요구사항)\n(3) 1년: 자동 수집 정보 (분석 목적)\n(4) 동의 철회 시: 마케팅 정보 (즉시 삭제)\n\n4. 제3자 정보 공유 및 위탁\n\n(1) 정보 공유 대상\n- Google (Analytics, AdSense, Cloud Services)\n- Supabase (데이터베이스 호스팅)\n- Vercel (웹 호스팅)\n\n(2) 공유 항목\n- 익명화된 사용 통계\n- 오류 로그 (디버깅 목적)\n- 필수적인 기술 정보\n\n(3) 공유하지 않는 정보\n- 비밀번호 (암호화 저장)\n- 신용카드 정보 (처리하지 않음)\n- 민감한 개인정보\n\n(4) 법적 요청\n- 법원 명령, 수사 협조\n- 개인정보보호법 위반 시\n- 사용자 동의하에 공개 가능\n\n5. AI 콘텐츠와 개인정보\n\n(1) Google Gemini AI 사용\n- 개인식별 정보는 AI에 제공하지 않음\n- 위치, 언어 설정만 활용\n- 생성된 콘텐츠는 개인정보가 아님\n\n(2) 데이터 학습\n- 사용자 개인정보는 AI 학습에 사용하지 않음\n- Google 개인정보 처리방침 준수\n\n6. 쿠키 및 유사 기술\n\n(1) 쿠키 사용 목적\n- 로그인 상태 유지\n- 사용자 언어 설정 저장\n- 광고 개인화 (Google AdSense)\n- 분석 (Google Analytics)\n\n(2) 쿠키 관리\n- 브라우저 설정에서 쿠키 거부 가능\n- 거부 시 서비스 일부 기능 제한 가능\n\n(3) 제3자 쿠키\n- Google AdSense: 관련 광고 표시\n- Google Analytics: 사용 통계 수집\n\n7. 사용자의 권리\n\n사용자는 다음의 권리를 가집니다:\n\n(1) 접근권: 자신의 개인정보 열람 요청\n(2) 정정권: 부정확한 정보 수정 요청\n(3) 삭제권: \"잊혀질 권리\" - 개인정보 삭제 요청\n(4) 처리 제한권: 정보 처리 중단 요청\n(5) 이동권: 정보의 전자적 이전\n(6) 거부권: 마케팅, 분석 목적 거부\n\n권리 행사: support@tripradio.shop\n\n8. 개인정보 보안\n\n(1) 기술적 보안 조치\n- HTTPS 암호화 전송\n- 데이터 암호화 저장\n- 방화벽 및 침입 탐지 시스템\n- 정기적인 보안 감사\n\n(2) 관리적 보안 조치\n- 최소 권한 접근 원칙\n- 직원 개인정보보호 교육\n- 접근 기록 모니터링\n\n(3) 물리적 보안 조치\n- 데이터 센터 보안 (Supabase)\n- 클라우드 인프라 보안 (Vercel)\n\n(4) 보안 사고 대응\n- 사고 발생 시 영향받은 사용자에게 지체 없이 통지\n- 관련 기관에 신고 (필요 시)\n\n9. 개인정보 처리방침 변경\n\n- 방침 변경 시 최소 7일 전에 공지합니다.\n- 중대한 변경 사항은 이메일로 별도 통지합니다.\n- 변경된 방침 효력 발생 이후 서비스 계속 이용 시 동의로 간주합니다.\n\n10. 국제 데이터 전송\n\n(1) 서비스는 글로벌 인프라 사용\n- Google Cloud (미국)\n- Supabase (유럽)\n- Vercel (미국/유럽)\n\n(2) 표준 계약 조항 적용\n- GDPR 데이터 보호 조치 준수\n\n11. 아동 보호\n\n- 본 서비스는 14세 이상 대상입니다.\n- 14세 미만의 개인정보를 의도적으로 수집하지 않습니다.\n- 실수로 수집 시 즉시 삭제합니다.\n- 부모/보호자는 언제든지 연락 가능합니다.\n\n12. 개인정보 관리 책임자\n\n개인정보 보호 관책임자\n- 이메일: privacy@tripradio.shop\n- 웹사이트: https://tripradio.shop\n\n13. 연락처 및 문의\n\n- 일반 문의: support@tripradio.shop\n- 개인정보 관련: privacy@tripradio.shop\n- 불만 사항: support@tripradio.shop\n\n14. 개인정보보호 위원회 (선택)\n\n개인정보 관련 권리 침해 신고\n- 대한민국 개인정보보호위원회: www.pipc.go.kr\n- 경찰청 사이버범죄 수사대: www.nfp.go.kr\n\n최종 업데이트: 2025-10-23\n마지막 검토: 2025-10-23\n    ",
         "lastUpdated": "최종 업데이트"
       },
       "adsenseNotice": "광고 수익 공지",
       "privacyPolicy": "개인정보 처리방침",
-      "adsensePolicy": "AdSense 정책"
+      "adsensePolicy": "AdSense 정책",
+      "contact": {
+        "email": "support@tripradio.shop",
+        "privacy": "privacy@tripradio.shop"
+      }
     },
     "tripTypes": {
       "solo": {
@@ -1379,6 +1383,12 @@
       "generatingTitle": "팟캐스트 생성 중...",
       "generatingDescription": "AI가 {locationName}에 대한 흥미로운 대화를 만들고 있어요",
       "generatingProgress": "% 완료",
+      "speaker": {
+        "host": "진행자",
+        "curator": "큐레이터"
+      },
+      "contentLoading": "대화 내용을 불러오는 중...",
+      "completionPercentage": "{percentage}% 완료",
       "playbackRates": {
         "1": "1×",
         "2": "2×",
@@ -2197,19 +2207,23 @@
     "legal": {
       "terms": {
         "title": "Terms of Service",
-        "description": "DocentTour Terms of Service",
-        "content": "Terms of service content",
+        "description": "TripRadio.AI Terms of Service",
+        "content": "\n\n【 TripRadio.AI Terms of Service 】\n\nThese Terms of Service (\"Terms\") govern your use of TripRadio.AI services. By accessing and using our service, you agree to be bound by these Terms.\n\n1. Service Overview\n- Service Name: TripRadio.AI (AI-Powered Travel Audio Guide)\n- Service Provider: TripRadio.AI\n- Description: AI-generated travel information, audio guides, and podcasts\n\n2. User Responsibilities\n(1) Users must not impersonate others or use fraudulent methods to register.\n(2) Users are responsible for maintaining the confidentiality of their account credentials.\n(3) Users must not engage in the following activities:\n    - Posting or sharing illegal content\n    - Infringing copyright of others\n    - Hacking or interfering with our systems\n    - Spamming, abusive language, or defamation\n    - Excessive automated requests or bot usage\n\n3. Intellectual Property Rights\n- All content (text, images, audio, code) on this service is owned by TripRadio.AI or its licensors.\n- Users may only use content for personal purposes; commercial use is prohibited.\n- Copyright infringement reports should be sent to: support@tripradio.shop\n\n4. Limitation of Liability\n(1) Service Provider may suspend services due to:\n    - Scheduled maintenance\n    - Security issues\n    - Technical error corrections\n\n(2) Service Provider is not liable for:\n    - Accuracy, completeness, or reliability of AI-generated content\n    - Losses or damages from service usage\n    - Third-party links or content\n    - Internet connectivity issues\n    - Force majeure events (natural disasters, war, terrorism)\n\n5. AI Content Transparency\n- This service uses Google Gemini AI to generate travel information.\n- Generated content is for informational purposes only.\n- Users must verify information before making travel decisions.\n- AI-generated content should not be relied upon without independent verification.\n\n6. Advertisements and Third-Party Services\n(1) This service displays relevant ads through Google AdSense.\n(2) Service Provider is not responsible for third-party ads or external links.\n(3) Service Provider is not liable for consequences of clicking advertisements.\n\n7. Modification of Terms\n- Service Provider may modify these Terms as needed.\n- Changes will be announced at least 7 days in advance.\n- Users may discontinue service if they disagree with changes.\n\n8. Dispute Resolution\n(1) Disputes should first be resolved through negotiation.\n(2) If unresolved, disputes may be brought to the courts where Service Provider is located.\n\n9. Service Termination\n- Service Provider may restrict or terminate accounts for:\n  - Violation of these Terms\n  - Illegal activities\n  - Infringement of others' rights\n  - Excessive server load activities\n\n10. Contact Information\nFor Terms-related inquiries: support@tripradio.shop\n\nLast Updated: October 23, 2025\n    ",
         "lastUpdated": "Last Updated"
       },
       "privacy": {
         "title": "Privacy Policy",
-        "description": "DocentTour Privacy Policy",
-        "content": "Privacy policy content",
+        "description": "TripRadio.AI Privacy Policy",
+        "content": "\n\n【 TripRadio.AI Privacy Policy 】\n\nTripRadio.AI (\"Company\") respects your privacy and complies with applicable data protection laws. This policy explains how we collect, use, and manage your information.\n\n1. Information We Collect\n\n(1) Required Information\n- Email address: Login, password reset, service notices\n- Username: Profile display and personalization\n- Password: Account security\n\n(2) Optional Information\n- Phone number: Push notifications, customer support\n- Profile picture: Community features\n- Travel preferences: Personalized recommendations\n\n(3) Automatically Collected Information\n- IP address: Service performance analysis, security\n- Cookies and local storage: User preference settings\n- Usage data: Pages visited, content clicked, playback time\n- Device information: Operating system, browser, resolution\n- Location data: GPS-based guide customization (optional)\n\n(4) Google Analytics\n- Page views, session duration, bounce rates\n- Search queries and click patterns\n- Traffic sources (search engines, social media, direct visits)\n\n2. How We Use Your Information\n\n(1) Service Provision\n- Account creation and management\n- Travel guide delivery\n- Audio playback and downloads\n- Podcast generation and distribution\n\n(2) Personalization\n- Location-based recommendations\n- Travel style-based suggestions\n- Multi-language interface support\n\n(3) Analytics and Improvement\n- User behavior analysis\n- Service optimization\n- New feature development\n\n(4) Marketing\n- Newsletter distribution (with consent)\n- Service updates\n- Promotional information\n\n(5) Legal Compliance\n- Telecommunications law compliance\n- E-commerce law compliance\n- Data protection law compliance\n\n3. Data Retention\n\n(1) Until account deletion: Account information, usage history\n(2) 3 years: Payment information (tax law requirement)\n(3) 1 year: Automatically collected data (analytics)\n(4) Upon withdrawal: Marketing information (immediate deletion)\n\n4. Information Sharing and Processing\n\n(1) Third Parties\n- Google (Analytics, AdSense, Cloud Services)\n- Supabase (database hosting)\n- Vercel (web hosting)\n\n(2) Shared Information\n- Anonymized usage statistics\n- Error logs (debugging purposes)\n- Essential technical information\n\n(3) NOT Shared\n- Passwords (encrypted storage)\n- Credit card information (not processed)\n- Sensitive personal data\n\n(4) Legal Requests\n- Court orders, law enforcement\n- Data protection law violations\n- User-authorized disclosure\n\n5. AI Content and Privacy\n\n(1) Google Gemini AI\n- No personally identifiable information is shared\n- Only location and language preferences are used\n- Generated content is not personal data\n\n(2) Data Training\n- User personal data is not used for AI training\n- Google's privacy policy is followed\n\n6. Cookies and Tracking\n\n(1) Cookie Purposes\n- Maintaining login state\n- Saving language preferences\n- Personalizing ads (Google AdSense)\n- Analytics (Google Analytics)\n\n(2) Cookie Management\n- Users can disable cookies in browser settings\n- Disabling may limit some features\n\n(3) Third-Party Cookies\n- Google AdSense: Relevant ad display\n- Google Analytics: Usage statistics\n\n7. Your Rights\n\nYou have the following rights:\n\n(1) Access: Request to view your information\n(2) Correction: Request to fix inaccurate data\n(3) Deletion: \"Right to be forgotten\" - request data deletion\n(4) Restriction: Request processing limitations\n(5) Portability: Request data transfer\n(6) Objection: Opt-out from marketing and analytics\n\nTo exercise rights: support@tripradio.shop\n\n8. Data Security\n\n(1) Technical Measures\n- HTTPS encryption for data transmission\n- Encrypted data storage\n- Firewalls and intrusion detection\n- Regular security audits\n\n(2) Administrative Measures\n- Principle of least privilege access\n- Employee privacy training\n- Access log monitoring\n\n(3) Physical Security\n- Data center security (Supabase)\n- Cloud infrastructure security (Vercel)\n\n(4) Incident Response\n- Affected users notified without undue delay\n- Regulatory agencies notified if required\n\n9. Policy Changes\n\n- Changes will be announced at least 7 days in advance.\n- Material changes will be emailed separately.\n- Continued use after changes constitutes acceptance.\n\n10. International Data Transfers\n\n(1) Global Infrastructure\n- Google Cloud (USA)\n- Supabase (Europe)\n- Vercel (USA/Europe)\n\n(2) Standard Contractual Clauses\n- GDPR data protection measures\n\n11. Children's Privacy\n\n- This service is intended for ages 14 and above.\n- We do not intentionally collect information from those under 14.\n- If collected by mistake, data is immediately deleted.\n- Parents/guardians may contact us anytime.\n\n12. Data Protection Officer\n\nData Protection Responsibility\n- Email: privacy@tripradio.shop\n- Website: https://tripradio.shop\n\n13. Contact & Support\n\n- General inquiries: support@tripradio.shop\n- Privacy-related: privacy@tripradio.shop\n- Complaints: support@tripradio.shop\n\n14. Regulatory Agencies\n\nData protection authorities:\n- GDPR (Europe): Your national data protection authority\n- CCPA (California, USA): California Attorney General\n- PIPEDA (Canada): Office of the Privacy Commissioner\n\nLast Updated: October 23, 2025\nLast Reviewed: October 23, 2025\n    ",
         "lastUpdated": "Last Updated"
       },
-      "adsenseNotice": "AdSense Notice",
+      "adsenseNotice": "Advertising Revenue Notice",
       "privacyPolicy": "Privacy Policy",
-      "adsensePolicy": "AdSense Policy"
+      "adsensePolicy": "AdSense Policy",
+      "contact": {
+        "email": "support@tripradio.shop",
+        "privacy": "privacy@tripradio.shop"
+      }
     },
     "diagnosis": {
       "title": "Personalized Guide Customization Diagnosis",
@@ -3577,6 +3591,12 @@
       "generatingTitle": "Generating Podcast...",
       "generatingDescription": "AI is creating an interesting conversation about {locationName}",
       "generatingProgress": "% Complete",
+      "speaker": {
+        "host": "Host",
+        "curator": "Curator"
+      },
+      "contentLoading": "Loading dialogue content...",
+      "completionPercentage": "{percentage}% Complete",
       "playbackRates": {
         "1": "1×",
         "2": "2×",
@@ -4182,7 +4202,13 @@
       "no": "いいえ",
       "exploreHub": {
         "mapLoading": "地図読み込み中..."
-      }
+      },
+      "recommendedSpots": "추천 여행지 [日本語訳が必要]",
+      "noRecommendedSpots": "추천 장소가 없습니다 [日本語訳が必要]",
+      "cannotLoadInfo": "정보를 불러올 수 없습니다 [日本語訳が必要]",
+      "loadMapAriaLabel": "지역 정보 다시 불러오기 [日本語訳が必要]",
+      "loadingRegionInfo": "지역 정보를 불러오는 중... [日本語訳が必要]",
+      "loadRegionError": "지역 정보를 불러오는 중 오류가 발생했습니다 [日本語訳が必要]"
     },
     "live": {
       "shareTitle": "AIガイド共有",
@@ -4204,7 +4230,9 @@
       "easy": "簡単",
       "moderate": "普通",
       "challenging": "難しい",
-      "confirmDelete": "このガイドを削除しますか？"
+      "confirmDelete": "このガイドを削除しますか？",
+      "daysAgo": "일 전 [日本語訳が必要]",
+      "weeksAgo": "주 전 [日本語訳が必要]"
     },
     "history": {
       "noResults": "検索結果がありません",
@@ -4328,7 +4356,10 @@
       "passwordsNotMatch": "パスワードが一致しません",
       "invalidEmailFormat": "有効なメールアドレスを入力してください",
       "startYourJourney": "AIと特別な旅を始めましょう",
-      "exploreWithAI": "AIと世界を探索"
+      "exploreWithAI": "AIと世界を探索",
+      "loginFailed": "로그인에 실패했습니다 [日本語訳が必要]",
+      "signupFailed": "회원가입에 실패했습니다 [日本語訳が必要]",
+      "networkError": "네트워크 오류가 발생했습니다 [日本語訳が必要]"
     },
     "buttons": {
       "goBack": "戻る"
@@ -4382,7 +4413,8 @@
         "visaChecker": "ビザチェッカー",
         "restaurants": "レストランガイド",
         "checklist": "旅行チェックリスト"
-      }
+      },
+      "adsensePolicy": "AdSense 정책 [日本語訳が必要]"
     },
     "tripPlanner": {
       "keyword": "AI旅行プランナー",
@@ -4568,6 +4600,216 @@
           "empireState": "エンパイアステートビル",
           "memorial911": "9/11メモリアル",
           "highLine": "ハイライン"
+        },
+        "regions": {
+          "eastAsia": "동아시아 [日本語訳が必要]",
+          "southeastAsia": "동남아시아 [日本語訳が必要]",
+          "europe": "유럽 [日本語訳が必要]",
+          "northAmerica": "북미 [日本語訳が必要]",
+          "oceania": "오세아니아 [日本語訳が必要]"
+        },
+        "budget": {
+          "range50to80": "50-80만원 [日本語訳が必要]",
+          "range60to100": "60-100만원 [日本語訳が必要]",
+          "range80to120": "80-120만원 [日本語訳が必要]",
+          "range150to250": "150-250만원 [日本語訳が必要]",
+          "range200to350": "200-350만원 [日本語訳が必要]",
+          "range180to280": "180-280만원 [日本語訳が必要]"
+        },
+        "bestTime": {
+          "marchMayNovDec": "3-5월, 9-11월 [日本語訳が必要]",
+          "aprJunSepNov": "4-6월, 9-11월 [日本語訳が必要]",
+          "novMar": "11-3월 [日本語訳が必要]",
+          "aprJunSepOct": "4-6월, 9-10월 [日本語訳が必要]",
+          "sepNovMarMay": "9-11월, 3-5월 [日本語訳が必要]"
+        },
+        "duration": {
+          "twoThreeDays": "2-3일 [日本語訳が必要]",
+          "threeFourDays": "3-4일 [日本語訳が必要]",
+          "fourFiveDays": "4-5일 [日本語訳が必要]",
+          "fiveSevenDays": "5-7일 [日本語訳が必要]"
+        },
+        "tags": {
+          "culture": "문화 [日本語訳が必要]",
+          "shopping": "쇼핑 [日本語訳が必要]",
+          "food": "음식 [日本語訳が必要]",
+          "modern": "현대 [日本語訳が必要]",
+          "kpop": "K-pop [日本語訳が必要]",
+          "history": "역사 [日本語訳が必要]",
+          "massage": "마사지 [日本語訳が必要]",
+          "market": "시장 [日本語訳が必要]",
+          "art": "예술 [日本語訳が必要]",
+          "fashion": "패션 [日本語訳が必要]",
+          "romantic": "로맨틱 [日本語訳が必要]",
+          "city": "도시 [日本語訳が必要]",
+          "broadway": "브로드웨이 [日本語訳が必要]",
+          "beach": "해변 [日本語訳が必要]",
+          "nature": "자연 [日本語訳が必要]",
+          "activities": "액티비티 [日本語訳が必要]"
+        },
+        "weather": {
+          "sunny": "맑음 [日本語訳が必要]",
+          "cloudy": "구름 [日本語訳が必要]",
+          "hot": "더움 [日本語訳が必要]"
+        },
+        "exchangeRate": {
+          "jpy": "1,000원 = 74엔 [日本語訳が必要]",
+          "krw": "기준 통화 [日本語訳が必要]",
+          "thb": "1,000원 = 24바트 [日本語訳が必要]",
+          "eur": "1,000원 = 0.68유로 [日本語訳が必要]",
+          "usd": "1,000원 = 0.74달러 [日本語訳が必要]",
+          "aud": "1,000원 = 1.1호주달러 [日本語訳が必要]"
+        },
+        "flightTime": {
+          "twoHalfHour": "2시간 30분 [日本語訳が必要]",
+          "domestic": "국내 [日本語訳が必要]",
+          "sixHour": "6시간 [日本語訳が必要]",
+          "twelveHour": "12시간 [日本語訳が必要]",
+          "fourteenHour": "14시간 [日本語訳が必要]",
+          "tenHour": "10시간 [日本語訳が必要]"
+        },
+        "mustSee": {
+          "gyeongbok": "경복궁 [日本語訳が必要]",
+          "nseoultower": "남산타워 [日本語訳が必要]",
+          "dongdaemun": "동대문 [日本語訳が必要]",
+          "cheonggyecheon": "청계천 [日本語訳が必要]",
+          "notredame": "노트르담 [日本語訳が必要]",
+          "montmartre": "몽마르트 [日本語訳が必要]",
+          "versaillesPalace": "베르사유 궁전 [日本語訳が必要]",
+          "orsayMuseum": "오르세 미술관 [日本語訳が必要]",
+          "blueMountains": "블루 마운틴 [日本語訳が必要]",
+          "darlingHarbor": "달링 하버 [日本語訳が必要]",
+          "theRocks": "록스 [日本語訳が必要]",
+          "tarongaZoo": "타롱가 동물원 [日本語訳が必要]"
+        },
+        "foodSpecialty": {
+          "sushi": "스시 [日本語訳が必要]",
+          "ramen": "라멘 [日本語訳が必要]",
+          "udon": "우동 [日本語訳が必要]",
+          "tempura": "텐푸라 [日本語訳が必要]",
+          "yakitori": "야키토리 [日本語訳が必要]",
+          "kimchi": "김치 [日本語訳が必要]",
+          "bulgogi": "불고기 [日本語訳が必要]",
+          "bibimbap": "비빔밥 [日本語訳が必要]",
+          "samgyeopsal": "삼겹살 [日本語訳が必要]",
+          "chicken": "치킨 [日本語訳が必要]",
+          "padthai": "팟타이 [日本語訳が必要]",
+          "tomyum": "똠얌꿍 [日本語訳が必要]",
+          "somtam": "솜땀 [日本語訳が必要]",
+          "mangoStickyRice": "망고 스티키 라이스 [日本語訳が必要]",
+          "croissant": "크루아상 [日本語訳が必要]",
+          "macaron": "마카롱 [日本語訳が必要]",
+          "escargot": "에스카르고 [日本語訳が必要]",
+          "coqauvin": "코코뱅 [日本語訳が必要]",
+          "hotdog": "핫도그 [日本語訳が必要]",
+          "bagel": "베이글 [日本語訳が必要]",
+          "cheesecake": "치즈케이크 [日本語訳が必要]",
+          "steak": "스테이크 [日本語訳が必要]",
+          "meatPie": "미트 파이 [日本語訳が必要]",
+          "vegemite": "베지마이트 [日本語訳が必要]",
+          "barbecue": "바베큐 [日本語訳が必要]",
+          "flatWhite": "플랫 화이트 [日本語訳が必要]"
+        },
+        "activities": {
+          "onsen": "온센 [日本語訳が必要]",
+          "karaoke": "카라오케 [日本語訳が必要]",
+          "shopping": "쇼핑 [日本語訳が必要]",
+          "photography": "사진촬영 [日本語訳が必要]",
+          "foodTour": "푸드투어 [日本語訳が必要]",
+          "hanbok": "한복 체험 [日本語訳が必要]",
+          "kpopConcert": "K-pop 콘서트 [日本語訳が必要]",
+          "hangang": "한강 공원 [日本語訳が必要]",
+          "thaimassage": "태국 마사지 [日本語訳が必要]",
+          "floatingMarketTour": "수상시장 투어 [日本語訳が必要]",
+          "templeTour": "사원 관람 [日本語訳が必要]",
+          "rooftopBar": "루프탑 바 [日本語訳が必要]",
+          "museumTour": "미술관 투어 [日本語訳が必要]",
+          "seineCruise": "세느강 크루즈 [日本語訳が必要]",
+          "cafeCulture": "카페 문화 [日本語訳が必要]",
+          "broadwayMusical": "브로드웨이 뮤지컬 [日本語訳が必要]",
+          "surfing": "서핑 [日本語訳が必要]",
+          "harborCruise": "하버 크루즈 [日本語訳が必要]",
+          "nationalParkHiking": "국립공원 하이킹 [日本語訳が必要]",
+          "wineryTour": "와이너리 투어 [日本語訳が必要]"
+        },
+        "transportation": {
+          "jrPass": "JR패스 [日本語訳が必要]",
+          "subway": "지하철 [日本語訳が必要]",
+          "taxi": "택시 [日本語訳が必要]",
+          "walking": "도보 [日本語訳が必要]",
+          "bus": "버스 [日本語訳が必要]",
+          "bikeRental": "따릉이 [日本語訳が必要]",
+          "tuktuk": "툭툭 [日本語訳が必要]",
+          "bts": "BTS [日本語訳が必要]",
+          "mrt": "MRT [日本語訳が必要]",
+          "boat": "보트 [日本語訳が必要]",
+          "metro": "메트로 [日本語訳が必要]",
+          "uber": "우버 [日本語訳が必要]",
+          "train": "기차 [日本語訳が必要]",
+          "ferry": "페리 [日本語訳が必要]",
+          "carRental": "렌터카 [日本語訳が必要]"
+        },
+        "tips": {
+          "jrPassAdvance": "JR패스 미리 구매하면 교통비 절약 [日本語訳が必要]",
+          "cashRequired": "현금 사용이 일반적이니 충분히 준비 [日本語訳が必要]",
+          "noTipping": "팁 문화가 없으니 주의 [日本語訳が必要]",
+          "earthquakeApp": "지진 대비 앱 다운로드 권장 [日本語訳が必要]",
+          "tmoneyCard": "T-money카드로 교통비 절약 [日本語訳が必要]",
+          "nightLife": "24시간 운영하는 곳이 많아 야간 활동 추천 [日本語訳が必要]",
+          "freeWifi": "무료 WiFi가 잘 되어 있음 [日本語訳が必要]",
+          "hydration": "더위 대비 충분한 수분 섭취 [日本語訳が必要]",
+          "modestClothing": "왕궁 방문 시 단정한 복장 필수 [日本語訳が必要]",
+          "checkChange": "거스름돈 확인 철저히 [日本語訳が必要]",
+          "streetFoodSafe": "길거리 음식도 안전한 편 [日本語訳が必要]",
+          "museumPass": "박물관 패스 구매 시 대기시간 단축 [日本語訳が必要]",
+          "sundayClosed": "일요일엔 많은 상점이 문 닫음 [日本語訳が必要]",
+          "tipTenPercent": "팁은 10% 정도가 적당 [日本語訳が必要]",
+          "pickpocketWarning": "소매치기 주의 [日本語訳が必要]",
+          "metroCard": "MetroCard로 교통비 절약 [日本語訳が必要]",
+          "tipRequired": "팁은 필수 (18-20%) [日本語訳が必要]",
+          "avoidLateSubway": "안전을 위해 늦은 시간 지하철 피하기 [日本語訳が必要]",
+          "estaRequired": "ESTA 사전 신청 필수 [日本語訳が必要]",
+          "opalCard": "Opal 카드로 대중교통 이용 [日本語訳が必要]",
+          "sunscreen": "자외선 차단제 필수 [日本語訳が必要]",
+          "oppositeSeason": "계절이 반대임을 고려 [日本語訳が必要]"
+        },
+        "budgetBreakdown": {
+          "tokyo": {
+            "accommodation": "50,000원/일 [日本語訳が必要]",
+            "food": "30,000원/일 [日本語訳が必要]",
+            "transport": "15,000원/일 [日本語訳が必要]",
+            "activities": "25,000원/일 [日本語訳が必要]"
+          },
+          "seoul": {
+            "accommodation": "40,000원/일 [日本語訳が必要]",
+            "food": "25,000원/일 [日本語訳が必要]",
+            "transport": "10,000원/일 [日本語訳が必要]",
+            "activities": "20,000원/일 [日本語訳が必要]"
+          },
+          "bangkok": {
+            "accommodation": "25,000원/일 [日本語訳が必要]",
+            "food": "15,000원/일 [日本語訳が必要]",
+            "transport": "8,000원/일 [日本語訳が必要]",
+            "activities": "12,000원/일 [日本語訳が必要]"
+          },
+          "paris": {
+            "accommodation": "100,000원/일 [日本語訳が必要]",
+            "food": "60,000원/일 [日本語訳が必要]",
+            "transport": "20,000원/일 [日本語訳が必要]",
+            "activities": "40,000원/일 [日本語訳が必要]"
+          },
+          "newyork": {
+            "accommodation": "150,000원/일 [日本語訳が必要]",
+            "food": "80,000원/일 [日本語訳が必要]",
+            "transport": "25,000원/일 [日本語訳が必要]",
+            "activities": "45,000원/일 [日本語訳が必要]"
+          },
+          "sydney": {
+            "accommodation": "120,000원/일 [日本語訳が必要]",
+            "food": "70,000원/일 [日本語訳が必要]",
+            "transport": "30,000원/일 [日本語訳が必要]",
+            "activities": "50,000원/일 [日本語訳が必要]"
+          }
         }
       },
       "aiFeatures": {
@@ -4692,31 +4934,11 @@
           "duration": "4泊5日",
           "price": "12万円",
           "activities": {
-            "day1": {
-              "0": "浅草浅草寺",
-              "1": "スカイツリー",
-              "2": "銀座ショッピング"
-            },
-            "day2": {
-              "0": "渋谷クロッシング",
-              "1": "明治神宮",
-              "2": "原宿"
-            },
-            "day3": {
-              "0": "伏見稲荷",
-              "1": "清水寺",
-              "2": "祇園街"
-            },
-            "day4": {
-              "0": "大阪城",
-              "1": "道頓堀",
-              "2": "黒門市場"
-            },
-            "day5": {
-              "0": "ユニバーサルスタジオ",
-              "1": "ショッピング",
-              "2": "出発"
-            }
+            "day1": "도쿄 도착 및 시부야 탐방 [日本語訳が必要]",
+            "day2": "아사쿠사 및 긴자 쇼핑 [日本語訳が必要]",
+            "day3": "교토로 이동, 기요미즈데라 방문 [日本語訳が必要]",
+            "day4": "오사카 도톤보리 및 오사카성 [日本語訳が必要]",
+            "day5": "나라 당일치기 후 귀국 [日本語訳が必要]"
           }
         },
         "europeClassic": {
@@ -4724,38 +4946,13 @@
           "duration": "6泊7日",
           "price": "25万円",
           "activities": {
-            "day1": {
-              "0": "エッフェル塔",
-              "1": "セーヌ川クルーズ",
-              "2": "モンマルトル"
-            },
-            "day2": {
-              "0": "ルーブル美術館",
-              "1": "シャンゼリゼ",
-              "2": "ベルサイユ"
-            },
-            "day3": {
-              "0": "ビッグベン",
-              "1": "タワーブリッジ",
-              "2": "大英博物館"
-            },
-            "day4": {
-              "0": "バッキンガム宮殿",
-              "1": "テムズ川クルーズ",
-              "2": "コベントガーデン"
-            },
-            "day5": {
-              "0": "ファン・ゴッホ美術館",
-              "1": "アンネ・フランクの家"
-            },
-            "day6": {
-              "0": "運河クルーズ",
-              "1": "サイクリングツアー"
-            },
-            "day7": {
-              "0": "自由時間",
-              "1": "出発"
-            }
+            "day1": "파리 도착, 에펠탑 및 루브르 [日本語訳が必要]",
+            "day2": "베르사유 궁전 당일치기 [日本語訳が必要]",
+            "day3": "런던 이동, 빅벤 및 대영박물관 [日本語訳が必要]",
+            "day4": "윈저성 및 옥스포드 투어 [日本語訳が必要]",
+            "day5": "암스테르담 이동, 반고흐 박물관 [日本語訳が必要]",
+            "day6": "잔세스칸스 및 운하 크루즈 [日本語訳が必要]",
+            "day7": "자유시간 후 귀국 [日本語訳が必要]"
           }
         },
         "southeastBackpack": {
@@ -4763,51 +4960,28 @@
           "duration": "9泊10日",
           "price": "8万円",
           "activities": {
-            "day1": {
-              "0": "ワット・ポー",
-              "1": "グランドパレス",
-              "2": "カオサン通り"
-            },
-            "day2": {
-              "0": "水上マーケット",
-              "1": "チャトゥチャック市場",
-              "2": "ルーフトップバー"
-            },
-            "day3": {
-              "0": "ドイ・ステープ",
-              "1": "ナイトバザー",
-              "2": "タイマッサージ"
-            },
-            "day4": {
-              "0": "エレファントキャンプ",
-              "1": "ジップライン",
-              "2": "サンデーマーケット"
-            },
-            "day5": {
-              "0": "料理教室",
-              "1": "寺院ツアー"
-            },
-            "day6": {
-              "0": "パトンビーチ",
-              "1": "バングラ通り"
-            },
-            "day7": {
-              "0": "ピピ島ツアー",
-              "1": "スノーケリング"
-            },
-            "day8": {
-              "0": "ビッグブッダ",
-              "1": "ショッピング",
-              "2": "ビーチ"
-            },
-            "day9": {
-              "0": "スパ",
-              "1": "自由時間"
-            },
-            "day10": {
-              "0": "出発"
-            }
+            "day1": "방콕 도착, 왓포 및 왕궁 [日本語訳が必要]",
+            "day2": "짜뚜짝 시장 및 카오산로드 [日本語訳が必要]",
+            "day3": "치앙마이 이동, 구시가지 탐방 [日本語訳が必要]",
+            "day4": "코끼리 캠프 및 정글 트레킹 [日本語訳が必要]",
+            "day5": "푸켓 이동, 파통 비치 [日本語訳が必要]",
+            "day6": "피피섬 당일치기 투어 [日本語訳が必要]",
+            "day7": "방콕 복귀, 수상시장 투어 [日本語訳が必要]",
+            "day8": "마사지 및 쇼핑 [日本語訳が必要]",
+            "day9": "자유시간 및 야시장 [日本語訳が必要]",
+            "day10": "귀국 [日本語訳が必要]"
           }
+        },
+        "cities": {
+          "tokyo": "도쿄 [日本語訳が必要]",
+          "kyoto": "교토 [日本語訳が必要]",
+          "osaka": "오사카 [日本語訳が必要]",
+          "paris": "파리 [日本語訳が必要]",
+          "london": "런던 [日本語訳が必要]",
+          "amsterdam": "암스테르담 [日本語訳が必要]",
+          "bangkok": "방콕 [日本語訳が必要]",
+          "chiangmai": "치앙마이 [日本語訳が必要]",
+          "phuket": "푸켓 [日本語訳が必要]"
         }
       },
       "tools": {
@@ -4843,7 +5017,15 @@
         "koreaTime": "韓国時間",
         "localTime": "現地時間",
         "phrases": "便利な表現",
-        "phrasesDescription": "旅行に必要な基本表現"
+        "phrasesDescription": "旅行に必要な基本表現",
+        "visaDetails": {
+          "japan": {
+            "title": "일본 비자 정보 [日本語訳が必要]",
+            "noVisa90Days": "90일 무비자 체류 가능 [日本語訳が必要]",
+            "passportValidity": "여권 잔여기간 6개월 이상 [日本語訳が必要]",
+            "returnTicket": "왕복 항공권 필수 [日本語訳が必要]"
+          }
+        }
       },
       "alerts": {
         "noSavedSettings": "保存された設定がありません。",
@@ -4978,7 +5160,11 @@
       },
       "adsenseNotice": "広告収益に関するお知らせ",
       "privacyPolicy": "プライバシーポリシー",
-      "adsensePolicy": "AdSenseポリシー"
+      "adsensePolicy": "AdSenseポリシー",
+      "contact": {
+        "email": "support@tripradio.shop [日本語訳が必要]",
+        "privacy": "privacy@tripradio.shop [日本語訳が必要]"
+      }
     },
     "diagnosis": {
       "title": "パーソナライズガイドカスタム診断",
@@ -5309,6 +5495,12 @@
       "generatingTitle": "ポッドキャスト生成中...",
       "generatingDescription": "AIが{locationName}について興味深い対話を作成しています",
       "generatingProgress": "% 完了",
+      "speaker": {
+        "host": "ホスト",
+        "curator": "キュレーター"
+      },
+      "contentLoading": "対話内容を読み込み中...",
+      "completionPercentage": "{percentage}% 完了",
       "playbackRates": {
         "1": "1×",
         "2": "2×",
@@ -5914,7 +6106,13 @@
       "no": "否",
       "exploreHub": {
         "mapLoading": "地图加载中..."
-      }
+      },
+      "recommendedSpots": "추천 여행지 [需要中文翻译]",
+      "noRecommendedSpots": "추천 장소가 없습니다 [需要中文翻译]",
+      "cannotLoadInfo": "정보를 불러올 수 없습니다 [需要中文翻译]",
+      "loadMapAriaLabel": "지역 정보 다시 불러오기 [需要中文翻译]",
+      "loadingRegionInfo": "지역 정보를 불러오는 중... [需要中文翻译]",
+      "loadRegionError": "지역 정보를 불러오는 중 오류가 발생했습니다 [需要中文翻译]"
     },
     "live": {
       "shareTitle": "分享AI指南",
@@ -5936,7 +6134,9 @@
       "easy": "简单",
       "moderate": "中等",
       "challenging": "有挑战性",
-      "confirmDelete": "确定要删除这个指南吗？"
+      "confirmDelete": "确定要删除这个指南吗？",
+      "daysAgo": "일 전 [需要中文翻译]",
+      "weeksAgo": "주 전 [需要中文翻译]"
     },
     "history": {
       "noResults": "无搜索结果",
@@ -6060,7 +6260,10 @@
       "passwordsNotMatch": "密码不匹配",
       "invalidEmailFormat": "请输入有效的邮箱地址",
       "startYourJourney": "与AI开始您的特别旅程",
-      "exploreWithAI": "与AI探索世界"
+      "exploreWithAI": "与AI探索世界",
+      "loginFailed": "로그인에 실패했습니다 [需要中文翻译]",
+      "signupFailed": "회원가입에 실패했습니다 [需要中文翻译]",
+      "networkError": "네트워크 오류가 발생했습니다 [需要中文翻译]"
     },
     "buttons": {
       "goBack": "返回"
@@ -6114,7 +6317,8 @@
         "visaChecker": "签证查询",
         "restaurants": "餐厅指南",
         "checklist": "旅行清单"
-      }
+      },
+      "adsensePolicy": "AdSense 정책 [需要中文翻译]"
     },
     "tripPlanner": {
       "keyword": "AI行程规划",
@@ -6300,6 +6504,216 @@
           "empireState": "帝国大厦",
           "memorial911": "9/11纪念馆",
           "highLine": "高线公园"
+        },
+        "regions": {
+          "eastAsia": "동아시아 [需要中文翻译]",
+          "southeastAsia": "동남아시아 [需要中文翻译]",
+          "europe": "유럽 [需要中文翻译]",
+          "northAmerica": "북미 [需要中文翻译]",
+          "oceania": "오세아니아 [需要中文翻译]"
+        },
+        "budget": {
+          "range50to80": "50-80만원 [需要中文翻译]",
+          "range60to100": "60-100만원 [需要中文翻译]",
+          "range80to120": "80-120만원 [需要中文翻译]",
+          "range150to250": "150-250만원 [需要中文翻译]",
+          "range200to350": "200-350만원 [需要中文翻译]",
+          "range180to280": "180-280만원 [需要中文翻译]"
+        },
+        "bestTime": {
+          "marchMayNovDec": "3-5월, 9-11월 [需要中文翻译]",
+          "aprJunSepNov": "4-6월, 9-11월 [需要中文翻译]",
+          "novMar": "11-3월 [需要中文翻译]",
+          "aprJunSepOct": "4-6월, 9-10월 [需要中文翻译]",
+          "sepNovMarMay": "9-11월, 3-5월 [需要中文翻译]"
+        },
+        "duration": {
+          "twoThreeDays": "2-3일 [需要中文翻译]",
+          "threeFourDays": "3-4일 [需要中文翻译]",
+          "fourFiveDays": "4-5일 [需要中文翻译]",
+          "fiveSevenDays": "5-7일 [需要中文翻译]"
+        },
+        "tags": {
+          "culture": "문화 [需要中文翻译]",
+          "shopping": "쇼핑 [需要中文翻译]",
+          "food": "음식 [需要中文翻译]",
+          "modern": "현대 [需要中文翻译]",
+          "kpop": "K-pop [需要中文翻译]",
+          "history": "역사 [需要中文翻译]",
+          "massage": "마사지 [需要中文翻译]",
+          "market": "시장 [需要中文翻译]",
+          "art": "예술 [需要中文翻译]",
+          "fashion": "패션 [需要中文翻译]",
+          "romantic": "로맨틱 [需要中文翻译]",
+          "city": "도시 [需要中文翻译]",
+          "broadway": "브로드웨이 [需要中文翻译]",
+          "beach": "해변 [需要中文翻译]",
+          "nature": "자연 [需要中文翻译]",
+          "activities": "액티비티 [需要中文翻译]"
+        },
+        "weather": {
+          "sunny": "맑음 [需要中文翻译]",
+          "cloudy": "구름 [需要中文翻译]",
+          "hot": "더움 [需要中文翻译]"
+        },
+        "exchangeRate": {
+          "jpy": "1,000원 = 74엔 [需要中文翻译]",
+          "krw": "기준 통화 [需要中文翻译]",
+          "thb": "1,000원 = 24바트 [需要中文翻译]",
+          "eur": "1,000원 = 0.68유로 [需要中文翻译]",
+          "usd": "1,000원 = 0.74달러 [需要中文翻译]",
+          "aud": "1,000원 = 1.1호주달러 [需要中文翻译]"
+        },
+        "flightTime": {
+          "twoHalfHour": "2시간 30분 [需要中文翻译]",
+          "domestic": "국내 [需要中文翻译]",
+          "sixHour": "6시간 [需要中文翻译]",
+          "twelveHour": "12시간 [需要中文翻译]",
+          "fourteenHour": "14시간 [需要中文翻译]",
+          "tenHour": "10시간 [需要中文翻译]"
+        },
+        "mustSee": {
+          "gyeongbok": "경복궁 [需要中文翻译]",
+          "nseoultower": "남산타워 [需要中文翻译]",
+          "dongdaemun": "동대문 [需要中文翻译]",
+          "cheonggyecheon": "청계천 [需要中文翻译]",
+          "notredame": "노트르담 [需要中文翻译]",
+          "montmartre": "몽마르트 [需要中文翻译]",
+          "versaillesPalace": "베르사유 궁전 [需要中文翻译]",
+          "orsayMuseum": "오르세 미술관 [需要中文翻译]",
+          "blueMountains": "블루 마운틴 [需要中文翻译]",
+          "darlingHarbor": "달링 하버 [需要中文翻译]",
+          "theRocks": "록스 [需要中文翻译]",
+          "tarongaZoo": "타롱가 동물원 [需要中文翻译]"
+        },
+        "foodSpecialty": {
+          "sushi": "스시 [需要中文翻译]",
+          "ramen": "라멘 [需要中文翻译]",
+          "udon": "우동 [需要中文翻译]",
+          "tempura": "텐푸라 [需要中文翻译]",
+          "yakitori": "야키토리 [需要中文翻译]",
+          "kimchi": "김치 [需要中文翻译]",
+          "bulgogi": "불고기 [需要中文翻译]",
+          "bibimbap": "비빔밥 [需要中文翻译]",
+          "samgyeopsal": "삼겹살 [需要中文翻译]",
+          "chicken": "치킨 [需要中文翻译]",
+          "padthai": "팟타이 [需要中文翻译]",
+          "tomyum": "똠얌꿍 [需要中文翻译]",
+          "somtam": "솜땀 [需要中文翻译]",
+          "mangoStickyRice": "망고 스티키 라이스 [需要中文翻译]",
+          "croissant": "크루아상 [需要中文翻译]",
+          "macaron": "마카롱 [需要中文翻译]",
+          "escargot": "에스카르고 [需要中文翻译]",
+          "coqauvin": "코코뱅 [需要中文翻译]",
+          "hotdog": "핫도그 [需要中文翻译]",
+          "bagel": "베이글 [需要中文翻译]",
+          "cheesecake": "치즈케이크 [需要中文翻译]",
+          "steak": "스테이크 [需要中文翻译]",
+          "meatPie": "미트 파이 [需要中文翻译]",
+          "vegemite": "베지마이트 [需要中文翻译]",
+          "barbecue": "바베큐 [需要中文翻译]",
+          "flatWhite": "플랫 화이트 [需要中文翻译]"
+        },
+        "activities": {
+          "onsen": "온센 [需要中文翻译]",
+          "karaoke": "카라오케 [需要中文翻译]",
+          "shopping": "쇼핑 [需要中文翻译]",
+          "photography": "사진촬영 [需要中文翻译]",
+          "foodTour": "푸드투어 [需要中文翻译]",
+          "hanbok": "한복 체험 [需要中文翻译]",
+          "kpopConcert": "K-pop 콘서트 [需要中文翻译]",
+          "hangang": "한강 공원 [需要中文翻译]",
+          "thaimassage": "태국 마사지 [需要中文翻译]",
+          "floatingMarketTour": "수상시장 투어 [需要中文翻译]",
+          "templeTour": "사원 관람 [需要中文翻译]",
+          "rooftopBar": "루프탑 바 [需要中文翻译]",
+          "museumTour": "미술관 투어 [需要中文翻译]",
+          "seineCruise": "세느강 크루즈 [需要中文翻译]",
+          "cafeCulture": "카페 문화 [需要中文翻译]",
+          "broadwayMusical": "브로드웨이 뮤지컬 [需要中文翻译]",
+          "surfing": "서핑 [需要中文翻译]",
+          "harborCruise": "하버 크루즈 [需要中文翻译]",
+          "nationalParkHiking": "국립공원 하이킹 [需要中文翻译]",
+          "wineryTour": "와이너리 투어 [需要中文翻译]"
+        },
+        "transportation": {
+          "jrPass": "JR패스 [需要中文翻译]",
+          "subway": "지하철 [需要中文翻译]",
+          "taxi": "택시 [需要中文翻译]",
+          "walking": "도보 [需要中文翻译]",
+          "bus": "버스 [需要中文翻译]",
+          "bikeRental": "따릉이 [需要中文翻译]",
+          "tuktuk": "툭툭 [需要中文翻译]",
+          "bts": "BTS [需要中文翻译]",
+          "mrt": "MRT [需要中文翻译]",
+          "boat": "보트 [需要中文翻译]",
+          "metro": "메트로 [需要中文翻译]",
+          "uber": "우버 [需要中文翻译]",
+          "train": "기차 [需要中文翻译]",
+          "ferry": "페리 [需要中文翻译]",
+          "carRental": "렌터카 [需要中文翻译]"
+        },
+        "tips": {
+          "jrPassAdvance": "JR패스 미리 구매하면 교통비 절약 [需要中文翻译]",
+          "cashRequired": "현금 사용이 일반적이니 충분히 준비 [需要中文翻译]",
+          "noTipping": "팁 문화가 없으니 주의 [需要中文翻译]",
+          "earthquakeApp": "지진 대비 앱 다운로드 권장 [需要中文翻译]",
+          "tmoneyCard": "T-money카드로 교통비 절약 [需要中文翻译]",
+          "nightLife": "24시간 운영하는 곳이 많아 야간 활동 추천 [需要中文翻译]",
+          "freeWifi": "무료 WiFi가 잘 되어 있음 [需要中文翻译]",
+          "hydration": "더위 대비 충분한 수분 섭취 [需要中文翻译]",
+          "modestClothing": "왕궁 방문 시 단정한 복장 필수 [需要中文翻译]",
+          "checkChange": "거스름돈 확인 철저히 [需要中文翻译]",
+          "streetFoodSafe": "길거리 음식도 안전한 편 [需要中文翻译]",
+          "museumPass": "박물관 패스 구매 시 대기시간 단축 [需要中文翻译]",
+          "sundayClosed": "일요일엔 많은 상점이 문 닫음 [需要中文翻译]",
+          "tipTenPercent": "팁은 10% 정도가 적당 [需要中文翻译]",
+          "pickpocketWarning": "소매치기 주의 [需要中文翻译]",
+          "metroCard": "MetroCard로 교통비 절약 [需要中文翻译]",
+          "tipRequired": "팁은 필수 (18-20%) [需要中文翻译]",
+          "avoidLateSubway": "안전을 위해 늦은 시간 지하철 피하기 [需要中文翻译]",
+          "estaRequired": "ESTA 사전 신청 필수 [需要中文翻译]",
+          "opalCard": "Opal 카드로 대중교통 이용 [需要中文翻译]",
+          "sunscreen": "자외선 차단제 필수 [需要中文翻译]",
+          "oppositeSeason": "계절이 반대임을 고려 [需要中文翻译]"
+        },
+        "budgetBreakdown": {
+          "tokyo": {
+            "accommodation": "50,000원/일 [需要中文翻译]",
+            "food": "30,000원/일 [需要中文翻译]",
+            "transport": "15,000원/일 [需要中文翻译]",
+            "activities": "25,000원/일 [需要中文翻译]"
+          },
+          "seoul": {
+            "accommodation": "40,000원/일 [需要中文翻译]",
+            "food": "25,000원/일 [需要中文翻译]",
+            "transport": "10,000원/일 [需要中文翻译]",
+            "activities": "20,000원/일 [需要中文翻译]"
+          },
+          "bangkok": {
+            "accommodation": "25,000원/일 [需要中文翻译]",
+            "food": "15,000원/일 [需要中文翻译]",
+            "transport": "8,000원/일 [需要中文翻译]",
+            "activities": "12,000원/일 [需要中文翻译]"
+          },
+          "paris": {
+            "accommodation": "100,000원/일 [需要中文翻译]",
+            "food": "60,000원/일 [需要中文翻译]",
+            "transport": "20,000원/일 [需要中文翻译]",
+            "activities": "40,000원/일 [需要中文翻译]"
+          },
+          "newyork": {
+            "accommodation": "150,000원/일 [需要中文翻译]",
+            "food": "80,000원/일 [需要中文翻译]",
+            "transport": "25,000원/일 [需要中文翻译]",
+            "activities": "45,000원/일 [需要中文翻译]"
+          },
+          "sydney": {
+            "accommodation": "120,000원/일 [需要中文翻译]",
+            "food": "70,000원/일 [需要中文翻译]",
+            "transport": "30,000원/일 [需要中文翻译]",
+            "activities": "50,000원/일 [需要中文翻译]"
+          }
         }
       },
       "aiFeatures": {
@@ -6424,31 +6838,11 @@
           "duration": "4晚5天",
           "price": "1.2万元",
           "activities": {
-            "day1": {
-              "0": "浅草浅草寺",
-              "1": "天空树",
-              "2": "银座购物"
-            },
-            "day2": {
-              "0": "涩谷十字路口",
-              "1": "明治神宫",
-              "2": "原宿"
-            },
-            "day3": {
-              "0": "伏见稻荷",
-              "1": "清水寺",
-              "2": "祗园街"
-            },
-            "day4": {
-              "0": "大阪城",
-              "1": "道顿堀",
-              "2": "黑门市场"
-            },
-            "day5": {
-              "0": "环球影城",
-              "1": "购物",
-              "2": "出发"
-            }
+            "day1": "도쿄 도착 및 시부야 탐방 [需要中文翻译]",
+            "day2": "아사쿠사 및 긴자 쇼핑 [需要中文翻译]",
+            "day3": "교토로 이동, 기요미즈데라 방문 [需要中文翻译]",
+            "day4": "오사카 도톤보리 및 오사카성 [需要中文翻译]",
+            "day5": "나라 당일치기 후 귀국 [需要中文翻译]"
           }
         },
         "europeClassic": {
@@ -6456,38 +6850,13 @@
           "duration": "6晚7天",
           "price": "2.5万元",
           "activities": {
-            "day1": {
-              "0": "埃菲尔铁塔",
-              "1": "塞纳河游船",
-              "2": "蒙马特"
-            },
-            "day2": {
-              "0": "卢浮宫",
-              "1": "香榭丽舍",
-              "2": "凡尔赛宫"
-            },
-            "day3": {
-              "0": "大本钟",
-              "1": "塔桥",
-              "2": "大英博物馆"
-            },
-            "day4": {
-              "0": "白金汉宫",
-              "1": "泰晤士河游船",
-              "2": "考文特花园"
-            },
-            "day5": {
-              "0": "梵高博物馆",
-              "1": "安妮·弗兰克之家"
-            },
-            "day6": {
-              "0": "运河游船",
-              "1": "自行车游览"
-            },
-            "day7": {
-              "0": "自由时间",
-              "1": "出发"
-            }
+            "day1": "파리 도착, 에펠탑 및 루브르 [需要中文翻译]",
+            "day2": "베르사유 궁전 당일치기 [需要中文翻译]",
+            "day3": "런던 이동, 빅벤 및 대영박물관 [需要中文翻译]",
+            "day4": "윈저성 및 옥스포드 투어 [需要中文翻译]",
+            "day5": "암스테르담 이동, 반고흐 박물관 [需要中文翻译]",
+            "day6": "잔세스칸스 및 운하 크루즈 [需要中文翻译]",
+            "day7": "자유시간 후 귀국 [需要中文翻译]"
           }
         },
         "southeastBackpack": {
@@ -6495,51 +6864,28 @@
           "duration": "9晚10天",
           "price": "8000元",
           "activities": {
-            "day1": {
-              "0": "卧佛寺",
-              "1": "大皇宫",
-              "2": "考山路"
-            },
-            "day2": {
-              "0": "水上市场",
-              "1": "恰图恰市场",
-              "2": "屋顶酒吧"
-            },
-            "day3": {
-              "0": "素贴山",
-              "1": "夜市",
-              "2": "泰式按摩"
-            },
-            "day4": {
-              "0": "大象营",
-              "1": "丛林滑索",
-              "2": "周日夜市"
-            },
-            "day5": {
-              "0": "烹饪课程",
-              "1": "寺庙游览"
-            },
-            "day6": {
-              "0": "芭东海滩",
-              "1": "邦古拉路"
-            },
-            "day7": {
-              "0": "皮皮岛游览",
-              "1": "浮潜"
-            },
-            "day8": {
-              "0": "大佛",
-              "1": "购物",
-              "2": "海滩"
-            },
-            "day9": {
-              "0": "水疗",
-              "1": "自由时间"
-            },
-            "day10": {
-              "0": "出发"
-            }
+            "day1": "방콕 도착, 왓포 및 왕궁 [需要中文翻译]",
+            "day2": "짜뚜짝 시장 및 카오산로드 [需要中文翻译]",
+            "day3": "치앙마이 이동, 구시가지 탐방 [需要中文翻译]",
+            "day4": "코끼리 캠프 및 정글 트레킹 [需要中文翻译]",
+            "day5": "푸켓 이동, 파통 비치 [需要中文翻译]",
+            "day6": "피피섬 당일치기 투어 [需要中文翻译]",
+            "day7": "방콕 복귀, 수상시장 투어 [需要中文翻译]",
+            "day8": "마사지 및 쇼핑 [需要中文翻译]",
+            "day9": "자유시간 및 야시장 [需要中文翻译]",
+            "day10": "귀국 [需要中文翻译]"
           }
+        },
+        "cities": {
+          "tokyo": "도쿄 [需要中文翻译]",
+          "kyoto": "교토 [需要中文翻译]",
+          "osaka": "오사카 [需要中文翻译]",
+          "paris": "파리 [需要中文翻译]",
+          "london": "런던 [需要中文翻译]",
+          "amsterdam": "암스테르담 [需要中文翻译]",
+          "bangkok": "방콕 [需要中文翻译]",
+          "chiangmai": "치앙마이 [需要中文翻译]",
+          "phuket": "푸켓 [需要中文翻译]"
         }
       },
       "tools": {
@@ -6575,7 +6921,15 @@
         "koreaTime": "韩国时间",
         "localTime": "当地时间",
         "phrases": "有用短语",
-        "phrasesDescription": "旅行必需的基本表达"
+        "phrasesDescription": "旅行必需的基本表达",
+        "visaDetails": {
+          "japan": {
+            "title": "일본 비자 정보 [需要中文翻译]",
+            "noVisa90Days": "90일 무비자 체류 가능 [需要中文翻译]",
+            "passportValidity": "여권 잔여기간 6개월 이상 [需要中文翻译]",
+            "returnTicket": "왕복 항공권 필수 [需要中文翻译]"
+          }
+        }
       },
       "alerts": {
         "noSavedSettings": "没有保存的设置。",
@@ -6710,7 +7064,11 @@
       },
       "adsenseNotice": "广告收益公告",
       "privacyPolicy": "隐私政策",
-      "adsensePolicy": "AdSense政策"
+      "adsensePolicy": "AdSense政策",
+      "contact": {
+        "email": "support@tripradio.shop [需要中文翻译]",
+        "privacy": "privacy@tripradio.shop [需要中文翻译]"
+      }
     },
     "diagnosis": {
       "title": "个性化指南定制诊断",
@@ -7041,6 +7399,12 @@
       "generatingTitle": "正在生成播客...",
       "generatingDescription": "AI正在创造关于{locationName}的有趣对话",
       "generatingProgress": "% 完成",
+      "speaker": {
+        "host": "主持人",
+        "curator": "策展人"
+      },
+      "contentLoading": "正在加载对话内容...",
+      "completionPercentage": "{percentage}% 完成",
       "playbackRates": {
         "1": "1×",
         "2": "2×",
@@ -7646,7 +8010,13 @@
       "no": "No",
       "exploreHub": {
         "mapLoading": "Cargando mapa..."
-      }
+      },
+      "recommendedSpots": "추천 여행지 [Se necesita traducción al español]",
+      "noRecommendedSpots": "추천 장소가 없습니다 [Se necesita traducción al español]",
+      "cannotLoadInfo": "정보를 불러올 수 없습니다 [Se necesita traducción al español]",
+      "loadMapAriaLabel": "지역 정보 다시 불러오기 [Se necesita traducción al español]",
+      "loadingRegionInfo": "지역 정보를 불러오는 중... [Se necesita traducción al español]",
+      "loadRegionError": "지역 정보를 불러오는 중 오류가 발생했습니다 [Se necesita traducción al español]"
     },
     "live": {
       "shareTitle": "Compartir Guía IA",
@@ -7668,7 +8038,9 @@
       "easy": "Fácil",
       "moderate": "Moderado",
       "challenging": "Desafiante",
-      "confirmDelete": "¿Estás seguro de que quieres eliminar esta guía?"
+      "confirmDelete": "¿Estás seguro de que quieres eliminar esta guía?",
+      "daysAgo": "일 전 [Se necesita traducción al español]",
+      "weeksAgo": "주 전 [Se necesita traducción al español]"
     },
     "history": {
       "noResults": "Sin resultados de búsqueda",
@@ -7792,7 +8164,10 @@
       "passwordsNotMatch": "Las contraseñas no coinciden",
       "invalidEmailFormat": "Por favor ingresa un correo válido",
       "startYourJourney": "Comienza tu viaje especial con AI",
-      "exploreWithAI": "Explora el mundo con AI"
+      "exploreWithAI": "Explora el mundo con AI",
+      "loginFailed": "로그인에 실패했습니다 [Se necesita traducción al español]",
+      "signupFailed": "회원가입에 실패했습니다 [Se necesita traducción al español]",
+      "networkError": "네트워크 오류가 발생했습니다 [Se necesita traducción al español]"
     },
     "buttons": {
       "goBack": "Volver"
@@ -7846,7 +8221,8 @@
         "visaChecker": "Verificador de Visa",
         "restaurants": "Guía de Restaurantes",
         "checklist": "Lista de Viaje"
-      }
+      },
+      "adsensePolicy": "AdSense 정책 [Se necesita traducción al español]"
     },
     "tripPlanner": {
       "keyword": "Planificador de Viaje AI",
@@ -8032,6 +8408,216 @@
           "empireState": "Empire State Building",
           "memorial911": "Memorial del 11-S",
           "highLine": "High Line"
+        },
+        "regions": {
+          "eastAsia": "동아시아 [Se necesita traducción al español]",
+          "southeastAsia": "동남아시아 [Se necesita traducción al español]",
+          "europe": "유럽 [Se necesita traducción al español]",
+          "northAmerica": "북미 [Se necesita traducción al español]",
+          "oceania": "오세아니아 [Se necesita traducción al español]"
+        },
+        "budget": {
+          "range50to80": "50-80만원 [Se necesita traducción al español]",
+          "range60to100": "60-100만원 [Se necesita traducción al español]",
+          "range80to120": "80-120만원 [Se necesita traducción al español]",
+          "range150to250": "150-250만원 [Se necesita traducción al español]",
+          "range200to350": "200-350만원 [Se necesita traducción al español]",
+          "range180to280": "180-280만원 [Se necesita traducción al español]"
+        },
+        "bestTime": {
+          "marchMayNovDec": "3-5월, 9-11월 [Se necesita traducción al español]",
+          "aprJunSepNov": "4-6월, 9-11월 [Se necesita traducción al español]",
+          "novMar": "11-3월 [Se necesita traducción al español]",
+          "aprJunSepOct": "4-6월, 9-10월 [Se necesita traducción al español]",
+          "sepNovMarMay": "9-11월, 3-5월 [Se necesita traducción al español]"
+        },
+        "duration": {
+          "twoThreeDays": "2-3일 [Se necesita traducción al español]",
+          "threeFourDays": "3-4일 [Se necesita traducción al español]",
+          "fourFiveDays": "4-5일 [Se necesita traducción al español]",
+          "fiveSevenDays": "5-7일 [Se necesita traducción al español]"
+        },
+        "tags": {
+          "culture": "문화 [Se necesita traducción al español]",
+          "shopping": "쇼핑 [Se necesita traducción al español]",
+          "food": "음식 [Se necesita traducción al español]",
+          "modern": "현대 [Se necesita traducción al español]",
+          "kpop": "K-pop [Se necesita traducción al español]",
+          "history": "역사 [Se necesita traducción al español]",
+          "massage": "마사지 [Se necesita traducción al español]",
+          "market": "시장 [Se necesita traducción al español]",
+          "art": "예술 [Se necesita traducción al español]",
+          "fashion": "패션 [Se necesita traducción al español]",
+          "romantic": "로맨틱 [Se necesita traducción al español]",
+          "city": "도시 [Se necesita traducción al español]",
+          "broadway": "브로드웨이 [Se necesita traducción al español]",
+          "beach": "해변 [Se necesita traducción al español]",
+          "nature": "자연 [Se necesita traducción al español]",
+          "activities": "액티비티 [Se necesita traducción al español]"
+        },
+        "weather": {
+          "sunny": "맑음 [Se necesita traducción al español]",
+          "cloudy": "구름 [Se necesita traducción al español]",
+          "hot": "더움 [Se necesita traducción al español]"
+        },
+        "exchangeRate": {
+          "jpy": "1,000원 = 74엔 [Se necesita traducción al español]",
+          "krw": "기준 통화 [Se necesita traducción al español]",
+          "thb": "1,000원 = 24바트 [Se necesita traducción al español]",
+          "eur": "1,000원 = 0.68유로 [Se necesita traducción al español]",
+          "usd": "1,000원 = 0.74달러 [Se necesita traducción al español]",
+          "aud": "1,000원 = 1.1호주달러 [Se necesita traducción al español]"
+        },
+        "flightTime": {
+          "twoHalfHour": "2시간 30분 [Se necesita traducción al español]",
+          "domestic": "국내 [Se necesita traducción al español]",
+          "sixHour": "6시간 [Se necesita traducción al español]",
+          "twelveHour": "12시간 [Se necesita traducción al español]",
+          "fourteenHour": "14시간 [Se necesita traducción al español]",
+          "tenHour": "10시간 [Se necesita traducción al español]"
+        },
+        "mustSee": {
+          "gyeongbok": "경복궁 [Se necesita traducción al español]",
+          "nseoultower": "남산타워 [Se necesita traducción al español]",
+          "dongdaemun": "동대문 [Se necesita traducción al español]",
+          "cheonggyecheon": "청계천 [Se necesita traducción al español]",
+          "notredame": "노트르담 [Se necesita traducción al español]",
+          "montmartre": "몽마르트 [Se necesita traducción al español]",
+          "versaillesPalace": "베르사유 궁전 [Se necesita traducción al español]",
+          "orsayMuseum": "오르세 미술관 [Se necesita traducción al español]",
+          "blueMountains": "블루 마운틴 [Se necesita traducción al español]",
+          "darlingHarbor": "달링 하버 [Se necesita traducción al español]",
+          "theRocks": "록스 [Se necesita traducción al español]",
+          "tarongaZoo": "타롱가 동물원 [Se necesita traducción al español]"
+        },
+        "foodSpecialty": {
+          "sushi": "스시 [Se necesita traducción al español]",
+          "ramen": "라멘 [Se necesita traducción al español]",
+          "udon": "우동 [Se necesita traducción al español]",
+          "tempura": "텐푸라 [Se necesita traducción al español]",
+          "yakitori": "야키토리 [Se necesita traducción al español]",
+          "kimchi": "김치 [Se necesita traducción al español]",
+          "bulgogi": "불고기 [Se necesita traducción al español]",
+          "bibimbap": "비빔밥 [Se necesita traducción al español]",
+          "samgyeopsal": "삼겹살 [Se necesita traducción al español]",
+          "chicken": "치킨 [Se necesita traducción al español]",
+          "padthai": "팟타이 [Se necesita traducción al español]",
+          "tomyum": "똠얌꿍 [Se necesita traducción al español]",
+          "somtam": "솜땀 [Se necesita traducción al español]",
+          "mangoStickyRice": "망고 스티키 라이스 [Se necesita traducción al español]",
+          "croissant": "크루아상 [Se necesita traducción al español]",
+          "macaron": "마카롱 [Se necesita traducción al español]",
+          "escargot": "에스카르고 [Se necesita traducción al español]",
+          "coqauvin": "코코뱅 [Se necesita traducción al español]",
+          "hotdog": "핫도그 [Se necesita traducción al español]",
+          "bagel": "베이글 [Se necesita traducción al español]",
+          "cheesecake": "치즈케이크 [Se necesita traducción al español]",
+          "steak": "스테이크 [Se necesita traducción al español]",
+          "meatPie": "미트 파이 [Se necesita traducción al español]",
+          "vegemite": "베지마이트 [Se necesita traducción al español]",
+          "barbecue": "바베큐 [Se necesita traducción al español]",
+          "flatWhite": "플랫 화이트 [Se necesita traducción al español]"
+        },
+        "activities": {
+          "onsen": "온센 [Se necesita traducción al español]",
+          "karaoke": "카라오케 [Se necesita traducción al español]",
+          "shopping": "쇼핑 [Se necesita traducción al español]",
+          "photography": "사진촬영 [Se necesita traducción al español]",
+          "foodTour": "푸드투어 [Se necesita traducción al español]",
+          "hanbok": "한복 체험 [Se necesita traducción al español]",
+          "kpopConcert": "K-pop 콘서트 [Se necesita traducción al español]",
+          "hangang": "한강 공원 [Se necesita traducción al español]",
+          "thaimassage": "태국 마사지 [Se necesita traducción al español]",
+          "floatingMarketTour": "수상시장 투어 [Se necesita traducción al español]",
+          "templeTour": "사원 관람 [Se necesita traducción al español]",
+          "rooftopBar": "루프탑 바 [Se necesita traducción al español]",
+          "museumTour": "미술관 투어 [Se necesita traducción al español]",
+          "seineCruise": "세느강 크루즈 [Se necesita traducción al español]",
+          "cafeCulture": "카페 문화 [Se necesita traducción al español]",
+          "broadwayMusical": "브로드웨이 뮤지컬 [Se necesita traducción al español]",
+          "surfing": "서핑 [Se necesita traducción al español]",
+          "harborCruise": "하버 크루즈 [Se necesita traducción al español]",
+          "nationalParkHiking": "국립공원 하이킹 [Se necesita traducción al español]",
+          "wineryTour": "와이너리 투어 [Se necesita traducción al español]"
+        },
+        "transportation": {
+          "jrPass": "JR패스 [Se necesita traducción al español]",
+          "subway": "지하철 [Se necesita traducción al español]",
+          "taxi": "택시 [Se necesita traducción al español]",
+          "walking": "도보 [Se necesita traducción al español]",
+          "bus": "버스 [Se necesita traducción al español]",
+          "bikeRental": "따릉이 [Se necesita traducción al español]",
+          "tuktuk": "툭툭 [Se necesita traducción al español]",
+          "bts": "BTS [Se necesita traducción al español]",
+          "mrt": "MRT [Se necesita traducción al español]",
+          "boat": "보트 [Se necesita traducción al español]",
+          "metro": "메트로 [Se necesita traducción al español]",
+          "uber": "우버 [Se necesita traducción al español]",
+          "train": "기차 [Se necesita traducción al español]",
+          "ferry": "페리 [Se necesita traducción al español]",
+          "carRental": "렌터카 [Se necesita traducción al español]"
+        },
+        "tips": {
+          "jrPassAdvance": "JR패스 미리 구매하면 교통비 절약 [Se necesita traducción al español]",
+          "cashRequired": "현금 사용이 일반적이니 충분히 준비 [Se necesita traducción al español]",
+          "noTipping": "팁 문화가 없으니 주의 [Se necesita traducción al español]",
+          "earthquakeApp": "지진 대비 앱 다운로드 권장 [Se necesita traducción al español]",
+          "tmoneyCard": "T-money카드로 교통비 절약 [Se necesita traducción al español]",
+          "nightLife": "24시간 운영하는 곳이 많아 야간 활동 추천 [Se necesita traducción al español]",
+          "freeWifi": "무료 WiFi가 잘 되어 있음 [Se necesita traducción al español]",
+          "hydration": "더위 대비 충분한 수분 섭취 [Se necesita traducción al español]",
+          "modestClothing": "왕궁 방문 시 단정한 복장 필수 [Se necesita traducción al español]",
+          "checkChange": "거스름돈 확인 철저히 [Se necesita traducción al español]",
+          "streetFoodSafe": "길거리 음식도 안전한 편 [Se necesita traducción al español]",
+          "museumPass": "박물관 패스 구매 시 대기시간 단축 [Se necesita traducción al español]",
+          "sundayClosed": "일요일엔 많은 상점이 문 닫음 [Se necesita traducción al español]",
+          "tipTenPercent": "팁은 10% 정도가 적당 [Se necesita traducción al español]",
+          "pickpocketWarning": "소매치기 주의 [Se necesita traducción al español]",
+          "metroCard": "MetroCard로 교통비 절약 [Se necesita traducción al español]",
+          "tipRequired": "팁은 필수 (18-20%) [Se necesita traducción al español]",
+          "avoidLateSubway": "안전을 위해 늦은 시간 지하철 피하기 [Se necesita traducción al español]",
+          "estaRequired": "ESTA 사전 신청 필수 [Se necesita traducción al español]",
+          "opalCard": "Opal 카드로 대중교통 이용 [Se necesita traducción al español]",
+          "sunscreen": "자외선 차단제 필수 [Se necesita traducción al español]",
+          "oppositeSeason": "계절이 반대임을 고려 [Se necesita traducción al español]"
+        },
+        "budgetBreakdown": {
+          "tokyo": {
+            "accommodation": "50,000원/일 [Se necesita traducción al español]",
+            "food": "30,000원/일 [Se necesita traducción al español]",
+            "transport": "15,000원/일 [Se necesita traducción al español]",
+            "activities": "25,000원/일 [Se necesita traducción al español]"
+          },
+          "seoul": {
+            "accommodation": "40,000원/일 [Se necesita traducción al español]",
+            "food": "25,000원/일 [Se necesita traducción al español]",
+            "transport": "10,000원/일 [Se necesita traducción al español]",
+            "activities": "20,000원/일 [Se necesita traducción al español]"
+          },
+          "bangkok": {
+            "accommodation": "25,000원/일 [Se necesita traducción al español]",
+            "food": "15,000원/일 [Se necesita traducción al español]",
+            "transport": "8,000원/일 [Se necesita traducción al español]",
+            "activities": "12,000원/일 [Se necesita traducción al español]"
+          },
+          "paris": {
+            "accommodation": "100,000원/일 [Se necesita traducción al español]",
+            "food": "60,000원/일 [Se necesita traducción al español]",
+            "transport": "20,000원/일 [Se necesita traducción al español]",
+            "activities": "40,000원/일 [Se necesita traducción al español]"
+          },
+          "newyork": {
+            "accommodation": "150,000원/일 [Se necesita traducción al español]",
+            "food": "80,000원/일 [Se necesita traducción al español]",
+            "transport": "25,000원/일 [Se necesita traducción al español]",
+            "activities": "45,000원/일 [Se necesita traducción al español]"
+          },
+          "sydney": {
+            "accommodation": "120,000원/일 [Se necesita traducción al español]",
+            "food": "70,000원/일 [Se necesita traducción al español]",
+            "transport": "30,000원/일 [Se necesita traducción al español]",
+            "activities": "50,000원/일 [Se necesita traducción al español]"
+          }
         }
       },
       "aiFeatures": {
@@ -8156,31 +8742,11 @@
           "duration": "4 noches 5 días",
           "price": "$1,200",
           "activities": {
-            "day1": {
-              "0": "Templo Sensoji Asakusa",
-              "1": "Skytree",
-              "2": "Compras en Ginza"
-            },
-            "day2": {
-              "0": "Cruce de Shibuya",
-              "1": "Santuario Meiji",
-              "2": "Harajuku"
-            },
-            "day3": {
-              "0": "Fushimi Inari",
-              "1": "Templo Kiyomizu",
-              "2": "Distrito de Gion"
-            },
-            "day4": {
-              "0": "Castillo de Osaka",
-              "1": "Dotonbori",
-              "2": "Mercado Kuromon"
-            },
-            "day5": {
-              "0": "Universal Studios",
-              "1": "Compras",
-              "2": "Salida"
-            }
+            "day1": "도쿄 도착 및 시부야 탐방 [Se necesita traducción al español]",
+            "day2": "아사쿠사 및 긴자 쇼핑 [Se necesita traducción al español]",
+            "day3": "교토로 이동, 기요미즈데라 방문 [Se necesita traducción al español]",
+            "day4": "오사카 도톤보리 및 오사카성 [Se necesita traducción al español]",
+            "day5": "나라 당일치기 후 귀국 [Se necesita traducción al español]"
           }
         },
         "europeClassic": {
@@ -8188,38 +8754,13 @@
           "duration": "6 noches 7 días",
           "price": "$2,500",
           "activities": {
-            "day1": {
-              "0": "Torre Eiffel",
-              "1": "Crucero por el Sena",
-              "2": "Montmartre"
-            },
-            "day2": {
-              "0": "Museo del Louvre",
-              "1": "Campos Elíseos",
-              "2": "Versalles"
-            },
-            "day3": {
-              "0": "Big Ben",
-              "1": "Puente de la Torre",
-              "2": "Museo Británico"
-            },
-            "day4": {
-              "0": "Palacio de Buckingham",
-              "1": "Crucero por el Támesis",
-              "2": "Covent Garden"
-            },
-            "day5": {
-              "0": "Museo Van Gogh",
-              "1": "Casa de Ana Frank"
-            },
-            "day6": {
-              "0": "Crucero por canales",
-              "1": "Tour en bicicleta"
-            },
-            "day7": {
-              "0": "Tiempo libre",
-              "1": "Salida"
-            }
+            "day1": "파리 도착, 에펠탑 및 루브르 [Se necesita traducción al español]",
+            "day2": "베르사유 궁전 당일치기 [Se necesita traducción al español]",
+            "day3": "런던 이동, 빅벤 및 대영박물관 [Se necesita traducción al español]",
+            "day4": "윈저성 및 옥스포드 투어 [Se necesita traducción al español]",
+            "day5": "암스테르담 이동, 반고흐 박물관 [Se necesita traducción al español]",
+            "day6": "잔세스칸스 및 운하 크루즈 [Se necesita traducción al español]",
+            "day7": "자유시간 후 귀국 [Se necesita traducción al español]"
           }
         },
         "southeastBackpack": {
@@ -8227,51 +8768,28 @@
           "duration": "9 noches 10 días",
           "price": "$800",
           "activities": {
-            "day1": {
-              "0": "Wat Pho",
-              "1": "Gran Palacio",
-              "2": "Calle Khaosan"
-            },
-            "day2": {
-              "0": "Mercado flotante",
-              "1": "Mercado Chatuchak",
-              "2": "Bar en azotea"
-            },
-            "day3": {
-              "0": "Doi Suthep",
-              "1": "Bazar nocturno",
-              "2": "Masaje tailandés"
-            },
-            "day4": {
-              "0": "Campo de elefantes",
-              "1": "Tirolesa",
-              "2": "Mercado dominical"
-            },
-            "day5": {
-              "0": "Clase de cocina",
-              "1": "Tour de templos"
-            },
-            "day6": {
-              "0": "Playa Patong",
-              "1": "Calle Bangla"
-            },
-            "day7": {
-              "0": "Tour Islas Phi Phi",
-              "1": "Snorkel"
-            },
-            "day8": {
-              "0": "Gran Buda",
-              "1": "Compras",
-              "2": "Playa"
-            },
-            "day9": {
-              "0": "Spa",
-              "1": "Tiempo libre"
-            },
-            "day10": {
-              "0": "Salida"
-            }
+            "day1": "방콕 도착, 왓포 및 왕궁 [Se necesita traducción al español]",
+            "day2": "짜뚜짝 시장 및 카오산로드 [Se necesita traducción al español]",
+            "day3": "치앙마이 이동, 구시가지 탐방 [Se necesita traducción al español]",
+            "day4": "코끼리 캠프 및 정글 트레킹 [Se necesita traducción al español]",
+            "day5": "푸켓 이동, 파통 비치 [Se necesita traducción al español]",
+            "day6": "피피섬 당일치기 투어 [Se necesita traducción al español]",
+            "day7": "방콕 복귀, 수상시장 투어 [Se necesita traducción al español]",
+            "day8": "마사지 및 쇼핑 [Se necesita traducción al español]",
+            "day9": "자유시간 및 야시장 [Se necesita traducción al español]",
+            "day10": "귀국 [Se necesita traducción al español]"
           }
+        },
+        "cities": {
+          "tokyo": "도쿄 [Se necesita traducción al español]",
+          "kyoto": "교토 [Se necesita traducción al español]",
+          "osaka": "오사카 [Se necesita traducción al español]",
+          "paris": "파리 [Se necesita traducción al español]",
+          "london": "런던 [Se necesita traducción al español]",
+          "amsterdam": "암스테르담 [Se necesita traducción al español]",
+          "bangkok": "방콕 [Se necesita traducción al español]",
+          "chiangmai": "치앙마이 [Se necesita traducción al español]",
+          "phuket": "푸켓 [Se necesita traducción al español]"
         }
       },
       "tools": {
@@ -8307,7 +8825,15 @@
         "koreaTime": "Hora de Corea",
         "localTime": "Hora local",
         "phrases": "Frases Útiles",
-        "phrasesDescription": "Expresiones básicas necesarias para viajar"
+        "phrasesDescription": "Expresiones básicas necesarias para viajar",
+        "visaDetails": {
+          "japan": {
+            "title": "일본 비자 정보 [Se necesita traducción al español]",
+            "noVisa90Days": "90일 무비자 체류 가능 [Se necesita traducción al español]",
+            "passportValidity": "여권 잔여기간 6개월 이상 [Se necesita traducción al español]",
+            "returnTicket": "왕복 항공권 필수 [Se necesita traducción al español]"
+          }
+        }
       },
       "alerts": {
         "noSavedSettings": "No hay configuraciones guardadas.",
@@ -8442,7 +8968,11 @@
       },
       "adsenseNotice": "Aviso de AdSense",
       "privacyPolicy": "Política de Privacidad",
-      "adsensePolicy": "Política de AdSense"
+      "adsensePolicy": "Política de AdSense",
+      "contact": {
+        "email": "support@tripradio.shop [Se necesita traducción al español]",
+        "privacy": "privacy@tripradio.shop [Se necesita traducción al español]"
+      }
     },
     "diagnosis": {
       "title": "Diagnóstico de Personalización de Guía",
@@ -8680,6 +9210,12 @@
       "generatingTitle": "Generando Podcast...",
       "generatingDescription": "IA está creando una conversación interesante sobre {locationName}",
       "generatingProgress": "% Completado",
+      "speaker": {
+        "host": "Anfitrión",
+        "curator": "Curador"
+      },
+      "contentLoading": "Cargando contenido de diálogo...",
+      "completionPercentage": "{percentage}% Completado",
       "playbackRates": {
         "1": "1×",
         "2": "2×",

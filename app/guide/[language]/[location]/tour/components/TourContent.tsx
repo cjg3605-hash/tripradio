@@ -55,33 +55,130 @@ const DialogueContent: React.FC<DialogueContentProps> = ({ locationName, languag
   const [segments, setSegments] = useState<DialogueSegment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationAttempts, setGenerationAttempts] = useState(0);
 
   useEffect(() => {
     const fetchDialogueContent = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/tts/notebooklm/generate?location=${encodeURIComponent(locationName)}&language=${language}`);
-        const result = await response.json();
-        
-        if (result.success && result.data.hasEpisode && result.data.segments) {
-          setSegments(result.data.segments);
-        } else {
-          setError('대화 내용을 불러올 수 없습니다.');
+        setError(null);
+
+        // Step 1: Try to fetch existing podcast
+        console.log('🔍 팟캐스트 조회 시작:', { locationName, language });
+        const getResponse = await fetch(`/api/tts/notebooklm/generate?location=${encodeURIComponent(locationName)}&language=${language}`);
+        const getResult = await getResponse.json();
+
+        // If podcast exists and has segments, display them
+        if (getResult.success && getResult.data.hasEpisode && getResult.data.segments) {
+          console.log('✅ 기존 팟캐스트 발견:', getResult.data.segments.length, '개 세그먼트');
+          setSegments(getResult.data.segments);
+          setLoading(false);
+          return;
         }
+
+        // Step 2: No podcast exists, auto-generate one
+        if (!getResult.data.hasEpisode) {
+          console.log('📭 기존 팟캐스트 없음 - 자동 생성 시작');
+          setIsGenerating(true);
+
+          // POST to create a new podcast
+          const postResponse = await fetch('/api/tts/notebooklm/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              locationName,
+              language
+            })
+          });
+
+          if (!postResponse.ok) {
+            const postError = await postResponse.json();
+            console.error('❌ 팟캐스트 생성 실패:', postError);
+            setError(`팟캐스트 생성 실패: ${postError.error || '알 수 없는 오류'}`);
+            setIsGenerating(false);
+            setLoading(false);
+            return;
+          }
+
+          const postResult = await postResponse.json();
+          console.log('✅ 팟캐스트 생성 완료:', {
+            episodeId: postResult.data.episodeId,
+            status: postResult.data.status
+          });
+
+          // Step 3: Poll for the podcast to be ready
+          let pollCount = 0;
+          const maxPolls = 20; // Max 20 polls = 60 seconds
+          const pollInterval = 3000; // 3 seconds
+
+          const pollForPodcast = setInterval(async () => {
+            pollCount++;
+            console.log(`🔄 팟캐스트 상태 확인 (${pollCount}/${maxPolls})...`);
+
+            try {
+              const checkResponse = await fetch(`/api/tts/notebooklm/generate?location=${encodeURIComponent(locationName)}&language=${language}`);
+              const checkResult = await checkResponse.json();
+
+              if (checkResult.success && checkResult.data.hasEpisode && checkResult.data.segments) {
+                console.log('✅ 팟캐스트 준비 완료:', checkResult.data.segments.length, '개 세그먼트');
+                setSegments(checkResult.data.segments);
+                clearInterval(pollInterval);
+                setIsGenerating(false);
+                setLoading(false);
+              } else if (pollCount >= maxPolls) {
+                console.warn('⏱️ 팟캐스트 생성 타임아웃');
+                setError('팟캐스트 생성이 시간을 초과했습니다. 잠시 후 새로고침해주세요.');
+                clearInterval(pollInterval);
+                setIsGenerating(false);
+                setLoading(false);
+              }
+            } catch (pollErr) {
+              console.error('❌ 상태 확인 중 오류:', pollErr);
+              if (pollCount >= maxPolls) {
+                setError('팟캐스트 생성 중 오류가 발생했습니다.');
+                clearInterval(pollInterval);
+                setIsGenerating(false);
+                setLoading(false);
+              }
+            }
+          }, pollInterval);
+
+          return;
+        }
+
+        // Should not reach here, but handle edge cases
+        setError('대화 내용을 불러올 수 없습니다.');
+
       } catch (err) {
         console.error('대화 내용 로드 실패:', err);
         setError('대화 내용을 불러올 수 없습니다.');
       } finally {
-        setLoading(false);
+        if (!isGenerating) {
+          setLoading(false);
+        }
       }
     };
 
     fetchDialogueContent();
   }, [locationName, language]);
 
-  if (loading) {
+  if (loading || isGenerating) {
     return (
-      <div className="space-y-3 mt-4">
+      <div className="space-y-4 mt-4">
+        {isGenerating && (
+          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <div className="animate-spin">🎙️</div>
+              <div className="text-sm font-medium text-blue-900">
+                팟캐스트 스크립트를 생성 중입니다...
+              </div>
+            </div>
+            <div className="text-xs text-blue-700">
+              이 과정은 1-2분이 소요될 수 있습니다.
+            </div>
+          </div>
+        )}
         {[...Array(3)].map((_, i) => (
           <div key={i} className="animate-pulse">
             <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
