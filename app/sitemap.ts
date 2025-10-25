@@ -44,7 +44,47 @@ async function getMultilingualContent() {
       contentType: 'podcast'
     }));
 
-    console.log(`✅ 콘텐츠 조회 완료: 가이드 ${guides.length}개, 팟캐스트 ${podcasts.length}개`);
+    // AdSense 승인을 위한 fallback 팟캐스트 (DB에 데이터가 부족할 경우)
+    const fallbackPodcasts = [
+      { name: 'colosseum', language: 'ko' },
+      { name: 'eiffel-tower', language: 'ko' },
+      { name: 'taj-mahal', language: 'ko' },
+      { name: 'great-wall-of-china', language: 'ko' },
+      { name: 'statue-of-liberty', language: 'ko' },
+      { name: 'machu-picchu', language: 'ko' },
+      { name: 'gyeongbokgung', language: 'ko' },
+      { name: 'sagrada-familia', language: 'ko' },
+      { name: 'vatican-city', language: 'ko' },
+      { name: 'tokyo-tower', language: 'ko' },
+      { name: 'pyramids-of-giza', language: 'ko' },
+      { name: 'sydney-opera-house', language: 'ko' },
+      // 영어 버전
+      { name: 'colosseum', language: 'en' },
+      { name: 'eiffel-tower', language: 'en' },
+      { name: 'taj-mahal', language: 'en' },
+      { name: 'great-wall-of-china', language: 'en' },
+      { name: 'statue-of-liberty', language: 'en' },
+      { name: 'machu-picchu', language: 'en' },
+      { name: 'gyeongbokgung', language: 'en' },
+      { name: 'sagrada-familia', language: 'en' },
+    ];
+
+    // fallback 팟캐스트를 podcasts 배열에 추가 (중복 제거)
+    const existingSlugs = new Set(podcasts.map(p => `${p.language}-${p.slug}`));
+    fallbackPodcasts.forEach(fb => {
+      const key = `${fb.language}-${fb.name}`;
+      if (!existingSlugs.has(key)) {
+        podcasts.push({
+          locationName: fb.name,
+          language: fb.language,
+          slug: fb.name,
+          lastModified: new Date(),
+          contentType: 'podcast'
+        });
+      }
+    });
+
+    console.log(`✅ 콘텐츠 조회 완료: 가이드 ${guides.length}개, 팟캐스트 ${podcasts.length}개 (fallback 포함)`);
     return { guides, podcasts };
 
   } catch (error) {
@@ -96,6 +136,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // 키워드 전용 페이지들 추가
   const keywordPages: MetadataRoute.Sitemap = [
+    // 목록 페이지 (AdSense 승인 필수)
+    {
+      url: `${BASE_URL}/guide`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: `${BASE_URL}/podcast`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
     {
       url: `${BASE_URL}/audio-guide`,
       lastModified: now,

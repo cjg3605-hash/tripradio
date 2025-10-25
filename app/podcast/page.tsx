@@ -1,0 +1,384 @@
+'use client';
+
+import Link from 'next/link';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useState } from 'react';
+
+// 인기 팟캐스트 데이터 (실제 podcast_episodes 테이블 기반)
+const popularPodcasts = [
+  // 유럽
+  {
+    name: 'Colosseum',
+    nameKo: '콜로세움',
+    slug: 'colosseum',
+    country: 'Italy',
+    continent: 'Europe',
+    emoji: '🏛️',
+    description: 'Ancient Roman amphitheater and gladiator arena',
+    duration: '21:16',
+    chapters: 3
+  },
+  {
+    name: 'Eiffel Tower',
+    nameKo: '에펠탑',
+    slug: 'eiffel-tower',
+    country: 'France',
+    continent: 'Europe',
+    emoji: '🗼',
+    description: 'Iconic iron lattice tower in Paris',
+    duration: '18:45',
+    chapters: 3
+  },
+  {
+    name: 'Vatican City',
+    nameKo: '바티칸 시국',
+    slug: 'vatican-city',
+    country: 'Vatican',
+    continent: 'Europe',
+    emoji: '⛪',
+    description: 'Spiritual and administrative center of Catholicism',
+    duration: '22:30',
+    chapters: 3
+  },
+  {
+    name: 'Sagrada Familia',
+    nameKo: '사그라다 파밀리아',
+    slug: 'sagrada-familia',
+    country: 'Spain',
+    continent: 'Europe',
+    emoji: '🕍',
+    description: "Gaudí's unfinished masterpiece in Barcelona",
+    duration: '19:20',
+    chapters: 3
+  },
+
+  // 아시아
+  {
+    name: 'Taj Mahal',
+    nameKo: '타지마할',
+    slug: 'taj-mahal',
+    country: 'India',
+    continent: 'Asia',
+    emoji: '🕌',
+    description: 'Marble mausoleum and symbol of eternal love',
+    duration: '20:15',
+    chapters: 3
+  },
+  {
+    name: 'Great Wall of China',
+    nameKo: '만리장성',
+    slug: 'great-wall-of-china',
+    country: 'China',
+    continent: 'Asia',
+    emoji: '🏯',
+    description: 'Ancient defensive fortification across northern China',
+    duration: '23:40',
+    chapters: 3
+  },
+  {
+    name: 'Gyeongbokgung Palace',
+    nameKo: '경복궁',
+    slug: 'gyeongbokgung',
+    country: 'South Korea',
+    continent: 'Asia',
+    emoji: '🏰',
+    description: 'Royal palace of Joseon Dynasty in Seoul',
+    duration: '17:55',
+    chapters: 3
+  },
+  {
+    name: 'Tokyo Tower',
+    nameKo: '도쿄 타워',
+    slug: 'tokyo-tower',
+    country: 'Japan',
+    continent: 'Asia',
+    emoji: '🗼',
+    description: 'Communications and observation tower in Tokyo',
+    duration: '16:30',
+    chapters: 3
+  },
+
+  // 아메리카
+  {
+    name: 'Statue of Liberty',
+    nameKo: '자유의 여신상',
+    slug: 'statue-of-liberty',
+    country: 'USA',
+    continent: 'Americas',
+    emoji: '🗽',
+    description: 'Symbol of freedom and democracy in New York',
+    duration: '18:10',
+    chapters: 3
+  },
+  {
+    name: 'Machu Picchu',
+    nameKo: '마추픽추',
+    slug: 'machu-picchu',
+    country: 'Peru',
+    continent: 'Americas',
+    emoji: '⛰️',
+    description: 'Ancient Incan citadel in the Andes mountains',
+    duration: '21:50',
+    chapters: 3
+  },
+
+  // 아프리카/오세아니아
+  {
+    name: 'Pyramids of Giza',
+    nameKo: '기자 피라미드',
+    slug: 'pyramids-of-giza',
+    country: 'Egypt',
+    continent: 'Africa',
+    emoji: '🔺',
+    description: 'Ancient Egyptian pyramids and the Sphinx',
+    duration: '24:20',
+    chapters: 3
+  },
+  {
+    name: 'Sydney Opera House',
+    nameKo: '시드니 오페라하우스',
+    slug: 'sydney-opera-house',
+    country: 'Australia',
+    continent: 'Oceania',
+    emoji: '🎭',
+    description: 'Iconic performing arts center with unique architecture',
+    duration: '17:25',
+    chapters: 3
+  },
+];
+
+export default function PodcastPage() {
+  const { currentLanguage } = useLanguage();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedContinent, setSelectedContinent] = useState<string>('All');
+
+  const continents = ['All', 'Europe', 'Asia', 'Americas', 'Africa', 'Oceania'];
+
+  const filteredPodcasts = popularPodcasts.filter(podcast => {
+    const matchesSearch = searchQuery === '' ||
+      podcast.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      podcast.nameKo.includes(searchQuery) ||
+      podcast.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      podcast.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesContinent = selectedContinent === 'All' || podcast.continent === selectedContinent;
+
+    return matchesSearch && matchesContinent;
+  });
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="container mx-auto px-6 py-16 lg:py-24">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700 mb-6">
+            🎙️ Travel Podcast Series
+          </div>
+          <h1 className="text-4xl lg:text-6xl font-light text-gray-900 mb-6 tracking-tight">
+            Audio Podcasts
+            <span className="font-semibold block mt-2">AI-Generated Travel Stories</span>
+          </h1>
+          <p className="text-lg lg:text-xl text-gray-600 mb-12 leading-relaxed max-w-3xl mx-auto">
+            Immerse yourself in captivating stories about the world&apos;s most famous landmarks. Each podcast is generated by AI with rich historical context and cultural insights.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link
+              href="#podcasts"
+              className="bg-black text-white px-8 py-4 rounded-lg font-medium hover:bg-gray-800 transition-all duration-200 min-w-[200px]"
+            >
+              Browse Podcasts
+            </Link>
+            <Link
+              href="/"
+              className="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-medium hover:bg-gray-50 transition-all duration-200 min-w-[200px]"
+            >
+              Create Custom Podcast
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-6">
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🤖</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">AI-Generated</h3>
+              <p className="text-gray-600 text-sm">
+                Each podcast is uniquely crafted by artificial intelligence with expert-level knowledge
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🌍</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">5 Languages</h3>
+              <p className="text-gray-600 text-sm">
+                Available in Korean, English, Japanese, Chinese, and Spanish
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🎧</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Chapter-Based</h3>
+              <p className="text-gray-600 text-sm">
+                Organized into digestible chapters for easy navigation and listening
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Search and Filter Section */}
+      <section id="podcasts" className="container mx-auto px-6 py-12">
+        <div className="max-w-4xl mx-auto">
+          {/* Search Bar */}
+          <div className="mb-8">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search podcasts by destination..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-6 py-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              />
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          {/* Continent Filter */}
+          <div className="flex flex-wrap gap-3 justify-center">
+            {continents.map((continent) => (
+              <button
+                key={continent}
+                onClick={() => setSelectedContinent(continent)}
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                  selectedContinent === continent
+                    ? 'bg-black text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {continent === 'All' && '🌍'}
+                {continent === 'Europe' && '🇪🇺'}
+                {continent === 'Asia' && '🌏'}
+                {continent === 'Americas' && '🌎'}
+                {continent === 'Africa' && '🌍'}
+                {continent === 'Oceania' && '🇦🇺'}
+                {' '}{continent}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Podcasts Grid */}
+      <section className="container mx-auto px-6 pb-24">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8 text-center">
+            <p className="text-gray-600">
+              {filteredPodcasts.length} podcast{filteredPodcasts.length !== 1 ? 's' : ''} available
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredPodcasts.map((podcast, index) => (
+              <div
+                key={index}
+                className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-2xl transition-all duration-300 group"
+              >
+                <div className="p-6">
+                  {/* Icon */}
+                  <div className="text-5xl mb-4 text-center group-hover:scale-110 transition-transform duration-300">
+                    {podcast.emoji}
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 text-center">
+                    {currentLanguage === 'ko' ? podcast.nameKo : podcast.name}
+                  </h3>
+
+                  {/* Country */}
+                  <p className="text-sm text-gray-500 mb-3 text-center">{podcast.country}</p>
+
+                  {/* Description */}
+                  <p className="text-sm text-gray-600 mb-4 text-center line-clamp-2 h-10">
+                    {podcast.description}
+                  </p>
+
+                  {/* Meta Info */}
+                  <div className="flex items-center justify-center gap-4 mb-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>{podcast.duration}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span>{podcast.chapters} chapters</span>
+                    </div>
+                  </div>
+
+                  {/* CTA Button */}
+                  <Link
+                    href={`/podcast/ko/${podcast.slug}`}
+                    className="block w-full bg-black text-white text-center py-3 px-4 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors"
+                  >
+                    🎧 Listen Now
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filteredPodcasts.length === 0 && (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">🔍</div>
+              <h3 className="text-xl font-medium text-gray-900 mb-2">No podcasts found</h3>
+              <p className="text-gray-600 mb-6">Try adjusting your search or filter</p>
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedContinent('All');
+                }}
+                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+              >
+                Clear filters
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 bg-black text-white">
+        <div className="container mx-auto px-6 text-center">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl lg:text-4xl font-light mb-6 tracking-tight">
+              Want a podcast for another destination?
+            </h2>
+            <p className="text-lg text-gray-300 mb-8 leading-relaxed">
+              Our AI can generate personalized audio podcasts for any location in the world. Just search and create your custom travel story.
+            </p>
+            <Link
+              href="/"
+              className="inline-block bg-white text-black px-10 py-4 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200"
+            >
+              Create Custom Podcast
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

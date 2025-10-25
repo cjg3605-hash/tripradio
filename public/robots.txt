@@ -36,6 +36,14 @@ Allow: /guide/ja/
 Allow: /guide/zh/
 Allow: /guide/es/
 
+# Podcast pages by language
+Allow: /podcast/
+Allow: /podcast/ko/
+Allow: /podcast/en/
+Allow: /podcast/ja/
+Allow: /podcast/zh/
+Allow: /podcast/es/
+
 # Sitemap
 Sitemap: https://tripradio.shop/sitemap.xml
 
