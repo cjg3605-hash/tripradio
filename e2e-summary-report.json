@@ -1,0 +1,34 @@
+{
+  "timestamp": "2025-10-26T10:25:55.688Z",
+  "testLocation": "경주 불국사",
+  "results": {
+    "unified": {
+      "success": true,
+      "totalTime": 26874,
+      "apiCallCount": 1,
+      "segmentCount": 46,
+      "chapterCount": 4
+    },
+    "existing": {
+      "success": true,
+      "totalTime": 87963,
+      "segmentCount": 64,
+      "chapterCount": 4
+    },
+    "pageValidation": {
+      "success": true,
+      "episodeFound": true,
+      "status": "script_ready",
+      "chapterCount": 4,
+      "totalSegments": 64,
+      "quality": 87,
+      "parsingValid": true
+    },
+    "comparison": {
+      "timeDiff": 61089,
+      "timeImprovement": 69,
+      "segmentDiff": 18,
+      "recommendation": "needs-review"
+    }
+  }
+}

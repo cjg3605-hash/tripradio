@@ -1,0 +1,39 @@
+{
+  "pageLoad": {
+    "success": false,
+    "error": "HTTP 500: Internal Server Error"
+  },
+  "v2Generation": {
+    "success": true,
+    "episodeId": "episode-1761475014033-plz1vkkci",
+    "duration": 25160,
+    "apiCallTime": 23886,
+    "dbOperationTime": 272,
+    "apiCallCount": 1,
+    "segmentCount": 54,
+    "chapterCount": 4,
+    "status": "script_ready"
+  },
+  "pageDisplay": {
+    "success": true,
+    "episodeFound": true,
+    "status": "script_ready",
+    "chapterCount": 4,
+    "totalSegments": 54,
+    "quality": 85,
+    "hasChapters": true,
+    "hasScript": true,
+    "hasDialogueMarkers": true
+  },
+  "userInteraction": null,
+  "comparison": {
+    "success": true,
+    "v2Time": 25160,
+    "v1Time": 94388,
+    "timeDiff": 69228,
+    "improvement": 73,
+    "v2Segments": 54,
+    "v1Segments": 56,
+    "segmentDiff": 2
+  }
+}

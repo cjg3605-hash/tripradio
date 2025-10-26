@@ -1,0 +1,39 @@
+{
+  "unified": {
+    "success": true,
+    "episodeId": "episode-1761474240656-xy6iflvyk",
+    "method": "unified",
+    "totalTime": 26874,
+    "apiCallTime": 23072,
+    "dbOperationTime": 587,
+    "apiCallCount": 1,
+    "segmentCount": 46,
+    "chapterCount": 4,
+    "status": "script_ready"
+  },
+  "existing": {
+    "success": true,
+    "episodeId": "episode-1761474268109-39d0is6am",
+    "method": "sequential",
+    "totalTime": 87963,
+    "apiCallTime": 86864,
+    "segmentCount": 64,
+    "chapterCount": 4,
+    "status": "script_ready"
+  },
+  "pageValidation": {
+    "success": true,
+    "episodeFound": true,
+    "status": "script_ready",
+    "chapterCount": 4,
+    "totalSegments": 64,
+    "quality": 87,
+    "parsingValid": true
+  },
+  "comparison": {
+    "timeDiff": 61089,
+    "timeImprovement": 69,
+    "segmentDiff": 18,
+    "recommendation": "needs-review"
+  }
+}
