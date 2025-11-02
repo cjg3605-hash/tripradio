@@ -3,12 +3,14 @@ import { createClient } from '@supabase/supabase-js';
 import { getGeminiClient } from '@/lib/ai/gemini-client';
 import SequentialDialogueProcessor, { DialogueSegment } from '@/lib/ai/tts/sequential-dialogue-processor';
 import SequentialTTSGenerator from '@/lib/ai/tts/sequential-tts-generator';
-import { ChapterGenerator } from '@/lib/ai/chapter-generator';
+import { ChapterGenerator, ChapterStructure } from '@/lib/ai/chapter-generator';
 import { LocationAnalyzer, LocationContext, EXPERT_PERSONAS } from '@/lib/ai/location-analyzer';
 import LocationSlugService from '@/lib/location/location-slug-service';
 import { createPodcastChapterPrompt, type PodcastPromptConfig, parseDialogueScript } from '@/lib/ai/prompts/podcast';
 
-export const maxDuration = 60;
+// Vercel Pro 플랜: 최대 300초 (5분) 지원
+// 복잡한 장소 분석 + Gemini API 호출을 고려하여 충분한 시간 확보
+export const maxDuration = 300;
 
 // 순차 재생용 팟캐스트 생성
 
@@ -128,16 +130,20 @@ export async function POST(req: NextRequest) {
       throughput: 0 // 세그먼트/초
     };
 
-    const { 
-      locationName, 
+    const {
+      locationName,
       language = 'ko',
       locationContext,
-      options = {}
+      options = {},
+      stage, // 'intro' | 'rest' | undefined
+      episodeId // For stage='rest', existing episode ID to append to
     } = await req.json();
-    
-    console.log('🎙️ NotebookLM 팟캐스트 생성 요청:', { 
-      locationName, 
+
+    console.log('🎙️ NotebookLM 팟캐스트 생성 요청:', {
+      locationName,
       language,
+      stage: stage || 'full',
+      episodeId: episodeId || 'new',
       locationContext: locationContext ? 'provided' : 'missing'
     });
     
@@ -165,13 +171,34 @@ export async function POST(req: NextRequest) {
       console.warn('⚠️ 에피소드 조회 중 오류 (계속 진행):', episodeCheckError);
     }
 
+    // ✅ 실제 장소명 결정 (slug가 아닌 사람이 읽을 수 있는 이름)
+    const formatSlugToName = (slug: string): string => {
+      return slug.split('-').map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' ');
+    };
+
+    let displayLocationName = locationName; // 기본값
+
     // 기존 에피소드가 있는 경우 처리 - completed만 반환, 나머지는 재생성
     if (existingEpisodes && existingEpisodes.length > 0) {
       const existingEpisode = existingEpisodes[0];
+
+      // ✅ 기존 episode의 location_names에서 실제 이름 가져오기
+      if (existingEpisode.location_names && existingEpisode.location_names[language]) {
+        displayLocationName = existingEpisode.location_names[language];
+        console.log(`✅ 기존 location_names 사용: "${displayLocationName}"`);
+      } else if (locationName.includes('-')) {
+        // slug 형태면 포맷팅
+        displayLocationName = formatSlugToName(locationName);
+        console.log(`✅ slug 포맷팅: "${locationName}" → "${displayLocationName}"`);
+      }
+
       console.log('🎙️ 기존 에피소드 발견:', {
         id: existingEpisode.id,
         status: existingEpisode.status,
-        created_at: existingEpisode.created_at
+        created_at: existingEpisode.created_at,
+        displayName: displayLocationName
       });
 
       // 완료된 에피소드가 있으면 바로 반환
@@ -201,41 +228,51 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // generating이나 failed 상태는 기존 레코드 삭제 후 재생성
-      console.log(`🗑️ 기존 에피소드(${existingEpisode.status}) 삭제 후 재생성`);
+      // ✅ script_ready, generating 상태는 유지 (진행 중인 요청에 방해하지 않음)
+      // 오직 5분 이상 된 failed 상태만 재생성
+      const createdTime = new Date(existingEpisode.created_at).getTime();
+      const nowTime = Date.now();
+      const ageMinutes = (nowTime - createdTime) / (1000 * 60);
+      const shouldDelete = existingEpisode.status === 'failed' && ageMinutes > 5;
 
-      // 기존 세그먼트 삭제
-      await supabase
-        .from('podcast_segments')
-        .delete()
-        .eq('episode_id', existingEpisode.id);
+      if (shouldDelete) {
+        console.log(`🗑️ 5분 이상 된 failed 에피소드(${existingEpisode.status}) 삭제 후 재생성`);
 
-      // 기존 에피소드 삭제
-      await supabase
-        .from('podcast_episodes')
-        .delete()
-        .eq('id', existingEpisode.id);
+        // 기존 세그먼트 삭제
+        await supabase
+          .from('podcast_segments')
+          .delete()
+          .eq('episode_id', existingEpisode.id);
 
-      console.log('🗑️ 기존 에피소드 정리 완료');
+        // 기존 에피소드 삭제
+        await supabase
+          .from('podcast_episodes')
+          .delete()
+          .eq('id', existingEpisode.id);
+
+        console.log('🗑️ 기존 에피소드 정리 완료');
+      } else if (existingEpisode.status === 'script_ready' || existingEpisode.status === 'generating') {
+        console.log(`⏳ 진행 중인 에피소드 감지 (${existingEpisode.status}), 재생성하지 않음`);
+        return NextResponse.json({
+          success: true,
+          message: '팟캐스트가 이미 생성 중입니다.',
+          data: {
+            episodeId: existingEpisode.id,
+            status: existingEpisode.status,
+            segmentCount: 0
+          }
+        });
+      }
+    } else {
+      // 새 에피소드 생성 시에도 displayLocationName 설정
+      if (locationName.includes('-')) {
+        displayLocationName = formatSlugToName(locationName);
+        console.log(`✅ 새 에피소드 - slug 포맷팅: "${locationName}" → "${displayLocationName}"`);
+      }
     }
 
-    // 📍 Step 1: 장소 분석 및 챕터 구조 생성
-    console.log('🔍 1단계: AI 기반 장소 분석 시작');
-    const podcastStructure = await ChapterGenerator.generatePodcastStructure(
-      locationName,
-      locationContext || {},
-      null, // 기존 가이드 데이터는 나중에 통합
-      language
-    );
-    
-    console.log('📊 생성된 팟캐스트 구조:', {
-      totalChapters: podcastStructure.totalChapters,
-      locationAnalysis: podcastStructure.locationAnalysis,
-      selectedPersonas: podcastStructure.selectedPersonas
-    });
-
-    // 📚 Step 2: 기존 가이드 데이터 조회 (선택적)
-    console.log('📚 2단계: 기존 가이드 데이터 조회');
+    // 📚 Step 1: 기존 가이드 데이터 조회 (선택적) - 먼저 조회하여 중복 API 호출 방지
+    console.log('📚 1단계: 기존 가이드 데이터 조회');
     const { data: existingGuide, error: guideError } = await supabase
       .from('guides')
       .select('*')
@@ -249,18 +286,35 @@ export async function POST(req: NextRequest) {
     }
 
     const guide = existingGuide?.[0];
-    
-    // 기존 가이드가 있다면 챕터 구조 재생성
-    let finalPodcastStructure = podcastStructure;
     if (guide) {
-      console.log('🔄 기존 가이드 발견, 챕터 구조 최적화');
-      finalPodcastStructure = await ChapterGenerator.generatePodcastStructure(
-        locationName,
-        locationContext || {},
-        guide, // 기존 가이드 데이터 포함
-        language
-      );
+      console.log('✅ 기존 가이드 발견, 가이드 데이터 활용');
+    } else {
+      console.log('📭 기존 가이드 없음, 신규 분석 진행');
     }
+
+    // 📍 Step 2: 장소 분석 및 챕터 구조 생성 (한 번만 호출)
+    console.log('🔍 2단계: AI 기반 장소 분석 및 챕터 구조 생성');
+
+    // ✅ locationContext에 실제 장소명 추가
+    const enhancedLocationContext = {
+      ...(locationContext || {}),
+      displayName: displayLocationName
+    };
+
+    // 🚀 최적화: 가이드 데이터를 포함하여 한 번만 호출
+    const finalPodcastStructure = await ChapterGenerator.generatePodcastStructure(
+      locationName,
+      enhancedLocationContext,
+      guide || null, // 기존 가이드가 있으면 포함, 없으면 null
+      language
+    );
+
+    console.log('📊 생성된 팟캐스트 구조:', {
+      totalChapters: finalPodcastStructure.totalChapters,
+      locationAnalysis: finalPodcastStructure.locationAnalysis,
+      selectedPersonas: finalPodcastStructure.selectedPersonas,
+      optimized: guide ? 'with-guide' : 'new-analysis'
+    });
     
     // 🎭 Step 3: 선택된 페르소나 정보 준비  
     console.log('🎭 3단계: 전문가 페르소나 정보 준비');
@@ -275,11 +329,28 @@ export async function POST(req: NextRequest) {
     const geminiClient = getGeminiClient();
     const model = geminiClient.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-    const allChapters = [
-      finalPodcastStructure.intro,
-      ...finalPodcastStructure.chapters,
-      ...(finalPodcastStructure.outro ? [finalPodcastStructure.outro] : [])
-    ];
+    // 🎯 2-Stage 지원: stage 파라미터에 따라 생성할 챕터 선택
+    let allChapters: ChapterStructure[] = [];
+    if (stage === 'intro') {
+      // Stage 1: Intro만 생성 (빠른 응답)
+      allChapters = [finalPodcastStructure.intro];
+      console.log('🚀 Stage 1 (Intro-only): 빠른 생성 모드');
+    } else if (stage === 'rest') {
+      // Stage 2: Rest 챕터만 생성 (백그라운드)
+      allChapters = [
+        ...finalPodcastStructure.chapters,
+        ...(finalPodcastStructure.outro ? [finalPodcastStructure.outro] : [])
+      ];
+      console.log('🔄 Stage 2 (Rest chapters): 백그라운드 생성 모드');
+    } else {
+      // 기존 동작: 전체 챕터 생성 (하위 호환성)
+      allChapters = [
+        finalPodcastStructure.intro,
+        ...finalPodcastStructure.chapters,
+        ...(finalPodcastStructure.outro ? [finalPodcastStructure.outro] : [])
+      ];
+      console.log('📊 Full generation: 전체 챕터 생성');
+    }
 
     console.log(`📊 순차 처리 시작: ${allChapters.length}개 챕터를 하나씩 생성 (API 안정성 향상)`);
     const startTime = Date.now();
@@ -456,46 +527,77 @@ export async function POST(req: NextRequest) {
       avgSegmentDuration: `${Math.round(processedDialogue.totalEstimatedDuration / processedDialogue.totalSegments)}초`
     });
 
-    // 2. 에피소드 DB 레코드 생성 (슬러그 정보 포함)
-    const episodeId = `episode-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
-    // 초기 슬러그 정보 생성 (TTS 생성 전)
-    const initialSlugResult = await LocationSlugService.getOrCreateLocationSlug(locationName, language);
-    console.log(`📍 초기 슬러그 생성: "${locationName}" → "${initialSlugResult.slug}" (${initialSlugResult.source})`);
-    
-    // 다국어 location_names 구성
-    const locationNames = {
-      [language]: locationName,
-      en: initialSlugResult.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-    };
+    // 2. 에피소드 DB 레코드 생성 또는 조회 (2-Stage 지원)
+    let actualEpisodeId: string;
+    let sequenceOffset = 0; // Stage 2에서 이어서 번호를 매기기 위한 오프셋
 
-    const { error: insertError } = await supabase
-      .from('podcast_episodes')
-      .upsert({
-        id: episodeId,
-        guide_id: guide?.id,
-        title: `${locationName} 팟캐스트 - 멀티챕터`,
-        description: `${locationName}에 대한 NotebookLM 스타일 순차 재생 다중챕터 가이드`,
-        language: language,
-        location_input: locationName,
-        location_slug: initialSlugResult.slug,
-        slug_source: initialSlugResult.source,
-        location_names: locationNames,  // ✅ 다국어 이름 JSONB
-        user_script: rawScript,
-        tts_script: processedDialogue.segments.map(s => `${s.speakerType}: ${s.textContent}`).join('\n'),
-        status: 'generating',
-        duration_seconds: Math.round(processedDialogue.totalEstimatedDuration),
-        quality_score: 75,  // ✅ 초기 품질 점수 (최소 기준)
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      });
+    if (stage === 'rest' && episodeId) {
+      // Stage 2: 기존 에피소드에 추가
+      console.log('🔄 Stage 2: 기존 에피소드에 세그먼트 추가:', episodeId);
+      actualEpisodeId = episodeId;
 
-    if (insertError) {
-      console.error('❌ 에피소드 저장 오류:', insertError);
-      throw insertError;
+      // 기존 세그먼트의 마지막 sequence_number 조회
+      const { data: lastSegment, error: queryError } = await supabase
+        .from('podcast_segments')
+        .select('sequence_number')
+        .eq('episode_id', episodeId)
+        .order('sequence_number', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (queryError && queryError.code !== 'PGRST116') { // PGRST116 = no rows
+        console.error('❌ 마지막 세그먼트 조회 오류:', queryError);
+        throw queryError;
+      }
+
+      if (lastSegment) {
+        sequenceOffset = lastSegment.sequence_number;
+        console.log(`📍 마지막 세그먼트 번호: ${sequenceOffset}, 새 세그먼트는 ${sequenceOffset + 1}부터 시작`);
+      }
+    } else {
+      // Stage 1 or Full: 새 에피소드 생성
+      actualEpisodeId = `episode-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      // 초기 슬러그 정보 생성 (TTS 생성 전)
+      const initialSlugResult = await LocationSlugService.getOrCreateLocationSlug(locationName, language);
+      console.log(`📍 초기 슬러그 생성: "${locationName}" → "${initialSlugResult.slug}" (${initialSlugResult.source})`);
+
+      // 다국어 location_names 구성
+      const locationNames = {
+        [language]: displayLocationName,  // ✅ 실제 장소명 사용 (slug가 아님)
+        en: initialSlugResult.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      };
+
+      console.log(`📝 location_names 생성:`, locationNames);
+
+      const { error: insertError } = await supabase
+        .from('podcast_episodes')
+        .upsert({
+          id: actualEpisodeId,
+          guide_id: guide?.id,
+          title: `${locationName} 팟캐스트 - 멀티챕터`,
+          description: `${locationName}에 대한 NotebookLM 스타일 순차 재생 다중챕터 가이드`,
+          language: language,
+          location_input: locationName,
+          location_slug: initialSlugResult.slug,
+          slug_source: initialSlugResult.source,
+          location_names: locationNames,  // ✅ 다국어 이름 JSONB
+          user_script: rawScript,
+          tts_script: processedDialogue.segments.map(s => `${s.speakerType}: ${s.textContent}`).join('\n'),
+          status: stage === 'intro' ? 'partial' : 'generating',  // intro는 partial, 나머지는 generating
+          duration_seconds: Math.round(processedDialogue.totalEstimatedDuration),
+          quality_score: 75,  // ✅ 초기 품질 점수 (최소 기준)
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+
+      if (insertError) {
+        console.error('❌ 에피소드 저장 오류:', insertError);
+        throw insertError;
+      }
+
+      console.log('📝 에피소드 DB 저장 완료:', actualEpisodeId);
     }
-    
-    console.log('📝 에피소드 DB 저장 완료:', episodeId);
 
     // 3. ⚠️ TTS 생성은 제외 - 사용자가 재생 버튼 클릭 시 별도 생성
     console.log('📝 스크립트 생성 완료 - TTS는 재생 시 생성됩니다');
@@ -604,16 +706,19 @@ export async function POST(req: NextRequest) {
     console.log('📝 스크립트 세그먼트 DB 저장 시작...');
 
     const segmentRecords = sortedSegments.map(segment => ({
-      episode_id: episodeId,
-      sequence_number: segment.sequenceNumber,
+      episode_id: actualEpisodeId,  // Stage 2에서는 기존 episodeId 사용
+      sequence_number: segment.sequenceNumber + sequenceOffset,  // Stage 2에서는 이어서 번호 매김
       speaker_type: segment.speakerType,
       speaker_name: segment.speakerType === 'male' ? 'Host' : 'Curator',
       text_content: segment.textContent,
       audio_url: null,  // TTS 미생성 상태
       file_size_bytes: 0,
       duration_seconds: segment.estimatedDuration || Math.ceil(segment.textContent.length / 8),
-      chapter_index: segment.chapterIndex || 0
+      chapter_index: segment.chapterIndex || 0,
+      chapter_title: segment.chapterTitle || null  // ✅ AI 생성 챕터명 저장
     }));
+
+    console.log(`📍 세그먼트 번호 범위: ${segmentRecords[0]?.sequence_number || 1} ~ ${segmentRecords[segmentRecords.length - 1]?.sequence_number || 0}`);
 
     // 배치 삽입
     const batchSize = 20;
@@ -637,7 +742,7 @@ export async function POST(req: NextRequest) {
             error_message: `세그먼트 배치 ${Math.floor(i/batchSize) + 1} 삽입 실패: ${segmentError.message}`,
             updated_at: new Date().toISOString()
           })
-          .eq('id', episodeId);
+          .eq('id', actualEpisodeId);
 
         if (failUpdate) {
           console.error('⚠️ 실패 상태 업데이트 실패:', failUpdate);
@@ -653,38 +758,90 @@ export async function POST(req: NextRequest) {
 
     console.log(`✅ ${insertedCount}개 세그먼트 DB 저장 완료`);
 
-    // 6. 에피소드 상태 업데이트 (script_ready 상태)
-    const finalLocationSlug = initialSlugResult.slug;
-    const finalLocationNames = {
-      [language]: locationName,
-      en: finalLocationSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-    };
+    // 6. 에피소드 상태 업데이트 (2-Stage 지원)
+    if (stage === 'rest') {
+      // Stage 2: 기존 에피소드의 챕터 타임라인과 duration 업데이트
+      console.log('🔄 Stage 2: 에피소드 메타데이터 업데이트');
 
-    // 품질 점수 계산 (세그먼트 수, 챕터 구조 등 고려)
-    const qualityScore = Math.min(
-      75 + Math.floor(processedDialogue.segments.length / 5),  // 세그먼트 많을수록 +점수
-      Math.max(90, chapterTimeline.length * 5)  // 챕터 구조 잘 갖춰져 있으면 +점수
-    );
+      // 기존 에피소드 조회
+      const { data: existingEpisode, error: fetchError } = await supabase
+        .from('podcast_episodes')
+        .select('chapter_timestamps, duration_seconds')
+        .eq('id', actualEpisodeId)
+        .single();
 
-    const totalEstimatedDuration = chapterTimeline.reduce((sum, ch) => sum + ch.duration, 0);
+      if (fetchError) {
+        console.warn('⚠️ 기존 에피소드 조회 실패:', fetchError);
+      }
 
-    const { error: updateError } = await supabase
-      .from('podcast_episodes')
-      .update({
-        status: 'script_ready',  // 스크립트만 준비된 상태
-        location_input: locationName,
-        location_slug: finalLocationSlug,
-        slug_source: initialSlugResult.source,
-        location_names: finalLocationNames,
-        chapter_timestamps: chapterTimeline,
-        quality_score: qualityScore,
-        duration_seconds: totalEstimatedDuration,  // 예상 재생 시간
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', episodeId);
+      // 기존 챕터 타임라인과 병합
+      const existingTimeline = existingEpisode?.chapter_timestamps || [];
+      const mergedTimeline = [...existingTimeline, ...chapterTimeline];
+      const totalDuration = (existingEpisode?.duration_seconds || 0) +
+                           chapterTimeline.reduce((sum, ch) => sum + ch.duration, 0);
 
-    if (updateError) {
-      console.warn('⚠️ 에피소드 상태 업데이트 경고:', updateError);
+      const { error: updateError } = await supabase
+        .from('podcast_episodes')
+        .update({
+          status: 'script_ready',  // Stage 2 완료 = 전체 스크립트 준비 완료
+          chapter_timestamps: mergedTimeline,
+          duration_seconds: totalDuration,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', actualEpisodeId);
+
+      if (updateError) {
+        console.warn('⚠️ Stage 2 에피소드 업데이트 경고:', updateError);
+      } else {
+        console.log('✅ Stage 2 완료: 전체 스크립트 준비됨');
+      }
+    } else {
+      // Stage 1 or Full: 새 에피소드 메타데이터 업데이트
+      const { data: slugData } = await supabase
+        .from('location_slugs')
+        .select('slug, slug_source')
+        .eq('slug', locationName.toLowerCase().replace(/\s+/g, '-'))
+        .single();
+
+      const finalLocationSlug = slugData?.slug || locationName.toLowerCase().replace(/\s+/g, '-');
+      const finalSlugSource = slugData?.slug_source || 'generated';
+      const finalLocationNames = {
+        [language]: locationName,
+        en: finalLocationSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+      };
+
+      // 품질 점수 계산 (세그먼트 수, 챕터 구조 등 고려)
+      const qualityScore = Math.min(
+        75 + Math.floor(processedDialogue.segments.length / 5),  // 세그먼트 많을수록 +점수
+        Math.max(90, chapterTimeline.length * 5)  // 챕터 구조 잘 갖춰져 있으면 +점수
+      );
+
+      const totalEstimatedDuration = chapterTimeline.reduce((sum, ch) => sum + ch.duration, 0);
+
+      const { error: updateError } = await supabase
+        .from('podcast_episodes')
+        .update({
+          status: stage === 'intro' ? 'partial' : 'script_ready',  // intro는 partial, full은 script_ready
+          location_input: locationName,
+          location_slug: finalLocationSlug,
+          slug_source: finalSlugSource,
+          location_names: finalLocationNames,
+          chapter_timestamps: chapterTimeline,
+          quality_score: qualityScore,
+          duration_seconds: totalEstimatedDuration,  // 예상 재생 시간
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', actualEpisodeId);
+
+      if (updateError) {
+        console.warn('⚠️ 에피소드 상태 업데이트 경고:', updateError);
+      } else {
+        if (stage === 'intro') {
+          console.log('✅ Stage 1 완료: Intro 스크립트 준비됨 (partial 상태)');
+        } else {
+          console.log('✅ Full 생성 완료: 전체 스크립트 준비됨');
+        }
+      }
     }
 
     // 최종 성능 지표 계산
@@ -698,34 +855,74 @@ export async function POST(req: NextRequest) {
       세그먼트_개수: performanceMetrics.segmentCount
     });
 
-    // 7. ✅ CQRS 패턴: POST는 최소 메타데이터만 반환 (상세 정보는 GET으로 조회)
+    // 7. ✅ POST 응답에 segments 정보 포함 (프론트엔드가 즉시 렌더링 가능)
+    const responseSegments = processedDialogue.segments.map(seg => ({
+      sequenceNumber: seg.sequenceNumber + sequenceOffset,  // Stage 2를 위해 오프셋 적용
+      speakerType: seg.speakerType,
+      textContent: seg.textContent,
+      estimatedDuration: seg.estimatedDuration,
+      chapterIndex: seg.chapterIndex,
+      chapterTitle: seg.chapterTitle
+    }));
+
+    // 최종 상태 결정
+    const finalStatus = stage === 'intro' ? 'partial' : 'script_ready';
+    const totalEstimatedDuration = chapterTimeline.reduce((sum, ch) => sum + ch.duration, 0);
+
     return NextResponse.json({
       success: true,
-      message: '팟캐스트 스크립트가 성공적으로 생성되었습니다. 재생 버튼을 누르면 오디오가 생성됩니다.',
+      message: stage === 'intro'
+        ? '팟캐스트 Intro가 생성되었습니다. 나머지 챕터는 백그라운드에서 생성됩니다.'
+        : '팟캐스트 스크립트가 성공적으로 생성되었습니다. 재생 버튼을 누르면 오디오가 생성됩니다.',
       data: {
-        episodeId: episodeId,
-        status: 'script_ready',
+        episodeId: actualEpisodeId,  // 2-Stage를 위해 실제 episode ID 반환
+        stage: stage || 'full',  // Stage 정보 포함
+        status: finalStatus,
         locationName: locationName,
         language: language,
         segmentCount: processedDialogue.segments.length,
+        segments: responseSegments,  // ✅ 프론트엔드에서 즉시 렌더링 가능
         estimatedDuration: totalEstimatedDuration,
         chapterCount: chapterTimeline.length,
+        chapters: chapterTimeline,  // ✅ 챕터 정보도 포함
+        userScript: rawScript,  // ✅ 스크립트도 포함
         // ✅ 성능 지표 (개발용)
         performance: process.env.NODE_ENV === 'development' ? {
           totalTime: `${totalTime}ms`,
-          챕터_생성: `${performanceMetrics.chapterGeneration}ms`
+          챕터_생성: `${performanceMetrics.chapterGeneration}ms`,
+          mode: stage || 'full'
         } : undefined
       }
     });
 
   } catch (error) {
     console.error('❌ NotebookLM 팟캐스트 생성 중 오류:', error);
-    
+
+    // 에러 타입에 따른 상세 메시지
+    let errorMessage = 'Unknown error occurred';
+    let statusCode = 500;
+
+    if (error instanceof Error) {
+      errorMessage = error.message;
+
+      // 타임아웃 에러 감지
+      if (error.message.includes('timeout') || error.message.includes('ETIMEDOUT')) {
+        errorMessage = '팟캐스트 생성 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.';
+        statusCode = 504;
+      }
+      // Gemini API 에러
+      else if (error.message.includes('Gemini') || error.message.includes('API')) {
+        errorMessage = 'AI 서비스 연결에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
+        statusCode = 503;
+      }
+    }
+
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
+      error: errorMessage,
+      errorType: error instanceof Error ? error.constructor.name : 'UnknownError',
       details: process.env.NODE_ENV === 'development' ? error : undefined
-    }, { status: 500 });
+    }, { status: statusCode });
   }
 }
 
