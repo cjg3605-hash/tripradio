@@ -1,5 +1,5 @@
 'use client';
-// Force cache invalidation v4 - 2025-01-13
+// Force cache invalidation v6 - Add partial status support - 2025-11-02
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams } from 'next/navigation';
@@ -527,8 +527,8 @@ export default function PremiumPodcastPage() {
         console.log('🎙️ 기존 에피소드 조회 결과:', result);
 
         // 새로운 챕터 기반 구조 처리 (NotebookLMPodcastPlayer와 동일)
-        // script_ready, generating 상태도 포함 - 세그먼트가 있거나 생성 중이면 페이지 표시
-        if (result.success && result.data.hasEpisode && (result.data.status === 'completed' || result.data.status === 'script_ready' || result.data.status === 'generating')) {
+        // script_ready, generating, partial 상태도 포함 - 세그먼트가 있거나 생성 중이면 페이지 표시
+        if (result.success && result.data.hasEpisode && (result.data.status === 'completed' || result.data.status === 'script_ready' || result.data.status === 'generating' || result.data.status === 'partial')) {
           let allSegments: SegmentInfo[] = [];
           let chapterInfos: ChapterInfo[] = [];
           
@@ -548,7 +548,7 @@ export default function PremiumPodcastPage() {
           console.log('🔍🔍🔍 [NEW CODE v3] 데이터베이스에서 세그먼트 조회:', result.data.episodeId);
           const { data: dbSegments, error: segmentError } = await supabase
             .from('podcast_segments')
-            .select('sequence_number, speaker_name, speaker_type, text_content, audio_url, duration_seconds, chapter_index')
+            .select('sequence_number, speaker_name, speaker_type, text_content, audio_url, duration_seconds, chapter_index, chapter_title')
             .eq('episode_id', result.data.episodeId)
             .order('sequence_number', { ascending: true });
 
@@ -591,7 +591,7 @@ export default function PremiumPodcastPage() {
                 duration: seg.duration_seconds || 30,
                 textContent: seg.text_content || '',
                 chapterIndex: seg.chapter_index,
-                chapterTitle: chapterInfos.find(ch => ch.chapterIndex === seg.chapter_index)?.title || ''
+                chapterTitle: seg.chapter_title || chapterInfos.find(ch => ch.chapterIndex === seg.chapter_index)?.title || ''
               }));
 
               console.log(`✅ DB 세그먼트를 allSegments로 변환: ${allSegments.length}개`);
@@ -787,6 +787,11 @@ export default function PremiumPodcastPage() {
             hasEpisode: result.data?.hasEpisode,
             status: result.data?.status
           });
+
+          // ✅ 에피소드 없을 때 UI 상태 명시적으로 리셋
+          setEpisode(null);
+          setCurrentSegmentIndex(0);
+          setError(null);
         }
       } else {
         console.error('❌ API 응답 실패:', response.status, response.statusText);
@@ -804,31 +809,31 @@ export default function PremiumPodcastPage() {
     setError(null);
     setGenerationProgress(0);
 
-    // 진행률 시뮬레이션 (90% 이후에도 천천히 증가)
+    // 2-Stage 진행률: Stage 1 = 0-50%, Stage 2 = 50-100%
+    let stage1Complete = false;
     const progressInterval = setInterval(() => {
       setGenerationProgress(prev => {
-        if (prev >= 98) return prev; // 98%에서 멈추고 실제 완료를 기다림
-        if (prev >= 90) return Math.round(prev + Math.random() * 2); // 90% 이후 천천히 증가
-        return Math.round(prev + Math.random() * 10);
+        if (!stage1Complete) {
+          // Stage 1: 0-45%까지만 증가
+          if (prev >= 45) return prev;
+          return Math.round(prev + Math.random() * 10);
+        } else {
+          // Stage 2: 50-98%까지 천천히 증가
+          if (prev >= 98) return prev;
+          if (prev >= 90) return Math.round(prev + Math.random() * 2);
+          return Math.round(prev + Math.random() * 5);
+        }
       });
     }, 1000);
 
     try {
-      console.log('🎙️ NotebookLM 스타일 전체 팟캐스트 생성 시작:', {
-        locationName,
-        language: targetLanguage,
-        options: {
-          priority: 'engagement',
-          audienceLevel: 'intermediate',
-          podcastStyle: 'educational'
-        }
-      });
+      // ========== Stage 1: Intro 생성 (빠른 응답 25-30초) ==========
+      console.log('🚀 Stage 1: Intro 생성 시작 (25-30초 예상)');
 
-      // 타임아웃 설정 (10분)
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10 * 60 * 1000);
+      const controller1 = new AbortController();
+      const timeoutId1 = setTimeout(() => controller1.abort(), 3 * 60 * 1000); // 3분
 
-      const response = await fetch('/api/tts/notebooklm/generate', {
+      const response1 = await fetch('/api/tts/notebooklm/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -836,47 +841,109 @@ export default function PremiumPodcastPage() {
         body: JSON.stringify({
           locationName,
           language: targetLanguage,
+          stage: 'intro',  // 🎯 Stage 1: Intro만 생성
           options: {
             priority: 'engagement',
             audienceLevel: 'intermediate',
             podcastStyle: 'educational'
           }
         }),
-        signal: controller.signal
+        signal: controller1.signal
       });
 
-      clearTimeout(timeoutId);
+      clearTimeout(timeoutId1);
 
-      const result = await response.json();
+      const result1 = await response1.json();
 
-      if (!result.success) {
-        throw new Error(result.error || 'NotebookLM 팟캐스트 생성에 실패했습니다.');
+      if (!result1.success) {
+        throw new Error(result1.error || 'Intro 생성에 실패했습니다.');
       }
 
-      const episodeData: PodcastEpisode = {
-        episodeId: result.data.episodeId,
-        status: result.data.status,
-        userScript: result.data.userScript,
-        totalDuration: result.data.totalDuration,
-        segmentCount: result.data.segmentCount,
-        segments: result.data.segments || [],
-        metadata: result.data.metadata,
-        qualityScore: 90 // 기본값
-      };
-
-      setEpisode(episodeData);
-      setGenerationProgress(100);
-
-      console.log('✅ NotebookLM 순차 팟캐스트 생성 완료:', {
-        totalDuration: `${Math.round(episodeData.totalDuration)}초`,
-        segmentCount: episodeData.segmentCount,
-        segments: episodeData.segments.length
+      console.log('✅ Stage 1 완료:', {
+        episodeId: result1.data.episodeId,
+        segmentCount: result1.data.segmentCount,
+        status: result1.data.status
       });
 
+      // Stage 1 완료 후 즉시 페이지 표시
+      const stage1Episode: PodcastEpisode = {
+        episodeId: result1.data.episodeId,
+        status: result1.data.status,
+        userScript: result1.data.userScript,
+        totalDuration: result1.data.estimatedDuration || 0,
+        segmentCount: result1.data.segmentCount,
+        segments: result1.data.segments || [],
+        metadata: result1.data.metadata,
+        qualityScore: 90
+      };
+
+      setEpisode(stage1Episode);
+      setGenerationProgress(50);
+      stage1Complete = true;
+
+      console.log('🎨 Intro 페이지 표시 완료 - 사용자가 즉시 볼 수 있습니다');
+
+      // ========== Stage 2: Rest 챕터 백그라운드 생성 (30-35초) ==========
+      console.log('🔄 Stage 2: 나머지 챕터 백그라운드 생성 시작');
+
+      // Stage 2를 백그라운드로 비동기 실행 (사용자 블로킹 없음)
+      (async () => {
+        try {
+          const controller2 = new AbortController();
+          const timeoutId2 = setTimeout(() => controller2.abort(), 5 * 60 * 1000); // 5분
+
+          const response2 = await fetch('/api/tts/notebooklm/generate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              locationName,
+              language: targetLanguage,
+              stage: 'rest',  // 🎯 Stage 2: 나머지 챕터
+              episodeId: result1.data.episodeId,  // 기존 episode에 추가
+              options: {
+                priority: 'engagement',
+                audienceLevel: 'intermediate',
+                podcastStyle: 'educational'
+              }
+            }),
+            signal: controller2.signal
+          });
+
+          clearTimeout(timeoutId2);
+
+          const result2 = await response2.json();
+
+          if (result2.success) {
+            console.log('✅ Stage 2 완료:', {
+              totalSegments: result2.data.segmentCount,
+              status: result2.data.status
+            });
+
+            // 전체 데이터 재조회하여 업데이트
+            await checkExistingPodcast(locationName, effectiveLanguage);
+            setGenerationProgress(100);
+
+            console.log('🎉 2-Stage 팟캐스트 생성 완전 완료!');
+          } else {
+            console.warn('⚠️ Stage 2 생성 실패 (Intro는 정상 사용 가능):', result2.error);
+          }
+        } catch (error) {
+          console.error('❌ Stage 2 백그라운드 생성 오류 (Intro는 정상):', error);
+        } finally {
+          setIsGenerating(false);
+          clearInterval(progressInterval);
+        }
+      })();
+
+      // Stage 1 완료 후 즉시 사용자에게 제어 반환 (Stage 2는 백그라운드)
+      console.log('👤 사용자에게 즉시 제어 반환 - 대기시간: 25-30초');
+
       // 생성 완료 후 첫 번째 세그먼트 자동 로드
-      if (episodeData.segments.length > 0 && audioRef.current && episodeData.segments[0].audioUrl) {
-        console.log('🎵 생성 완료 - 첫 번째 세그먼트 자동 로드:', episodeData.segments[0]);
-        audioRef.current.src = episodeData.segments[0].audioUrl;
+      if (stage1Episode.segments.length > 0 && audioRef.current && stage1Episode.segments[0].audioUrl) {
+        console.log('🎵 Stage 1 완료 - 첫 번째 세그먼트 자동 로드:', stage1Episode.segments[0]);
+        audioRef.current.src = stage1Episode.segments[0].audioUrl;
         audioRef.current.load();
         audioRef.current.volume = volume;
         audioRef.current.playbackRate = playbackRate;
@@ -884,8 +951,8 @@ export default function PremiumPodcastPage() {
       }
 
     } catch (error) {
-      console.error('❌ NotebookLM 팟캐스트 생성 실패:', error);
-      
+      console.error('❌ Stage 1 생성 실패:', error);
+
       let errorMessage = '팟캐스트 생성에 실패했습니다.';
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
@@ -894,13 +961,13 @@ export default function PremiumPodcastPage() {
           errorMessage = error.message;
         }
       }
-      
+
       setError(errorMessage);
-    } finally {
       clearInterval(progressInterval);
       setIsGenerating(false);
       setGenerationProgress(0);
     }
+    // ⚠️ finally 블록 제거: Stage 2가 백그라운드에서 실행 중이므로 여기서 cleanup하면 안됨
   };
 
   const formatTime = (seconds: number): string => {
