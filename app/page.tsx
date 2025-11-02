@@ -1493,6 +1493,22 @@ function Home() {
               <div className="text-base xs:text-base sm:text-base md:text-base lg:text-lg font-light text-gray-300 px-4 text-center" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
                 {t('home.subtitle')} {t('home.subtitle2')}
               </div>
+
+              {/* 헤더는 유지하고, 홈 히어로에 명확한 탐색 CTA만 추가 */}
+              <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+                <Link
+                  href="/guide"
+                  className="inline-flex items-center justify-center bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                >
+                  {currentLanguage === 'ko' ? '여행가이드 보기' : 'Browse Guides'}
+                </Link>
+                <Link
+                  href="/podcast"
+                  className="inline-flex items-center justify-center bg-black/80 text-white px-6 py-3 rounded-lg font-medium hover:bg-black transition-colors"
+                >
+                  {currentLanguage === 'ko' ? '팟캐스트 듣기' : 'Browse Podcasts'}
+                </Link>
+              </div>
             </div>
 
           {/* Feature Steps - 히어로 섹션 내부 */}

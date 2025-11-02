@@ -176,6 +176,8 @@ export default async function RootLayout({
         
         {/* Google Search Console Verification */}
         <meta name="google-site-verification" content="ZGsBu9eojRsKlixPE6U5iGBcebJVNNBRhZo-UIVl3Hk" />
+        {/* 신규 검증 토큰 (요청에 따른 추가) */}
+        <meta name="google-site-verification" content="b7i4JxFWFUQ7-sLfLvEEC8m4beW8eVme4eTYrvfKSt4" />
         
         {/* Google AdSense Account Verification */}
         <meta name="google-adsense-account" content="ca-pub-8225961966676319" />
