@@ -8,9 +8,9 @@ import { LocationAnalyzer, LocationContext, EXPERT_PERSONAS } from '@/lib/ai/loc
 import LocationSlugService from '@/lib/location/location-slug-service';
 import { createPodcastChapterPrompt, type PodcastPromptConfig, parseDialogueScript } from '@/lib/ai/prompts/podcast';
 
-// Vercel Pro 플랜: 최대 300초 (5분) 지원
-// 복잡한 장소 분석 + Gemini API 호출을 고려하여 충분한 시간 확보
-export const maxDuration = 300;
+// Vercel Hobby 플랜: 최대 60초 지원
+// 최적화된 API 호출 구조로 60초 내 안정적 완료 가능
+export const maxDuration = 60;
 
 // 순차 재생용 팟캐스트 생성
 
