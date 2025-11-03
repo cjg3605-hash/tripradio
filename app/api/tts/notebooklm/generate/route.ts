@@ -329,23 +329,32 @@ export async function POST(req: NextRequest) {
     const geminiClient = getGeminiClient();
     const model = geminiClient.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-    // 🎯 3-Stage 지원: stage 파라미터에 따라 생성할 챕터 선택
+    // 🎯 동적 Stage 지원: stage 파라미터에 따라 생성할 챕터 선택
     let allChapters: ChapterStructure[] = [];
+    const CHAPTERS_PER_STAGE = 2; // 각 Stage마다 최대 2개 챕터 처리 (40-50초 이내)
+
     if (stage === 'intro') {
       // Stage 1: Intro만 생성 (빠른 응답)
       allChapters = [finalPodcastStructure.intro];
       console.log('🚀 Stage 1 (Intro-only): 빠른 생성 모드');
-    } else if (stage === 'rest-1') {
-      // 🆕 Stage 2-1: 챕터 1-2 생성 (30초 이내)
-      allChapters = finalPodcastStructure.chapters.slice(0, 2);
-      console.log('🔄 Stage 2-1: 챕터 1-2 생성 모드 (타임아웃 방지)');
-    } else if (stage === 'rest-2') {
-      // 🆕 Stage 2-2: 챕터 3-4 + outro 생성 (30초 이내)
-      allChapters = [
-        ...finalPodcastStructure.chapters.slice(2),
-        ...(finalPodcastStructure.outro ? [finalPodcastStructure.outro] : [])
-      ];
-      console.log('🔄 Stage 2-2: 챕터 3-4 + outro 생성 모드 (타임아웃 방지)');
+    } else if (stage && stage.startsWith('rest-')) {
+      // 🆕 동적 Stage: rest-1, rest-2, rest-3, ...
+      const stageNumber = parseInt(stage.split('-')[1]);
+      const totalChapters = finalPodcastStructure.chapters.length;
+      const startIdx = (stageNumber - 1) * CHAPTERS_PER_STAGE;
+      const endIdx = Math.min(startIdx + CHAPTERS_PER_STAGE, totalChapters);
+
+      // 챕터 범위 추출
+      allChapters = finalPodcastStructure.chapters.slice(startIdx, endIdx);
+
+      // 마지막 Stage인 경우 outro 포함
+      const isLastStage = endIdx >= totalChapters;
+      if (isLastStage && finalPodcastStructure.outro) {
+        allChapters.push(finalPodcastStructure.outro);
+      }
+
+      console.log(`🔄 Stage ${stage}: 챕터 ${startIdx + 1}-${endIdx}${isLastStage ? ' + outro' : ''} 생성 (타임아웃 방지)`);
+      console.log(`📊 처리 중: ${allChapters.length}개 챕터 (전체: ${totalChapters}개)`);
     } else if (stage === 'rest') {
       // Stage 2: Rest 챕터만 생성 (백그라운드) - Legacy 지원
       allChapters = [
@@ -891,6 +900,7 @@ export async function POST(req: NextRequest) {
         status: finalStatus,
         locationName: locationName,
         language: language,
+        totalChapters: finalPodcastStructure.chapters.length,  // 🆕 동적 분할을 위한 총 챕터 수
         segmentCount: processedDialogue.segments.length,
         segments: responseSegments,  // ✅ 프론트엔드에서 즉시 렌더링 가능
         estimatedDuration: totalEstimatedDuration,
