@@ -883,16 +883,19 @@ export default function PremiumPodcastPage() {
 
       console.log('🎨 Intro 페이지 표시 완료 - 사용자가 즉시 볼 수 있습니다');
 
-      // ========== Stage 2: Rest 챕터 백그라운드 생성 (30-35초) ==========
-      console.log('🔄 Stage 2: 나머지 챕터 백그라운드 생성 시작');
+      // ========== Stage 2: Rest 챕터 백그라운드 생성 (2단계 분할) ==========
+      console.log('🔄 Stage 2: 나머지 챕터 백그라운드 생성 시작 (타임아웃 방지를 위한 2단계 분할)');
 
-      // Stage 2를 백그라운드로 비동기 실행 (사용자 블로킹 없음)
+      // Stage 2를 2단계로 분할하여 백그라운드 실행 (60초 제한 대응)
       (async () => {
         try {
-          const controller2 = new AbortController();
-          const timeoutId2 = setTimeout(() => controller2.abort(), 5 * 60 * 1000); // 5분
+          // ========== Stage 2-1: 챕터 1-2 생성 (25-30초) ==========
+          console.log('🔄 Stage 2-1: 챕터 1-2 생성 시작');
 
-          const response2 = await fetch('/api/tts/notebooklm/generate', {
+          const controller2_1 = new AbortController();
+          const timeoutId2_1 = setTimeout(() => controller2_1.abort(), 2 * 60 * 1000); // 2분
+
+          const response2_1 = await fetch('/api/tts/notebooklm/generate', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -900,34 +903,74 @@ export default function PremiumPodcastPage() {
             body: JSON.stringify({
               locationName,
               language: targetLanguage,
-              stage: 'rest',  // 🎯 Stage 2: 나머지 챕터
-              episodeId: result1.data.episodeId,  // 기존 episode에 추가
+              stage: 'rest-1',  // 🎯 Stage 2-1: 챕터 1-2
+              episodeId: result1.data.episodeId,
               options: {
                 priority: 'engagement',
                 audienceLevel: 'intermediate',
                 podcastStyle: 'educational'
               }
             }),
-            signal: controller2.signal
+            signal: controller2_1.signal
           });
 
-          clearTimeout(timeoutId2);
+          clearTimeout(timeoutId2_1);
 
-          const result2 = await response2.json();
+          const result2_1 = await response2_1.json();
 
-          if (result2.success) {
-            console.log('✅ Stage 2 완료:', {
-              totalSegments: result2.data.segmentCount,
-              status: result2.data.status
+          if (result2_1.success) {
+            console.log('✅ Stage 2-1 완료:', {
+              totalSegments: result2_1.data.segmentCount,
+              status: result2_1.data.status
+            });
+            setGenerationProgress(75); // 75% 진행
+          } else {
+            console.warn('⚠️ Stage 2-1 생성 실패:', result2_1.error);
+            throw new Error(result2_1.error || 'Stage 2-1 failed');
+          }
+
+          // ========== Stage 2-2: 챕터 3-4 + outro 생성 (25-30초) ==========
+          console.log('🔄 Stage 2-2: 챕터 3-4 + outro 생성 시작');
+
+          const controller2_2 = new AbortController();
+          const timeoutId2_2 = setTimeout(() => controller2_2.abort(), 2 * 60 * 1000); // 2분
+
+          const response2_2 = await fetch('/api/tts/notebooklm/generate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              locationName,
+              language: targetLanguage,
+              stage: 'rest-2',  // 🎯 Stage 2-2: 챕터 3-4 + outro
+              episodeId: result1.data.episodeId,
+              options: {
+                priority: 'engagement',
+                audienceLevel: 'intermediate',
+                podcastStyle: 'educational'
+              }
+            }),
+            signal: controller2_2.signal
+          });
+
+          clearTimeout(timeoutId2_2);
+
+          const result2_2 = await response2_2.json();
+
+          if (result2_2.success) {
+            console.log('✅ Stage 2-2 완료:', {
+              totalSegments: result2_2.data.segmentCount,
+              status: result2_2.data.status
             });
 
             // 전체 데이터 재조회하여 업데이트
             await checkExistingPodcast(locationName, effectiveLanguage);
             setGenerationProgress(100);
 
-            console.log('🎉 2-Stage 팟캐스트 생성 완전 완료!');
+            console.log('🎉 3-Stage 팟캐스트 생성 완전 완료! (Intro → 챕터1-2 → 챕터3-4+outro)');
           } else {
-            console.warn('⚠️ Stage 2 생성 실패 (Intro는 정상 사용 가능):', result2.error);
+            console.warn('⚠️ Stage 2-2 생성 실패 (챕터 1-2는 정상):', result2_2.error);
           }
         } catch (error) {
           console.error('❌ Stage 2 백그라운드 생성 오류 (Intro는 정상):', error);

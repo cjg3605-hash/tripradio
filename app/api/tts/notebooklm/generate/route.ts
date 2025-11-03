@@ -329,19 +329,30 @@ export async function POST(req: NextRequest) {
     const geminiClient = getGeminiClient();
     const model = geminiClient.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-    // 🎯 2-Stage 지원: stage 파라미터에 따라 생성할 챕터 선택
+    // 🎯 3-Stage 지원: stage 파라미터에 따라 생성할 챕터 선택
     let allChapters: ChapterStructure[] = [];
     if (stage === 'intro') {
       // Stage 1: Intro만 생성 (빠른 응답)
       allChapters = [finalPodcastStructure.intro];
       console.log('🚀 Stage 1 (Intro-only): 빠른 생성 모드');
+    } else if (stage === 'rest-1') {
+      // 🆕 Stage 2-1: 챕터 1-2 생성 (30초 이내)
+      allChapters = finalPodcastStructure.chapters.slice(0, 2);
+      console.log('🔄 Stage 2-1: 챕터 1-2 생성 모드 (타임아웃 방지)');
+    } else if (stage === 'rest-2') {
+      // 🆕 Stage 2-2: 챕터 3-4 + outro 생성 (30초 이내)
+      allChapters = [
+        ...finalPodcastStructure.chapters.slice(2),
+        ...(finalPodcastStructure.outro ? [finalPodcastStructure.outro] : [])
+      ];
+      console.log('🔄 Stage 2-2: 챕터 3-4 + outro 생성 모드 (타임아웃 방지)');
     } else if (stage === 'rest') {
-      // Stage 2: Rest 챕터만 생성 (백그라운드)
+      // Stage 2: Rest 챕터만 생성 (백그라운드) - Legacy 지원
       allChapters = [
         ...finalPodcastStructure.chapters,
         ...(finalPodcastStructure.outro ? [finalPodcastStructure.outro] : [])
       ];
-      console.log('🔄 Stage 2 (Rest chapters): 백그라운드 생성 모드');
+      console.log('⚠️ Stage 2 (Rest chapters - Legacy): 백그라운드 생성 모드 (타임아웃 위험)');
     } else {
       // 기존 동작: 전체 챕터 생성 (하위 호환성)
       allChapters = [
