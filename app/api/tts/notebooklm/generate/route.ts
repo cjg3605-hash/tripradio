@@ -327,7 +327,7 @@ export async function POST(req: NextRequest) {
     // 🎤 Step 4: 챕터별 NotebookLM 스타일 스크립트 순차 생성 (API 안정성 우선)
     console.log('🎤 4단계: 챕터별 스크립트 순차 생성 시작');
     const geminiClient = getGeminiClient();
-    const model = geminiClient.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = geminiClient.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
 
     // 🎯 동적 Stage 지원: stage 파라미터에 따라 생성할 챕터 선택
     let allChapters: ChapterStructure[] = [];
