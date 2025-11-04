@@ -1,0 +1,228 @@
+Total console messages: 225
+================================================================================
+
+[error] Failed to load resource: the server responded with a status of 404 ()
+[error] Failed to load resource: the server responded with a status of 404 ()
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] %c%s%c 🎯 언어 감지 - 기본값: ko background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server  
+[log] %c%s%c 🌍 서버 언어 감지: ko (쿠키: undefined) background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server  
+[warning] ❌ Translation key not found: podcast.loading (stopped at: podcast) {currentLanguage: ko, availableKeys: Array(25), translations: Array(25), path: Array(2)}
+[log] 🔄 Using friendly fallback for podcast.loading: loading
+[warning] ❌ Translation key not found: podcast.loading (stopped at: podcast) {currentLanguage: ko, availableKeys: Array(25), translations: Array(25), path: Array(2)}
+[log] 🔄 Using friendly fallback for podcast.loading: loading
+[log] 🔍 GET 요청 - 팟캐스트 조회: {locationName: 오이도, language: ko}
+[log] 🎯 언어 감지 - 브라우저: ko
+[log] ✅ 언어 쿠키 저장 성공: ko
+[log] 🌍 Middleware 언어 감지 정보 수신: {language: ko, source: browser, country: null, confidence: 0.9, timestamp: 1761740642298}
+[log] 🔔 언어 자동 감지 알림 표시: {language: ko, source: browser, country: null, confidence: 0.9, timestamp: 1761740642298}
+[log] 🚀 Performance monitoring enabled
+[warning] ❌ Translation key not found: podcast.loading (stopped at: podcast) {currentLanguage: ko, availableKeys: Array(25), translations: Array(25), path: Array(2)}
+[log] 🔄 Using friendly fallback for podcast.loading: loading
+[warning] ❌ Translation key not found: podcast.loading (stopped at: podcast) {currentLanguage: ko, availableKeys: Array(25), translations: Array(25), path: Array(2)}
+[log] 🔄 Using friendly fallback for podcast.loading: loading
+[log] 🔍 GET 요청 - 팟캐스트 조회: {locationName: 오이도, language: ko}
+[log] 🔍 GET 요청 - 팟캐스트 조회: {locationName: 오이도, language: ko}
+[warning] ❌ Translation key not found: podcast.generateTitle (stopped at: podcast) {currentLanguage: ko, availableKeys: Array(25), translations: Array(25), path: Array(2)}
+[log] 🔄 Using friendly fallback for podcast.generateTitle: generate title
+[warning] ❌ Translation key not found: podcast.generateDescription (stopped at: podcast) {currentLanguage: ko, availableKeys: Array(25), translations: Array(25), path: Array(2)}
+[log] 🔄 Using friendly fallback for podcast.generateDescription: generate description
+[warning] ❌ Translation key not found: podcast.generateButton (stopped at: podcast) {currentLanguage: ko, availableKeys: Array(25), translations: Array(25), path: Array(2)}
+[log] 🔄 Using friendly fallback for podcast.generateButton: generate button
+[warning] ❌ Translation key not found: podcast.generateTitle (stopped at: podcast) {currentLanguage: ko, availableKeys: Array(25), translations: Array(25), path: Array(2)}
+[log] 🔄 Using friendly fallback for podcast.generateTitle: generate title
+[warning] ❌ Translation key not found: podcast.generateDescription (stopped at: podcast) {currentLanguage: ko, availableKeys: Array(25), translations: Array(25), path: Array(2)}
+[log] 🔄 Using friendly fallback for podcast.generateDescription: generate description
+[warning] ❌ Translation key not found: podcast.generateButton (stopped at: podcast) {currentLanguage: ko, availableKeys: Array(25), translations: Array(25), path: Array(2)}
+[log] 🔄 Using friendly fallback for podcast.generateButton: generate button
+[log] 🔍 [ko] tripPlanner exists: true
+[log] 🔍 [ko] tripTypes exists: true
+[log] 🔍 [ko] home exists: true
+[log] 🔍 [ko] home.viewMoreAttractions: 더 많은 명소 보기
+[log] 🔍 [ko] home keys: [brandTitle, audioGuidePrefix, subtitle, subtitle2, popularDestinations, viewMoreAttractions, regionTitles, regionDescription, clickAttraction, scrollHint, searchPlaceholders, attractionDetails, countries, stepTitles, stepDescriptions, alerts]
+[log] 🔍 [ko] tripPlanner.quickPlanner.title: 빠른 여행 계획
+[log] 🔍 [ko] tripTypes.solo.name: 자유여행
+[log] 💾 ko 번역 캐시 저장 (v1.3.0)
+[log] ✅ ko 번역 파일 로드 완료 (v1.3.0)
+[log] ✅ 언어 초기화 완료: ko (서버-클라이언트 동기화)
+[error] Attestation check for Attribution Reporting on https://www.google-analytics.com failed.
+[error] Failed to load resource: the server responded with a status of 403 ()
+[log] 🟢 AdSense: Auto Ads 초기화 시작
+[log] ℹ️ AdSense: 승인 대기 중이거나 이미 초기화됨 - 정상 상태
+[log] 🎙️ 기존 에피소드 조회 결과: {success: true, data: Object}
+[log] 🔍 스토리지 무결성 검증 시작...
+[log] 🔍 클라이언트 스토리지 검증 시작: {locationName: 오이도, language: ko, episodeId: episode-1761193652918-23x82offp}
+[log] 🎙️ 기존 에피소드 조회 결과: {success: true, data: Object}
+[log] 🔍 스토리지 무결성 검증 시작...
+[log] 🔍 클라이언트 스토리지 검증 시작: {locationName: 오이도, language: ko, episodeId: episode-1761193652918-23x82offp}
+[log] 🎙️ 기존 에피소드 조회 결과: {success: true, data: Object}
+[log] 🔍 스토리지 무결성 검증 시작...
+[log] 🔍 클라이언트 스토리지 검증 시작: {locationName: 오이도, language: ko, episodeId: episode-1761193652918-23x82offp}
+[log] ❌ 스토리지 검증 실패 {success: false, isValid: false, reason: no_files_in_storage, expectedPath: podcasts/oido, actualFileCount: 0}
+[warning] ⚠️ 스토리지 검증 실패 - 기본 경로 사용: podcasts/louvre-museum
+[log] 🔍🔍🔍 [NEW CODE v3] 데이터베이스에서 세그먼트 조회: episode-1761193652918-23x82offp
+[log] ❌ 스토리지 검증 실패 {success: false, isValid: false, reason: no_files_in_storage, expectedPath: podcasts/oido, actualFileCount: 0}
+[warning] ⚠️ 스토리지 검증 실패 - 기본 경로 사용: podcasts/louvre-museum
+[log] 🔍🔍🔍 [NEW CODE v3] 데이터베이스에서 세그먼트 조회: episode-1761193652918-23x82offp
+[log] ❌ 스토리지 검증 실패 {success: false, isValid: false, reason: no_files_in_storage, expectedPath: podcasts/oido, actualFileCount: 0}
+[warning] ⚠️ 스토리지 검증 실패 - 기본 경로 사용: podcasts/louvre-museum
+[log] 🔍🔍🔍 [NEW CODE v3] 데이터베이스에서 세그먼트 조회: episode-1761193652918-23x82offp
+[log] ✅ DB에서 227개 세그먼트 조회 성공
+[log] 🔍 페이지 - 챕터 0 파싱: {title: 오이도 소개, fileCount: 0, hasFiles: true}
+[log] 🔍 페이지 - 챕터 1 파싱: {title: 오이도 소개, fileCount: 0, hasFiles: true}
+[log] 🔍 페이지 - 챕터 2 파싱: {title: 오이도 빨간등대, fileCount: 0, hasFiles: true}
+[log] 🔍 페이지 - 챕터 3 파싱: {title: 오이도 갯벌체험, fileCount: 0, hasFiles: true}
+[log] 🔍 페이지 - 챕터 4 파싱: {title: 오이도 포구, fileCount: 0, hasFiles: true}
+[log] ✅ DB 세그먼트를 allSegments로 변환: 227개
+[log] 🎯 페이지 - 전체 세그먼트 파싱 완료: {chapterCount: 5, totalSegments: 227, segmentsByChapter: Array(5)}
+[log] ✅ 페이지 - 기존 순차 재생 에피소드 발견: {segmentCount: 227, totalDuration: 3408초, hasSegments: true, chapterCount: 5, chapters: Array(5)}
+[log] ✅ DB에서 227개 세그먼트 조회 성공
+[log] 🔍 페이지 - 챕터 0 파싱: {title: 오이도 소개, fileCount: 0, hasFiles: true}
+[log] 🔍 페이지 - 챕터 1 파싱: {title: 오이도 소개, fileCount: 0, hasFiles: true}
+[log] 🔍 페이지 - 챕터 2 파싱: {title: 오이도 빨간등대, fileCount: 0, hasFiles: true}
+[log] 🔍 페이지 - 챕터 3 파싱: {title: 오이도 갯벌체험, fileCount: 0, hasFiles: true}
+[log] 🔍 페이지 - 챕터 4 파싱: {title: 오이도 포구, fileCount: 0, hasFiles: true}
+[log] ✅ DB 세그먼트를 allSegments로 변환: 227개
+[log] 🎯 페이지 - 전체 세그먼트 파싱 완료: {chapterCount: 5, totalSegments: 227, segmentsByChapter: Array(5)}
+[log] ✅ 페이지 - 기존 순차 재생 에피소드 발견: {segmentCount: 227, totalDuration: 3408초, hasSegments: true, chapterCount: 5, chapters: Array(5)}
+[warning] ❌ Translation key not found: accessibility.progressBar (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.progressBar: progress bar
+[warning] ❌ Translation key not found: accessibility.previousSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.previousSegment: previous segment
+[warning] ❌ Translation key not found: accessibility.playButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.playButton: play button
+[warning] ❌ Translation key not found: accessibility.nextSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.nextSegment: next segment
+[warning] ❌ Translation key not found: accessibility.muteButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.muteButton: mute button
+[warning] ❌ Translation key not found: accessibility.volumeControl (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.volumeControl: volume control
+[warning] ❌ Translation key not found: accessibility.progressBar (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.progressBar: progress bar
+[warning] ❌ Translation key not found: accessibility.previousSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.previousSegment: previous segment
+[warning] ❌ Translation key not found: accessibility.playButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.playButton: play button
+[warning] ❌ Translation key not found: accessibility.nextSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.nextSegment: next segment
+[warning] ❌ Translation key not found: accessibility.muteButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.muteButton: mute button
+[warning] ❌ Translation key not found: accessibility.volumeControl (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.volumeControl: volume control
+[log] 🎵 첫 번째 세그먼트 준비: {sequenceNumber: 1, speakerType: male, audioUrl: null, duration: 15, textContent: 여러분, 오이도라고 들어보셨어요? 서해안의 보물 같은 섬이라고 하던데, 첫인상은 어떤 곳인가요?}
+[warning] ❌ Translation key not found: accessibility.progressBar (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.progressBar: progress bar
+[warning] ❌ Translation key not found: accessibility.previousSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.previousSegment: previous segment
+[warning] ❌ Translation key not found: accessibility.playButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.playButton: play button
+[warning] ❌ Translation key not found: accessibility.nextSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.nextSegment: next segment
+[warning] ❌ Translation key not found: accessibility.muteButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.muteButton: mute button
+[warning] ❌ Translation key not found: accessibility.volumeControl (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.volumeControl: volume control
+[warning] ❌ Translation key not found: accessibility.progressBar (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.progressBar: progress bar
+[warning] ❌ Translation key not found: accessibility.previousSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.previousSegment: previous segment
+[warning] ❌ Translation key not found: accessibility.playButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.playButton: play button
+[warning] ❌ Translation key not found: accessibility.nextSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.nextSegment: next segment
+[warning] ❌ Translation key not found: accessibility.muteButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.muteButton: mute button
+[warning] ❌ Translation key not found: accessibility.volumeControl (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.volumeControl: volume control
+[log] ✅ DB에서 227개 세그먼트 조회 성공
+[log] 🔍 페이지 - 챕터 0 파싱: {title: 오이도 소개, fileCount: 0, hasFiles: true}
+[log] 🔍 페이지 - 챕터 1 파싱: {title: 오이도 소개, fileCount: 0, hasFiles: true}
+[log] 🔍 페이지 - 챕터 2 파싱: {title: 오이도 빨간등대, fileCount: 0, hasFiles: true}
+[log] 🔍 페이지 - 챕터 3 파싱: {title: 오이도 갯벌체험, fileCount: 0, hasFiles: true}
+[log] 🔍 페이지 - 챕터 4 파싱: {title: 오이도 포구, fileCount: 0, hasFiles: true}
+[log] ✅ DB 세그먼트를 allSegments로 변환: 227개
+[log] 🎯 페이지 - 전체 세그먼트 파싱 완료: {chapterCount: 5, totalSegments: 227, segmentsByChapter: Array(5)}
+[log] ✅ 페이지 - 기존 순차 재생 에피소드 발견: {segmentCount: 227, totalDuration: 3408초, hasSegments: true, chapterCount: 5, chapters: Array(5)}
+[warning] ❌ Translation key not found: accessibility.progressBar (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.progressBar: progress bar
+[warning] ❌ Translation key not found: accessibility.previousSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.previousSegment: previous segment
+[warning] ❌ Translation key not found: accessibility.playButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.playButton: play button
+[warning] ❌ Translation key not found: accessibility.nextSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.nextSegment: next segment
+[warning] ❌ Translation key not found: accessibility.muteButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.muteButton: mute button
+[warning] ❌ Translation key not found: accessibility.volumeControl (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.volumeControl: volume control
+[warning] ❌ Translation key not found: accessibility.progressBar (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.progressBar: progress bar
+[warning] ❌ Translation key not found: accessibility.previousSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.previousSegment: previous segment
+[warning] ❌ Translation key not found: accessibility.playButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.playButton: play button
+[warning] ❌ Translation key not found: accessibility.nextSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.nextSegment: next segment
+[warning] ❌ Translation key not found: accessibility.muteButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.muteButton: mute button
+[warning] ❌ Translation key not found: accessibility.volumeControl (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.volumeControl: volume control
+[log] 🎵 첫 번째 세그먼트 준비: {sequenceNumber: 1, speakerType: male, audioUrl: null, duration: 15, textContent: 여러분, 오이도라고 들어보셨어요? 서해안의 보물 같은 섬이라고 하던데, 첫인상은 어떤 곳인가요?}
+[warning] ❌ Translation key not found: accessibility.progressBar (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.progressBar: progress bar
+[warning] ❌ Translation key not found: accessibility.previousSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.previousSegment: previous segment
+[warning] ❌ Translation key not found: accessibility.playButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.playButton: play button
+[warning] ❌ Translation key not found: accessibility.nextSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.nextSegment: next segment
+[warning] ❌ Translation key not found: accessibility.muteButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.muteButton: mute button
+[warning] ❌ Translation key not found: accessibility.volumeControl (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.volumeControl: volume control
+[warning] ❌ Translation key not found: accessibility.progressBar (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.progressBar: progress bar
+[warning] ❌ Translation key not found: accessibility.previousSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.previousSegment: previous segment
+[warning] ❌ Translation key not found: accessibility.playButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.playButton: play button
+[warning] ❌ Translation key not found: accessibility.nextSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.nextSegment: next segment
+[warning] ❌ Translation key not found: accessibility.muteButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.muteButton: mute button
+[warning] ❌ Translation key not found: accessibility.volumeControl (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.volumeControl: volume control
+[warning] ❌ Translation key not found: accessibility.progressBar (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.progressBar: progress bar
+[warning] ❌ Translation key not found: accessibility.previousSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.previousSegment: previous segment
+[warning] ❌ Translation key not found: accessibility.playButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.playButton: play button
+[warning] ❌ Translation key not found: accessibility.nextSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.nextSegment: next segment
+[warning] ❌ Translation key not found: accessibility.muteButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.muteButton: mute button
+[warning] ❌ Translation key not found: accessibility.volumeControl (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.volumeControl: volume control
+[warning] ❌ Translation key not found: accessibility.progressBar (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.progressBar: progress bar
+[warning] ❌ Translation key not found: accessibility.previousSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.previousSegment: previous segment
+[warning] ❌ Translation key not found: accessibility.playButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.playButton: play button
+[warning] ❌ Translation key not found: accessibility.nextSegment (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.nextSegment: next segment
+[warning] ❌ Translation key not found: accessibility.muteButton (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.muteButton: mute button
+[warning] ❌ Translation key not found: accessibility.volumeControl (stopped at: accessibility) {currentLanguage: ko, availableKeys: Array(28), translations: Array(28), path: Array(2)}
+[log] 🔄 Using friendly fallback for accessibility.volumeControl: volume control
+[warning] The resource http://localhost:3000/images/landmarks/statue-of-liberty.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+[warning] The resource http://localhost:3000/images/landmarks/colosseum.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+[warning] The resource http://localhost:3000/images/landmarks/gyeongbokgung.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+[warning] The resource http://localhost:3000/images/landmarks/machu-picchu.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+[warning] The resource http://localhost:3000/images/landmarks/taj-mahal.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+[warning] The resource http://localhost:3000/fonts/pretendard-regular.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+[warning] The resource http://localhost:3000/images/landmarks/eiffel-tower.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+[warning] The resource http://localhost:3000/favicon-32x32.png was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+[warning] The resource https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+[warning] The resource https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hiJ-Ek-_EeA.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+[warning] The resource http://localhost:3000/logo.png was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.

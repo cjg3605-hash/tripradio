@@ -392,7 +392,7 @@ export class LocationAnalyzer {
     const contentAnalysis = guideData ? this.analyzeGuideContent(guideData) : null;
     
     // 3. 챕터 수 결정
-    const chapterCount = this.calculateOptimalChapterCount(bestType, contentAnalysis, locationContext);
+    const chapterCount = this.calculateOptimalChapterCount(locationName, bestType, contentAnalysis, locationContext);
     
     // 4. 최적 페르소나 선택
     const selectedPersonas = this.selectOptimalPersonas(bestType, locationContext);
@@ -473,24 +473,54 @@ export class LocationAnalyzer {
    * 최적 챕터 수 계산
    */
   private static calculateOptimalChapterCount(
+    locationName: string,
     locationType: LocationTypeDefinition,
     contentAnalysis: any,
     locationContext: LocationContext
   ) {
     let baseCount = locationType.avgChapters;
-    
+
+    // 🌍 세계적 명소는 필수 스팟 전부 포함하도록 챕터 수 제한 해제
+    const worldFamousLandmarks = [
+      // 박물관
+      'louvre', 'british museum', 'metropolitan', 'hermitage', 'prado', 'uffizi',
+      'vatican museum', 'rijksmuseum', 'tokyo national museum', '국립중앙박물관',
+      // 궁궐/성
+      'versailles', 'forbidden city', '경복궁', 'buckingham palace', 'alhambra',
+      'schönbrunn', 'topkapi', '창덕궁',
+      // 랜드마크
+      'eiffel tower', 'colosseum', 'sagrada familia', 'taj mahal', 'petra',
+      'machu picchu', 'great wall', 'angkor wat', 'acropolis', 'stonehenge'
+    ];
+
+    // locationName, displayName, city 모두 체크
+    const contextName = (locationContext as any).displayName ||
+                       (locationContext as any).locationName ||
+                       locationContext.city || '';
+    const searchText = `${locationName} ${contextName}`.toLowerCase();
+
+    const isWorldFamous = worldFamousLandmarks.some(landmark =>
+      searchText.includes(landmark)
+    );
+
+    if (isWorldFamous) {
+      console.log(`🌍 세계적 명소 감지: ${locationName} - 챕터 수 제한 해제`);
+      // 세계적 명소는 필수 스팟 전부 포함하도록 높은 상한 설정
+      return 15; // AI가 필수 명소 전부 포함하도록 충분한 수
+    }
+
     // 콘텐츠 복잡도에 따른 조정
     if (contentAnalysis) {
       if (contentAnalysis.complexity === 'high') baseCount += 2;
       else if (contentAnalysis.complexity === 'low') baseCount -= 1;
     }
-    
+
     // 장소 규모에 따른 조정 (대도시는 더 많은 챕터)
     const majorCities = ['Seoul', 'Tokyo', 'New York', 'London', 'Paris', 'Beijing'];
     if (majorCities.includes(locationContext.city || '')) {
       baseCount += 1;
     }
-    
+
     // 범위 내로 제한
     return Math.max(
       locationType.chapterRange[0],

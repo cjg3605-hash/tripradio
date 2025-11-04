@@ -409,7 +409,8 @@ export async function POST(req: NextRequest) {
       audio_url: null,
       file_size_bytes: 0,
       duration_seconds: segment.estimatedSeconds,
-      chapter_index: segment.chapterIndex
+      chapter_index: segment.chapterIndex,
+      chapter_title: segment.chapterTitle || null  // ✅ AI 생성 챕터명 저장
     }));
 
     const batchSize = 20;

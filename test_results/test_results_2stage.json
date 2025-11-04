@@ -1,0 +1,13 @@
+{
+  "location": "오이도",
+  "language": "ko",
+  "url": "http://localhost:3000/podcast/ko/%EC%98%A4%EC%9D%B4%EB%8F%84",
+  "stage1_duration_seconds": 7.481842279434204,
+  "stage2_duration_seconds": 40.59833073616028,
+  "total_duration_seconds": 48.08017301559448,
+  "stage1_complete": true,
+  "api_requests_count": 3,
+  "console_messages_count": 225,
+  "stage1_logs_count": 0,
+  "stage2_logs_count": 2
+}

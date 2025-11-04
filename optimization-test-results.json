@@ -1,0 +1,86 @@
+[
+  {
+    "mode": "unified",
+    "success": true,
+    "performance": {
+      "totalTime": 45022,
+      "apiCallTime": 45018,
+      "extractionTime": 0,
+      "processingTime": 1,
+      "apiCallCount": 1,
+      "timePerChapter": 5002
+    },
+    "chapters": {
+      "count": 9,
+      "successful": 9,
+      "failed": 0,
+      "totalSegments": 82
+    },
+    "output": {
+      "chapterCount": 9,
+      "details": [
+        {
+          "chapterIndex": 0,
+          "title": "롯데월드 소개",
+          "segmentCount": 9,
+          "firstSegment": "안녕하세요! <여행의 맛, 팟캐스트> 진행을 맡은 20년 차 엔터테인먼트 전문가, 호스트입"
+        },
+        {
+          "chapterIndex": 1,
+          "title": "롯데월드 소개",
+          "segmentCount": 9,
+          "firstSegment": "롯데월드에 들어서면 가장 먼저 눈에 띄는 것이 바로 그 규모와 화려함이죠. 실내 테마파크인"
+        },
+        {
+          "chapterIndex": 2,
+          "title": "롯데월드 주요 명소",
+          "segmentCount": 9,
+          "firstSegment": "자, 그럼 이제 롯데월드의 심장부로 들어가 주요 명소들을 하나씩 짚어보겠습니다. 저는 개인"
+        },
+        {
+          "chapterIndex": 3,
+          "title": "롯데월드 역사와 문화",
+          "segmentCount": 9,
+          "firstSegment": "롯데월드는 1989년 개장 이후 30년이 넘는 시간 동안 한국 엔터테인먼트 역사의 중요한 "
+        },
+        {
+          "chapterIndex": 4,
+          "title": "롯데월드 추천 포토스팟",
+          "segmentCount": 9,
+          "firstSegment": "롯데월드만큼 포토 스팟이 많은 곳도 드물 겁니다. 어디서 찍어도 그림 같은 사진이 나오는 "
+        },
+        {
+          "chapterIndex": 5,
+          "title": "롯데월드 방문 정보",
+          "segmentCount": 9,
+          "firstSegment": "롯데월드를 알차게 즐기려면 몇 가지 방문 정보를 미리 알아두는 것이 좋습니다. 개장 시간과"
+        },
+        {
+          "chapterIndex": 6,
+          "title": "롯데월드 음식문화",
+          "segmentCount": 9,
+          "firstSegment": "테마파크를 방문하면 빼놓을 수 없는 즐거움이 바로 음식이죠. 롯데월드 역시 다양한 식음료를"
+        },
+        {
+          "chapterIndex": 7,
+          "title": "롯데월드 쇼핑 & 엔터테인먼트",
+          "segmentCount": 9,
+          "firstSegment": "롯데월드의 진정한 매력은 놀이기구뿐만 아니라 다양한 쇼핑과 엔터테인먼트 시설에도 있습니다."
+        },
+        {
+          "chapterIndex": 999,
+          "title": "마무리와 다음 여행",
+          "segmentCount": 10,
+          "firstSegment": "자, 아쉽지만 이제 롯데월드 탐방을 마무리할 시간입니다. 오늘 롯데월드의 과거와 현재, 그"
+        }
+      ]
+    },
+    "totalTime": 45469
+  },
+  {
+    "mode": "sequential",
+    "success": false,
+    "error": "fetch failed",
+    "totalTime": 305446
+  }
+]

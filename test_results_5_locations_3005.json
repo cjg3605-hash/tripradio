@@ -1,0 +1,221 @@
+{
+  "test_summary": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0,
+    "timestamp": "2025-10-27T17:32:21.155554",
+    "server_url": "http://localhost:3005"
+  },
+  "results": [
+    {
+      "location": "동대문디자인플라자",
+      "slug": "dongdaemun-design-plaza",
+      "timestamp": "2025-10-27T17:32:01.028530",
+      "tests": {
+        "page_navigation": {
+          "status": "✅ PASS",
+          "url": "http://localhost:3005/podcast/ko/dongdaemun-design-plaza"
+        },
+        "button_found": {
+          "status": "✅ PASS",
+          "button_text": "TripRadio.AIAI가 만드는 나만의 여행 오디오가이드서비스여행가이드팟캐스트투어라디오정보개인정보 처리방침이용약관웹사이트연락처support@tripradio.shopprivacy@tripradio.shop© 2025 TripRadio.AI. 모든 권리 보유.🤖 이 콘텐츠는 AI 기반으로 생성되었습니다"
+        },
+        "button_click": {
+          "status": "✅ PASS",
+          "clicked_at": "2025-10-27T17:32:04.410952"
+        },
+        "stage1_completion": {
+          "status": "✅ PASS",
+          "time_seconds": 0.01
+        },
+        "audio_player": {
+          "status": "⚠️ NOT FOUND",
+          "found": false
+        },
+        "chapter_display": {
+          "status": "✅ PASS",
+          "found": true,
+          "chapter_text": "챕터 0: dongdaemun-design-plaza 소개"
+        },
+        "play_button": {
+          "status": "✅ PASS",
+          "found": true
+        },
+        "progress_display": {
+          "status": "✅ PASS",
+          "found": true,
+          "progress": "0%"
+        }
+      },
+      "overall_status": "✅ PASS"
+    },
+    {
+      "location": "보령머드축제",
+      "slug": "boryeong-mud-festival",
+      "timestamp": "2025-10-27T17:32:06.443109",
+      "tests": {
+        "page_navigation": {
+          "status": "✅ PASS",
+          "url": "http://localhost:3005/podcast/ko/boryeong-mud-festival"
+        },
+        "button_found": {
+          "status": "✅ PASS",
+          "button_text": "TripRadio.AIAI가 만드는 나만의 여행 오디오가이드서비스여행가이드팟캐스트투어라디오정보개인정보 처리방침이용약관웹사이트연락처support@tripradio.shopprivacy@tripradio.shop© 2025 TripRadio.AI. 모든 권리 보유.🤖 이 콘텐츠는 AI 기반으로 생성되었습니다"
+        },
+        "button_click": {
+          "status": "✅ PASS",
+          "clicked_at": "2025-10-27T17:32:08.632085"
+        },
+        "stage1_completion": {
+          "status": "✅ PASS",
+          "time_seconds": 0.01
+        },
+        "audio_player": {
+          "status": "⚠️ NOT FOUND",
+          "found": false
+        },
+        "chapter_display": {
+          "status": "✅ PASS",
+          "found": true,
+          "chapter_text": "챕터 0: boryeong-mud-festival 소개"
+        },
+        "play_button": {
+          "status": "✅ PASS",
+          "found": true
+        },
+        "progress_display": {
+          "status": "✅ PASS",
+          "found": true,
+          "progress": "0%"
+        }
+      },
+      "overall_status": "✅ PASS"
+    },
+    {
+      "location": "남이섬",
+      "slug": "nami-island",
+      "timestamp": "2025-10-27T17:32:10.667156",
+      "tests": {
+        "page_navigation": {
+          "status": "✅ PASS",
+          "url": "http://localhost:3005/podcast/ko/nami-island"
+        },
+        "button_found": {
+          "status": "✅ PASS",
+          "button_text": "TripRadio.AIAI가 만드는 나만의 여행 오디오가이드서비스여행가이드팟캐스트투어라디오정보개인정보 처리방침이용약관웹사이트연락처support@tripradio.shopprivacy@tripradio.shop© 2025 TripRadio.AI. 모든 권리 보유.🤖 이 콘텐츠는 AI 기반으로 생성되었습니다"
+        },
+        "button_click": {
+          "status": "✅ PASS",
+          "clicked_at": "2025-10-27T17:32:12.782997"
+        },
+        "stage1_completion": {
+          "status": "✅ PASS",
+          "time_seconds": 0.01
+        },
+        "audio_player": {
+          "status": "⚠️ NOT FOUND",
+          "found": false
+        },
+        "chapter_display": {
+          "status": "✅ PASS",
+          "found": true,
+          "chapter_text": "챕터 0: nami-island 소개"
+        },
+        "play_button": {
+          "status": "✅ PASS",
+          "found": true
+        },
+        "progress_display": {
+          "status": "✅ PASS",
+          "found": true,
+          "progress": "0%"
+        }
+      },
+      "overall_status": "✅ PASS"
+    },
+    {
+      "location": "경주불국사",
+      "slug": "bulguksa-temple",
+      "timestamp": "2025-10-27T17:32:14.819032",
+      "tests": {
+        "page_navigation": {
+          "status": "✅ PASS",
+          "url": "http://localhost:3005/podcast/ko/bulguksa-temple"
+        },
+        "button_found": {
+          "status": "✅ PASS",
+          "button_text": "팟캐스트 생성하기"
+        },
+        "button_click": {
+          "status": "✅ PASS",
+          "clicked_at": "2025-10-27T17:32:16.940303"
+        },
+        "stage1_completion": {
+          "status": "✅ PASS",
+          "time_seconds": 0.01
+        },
+        "audio_player": {
+          "status": "⚠️ NOT FOUND",
+          "found": false
+        },
+        "chapter_display": {
+          "status": "⚠️ NOT FOUND",
+          "found": false,
+          "chapter_text": null
+        },
+        "play_button": {
+          "status": "⚠️ NOT FOUND",
+          "found": false
+        },
+        "progress_display": {
+          "status": "✅ PASS",
+          "found": true,
+          "progress": "0% 완료"
+        }
+      },
+      "overall_status": "✅ PASS"
+    },
+    {
+      "location": "전주한옥마을",
+      "slug": "jeonju-hanok-village",
+      "timestamp": "2025-10-27T17:32:18.972478",
+      "tests": {
+        "page_navigation": {
+          "status": "✅ PASS",
+          "url": "http://localhost:3005/podcast/ko/jeonju-hanok-village"
+        },
+        "button_found": {
+          "status": "✅ PASS",
+          "button_text": "팟캐스트 생성하기"
+        },
+        "button_click": {
+          "status": "✅ PASS",
+          "clicked_at": "2025-10-27T17:32:21.039434"
+        },
+        "stage1_completion": {
+          "status": "✅ PASS",
+          "time_seconds": 0.01
+        },
+        "audio_player": {
+          "status": "⚠️ NOT FOUND",
+          "found": false
+        },
+        "chapter_display": {
+          "status": "⚠️ NOT FOUND",
+          "found": false,
+          "chapter_text": null
+        },
+        "play_button": {
+          "status": "⚠️ NOT FOUND",
+          "found": false
+        },
+        "progress_display": {
+          "status": "✅ PASS",
+          "found": true,
+          "progress": "0% 완료"
+        }
+      },
+      "overall_status": "✅ PASS"
+    }
+  ]
+}

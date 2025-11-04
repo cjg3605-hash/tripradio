@@ -1,0 +1,105 @@
+{
+  "timestamp": "2025-10-26T11:04:21.084Z",
+  "tests": [
+    {
+      "location": "츠라우미 수족관",
+      "version": "v1",
+      "success": true,
+      "totalTime": 177204,
+      "raw": {
+        "success": true,
+        "message": "팟캐스트 스크립트가 성공적으로 생성되었습니다. 재생 버튼을 누르면 오디오가 생성됩니다.",
+        "data": {
+          "episodeId": "episode-1761476664562-53wapdpw6",
+          "status": "script_ready",
+          "locationName": "츠라우미 수족관",
+          "language": "ko",
+          "segmentCount": 106,
+          "estimatedDuration": 1613,
+          "chapterCount": 6,
+          "performance": {
+            "totalTime": "176280ms",
+            "챕터_생성": "173050ms"
+          }
+        }
+      }
+    },
+    {
+      "location": "츠라우미 수족관",
+      "version": "v2",
+      "success": true,
+      "totalTime": 44865,
+      "raw": {
+        "success": true,
+        "message": "팟캐스트 스크립트가 성공적으로 생성되었습니다.",
+        "method": "unified-single-api-call",
+        "data": {
+          "episodeId": "episode-1761476841467-zpcrry2s9",
+          "status": "script_ready",
+          "locationName": "츠라우미 수족관",
+          "language": "ko",
+          "segmentCount": 53,
+          "estimatedDuration": 903,
+          "chapterCount": 6,
+          "performance": {
+            "totalTime": "44093ms",
+            "apiCallTime": "42585ms",
+            "dbOperationTime": "1078ms",
+            "apiCallCount": 1,
+            "timePerChapter": "7098ms"
+          }
+        }
+      }
+    },
+    {
+      "location": "오키나와성",
+      "version": "v1",
+      "success": true,
+      "totalTime": 133227,
+      "raw": {
+        "success": true,
+        "message": "팟캐스트 스크립트가 성공적으로 생성되었습니다. 재생 버튼을 누르면 오디오가 생성됩니다.",
+        "data": {
+          "episodeId": "episode-1761476888566-7qdc6ekh9",
+          "status": "script_ready",
+          "locationName": "오키나와성",
+          "language": "ko",
+          "segmentCount": 67,
+          "estimatedDuration": 1014,
+          "chapterCount": 4,
+          "performance": {
+            "totalTime": "132977ms",
+            "챕터_생성": "131443ms"
+          }
+        }
+      }
+    },
+    {
+      "location": "오키나와성",
+      "version": "v2",
+      "success": true,
+      "totalTime": 38161,
+      "raw": {
+        "success": true,
+        "message": "팟캐스트 스크립트가 성공적으로 생성되었습니다.",
+        "method": "unified-single-api-call",
+        "data": {
+          "episodeId": "episode-1761477022680-w08ah9xrz",
+          "status": "script_ready",
+          "locationName": "오키나와성",
+          "language": "ko",
+          "segmentCount": 31,
+          "estimatedDuration": 571,
+          "chapterCount": 4,
+          "performance": {
+            "totalTime": "38107ms",
+            "apiCallTime": "37446ms",
+            "dbOperationTime": "372ms",
+            "apiCallCount": 1,
+            "timePerChapter": "9362ms"
+          }
+        }
+      }
+    }
+  ]
+}

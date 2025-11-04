@@ -2,6 +2,7 @@
 // architect + analyzer 페르소나 활용
 
 import { LocationAnalyzer, EXPERT_PERSONAS, LocationContext } from './location-analyzer';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export interface ChapterStructure {
   chapterIndex: number;
@@ -88,10 +89,17 @@ export class ChapterGenerator {
     const cityInfo = locationContext.city ? `, ${locationContext.city}` : '';
     const countryInfo = locationContext.country ? `, ${locationContext.country}` : '';
 
+    // ✅ 실제 장소명 사용 우선순위:
+    // 1. locationContext.displayName (API에서 location_names 또는 포맷팅된 이름)
+    // 2. slug를 포맷팅한 이름 (fallback)
+    const displayName = (locationContext as any).displayName || this.formatLocationName(locationName);
+
+    console.log(`📍 Intro 챕터 생성: "${displayName}" (원본: "${locationName}")`);
+
     return {
       chapterIndex: 0,
-      title: `${locationName} 소개`,
-      description: `${locationName}${cityInfo}${countryInfo}에 대한 전반적인 소개와 첫인상`,
+      title: `${displayName} 소개`,
+      description: `${displayName}${cityInfo}${countryInfo}에 대한 전반적인 소개와 첫인상`,
       targetDuration: this.TARGET_CHAPTER_DURATION,
       estimatedSegments: this.SEGMENTS_PER_CHAPTER,
       contentFocus: [
@@ -100,8 +108,19 @@ export class ChapterGenerator {
         '방문자들이 알아야 할 핵심 정보',
         '오늘의 탐방 계획 미리보기'
       ],
-      transitionToNext: `자, 그럼 이제 ${locationName}의 첫 번째 핵심 구역으로 들어가볼까요?`
+      transitionToNext: `자, 그럼 이제 ${displayName}의 첫 번째 핵심 구역으로 들어가볼까요?`
     };
+  }
+
+  /**
+   * slug 형태의 location name을 사람이 읽을 수 있는 형태로 변환
+   * 예: "louvre-museum" → "Louvre Museum"
+   */
+  private static formatLocationName(slug: string): string {
+    return slug
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
 
   /**
@@ -126,12 +145,13 @@ export class ChapterGenerator {
       ));
     } else {
       // AI 기반 자동 챕터 생성
-      chapters.push(...this.generateFromLocationAnalysis(
+      const aiChapters = await this.generateFromLocationAnalysis(
         locationName,
         locationContext,
         locationAnalysis,
         targetChapterCount
-      ));
+      );
+      chapters.push(...aiChapters);
     }
 
     return chapters;
@@ -183,17 +203,17 @@ export class ChapterGenerator {
    * AI 기반 자동 챕터 생성 (가이드 데이터가 없는 경우)
    * 🎯 각 챕터는 실제 장소의 특정 스팟을 대표함
    */
-  private static generateFromLocationAnalysis(
+  private static async generateFromLocationAnalysis(
     locationName: string,
     locationContext: LocationContext,
     locationAnalysis: any,
     targetCount: number
-  ): ChapterStructure[] {
+  ): Promise<ChapterStructure[]> {
     const chapters: ChapterStructure[] = [];
     const locationType = locationAnalysis.locationType;
 
-    // 🎯 장소별 실제 유명 스팟 생성 (AI가 구체적인 장소명을 생성하도록)
-    const specificSpots = this.generateSpecificSpots(locationName, locationType, targetCount);
+    // 🤖 AI 기반 실제 스팟 생성
+    const specificSpots = await this.generateSpecificSpots(locationName, locationType, targetCount);
 
     specificSpots.forEach((spot, index) => {
       chapters.push({
@@ -212,17 +232,183 @@ export class ChapterGenerator {
   }
 
   /**
-   * 🎯 실제 장소별 구체적인 스팟 생성
-   * AI가 프롬프트에서 이 정보를 활용하여 해당 스팟에 대한 대화 생성
+   * 🤖 AI 기반 실제 스팟 생성 (모든 장소 자동 대응)
+   * Gemini가 실제 존재하는 구체적인 스팟들을 자동으로 생성
    */
-  private static generateSpecificSpots(
+  private static async generateSpecificSpots(
     locationName: string,
     locationType: string,
+    count: number
+  ): Promise<Array<{name: string, description: string, contentFocus: string[]}>> {
+    console.log(`🤖 AI 기반 스팟 생성: ${locationName} (${count}개)`);
+
+    try {
+      // Gemini AI 호출
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        console.warn('⚠️ GEMINI_API_KEY 없음, fallback 사용');
+        return this.generateFallbackSpots(locationName, count);
+      }
+
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({
+        model: "gemini-2.0-flash-exp",
+        generationConfig: {
+          temperature: 0.3, // 정확성 우선
+          maxOutputTokens: 2048
+        }
+      });
+
+      const prompt = this.createSpotGenerationPrompt(locationName, locationType, count);
+
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text();
+
+      // JSON 파싱
+      const spots = this.parseSpotResponse(responseText, locationName, count);
+
+      console.log(`✅ AI 스팟 생성 완료: ${spots.length}개`);
+      return spots;
+
+    } catch (error) {
+      console.error('❌ AI 스팟 생성 실패, fallback 사용:', error);
+      return this.generateFallbackSpots(locationName, count);
+    }
+  }
+
+  /**
+   * 🎯 스팟 생성 프롬프트 생성
+   */
+  private static createSpotGenerationPrompt(
+    locationName: string,
+    locationType: string,
+    count: number
+  ): string {
+    return `
+당신은 전세계 관광지 전문가입니다. ${locationName}을 실제 방문하는 관광객이 **절대 빠뜨리면 안 되는 필수 명소**를 모두 포함하여 주요 관광 스팟을 정확하게 식별하세요.
+
+## 🎯 분석 대상: ${locationName}
+## 📍 장소 유형: ${locationType}
+## 🎪 목표: 필수 관람 명소 **전부** 포함 (최대 ${count}개)
+
+## 📋 출력 형식 (정확히 준수):
+다음 JSON 형식으로만 응답하세요:
+
+\`\`\`json
+{
+  "spots": [
+    {
+      "name": "구체적인 스팟명",
+      "description": "간단한 설명 (1-2문장)",
+      "contentFocus": ["볼거리1", "볼거리2", "볼거리3", "볼거리4"]
+    }
+  ]
+}
+\`\`\`
+
+## ⚠️ 중요 지침:
+1. **필수 관람 명소 우선순위**: 세계적으로 유명한 필수 스팟을 빠뜨리지 말 것
+2. **실제 존재하는 스팟만** 언급 (할루시네이션 절대 금지)
+3. **구체적인 장소명** 사용 (예: "Dubai Aquarium", "에펠탑 2층 전망대", "경복궁 근정전")
+4. **추상적 주제 금지** (예: "역사와 문화", "주요 명소" 같은 일반적 제목 사용 금지)
+5. 각 스팟은 ${locationName} 내부의 **실제 방문 가능한 구역/시설**이어야 함
+6. **유명한 장소일수록 더 많은 스팟 포함** (필수 명소를 놓치지 않도록)
+
+## 📊 장소 유형별 예시 (필수 명소 전부 포함):
+
+### 세계적 박물관:
+- **"Louvre Museum"** →
+  1. "Mona Lisa (모나리자)"
+  2. "Venus de Milo (밀로의 비너스)"
+  3. "Winged Victory of Samothrace (사모트라케의 니케)"
+  4. "Egyptian Antiquities (이집트 유물관)"
+  5. "Ancient Greek & Roman Sculptures (그리스/로마 조각관)"
+  6. "Napoleon's Apartments (나폴레옹 아파트)"
+  7. "Crown Jewels of France (프랑스 왕관 보석)"
+  8. "Medieval Louvre Foundations (중세 루브르 성터)"
+  9. "Islamic Art Collection (이슬람 미술관)"
+  10. "French Paintings Gallery (프랑스 회화관 - 들라크루아, 다비드)"
+
+- **"British Museum"** → "Rosetta Stone", "Egyptian Mummies", "Parthenon Sculptures", "Assyrian Lion Hunt", "Lewis Chessmen", etc.
+
+### 궁궐/성:
+- **"경복궁"** → "광화문", "근정전", "경회루", "향원정", "자경전", "강녕전"
+- **"Versailles Palace"** → "Hall of Mirrors", "King's Apartments", "Queen's Apartments", "Royal Chapel", "Royal Opera", "Gardens"
+
+### 쇼핑몰/복합시설:
+- **"Dubai Mall"** → "Dubai Aquarium", "Fashion Avenue", "Dubai Fountain", "VR Park", "Souk", "Ice Rink"
+
+### 테마파크:
+- **"Disneyland"** → "Cinderella Castle", "Space Mountain", "Pirates of Caribbean", "Haunted Mansion", "It's a Small World"
+
+### 타워/랜드마크:
+- **"에펠탑"** → "1층 전망대", "2층 전망대", "정상 전망대", "샹드마르스 공원", "트로카데로 광장"
+
+## 🎯 ${locationName} 필수 명소 생성:
+지금 ${locationName}의 **필수 관람 명소 전부**를 포함하여 실제 스팟을 JSON으로 생성하세요.
+- 세계적으로 유명한 장소라면 빠뜨리면 안 되는 핵심 스팟들을 모두 포함
+- 일반 관광객이 꼭 봐야 할 하이라이트를 우선순위로 배치
+- 최대 ${count}개까지 생성 가능
+    `;
+  }
+
+  /**
+   * 🔍 AI 응답 파싱
+   */
+  private static parseSpotResponse(
+    responseText: string,
+    locationName: string,
+    count: number
+  ): Array<{name: string, description: string, contentFocus: string[]}> {
+    try {
+      // JSON 블록 추출
+      const jsonMatch = responseText.match(/\`\`\`json\s*([\s\S]*?)\`\`\`/) ||
+                        responseText.match(/\{[\s\S]*"spots"[\s\S]*\}/);
+
+      if (!jsonMatch) {
+        throw new Error('JSON 형식을 찾을 수 없음');
+      }
+
+      const jsonText = jsonMatch[1] || jsonMatch[0];
+      const parsed = JSON.parse(jsonText);
+
+      if (!parsed.spots || !Array.isArray(parsed.spots)) {
+        throw new Error('spots 배열이 없음');
+      }
+
+      // 검증 및 필터링
+      const validSpots = parsed.spots
+        .filter((spot: any) =>
+          spot.name &&
+          spot.description &&
+          spot.contentFocus &&
+          Array.isArray(spot.contentFocus) &&
+          spot.contentFocus.length > 0
+        )
+        .slice(0, count);
+
+      if (validSpots.length === 0) {
+        throw new Error('유효한 스팟이 없음');
+      }
+
+      return validSpots;
+
+    } catch (error) {
+      console.error('❌ 스팟 응답 파싱 실패:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 🔄 Fallback: 기본 스팟 생성
+   */
+  private static generateFallbackSpots(
+    locationName: string,
     count: number
   ): Array<{name: string, description: string, contentFocus: string[]}> {
     const spots: Array<{name: string, description: string, contentFocus: string[]}> = [];
 
-    // 장소 이름 기반 스팟 추론
+    // 장소 이름 기반 스팟 추론 (하드코딩, fallback용)
     const lowerName = locationName.toLowerCase();
 
     // 🏛️ 에펠탑 예시
