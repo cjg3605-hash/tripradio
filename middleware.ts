@@ -41,6 +41,23 @@ function detectLanguageFromHeader(acceptLanguageHeader: string): string | null {
 }
 
 export default function middleware(req: ExtendedNextRequest) {
+  // 🔀 도메인 리다이렉트: navidocent.com → tripradio.shop
+  const hostname = req.headers.get('host') || '';
+  if (hostname.includes('navidocent.com')) {
+    const url = req.nextUrl.clone();
+    url.host = 'tripradio.shop';
+    url.protocol = 'https';
+
+    console.log(`🔀 리다이렉트: ${hostname}${url.pathname} → tripradio.shop${url.pathname}`);
+
+    return NextResponse.redirect(url, {
+      status: 301, // Permanent redirect for SEO
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    });
+  }
+
   // 🔍 Accept-Language 헤더 및 지리 정보 획득
   const acceptLanguageHeader = req.headers.get('accept-language') || '';
   const country = req.geo?.country || req.headers.get('x-vercel-ip-country');
