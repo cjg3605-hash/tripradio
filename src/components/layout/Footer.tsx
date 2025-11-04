@@ -103,15 +103,6 @@ export default function Footer() {
           <p>
             &copy; {currentYear} TripRadio.AI. {currentLanguage === 'ko' ? '모든 권리 보유' : 'All rights reserved'}.
           </p>
-
-          {/* AI 공개 배너 */}
-          <div className="mt-4 md:mt-0 text-center">
-            <p className="text-xs text-gray-500 dark:text-gray-500">
-              🤖 {currentLanguage === 'ko'
-                ? '이 콘텐츠는 AI 기반으로 생성되었습니다'
-                : 'This content is AI-generated'}
-            </p>
-          </div>
         </div>
       </div>
     </footer>
