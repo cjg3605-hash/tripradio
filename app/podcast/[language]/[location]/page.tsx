@@ -115,17 +115,17 @@ export default function PremiumPodcastPage() {
     const handleTimeUpdate = () => {
       const currentSegmentTime = audio.currentTime;
       setCurrentTime(currentSegmentTime);
-      
+
       // 전체 경과 시간 계산
       const previousSegmentsTime = episode.segments
         .slice(0, currentSegmentIndex)
         .reduce((total, segment) => total + (isNaN(segment.duration) ? 0 : segment.duration), 0);
-      
+
       // NaN 방지: currentSegmentTime이 유효한 숫자인지 확인
       const validCurrentTime = isNaN(currentSegmentTime) ? 0 : currentSegmentTime;
       setTotalElapsedTime(previousSegmentsTime + validCurrentTime);
     };
-    
+
     const handleEnded = () => {
       if (currentSegmentIndex < episode.segments.length - 1) {
         playNextSegment();
@@ -133,22 +133,98 @@ export default function PremiumPodcastPage() {
         setIsPlaying(false);
       }
     };
-    
+
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
+
+    // 🔧 NEW: 오디오 로드 실패 시 TTS 자동 생성
+    const handleError = async (e: Event) => {
+      const mediaError = audio.error;
+      console.error('❌ 오디오 로드 실패:', {
+        errorCode: mediaError?.code,
+        errorMessage: mediaError?.message,
+        src: audio.src,
+        segmentIndex: currentSegmentIndex
+      });
+
+      // MEDIA_ERR_SRC_NOT_SUPPORTED (code 4) 또는 MEDIA_ERR_NETWORK (code 2)
+      // = 파일이 없거나 네트워크 문제
+      if (mediaError && (mediaError.code === 4 || mediaError.code === 2)) {
+        console.log('🔧 파일 없음 감지 - TTS 자동 생성 트리거');
+
+        setError('🎵 오디오 파일을 생성 중입니다. 잠시만 기다려주세요...');
+        setIsGenerating(true);
+
+        try {
+          const generateResponse = await fetch('/api/tts/notebooklm/generate-audio', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              episodeId: episode.episodeId,
+              language: effectiveLanguage,
+              segments: episode.segments
+            })
+          });
+
+          if (generateResponse.ok) {
+            const result = await generateResponse.json();
+            console.log('✅ TTS 자동 생성 완료:', result.data);
+
+            // episode 업데이트
+            if (result.data && result.data.segments) {
+              setEpisode(prev => {
+                if (!prev) return prev;
+                return {
+                  ...prev,
+                  status: 'completed',
+                  segments: prev.segments.map((seg, idx) => {
+                    const newAudioUrl = result.data.segments[idx]?.audioUrl;
+                    return newAudioUrl ? { ...seg, audioUrl: newAudioUrl } : seg;
+                  })
+                };
+              });
+
+              // 재생 재시도
+              setTimeout(() => {
+                if (audioRef.current && result.data.segments[currentSegmentIndex]?.audioUrl) {
+                  audioRef.current.src = result.data.segments[currentSegmentIndex].audioUrl;
+                  audioRef.current.load();
+                  audioRef.current.play().catch(err => {
+                    console.error('재생 재시도 실패:', err);
+                  });
+                }
+              }, 500);
+            }
+
+            setError(null);
+          } else {
+            const errorData = await generateResponse.json().catch(() => ({}));
+            console.error('❌ TTS 자동 생성 실패:', errorData);
+            setError(`❌ 오디오 생성 실패: ${errorData.error || '서버 오류'}`);
+          }
+        } catch (error) {
+          console.error('❌ TTS 자동 생성 중 오류:', error);
+          setError('❌ 오디오 생성 중 오류가 발생했습니다.');
+        } finally {
+          setIsGenerating(false);
+        }
+      }
+    };
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
+    audio.addEventListener('error', handleError);
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('error', handleError);
     };
-  }, [episode, currentSegmentIndex]);
+  }, [episode, currentSegmentIndex, effectiveLanguage]);
 
   // 에피소드 로드 시 첫 번째 세그먼트 준비
   useEffect(() => {
@@ -357,12 +433,16 @@ export default function PremiumPodcastPage() {
       }
     } catch (error) {
       console.error(`❌ 세그먼트 ${currentSegmentIndex + 1} 재생 실패:`, error);
-      setError(`❌ 재생 실패: 다시 시도해주세요.`);
 
-      // 자동으로 다음 세그먼트로 이동 (선택사항)
-      if (currentSegmentIndex < episode.segments.length - 1) {
-        console.log('🔄 다음 세그먼트로 자동 이동...');
-        setTimeout(() => playNextSegment(), 1000);
+      // 🔧 IMPROVED: NotAllowedError (사용자 상호작용 필요) vs 파일 부재 구분
+      if (error instanceof Error && error.name === 'NotAllowedError') {
+        // 브라우저 자동 재생 정책으로 인한 실패 - 사용자 클릭 필요
+        setError('🔊 재생하려면 버튼을 한 번 더 클릭해주세요.');
+        setIsPlaying(false);
+      } else {
+        // 기타 오류 (파일 부재 등)는 audio.onerror에서 처리됨
+        setError(`❌ 재생 실패: 잠시 후 다시 시도해주세요.`);
+        setIsPlaying(false);
       }
     }
   };
@@ -535,13 +615,23 @@ export default function PremiumPodcastPage() {
           // 스토리지 검증을 먼저 수행하여 폴더 경로 확인
           console.log('🔍 스토리지 무결성 검증 시작...');
           const storageVerification = await verifyStorageIntegrity(result.data, location, language);
-          let audioFolderPath = 'podcasts/louvre-museum'; // 기본값
-          
+
+          // 🔧 FIX: location slug 기반 동적 경로 생성
+          const locationSlug = location
+            .trim()
+            .toLowerCase()
+            .replace(/[\s\-_]+/g, '-')
+            .replace(/[(){}\[\]]/g, '')
+            .replace(/[''"]/g, '')
+            .replace(/[.,;!?]/g, '')
+            .replace(/\s+/g, '-');
+          let audioFolderPath = `podcasts/${locationSlug}`; // 동적 기본값
+
           if (storageVerification.isValid && storageVerification.folderPath) {
             audioFolderPath = storageVerification.folderPath;
             console.log('✅ 스토리지 검증 성공 - 폴더 경로:', audioFolderPath);
           } else {
-            console.warn('⚠️ 스토리지 검증 실패 - 기본 경로 사용:', audioFolderPath);
+            console.warn('⚠️ 스토리지 검증 실패 - 동적 기본 경로 사용:', audioFolderPath);
           }
           
           // 데이터베이스에서 실제 세그먼트 데이터 가져오기
