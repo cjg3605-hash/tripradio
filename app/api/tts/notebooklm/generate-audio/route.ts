@@ -96,20 +96,35 @@ export async function POST(req: NextRequest) {
       console.log(`✅ 배치 TTS 생성 완료: ${result.segmentFiles.length}개 파일`);
 
       // DB 업데이트 - 생성된 오디오 URL들 저장
-      const updatePromises = result.segmentFiles.map((file) =>
-        supabase
-          .from('podcast_segments')
-          .update({
-            audio_url: file.supabaseUrl,
-            duration_seconds: Math.round(file.duration),
-            duration: Math.round(file.duration),
-            file_size_bytes: file.fileSize
-          })
-          .eq('episode_id', episodeId)
-          .eq('sequence_number', file.sequenceNumber)
+      console.log(`📝 DB 업데이트 시작: ${result.segmentFiles.length}개 세그먼트`);
+
+      const updateResults = await Promise.all(
+        result.segmentFiles.map(async (file) => {
+          const { data, error } = await supabase
+            .from('podcast_segments')
+            .update({
+              audio_url: file.supabaseUrl,
+              duration_seconds: Math.round(file.duration),
+              duration: Math.round(file.duration),
+              file_size_bytes: file.fileSize
+            })
+            .eq('episode_id', episodeId)
+            .eq('sequence_number', file.sequenceNumber);
+
+          if (error) {
+            console.error(`❌ 세그먼트 ${file.sequenceNumber} DB 업데이트 실패:`, error);
+            return { success: false, sequenceNumber: file.sequenceNumber, error };
+          }
+
+          console.log(`✅ 세그먼트 ${file.sequenceNumber} DB 업데이트 성공`);
+          return { success: true, sequenceNumber: file.sequenceNumber };
+        })
       );
 
-      await Promise.all(updatePromises);
+      const failedUpdates = updateResults.filter(r => !r.success);
+      if (failedUpdates.length > 0) {
+        console.warn(`⚠️ ${failedUpdates.length}개 세그먼트 DB 업데이트 실패:`, failedUpdates);
+      }
 
       // 에피소드 상태를 completed로 업데이트
       await supabase
