@@ -339,19 +339,18 @@ export default function PremiumPodcastPage() {
 
     const currentSegment = episode.segments[currentSegmentIndex];
 
-    // 🔧 NEW: audio_url이 null인 경우 처리 (script_ready 상태) - TEST 4 해결
+    // 🔧 NEW: audio_url이 null인 경우 처리 - status와 관계없이 TTS 생성
     if (!currentSegment.audioUrl) {
       console.log('🔧 TTS 오디오 파일 생성 필요:', {
         segmentIndex: currentSegmentIndex,
         status: episode.status
       });
 
-      if (episode.status === 'script_ready') {
-        setError('🎵 오디오를 생성 중입니다. 잠시만 기다려주세요...');
-        setIsGenerating(true);
+      setError('🎵 오디오를 생성 중입니다. 잠시만 기다려주세요...');
+      setIsGenerating(true);
 
-        try {
-          console.log('🎵 TTS 생성 API 호출 시작...');
+      try {
+        console.log('🎵 TTS 생성 API 호출 시작...');
           // TTS 생성 API 호출
           const generateResponse = await fetch('/api/tts/notebooklm/generate-audio', {
             method: 'POST',
@@ -400,9 +399,6 @@ export default function PremiumPodcastPage() {
         } finally {
           setIsGenerating(false);
         }
-      } else {
-        setError('⚠️ 오디오 파일을 사용할 수 없습니다.');
-      }
       return;
     }
 
