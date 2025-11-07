@@ -284,16 +284,9 @@ export class SequentialTTSGenerator {
       ...slugInfo
     };
 
-    // 세그먼트 DB 레코드 생성
-    if (result.success && segmentFiles.length > 0) {
-      console.log('📝 세그먼트 DB 레코드 생성 시작...');
-      const dbResult = await this.createSegmentRecords(episodeId, segmentFiles);
-      if (!dbResult.success) {
-        errors.push(`세그먼트 DB 저장 실패: ${dbResult.error}`);
-      } else {
-        console.log(`✅ ${dbResult.insertedCount}개 세그먼트 DB 레코드 생성 완료`);
-      }
-    }
+    // ❌ DB 업데이트는 route.ts에서 SERVICE_ROLE_KEY로 처리
+    // 이유: ANON_KEY로는 RLS 권한 문제 발생
+    console.log('ℹ️ DB 업데이트는 API route에서 처리됨 (SERVICE_ROLE_KEY 필요)');
 
     return result;
   }
